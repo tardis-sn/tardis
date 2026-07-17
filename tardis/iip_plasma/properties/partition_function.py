@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+from numba import njit
 from scipy.optimize import least_squares, root
 
 from tardis.iip_plasma.exceptions import (
@@ -9,7 +10,6 @@ from tardis.iip_plasma.exceptions import (
     PlasmaNLTEExcitationError,
 )
 from tardis.iip_plasma.properties.base import ProcessingPlasmaProperty
-from tardis.opacities.tau_sobolev import calculate_beta_sobolev
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,77 @@ __all__ = [
     "LevelBoltzmannFactorNoNLTE",
     "PartitionFunction",
 ]
+
+
+@njit(error_model="numpy")
+def _calculate_beta_sobolevs_from_selected_lines(
+    level_density_values: np.ndarray,
+    line_indices: np.ndarray,
+    lines_lower_level_index: np.ndarray,
+    lines_upper_level_index: np.ndarray,
+    g_lower: np.ndarray,
+    g_upper: np.ndarray,
+    meta_stable_upper: np.ndarray,
+    nlte_lines_mask: np.ndarray,
+    tau_coefficient: np.ndarray,
+) -> np.ndarray:
+    """Calculate Sobolev escape probabilities for selected lines.
+
+    Parameters
+    ----------
+    level_density_values : numpy.ndarray
+        Level number densities indexed by level position.
+    line_indices : numpy.ndarray
+        Line positions for which beta Sobolev values should be calculated.
+    lines_lower_level_index : numpy.ndarray
+        Level-density positions of the lower line levels.
+    lines_upper_level_index : numpy.ndarray
+        Level-density positions of the upper line levels.
+    g_lower : numpy.ndarray
+        Statistical weights of the lower line levels.
+    g_upper : numpy.ndarray
+        Statistical weights of the upper line levels.
+    meta_stable_upper : numpy.ndarray
+        Boolean mask marking lines with metastable upper levels.
+    nlte_lines_mask : numpy.ndarray
+        Boolean mask marking NLTE lines.
+    tau_coefficient : numpy.ndarray
+        Precomputed multiplicative coefficient for Sobolev optical depth.
+
+    Returns
+    -------
+    numpy.ndarray
+        Beta Sobolev values for ``line_indices``.
+    """
+    beta_sobolev = np.empty(line_indices.shape[0], dtype=np.float64)
+    for i in range(line_indices.shape[0]):
+        line_index = line_indices[i]
+        n_lower = level_density_values[lines_lower_level_index[line_index]]
+        n_upper = level_density_values[lines_upper_level_index[line_index]]
+
+        stimulated_emission_factor = 1 - (
+            g_lower[line_index] * n_upper / (g_upper[line_index] * n_lower)
+        )
+        if (
+            n_lower == 0.0
+            or np.isneginf(stimulated_emission_factor)
+            or (
+                meta_stable_upper[line_index] and stimulated_emission_factor < 0
+            )
+            or (nlte_lines_mask[line_index] and stimulated_emission_factor < 0)
+        ):
+            stimulated_emission_factor = 0.0
+
+        tau_sobolev = (
+            tau_coefficient[line_index] * n_lower * stimulated_emission_factor
+        )
+        if tau_sobolev > 1e3:
+            beta_sobolev[i] = tau_sobolev**-1
+        elif tau_sobolev < 1e-4:
+            beta_sobolev[i] = 1 - 0.5 * tau_sobolev
+        else:
+            beta_sobolev[i] = (1 - np.exp(-tau_sobolev)) / tau_sobolev
+    return beta_sobolev[:, np.newaxis]
 
 
 class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
@@ -167,6 +238,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             self.calculate = self._calculate_with_continuum
         else:
             self.calculate = self._calculate_general
+        self._beta_sobolev_inputs = None
         self._update_inputs()
 
     def _main_nlte_calculation(
@@ -409,6 +481,14 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 alpha_stim1 = alpha_stim.loc[species]
                 coll_ion_coeff1 = coll_ion_coeff.loc[species]
                 coll_recomb_coeff1 = coll_recomb_coeff.loc[species]
+                coll_deexc_coeff_species = coll_deexc_coeff.loc[species]
+                coll_exc_coeff_species = coll_exc_coeff.loc[species]
+                collision_rate_matrices = self._setup_collision_rate_matrices(
+                    coll_exc_coeff_species,
+                    coll_deexc_coeff_species,
+                    no_of_levels,
+                    previous_electron_densities,
+                )
 
             for i in range(len(t_electrons)):
                 if (
@@ -436,15 +516,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     # TODO: setup x outside of loop
                     x = (alpha + coll_recomb * n_e) * n_e  # * next_ion_density
 
-                    coll_deexc_coeff_species = coll_deexc_coeff.loc[species]
-                    coll_exc_coeff_species = coll_exc_coeff.loc[species]
-                    collision_rates = self._setup_collision_rate_matrix(
-                        coll_exc_coeff_species,
-                        coll_deexc_coeff_species,
-                        no_of_levels,
-                        i,
-                        n_e,
-                    )
+                    collision_rates = collision_rate_matrices[:, :, i]
                     rates_matrix[:, :, i] += collision_rates
 
                     # x[0] = 0.
@@ -458,6 +530,14 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     phis = (
                         self.plasma_parent.phi.loc[(species[0],), i].values
                         / n_e
+                    )
+                    level_density_base_values = (
+                        self.plasma_parent.level_number_density[0].to_numpy(
+                            copy=True
+                        )
+                    )
+                    species_level_positions = self._get_species_level_positions(
+                        species
                     )
 
                     args = (
@@ -473,6 +553,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                         gamma_vec,
                         species,
                         phis,
+                        level_density_base_values,
+                        species_level_positions,
                     )
 
                     initial = (
@@ -527,26 +609,23 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         gamma_vec,
         species,
         phis,
+        level_density_base_values,
+        species_level_positions,
     ):
         ion_numbers = self._get_ion_numbers(
             species, phis, number_density, phi_nlte=x[-1]
         )
         level_density_nlte_species = ion_numbers[species[1]] * x[:-1]
-        level_density = pd.DataFrame(
-            self.plasma_parent.level_number_density[0].copy(deep=True)
+        level_density_values = level_density_base_values.copy()
+        level_density_values[species_level_positions] = (
+            level_density_nlte_species
         )
 
-        level_density.loc[species, 0] = level_density_nlte_species
-
-        try:
-            beta_sobolev = self._caculate_beta_sobolevs(level_density)
-        except Exception:
-            import pdb
-
-            pdb.set_trace()
+        beta_sobolev = self._calculate_beta_sobolevs(
+            level_density_values, lines_idx
+        )
         radiative_rates = self._setup_radiative_rates(
             beta_sobolev,
-            lines_idx,
             r_ul_matrix.copy(),
             r_lu_matrix.copy(),
             r_lu_index,
@@ -561,15 +640,17 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         x_tot = -x_vec.sum()
         x_vec[0] = 0.0
 
-        rates_matrix = np.append(rates_matrix, np.expand_dims(x_vec, axis=1), 1)
+        no_of_levels = rates_matrix.shape[0]
+        augmented_rates_matrix = np.empty((no_of_levels + 1, no_of_levels + 1))
+        augmented_rates_matrix[:no_of_levels, :no_of_levels] = rates_matrix
+        augmented_rates_matrix[:no_of_levels, no_of_levels] = x_vec
         # gamma_vec[0] = 0.0
-        rates_matrix = np.append(
-            rates_matrix, [np.hstack([gamma_vec, x_tot])], 0
-        )
-        num_vec = np.zeros(rates_matrix.shape[0])
+        augmented_rates_matrix[no_of_levels, :no_of_levels] = gamma_vec
+        augmented_rates_matrix[no_of_levels, no_of_levels] = x_tot
+        num_vec = np.zeros(no_of_levels + 1)
         num_vec[0] = 1.0
 
-        func = np.dot(rates_matrix, x) - num_vec
+        func = np.dot(augmented_rates_matrix, x) - num_vec
         # jac = np.ones((20,20))
 
         # level_boltzmann_factor = np.linalg.solve(rates_matrix, x_vec)
@@ -592,7 +673,6 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def _setup_radiative_rates(
         self,
         beta_sobolev,
-        lines_idx,
         r_ul_matrix,
         r_lu_matrix,
         r_lu_index,
@@ -606,8 +686,9 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         r_lu_matrix_reshaped = r_lu_matrix.reshape(-1)
 
         # TODO: ? is this the right thing to do
-        r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev[lines_idx].ravel()
-        r_lu_matrix_reshaped[r_lu_index] *= beta_sobolev[lines_idx].ravel()
+        selected_beta_sobolev = beta_sobolev.ravel()
+        r_ul_matrix_reshaped[r_ul_index] *= selected_beta_sobolev
+        r_lu_matrix_reshaped[r_lu_index] *= selected_beta_sobolev
 
         rates_matrix = r_lu_matrix + r_ul_matrix
 
@@ -629,43 +710,113 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
         return rates_matrix
 
-    def _caculate_beta_sobolevs(self, level_number_density):
-        pl = self.plasma_parent
+    def _get_species_level_positions(
+        self, species: tuple[int, int]
+    ) -> np.ndarray:
+        """Return cached level-number-density positions for a species.
 
-        tau_sobolev_calc = self.plasma_parent.plasma_properties_dict[
-            "TauSobolev"
-        ].calculate
-        # beta_sobolev_calc = self.plasma_parent.plasma_properties_dict['BetaSobolev'].calculate
-        stim_emission_factor_calc = self.plasma_parent.plasma_properties_dict[
-            "StimulatedEmissionFactor"
-        ].calculate
+        Parameters
+        ----------
+        species : tuple[int, int]
+            Atomic number and ion number identifying the species.
 
-        stim_emission_factor = stim_emission_factor_calc(
-            pl.g,
-            level_number_density,
-            pl.lines_lower_level_index,
-            pl.lines_upper_level_index,
-            pl.metastability,
-            pl.lines,
+        Returns
+        -------
+        numpy.ndarray
+            Integer positions in the level number density index for the
+            requested species.
+        """
+        if not hasattr(self, "_species_level_positions"):
+            self._species_level_positions = {}
+        if species not in self._species_level_positions:
+            level_index = self.plasma_parent.level_number_density.index
+            self._species_level_positions[species] = np.flatnonzero(
+                (level_index.get_level_values("atomic_number") == species[0])
+                & (level_index.get_level_values("ion_number") == species[1])
+            )
+        return self._species_level_positions[species]
+
+    def _calculate_beta_sobolevs(
+        self,
+        level_density_values: np.ndarray,
+        line_indices: np.ndarray | slice | None = None,
+    ) -> np.ndarray:
+        """Calculate beta Sobolev values from level-density arrays.
+
+        Parameters
+        ----------
+        level_density_values : numpy.ndarray
+            Level number densities aligned with the plasma level index.
+        line_indices : numpy.ndarray or slice or None, optional
+            Line positions to calculate. If None, all lines are calculated.
+
+        Returns
+        -------
+        numpy.ndarray
+            Beta Sobolev values for the requested line positions.
+        """
+        if self._beta_sobolev_inputs is None:
+            pl = self.plasma_parent
+            g_values = pl.g.to_numpy()
+            lines_lower_level_index = pl.lines_lower_level_index
+            lines_upper_level_index = pl.lines_upper_level_index
+            atomic_numbers = pl.lines.index.get_level_values(
+                "atomic_number"
+            ).to_numpy()
+            ion_numbers = pl.lines.index.get_level_values(
+                "ion_number"
+            ).to_numpy()
+            nlte_lines_mask = np.zeros(len(pl.lines), dtype=bool)
+            for atomic_number, ion_number in self.plasma_parent.nlte_species:
+                nlte_lines_mask |= (atomic_numbers == atomic_number) & (
+                    ion_numbers == ion_number
+                )
+            tau_sobolev_property = self.plasma_parent.plasma_properties_dict[
+                "TauSobolev"
+            ]
+            time_explosion = pl.time_explosion
+            if hasattr(time_explosion, "to_value"):
+                time_explosion = time_explosion.to_value("s")
+            self._beta_sobolev_inputs = {
+                "g_lower": g_values[lines_lower_level_index],
+                "g_upper": g_values[lines_upper_level_index],
+                "lines_lower_level_index": lines_lower_level_index,
+                "lines_upper_level_index": lines_upper_level_index,
+                "meta_stable_upper": pl.metastability.to_numpy()[
+                    lines_upper_level_index
+                ],
+                "nlte_lines_mask": nlte_lines_mask,
+                "tau_coefficient": (
+                    tau_sobolev_property.sobolev_coefficient
+                    * pl.f_lu.to_numpy()
+                    * pl.wavelength_cm.to_numpy()
+                    * time_explosion
+                ),
+            }
+        cached_inputs = self._beta_sobolev_inputs
+        if line_indices is None:
+            line_indices = np.arange(len(cached_inputs["tau_coefficient"]))
+        elif isinstance(line_indices, tuple):
+            line_indices = line_indices[0]
+        beta_sobolev = _calculate_beta_sobolevs_from_selected_lines(
+            level_density_values,
+            line_indices,
+            cached_inputs["lines_lower_level_index"],
+            cached_inputs["lines_upper_level_index"],
+            cached_inputs["g_lower"],
+            cached_inputs["g_upper"],
+            cached_inputs["meta_stable_upper"],
+            cached_inputs["nlte_lines_mask"],
+            cached_inputs["tau_coefficient"],
         )
-
-        tau_sobolev = tau_sobolev_calc(
-            pl.lines,
-            level_number_density,
-            pl.lines_lower_level_index,
-            pl.time_explosion,
-            stim_emission_factor,
-            pl.j_blues,
-            pl.f_lu,
-            pl.wavelength_cm,
-        )
-
-        # import ipdb; ipdb.set_trace()
-        beta_sobolev = np.zeros_like(tau_sobolev.values)
-
-        beta_sobolev = calculate_beta_sobolev(tau_sobolev)
-
-        return beta_sobolev.values
+        if np.any(np.isnan(beta_sobolev)) or np.any(
+            np.isinf(np.abs(beta_sobolev))
+        ):
+            raise ValueError(
+                "Some beta_sobolevs are nan, inf, -inf in beta_sobolevs."
+                " Something went wrong!"
+            )
+        return beta_sobolev
 
     @staticmethod
     def _setup_bb_rates(
@@ -694,7 +845,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             dtype=np.float64,
         )
         r_ul_matrix_reshaped = r_ul_matrix.reshape(
-            (number_of_levels**2, len(t_electrons))
+            (
+                number_of_levels**2,
+                len(t_electrons),
+            )
         )
         r_ul_matrix_reshaped[r_ul_index] = (
             A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues[lines_index]
@@ -703,7 +857,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         # r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
         r_lu_matrix = np.zeros_like(r_ul_matrix)
         r_lu_matrix_reshaped = r_lu_matrix.reshape(
-            (number_of_levels**2, len(t_electrons))
+            (
+                number_of_levels**2,
+                len(t_electrons),
+            )
         )
         # r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
         #        j_blues[lines_index] * beta_sobolevs[lines_index]
@@ -745,38 +902,81 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def _setup_collision_rate_matrix(
         self, coll_exc_coeff, coll_deexc_coeff, no_of_levels, shell, n_e
     ):
+        collision_rate_matrices = self._setup_collision_rate_matrices(
+            coll_exc_coeff[[shell]],
+            coll_deexc_coeff[[shell]],
+            no_of_levels,
+            np.array([n_e]),
+        )
+        return collision_rate_matrices[:, :, 0]
+
+    def _setup_collision_rate_matrices(
+        self,
+        coll_exc_coeff,
+        coll_deexc_coeff,
+        no_of_levels,
+        electron_densities,
+    ):
+        """Build collisional rate matrices for all selected shells.
+
+        Parameters
+        ----------
+        coll_exc_coeff : pandas.DataFrame
+            Collisional excitation coefficients indexed by lower and upper
+            level number.
+        coll_deexc_coeff : pandas.DataFrame
+            Collisional de-excitation coefficients indexed by upper and lower
+            level number.
+        no_of_levels : int
+            Number of levels in the species rate-equation system.
+        electron_densities : numpy.ndarray
+            Electron densities for the shells being solved.
+
+        Returns
+        -------
+        numpy.ndarray
+            Collisional rate matrices with shape
+            ``(no_of_levels, no_of_levels, len(electron_densities))``.
+        """
+        electron_densities = np.asarray(electron_densities)
+        coll_deexc_coeff = coll_deexc_coeff.copy(deep=False)
         coll_deexc_coeff.index = coll_deexc_coeff.index.swaplevel(0, 1)
 
         index = list(self._get_rate_index(no_of_levels))
-        coll_excitation_rates = (coll_exc_coeff[shell].reindex(index)).fillna(
-            0
-        ).values.reshape((no_of_levels, no_of_levels)) * n_e
+        coll_excitation_rates = (
+            coll_exc_coeff.reindex(index)
+            .fillna(0)
+            .to_numpy()
+            .reshape((no_of_levels, no_of_levels, len(electron_densities)))
+        )
         coll_deexcitation_rates = (
-            coll_deexc_coeff[shell].reindex(index)
-        ).fillna(0).values.reshape((no_of_levels, no_of_levels)) * n_e
+            coll_deexc_coeff.reindex(index)
+            .fillna(0)
+            .to_numpy()
+            .reshape((no_of_levels, no_of_levels, len(electron_densities)))
+        )
 
-        diag_exc = np.zeros(no_of_levels)
-        diag_deexc = np.zeros(no_of_levels)
-
-        coll_exc_lvl_sum = coll_exc_coeff[shell].groupby(level=0).sum()
-        coll_deexc_lvl_sum = coll_deexc_coeff[shell].groupby(level=0).sum()
-
-        diag_exc[coll_exc_lvl_sum.index.astype(int)] = coll_exc_lvl_sum.values
-        diag_deexc[coll_deexc_lvl_sum.index.astype(int)] = (
+        diagonal = np.zeros((no_of_levels, len(electron_densities)))
+        coll_exc_lvl_sum = coll_exc_coeff.groupby(level=0).sum()
+        coll_deexc_lvl_sum = coll_deexc_coeff.groupby(level=0).sum()
+        diagonal[coll_exc_lvl_sum.index.astype(int)] += coll_exc_lvl_sum.values
+        diagonal[coll_deexc_lvl_sum.index.astype(int)] += (
             coll_deexc_lvl_sum.values
         )
 
-        diag = -np.diag(diag_exc + diag_deexc) * n_e
-
-        collision_rate_matrix = (
-            coll_deexcitation_rates + coll_excitation_rates + diag
-        )
+        collision_rate_matrices = (
+            coll_deexcitation_rates + coll_excitation_rates
+        ) * electron_densities
+        for shell in range(len(electron_densities)):
+            collision_rate_matrices[:, :, shell] -= np.diag(
+                diagonal[:, shell] * electron_densities[shell]
+            )
 
         # x = np.zeros(collision_rate_matrix.shape[0])
         # x[0] = 1
         # collision_rate_matrix[0,:] = 1
         # level_boltzmann_factor = np.linalg.solve(collision_rate_matrix, x)
-        return collision_rate_matrix
+        return collision_rate_matrices
 
     @staticmethod
     def _get_rate_index(no_of_levels):

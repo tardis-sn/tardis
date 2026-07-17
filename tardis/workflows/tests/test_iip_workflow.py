@@ -306,6 +306,7 @@ def test_type_iip_workflow_initial_plasma_regression(
     type_iip_workflow,
     regression_data,
 ):
+    """Compare initial IIP plasma outputs with regression references."""
     for attr in INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS:
         assert_regression_dataframe(
             regression_data,
@@ -646,6 +647,25 @@ def thermal_balance_guess(
     guess[1::2] = plasma_solver.link_t_rad_t_electron
 
     return guess, max_electron_number_density
+
+
+def test_nlte_beta_sobolev_calculation_matches_plasma_property(
+    iip_plasma_after_mc,
+):
+    """Compare optimized NLTE beta Sobolev values with the plasma property."""
+    nlte_property = iip_plasma_after_mc.plasma_properties_dict[
+        "LevelBoltzmannFactorNLTE"
+    ]
+    beta_sobolev = nlte_property._calculate_beta_sobolevs(
+        iip_plasma_after_mc.level_number_density[0].to_numpy()
+    )
+
+    np.testing.assert_allclose(
+        beta_sobolev,
+        iip_plasma_after_mc.beta_sobolev.values[:, [0]],
+        rtol=5e-13,  # AVX-512 tolerance
+        atol=0.0,
+    )
 
 
 def test_thermal_balance_solver(
