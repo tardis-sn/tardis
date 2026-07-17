@@ -59,7 +59,10 @@ def create_absorbing_probs(
 
     internal_mask = metadata.transition_type >= 0
     internal_jump_probs = transition_probabilities[internal_mask]
-    num_states = int(metadata.source_level_idx.max()) + 1
+    # This logic fails if any source blocks are dropped. Previous implementation was
+    # num_states = len(metadata.source.unique()). Not needed right now but will be
+    # needed if we want to do Markov chain reduction for only specific species.
+    num_states = int(metadata.source_level_idx.max()) + 1 
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
     # Josh: The expected steps calculation is another linear algebra solve. We don't need
