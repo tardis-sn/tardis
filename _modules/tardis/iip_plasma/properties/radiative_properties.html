@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=f3e8afa8"></script>
+      <script src="../../../../_static/documentation_options.js?v=a1780a92"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2119,6 +2119,7 @@
 </li>
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
@@ -5063,15 +5064,16 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             meta_stable_upper &amp; (stimulated_emission_factor &lt; 0)
         ] = 0.0
         if self.nlte_species:
-            nlte_lines_mask = (
-                lines.reset_index()
-                .apply(
-                    lambda row: (row.atomic_number, row.ion_number)
-                    in self.nlte_species,
-                    axis=1,
+            atomic_numbers = lines.index.get_level_values(
+                &quot;atomic_number&quot;
+            ).to_numpy()
+            ion_numbers = lines.index.get_level_values(&quot;ion_number&quot;).to_numpy()
+
+            nlte_lines_mask = np.zeros(len(lines), dtype=bool)
+            for atomic_number, ion_number in self.nlte_species:
+                nlte_lines_mask |= (atomic_numbers == atomic_number) &amp; (
+                    ion_numbers == ion_number
                 )
-                .values
-            )
             stimulated_emission_factor[
                 (stimulated_emission_factor &lt; 0)
                 &amp; nlte_lines_mask[np.newaxis, :].T
@@ -5253,7 +5255,10 @@ class TransitionProbabilities(ConvergedPlasmaProperty):
         self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
     ):
         transition_probabilities = np.empty(
-            (self.transition_probability_coef.shape[0], beta_sobolev.shape[1])
+            (
+                self.transition_probability_coef.shape[0],
+                beta_sobolev.shape[1],
+            )
         )
         # trans_old = self.calculate_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
         transition_type = macro_atom_data.transition_type.values
@@ -5450,7 +5455,7 @@ class TauSobolevDeriv(ProcessingPlasmaProperty):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Jul 2026.
+      <span class="lastupdated">Last updated on 17 Jul 2026.
       </span></p>
   </div>
 

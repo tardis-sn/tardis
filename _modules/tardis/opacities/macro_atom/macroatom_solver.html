@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=f3e8afa8"></script>
+      <script src="../../../../_static/documentation_options.js?v=a1780a92"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2119,6 +2119,7 @@
 </li>
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
@@ -5786,6 +5787,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ionization_energies: pd.Series,
         selected_continuum_transitions: np.ndarray = np.array([]),
         line_interaction_type: str = &quot;macroatom&quot;,
+        nthreads: int = 1,
     ) -&gt; None:
         &quot;&quot;&quot;
         Initialize the ContinuumMacroAtomSolver.
@@ -5805,6 +5807,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             If empty, all photoionization transitions are included.
         line_interaction_type
             Type of line interaction to use. Default is &quot;macroatom&quot;.
+        nthreads
+            Maximum number of worker threads for shell-independent opacity
+            calculations.
         &quot;&quot;&quot;
         super().__init__(
             lines=lines,
@@ -5832,6 +5837,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         #     self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
         # )
         self.ionization_energies = ionization_energies
+        self.nthreads = nthreads
 
 <div class="viewcode-block" id="ContinuumMacroAtomSolver.solve">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.solve">[docs]</a>
@@ -6301,7 +6307,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities, macro_atom_transition_metadata
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            max_workers=self.nthreads,
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
@@ -6632,7 +6640,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities, macro_atom_transition_metadata
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            max_workers=self.nthreads,
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
@@ -6826,7 +6836,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Jul 2026.
+      <span class="lastupdated">Last updated on 17 Jul 2026.
       </span></p>
   </div>
 
