@@ -1164,6 +1164,7 @@ class GrotrianWidget:
             self.wavelength_range_selector.disabled = True
             return
 
+        # Compare at the same precision used by the slider to display values
         if f"{min_wavelength:.1e}" == f"{max_wavelength:.1e}":
             self.wavelength_range_selector.visible = True
             self.wavelength_range_selector.disabled = True
