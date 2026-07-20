@@ -1,4 +1,5 @@
 name: publish-docs
+run-name: publish docs · ${{ github.event.workflow_run.display_title }}
 
 on:
   workflow_run:
@@ -8,6 +9,7 @@ on:
 permissions:
   actions: read
   contents: read
+  issues: read
   pull-requests: read
 
 jobs:
@@ -16,94 +18,120 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: gh-pages
-      PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
-      PR_SHA: ${{ github.event.workflow_run.head_sha }}
-      RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
-      - name: Check whether documentation build was requested
-        id: context
+      - name: Get PR number
+        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          draft=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.draft')
-          has_label=false
-          has_docs_changes=false
-
-          if gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels" --paginate --jq '.[].name' | grep -Fxq build-docs; then
-            has_label=true
+          pr_number=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" -f state=open \
+            -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
+            --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
+          if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
+            echo "::error::No unique open pull request matches this source run."
+            exit 1
           fi
+          echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
 
-          if gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files" --paginate --jq '.[].filename' | grep -q '^docs/'; then
-            has_docs_changes=true
-          fi
-
-          if [[ "$draft" == "false" && ( "$has_label" == "true" || "$has_docs_changes" == "true" ) ]]; then
-            echo "should_publish=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_publish=false" >> "$GITHUB_OUTPUT"
-          fi
+      - name: Check whether documentation publishing was requested
+        id: policy
+        uses: actions/github-script@v9
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        with:
+          script: |
+            const pullNumber = Number(process.env.PR_NUMBER);
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber,
+            });
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber,
+              per_page: 100,
+            });
+            const hasLabel = pullRequest.labels.some((label) => label.name === 'build-docs');
+            const hasDocsChanges = files.some((file) => file.filename.startsWith('docs/'));
+            if (pullRequest.draft) {
+              core.notice('Documentation publishing was skipped because the pull request is a draft.');
+            } else if (!hasLabel && !hasDocsChanges) {
+              core.notice('Documentation publishing was skipped because there are no docs changes and no build-docs label.');
+            }
+            core.setOutput(
+              'should-publish',
+              (!pullRequest.draft && (hasLabel || hasDocsChanges)).toString(),
+            );
 
       - name: Download documentation artifact
-        if: github.event.workflow_run.conclusion == 'success' && steps.context.outputs.should_publish == 'true'
+        if: github.event.workflow_run.conclusion == 'success' && steps.policy.outputs.should-publish == 'true'
         uses: actions/download-artifact@v8
         with:
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
           repository: ${{ github.repository }}
-          name: docs-build-${{ env.PR_SHA }}
-          path: docs-artifact
+          name: docs-build-${{ github.event.workflow_run.head_sha }}
+          path: ${{ runner.temp }}/docs-artifact
 
       - name: Deploy documentation
-        if: github.event.workflow_run.conclusion == 'success' && steps.context.outputs.should_publish == 'true'
+        if: github.event.workflow_run.conclusion == 'success' && steps.policy.outputs.should-publish == 'true'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.BOT_TOKEN }}
           publish_branch: ${{ env.DEPLOY_BRANCH }}
-          publish_dir: docs-artifact
-          destination_dir: pull/${{ env.PR_NUMBER }}
+          publish_dir: ${{ runner.temp }}/docs-artifact
+          destination_dir: pull/${{ steps.pr.outputs.number }}
           keep_files: true
           force_orphan: false
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
 
-      - name: Find comment
-        if: steps.context.outputs.should_publish == 'true'
+      - name: Find documentation preview comment
+        if: steps.policy.outputs.should-publish == 'true'
         uses: peter-evans/find-comment@v4
         id: fc
         with:
-          issue-number: ${{ env.PR_NUMBER }}
-          body-includes: Hi, human.
+          issue-number: ${{ steps.pr.outputs.number }}
+          body-includes: The **docs** workflow has
 
       - name: Post comment (success)
-        if: github.event.workflow_run.conclusion == 'success' && steps.context.outputs.should_publish == 'true'
+        if: github.event.workflow_run.conclusion == 'success' && steps.policy.outputs.should-publish == 'true'
         uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ env.PR_NUMBER }}
+          issue-number: ${{ steps.pr.outputs.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
           body: |
+            <!-- tardis:docs-preview -->
             *\*beep\* \*bop\**
 
             Hi, human.
 
             The **docs** workflow has **succeeded** :heavy_check_mark:
 
-            [**Click here**](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ env.PR_NUMBER }}/index.html) to see your results.
+            [View the documentation preview](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ steps.pr.outputs.number }}/index.html).
+
+            Runs: [build and test](${{ github.event.workflow_run.html_url }}) · [publish](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
       - name: Post comment (failure)
-        if: github.event.workflow_run.conclusion != 'success' && steps.context.outputs.should_publish == 'true'
+        if: github.event.workflow_run.conclusion != 'success' && steps.policy.outputs.should-publish == 'true'
         uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ env.PR_NUMBER }}
+          issue-number: ${{ steps.pr.outputs.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
           body: |
+            <!-- tardis:docs-preview -->
             *\*beep\* \*bop\**
 
             Hi, human.
 
             The **docs** workflow has **failed** :x:
 
-            [**Click here**](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ env.RUN_ID }}?check_suite_focus=true) to see the build log.
+            Runs: [build and test](${{ github.event.workflow_run.html_url }}) · [publish](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

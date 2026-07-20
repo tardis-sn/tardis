@@ -173,6 +173,7 @@ jobs:
         if: always()
         with:
           name: asv-benchmark-results-${{ github.event.pull_request.head.sha || github.sha }}
+          include-hidden-files: true
           path: |
             .asv/results
             .asv/html
