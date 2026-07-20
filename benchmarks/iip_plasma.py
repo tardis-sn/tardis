@@ -10,7 +10,7 @@ from tardis.iip_plasma.continuum.base import ContinuumProcess
 from tardis.iip_plasma.properties.continuum import (
     integrate_array_by_level_groups,
 )
-from tardis.plasma.properties.continuum_processes.fast_array_util import (
+from tardis.plasma.array_util import (
     cumulative_integrate_array_by_blocks,
 )
 
