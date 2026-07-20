@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=a5ed822b"></script>
+      <script src="../_static/documentation_options.js?v=07e6b574"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -5015,6 +5015,11 @@ locally before publishing results:</p>
 asv<span class="w"> </span>preview
 </pre></div>
 </div>
+<p>Pull-request benchmark comparisons run in <code class="docutils literal notranslate"><span class="pre">.github/workflows/benchmarks.yml</span></code>
+with the untrusted pull-request code and upload their results as artifacts. The
+separate <code class="docutils literal notranslate"><span class="pre">publish-benchmark-comparison</span></code> workflow publishes generated HTML
+and comments on the pull request after the benchmark workflow completes; PR
+code is not run in that publishing workflow.</p>
 </section>
 </section>
 
