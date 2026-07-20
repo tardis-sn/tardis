@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=07e6b574"></script>
+      <script src="../_static/documentation_options.js?v=431c4472"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4772,7 +4772,11 @@
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Continuous Integration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#explanation-continuous-integration">Explanation: Continuous Integration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#how-to-guide-configure-a-github-actions-workflow">How-To Guide: Configure a GitHub Actions Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-guide-configure-a-github-actions-workflow">How-To Guide: Configure a GitHub Actions Workflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#secure-pull-request-publishing">Secure pull-request publishing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-a-producer-publisher-change">Testing a producer/publisher change</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#reference-continuous-integration-reference">Reference: Continuous Integration Reference</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cache-keys">Cache Keys</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common-pipeline-steps">Common Pipeline Steps</a></li>
@@ -4982,16 +4986,203 @@ pipeline.</p></li>
 <p>For workflows that inspect pull-request code:</p>
 <ol class="arabic simple">
 <li><p>Use <code class="docutils literal notranslate"><span class="pre">pull_request</span></code> and do not expose repository secrets to the job.</p></li>
-<li><p>If the workflow must publish results or post authenticated comments, upload
-the results as artifacts and handle those operations in a separate trusted
-<code class="docutils literal notranslate"><span class="pre">workflow_run</span></code> workflow.</p></li>
+<li><p>If the workflow must publish results or post authenticated comments, follow
+<a class="reference internal" href="#secure-pull-request-publishing"><span class="std std-ref">Secure pull-request publishing</span></a>.</p></li>
 <li><p>Use <code class="docutils literal notranslate"><span class="pre">pull_request_target</span></code> only for checkout-free tasks such as labeling or
-contributor notifications.</p></li>
+contributor notifications, or check out only an explicitly trusted branch.</p></li>
 </ol>
-<p>The <code class="docutils literal notranslate"><span class="pre">docs</span></code>, <code class="docutils literal notranslate"><span class="pre">codestyle</span></code>, <code class="docutils literal notranslate"><span class="pre">mailmap</span></code>, and ORCID workflows use this split
-between unprivileged checks and trusted publishers. The utility workflow keeps
-<code class="docutils literal notranslate"><span class="pre">pull_request_target</span></code> only for its checkout-free label and
-first-contributor actions.</p>
+<section id="secure-pull-request-publishing">
+<span id="id3"></span><h3>Secure pull-request publishing<a class="headerlink" href="#secure-pull-request-publishing" title="Link to this heading"></a></h3>
+<p>TARDIS uses two workflow runs when a pull request needs both untrusted code
+execution and a write operation. This is a security boundary, not merely an
+organizational split:</p>
+<ol class="arabic simple">
+<li><p>The <em>producer</em> uses <code class="docutils literal notranslate"><span class="pre">pull_request</span></code>. It may check out, install, test, or
+build the pull-request code, but it has no repository secrets.</p></li>
+<li><p>The <em>publisher</em> uses <code class="docutils literal notranslate"><span class="pre">workflow_run</span></code>. GitHub loads this workflow from the
+default branch, where it can use a write-capable token. It downloads output
+from the producer’s run ID and SHA-specific artifact, but never checks out or
+executes pull-request code.</p></li>
+</ol>
+<p>Keep artifacts at this boundary data-only. A publisher may copy generated HTML,
+read a text log, or include an image in a comment. It must not run a script,
+action, executable, or package taken from the artifact. See GitHub’s
+<a class="reference external" href="https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target">pull_request_target security guidance</a>
+and the security warning in the
+<a class="reference external" href="https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run">workflow_run documentation</a>.</p>
+<p>GitHub sometimes supplies an empty <code class="docutils literal notranslate"><span class="pre">workflow_run.pull_requests</span></code> array for a
+fork pull request. This cannot be changed by using a different token, so do not
+read the PR number from that array. TARDIS publishers instead use the following
+fail-closed <code class="docutils literal notranslate"><span class="pre">Get</span> <span class="pre">PR</span> <span class="pre">number</span></code> step:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get PR number</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pr</span>
+<span class="w">  </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">GH_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.token }}</span>
+<span class="w">    </span><span class="nt">HEAD_BRANCH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.event.workflow_run.head_branch }}</span>
+<span class="w">    </span><span class="nt">HEAD_OWNER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.event.workflow_run.head_repository.owner.login }}</span>
+<span class="w">    </span><span class="nt">HEAD_SHA</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.event.workflow_run.head_sha }}</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">pr_number=$(gh api --method GET &quot;repos/${GITHUB_REPOSITORY}/pulls&quot; -f state=open \</span>
+<span class="w">      </span><span class="no">-f &quot;head=${HEAD_OWNER}:${HEAD_BRANCH}&quot; \</span>
+<span class="w">      </span><span class="no">--jq &quot;.[] | select(.head.sha == \&quot;${HEAD_SHA}\&quot;) | .number&quot;)</span>
+<span class="w">    </span><span class="no">if [[ ! &quot;${pr_number}&quot; =~ ^[0-9]+$ ]]; then</span>
+<span class="w">      </span><span class="no">echo &quot;::notice::No unique open pull request matches this source run; publishing was skipped.&quot;</span>
+<span class="w">      </span><span class="no">pr_number=</span>
+<span class="w">    </span><span class="no">fi</span>
+<span class="w">    </span><span class="no">echo &quot;number=${pr_number}&quot; &gt;&gt; &quot;${GITHUB_OUTPUT}&quot;</span>
+</pre></div>
+</div>
+<p>The environment variables provide all external input to the shell script:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GH_TOKEN</span></code> is the job’s automatically created <code class="docutils literal notranslate"><span class="pre">github.token</span></code>. The
+GitHub CLI reads this variable when authenticating the API request.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HEAD_OWNER</span></code> and <code class="docutils literal notranslate"><span class="pre">HEAD_BRANCH</span></code> identify the repository owner and branch
+used by the completed producer run. <code class="docutils literal notranslate"><span class="pre">HEAD_OWNER</span></code> is the source repository
+owner, rather than always <code class="docutils literal notranslate"><span class="pre">tardis-sn</span></code>, so this also works for fork pull
+requests.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HEAD_SHA</span></code> is the exact commit tested by the producer run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GITHUB_REPOSITORY</span></code> and <code class="docutils literal notranslate"><span class="pre">GITHUB_OUTPUT</span></code> are default environment variables
+supplied by GitHub. The first contains <code class="docutils literal notranslate"><span class="pre">owner/repository</span></code>; the second names
+the file used to create a step output.</p></li>
+</ul>
+<p>The script then performs these operations:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">api</span> <span class="pre">--method</span> <span class="pre">GET</span></code> calls the repository’s Pull Requests API. Because
+the method is <code class="docutils literal notranslate"><span class="pre">GET</span></code>, the two <code class="docutils literal notranslate"><span class="pre">-f</span></code> values become query parameters.
+<code class="docutils literal notranslate"><span class="pre">state=open</span></code> excludes closed and merged pull requests, while
+<code class="docutils literal notranslate"><span class="pre">head=${HEAD_OWNER}:${HEAD_BRANCH}</span></code> limits the response to the exact source
+repository owner and branch.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--jq</span></code> filter keeps only a pull request whose current head SHA equals
+<code class="docutils literal notranslate"><span class="pre">HEAD_SHA</span></code>, then prints its numeric <code class="docutils literal notranslate"><span class="pre">number</span></code> field. This prevents an old
+producer run from publishing after a newer commit has been pushed.</p></li>
+<li><p>Shell command substitution stores the printed value in <code class="docutils literal notranslate"><span class="pre">pr_number</span></code>. The
+regular expression <code class="docutils literal notranslate"><span class="pre">^[0-9]+$</span></code> accepts exactly one numeric result. No match
+produces an empty value, while multiple matches produce multiple lines; both
+cases fail this check.</p></li>
+<li><p>When the check fails, the script emits a notice and empties <code class="docutils literal notranslate"><span class="pre">pr_number</span></code>.
+The lookup step succeeds, but guarded publishing steps do not run.</p></li>
+<li><p>The final line writes <code class="docutils literal notranslate"><span class="pre">number=&lt;value&gt;</span></code> to <code class="docutils literal notranslate"><span class="pre">GITHUB_OUTPUT</span></code>. Later steps
+read it as <code class="docutils literal notranslate"><span class="pre">steps.pr.outputs.number</span></code> and use
+<code class="docutils literal notranslate"><span class="pre">if:</span> <span class="pre">steps.pr.outputs.number</span> <span class="pre">!=</span> <span class="pre">''</span></code> to run only when it is present.</p></li>
+</ol>
+<p>If the API request itself fails, for example because the token lacks permission,
+the <code class="docutils literal notranslate"><span class="pre">Get</span> <span class="pre">PR</span> <span class="pre">number</span></code> step fails instead of silently skipping publication. The
+publisher job’s top-level condition also ensures this script runs only when the
+producer’s event was <code class="docutils literal notranslate"><span class="pre">pull_request</span></code>. Producer runs started by <code class="docutils literal notranslate"><span class="pre">push</span></code> or
+<code class="docutils literal notranslate"><span class="pre">workflow_dispatch</span></code> create a skipped publisher job and never request a pull
+request number.</p>
+<p>Token responsibilities are deliberately narrow:</p>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Publisher token responsibilities</span><a class="headerlink" href="#id5" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 28.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Token</p></th>
+<th class="head"><p>Required access</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">github.token</span></code> (the per-job <code class="docutils literal notranslate"><span class="pre">GITHUB_TOKEN</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">actions:</span> <span class="pre">read</span></code> and <code class="docutils literal notranslate"><span class="pre">pull-requests:</span> <span class="pre">read</span></code></p></td>
+<td><p>PR lookup and artifact download. Some publishers also grant
+<code class="docutils literal notranslate"><span class="pre">contents:</span> <span class="pre">read</span></code> or <code class="docutils literal notranslate"><span class="pre">issues:</span> <span class="pre">read</span></code> for metadata.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BOT_TOKEN</span></code></p></td>
+<td><p>Write access required by the individual destination</p></td>
+<td><p>Publish previews or benchmark data and create or update the bot comment.
+This token is passed only to the publishing or commenting step and never
+to the producer workflow.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The following pairs use this setup:</p>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">Pull-request producer and publisher workflows</span><a class="headerlink" href="#id6" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 31.0%" />
+<col style="width: 44.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Producer</p></th>
+<th class="head"><p>Publisher</p></th>
+<th class="head"><p>Published result</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">publish-docs</span></code></p></td>
+<td><p>Documentation preview and status comment</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">benchmarks</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">publish-benchmark-comparison</span></code></p></td>
+<td><p>ASV comparison page and result comment</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">compare-regdata</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">publish-regdata-comparison</span></code></p></td>
+<td><p>Regression-data comparison page and comment</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">codestyle</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">publish-codestyle</span></code></p></td>
+<td><p>Ruff output comment</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mailmap</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">publish-mailmap</span></code></p></td>
+<td><p>Failure guidance comment</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">orcid-check</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">publish-orcid</span></code></p></td>
+<td><p>Missing-ORCID guidance comment</p></td>
+</tr>
+</tbody>
+</table>
+<p>GitHub displays the producer and publisher as separate workflow runs. Each
+publisher’s run name includes the pull request title from
+<code class="docutils literal notranslate"><span class="pre">workflow_run.display_title</span></code>, and successful bot comments link the source and
+publisher runs. GitHub does not provide a token setting that turns a
+<code class="docutils literal notranslate"><span class="pre">workflow_run</span></code> run into a child job of the producer or natively attaches it to
+the pull request.</p>
+</section>
+<section id="testing-a-producer-publisher-change">
+<h3>Testing a producer/publisher change<a class="headerlink" href="#testing-a-producer-publisher-change" title="Link to this heading"></a></h3>
+<p>The producer can be tested in the pull request that changes it. The publisher
+is different: GitHub runs the version of a <code class="docutils literal notranslate"><span class="pre">workflow_run</span></code> workflow on the
+default branch. Consequently, an end-to-end publisher test is only meaningful
+after the publisher change is on <code class="docutils literal notranslate"><span class="pre">master</span></code> (or in a temporary test repository
+whose default branch contains the change).</p>
+<p>After the change reaches the default branch:</p>
+<ol class="arabic simple">
+<li><p>Open or update a pull request from a fork. A fork is important because it
+exercises the empty <code class="docutils literal notranslate"><span class="pre">workflow_run.pull_requests</span></code> case.</p></li>
+<li><p>Confirm that the producer workflow checks out and tests the pull-request
+commit successfully.</p></li>
+<li><p>Open the corresponding publisher run. Its title should contain the pull
+request title. The <code class="docutils literal notranslate"><span class="pre">Get</span> <span class="pre">PR</span> <span class="pre">number</span></code> step should identify one current pull
+request and succeed.</p></li>
+<li><p>Confirm that the bot comment links both workflow runs and that any preview
+URL uses the correct pull-request number.</p></li>
+<li><p>Push another commit while an older producer is finishing. The old publisher
+should report that no unique open pull request matches the source run and
+publish nothing; the publisher for the newest SHA should publish normally.</p></li>
+</ol>
+<p>When troubleshooting:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">403</span> <span class="pre">Resource</span> <span class="pre">not</span> <span class="pre">accessible</span> <span class="pre">by</span> <span class="pre">integration</span></code> while looking up a pull request
+usually means <code class="docutils literal notranslate"><span class="pre">pull-requests:</span> <span class="pre">read</span></code> is missing. The same error while
+downloading an artifact usually means <code class="docutils literal notranslate"><span class="pre">actions:</span> <span class="pre">read</span></code> is missing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Artifact</span> <span class="pre">not</span> <span class="pre">found</span></code> means the producer skipped the upload, used a different
+artifact name, or did not finish successfully. Compare the name in the
+producer with the publisher’s name, including the head SHA.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">pull_request_target</span></code> workflows require a separate review. The <code class="docutils literal notranslate"><span class="pre">utility</span></code>
+workflow performs API-only labeling and welcome comments and does not check out
+pull-request code. The <code class="docutils literal notranslate"><span class="pre">release</span></code> and <code class="docutils literal notranslate"><span class="pre">clean-docs</span></code> workflows check out the
+trusted default branch; neither selects <code class="docutils literal notranslate"><span class="pre">github.event.pull_request.head.sha</span></code>.
+Never add a pull-request-head checkout to one of these trusted workflows.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">docs</span></code> workflow in <code class="docutils literal notranslate"><span class="pre">.github/workflows/build-docs.yml</span></code> uses the shared LFS
 cache workflow, restores sparse atomic data, sets up the environment, and builds
 the docs:</p>
@@ -5015,8 +5206,9 @@ the docs:</p>
 </pre></div>
 </div>
 </section>
+</section>
 <section id="reference-continuous-integration-reference">
-<span id="id3"></span><h2>Reference: Continuous Integration Reference<a class="headerlink" href="#reference-continuous-integration-reference" title="Link to this heading"></a></h2>
+<span id="id4"></span><h2>Reference: Continuous Integration Reference<a class="headerlink" href="#reference-continuous-integration-reference" title="Link to this heading"></a></h2>
 <section id="cache-keys">
 <h3>Cache Keys<a class="headerlink" href="#cache-keys" title="Link to this heading"></a></h3>
 <p>Regression data cache key format:</p>
@@ -5210,11 +5402,10 @@ requests, not on <code class="docutils literal notranslate"><span class="pre">ma
 and compares it with <code class="docutils literal notranslate"><span class="pre">master</span></code> using the comparison notebook. The notebook is
 uploaded as an artifact and pushed to the <code class="docutils literal notranslate"><span class="pre">reg-data-comp</span></code> repository for
 previews in the bot comment.</p>
-<p>The comparison is split into two workflows for security. The
-<code class="docutils literal notranslate"><span class="pre">compare-regdata</span></code> workflow runs pull-request code without repository secrets
-and uploads the comparison artifacts. The <code class="docutils literal notranslate"><span class="pre">publish-regdata-comparison</span></code>
-workflow runs after a successful comparison, checks the pull-request label, and
-publishes those artifacts and the bot comment with its trusted credentials.</p>
+<p>The comparison uses the <a class="reference internal" href="#secure-pull-request-publishing"><span class="std std-ref">Secure pull-request publishing</span></a> split.
+<code class="docutils literal notranslate"><span class="pre">compare-regdata</span></code> runs pull-request code without repository secrets and
+uploads the comparison artifacts. <code class="docutils literal notranslate"><span class="pre">publish-regdata-comparison</span></code> then checks
+the pull-request label and publishes the artifacts and bot comment.</p>
 <p>The workflow exports images from the comparison notebook and embeds them in the
 bot comment. Unless there are key changes to HDF files in the regression data,
 the bot shows two images: spectrum change and relative changes in keys. If
