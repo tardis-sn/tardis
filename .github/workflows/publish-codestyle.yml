@@ -1,0 +1,79 @@
+name: publish-codestyle
+
+on:
+  workflow_run:
+    workflows: [codestyle]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
+jobs:
+  publish:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+      PR_SHA: ${{ github.event.workflow_run.head_sha }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
+    steps:
+      - name: Download Ruff results
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
+          name: ruff-results-${{ env.PR_SHA }}
+          path: ruff-results
+
+      - name: Read statistics output
+        id: ruff_stats
+        uses: juliangruber/read-file-action@v1.1.8
+        with:
+          path: ruff-results/ruff_stats.txt
+
+      - name: Read complete output
+        id: ruff_complete
+        uses: juliangruber/read-file-action@v1.1.8
+        with:
+          path: ruff-results/ruff_truncated.txt
+
+      - name: Find comment
+        uses: peter-evans/find-comment@v4
+        id: fc
+        with:
+          issue-number: ${{ env.PR_NUMBER }}
+          body-includes: I ran ruff on the latest commit
+
+      - name: Post comment
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ env.PR_NUMBER }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+            Hi human,
+            I ran ruff on the latest commit (${{ env.PR_SHA }}).
+            Here are the outputs produced.
+            Results can also be downloaded as artifacts [**here**](https://github.com/${{ github.repository }}/actions/runs/${{ env.RUN_ID }}?check_suite_focus=true).
+            Summarised output:
+            <details>
+
+              ```diff
+              ${{ steps.ruff_stats.outputs.content }}
+              ```
+
+            </details>
+
+            Complete output (might be large):
+            <details>
+
+              ```diff
+              ${{ steps.ruff_complete.outputs.content }}
+              ```
+
+            </details>

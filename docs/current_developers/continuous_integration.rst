@@ -71,6 +71,10 @@ HTML as an artifact. The separate ``publish-docs`` workflow publishes that
 artifact and posts the preview comment from a trusted ``workflow_run``; the
 pull-request build does not receive repository secrets.
 
+The ``codestyle`` workflow follows the same pattern: pull-request Ruff output
+is uploaded without secrets, and ``publish-codestyle`` posts the report from a
+trusted ``workflow_run``.
+
 
 .. _reference-continuous-integration-reference:
 
