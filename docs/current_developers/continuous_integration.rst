@@ -66,6 +66,11 @@ the docs:
          - name: Build documentation
            run: cd docs/ && make html NCORES=auto
 
+For pull requests, the build runs from ``pull_request`` and uploads the built
+HTML as an artifact. The separate ``publish-docs`` workflow publishes that
+artifact and posts the preview comment from a trusted ``workflow_run``; the
+pull-request build does not receive repository secrets.
+
 
 .. _reference-continuous-integration-reference:
 
