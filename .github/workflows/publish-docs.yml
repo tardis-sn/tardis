@@ -31,12 +31,13 @@ jobs:
             -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
             --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
           if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
-            echo "::error::No unique open pull request matches this source run."
-            exit 1
+            echo "::notice::No unique open pull request matches this source run; publishing was skipped."
+            pr_number=
           fi
           echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
 
       - name: Check whether documentation publishing was requested
+        if: steps.pr.outputs.number != ''
         id: policy
         uses: actions/github-script@v9
         env:

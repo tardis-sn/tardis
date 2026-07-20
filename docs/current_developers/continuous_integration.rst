@@ -91,8 +91,8 @@ fail-closed ``Get PR number`` step:
          -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
          --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
        if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
-         echo "::error::No unique open pull request matches this source run."
-         exit 1
+         echo "::notice::No unique open pull request matches this source run; publishing was skipped."
+         pr_number=
        fi
        echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
 
@@ -123,12 +123,11 @@ The script then performs these operations:
    regular expression ``^[0-9]+$`` accepts exactly one numeric result. No match
    produces an empty value, while multiple matches produce multiple lines; both
    cases fail this check.
-4. When the check fails, the script emits an error in the workflow log and exits
-   with status 1. The publisher job therefore fails before any artifact download,
-   deployment, or comment can use an empty pull-request number.
+4. When the check fails, the script emits a notice and empties ``pr_number``.
+   The lookup step succeeds, but guarded publishing steps do not run.
 5. The final line writes ``number=<value>`` to ``GITHUB_OUTPUT``. Later steps
-   read it as ``steps.pr.outputs.number``. This line is reached only after the
-   value has passed the numeric-result check.
+   read it as ``steps.pr.outputs.number`` and use
+   ``if: steps.pr.outputs.number != ''`` to run only when it is present.
 
 If the API request itself fails, for example because the token lacks permission,
 the ``Get PR number`` step fails instead of silently skipping publication. The
@@ -212,9 +211,8 @@ After the change reaches the default branch:
 4. Confirm that the bot comment links both workflow runs and that any preview
    URL uses the correct pull-request number.
 5. Push another commit while an older producer is finishing. The old publisher
-   should fail with the error that no unique open pull request matches the source
-   run and publish nothing; the publisher for the newest SHA should publish
-   normally.
+   should report that no unique open pull request matches the source run and
+   publish nothing; the publisher for the newest SHA should publish normally.
 
 When troubleshooting:
 
