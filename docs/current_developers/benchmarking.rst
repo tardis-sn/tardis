@@ -98,3 +98,10 @@ locally before publishing results:
 
    asv run -b time_intensity_black_body
    asv preview
+
+
+Pull-request benchmark comparisons run in ``.github/workflows/benchmarks.yml``
+with the untrusted pull-request code and upload their results as artifacts. The
+separate ``publish-benchmark-comparison`` workflow publishes generated HTML
+and comments on the pull request after the benchmark workflow completes; PR
+code is not run in that publishing workflow.
