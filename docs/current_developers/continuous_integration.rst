@@ -41,6 +41,20 @@ Use common TARDIS setup actions and settings:
         run:
           shell: bash -l {0}
 
+For workflows that inspect pull-request code:
+
+1. Use ``pull_request`` and do not expose repository secrets to the job.
+2. If the workflow must publish results or post authenticated comments, upload
+   the results as artifacts and handle those operations in a separate trusted
+   ``workflow_run`` workflow.
+3. Use ``pull_request_target`` only for checkout-free tasks such as labeling or
+   contributor notifications.
+
+The ``docs``, ``codestyle``, ``mailmap``, and ORCID workflows use this split
+between unprivileged checks and trusted publishers. The utility workflow keeps
+``pull_request_target`` only for its checkout-free label and
+first-contributor actions.
+
 
 The ``docs`` workflow in ``.github/workflows/build-docs.yml`` uses the shared LFS
 cache workflow, restores sparse atomic data, sets up the environment, and builds
@@ -65,16 +79,6 @@ the docs:
            uses: tardis-sn/tardis-actions/setup-env@main
          - name: Build documentation
            run: cd docs/ && make html NCORES=auto
-
-For pull requests, the build runs from ``pull_request`` and uploads the built
-HTML as an artifact. The separate ``publish-docs`` workflow publishes that
-artifact and posts the preview comment from a trusted ``workflow_run``; the
-pull-request build does not receive repository secrets.
-
-The ``codestyle`` workflow follows the same pattern: pull-request Ruff output
-is uploaded without secrets, and ``publish-codestyle`` posts the report from a
-trusted ``workflow_run``.
-
 
 .. _reference-continuous-integration-reference:
 
