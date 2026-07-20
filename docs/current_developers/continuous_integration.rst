@@ -289,6 +289,12 @@ and compares it with ``master`` using the comparison notebook. The notebook is
 uploaded as an artifact and pushed to the ``reg-data-comp`` repository for
 previews in the bot comment.
 
+The comparison is split into two workflows for security. The
+``compare-regdata`` workflow runs pull-request code without repository secrets
+and uploads the comparison artifacts. The ``publish-regdata-comparison``
+workflow runs after a successful comparison, checks the pull-request label, and
+publishes those artifacts and the bot comment with its trusted credentials.
+
 The workflow exports images from the comparison notebook and embeds them in the
 bot comment. Unless there are key changes to HDF files in the regression data,
 the bot shows two images: spectrum change and relative changes in keys. If
