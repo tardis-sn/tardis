@@ -1,4 +1,5 @@
 name: publish-codestyle
+run-name: publish codestyle · ${{ github.event.workflow_run.display_title }}
 
 on:
   workflow_run:
@@ -8,18 +9,39 @@ on:
 permissions:
   actions: read
   contents: read
+  issues: read
   pull-requests: read
 
 jobs:
   publish:
-    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.repository.full_name == github.repository
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.repository.full_name == github.repository
     runs-on: ubuntu-latest
     env:
-      PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
       PR_SHA: ${{ github.event.workflow_run.head_sha }}
-      RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
+      - name: Get PR number
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          pr_number=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" -f state=open \
+            -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
+            --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
+          if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
+            echo "::error::No unique open pull request matches this source run."
+            exit 1
+          fi
+          echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
+
+      - name: Explain skipped comment
+        if: github.event.workflow_run.conclusion != 'success'
+        run: echo "::notice::The codestyle workflow concluded ${{ github.event.workflow_run.conclusion }}; no codestyle comment was posted."
+
       - name: Download Ruff results
+        if: github.event.workflow_run.conclusion == 'success'
         uses: actions/download-artifact@v8
         with:
           github-token: ${{ github.token }}
@@ -29,29 +51,33 @@ jobs:
           path: ruff-results
 
       - name: Read statistics output
+        if: github.event.workflow_run.conclusion == 'success'
         id: ruff_stats
         uses: juliangruber/read-file-action@v1.1.8
         with:
           path: ruff-results/ruff_stats.txt
 
       - name: Read complete output
+        if: github.event.workflow_run.conclusion == 'success'
         id: ruff_complete
         uses: juliangruber/read-file-action@v1.1.8
         with:
           path: ruff-results/ruff_truncated.txt
 
       - name: Find comment
+        if: github.event.workflow_run.conclusion == 'success'
         uses: peter-evans/find-comment@v4
         id: fc
         with:
-          issue-number: ${{ env.PR_NUMBER }}
+          issue-number: ${{ steps.pr.outputs.number }}
           body-includes: I ran ruff on the latest commit
 
       - name: Post comment
+        if: github.event.workflow_run.conclusion == 'success'
         uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ env.PR_NUMBER }}
+          issue-number: ${{ steps.pr.outputs.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
           body: |
@@ -59,7 +85,7 @@ jobs:
             Hi human,
             I ran ruff on the latest commit (${{ env.PR_SHA }}).
             Here are the outputs produced.
-            Results can also be downloaded as artifacts [**here**](https://github.com/${{ github.repository }}/actions/runs/${{ env.RUN_ID }}?check_suite_focus=true).
+            Runs: [Ruff and artifacts](${{ github.event.workflow_run.html_url }}) · [comment publisher](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
             Summarised output:
             <details>
 

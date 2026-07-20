@@ -44,16 +44,192 @@ Use common TARDIS setup actions and settings:
 For workflows that inspect pull-request code:
 
 1. Use ``pull_request`` and do not expose repository secrets to the job.
-2. If the workflow must publish results or post authenticated comments, upload
-   the results as artifacts and handle those operations in a separate trusted
-   ``workflow_run`` workflow.
+2. If the workflow must publish results or post authenticated comments, follow
+   :ref:`secure-pull-request-publishing`.
 3. Use ``pull_request_target`` only for checkout-free tasks such as labeling or
-   contributor notifications.
+   contributor notifications, or check out only an explicitly trusted branch.
 
-The ``docs``, ``codestyle``, ``mailmap``, and ORCID workflows use this split
-between unprivileged checks and trusted publishers. The utility workflow keeps
-``pull_request_target`` only for its checkout-free label and
-first-contributor actions.
+.. _secure-pull-request-publishing:
+
+Secure pull-request publishing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+TARDIS uses two workflow runs when a pull request needs both untrusted code
+execution and a write operation. This is a security boundary, not merely an
+organizational split:
+
+1. The *producer* uses ``pull_request``. It may check out, install, test, or
+   build the pull-request code, but it has no repository secrets.
+2. The *publisher* uses ``workflow_run``. GitHub loads this workflow from the
+   default branch, where it can use a write-capable token. It downloads output
+   from the producer's run ID and SHA-specific artifact, but never checks out or
+   executes pull-request code.
+
+Keep artifacts at this boundary data-only. A publisher may copy generated HTML,
+read a text log, or include an image in a comment. It must not run a script,
+action, executable, or package taken from the artifact. See GitHub's
+`pull_request_target security guidance <https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target>`_
+and the security warning in the
+`workflow_run documentation <https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run>`_.
+
+GitHub sometimes supplies an empty ``workflow_run.pull_requests`` array for a
+fork pull request. This cannot be changed by using a different token, so do not
+read the PR number from that array. TARDIS publishers instead use the following
+fail-closed ``Get PR number`` step:
+
+.. code-block:: yaml
+
+   - name: Get PR number
+     id: pr
+     env:
+       GH_TOKEN: ${{ github.token }}
+       HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+       HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
+       HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+     run: |
+       pr_number=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" -f state=open \
+         -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
+         --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
+       if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
+         echo "::error::No unique open pull request matches this source run."
+         exit 1
+       fi
+       echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
+
+The environment variables provide all external input to the shell script:
+
+- ``GH_TOKEN`` is the job's automatically created ``github.token``. The
+  GitHub CLI reads this variable when authenticating the API request.
+- ``HEAD_OWNER`` and ``HEAD_BRANCH`` identify the repository owner and branch
+  used by the completed producer run. ``HEAD_OWNER`` is the source repository
+  owner, rather than always ``tardis-sn``, so this also works for fork pull
+  requests.
+- ``HEAD_SHA`` is the exact commit tested by the producer run.
+- ``GITHUB_REPOSITORY`` and ``GITHUB_OUTPUT`` are default environment variables
+  supplied by GitHub. The first contains ``owner/repository``; the second names
+  the file used to create a step output.
+
+The script then performs these operations:
+
+1. ``gh api --method GET`` calls the repository's Pull Requests API. Because
+   the method is ``GET``, the two ``-f`` values become query parameters.
+   ``state=open`` excludes closed and merged pull requests, while
+   ``head=${HEAD_OWNER}:${HEAD_BRANCH}`` limits the response to the exact source
+   repository owner and branch.
+2. The ``--jq`` filter keeps only a pull request whose current head SHA equals
+   ``HEAD_SHA``, then prints its numeric ``number`` field. This prevents an old
+   producer run from publishing after a newer commit has been pushed.
+3. Shell command substitution stores the printed value in ``pr_number``. The
+   regular expression ``^[0-9]+$`` accepts exactly one numeric result. No match
+   produces an empty value, while multiple matches produce multiple lines; both
+   cases fail this check.
+4. When the check fails, the script emits an error in the workflow log and exits
+   with status 1. The publisher job therefore fails before any artifact download,
+   deployment, or comment can use an empty pull-request number.
+5. The final line writes ``number=<value>`` to ``GITHUB_OUTPUT``. Later steps
+   read it as ``steps.pr.outputs.number``. This line is reached only after the
+   value has passed the numeric-result check.
+
+If the API request itself fails, for example because the token lacks permission,
+the ``Get PR number`` step fails instead of silently skipping publication. The
+publisher job's top-level condition also ensures this script runs only when the
+producer's event was ``pull_request``. Producer runs started by ``push`` or
+``workflow_dispatch`` create a skipped publisher job and never request a pull
+request number.
+
+Token responsibilities are deliberately narrow:
+
+.. list-table:: Publisher token responsibilities
+   :header-rows: 1
+   :widths: 22 28 50
+
+   * - Token
+     - Required access
+     - Purpose
+   * - ``github.token`` (the per-job ``GITHUB_TOKEN``)
+     - ``actions: read`` and ``pull-requests: read``
+     - PR lookup and artifact download. Some publishers also grant
+       ``contents: read`` or ``issues: read`` for metadata.
+   * - ``BOT_TOKEN``
+     - Write access required by the individual destination
+     - Publish previews or benchmark data and create or update the bot comment.
+       This token is passed only to the publishing or commenting step and never
+       to the producer workflow.
+
+The following pairs use this setup:
+
+.. list-table:: Pull-request producer and publisher workflows
+   :header-rows: 1
+   :widths: 25 31 44
+
+   * - Producer
+     - Publisher
+     - Published result
+   * - ``docs``
+     - ``publish-docs``
+     - Documentation preview and status comment
+   * - ``benchmarks``
+     - ``publish-benchmark-comparison``
+     - ASV comparison page and result comment
+   * - ``compare-regdata``
+     - ``publish-regdata-comparison``
+     - Regression-data comparison page and comment
+   * - ``codestyle``
+     - ``publish-codestyle``
+     - Ruff output comment
+   * - ``mailmap``
+     - ``publish-mailmap``
+     - Failure guidance comment
+   * - ``orcid-check``
+     - ``publish-orcid``
+     - Missing-ORCID guidance comment
+
+GitHub displays the producer and publisher as separate workflow runs. Each
+publisher's run name includes the pull request title from
+``workflow_run.display_title``, and successful bot comments link the source and
+publisher runs. GitHub does not provide a token setting that turns a
+``workflow_run`` run into a child job of the producer or natively attaches it to
+the pull request.
+
+Testing a producer/publisher change
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The producer can be tested in the pull request that changes it. The publisher
+is different: GitHub runs the version of a ``workflow_run`` workflow on the
+default branch. Consequently, an end-to-end publisher test is only meaningful
+after the publisher change is on ``master`` (or in a temporary test repository
+whose default branch contains the change).
+
+After the change reaches the default branch:
+
+1. Open or update a pull request from a fork. A fork is important because it
+   exercises the empty ``workflow_run.pull_requests`` case.
+2. Confirm that the producer workflow checks out and tests the pull-request
+   commit successfully.
+3. Open the corresponding publisher run. Its title should contain the pull
+   request title. The ``Get PR number`` step should identify one current pull
+   request and succeed.
+4. Confirm that the bot comment links both workflow runs and that any preview
+   URL uses the correct pull-request number.
+5. Push another commit while an older producer is finishing. The old publisher
+   should fail with the error that no unique open pull request matches the source
+   run and publish nothing; the publisher for the newest SHA should publish
+   normally.
+
+When troubleshooting:
+
+- ``403 Resource not accessible by integration`` while looking up a pull request
+  usually means ``pull-requests: read`` is missing. The same error while
+  downloading an artifact usually means ``actions: read`` is missing.
+- ``Artifact not found`` means the producer skipped the upload, used a different
+  artifact name, or did not finish successfully. Compare the name in the
+  producer with the publisher's name, including the head SHA.
+
+``pull_request_target`` workflows require a separate review. The ``utility``
+workflow performs API-only labeling and welcome comments and does not check out
+pull-request code. The ``release`` and ``clean-docs`` workflows check out the
+trusted default branch; neither selects ``github.event.pull_request.head.sha``.
+Never add a pull-request-head checkout to one of these trusted workflows.
 
 
 The ``docs`` workflow in ``.github/workflows/build-docs.yml`` uses the shared LFS
@@ -302,11 +478,10 @@ and compares it with ``master`` using the comparison notebook. The notebook is
 uploaded as an artifact and pushed to the ``reg-data-comp`` repository for
 previews in the bot comment.
 
-The comparison is split into two workflows for security. The
-``compare-regdata`` workflow runs pull-request code without repository secrets
-and uploads the comparison artifacts. The ``publish-regdata-comparison``
-workflow runs after a successful comparison, checks the pull-request label, and
-publishes those artifacts and the bot comment with its trusted credentials.
+The comparison uses the :ref:`secure-pull-request-publishing` split.
+``compare-regdata`` runs pull-request code without repository secrets and
+uploads the comparison artifacts. ``publish-regdata-comparison`` then checks
+the pull-request label and publishes the artifacts and bot comment.
 
 The workflow exports images from the comparison notebook and embeds them in the
 bot comment. Unless there are key changes to HDF files in the regression data,
