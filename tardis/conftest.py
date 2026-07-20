@@ -242,6 +242,14 @@ def config_verysimple_for_simulation_one_loop(
     return config
 
 
+@pytest.fixture(scope="module")
+def simulation_one_loop(config_verysimple_for_simulation_one_loop):
+    sim = Simulation.from_config(config_verysimple_for_simulation_one_loop)
+    sim.run_convergence()
+    sim.run_final()
+    return sim
+
+
 @pytest.fixture(scope="function")
 def config_verysimple_hydrogen_only(config_verysimple):
     config = deepcopy(config_verysimple)
@@ -309,6 +317,15 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.last_no_of_packets = 4000
+    sim.run_final()
+    return sim
+
+
+@pytest.fixture(scope="module")
+def simulation_tardis_full(config_verysimple, atomic_dataset):
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    sim.run_convergence()
     sim.run_final()
     return sim
 
