@@ -21,27 +21,18 @@ jobs:
     steps:
       - name: Get PR number
         id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
-          HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
-          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: |
-          pr_number=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" -f state=open \
-            -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
-            --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
-          if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
-            echo "::notice::No unique open pull request matches this source run; publishing was skipped."
-            pr_number=
-          fi
-          echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
+        uses: juliangruber/find-pull-request-action@v1
+        with:
+          github-token: ${{ github.token }}
+          branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+          state: open
 
       - name: Explain skipped comment
-        if: steps.pr.outputs.number != '' && github.event.workflow_run.conclusion != 'success'
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion != 'success'
         run: echo "::notice::The codestyle workflow concluded ${{ github.event.workflow_run.conclusion }}; no codestyle comment was posted."
 
       - name: Download Ruff results
-        if: steps.pr.outputs.number != '' && github.event.workflow_run.conclusion == 'success'
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion == 'success'
         uses: actions/download-artifact@v8
         with:
           github-token: ${{ github.token }}
@@ -51,21 +42,21 @@ jobs:
           path: ruff-results
 
       - name: Read statistics output
-        if: steps.pr.outputs.number != '' && github.event.workflow_run.conclusion == 'success'
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion == 'success'
         id: ruff_stats
         uses: juliangruber/read-file-action@v1.1.8
         with:
           path: ruff-results/ruff_stats.txt
 
       - name: Read complete output
-        if: steps.pr.outputs.number != '' && github.event.workflow_run.conclusion == 'success'
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion == 'success'
         id: ruff_complete
         uses: juliangruber/read-file-action@v1.1.8
         with:
           path: ruff-results/ruff_truncated.txt
 
       - name: Find comment
-        if: steps.pr.outputs.number != '' && github.event.workflow_run.conclusion == 'success'
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion == 'success'
         uses: peter-evans/find-comment@v4
         id: fc
         with:
