@@ -10,6 +10,18 @@ from tardis.plasma.electron_energy_distribution import (
 )
 from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
 from tardis.plasma.equilibrium.rate_matrix import RateMatrix
+from tardis.plasma.equilibrium.rates import (
+    AnalyticCorrectedPhotoionizationCoeffSolver,
+    CollisionalIonizationSeaton,
+    SpontaneousRecombinationCoeffSolver,
+    ThermalCollisionalRateSolver,
+)
+from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
+    BoundFreeThermalRates,
+    CollisionalBoundThermalRates,
+    CollisionalIonizationThermalRates,
+    FreeFreeThermalRates,
+)
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
@@ -462,6 +474,235 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         rtol=4e-8,
         atol=0,
     )
+
+
+def test_equilibrium_outputs_cover_iip_continuum_contract(
+    type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """Compare equilibrium outputs with the IIP workflow boundary."""
+    plasma = type_iip_workflow.plasma_solver
+    base_continuum = type_iip_workflow.base_continuum
+    photoionization_data = base_continuum.input.photoionization_data
+    photoionization_index = photoionization_data.index.unique()
+    upper_ion_index = pd.MultiIndex.from_arrays(
+        [
+            photoionization_index.get_level_values("atomic_number"),
+            photoionization_index.get_level_values("ion_number") + 1,
+        ],
+        names=["atomic_number", "ion_number"],
+    ).unique()
+    radiation_field = DilutePlanckianRadiationField(
+        np.asarray(plasma.t_rad) * u.K,
+        np.asarray(plasma.w),
+    )
+    electron_temperature = np.asarray(plasma.t_electrons) * u.K
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        electron_temperature,
+        plasma.electron_densities.to_numpy() / u.cm**3,
+    )
+
+    radiative_ionization_rate = (
+        AnalyticCorrectedPhotoionizationCoeffSolver(
+            photoionization_data
+        ).solve(
+            radiation_field,
+            electron_temperature,
+            plasma.lte_level_number_density.loc[photoionization_index],
+            plasma.level_number_density.loc[photoionization_index],
+            plasma.lte_ion_number_density.loc[upper_ion_index],
+            plasma.ion_number_density.loc[upper_ion_index],
+        )
+    )
+    pd.testing.assert_index_equal(
+        radiative_ionization_rate.index,
+        base_continuum.radiative_ionization.rate_coefficient.index,
+    )
+    np.testing.assert_allclose(
+        radiative_ionization_rate.to_numpy(),
+        base_continuum.radiative_ionization.rate_coefficient.to_numpy(),
+        rtol=2e-6,
+        atol=0.0,
+    )
+
+    level_to_ion_population_factor = plasma.lte_level_number_density.loc[
+        photoionization_index
+    ].divide(
+        plasma.lte_ion_number_density.loc[upper_ion_index].to_numpy()
+        * plasma.electron_densities.to_numpy(),
+    )
+    radiative_recombination_rate = SpontaneousRecombinationCoeffSolver(
+        photoionization_data
+    ).solve(electron_temperature) * level_to_ion_population_factor
+    pd.testing.assert_index_equal(
+        radiative_recombination_rate.index,
+        base_continuum.radiative_recombination.rate_coefficient.index,
+    )
+    np.testing.assert_allclose(
+        radiative_recombination_rate.to_numpy(),
+        base_continuum.radiative_recombination.rate_coefficient.to_numpy(),
+        rtol=2e-4,
+        atol=0.0,
+    )
+
+    collisional_rates = ThermalCollisionalRateSolver(
+        plasma.atomic_data.levels,
+        plasma.atomic_data.lines,
+        plasma.atomic_data.collision_data_temperatures,
+        plasma.atomic_data.yg_data,
+        collision_strengths_type="cmfgen",
+    ).solve(electron_temperature)
+    source_levels = collisional_rates.index.get_level_values(
+        "level_number_source"
+    )
+    destination_levels = collisional_rates.index.get_level_values(
+        "level_number_destination"
+    )
+    excitation_rates = collisional_rates[source_levels < destination_levels]
+    deexcitation_rates = collisional_rates[source_levels > destination_levels]
+    excitation_index = excitation_rates.index.droplevel(
+        ["ion_number_source", "ion_number_destination"]
+    ).rename(
+        {
+            "level_number_source": "level_number_lower",
+            "level_number_destination": "level_number_upper",
+        }
+    )
+    deexcitation_index = (
+        deexcitation_rates.index.swaplevel(
+            "level_number_source", "level_number_destination"
+        )
+        .droplevel(["ion_number_source", "ion_number_destination"])
+        .rename(
+            {
+                "level_number_destination": "level_number_lower",
+                "level_number_source": "level_number_upper",
+            }
+        )
+    )
+    np.testing.assert_allclose(
+        excitation_rates.to_numpy(),
+        plasma.coll_exc_coeff.loc[excitation_index].to_numpy(),
+        # The standard and IIP implementations use different cgs constant
+        # sources for the complete transition table.
+        rtol=2e-5,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        deexcitation_rates.to_numpy(),
+        plasma.coll_deexc_coeff.loc[deexcitation_index].to_numpy(),
+        rtol=2e-5,
+        atol=0.0,
+    )
+
+    collisional_ionization_rate = CollisionalIonizationSeaton(
+        photoionization_data
+    ).solve(electron_temperature)
+    pd.testing.assert_frame_equal(
+        collisional_ionization_rate,
+        plasma.coll_ion_coeff.loc[collisional_ionization_rate.index],
+        check_names=False,
+        check_column_type=False,
+    )
+    collisional_recombination_rate = (
+        collisional_ionization_rate * level_to_ion_population_factor
+    )
+    np.testing.assert_allclose(
+        collisional_recombination_rate.to_numpy(),
+        plasma.coll_recomb_coeff.loc[
+            collisional_recombination_rate.index
+        ].to_numpy(),
+        rtol=2e-5,
+        atol=0.0,
+    )
+
+    bound_free_cooling = BoundFreeThermalRates(
+        photoionization_data
+    ).solve(
+        plasma.level_number_density,
+        plasma.ion_number_density,
+        electron_distribution,
+        level_to_ion_population_factor,
+        radiation_field,
+    )[1]
+    free_free_cooling = FreeFreeThermalRates().solve(
+        pd.Series(0.0, index=plasma.electron_densities.index),
+        electron_distribution,
+        plasma.ion_number_density,
+    )[1]
+    collisional_ionization_cooling = CollisionalIonizationThermalRates(
+        photoionization_data
+    ).solve(
+        electron_distribution.number_density,
+        plasma.ion_number_density,
+        plasma.level_number_density,
+        collisional_ionization_rate,
+        level_to_ion_population_factor,
+    )[1]
+    collisional_bound_cooling = CollisionalBoundThermalRates(
+        plasma.atomic_data.lines.loc[excitation_index]
+    ).solve(
+        electron_distribution.number_density,
+        deexcitation_rates.set_axis(deexcitation_index),
+        excitation_rates.set_axis(excitation_index),
+        plasma.level_number_density,
+    )[1]
+
+    cooling_rates = base_continuum.cooling_rates
+    equilibrium_cooling_channels = np.vstack(
+        [
+            collisional_bound_cooling.to_numpy(),
+            collisional_ionization_cooling.to_numpy(),
+            bound_free_cooling.to_numpy(),
+            free_free_cooling.to_numpy(),
+        ]
+    )
+    iip_cooling_channels = np.vstack(
+        [
+            cooling_rates.collisional_excitation_total,
+            cooling_rates.collisional_ionization_total,
+            cooling_rates.radiative_recombination_total,
+            cooling_rates.free_free_total,
+        ]
+    )
+    np.testing.assert_allclose(
+        equilibrium_cooling_channels,
+        iip_cooling_channels,
+        # Independent quadrature and cgs-constant paths accumulate their
+        # largest difference in the free-bound cooling channel.
+        rtol=3e-4,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        equilibrium_cooling_channels
+        / equilibrium_cooling_channels.sum(axis=0),
+        np.vstack(
+            [
+                cooling_rates.collisional_excitation_probability,
+                cooling_rates.collisional_ionization_probability,
+                cooling_rates.radiative_recombination_probability,
+                cooling_rates.free_free_probability,
+            ]
+        ),
+        rtol=3e-4,
+        atol=0.0,
+    )
+    for process_name in (
+        "collisional_excitation",
+        "collisional_ionization",
+        "radiative_recombination",
+    ):
+        cooling_channel = getattr(cooling_rates, process_name)
+        assert cooling_channel.probabilities_array.shape == (
+            len(plasma.t_electrons),
+            len(cooling_channel.references),
+        )
+        np.testing.assert_allclose(
+            cooling_channel.probabilities_array.sum(axis=1),
+            1.0,
+            rtol=1e-12,
+            atol=0.0,
+        )
 
 
 @pytest.mark.xfail(
