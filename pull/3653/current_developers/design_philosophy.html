@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=a45ed27e"></script>
+      <script src="../_static/documentation_options.js?v=207936bf"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4798,7 +4798,12 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">TARDIS Design Philosophy</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">TARDIS Design Philosophy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#exception-handling">Exception handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#general-notes">General notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dos-and-don-ts">Dos and Don’ts</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">Documentation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="documentation.html#docstrings">Docstrings</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="documentation.html#reference-docstring-reference">Reference: Docstring Reference</a></li>
@@ -4943,16 +4948,20 @@
              
   <section id="tardis-design-philosophy">
 <h1>TARDIS Design Philosophy<a class="headerlink" href="#tardis-design-philosophy" title="Link to this heading"></a></h1>
+<section id="exception-handling">
+<h2>Exception handling<a class="headerlink" href="#exception-handling" title="Link to this heading"></a></h2>
 <p>As research software, we expect the user to correctly input parameters and respond
 to failures. Thus, we do not want to raise exceptions for every possible edge case,
-as this would make the code unnecessarily verbose and difficult to read.
-Instead, we should only raise exceptions for edge cases that are likely to occur
-and can be easily handled by the user. For example, in the above code snippet,
-it is likely that a user might accidentally pass an
-invalid value to packets_mode, and it is easy for them to fix this error by
-simply passing a valid value. Hence, it is appropriate to raise an exception in this case.
-However, if there is an edge case that is unlikely to occur or cannot be easily
-fixed by the user, then it may be better to simply let the code fail without raising an exception.</p>
+as this would make the code unnecessarily verbose and difficult to read.</p>
+<p>Input validation should raise exceptions only when the input is clearly invalid,
+such as a negative number for a parameter that must be positive. Otherwise, we
+should raise warnings for inputs that may invalidate physical assumptions.</p>
+<p>Only raise exceptions in general when the code is unable to continue with
+computations, not when the result may just be unphysical.
+For example, if tau Sobolevs are nan, inf or -inf, we should raise an exception.</p>
+</section>
+<section id="general-notes">
+<h2>General notes<a class="headerlink" href="#general-notes" title="Link to this heading"></a></h2>
 <p>Constants in TARDIS are taken from Astropy. The <code class="docutils literal notranslate"><span class="pre">tardis.constants</span></code> module
 imports all constants from <code class="docutils literal notranslate"><span class="pre">astropy.constants.astropy13constants</span></code>.</p>
 <p>Class design and inheritance:</p>
@@ -4965,6 +4974,9 @@ imports all constants from <code class="docutils literal notranslate"><span clas
 adding <code class="docutils literal notranslate"><span class="pre">from_config(...)</span></code> or <code class="docutils literal notranslate"><span class="pre">from_csvy(...)</span></code> constructors around an existing
 class. Use a subclass when method behavior changes after construction, such as a
 specialized solver or reader that overrides parsing or calculation methods.</p>
+</section>
+<section id="dos-and-don-ts">
+<h2>Dos and Don’ts<a class="headerlink" href="#dos-and-don-ts" title="Link to this heading"></a></h2>
 <p>Don’t write functions that are used once. It is okay to have a longer function to make
 flow easy to follow.
 Don’t write functions that perform extremely simple tasks, especially if they are
@@ -4976,6 +4988,7 @@ Avoid long if-else chains. Prefer dictionaries or lists.
 Use dependencies that we already have wherever possible. For example, use <code class="docutils literal notranslate"><span class="pre">numpy</span></code> or <code class="docutils literal notranslate"><span class="pre">pandas</span></code> instead of writing your own array manipulation functions.
 Don’t write test helper functions. Use pytest fixtures to access data or states.
 TARDIS does not have a public API. All functions and classes are internal. Methods do not need to be marked private with a leading underscore.</p>
+</section>
 </section>
 
 
@@ -4990,7 +5003,7 @@ TARDIS does not have a public API. All functions and classes are internal. Metho
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Jul 2026.
+      <span class="lastupdated">Last updated on 21 Jul 2026.
       </span></p>
   </div>
 
