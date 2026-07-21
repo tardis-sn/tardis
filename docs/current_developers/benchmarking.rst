@@ -100,8 +100,8 @@ locally before publishing results:
    asv preview
 
 
-Pull-request benchmark comparisons run in ``.github/workflows/benchmarks.yml``
-with the untrusted pull-request code and upload their results as artifacts. The
-separate ``publish-benchmark-comparison`` workflow publishes generated HTML
-and comments on the pull request after the benchmark workflow completes; PR
-code is not run in that publishing workflow.
+Pull-request benchmark comparisons use the
+:ref:`secure-pull-request-publishing` split. ``benchmarks`` runs the untrusted
+pull-request code and uploads its results. ``publish-benchmark-comparison``
+then publishes the generated HTML and comments without running pull-request
+code.

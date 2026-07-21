@@ -1,4 +1,5 @@
 name: publish-mailmap
+run-name: publish mailmap result · ${{ github.event.workflow_run.display_title }}
 
 on:
   workflow_run:
@@ -7,20 +8,37 @@ on:
 
 permissions:
   contents: read
+  issues: read
   pull-requests: read
 
 jobs:
   comment-on-failure:
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.repository.full_name == github.repository
     runs-on: ubuntu-latest
-    env:
-      PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
     steps:
+      - name: Get PR number
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          pr_number=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" -f state=open \
+            -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
+            --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
+          if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
+            echo "::notice::No unique open pull request matches this source run; publishing was skipped."
+            pr_number=
+          fi
+          echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
+
       - name: Create comment
+        if: steps.pr.outputs.number != ''
         uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ env.PR_NUMBER }}
+          issue-number: ${{ steps.pr.outputs.number }}
           body: |
             *\*beep\* \*bop\**
 
@@ -31,3 +49,5 @@ jobs:
             Please add your **name** and **email** to `.mailmap` in your current branch and push the changes to this pull request.
 
             In case you need to map an existing alias, follow [this example](https://docs.enterprise.codescene.io/versions/2.0.0/getting-started/ensure-you-use-a-mailmap.html).
+
+            Runs: [mailmap check](${{ github.event.workflow_run.html_url }}) · [comment publisher](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

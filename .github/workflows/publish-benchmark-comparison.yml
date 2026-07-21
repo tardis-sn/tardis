@@ -1,4 +1,5 @@
 name: publish-benchmark-comparison
+run-name: publish benchmarks · ${{ github.event.workflow_run.display_title }}
 
 on:
   workflow_run:
@@ -8,6 +9,7 @@ on:
 permissions:
   actions: read
   contents: read
+  issues: read
   pull-requests: read
 
 jobs:
@@ -16,11 +18,27 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: main
-      PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
       PR_SHA: ${{ github.event.workflow_run.head_sha }}
-      RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
+      - name: Get PR number
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          pr_number=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" -f state=open \
+            -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
+            --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
+          if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
+            echo "::notice::No unique open pull request matches this source run; publishing was skipped."
+            pr_number=
+          fi
+          echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
+
       - name: Download benchmark artifacts
+        if: steps.pr.outputs.number != ''
         uses: actions/download-artifact@v8
         with:
           github-token: ${{ github.token }}
@@ -30,12 +48,13 @@ jobs:
           path: comparison-artifacts
 
       - name: Check for generated benchmark HTML
+        if: steps.pr.outputs.number != ''
         id: html
         run: |
-          if [ -d comparison-artifacts/.asv/html ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          if [[ -d comparison-artifacts/.asv/html ]]; then
+            echo "enabled=true" >> "${GITHUB_OUTPUT}"
           else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
           fi
 
       - name: Read benchmark output
@@ -59,27 +78,28 @@ jobs:
           personal_token: ${{ secrets.BOT_TOKEN }}
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: comparison-artifacts/.asv/html
-          destination_dir: pull/${{ env.PR_NUMBER }}
+          destination_dir: pull/${{ steps.pr.outputs.number }}
           keep_files: true
           force_orphan: false
           external_repository: tardis-sn/tardis-benchmarks
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
           full_commit_message: |
-            deploy: PR #${{ env.PR_NUMBER }}
+            deploy: PR #${{ steps.pr.outputs.number }}
 
             This is an automated benchmark deploy.
-            Triggered by: pull_request (#${{ env.PR_NUMBER }})
-            PR: https://github.com/${{ github.repository }}/pull/${{ env.PR_NUMBER }}
+            Triggered by: pull_request (#${{ steps.pr.outputs.number }})
+            PR: https://github.com/${{ github.repository }}/pull/${{ steps.pr.outputs.number }}
             PR head commit: https://github.com/${{ github.repository }}/commit/${{ env.PR_SHA }}
-            Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ env.RUN_ID }}
+            Build run: ${{ github.event.workflow_run.html_url }}
+            Publish run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Find comment
         if: steps.html.outputs.enabled == 'true'
         uses: peter-evans/find-comment@v4
         id: fc
         with:
-          issue-number: ${{ env.PR_NUMBER }}
+          issue-number: ${{ steps.pr.outputs.number }}
           body-includes: I ran benchmarks as you asked
 
       - name: Post comment
@@ -87,15 +107,14 @@ jobs:
         uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ env.PR_NUMBER }}
+          issue-number: ${{ steps.pr.outputs.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
           body: |
             *\*beep\* \*bop\**
             Hi human,
             I ran benchmarks as you asked comparing master and the latest commit (${{ env.PR_SHA }}).
-            Here are the logs produced by ASV.
-            Results can also be downloaded as artifacts [**here**](https://github.com/${{ github.repository }}/actions/runs/${{ env.RUN_ID }}?check_suite_focus=true).
+            Results can be downloaded from the [build artifacts](${{ github.event.workflow_run.html_url }}).
 
             Significantly changed benchmarks:
             <details>
@@ -115,4 +134,6 @@ jobs:
 
             </details>
 
-            If you want to see the graph of the results, you can check it [**here**](https://tardis-sn.github.io/tardis-benchmarks/pull/${{ env.PR_NUMBER }})
+            If you want to see the graph of the results, you can check it [**here**](https://tardis-sn.github.io/tardis-benchmarks/pull/${{ steps.pr.outputs.number }}).
+
+            Publish run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
