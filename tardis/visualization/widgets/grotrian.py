@@ -1024,7 +1024,7 @@ class GrotrianWidget:
             name="Ion",
             options=species_list,
             value=species_list[0],
-            width=300,
+            width=250,
         )
         self.plot.set_ion(*species_string_to_tuple(self.ion_selector.value))
         self.ion_selector.param.watch(
@@ -1037,7 +1037,7 @@ class GrotrianWidget:
             name="Shell",
             options=shell_list,
             value="All",
-            width=300,
+            width=250,
         )
         self.shell_selector.param.watch(
             lambda event: self._change_handler(
@@ -1052,7 +1052,7 @@ class GrotrianWidget:
             start=1,
             end=40,
             step=1,
-            width=300,
+            width=250,
         )
         self.max_level_selector.param.watch(
             lambda event: self._change_handler("max_levels", int(event.new)),
@@ -1078,7 +1078,7 @@ class GrotrianWidget:
             step=0.1,
             format=PrintfTickFormatter(format='%0.1e'),
             margin=(5, 10, 5, 65),
-            width= 605,
+            width= 455,
             stylesheets=[
                 "div.noUi-connect {background-color: #3FB8AF !important;}",
                 "[disabled] div.noUi-connect {background-color: #B8B8B8 !important;}",
@@ -1091,7 +1091,7 @@ class GrotrianWidget:
 
         self.plot_pane = pn.pane.Plotly(
             self.plot.display(),
-            width=1000,
+            width=800,
             height=700,
         )
         self._wavelength_resetter()
