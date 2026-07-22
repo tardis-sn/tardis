@@ -16,7 +16,6 @@ from tardis.io.model.parse_simulation_state import (
 )
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
-    ContinuumMacroAtomSolver,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
@@ -29,12 +28,9 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.modes.classic.solver import (
     MCTransportSolverClassic,
-)
-from tardis.transport.montecarlo.configuration import montecarlo_globals
-from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
-    MCContinuumPropertiesSolver,
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
@@ -221,9 +217,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = (
-            not self.plasma.continuum_interaction_species.empty
-        )
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = False
 
     def estimate_t_inner(
         self,
@@ -418,25 +412,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 f"radiative_rates_type type unknown - {self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
             )
 
-        # A check to see if the plasma is set with JBluesDetailed, in which
-        # case it needs some extra kwargs.
-
-        if "gamma" in self.plasma.outputs_dict:
-            continuum_property_solver = MCContinuumPropertiesSolver(
-                self.plasma.atomic_data
-            )
-            estimated_continuum_properties = continuum_property_solver.solve(
-                self.transport.transport_state.estimators_continuum,
-                self.transport.transport_state.time_of_simulation,
-                self.transport.transport_state.geometry_state.volume,
-            )
-            update_properties.update(
-                gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
-                alpha_stim_factor=estimated_continuum_properties.stimulated_recombination_rate_factor,
-                bf_heating_coeff_estimator=self.transport.transport_state.estimators_continuum.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=self.transport.transport_state.estimators_continuum.stim_recomb_cooling_estimator,
-            )
-
         self.plasma.update(**update_properties)
 
         return converged
@@ -452,29 +427,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
-            if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-                self.macro_atom_state = self.macro_atom.solve(
-                    self.plasma.j_blues,
-                    self.opacity_state.beta_sobolev,
-                    self.plasma.stimulated_emission_factor,
-                    self.plasma.gamma_corr,
-                    self.plasma.alpha_sp,
-                    self.plasma.coll_deexc_coeff,
-                    self.plasma.coll_exc_coeff,
-                    self.plasma.coll_ion_coeff,
-                    self.plasma.coll_recomb_coeff,
-                    self.plasma.electron_densities,
-                    self.plasma.delta_E_yg,
-                )
-                self.opacity_state.continuum_state.k_packet_idx = self.macro_atom_state.references_index.iloc[
-                    -1
-                ]  # Hacky way to point to k-packet activation level - continuum state needs to be reexamined
-            else:
-                self.macro_atom_state = self.macro_atom.solve(
-                    self.plasma.j_blues,
-                    self.opacity_state.beta_sobolev,
-                    self.plasma.stimulated_emission_factor,
-                )
+            self.macro_atom_state = self.macro_atom.solve(
+                self.plasma.j_blues,
+                self.opacity_state.beta_sobolev,
+                self.plasma.stimulated_emission_factor,
+            )
 
         transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
@@ -796,20 +753,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 "downbranch",
                 "macroatom",
             ):
-                if config.plasma.continuum_interaction.species:
-                    macro_atom = ContinuumMacroAtomSolver(
-                        atom_data.levels,
-                        atom_data.lines,
-                        atom_data.photoionization_data,
-                        atom_data.ionization_data,
-                        line_interaction_type=config.plasma.line_interaction_type,
-                    )
-                else:
-                    macro_atom = BoundBoundMacroAtomSolver(
-                        atom_data.levels,
-                        atom_data.lines,
-                        line_interaction_type=config.plasma.line_interaction_type,
-                    )
+                macro_atom = BoundBoundMacroAtomSolver(
+                    atom_data.levels,
+                    atom_data.lines,
+                    line_interaction_type=config.plasma.line_interaction_type,
+                )
         convergence_plots_config_options = [
             "plasma_plot_config",
             "t_inner_luminosities_config",

@@ -9,11 +9,9 @@ from scipy.interpolate import PchipInterpolator
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.iip_plasma.continuum.util import get_ion_multi_index
 from tardis.iip_plasma.properties.base import Input, ProcessingPlasmaProperty
-from tardis.plasma.properties.continuum_processes.fast_array_util import (
-    cumulative_integrate_array_by_blocks,
-)
-from tardis.plasma.properties.continuum_processes.rates import (
+from tardis.plasma.array_util import (
     cooling_rate_series2dataframe,
+    cumulative_integrate_array_by_blocks,
     get_ground_state_multi_index,
 )
 from tardis.util.base import intensity_black_body

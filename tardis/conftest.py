@@ -253,14 +253,6 @@ def config_verysimple_hydrogen_only(config_verysimple):
     return config
 
 
-@pytest.fixture(scope="function")
-def tardis_config_verysimple_nlte():
-    return yaml_load_file(
-        "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml",
-        YAMLLoader,
-    )
-
-
 ###
 # HDF Fixtures
 ###

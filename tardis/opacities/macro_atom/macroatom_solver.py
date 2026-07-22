@@ -47,7 +47,7 @@ from tardis.opacities.macro_atom.macroatom_state import (
     LegacyMacroAtomState,
     MacroAtomState,
 )
-from tardis.plasma.properties.continuum_processes.rates import (
+from tardis.plasma.array_util import (
     get_ground_state_multi_index,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType

@@ -2,7 +2,7 @@ from itertools import pairwise
 
 import numpy as np
 
-from tardis.plasma.properties.continuum_processes.fast_array_util import (
+from tardis.plasma.array_util import (
     cumulative_integrate_array_by_blocks,
 )
 
