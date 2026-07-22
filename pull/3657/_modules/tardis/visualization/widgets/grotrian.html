@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=18f5db18"></script>
+      <script src="../../../../_static/documentation_options.js?v=47a422db"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -5995,6 +5995,7 @@ class GrotrianWidget:
             name=&quot;Ion&quot;,
             options=species_list,
             value=species_list[0],
+            width=300,
         )
         self.plot.set_ion(*species_string_to_tuple(self.ion_selector.value))
         self.ion_selector.param.watch(
@@ -6007,6 +6008,7 @@ class GrotrianWidget:
             name=&quot;Shell&quot;,
             options=shell_list,
             value=&quot;All&quot;,
+            width=300,
         )
         self.shell_selector.param.watch(
             lambda event: self._change_handler(
@@ -6021,6 +6023,7 @@ class GrotrianWidget:
             start=1,
             end=40,
             step=1,
+            width=300,
         )
         self.max_level_selector.param.watch(
             lambda event: self._change_handler(&quot;max_levels&quot;, int(event.new)),
@@ -6059,7 +6062,7 @@ class GrotrianWidget:
 
         self.plot_pane = pn.pane.Plotly(
             self.plot.display(),
-            sizing_mode=&quot;stretch_width&quot;,
+            width=1000,
             height=700,
         )
         self._wavelength_resetter()
