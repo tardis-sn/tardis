@@ -1083,10 +1083,8 @@ class CustomAbundanceWidget:
         for i in range(self.no_of_elements):
             self.input_items[i].name = self.data.elements[i]
 
-        self.box_editor[:] = [
-            pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
-            pn.Column(*self.checks),
-        ]
+        self.box_editor[0].append(item)
+        self.box_editor[1].append(check)
 
         with self.fig.batch_update():
             # Add new trace to plot.
