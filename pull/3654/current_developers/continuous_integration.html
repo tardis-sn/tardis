@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=d6d04a22"></script>
+      <script src="../_static/documentation_options.js?v=c788fd9b"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1684,6 +1684,7 @@
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.io.model.artis.html#submodules">Submodules</a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.io.model.artis.data.html">tardis.io.model.artis.data module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData"><code class="docutils literal notranslate"><span class="pre">ArtisData</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.isotope_mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.isotope_mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density"><code class="docutils literal notranslate"><span class="pre">ArtisData.mean_density</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.time_of_model"><code class="docutils literal notranslate"><span class="pre">ArtisData.time_of_model</span></code></a></li>
@@ -1694,9 +1695,12 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.io.model.artis.readers.html">tardis.io.model.artis.readers module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass"><code class="docutils literal notranslate"><span class="pre">parse_artis_structure_to_dataclass()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition"><code class="docutils literal notranslate"><span class="pre">read_artis_composition()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density"><code class="docutils literal notranslate"><span class="pre">read_artis_density()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_mass_fractions"><code class="docutils literal notranslate"><span class="pre">read_artis_mass_fractions()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_model"><code class="docutils literal notranslate"><span class="pre">read_artis_model()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions"><code class="docutils literal notranslate"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2109,6 +2113,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../api/tardis.opacities.macro_atom.html">tardis.opacities.macro_atom package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
@@ -4761,6 +4766,19 @@ pipeline.</p></li>
 </div>
 </li>
 </ol>
+<p>For workflows that inspect pull-request code:</p>
+<ol class="arabic simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">pull_request</span></code> and do not expose repository secrets to the job.</p></li>
+<li><p>If the workflow must publish results or post authenticated comments, upload
+the results as artifacts and handle those operations in a separate trusted
+<code class="docutils literal notranslate"><span class="pre">workflow_run</span></code> workflow.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">pull_request_target</span></code> only for checkout-free tasks such as labeling or
+contributor notifications.</p></li>
+</ol>
+<p>The <code class="docutils literal notranslate"><span class="pre">docs</span></code>, <code class="docutils literal notranslate"><span class="pre">codestyle</span></code>, <code class="docutils literal notranslate"><span class="pre">mailmap</span></code>, and ORCID workflows use this split
+between unprivileged checks and trusted publishers. The utility workflow keeps
+<code class="docutils literal notranslate"><span class="pre">pull_request_target</span></code> only for its checkout-free label and
+first-contributor actions.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">docs</span></code> workflow in <code class="docutils literal notranslate"><span class="pre">.github/workflows/build-docs.yml</span></code> uses the shared LFS
 cache workflow, restores sparse atomic data, sets up the environment, and builds
 the docs:</p>
@@ -4979,6 +4997,11 @@ requests, not on <code class="docutils literal notranslate"><span class="pre">ma
 and compares it with <code class="docutils literal notranslate"><span class="pre">master</span></code> using the comparison notebook. The notebook is
 uploaded as an artifact and pushed to the <code class="docutils literal notranslate"><span class="pre">reg-data-comp</span></code> repository for
 previews in the bot comment.</p>
+<p>The comparison is split into two workflows for security. The
+<code class="docutils literal notranslate"><span class="pre">compare-regdata</span></code> workflow runs pull-request code without repository secrets
+and uploads the comparison artifacts. The <code class="docutils literal notranslate"><span class="pre">publish-regdata-comparison</span></code>
+workflow runs after a successful comparison, checks the pull-request label, and
+publishes those artifacts and the bot comment with its trusted credentials.</p>
 <p>The workflow exports images from the comparison notebook and embeds them in the
 bot comment. Unless there are key changes to HDF files in the regression data,
 the bot shows two images: spectrum change and relative changes in keys. If
@@ -5007,7 +5030,7 @@ unavailable.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jul 2026.
+      <span class="lastupdated">Last updated on 22 Jul 2026.
       </span></p>
   </div>
 

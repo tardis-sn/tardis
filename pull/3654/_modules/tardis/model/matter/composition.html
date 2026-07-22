@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=d6d04a22"></script>
+      <script src="../../../../_static/documentation_options.js?v=c788fd9b"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1681,6 +1681,7 @@
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.io.model.artis.html#submodules">Submodules</a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.io.model.artis.data.html">tardis.io.model.artis.data module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData"><code class="docutils literal notranslate"><span class="pre">ArtisData</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.isotope_mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.isotope_mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density"><code class="docutils literal notranslate"><span class="pre">ArtisData.mean_density</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.time_of_model"><code class="docutils literal notranslate"><span class="pre">ArtisData.time_of_model</span></code></a></li>
@@ -1691,9 +1692,12 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.io.model.artis.readers.html">tardis.io.model.artis.readers module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass"><code class="docutils literal notranslate"><span class="pre">parse_artis_structure_to_dataclass()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition"><code class="docutils literal notranslate"><span class="pre">read_artis_composition()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density"><code class="docutils literal notranslate"><span class="pre">read_artis_density()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_mass_fractions"><code class="docutils literal notranslate"><span class="pre">read_artis_mass_fractions()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_model"><code class="docutils literal notranslate"><span class="pre">read_artis_model()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions"><code class="docutils literal notranslate"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2106,6 +2110,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.html">tardis.opacities.macro_atom package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
@@ -4732,8 +4737,8 @@ import radioactivedecay as rd
 from astropy import units as u
 from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 
-from tardis.model.matter.decay import IsotopicMassFraction
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.model.matter.decay import IsotopicMassFraction
 
 
 <div class="viewcode-block" id="compile_rd_isotope_masses">
@@ -4810,14 +4815,17 @@ class Composition:
 
 <div class="viewcode-block" id="Composition.assemble_isotope_masses">
 <a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.assemble_isotope_masses">[docs]</a>
-    def assemble_isotope_masses(self):
-        isotope_mass_df = pd.Series(
-            index=self.isotopic_mass_fraction.index, data=-1, dtype=&quot;float64&quot;
+    def assemble_isotope_masses(self) -&gt; pd.DataFrame:
+        isotopic_mass_fraction = self.isotopic_mass_fraction
+        isotope_mass_df = pd.DataFrame(
+            index=isotopic_mass_fraction.index,
+            columns=isotopic_mass_fraction.columns,
+            dtype=&quot;float64&quot;,
         )
-        for isotope_tuple in self.isotopic_mass_fraction.index:
+        for isotope_tuple in isotopic_mass_fraction.index:
             isotope_symbol = int(&quot;{:03d}{:03d}0000&quot;.format(*isotope_tuple))
             isotope_mass = rd.Nuclide(isotope_symbol).atomic_mass * u.u.to(u.g)
-            isotope_mass_df[isotope_tuple] = isotope_mass
+            isotope_mass_df.loc[isotope_tuple, :] = isotope_mass
 
         return isotope_mass_df</div>
 
@@ -4895,10 +4903,7 @@ class Composition:
         &quot;&quot;&quot;Isotopic Number Density computed using the formula: (isotopic_mass_fraction * density) / atomic mass&quot;&quot;&quot;
         return (
             self.isotopic_mass_fraction * self.density.to(u.g / u.cm**3).value
-        ).divide(
-            ISOTOPE_MASSES.loc[self.isotopic_mass_fraction.index] * u.u.to(u.g),
-            axis=0,
-        )
+        ).divide(self.isotope_masses, axis=0)
 
 <div class="viewcode-block" id="Composition.calculate_mass_fraction_at_time">
 <a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.calculate_mass_fraction_at_time">[docs]</a>
@@ -4922,10 +4927,9 @@ class Composition:
         &quot;&quot;&quot;
         if self.isotopic_mass_fraction.empty:
             return self.elemental_mass_fraction
-        else:
-            return self.isotopic_mass_fraction.calculate_decayed_mass_fractions(
-                time_explosion
-            )</div>
+        return self.isotopic_mass_fraction.calculate_decayed_mass_fractions(
+            time_explosion
+        )</div>
 
 
 <div class="viewcode-block" id="Composition.calculate_elemental_cell_masses">
@@ -4986,7 +4990,7 @@ class Composition:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jul 2026.
+      <span class="lastupdated">Last updated on 22 Jul 2026.
       </span></p>
   </div>
 

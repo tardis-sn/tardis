@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=d6d04a22"></script>
+      <script src="../_static/documentation_options.js?v=c788fd9b"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1684,6 +1684,7 @@
 <li class="toctree-l9"><a class="reference internal" href="tardis.io.model.artis.html#submodules">Submodules</a><ul>
 <li class="toctree-l10"><a class="reference internal" href="tardis.io.model.artis.data.html">tardis.io.model.artis.data module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData"><code class="docutils literal notranslate"><span class="pre">ArtisData</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.isotope_mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.isotope_mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density"><code class="docutils literal notranslate"><span class="pre">ArtisData.mean_density</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.time_of_model"><code class="docutils literal notranslate"><span class="pre">ArtisData.time_of_model</span></code></a></li>
@@ -1694,9 +1695,12 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.io.model.artis.readers.html">tardis.io.model.artis.readers module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass"><code class="docutils literal notranslate"><span class="pre">parse_artis_structure_to_dataclass()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition"><code class="docutils literal notranslate"><span class="pre">read_artis_composition()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density"><code class="docutils literal notranslate"><span class="pre">read_artis_density()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_mass_fractions"><code class="docutils literal notranslate"><span class="pre">read_artis_mass_fractions()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_model"><code class="docutils literal notranslate"><span class="pre">read_artis_model()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions"><code class="docutils literal notranslate"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2109,6 +2113,7 @@
 <li class="toctree-l6"><a class="reference internal" href="tardis.opacities.macro_atom.html">tardis.opacities.macro_atom package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
@@ -5157,7 +5162,7 @@ to obtain the total rate.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.iip_plasma.properties.continuum.ThermalBalanceTest.heating_function">
-<span class="sig-name descname"><span class="pre">heating_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_electron</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_heating_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bf_heating_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stim_recomb_cooling_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_deexc_heating_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ionization_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_ion_cross_sections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_rad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_t_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_exc_cooling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_deexc_heating</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'detailed'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/iip_plasma/properties/continuum.html#ThermalBalanceTest.heating_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.iip_plasma.properties.continuum.ThermalBalanceTest.heating_function" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">heating_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_electron</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_heating_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bf_heating_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stim_recomb_cooling_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_deexc_heating_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ionization_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_ion_cross_sections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_rad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_t_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_exc_cooling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_deexc_heating</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'detailed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_lucy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/iip_plasma/properties/continuum.html#ThermalBalanceTest.heating_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.iip_plasma.properties.continuum.ThermalBalanceTest.heating_function" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -5233,7 +5238,7 @@ to obtain the total rate.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jul 2026.
+      <span class="lastupdated">Last updated on 22 Jul 2026.
       </span></p>
   </div>
 

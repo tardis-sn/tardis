@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=d6d04a22"></script>
+      <script src="../../../../../_static/documentation_options.js?v=c788fd9b"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1681,6 +1681,7 @@
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.html#submodules">Submodules</a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html">tardis.io.model.artis.data module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData"><code class="docutils literal notranslate"><span class="pre">ArtisData</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.isotope_mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.isotope_mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density"><code class="docutils literal notranslate"><span class="pre">ArtisData.mean_density</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.time_of_model"><code class="docutils literal notranslate"><span class="pre">ArtisData.time_of_model</span></code></a></li>
@@ -1691,9 +1692,12 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html">tardis.io.model.artis.readers module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass"><code class="docutils literal notranslate"><span class="pre">parse_artis_structure_to_dataclass()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition"><code class="docutils literal notranslate"><span class="pre">read_artis_composition()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density"><code class="docutils literal notranslate"><span class="pre">read_artis_density()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_mass_fractions"><code class="docutils literal notranslate"><span class="pre">read_artis_mass_fractions()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_model"><code class="docutils literal notranslate"><span class="pre">read_artis_model()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions"><code class="docutils literal notranslate"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2106,6 +2110,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.html">tardis.opacities.macro_atom package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
@@ -4726,8 +4731,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.io.model.artis.readers</h1><div class="highlight"><pre>
-<span></span>
-from pathlib import Path
+<span></span>from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -4735,33 +4739,157 @@ from astropy import units as u
 
 from tardis.io.model.artis.data import ArtisData
 
+ARTIS_MODEL_COLUMNS = (
+    &quot;cell_index&quot;,
+    &quot;velocities&quot;,
+    &quot;mean_densities_0&quot;,
+    &quot;ni56_mass_fraction&quot;,
+    &quot;co56_mass_fraction&quot;,
+    &quot;fe52_mass_fraction&quot;,
+    &quot;cr48_mass_fraction&quot;,
+)
+ARTIS_ISOTOPES = {
+    &quot;ni56_mass_fraction&quot;: (28, 56),
+    &quot;co56_mass_fraction&quot;: (27, 56),
+    &quot;fe52_mass_fraction&quot;: (26, 52),
+    &quot;cr48_mass_fraction&quot;: (24, 48),
+}
+
+
+<div class="viewcode-block" id="remove_explicit_isotopes_from_elemental_mass_fractions">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions">[docs]</a>
+def remove_explicit_isotopes_from_elemental_mass_fractions(
+    elemental_mass_fractions: pd.DataFrame,
+    isotope_mass_fractions: pd.DataFrame,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;Remove explicitly tracked ARTIS isotopes from elemental totals.
+
+    ARTIS abundance files contain total elemental mass fractions, while the
+    corresponding structure files separately identify selected isotopes. This
+    function subtracts those isotope fractions from their elemental totals so
+    that each nuclide is represented exactly once in the TARDIS composition.
+
+    Parameters
+    ----------
+    elemental_mass_fractions : pandas.DataFrame
+        Total elemental mass fractions. Rows are indexed by atomic number and
+        columns correspond to model cells.
+    isotope_mass_fractions : pandas.DataFrame
+        Explicit isotope mass fractions. Rows use a ``(atomic_number,
+        mass_number)`` MultiIndex and columns correspond to model cells.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Residual elemental mass fractions with explicit isotope contributions
+        removed. The index and columns follow ``elemental_mass_fractions``.
+
+    Notes
+    -----
+    Isotope fractions are summed by atomic number before subtraction. Negative
+    residuals no larger than machine precision are treated as floating-point
+    roundoff and replaced with zero. Larger negative values are preserved for
+    downstream composition validation.
+    &quot;&quot;&quot;
+    isotope_element_mass_fractions = isotope_mass_fractions.groupby(
+        level=&quot;atomic_number&quot;
+    ).sum()
+    residual_elemental_mass_fractions = elemental_mass_fractions.sub(
+        isotope_element_mass_fractions, fill_value=0.0
+    )
+
+    roundoff_negative = (residual_elemental_mass_fractions &lt; 0.0) &amp; (
+        residual_elemental_mass_fractions &gt;= -np.finfo(np.float64).eps
+    )
+    return residual_elemental_mass_fractions.mask(roundoff_negative, 0.0)</div>
+
+
+
+<div class="viewcode-block" id="parse_artis_structure_to_dataclass">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass">[docs]</a>
+def parse_artis_structure_to_dataclass(fname: str | Path) -&gt; ArtisData:
+    &quot;&quot;&quot;Parse an ARTIS structure file into an :class:`ArtisData` object.
+
+    The first two lines of an ARTIS structure file specify the number of model
+    cells and the model time in days. Subsequent rows provide cell indices,
+    velocities, logarithmic densities, and the explicit mass fractions of
+    Ni56, Co56, Fe52, and Cr48.
+
+    Parameters
+    ----------
+    fname : str or pathlib.Path
+        Path to the ARTIS structure file.
+
+    Returns
+    -------
+    ArtisData
+        Parsed structure data. ``time_of_model`` is expressed in seconds,
+        ``velocity`` in cm/s, and ``mean_density`` in g/cm**3.
+        ``isotope_mass_fractions`` contains rows indexed by atomic and mass
+        number and columns indexed by ARTIS cell number. The
+        ``mass_fractions`` field remains empty because elemental abundances are
+        stored in a separate ARTIS file.
+
+    Raises
+    ------
+    AssertionError
+        If the number of data rows does not match the shell count declared in
+        the file header.
+
+    Notes
+    -----
+    The first ARTIS row represents the unused central model point. It is
+    retained in ``velocity`` as the first shell boundary but removed from
+    ``mean_density`` and ``isotope_mass_fractions``. Consequently, the returned
+    velocity array has one more entry than the shell-based arrays.
+    &quot;&quot;&quot;
+    fname = Path(fname)
+    with fname.open() as fh:
+        no_of_shells = int(fh.readline().strip())
+        time_of_model = u.Quantity(float(fh.readline().strip()), &quot;day&quot;).to(&quot;s&quot;)
+
+    artis_model = pd.read_csv(
+        fname,
+        skiprows=2,
+        usecols=(0, 1, 2, 4, 5, 6, 7),
+        dtype=dict.fromkeys(ARTIS_MODEL_COLUMNS, np.float64),
+        names=ARTIS_MODEL_COLUMNS,
+        sep=r&quot;\s+&quot;,
+    )
+    assert len(artis_model) == no_of_shells, (
+        f&quot;Number of shells {len(artis_model)} does not match metadata {no_of_shells}&quot;
+    )
+
+    isotope_mass_fractions = artis_model[list(ARTIS_ISOTOPES)].T.copy()
+    isotope_mass_fractions.index = pd.MultiIndex.from_tuples(
+        ARTIS_ISOTOPES.values(),
+        names=[&quot;atomic_number&quot;, &quot;mass_number&quot;],
+    )
+    isotope_mass_fractions.columns = artis_model[&quot;cell_index&quot;].astype(np.int64)
+    isotope_mass_fractions.columns.name = &quot;cell_index&quot;
+
+    return ArtisData(
+        time_of_model=time_of_model,
+        velocity=u.Quantity(artis_model[&quot;velocities&quot;], &quot;km/s&quot;).to(&quot;cm/s&quot;),
+        mean_density=u.Quantity(
+            10 ** artis_model[&quot;mean_densities_0&quot;], &quot;g/cm^3&quot;
+        )[1:],
+        isotope_mass_fractions=isotope_mass_fractions.iloc[:, 1:],
+    )</div>
+
+
 
 <div class="viewcode-block" id="read_artis_density">
 <a class="viewcode-back" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density">[docs]</a>
 def read_artis_density(
-    fname: str | Path, legacy_return: bool = True
-) -&gt; tuple[u.Quantity, u.Quantity, u.Quantity] | tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]:
-    &quot;&quot;&quot;
-    Read an ARTIS density file.
-
-    The file is expected to have:
-      • First line: number of shells (ignored beyond reading the integer).
-      • Second line: time of the model in days, which is then converted to seconds.
-      • Remaining lines: columns containing cell_id, velocity (km/s), log10(density),
-        and mass fractions of Ni56, Co56, Fe52, and Cr48.
-
-    Notes
-    -----
-    The first density (i.e., the center of the model) is not used in the returned arrays.
+    fname: str | Path,
+) -&gt; tuple[u.Quantity, u.Quantity, u.Quantity]:
+    &quot;&quot;&quot;Read an ARTIS density file. Returns the time of model, velocity, and density.
 
     Parameters
     ----------
     fname : str or pathlib.Path
         Path to the ARTIS density file.
-    legacy_return : bool, optional
-        If True, returns (time_of_model, velocity, mean_density).
-        If False, returns (time_of_model, velocity, mean_density, isotope_mass_fractions).
-        Default is True.
 
     Returns
     -------
@@ -4771,65 +4899,13 @@ def read_artis_density(
         The velocity array in cm/s.
     mean_density : astropy.units.Quantity
         The array of mean densities in g/cm^3, excluding the first (central) value.
-    isotope_mass_fractions : pandas.DataFrame, optional
-        Mass fractions for Ni56, Co56, Fe52, and Cr48 if legacy_return=False.
-        The DataFrame has a MultiIndex of (Z, A) for rows and the cell_id for columns.
     &quot;&quot;&quot;
-    fname = Path(fname)
-    with fname.open() as fh:
-        for i, line in enumerate(fh):
-            if i == 0:
-                no_of_shells = np.int64(line.strip())
-            elif i == 1:
-                time_of_model = u.Quantity(float(line.strip()), &quot;day&quot;).to(&quot;s&quot;)
-            elif i == 2:
-                break
-
-    artis_model_columns = [
-        &quot;cell_index&quot;,
-        &quot;velocities&quot;,
-        &quot;mean_densities_0&quot;,
-        &quot;ni56_mass_fraction&quot;,
-        &quot;co56_mass_fraction&quot;,
-        &quot;fe52_mass_fraction&quot;,
-        &quot;cr48_mass_fraction&quot;,
-    ]
-
-    artis_model = pd.read_csv(
-        fname,
-        skiprows=2,
-        usecols=(0, 1, 2, 4, 5, 6, 7),
-        dtype=dict.fromkeys(artis_model_columns, np.float64),
-        names=artis_model_columns,
-        sep=r&quot;\s+&quot;,
-    )
-    assert (
-        len(artis_model) == no_of_shells
-    ), &quot;Number of shells {len(artis_model)} does not match metadate {no_of_shells}&quot;
-    velocity = u.Quantity(artis_model[&quot;velocities&quot;], &quot;km/s&quot;).to(&quot;cm/s&quot;)
-    mean_density = u.Quantity(10 ** artis_model[&quot;mean_densities_0&quot;], &quot;g/cm^3&quot;)
-
-    isotope_mass_fractions = pd.DataFrame(
-        artis_model[
-            [
-                &quot;ni56_mass_fraction&quot;,
-                &quot;co56_mass_fraction&quot;,
-                &quot;fe52_mass_fraction&quot;,
-                &quot;cr48_mass_fraction&quot;,
-            ]
-        ].T
-    )
-    isotope_mass_fractions.index = pd.MultiIndex.from_tuples(
-        [(28, 56), (27, 56), (26, 52), (24, 48)],
-        names=[&quot;atomic_number&quot;, &quot;mass_number&quot;],
-    )
-
-    isotope_mass_fractions.columns = artis_model[&quot;cell_index&quot;]
-    isotope_mass_fractions.columns.name = &quot;cell_index&quot;
-
-    if legacy_return:
-        return time_of_model, velocity, mean_density[1:]
-    return time_of_model, velocity, mean_density, isotope_mass_fractions</div>
+    artis_data = parse_artis_structure_to_dataclass(fname)
+    return (
+        artis_data.time_of_model,
+        artis_data.velocity,
+        artis_data.mean_density,
+    )</div>
 
 
 
@@ -4864,14 +4940,92 @@ def read_artis_mass_fractions(
     )
 
     mass_fractions_df.index.name = &quot;cell_index&quot;
+    mass_fractions_df = mass_fractions_df.iloc[1:]
 
     if normalize:
-        mass_fractions_df = mass_fractions_df.div(mass_fractions_df.sum(axis=1), axis=0)
+        mass_fractions_df = mass_fractions_df.div(
+            mass_fractions_df.sum(axis=1), axis=0
+        )
     mass_fractions_df = mass_fractions_df.T
     mass_fractions_df.index.name = &quot;atomic_number&quot;
     mass_fractions_df.columns.name = &quot;cell_index&quot;
 
     return mass_fractions_df</div>
+
+
+
+def _read_artis_residual_elemental_mass_fractions(
+    abundance_fname: str | Path,
+    isotope_mass_fractions: pd.DataFrame,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;Read ARTIS abundances and remove explicitly tracked isotopes.
+
+    Parameters
+    ----------
+    abundance_fname : str or pathlib.Path
+        Path to the ARTIS elemental abundance file.
+    isotope_mass_fractions : pandas.DataFrame
+        Explicit isotope mass fractions read from the corresponding ARTIS
+        structure file. Rows use a ``(atomic_number, mass_number)`` MultiIndex
+        and columns correspond to model cells.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Residual elemental mass fractions indexed by atomic number, with model
+        cells as columns. Explicit isotope contributions are removed from their
+        corresponding elemental totals.
+
+    Notes
+    -----
+    Elemental abundances are normalized by :func:`read_artis_mass_fractions`
+    before the isotope contributions are removed. The isotope values themselves
+    are not modified.
+    &quot;&quot;&quot;
+    elemental_mass_fractions = read_artis_mass_fractions(abundance_fname)
+    return remove_explicit_isotopes_from_elemental_mass_fractions(
+        elemental_mass_fractions, isotope_mass_fractions
+    )
+
+
+<div class="viewcode-block" id="read_artis_composition">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition">[docs]</a>
+def read_artis_composition(
+    density_fname: str | Path, abundance_fname: str | Path
+) -&gt; tuple[pd.Index, pd.DataFrame, pd.DataFrame]:
+    &quot;&quot;&quot;
+    Read ARTIS elemental and isotopic mass fractions.
+
+    ARTIS stores total elemental mass fractions in the abundance file and
+    selected radioactive isotope mass fractions in the density file. This
+    reader removes those explicit isotopes from their elemental totals so that
+    each nuclide is represented exactly once downstream.
+
+    Parameters
+    ----------
+    density_fname : str or pathlib.Path
+        Path to the ARTIS density file.
+    abundance_fname : str or pathlib.Path
+        Path to the ARTIS abundance file.
+
+    Returns
+    -------
+    index : pandas.Index
+        Atomic numbers for elemental mass fractions.
+    mass_fractions : pandas.DataFrame
+        Elemental mass fractions indexed by atomic number.
+    isotope_mass_fractions : pandas.DataFrame
+        Isotopic mass fractions indexed by atomic and mass number.
+    &quot;&quot;&quot;
+    artis_data = parse_artis_structure_to_dataclass(density_fname)
+    elemental_mass_fractions = _read_artis_residual_elemental_mass_fractions(
+        abundance_fname, artis_data.isotope_mass_fractions
+    )
+    return (
+        elemental_mass_fractions.index,
+        elemental_mass_fractions,
+        artis_data.isotope_mass_fractions,
+    )</div>
 
 
 
@@ -4895,27 +5049,21 @@ def read_artis_model(
     ArtisData
         Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     &quot;&quot;&quot;
-    time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density( # type: ignore
-        density_fname, legacy_return=False
+    artis_data = parse_artis_structure_to_dataclass(density_fname)
+    elemental_mass_fractions = _read_artis_residual_elemental_mass_fractions(
+        abundance_fname, artis_data.isotope_mass_fractions
     )
-    mass_fractions = read_artis_mass_fractions(abundance_fname)
-    mass_fractions.index = pd.MultiIndex.from_arrays(
-        [mass_fractions.index, [-1] * len(mass_fractions.index)],
+    elemental_mass_fractions.index = pd.MultiIndex.from_arrays(
+        [
+            elemental_mass_fractions.index,
+            [-1] * len(elemental_mass_fractions.index),
+        ],
         names=[&quot;atomic_number&quot;, &quot;mass_number&quot;],
     )
-    isotope_summed = isotope_mass_fractions.groupby(level=&quot;atomic_number&quot;).sum()
-    mass_fractions = mass_fractions.sub(
-        isotope_summed, level=&quot;atomic_number&quot;, fill_value=0
+    artis_data.mass_fractions = pd.concat(
+        [elemental_mass_fractions, artis_data.isotope_mass_fractions]
     )
-
-    mass_fractions = pd.concat([mass_fractions, isotope_mass_fractions], axis=0)
-
-    return ArtisData(
-        time_of_model=time_of_model,
-        velocity=velocity,
-        mean_density=mean_density,
-        mass_fractions=mass_fractions,
-    )</div>
+    return artis_data</div>
 
 </pre></div>
 
@@ -4927,7 +5075,7 @@ def read_artis_model(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jul 2026.
+      <span class="lastupdated">Last updated on 22 Jul 2026.
       </span></p>
   </div>
 

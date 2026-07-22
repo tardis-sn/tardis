@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=d6d04a22"></script>
+      <script src="../_static/documentation_options.js?v=c788fd9b"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1684,6 +1684,7 @@
 <li class="toctree-l9"><a class="reference internal" href="tardis.io.model.artis.html#submodules">Submodules</a><ul>
 <li class="toctree-l10"><a class="reference internal" href="tardis.io.model.artis.data.html">tardis.io.model.artis.data module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData"><code class="docutils literal notranslate"><span class="pre">ArtisData</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.isotope_mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.isotope_mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density"><code class="docutils literal notranslate"><span class="pre">ArtisData.mean_density</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.time_of_model"><code class="docutils literal notranslate"><span class="pre">ArtisData.time_of_model</span></code></a></li>
@@ -1694,9 +1695,12 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.io.model.artis.readers.html">tardis.io.model.artis.readers module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass"><code class="docutils literal notranslate"><span class="pre">parse_artis_structure_to_dataclass()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition"><code class="docutils literal notranslate"><span class="pre">read_artis_composition()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density"><code class="docutils literal notranslate"><span class="pre">read_artis_density()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_mass_fractions"><code class="docutils literal notranslate"><span class="pre">read_artis_mass_fractions()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_model"><code class="docutils literal notranslate"><span class="pre">read_artis_model()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions"><code class="docutils literal notranslate"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2109,6 +2113,7 @@
 <li class="toctree-l6"><a class="reference internal" href="tardis.opacities.macro_atom.html">tardis.opacities.macro_atom package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
@@ -4738,12 +4743,38 @@
 <dt class="sig sig-object py" id="tardis.plasma.array_util.cooling_rate_series2dataframe">
 <span class="sig-prename descclassname"><span class="pre">tardis.plasma.array_util.</span></span><span class="sig-name descname"><span class="pre">cooling_rate_series2dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cooling_rate_series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">Series</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_level_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a></span></span><a class="reference internal" href="../_modules/tardis/plasma/array_util.html#cooling_rate_series2dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.array_util.cooling_rate_series2dataframe" title="Link to this definition"></a></dt>
 <dd><p>Format a cooling-rate Series for transition-probability collection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>Cooling rates as a dataframe.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.plasma.array_util.cumulative_integrate_array_by_blocks">
 <span class="sig-prename descclassname"><span class="pre">tardis.plasma.array_util.</span></span><span class="sig-name descname"><span class="pre">cumulative_integrate_array_by_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_references</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/array_util.html#cumulative_integrate_array_by_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.array_util.cumulative_integrate_array_by_blocks" title="Link to this definition"></a></dt>
-<dd><p>Cumulatively integrate each block of a two-dimensional array.</p>
+<dd><p>Compute normalized cumulative trapezoidal integrals by block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>f</strong><span class="classifier">np.ndarray</span></dt><dd><p>Two-dimensional array of integrand values.</p>
+</dd>
+<dt><strong>x</strong><span class="classifier">np.ndarray</span></dt><dd><p>Integration coordinates.</p>
+</dd>
+<dt><strong>block_references</strong><span class="classifier">np.ndarray</span></dt><dd><p>Indices defining the block boundaries.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.ndarray</dt><dd><p>Normalized cumulative integrals with the same shape as <code class="docutils literal notranslate"><span class="pre">f</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -4755,13 +4786,45 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.plasma.array_util.get_ion_multi_index">
 <span class="sig-prename descclassname"><span class="pre">tardis.plasma.array_util.</span></span><span class="sig-name descname"><span class="pre">get_ion_multi_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multi_index_full</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.MultiIndex.html#pandas.MultiIndex" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">MultiIndex</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_higher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.MultiIndex.html#pandas.MultiIndex" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">MultiIndex</span></a></span></span><a class="reference internal" href="../_modules/tardis/plasma/array_util.html#get_ion_multi_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.array_util.get_ion_multi_index" title="Link to this definition"></a></dt>
-<dd><p>Return the ion index corresponding to a level MultiIndex.</p>
+<dd><p>Return the multi-index for all ions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>multi_index_full</strong><span class="classifier">pd.MultiIndex</span></dt><dd><p>A full multi-index with at least atomic number, ion number indices.</p>
+</dd>
+<dt><strong>next_higher</strong><span class="classifier">bool, optional</span></dt><dd><p>Take the next higher ions, by default True</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.MultiIndex</dt><dd><p>multi-index of an atom</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.plasma.array_util.numba_cumulative_trapezoid">
 <span class="sig-prename descclassname"><span class="pre">tardis.plasma.array_util.</span></span><span class="sig-name descname"><span class="pre">numba_cumulative_trapezoid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/array_util.html#numba_cumulative_trapezoid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.array_util.numba_cumulative_trapezoid" title="Link to this definition"></a></dt>
 <dd><p>Cumulatively integrate and normalize one array using trapezoids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>f</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array to integrate</p>
+</dd>
+<dt><strong>x</strong><span class="classifier">np.ndarray</span></dt><dd><p>Coordinate to integrate over</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.ndarray</dt><dd><p>Cumulative normalized integral</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -4778,7 +4841,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jul 2026.
+      <span class="lastupdated">Last updated on 22 Jul 2026.
       </span></p>
   </div>
 

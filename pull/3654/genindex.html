@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=d6d04a22"></script>
+      <script src="_static/documentation_options.js?v=c788fd9b"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1681,6 +1681,7 @@
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.io.model.artis.html#submodules">Submodules</a><ul>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.io.model.artis.data.html">tardis.io.model.artis.data module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData"><code class="docutils literal notranslate"><span class="pre">ArtisData</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.isotope_mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.isotope_mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density"><code class="docutils literal notranslate"><span class="pre">ArtisData.mean_density</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.time_of_model"><code class="docutils literal notranslate"><span class="pre">ArtisData.time_of_model</span></code></a></li>
@@ -1691,9 +1692,12 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.io.model.artis.readers.html">tardis.io.model.artis.readers module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass"><code class="docutils literal notranslate"><span class="pre">parse_artis_structure_to_dataclass()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition"><code class="docutils literal notranslate"><span class="pre">read_artis_composition()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density"><code class="docutils literal notranslate"><span class="pre">read_artis_density()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_mass_fractions"><code class="docutils literal notranslate"><span class="pre">read_artis_mass_fractions()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_model"><code class="docutils literal notranslate"><span class="pre">read_artis_model()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions"><code class="docutils literal notranslate"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2106,6 +2110,7 @@
 <li class="toctree-l6"><a class="reference internal" href="api/tardis.opacities.macro_atom.html">tardis.opacities.macro_atom package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
@@ -6907,9 +6912,11 @@
       </ul></li>
       <li><a href="api/tardis.io.model.snec.snec_input.html#tardis.io.model.snec.snec_input.SNECIsotopeProfile.isotope_mass_fraction">isotope_mass_fraction (tardis.io.model.snec.snec_input.SNECIsotopeProfile attribute)</a>
 </li>
-      <li><a href="api/tardis.io.model.csvy.html#tardis.io.model.csvy.CSVYData.isotope_mass_fractions">isotope_mass_fractions (tardis.io.model.csvy.CSVYData attribute)</a>
+      <li><a href="api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.isotope_mass_fractions">isotope_mass_fractions (tardis.io.model.artis.data.ArtisData attribute)</a>
 
       <ul>
+        <li><a href="api/tardis.io.model.csvy.html#tardis.io.model.csvy.CSVYData.isotope_mass_fractions">(tardis.io.model.csvy.CSVYData attribute)</a>
+</li>
         <li><a href="api/tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.isotope_mass_fractions">(tardis.io.model.csvy.data.CSVYData attribute)</a>
 </li>
       </ul></li>
@@ -8662,6 +8669,8 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.PanelTableWidget">PanelTableWidget (class in tardis.visualization.widgets.util)</a>
 </li>
+      <li><a href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass">parse_artis_structure_to_dataclass() (in module tardis.io.model.artis.readers)</a>
+</li>
       <li><a href="api/tardis.io.atom_data.parse_atom_data.html#tardis.io.atom_data.parse_atom_data.parse_atom_data">parse_atom_data() (in module tardis.io.atom_data.parse_atom_data)</a>
 </li>
       <li><a href="api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_config">parse_composition_from_config() (in module tardis.io.model.parse_composition_configuration)</a>
@@ -9058,6 +9067,8 @@
         <li><a href="api/tardis.io.model.arepo.readers.html#tardis.io.model.arepo.readers.read_arepo_snapshot">(in module tardis.io.model.arepo.readers)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition">read_artis_composition() (in module tardis.io.model.artis.readers)</a>
+</li>
       <li><a href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density">read_artis_density() (in module tardis.io.model.artis.readers)</a>
 </li>
       <li><a href="api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.read_artis_lines">read_artis_lines() (in module tardis.energy_input.energy_source)</a>
@@ -9135,6 +9146,8 @@
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.related_groups">related_groups (tardis.io.atom_data.base.AtomData attribute)</a>
 </li>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.remove_callback">remove_callback() (tardis.simulation.base.Simulation method)</a>
+</li>
+      <li><a href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions">remove_explicit_isotopes_from_elemental_mass_fractions() (in module tardis.io.model.artis.readers)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.base.html#tardis.iip_plasma.base.BasePlasma.remove_hidden_properties">remove_hidden_properties() (tardis.iip_plasma.base.BasePlasma method)</a>
 
@@ -11806,7 +11819,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jul 2026.
+      <span class="lastupdated">Last updated on 22 Jul 2026.
       </span></p>
   </div>
 

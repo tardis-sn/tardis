@@ -41,6 +41,20 @@ Use common TARDIS setup actions and settings:
         run:
           shell: bash -l {0}
 
+For workflows that inspect pull-request code:
+
+1. Use ``pull_request`` and do not expose repository secrets to the job.
+2. If the workflow must publish results or post authenticated comments, upload
+   the results as artifacts and handle those operations in a separate trusted
+   ``workflow_run`` workflow.
+3. Use ``pull_request_target`` only for checkout-free tasks such as labeling or
+   contributor notifications.
+
+The ``docs``, ``codestyle``, ``mailmap``, and ORCID workflows use this split
+between unprivileged checks and trusted publishers. The utility workflow keeps
+``pull_request_target`` only for its checkout-free label and
+first-contributor actions.
+
 
 The ``docs`` workflow in ``.github/workflows/build-docs.yml`` uses the shared LFS
 cache workflow, restores sparse atomic data, sets up the environment, and builds
@@ -65,7 +79,6 @@ the docs:
            uses: tardis-sn/tardis-actions/setup-env@main
          - name: Build documentation
            run: cd docs/ && make html NCORES=auto
-
 
 .. _reference-continuous-integration-reference:
 
@@ -288,6 +301,12 @@ The workflow generates regression data for the latest commit on the pull request
 and compares it with ``master`` using the comparison notebook. The notebook is
 uploaded as an artifact and pushed to the ``reg-data-comp`` repository for
 previews in the bot comment.
+
+The comparison is split into two workflows for security. The
+``compare-regdata`` workflow runs pull-request code without repository secrets
+and uploads the comparison artifacts. The ``publish-regdata-comparison``
+workflow runs after a successful comparison, checks the pull-request label, and
+publishes those artifacts and the bot comment with its trusted credentials.
 
 The workflow exports images from the comparison notebook and embeds them in the
 bot comment. Unless there are key changes to HDF files in the regression data,
