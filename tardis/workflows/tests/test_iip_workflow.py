@@ -800,7 +800,6 @@ def continuum_comparison_state(
 def collisional_bound_rates(
     continuum_comparison_state: ContinuumComparisonState,
 ) -> CollisionalBoundRates:
-
     collisional_rates = ThermalCollisionalRateSolver(
         continuum_comparison_state.plasma.atomic_data.levels,
         continuum_comparison_state.plasma.atomic_data.lines,

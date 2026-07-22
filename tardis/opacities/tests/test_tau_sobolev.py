@@ -7,6 +7,7 @@ from tardis.opacities.tau_sobolev import (
     calculate_beta_sobolev,
     calculate_sobolev_line_opacity,
 )
+from tardis.simulation import Simulation
 
 
 def test_calculate_sobolev_line_opacity(
