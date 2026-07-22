@@ -1188,7 +1188,6 @@ class GrotrianWidget:
                 self.ion_selector,
                 self.shell_selector,
                 self.max_level_selector,
-                sizing_mode="stretch_width",
             ),
             pn.Row(
                 pn.Row(
@@ -1197,10 +1196,8 @@ class GrotrianWidget:
                     align="end",
                 ),
                 self.wavelength_range_selector,
-                sizing_mode="stretch_width",
             ),
             self.plot_pane,
-            sizing_mode="stretch_width",
         )
 
         return widget
