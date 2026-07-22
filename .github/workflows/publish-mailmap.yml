@@ -15,26 +15,19 @@ jobs:
   comment-on-failure:
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.repository.full_name == github.repository
     runs-on: ubuntu-latest
+    env:
+      PR_SHA: ${{ github.event.workflow_run.head_sha }}
     steps:
       - name: Get PR number
         id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
-          HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
-          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: |
-          pr_number=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" -f state=open \
-            -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
-            --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
-          if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
-            echo "::notice::No unique open pull request matches this source run; publishing was skipped."
-            pr_number=
-          fi
-          echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
+        uses: juliangruber/find-pull-request-action@v1
+        with:
+          github-token: ${{ github.token }}
+          branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+          state: open
 
       - name: Create comment
-        if: steps.pr.outputs.number != ''
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA
         uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}

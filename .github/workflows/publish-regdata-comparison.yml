@@ -22,23 +22,14 @@ jobs:
     steps:
       - name: Get PR number
         id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
-          HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
-          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: |
-          pr_number=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" -f state=open \
-            -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
-            --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
-          if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
-            echo "::notice::No unique open pull request matches this source run; publishing was skipped."
-            pr_number=
-          fi
-          echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
+        uses: juliangruber/find-pull-request-action@v1
+        with:
+          github-token: ${{ github.token }}
+          branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+          state: open
 
       - name: Check regression comparison label
-        if: steps.pr.outputs.number != ''
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA
         id: label
         run: |
           if gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels" --paginate --jq '.[].name' | grep -Fxq run-regression-comparison; then
