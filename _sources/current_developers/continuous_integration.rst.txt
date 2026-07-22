@@ -6,9 +6,10 @@ Continuous Integration
 Explanation: Continuous Integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TARDIS uses continuous integration. When a change is proposed by pull request or
-merged into ``master``, a service clones the repository, checks out the current
-commit, and runs TARDIS tests. This helps detect bugs immediately.
+TARDIS uses continuous integration. When a change is proposed by pull request,
+pushed to a configured branch, or reached by a scheduled workflow, a service
+clones the repository, checks out the relevant commit, and runs the appropriate
+checks. This helps detect bugs immediately.
 
 TARDIS currently uses GitHub Actions for pipelines. A workflow is a YAML
 configuration file with sections such as variables, jobs, and steps. Workflows
@@ -74,67 +75,46 @@ and the security warning in the
 
 GitHub sometimes supplies an empty ``workflow_run.pull_requests`` array for a
 fork pull request. This cannot be changed by using a different token, so do not
-read the PR number from that array. TARDIS publishers instead use the following
-fail-closed ``Get PR number`` step:
+read the PR number from that array. TARDIS publishers instead use the
+`Find Pull Request action <https://github.com/marketplace/actions/find-pull-request>`_
+in a fail-closed ``Get PR number`` step:
 
 .. code-block:: yaml
 
    - name: Get PR number
      id: pr
-     env:
-       GH_TOKEN: ${{ github.token }}
-       HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
-       HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
-       HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-     run: |
-       pr_number=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" -f state=open \
-         -f "head=${HEAD_OWNER}:${HEAD_BRANCH}" \
-         --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
-       if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
-         echo "::notice::No unique open pull request matches this source run; publishing was skipped."
-         pr_number=
-       fi
-       echo "number=${pr_number}" >> "${GITHUB_OUTPUT}"
+     uses: juliangruber/find-pull-request-action@v1
+     with:
+       github-token: ${{ github.token }}
+       branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+       state: open
 
-The environment variables provide all external input to the shell script:
+The action searches the current repository for open pull requests whose head is
+the source repository and branch from the completed producer run. The
+``owner:branch`` form is important for fork pull requests; using only the branch
+name could match a branch with the same name from another repository.
 
-- ``GH_TOKEN`` is the job's automatically created ``github.token``. The
-  GitHub CLI reads this variable when authenticating the API request.
-- ``HEAD_OWNER`` and ``HEAD_BRANCH`` identify the repository owner and branch
-  used by the completed producer run. ``HEAD_OWNER`` is the source repository
-  owner, rather than always ``tardis-sn``, so this also works for fork pull
-  requests.
-- ``HEAD_SHA`` is the exact commit tested by the producer run.
-- ``GITHUB_REPOSITORY`` and ``GITHUB_OUTPUT`` are default environment variables
-  supplied by GitHub. The first contains ``owner/repository``; the second names
-  the file used to create a step output.
+Publishers guard their artifact, deployment, and comment steps with all of the
+following action outputs:
 
-The script then performs these operations:
+* ``steps.pr.outputs.number`` is not empty;
+* ``steps.pr.outputs.matching-pr-count`` is ``1``; and
+* ``steps.pr.outputs.head-sha`` equals ``env.PR_SHA``, which is
+  ``github.event.workflow_run.head_sha``.
 
-1. ``gh api --method GET`` calls the repository's Pull Requests API. Because
-   the method is ``GET``, the two ``-f`` values become query parameters.
-   ``state=open`` excludes closed and merged pull requests, while
-   ``head=${HEAD_OWNER}:${HEAD_BRANCH}`` limits the response to the exact source
-   repository owner and branch.
-2. The ``--jq`` filter keeps only a pull request whose current head SHA equals
-   ``HEAD_SHA``, then prints its numeric ``number`` field. This prevents an old
-   producer run from publishing after a newer commit has been pushed.
-3. Shell command substitution stores the printed value in ``pr_number``. The
-   regular expression ``^[0-9]+$`` accepts exactly one numeric result. No match
-   produces an empty value, while multiple matches produce multiple lines; both
-   cases fail this check.
-4. When the check fails, the script emits a notice and empties ``pr_number``.
-   The lookup step succeeds, but guarded publishing steps do not run.
-5. The final line writes ``number=<value>`` to ``GITHUB_OUTPUT``. Later steps
-   read it as ``steps.pr.outputs.number`` and use
-   ``if: steps.pr.outputs.number != ''`` to run only when it is present.
+These checks preserve the previous fail-closed behavior. They prevent an old
+producer run from publishing after a newer commit has been pushed, and prevent
+publication when the branch selector is ambiguous. The action handles API
+authentication and exposes the pull-request number and head SHA as step
+outputs, so the publishers no longer need a shell script or the GitHub CLI for
+PR discovery.
 
-If the API request itself fails, for example because the token lacks permission,
-the ``Get PR number`` step fails instead of silently skipping publication. The
-publisher job's top-level condition also ensures this script runs only when the
-producer's event was ``pull_request``. Producer runs started by ``push`` or
-``workflow_dispatch`` create a skipped publisher job and never request a pull
-request number.
+If the action's API request fails, for example because the token lacks
+permission, the ``Get PR number`` step fails instead of silently skipping
+publication. The publisher job's top-level condition also ensures this step
+runs only when the producer's event was ``pull_request``. Producer runs started
+by ``push`` or ``workflow_dispatch`` create a skipped publisher job and never
+request a pull request number.
 
 Token responsibilities are deliberately narrow:
 
@@ -207,12 +187,12 @@ After the change reaches the default branch:
    commit successfully.
 3. Open the corresponding publisher run. Its title should contain the pull
    request title. The ``Get PR number`` step should identify one current pull
-   request and succeed.
+   request and expose a matching head SHA.
 4. Confirm that the bot comment links both workflow runs and that any preview
    URL uses the correct pull-request number.
 5. Push another commit while an older producer is finishing. The old publisher
-   should report that no unique open pull request matches the source run and
-   publish nothing; the publisher for the newest SHA should publish normally.
+   should fail its head-SHA guard and publish nothing; the publisher for the
+   newest SHA should publish normally.
 
 When troubleshooting:
 
@@ -312,24 +292,26 @@ website.
 Documentation Preview Pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The documentation preview pipeline does not run on the main repository, only on
-forks. It supports pull request documentation previews.
+The documentation preview pipeline builds documentation for pushes to ``master``
+and for pull requests. Pull-request previews are published when the
+``build-docs`` label is present or when documentation files have changed. Pushes
+to ``master`` and manual dispatches also build and publish documentation.
 
 Testing Pipeline
 ^^^^^^^^^^^^^^^^
 
-The testing pipeline runs four concurrent jobs:
+The testing pipeline runs one test job per configured operating system:
 
-- Ubuntu tests without the continuum marker.
-- Ubuntu tests with the continuum marker.
-- macOS tests without the continuum marker.
-- macOS tests with the continuum marker.
+- Ubuntu tests with the ``not`` continuum marker.
+- macOS tests with the ``not`` continuum marker.
 
-This is two platforms multiplied by two test types. The pipeline includes
-environment installation, regression data configuration, and coverage report
-upload after tests finish.
+When the ``pip-git-tests`` label is present on a pull request, an additional
+Git-installed test variant is added for each operating system. The pipeline
+includes environment installation, regression data configuration, and coverage
+report upload after tests finish.
 
-GPU tests can be triggered by applying the ``full-tests`` label to a pull request.
+The ``full-tests`` label enables the separate ``full-tests`` workflow, which runs
+the complete test suite and JIT-disabled tests on a self-hosted runner.
 
 Release Pipeline
 ^^^^^^^^^^^^^^^^
@@ -380,17 +362,18 @@ Release
 ^^^^^^^
 
 The release job creates a GitHub release after the pre-release pull request is
-merged.
+merged, when invoked by the pre-release workflow, or when manually dispatched.
 
 1. Check out TARDIS with fetch depth 0.
 2. Set up Python.
-3. Install ``setuptools_scm`` and ``git-cliff``.
+3. Install ``setuptools_scm``.
 4. Get the current TARDIS version using ``setuptools_scm`` via a helper script.
 5. Get the next TARDIS version using ``setuptools_scm``.
 6. Create a GitHub release using the new version as the tag.
 7. Wait 2 minutes for Zenodo to update the new TARDIS release.
 8. Fetch the new DOI from Zenodo using the Zenodo API and create a badge.
-9. Generate the changelog with ``git-cliff``.
+9. Generate the changelog with ``orhun/git-cliff-action`` using the TARDIS
+   ``pyproject.toml`` configuration.
 10. Update the release description with the changelog and Zenodo badge.
 11. Include environment lock files in release assets.
 
@@ -404,7 +387,7 @@ Changelog job:
 
 1. Check out TARDIS with fetch depth 0.
 2. Get the current release tag.
-3. Generate a changelog with ``git-cliff``.
+3. Generate a changelog with ``orhun/git-cliff-action``.
 4. Upload ``CHANGELOG.md`` as an artifact.
 
 Citation job:
@@ -425,7 +408,8 @@ Credits job:
 4. Install ``requests``.
 5. Run a helper script to update ``README.rst`` and ``docs/resources/credits.rst``.
 6. Upload ``README.rst`` and ``credits.rst`` as artifacts.
-7. Dispatch updates to the TARDIS website.
+7. Dispatch updates to the TARDIS website with
+   ``peter-evans/repository-dispatch``.
 
 Post-release pull request job:
 
@@ -439,30 +423,6 @@ Post-release pull request job:
 7. Automatically approve the pull request using tokens from infrastructure and
    core coordinator members.
 8. Enable auto-merge.
-
-TARDIS Carsus Compatibility Check
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The TARDIS Carsus Compatibility Check, or Bridge, compares reference data
-generated with different Carsus versions. It has two jobs:
-
-- ``carsus-build``: generates an atomic file with the latest Carsus.
-- ``tardis-build``: generates new reference data with the atomic file.
-
-The two reference data files are compared with this notebook:
-
-https://github.com/tardis-sn/tardis-refdata/blob/master/notebooks/ref_data_compare_from_paths.ipynb
-
-The workflow has a ``workflow_dispatch`` event for manual runs and is also
-triggered weekly by the save atomic files workflow.
-
-Save Atomic Files Workflow
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The Save Atomic Files workflow runs weekly and can be triggered manually. It
-runs the Bridge and sends an artifact to Moria containing the generated atomic
-data file and comparison notebook. A separate job indicates whether the Bridge
-failed.
 
 Regression Data Comparison Workflow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -490,7 +450,18 @@ LFS-Cache Workflow
 ^^^^^^^^^^^^^^^^^^
 
 The ``LFS-cache`` workflow caches regression data and atomic data. It can be
-triggered manually or when there is a push to the main branch of the regression
-data repository. It performs LFS pulls when necessary and caches objects. The
-``setup-lfs`` action restores cached objects. Both fail if the cache is
-unavailable.
+triggered manually or called by another workflow. It checks for a matching
+cache, performs an LFS pull when the cache is missing, and saves the resulting
+objects. The ``setup_lfs`` action restores cached objects for consuming jobs and
+fails when the required cache is unavailable.
+
+Research Papers Workflow
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``tardis-research-papers`` workflow runs monthly and can also be dispatched
+manually. It:
+
+1. Runs the ADS notebook with the repository's research-paper environment.
+2. Creates a pull request with updated research-paper data.
+3. Enables auto-merge after the required checks pass.
+4. Dispatches a ``fetch-papers`` event to ``tardis-sn/tardis-org-data``.

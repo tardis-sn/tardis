@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=431c4472"></script>
+      <script src="_static/documentation_options.js?v=8bdf0cbb"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -396,6 +396,17 @@
 <li class="toctree-l4"><a class="reference internal" href="physics_walkthrough/setup/plasma/helium_nlte.html">Helium NLTE</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="physics_walkthrough/setup/plasma/helium_nlte.html#recombination-he-nlte">Recombination He NLTE</a></li>
 <li class="toctree-l5"><a class="reference internal" href="physics_walkthrough/setup/plasma/helium_nlte.html#numerical-he-nlte">Numerical He NLTE</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="physics_walkthrough/setup/plasma/two_photon_archive.html">Archived two-photon continuum calculations</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="physics_walkthrough/setup/plasma/two_photon_archive.html#inputs-and-transition-weight">Inputs and transition weight</a></li>
+<li class="toctree-l5"><a class="reference internal" href="physics_walkthrough/setup/plasma/two_photon_archive.html#spectral-shape">Spectral shape</a></li>
+<li class="toctree-l5"><a class="reference internal" href="physics_walkthrough/setup/plasma/two_photon_archive.html#tabulated-cdf-and-sampling">Tabulated CDF and sampling</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="physics_walkthrough/setup/plasma/adiabatic_cooling_archive.html">Archived adiabatic-cooling calculation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="physics_walkthrough/setup/plasma/adiabatic_cooling_archive.html#cooling-rate">Cooling rate</a></li>
+<li class="toctree-l5"><a class="reference internal" href="physics_walkthrough/setup/plasma/adiabatic_cooling_archive.html#transition-probability-representation">Transition-probability representation</a></li>
 </ul>
 </li>
 </ul>
@@ -2097,26 +2108,6 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="api/tardis.opacities.macro_atom.html">tardis.opacities.macro_atom package</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="api/tardis.opacities.macro_atom.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="api/tardis.opacities.macro_atom.continuum_processes.html">tardis.opacities.macro_atom.continuum_processes package</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.continuum_processes.html#submodules">Submodules</a><ul>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html">tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs"><code class="docutils literal notranslate"><span class="pre">RawCollIonTransProbs</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.calculate"><code class="docutils literal notranslate"><span class="pre">RawCollIonTransProbs.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.latex_name"><code class="docutils literal notranslate"><span class="pre">RawCollIonTransProbs.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.outputs"><code class="docutils literal notranslate"><span class="pre">RawCollIonTransProbs.outputs</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.transition_probabilities_outputs"><code class="docutils literal notranslate"><span class="pre">RawCollIonTransProbs.transition_probabilities_outputs</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.continuum_processes.html#module-tardis.opacities.macro_atom.continuum_processes">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
@@ -2335,16 +2326,12 @@
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.assembly.base.html">tardis.plasma.assembly.base module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.assemble"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.assemble()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.check_continuum_interaction_species"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.check_continuum_interaction_species()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species_multi_index"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species_multi_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.delta_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.delta_treatment</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.enable_adiabatic_cooling"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.enable_adiabatic_cooling</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.enable_two_photon_decay"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.enable_two_photon_decay</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.excitation_analytical_approximation"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.excitation_analytical_approximation</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.heating_rate_data_file"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.heating_rate_data_file</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.helium_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.helium_treatment</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.initialize_continuum_properties"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.initialize_continuum_properties()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.initialize_j_blues"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.initialize_j_blues()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.ionization_analytical_approximation"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.ionization_analytical_approximation</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.kwargs"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.kwargs</span></code></a></li>
@@ -2352,19 +2339,14 @@
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.line_interaction_type"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.line_interaction_type</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.link_t_rad_t_electron"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.link_t_rad_t_electron</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nebular_ionization_delta_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.nebular_ionization_delta_treatment</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nlte_excitation_species"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.nlte_excitation_species</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nlte_ionization_species"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.nlte_ionization_species</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nlte_solver"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.nlte_solver</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.parse_plasma_config"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.parse_plasma_config()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_collection"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.plasma_collection</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_modules"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.plasma_modules</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.prepare_factory"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.prepare_factory()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.property_kwargs"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.property_kwargs</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.radiative_rates_type"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.radiative_rates_type</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.set_continuum_interaction_species_from_string"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.set_continuum_interaction_species_from_string()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.set_nlte_species_from_string"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.set_nlte_species_from_string()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.setup_analytical_approximations"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.setup_analytical_approximations()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.setup_continuum_interactions"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.setup_continuum_interactions()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.setup_electron_densities"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.setup_electron_densities()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.setup_helium_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.setup_helium_treatment()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.setup_legacy_nlte"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.setup_legacy_nlte()</span></code></a></li>
@@ -2581,173 +2563,6 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="api/tardis.plasma.properties.html">tardis.plasma.properties package</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="api/tardis.plasma.properties.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.html">tardis.plasma.properties.continuum_processes package</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.html#submodules">Submodules</a><ul>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.fast_array_util.html">tardis.plasma.properties.continuum_processes.fast_array_util module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.fast_array_util.html#tardis.plasma.properties.continuum_processes.fast_array_util.cumulative_integrate_array_by_blocks"><code class="docutils literal notranslate"><span class="pre">cumulative_integrate_array_by_blocks()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.fast_array_util.html#tardis.plasma.properties.continuum_processes.fast_array_util.numba_cumulative_trapezoid"><code class="docutils literal notranslate"><span class="pre">numba_cumulative_trapezoid()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html">tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff"><code class="docutils literal notranslate"><span class="pre">PhotoIonRateCoeff</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff.latex_name"><code class="docutils literal notranslate"><span class="pre">PhotoIonRateCoeff.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff.outputs"><code class="docutils literal notranslate"><span class="pre">PhotoIonRateCoeff.outputs</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html">tardis.plasma.properties.continuum_processes.rates module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate"><code class="docutils literal notranslate"><span class="pre">AdiabaticCoolingRate</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate.calculate"><code class="docutils literal notranslate"><span class="pre">AdiabaticCoolingRate.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate.latex_name"><code class="docutils literal notranslate"><span class="pre">AdiabaticCoolingRate.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate.outputs"><code class="docutils literal notranslate"><span class="pre">AdiabaticCoolingRate.outputs</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate.transition_probabilities_outputs"><code class="docutils literal notranslate"><span class="pre">AdiabaticCoolingRate.transition_probabilities_outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.BfHeatingRateCoeffEstimator"><code class="docutils literal notranslate"><span class="pre">BfHeatingRateCoeffEstimator</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.BfHeatingRateCoeffEstimator.latex_name"><code class="docutils literal notranslate"><span class="pre">BfHeatingRateCoeffEstimator.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.BfHeatingRateCoeffEstimator.outputs"><code class="docutils literal notranslate"><span class="pre">BfHeatingRateCoeffEstimator.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff"><code class="docutils literal notranslate"><span class="pre">CollDeexcRateCoeff</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff.calculate"><code class="docutils literal notranslate"><span class="pre">CollDeexcRateCoeff.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff.latex_name"><code class="docutils literal notranslate"><span class="pre">CollDeexcRateCoeff.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff.outputs"><code class="docutils literal notranslate"><span class="pre">CollDeexcRateCoeff.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff"><code class="docutils literal notranslate"><span class="pre">CollExcRateCoeff</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff.calculate"><code class="docutils literal notranslate"><span class="pre">CollExcRateCoeff.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff.latex_name"><code class="docutils literal notranslate"><span class="pre">CollExcRateCoeff.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff.outputs"><code class="docutils literal notranslate"><span class="pre">CollExcRateCoeff.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton"><code class="docutils literal notranslate"><span class="pre">CollIonRateCoeffSeaton</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton.calculate"><code class="docutils literal notranslate"><span class="pre">CollIonRateCoeffSeaton.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton.latex_name"><code class="docutils literal notranslate"><span class="pre">CollIonRateCoeffSeaton.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton.outputs"><code class="docutils literal notranslate"><span class="pre">CollIonRateCoeffSeaton.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff"><code class="docutils literal notranslate"><span class="pre">CollRecombRateCoeff</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff.calculate"><code class="docutils literal notranslate"><span class="pre">CollRecombRateCoeff.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff.latex_name"><code class="docutils literal notranslate"><span class="pre">CollRecombRateCoeff.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff.outputs"><code class="docutils literal notranslate"><span class="pre">CollRecombRateCoeff.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff"><code class="docutils literal notranslate"><span class="pre">CorrPhotoIonRateCoeff</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff.calculate"><code class="docutils literal notranslate"><span class="pre">CorrPhotoIonRateCoeff.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff.latex_name"><code class="docutils literal notranslate"><span class="pre">CorrPhotoIonRateCoeff.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff.outputs"><code class="docutils literal notranslate"><span class="pre">CorrPhotoIonRateCoeff.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate"><code class="docutils literal notranslate"><span class="pre">FreeBoundCoolingRate</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate.calculate"><code class="docutils literal notranslate"><span class="pre">FreeBoundCoolingRate.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate.latex_name"><code class="docutils literal notranslate"><span class="pre">FreeBoundCoolingRate.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate.outputs"><code class="docutils literal notranslate"><span class="pre">FreeBoundCoolingRate.outputs</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate.transition_probabilities_outputs"><code class="docutils literal notranslate"><span class="pre">FreeBoundCoolingRate.transition_probabilities_outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF"><code class="docutils literal notranslate"><span class="pre">FreeBoundEmissionCDF</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF.calculate"><code class="docutils literal notranslate"><span class="pre">FreeBoundEmissionCDF.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF.latex_name"><code class="docutils literal notranslate"><span class="pre">FreeBoundEmissionCDF.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF.outputs"><code class="docutils literal notranslate"><span class="pre">FreeBoundEmissionCDF.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate"><code class="docutils literal notranslate"><span class="pre">FreeFreeCoolingRate</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate.calculate"><code class="docutils literal notranslate"><span class="pre">FreeFreeCoolingRate.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate.latex_name"><code class="docutils literal notranslate"><span class="pre">FreeFreeCoolingRate.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate.outputs"><code class="docutils literal notranslate"><span class="pre">FreeFreeCoolingRate.outputs</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate.transition_probabilities_outputs"><code class="docutils literal notranslate"><span class="pre">FreeFreeCoolingRate.transition_probabilities_outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensityLTE</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE.calculate"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensityLTE.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE.latex_name"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensityLTE.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE.outputs"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensityLTE.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor"><code class="docutils literal notranslate"><span class="pre">PhotoIonBoltzmannFactor</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor.calculate"><code class="docutils literal notranslate"><span class="pre">PhotoIonBoltzmannFactor.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor.outputs"><code class="docutils literal notranslate"><span class="pre">PhotoIonBoltzmannFactor.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs"><code class="docutils literal notranslate"><span class="pre">RawCollisionTransProbs</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs.calculate"><code class="docutils literal notranslate"><span class="pre">RawCollisionTransProbs.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs.latex_name"><code class="docutils literal notranslate"><span class="pre">RawCollisionTransProbs.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs.outputs"><code class="docutils literal notranslate"><span class="pre">RawCollisionTransProbs.outputs</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs.transition_probabilities_outputs"><code class="docutils literal notranslate"><span class="pre">RawCollisionTransProbs.transition_probabilities_outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs"><code class="docutils literal notranslate"><span class="pre">RawPhotoIonTransProbs</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs.calculate"><code class="docutils literal notranslate"><span class="pre">RawPhotoIonTransProbs.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs.latex_name"><code class="docutils literal notranslate"><span class="pre">RawPhotoIonTransProbs.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs.outputs"><code class="docutils literal notranslate"><span class="pre">RawPhotoIonTransProbs.outputs</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs.transition_probabilities_outputs"><code class="docutils literal notranslate"><span class="pre">RawPhotoIonTransProbs.transition_probabilities_outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs"><code class="docutils literal notranslate"><span class="pre">RawRecombTransProbs</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs.calculate"><code class="docutils literal notranslate"><span class="pre">RawRecombTransProbs.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs.latex_name"><code class="docutils literal notranslate"><span class="pre">RawRecombTransProbs.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs.outputs"><code class="docutils literal notranslate"><span class="pre">RawRecombTransProbs.outputs</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs.transition_probabilities_outputs"><code class="docutils literal notranslate"><span class="pre">RawRecombTransProbs.transition_probabilities_outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs"><code class="docutils literal notranslate"><span class="pre">RawTwoPhotonTransProbs</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs.calculate"><code class="docutils literal notranslate"><span class="pre">RawTwoPhotonTransProbs.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs.outputs"><code class="docutils literal notranslate"><span class="pre">RawTwoPhotonTransProbs.outputs</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs.transition_probabilities_outputs"><code class="docutils literal notranslate"><span class="pre">RawTwoPhotonTransProbs.transition_probabilities_outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff"><code class="docutils literal notranslate"><span class="pre">SpontRecombCoolingRateCoeff</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff.calculate"><code class="docutils literal notranslate"><span class="pre">SpontRecombCoolingRateCoeff.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff.latex_name"><code class="docutils literal notranslate"><span class="pre">SpontRecombCoolingRateCoeff.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff.outputs"><code class="docutils literal notranslate"><span class="pre">SpontRecombCoolingRateCoeff.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.StimRecombCoolingRateCoeffEstimator"><code class="docutils literal notranslate"><span class="pre">StimRecombCoolingRateCoeffEstimator</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.StimRecombCoolingRateCoeffEstimator.outputs"><code class="docutils literal notranslate"><span class="pre">StimRecombCoolingRateCoeffEstimator.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF"><code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF.calculate"><code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF.calculate_j_nu"><code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF.calculate_j_nu()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF.outputs"><code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonFrequencySampler"><code class="docutils literal notranslate"><span class="pre">TwoPhotonFrequencySampler</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonFrequencySampler.calculate"><code class="docutils literal notranslate"><span class="pre">TwoPhotonFrequencySampler.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonFrequencySampler.outputs"><code class="docutils literal notranslate"><span class="pre">TwoPhotonFrequencySampler.outputs</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html">tardis.plasma.properties.continuum_processes.recomb_rate_coeff module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff"><code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff.calculate"><code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff.latex_name"><code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff.outputs"><code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff"><code class="docutils literal notranslate"><span class="pre">StimRecombRateCoeff</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff.calculate"><code class="docutils literal notranslate"><span class="pre">StimRecombRateCoeff.calculate()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff.latex_name"><code class="docutils literal notranslate"><span class="pre">StimRecombRateCoeff.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff.outputs"><code class="docutils literal notranslate"><span class="pre">StimRecombRateCoeff.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateFactor"><code class="docutils literal notranslate"><span class="pre">StimRecombRateFactor</span></code></a><ul>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateFactor.latex_name"><code class="docutils literal notranslate"><span class="pre">StimRecombRateFactor.latex_name</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateFactor.outputs"><code class="docutils literal notranslate"><span class="pre">StimRecombRateFactor.outputs</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.continuum_processes.html#module-tardis.plasma.properties.continuum_processes">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.plasma.properties.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.properties.atomic.html">tardis.plasma.properties.atomic module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.ContinuumInteractionHandler"><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionHandler</span></code></a><ul>
@@ -3014,24 +2829,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.properties.nlte_excitation_data.html">tardis.plasma.properties.nlte_excitation_data module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.nlte_excitation_data.html#tardis.plasma.properties.nlte_excitation_data.NLTEExcitationData"><code class="docutils literal notranslate"><span class="pre">NLTEExcitationData</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.properties.nlte_rate_equation_solver.html">tardis.plasma.properties.nlte_rate_equation_solver module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.calculate"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU.calculate()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.calculate_lu_solver_delta"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU.calculate_lu_solver_delta()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverRoot</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot.calculate"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverRoot.calculate()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverRoot.outputs</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.properties.partition_function.html">tardis.plasma.properties.partition_function module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorDiluteLTE</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE.calculate"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorDiluteLTE.calculate()</span></code></a></li>
@@ -3121,14 +2918,6 @@
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.LinkTRadTElectron.outputs"><code class="docutils literal notranslate"><span class="pre">LinkTRadTElectron.outputs</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEExcitationSpecies"><code class="docutils literal notranslate"><span class="pre">NLTEExcitationSpecies</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEExcitationSpecies.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEExcitationSpecies.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEIonizationSpecies"><code class="docutils literal notranslate"><span class="pre">NLTEIonizationSpecies</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEIonizationSpecies.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEIonizationSpecies.outputs</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NumberDensity"><code class="docutils literal notranslate"><span class="pre">NumberDensity</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NumberDensity.latex_name"><code class="docutils literal notranslate"><span class="pre">NumberDensity.latex_name</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NumberDensity.outputs"><code class="docutils literal notranslate"><span class="pre">NumberDensity.outputs</span></code></a></li>
@@ -3169,15 +2958,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.properties.rate_matrix_index.html">tardis.plasma.properties.rate_matrix_index module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper"><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.calculate"><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper.calculate()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.calculate_rate_matrix_index"><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper.calculate_rate_matrix_index()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper.outputs</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.plasma.properties.html#module-tardis.plasma.properties">Module contents</a></li>
@@ -3207,6 +2987,14 @@
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="api/tardis.plasma.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/tardis.plasma.array_util.html">tardis.plasma.array_util module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.cooling_rate_series2dataframe"><code class="docutils literal notranslate"><span class="pre">cooling_rate_series2dataframe()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.cumulative_integrate_array_by_blocks"><code class="docutils literal notranslate"><span class="pre">cumulative_integrate_array_by_blocks()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.get_ground_state_multi_index"><code class="docutils literal notranslate"><span class="pre">get_ground_state_multi_index()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.get_ion_multi_index"><code class="docutils literal notranslate"><span class="pre">get_ion_multi_index()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.numba_cumulative_trapezoid"><code class="docutils literal notranslate"><span class="pre">numba_cumulative_trapezoid()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l6"><a class="reference internal" href="api/tardis.plasma.base.html">tardis.plasma.base module</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.plasma.base.html#tardis.plasma.base.BasePlasma"><code class="docutils literal notranslate"><span class="pre">BasePlasma</span></code></a><ul>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.base.html#tardis.plasma.base.BasePlasma.freeze"><code class="docutils literal notranslate"><span class="pre">BasePlasma.freeze()</span></code></a></li>
@@ -4559,7 +4347,6 @@
 <li class="toctree-l4"><a class="reference internal" href="io/configuration/components/plasma.html">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="io/configuration/components/plasma.html#continuum-interaction">Continuum Interaction</a></li>
 <li class="toctree-l5"><a class="reference internal" href="io/configuration/components/plasma.html#nlte">NLTE</a></li>
-<li class="toctree-l5"><a class="reference internal" href="io/configuration/components/plasma.html#nlte-ionization">NLTE Ionization</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="io/configuration/components/models/index.html">Models</a><ul>
@@ -4784,10 +4571,9 @@
 <li class="toctree-l4"><a class="reference internal" href="current_developers/continuous_integration.html#pre-release">Pre-Release</a></li>
 <li class="toctree-l4"><a class="reference internal" href="current_developers/continuous_integration.html#release">Release</a></li>
 <li class="toctree-l4"><a class="reference internal" href="current_developers/continuous_integration.html#post-release">Post-Release</a></li>
-<li class="toctree-l4"><a class="reference internal" href="current_developers/continuous_integration.html#tardis-carsus-compatibility-check">TARDIS Carsus Compatibility Check</a></li>
-<li class="toctree-l4"><a class="reference internal" href="current_developers/continuous_integration.html#save-atomic-files-workflow">Save Atomic Files Workflow</a></li>
 <li class="toctree-l4"><a class="reference internal" href="current_developers/continuous_integration.html#regression-data-comparison-workflow">Regression Data Comparison Workflow</a></li>
 <li class="toctree-l4"><a class="reference internal" href="current_developers/continuous_integration.html#lfs-cache-workflow">LFS-Cache Workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="current_developers/continuous_integration.html#research-papers-workflow">Research Papers Workflow</a></li>
 </ul>
 </li>
 </ul>
@@ -4805,7 +4591,12 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="current_developers/design_philosophy.html">TARDIS Design Philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="current_developers/design_philosophy.html">TARDIS Design Philosophy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="current_developers/design_philosophy.html#exception-handling">Exception handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="current_developers/design_philosophy.html#general-notes">General notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="current_developers/design_philosophy.html#dos-and-don-ts">Dos and Don’ts</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="current_developers/documentation.html">Documentation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="current_developers/documentation.html#docstrings">Docstrings</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="current_developers/documentation.html#reference-docstring-reference">Reference: Docstring Reference</a></li>
@@ -5003,8 +4794,6 @@
       </ul></li>
       <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.adiabatic_cooling">adiabatic_cooling() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate">AdiabaticCoolingRate (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
       <li><a href="api/tardis.plasma.equilibrium.rates.heating_cooling_rates.html#tardis.plasma.equilibrium.rates.heating_cooling_rates.AdiabaticThermalRates">AdiabaticThermalRates (class in tardis.plasma.equilibrium.rates.heating_cooling_rates)</a>
 </li>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.advance_state">advance_state() (tardis.simulation.base.Simulation method)</a>
@@ -5043,10 +4832,10 @@
 </li>
       <li><a href="api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.angle_aberration_LF_to_CMF">angle_aberration_LF_to_CMF() (in module tardis.transport.frame_transformations)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.apply_to_multiple_shells">apply_to_multiple_shells() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData">ArepoData (class in tardis.io.model.arepo)</a>
 
       <ul>
@@ -5187,10 +4976,10 @@
         <li><a href="api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.BetaSobolev">(class in tardis.opacities.tau_sobolev)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.BF_COOLING">BF_COOLING (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.BF_COOLING">BF_COOLING (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
       <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.bf_cooling">bf_cooling() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.BF_EMISSION">BF_EMISSION (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
@@ -5204,8 +4993,6 @@
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.BfHeatingRateCoeff">BfHeatingRateCoeff (class in tardis.iip_plasma.properties.continuum)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.BfHeatingRateCoeffEstim">BfHeatingRateCoeffEstim (class in tardis.iip_plasma.properties.continuum)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.BfHeatingRateCoeffEstimator">BfHeatingRateCoeffEstimator (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
       <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.blackbody_packet_source">blackbody_packet_source (tardis.model.base.SimulationState property)</a>
 </li>
@@ -5382,8 +5169,6 @@
 </li>
         <li><a href="api/tardis.opacities.continuum.bound_free.html#tardis.opacities.continuum.bound_free.BoundFreeOpacity.calculate">(tardis.opacities.continuum.bound_free.BoundFreeOpacity method)</a>
 </li>
-        <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.calculate">(tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs method)</a>
-</li>
         <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.MarkovChainIndex.calculate">(tardis.opacities.macro_atom.transition_probabilities.MarkovChainIndex method)</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.MarkovChainTransProbs.calculate">(tardis.opacities.macro_atom.transition_probabilities.MarkovChainTransProbs method)</a>
@@ -5426,46 +5211,6 @@
 </li>
         <li><a href="api/tardis.plasma.properties.base.html#tardis.plasma.properties.base.ProcessingPlasmaProperty.calculate">(tardis.plasma.properties.base.ProcessingPlasmaProperty method)</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate.calculate">(tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff.calculate">(tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff.calculate">(tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton.calculate">(tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff.calculate">(tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff.calculate">(tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate.calculate">(tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF.calculate">(tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate.calculate">(tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE.calculate">(tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor.calculate">(tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor static method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs.calculate">(tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs.calculate">(tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs.calculate">(tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs.calculate">(tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff.calculate">(tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF.calculate">(tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonFrequencySampler.calculate">(tardis.plasma.properties.continuum_processes.rates.TwoPhotonFrequencySampler method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff.calculate">(tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff.calculate">(tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff method)</a>
-</li>
         <li><a href="api/tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaElectron.calculate">(tardis.plasma.properties.general.BetaElectron method)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaRadiation.calculate">(tardis.plasma.properties.general.BetaRadiation method)</a>
@@ -5502,10 +5247,6 @@
 </li>
         <li><a href="api/tardis.plasma.properties.level_population.html#tardis.plasma.properties.level_population.LevelNumberDensityHeNLTE.calculate">(tardis.plasma.properties.level_population.LevelNumberDensityHeNLTE method)</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.calculate">(tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot.calculate">(tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot method)</a>
-</li>
         <li><a href="api/tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE.calculate">(tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE method)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorLTE.calculate">(tardis.plasma.properties.partition_function.LevelBoltzmannFactorLTE static method)</a>
@@ -5527,8 +5268,6 @@
         <li><a href="api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs.calculate">(tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs method)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.calculate">(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor method)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.calculate">(tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper method)</a>
 </li>
       </ul></li>
       <li><a href="api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_absorption_luminosities">calculate_absorption_luminosities() (in module tardis.visualization.sdec.util)</a>
@@ -5619,15 +5358,11 @@
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_intersection_point_cuda">calculate_intersection_point_cuda() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF.calculate_j_nu">calculate_j_nu() (tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF static method)</a>
-</li>
       <li><a href="api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jblue_lu">calculate_Jblue_lu() (tardis.spectrum.formal_integral.source_function.SourceFunctionSolver method)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jred_lu">calculate_Jred_lu() (tardis.spectrum.formal_integral.source_function.SourceFunctionSolver method)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties.calculate_lte_quantities">calculate_lte_quantities() (tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties method)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.calculate_lu_solver_delta">calculate_lu_solver_delta() (tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU static method)</a>
 </li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.calculate_luminosity">calculate_luminosity() (in module tardis.util.base)</a>
 </li>
@@ -5659,8 +5394,6 @@
         <li><a href="api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource.calculate_radfield_luminosity">(tardis.transport.montecarlo.packet_source.BasePacketSource method)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.calculate_rate_matrix_index">calculate_rate_matrix_index() (tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper method)</a>
-</li>
       <li><a href="api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.calculate_sobolev_line_opacity">calculate_sobolev_line_opacity() (in module tardis.opacities.tau_sobolev)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_stimulated_recombination_rate_coeff">calculate_stimulated_recombination_rate_coeff() (tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver method)</a>
@@ -5691,8 +5424,6 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.PanelTableWidget.change_selection">change_selection() (tardis.visualization.widgets.util.PanelTableWidget method)</a>
 </li>
-      <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.check_continuum_interaction_species">check_continuum_interaction_species() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
-</li>
       <li><a href="api/tardis.io.util.html#tardis.io.util.check_equality">check_equality() (in module tardis.io.util)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.check_eventhandler">check_eventhandler() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
@@ -5707,8 +5438,6 @@
 </li>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.chi_continuum_calculator">chi_continuum_calculator() (in module tardis.opacities.opacities)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.chi_electron_calculator">chi_electron_calculator() (in module tardis.opacities.opacities)</a>
 </li>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.chi_ff_calculator">chi_ff_calculator() (in module tardis.opacities.opacities)</a>
@@ -5759,6 +5488,8 @@
         <li><a href="api/tardis.transport.montecarlo.packets.virtual_packet.html#tardis.transport.montecarlo.packets.virtual_packet.VPacket.class_type">(tardis.transport.montecarlo.packets.virtual_packet.VPacket attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.atom_data.collision_data.html#tardis.io.atom_data.collision_data.CMFGENCollisionData">CMFGENCollisionData (class in tardis.io.atom_data.collision_data)</a>
 </li>
       <li><a href="api/tardis.io.model.readers.cmfgen.html#tardis.io.model.readers.cmfgen.CMFGENModel">CMFGENModel (class in tardis.io.model.readers.cmfgen)</a>
@@ -5792,8 +5523,6 @@
       <ul>
         <li><a href="api/tardis.plasma.equilibrium.rates.collision_strengths.html#tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff">(class in tardis.plasma.equilibrium.rates.collision_strengths)</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff">(class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
       </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollExcCooling">CollExcCooling (class in tardis.iip_plasma.properties.continuum)</a>
 </li>
@@ -5802,12 +5531,8 @@
       <ul>
         <li><a href="api/tardis.plasma.equilibrium.rates.collision_strengths.html#tardis.plasma.equilibrium.rates.collision_strengths.CollExcRateCoeff">(class in tardis.plasma.equilibrium.rates.collision_strengths)</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff">(class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
       </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollIonRateCoeff">CollIonRateCoeff (class in tardis.iip_plasma.properties.continuum)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton">CollIonRateCoeffSeaton (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_deexc_to_k_packet">collisional_transition_deexc_to_k_packet() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
 </li>
@@ -5840,11 +5565,7 @@
       <li><a href="api/tardis.iip_plasma.continuum.collisional_processes.html#tardis.iip_plasma.continuum.collisional_processes.CollisionalRecombination">CollisionalRecombination (class in tardis.iip_plasma.continuum.collisional_processes)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollRecombRateCoeff">CollRecombRateCoeff (class in tardis.iip_plasma.properties.continuum)</a>
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff">(class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
-      </ul></li>
       <li><a href="api/tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.ColoredLogger.COLOR_FORMAT">COLOR_FORMAT (tardis.io.logger.colored_logger.ColoredLogger attribute)</a>
 </li>
       <li><a href="api/tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.ColoredFormatter">ColoredFormatter (class in tardis.io.logger.colored_logger)</a>
@@ -5961,13 +5682,13 @@
       </ul></li>
       <li><a href="api/tardis.iip_plasma.continuum.cooling.html#tardis.iip_plasma.continuum.cooling.CoolingData.cooling_probability">cooling_probability (tardis.iip_plasma.continuum.cooling.CoolingData attribute)</a>
 </li>
+      <li><a href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.cooling_rate_series2dataframe">cooling_rate_series2dataframe() (in module tardis.plasma.array_util)</a>
+</li>
       <li><a href="api/tardis.iip_plasma.continuum.cooling.html#tardis.iip_plasma.continuum.cooling.CoolingData">CoolingData (class in tardis.iip_plasma.continuum.cooling)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.cooling.html#tardis.iip_plasma.continuum.cooling.CoolingRates">CoolingRates (class in tardis.iip_plasma.continuum.cooling)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.cooling.html#tardis.iip_plasma.continuum.cooling.CoolingRatesLegacy">CoolingRatesLegacy (class in tardis.iip_plasma.continuum.cooling)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff">CorrPhotoIonRateCoeff (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs">create_absorbing_probs() (in module tardis.opacities.macro_atom.absorbing_markov_chain)</a>
 </li>
@@ -6169,7 +5890,7 @@
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.CudaFormalIntegrator">CudaFormalIntegrator (class in tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.fast_array_util.html#tardis.plasma.properties.continuum_processes.fast_array_util.cumulative_integrate_array_by_blocks">cumulative_integrate_array_by_blocks() (in module tardis.plasma.properties.continuum_processes.fast_array_util)</a>
+      <li><a href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.cumulative_integrate_array_by_blocks">cumulative_integrate_array_by_blocks() (in module tardis.plasma.array_util)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget">CustomAbundanceWidget (class in tardis.visualization.widgets.custom_abundance)</a>
 </li>
@@ -6351,10 +6072,6 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.emitted_packet_nu">emitted_packet_nu (tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState property)</a>
 </li>
-      <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.enable_adiabatic_cooling">enable_adiabatic_cooling (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
-</li>
-      <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.enable_two_photon_decay">enable_two_photon_decay (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
-</li>
       <li><a href="api/tardis.io.model.snec.snec_input.html#tardis.io.model.snec.snec_input.SNECIsotopeProfile.enclosed_mass">enclosed_mass (tardis.io.model.snec.snec_input.SNECIsotopeProfile attribute)</a>
 </li>
       <li><a href="api/tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketStatus.END">END (tardis.energy_input.transport.GXPacket.GXPacketStatus attribute)</a>
@@ -6385,10 +6102,10 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.mc_rad_field_solver.html#tardis.transport.montecarlo.estimators.mc_rad_field_solver.MCRadiationFieldPropertiesSolver.estimate_jblues">estimate_jblues() (tardis.transport.montecarlo.estimators.mc_rad_field_solver.MCRadiationFieldPropertiesSolver method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.estimate_t_inner">estimate_t_inner() (tardis.simulation.base.Simulation method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.EstimatedPhotoionizationCoeffSolver">EstimatedPhotoionizationCoeffSolver (class in tardis.plasma.equilibrium.rates.photoionization_strengths)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver">EstimatedPhotoionizationRateSolver (class in tardis.plasma.equilibrium.rates.photoionization_rates)</a>
@@ -6517,13 +6234,7 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.free_free_emission">free_free_emission() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate">FreeBoundCoolingRate (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF">FreeBoundEmissionCDF (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
       <li><a href="api/tardis.iip_plasma.continuum.radiative_processes.html#tardis.iip_plasma.continuum.radiative_processes.FreeFree">FreeFree (class in tardis.iip_plasma.continuum.radiative_processes)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate">FreeFreeCoolingRate (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.heating_cooling_rates.html#tardis.plasma.equilibrium.rates.heating_cooling_rates.FreeFreeThermalRates">FreeFreeThermalRates (class in tardis.plasma.equilibrium.rates.heating_cooling_rates)</a>
 </li>
@@ -6549,8 +6260,6 @@
         <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigurationNameSpace.from_config_dict">(tardis.io.configuration.config_reader.ConfigurationNameSpace class method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.from_csvy">from_csvy() (tardis.model.base.SimulationState class method)</a>
 
       <ul>
@@ -6559,6 +6268,8 @@
         <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData.from_csvy">(tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData class method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.from_hdf">from_hdf() (tardis.io.atom_data.base.AtomData class method)</a>
 
       <ul>
@@ -6759,6 +6470,8 @@
         <li><a href="api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_upper">(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor method)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.get_ground_state_multi_index">get_ground_state_multi_index() (in module tardis.plasma.array_util)</a>
+</li>
       <li><a href="api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.get_hex_color_strings">get_hex_color_strings() (in module tardis.visualization.plot_util)</a>
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.get_index">get_index() (in module tardis.energy_input.util)</a>
@@ -6776,7 +6489,11 @@
       <li><a href="api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor_partial_relativity">get_inverse_doppler_factor_partial_relativity() (in module tardis.transport.frame_transformations)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.util.html#tardis.iip_plasma.continuum.util.get_ion_multi_index">get_ion_multi_index() (in module tardis.iip_plasma.continuum.util)</a>
+
+      <ul>
+        <li><a href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.get_ion_multi_index">(in module tardis.plasma.array_util)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.get_isotope_string">get_isotope_string() (in module tardis.energy_input.energy_source)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.line_info.html#tardis.visualization.widgets.line_info.LineInfoWidget.get_last_line_counts">get_last_line_counts() (tardis.visualization.widgets.line_info.LineInfoWidget method)</a>
@@ -7048,8 +6765,6 @@
       <li><a href="api/tardis.iip_plasma.standard_plasmas.html#tardis.iip_plasma.standard_plasmas.LegacyPlasmaArray.initial_w">initial_w() (tardis.iip_plasma.standard_plasmas.LegacyPlasmaArray method)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.initialize">initialize (tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver attribute)</a>
-</li>
-      <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.initialize_continuum_properties">initialize_continuum_properties() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.initialize_formal_integral_inputs">initialize_formal_integral_inputs() (in module tardis.spectrum.formal_integral.formal_integral_numba)</a>
 </li>
@@ -7494,8 +7209,6 @@
 </li>
         <li><a href="api/tardis.opacities.continuum.bound_free.html#tardis.opacities.continuum.bound_free.BoundFreeOpacity.latex_name">(tardis.opacities.continuum.bound_free.BoundFreeOpacity attribute)</a>
 </li>
-        <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.latex_name">(tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs attribute)</a>
-</li>
         <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.MarkovChainTransProbs.latex_name">(tardis.opacities.macro_atom.transition_probabilities.MarkovChainTransProbs attribute)</a>
 </li>
         <li><a href="api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.BetaSobolev.latex_name">(tardis.opacities.tau_sobolev.BetaSobolev attribute)</a>
@@ -7515,44 +7228,6 @@
         <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.latex_name">(tardis.plasma.properties.atomic.YgData attribute)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgInterpolator.latex_name">(tardis.plasma.properties.atomic.YgInterpolator attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff.latex_name">(tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate.latex_name">(tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.BfHeatingRateCoeffEstimator.latex_name">(tardis.plasma.properties.continuum_processes.rates.BfHeatingRateCoeffEstimator attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff.latex_name">(tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff.latex_name">(tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton.latex_name">(tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff.latex_name">(tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff.latex_name">(tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate.latex_name">(tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF.latex_name">(tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate.latex_name">(tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE.latex_name">(tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs.latex_name">(tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs.latex_name">(tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs.latex_name">(tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff.latex_name">(tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff.latex_name">(tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff.latex_name">(tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateFactor.latex_name">(tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateFactor attribute)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaElectron.latex_name">(tardis.plasma.properties.general.BetaElectron attribute)</a>
 </li>
@@ -7680,8 +7355,6 @@
 </li>
       </ul></li>
       <li><a href="api/tardis.plasma.properties.level_population.html#tardis.plasma.properties.level_population.LevelNumberDensityHeNLTE">LevelNumberDensityHeNLTE (class in tardis.plasma.properties.level_population)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE">LevelNumberDensityLTE (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.level_populations.html#tardis.plasma.equilibrium.level_populations.LevelPopulationSolver">LevelPopulationSolver (class in tardis.plasma.equilibrium.level_populations)</a>
 </li>
@@ -8165,10 +7838,6 @@
 </li>
         <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#module-tardis.opacities.macro_atom.absorbing_markov_chain">tardis.opacities.macro_atom.absorbing_markov_chain</a>
 </li>
-        <li><a href="api/tardis.opacities.macro_atom.continuum_processes.html#module-tardis.opacities.macro_atom.continuum_processes">tardis.opacities.macro_atom.continuum_processes</a>
-</li>
-        <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#module-tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob">tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob</a>
-</li>
         <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#module-tardis.opacities.macro_atom.macroatom_continuum_transitions">tardis.opacities.macro_atom.macroatom_continuum_transitions</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.macroatom_line_transitions.html#module-tardis.opacities.macro_atom.macroatom_line_transitions">tardis.opacities.macro_atom.macroatom_line_transitions</a>
@@ -8194,6 +7863,8 @@
         <li><a href="api/tardis.opacities.tau_sobolev.html#module-tardis.opacities.tau_sobolev">tardis.opacities.tau_sobolev</a>
 </li>
         <li><a href="api/tardis.plasma.html#module-tardis.plasma">tardis.plasma</a>
+</li>
+        <li><a href="api/tardis.plasma.array_util.html#module-tardis.plasma.array_util">tardis.plasma.array_util</a>
 </li>
         <li><a href="api/tardis.plasma.assembly.html#module-tardis.plasma.assembly">tardis.plasma.assembly</a>
 </li>
@@ -8245,16 +7916,6 @@
 </li>
         <li><a href="api/tardis.plasma.properties.base.html#module-tardis.plasma.properties.base">tardis.plasma.properties.base</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.html#module-tardis.plasma.properties.continuum_processes">tardis.plasma.properties.continuum_processes</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.fast_array_util.html#module-tardis.plasma.properties.continuum_processes.fast_array_util">tardis.plasma.properties.continuum_processes.fast_array_util</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#module-tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff">tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#module-tardis.plasma.properties.continuum_processes.rates">tardis.plasma.properties.continuum_processes.rates</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#module-tardis.plasma.properties.continuum_processes.recomb_rate_coeff">tardis.plasma.properties.continuum_processes.recomb_rate_coeff</a>
-</li>
         <li><a href="api/tardis.plasma.properties.general.html#module-tardis.plasma.properties.general">tardis.plasma.properties.general</a>
 </li>
         <li><a href="api/tardis.plasma.properties.helium_nlte.html#module-tardis.plasma.properties.helium_nlte">tardis.plasma.properties.helium_nlte</a>
@@ -8269,10 +7930,6 @@
 </li>
         <li><a href="api/tardis.plasma.properties.nlte.html#module-tardis.plasma.properties.nlte">tardis.plasma.properties.nlte</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.nlte_excitation_data.html#module-tardis.plasma.properties.nlte_excitation_data">tardis.plasma.properties.nlte_excitation_data</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#module-tardis.plasma.properties.nlte_rate_equation_solver">tardis.plasma.properties.nlte_rate_equation_solver</a>
-</li>
         <li><a href="api/tardis.plasma.properties.partition_function.html#module-tardis.plasma.properties.partition_function">tardis.plasma.properties.partition_function</a>
 </li>
         <li><a href="api/tardis.plasma.properties.plasma_input.html#module-tardis.plasma.properties.plasma_input">tardis.plasma.properties.plasma_input</a>
@@ -8280,8 +7937,6 @@
         <li><a href="api/tardis.plasma.properties.property_collections.html#module-tardis.plasma.properties.property_collections">tardis.plasma.properties.property_collections</a>
 </li>
         <li><a href="api/tardis.plasma.properties.radiative_properties.html#module-tardis.plasma.properties.radiative_properties">tardis.plasma.properties.radiative_properties</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.rate_matrix_index.html#module-tardis.plasma.properties.rate_matrix_index">tardis.plasma.properties.rate_matrix_index</a>
 </li>
         <li><a href="api/tardis.plasma.radiation_field.html#module-tardis.plasma.radiation_field">tardis.plasma.radiation_field</a>
 </li>
@@ -8556,12 +8211,6 @@
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nebular_ionization_delta_treatment">nebular_ionization_delta_treatment (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
-      <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nlte_excitation_species">nlte_excitation_species (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
-</li>
-      <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nlte_ionization_species">nlte_ionization_species (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
-</li>
-      <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nlte_solver">nlte_solver (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
-</li>
       <li><a href="api/tardis.iip_plasma.properties.atomic.html#tardis.iip_plasma.properties.atomic.NLTEData">NLTEData (class in tardis.iip_plasma.properties.atomic)</a>
 
       <ul>
@@ -8570,22 +8219,8 @@
         <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.NLTEData">(class in tardis.plasma.properties.atomic)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.plasma.properties.nlte_excitation_data.html#tardis.plasma.properties.nlte_excitation_data.NLTEExcitationData">NLTEExcitationData (class in tardis.plasma.properties.nlte_excitation_data)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEExcitationSpecies">NLTEExcitationSpecies (class in tardis.plasma.properties.plasma_input)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper">NLTEIndexHelper (class in tardis.plasma.properties.rate_matrix_index)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEIonizationSpecies">NLTEIonizationSpecies (class in tardis.plasma.properties.plasma_input)</a>
-</li>
       <li><a href="api/tardis.iip_plasma.properties.ion_population.html#tardis.iip_plasma.properties.ion_population.NLTEIonNumberDensity">NLTEIonNumberDensity (class in tardis.iip_plasma.properties.ion_population)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU">NLTEPopulationSolverLU (class in tardis.plasma.properties.nlte_rate_equation_solver)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot">NLTEPopulationSolverRoot (class in tardis.plasma.properties.nlte_rate_equation_solver)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.NO_INTERACTION">NO_INTERACTION (tardis.transport.montecarlo.packets.radiative_packet.InteractionType attribute)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.no_of_elements">no_of_elements (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget property)</a>
@@ -8604,6 +8239,8 @@
         <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.no_of_shells">(tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells_active">no_of_shells_active (tardis.model.geometry.radial1d.HomologousRadial1DGeometry property)</a>
 
       <ul>
@@ -8638,7 +8275,7 @@
 </li>
       <li><a href="api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.numba_calculate_beta_sobolev">numba_calculate_beta_sobolev() (in module tardis.opacities.tau_sobolev)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.fast_array_util.html#tardis.plasma.properties.continuum_processes.fast_array_util.numba_cumulative_trapezoid">numba_cumulative_trapezoid() (in module tardis.plasma.properties.continuum_processes.fast_array_util)</a>
+      <li><a href="api/tardis.plasma.array_util.html#tardis.plasma.array_util.numba_cumulative_trapezoid">numba_cumulative_trapezoid() (in module tardis.plasma.array_util)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.numba_formal_integral">numba_formal_integral() (in module tardis.spectrum.formal_integral.formal_integral_numba)</a>
 </li>
@@ -8865,8 +8502,6 @@
 </li>
         <li><a href="api/tardis.opacities.continuum.bound_free.html#tardis.opacities.continuum.bound_free.BoundFreeOpacity.outputs">(tardis.opacities.continuum.bound_free.BoundFreeOpacity attribute)</a>
 </li>
-        <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.outputs">(tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs attribute)</a>
-</li>
         <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.MarkovChainIndex.outputs">(tardis.opacities.macro_atom.transition_probabilities.MarkovChainIndex attribute)</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.MarkovChainTransProbs.outputs">(tardis.opacities.macro_atom.transition_probabilities.MarkovChainTransProbs attribute)</a>
@@ -8917,54 +8552,6 @@
 </li>
         <li><a href="api/tardis.plasma.properties.base.html#tardis.plasma.properties.base.BasePlasmaProperty.outputs">(tardis.plasma.properties.base.BasePlasmaProperty property)</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff.outputs">(tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate.outputs">(tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.BfHeatingRateCoeffEstimator.outputs">(tardis.plasma.properties.continuum_processes.rates.BfHeatingRateCoeffEstimator attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff.outputs">(tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff.outputs">(tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton.outputs">(tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff.outputs">(tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff.outputs">(tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate.outputs">(tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF.outputs">(tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate.outputs">(tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE.outputs">(tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor.outputs">(tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs.outputs">(tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs.outputs">(tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs.outputs">(tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs.outputs">(tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff.outputs">(tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.StimRecombCoolingRateCoeffEstimator.outputs">(tardis.plasma.properties.continuum_processes.rates.StimRecombCoolingRateCoeffEstimator attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF.outputs">(tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonFrequencySampler.outputs">(tardis.plasma.properties.continuum_processes.rates.TwoPhotonFrequencySampler attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff.outputs">(tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff.outputs">(tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateFactor.outputs">(tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateFactor attribute)</a>
-</li>
         <li><a href="api/tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaElectron.outputs">(tardis.plasma.properties.general.BetaElectron attribute)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaRadiation.outputs">(tardis.plasma.properties.general.BetaRadiation attribute)</a>
@@ -9005,10 +8592,6 @@
 </li>
         <li><a href="api/tardis.plasma.properties.nlte.html#tardis.plasma.properties.nlte.PreviousElectronDensities.outputs">(tardis.plasma.properties.nlte.PreviousElectronDensities attribute)</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.outputs">(tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot.outputs">(tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot attribute)</a>
-</li>
         <li><a href="api/tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE.outputs">(tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE attribute)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorLTE.outputs">(tardis.plasma.properties.partition_function.LevelBoltzmannFactorLTE attribute)</a>
@@ -9041,10 +8624,6 @@
 </li>
         <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.LinkTRadTElectron.outputs">(tardis.plasma.properties.plasma_input.LinkTRadTElectron attribute)</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEExcitationSpecies.outputs">(tardis.plasma.properties.plasma_input.NLTEExcitationSpecies attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEIonizationSpecies.outputs">(tardis.plasma.properties.plasma_input.NLTEIonizationSpecies attribute)</a>
-</li>
         <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NumberDensity.outputs">(tardis.plasma.properties.plasma_input.NumberDensity attribute)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.TimeExplosion.outputs">(tardis.plasma.properties.plasma_input.TimeExplosion attribute)</a>
@@ -9054,8 +8633,6 @@
         <li><a href="api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs.outputs">(tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs attribute)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.outputs">(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.outputs">(tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -9198,8 +8775,6 @@
 </li>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.photoabsorption_opacity_calculation_kasen">photoabsorption_opacity_calculation_kasen() (in module tardis.opacities.opacities)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor">PhotoIonBoltzmannFactor (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.ContinuumProcess.photoionization_data">photoionization_data (tardis.iip_plasma.continuum.base.ContinuumProcess property)</a>
 
       <ul>
@@ -9213,11 +8788,7 @@
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.PhotoIonizationData">PhotoIonizationData (class in tardis.plasma.properties.atomic)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.PhotoIonRateCoeff">PhotoIonRateCoeff (class in tardis.iip_plasma.properties.continuum)</a>
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff">(class in tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff)</a>
 </li>
-      </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.estimators.html#tardis.iip_plasma.properties.estimators.PhotoIonRateEstimator">PhotoIonRateEstimator (class in tardis.iip_plasma.properties.estimators)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.estimators.html#tardis.iip_plasma.properties.estimators.PhotoIonRateStatistics">PhotoIonRateStatistics (class in tardis.iip_plasma.properties.estimators)</a>
@@ -9228,10 +8799,10 @@
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_collection">plasma_collection (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_modules">plasma_modules (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.base.html#tardis.iip_plasma.base.BasePlasma.plasma_properties_dict">plasma_properties_dict (tardis.iip_plasma.base.BasePlasma property)</a>
 
       <ul>
@@ -9484,17 +9055,7 @@
         <li><a href="api/tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.raw_csv_data">(tardis.io.model.csvy.data.CSVYData attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs">RawCollIonTransProbs (class in tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs">RawCollisionTransProbs (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs">RawPhotoIonTransProbs (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
       <li><a href="api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs">RawRadBoundBoundTransProbs (class in tardis.plasma.properties.radiative_properties)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs">RawRecombTransProbs (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs">RawTwoPhotonTransProbs (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_multi_apply_eventhandler">rbs_multi_apply_eventhandler() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
 </li>
@@ -9528,12 +9089,12 @@
 </li>
       <li><a href="api/tardis.io.model.readers.cmfgen_deprecated.html#tardis.io.model.readers.cmfgen_deprecated.read_cmfgen_composition">read_cmfgen_composition() (in module tardis.io.model.readers.cmfgen_deprecated)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.cmfgen_deprecated.html#tardis.io.model.readers.cmfgen_deprecated.read_cmfgen_density">read_cmfgen_density() (in module tardis.io.model.readers.cmfgen_deprecated)</a>
 </li>
       <li><a href="api/tardis.io.model.readers.cmfgen.html#tardis.io.model.readers.cmfgen.read_cmfgen_model">read_cmfgen_model() (in module tardis.io.model.readers.cmfgen)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_csv_composition">read_csv_composition() (in module tardis.io.model.readers.generic_readers)</a>
 </li>
       <li><a href="api/tardis.io.model.readers.util.html#tardis.io.model.readers.util.read_csv_isotope_mass_fractions">read_csv_isotope_mass_fractions() (in module tardis.io.model.readers.util)</a>
@@ -9688,8 +9249,6 @@
 </li>
       <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigurationNameSpace.set_config_item">set_config_item() (tardis.io.configuration.config_reader.ConfigurationNameSpace method)</a>
 </li>
-      <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.set_continuum_interaction_species_from_string">set_continuum_interaction_species_from_string() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
-</li>
       <li><a href="api/tardis.iip_plasma.properties.level_population.html#tardis.iip_plasma.properties.level_population.PreviousDepartureCoefficient.set_initial_value">set_initial_value() (tardis.iip_plasma.properties.level_population.PreviousDepartureCoefficient method)</a>
 
       <ul>
@@ -9741,8 +9300,6 @@
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup">setup() (tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver method)</a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.setup_analytical_approximations">setup_analytical_approximations() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
-</li>
-      <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.setup_continuum_interactions">setup_continuum_interactions() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.setup_electron_densities">setup_electron_densities() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
 </li>
@@ -9900,14 +9457,8 @@
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver">SpontaneousRecombinationCoeffSolver (class in tardis.plasma.equilibrium.rates.photoionization_strengths)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff">SpontRecombCoolingRateCoeff (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.SpontRecombRateCoeff">SpontRecombRateCoeff (class in tardis.iip_plasma.properties.continuum)</a>
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff">(class in tardis.plasma.properties.continuum_processes.recomb_rate_coeff)</a>
 </li>
-      </ul></li>
       <li><a href="api/tardis.util.environment.html#tardis.util.environment.Environment.SSH_JH">SSH_JH (tardis.util.environment.Environment attribute)</a>
 </li>
       <li><a href="api/tardis.util.panel_init.html#tardis.util.panel_init.ssh_jh">ssh_jh() (in module tardis.util.panel_init)</a>
@@ -9934,17 +9485,9 @@
 </li>
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.StimRecombCoolingRateCoeff">StimRecombCoolingRateCoeff (class in tardis.iip_plasma.properties.continuum)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.StimRecombCoolingRateCoeffEstimator">StimRecombCoolingRateCoeffEstimator (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.StimRecombRateCoeff">StimRecombRateCoeff (class in tardis.iip_plasma.properties.continuum)</a>
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff">(class in tardis.plasma.properties.continuum_processes.recomb_rate_coeff)</a>
 </li>
-      </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.estimators.html#tardis.iip_plasma.properties.estimators.StimRecombRateEstimator">StimRecombRateEstimator (class in tardis.iip_plasma.properties.estimators)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateFactor">StimRecombRateFactor (class in tardis.plasma.properties.continuum_processes.recomb_rate_coeff)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.ContinuumProperties.stimulated_recombination_rate_factor">stimulated_recombination_rate_factor (tardis.transport.montecarlo.estimators.continuum_radfield_properties.ContinuumProperties attribute)</a>
 </li>
@@ -10751,20 +10294,6 @@
 </li>
       </ul></li>
       <li>
-    tardis.opacities.macro_atom.continuum_processes
-
-      <ul>
-        <li><a href="api/tardis.opacities.macro_atom.continuum_processes.html#module-tardis.opacities.macro_atom.continuum_processes">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob
-
-      <ul>
-        <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#module-tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob">module</a>
-</li>
-      </ul></li>
-      <li>
     tardis.opacities.macro_atom.macroatom_continuum_transitions
 
       <ul>
@@ -10853,6 +10382,13 @@
 
       <ul>
         <li><a href="api/tardis.plasma.html#module-tardis.plasma">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.plasma.array_util
+
+      <ul>
+        <li><a href="api/tardis.plasma.array_util.html#module-tardis.plasma.array_util">module</a>
 </li>
       </ul></li>
       <li>
@@ -11023,6 +10559,8 @@
         <li><a href="api/tardis.plasma.properties.atomic.html#module-tardis.plasma.properties.atomic">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.base
 
@@ -11030,43 +10568,6 @@
         <li><a href="api/tardis.plasma.properties.base.html#module-tardis.plasma.properties.base">module</a>
 </li>
       </ul></li>
-      <li>
-    tardis.plasma.properties.continuum_processes
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.html#module-tardis.plasma.properties.continuum_processes">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.plasma.properties.continuum_processes.fast_array_util
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.fast_array_util.html#module-tardis.plasma.properties.continuum_processes.fast_array_util">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#module-tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.plasma.properties.continuum_processes.rates
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#module-tardis.plasma.properties.continuum_processes.rates">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.plasma.properties.continuum_processes.recomb_rate_coeff
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#module-tardis.plasma.properties.continuum_processes.recomb_rate_coeff">module</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.general
 
@@ -11117,20 +10618,6 @@
 </li>
       </ul></li>
       <li>
-    tardis.plasma.properties.nlte_excitation_data
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.nlte_excitation_data.html#module-tardis.plasma.properties.nlte_excitation_data">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.plasma.properties.nlte_rate_equation_solver
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#module-tardis.plasma.properties.nlte_rate_equation_solver">module</a>
-</li>
-      </ul></li>
-      <li>
     tardis.plasma.properties.partition_function
 
       <ul>
@@ -11156,13 +10643,6 @@
 
       <ul>
         <li><a href="api/tardis.plasma.properties.radiative_properties.html#module-tardis.plasma.properties.radiative_properties">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.plasma.properties.rate_matrix_index
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.rate_matrix_index.html#module-tardis.plasma.properties.rate_matrix_index">module</a>
 </li>
       </ul></li>
       <li>
@@ -12014,26 +11494,8 @@
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.ContinuumProcess.transition_down_filter">transition_down_filter (tardis.iip_plasma.continuum.base.ContinuumProcess property)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.transition_probabilities_outputs">transition_probabilities_outputs (tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs attribute)</a>
-
-      <ul>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate.transition_probabilities_outputs">(tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate attribute)</a>
+      <li><a href="api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs.transition_probabilities_outputs">transition_probabilities_outputs (tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs attribute)</a>
 </li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate.transition_probabilities_outputs">(tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate.transition_probabilities_outputs">(tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs.transition_probabilities_outputs">(tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs.transition_probabilities_outputs">(tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs.transition_probabilities_outputs">(tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs.transition_probabilities_outputs">(tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs attribute)</a>
-</li>
-        <li><a href="api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs.transition_probabilities_outputs">(tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs attribute)</a>
-</li>
-      </ul></li>
       <li><a href="api/tardis.io.atom_data.macro_atom_data.html#tardis.io.atom_data.macro_atom_data.MacroAtomData.transition_probability_data">transition_probability_data (tardis.io.atom_data.macro_atom_data.MacroAtomData attribute)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.ContinuumProcess.transition_up_filter">transition_up_filter (tardis.iip_plasma.continuum.base.ContinuumProcess property)</a>
@@ -12053,10 +11515,6 @@
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.TWO_PHOTON">TWO_PHOTON (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.TwoPhotonData">TwoPhotonData (class in tardis.plasma.properties.atomic)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF">TwoPhotonEmissionCDF (class in tardis.plasma.properties.continuum_processes.rates)</a>
-</li>
-      <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonFrequencySampler">TwoPhotonFrequencySampler (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -12369,7 +11827,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 20 Jul 2026.
+      <span class="lastupdated">Last updated on 22 Jul 2026.
       </span></p>
   </div>
 

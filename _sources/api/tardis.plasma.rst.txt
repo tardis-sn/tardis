@@ -19,6 +19,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   tardis.plasma.array_util
    tardis.plasma.base
    tardis.plasma.exceptions
    tardis.plasma.standard_plasmas
