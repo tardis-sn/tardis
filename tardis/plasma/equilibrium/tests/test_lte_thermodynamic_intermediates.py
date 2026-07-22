@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 import numpy.testing as npt
 import pandas.testing as pdt
@@ -13,6 +15,9 @@ from tardis.iip_plasma.properties.ion_population import (
 from tardis.iip_plasma.properties.ion_population import (
     PhiSahaElectrons,
     PhiSahaLTE,
+)
+from tardis.iip_plasma.properties.level_population import (
+    LevelNumberDensity as IIPLevelNumberDensity,
 )
 from tardis.iip_plasma.properties.level_population import PhiLucy
 from tardis.iip_plasma.properties.partition_function import (
@@ -66,13 +71,15 @@ from tardis.plasma.properties.partition_function import (
 
 
 @pytest.fixture
-def lte_equilibrium_inputs(basic_thermodynamic_state):
+def lte_equilibrium_inputs(
+    basic_thermodynamic_state: dict[str, Any],
+) -> dict[str, Any]:
     state = basic_thermodynamic_state
     atom_data = state["atomic_data"]
     selected_atoms = state["selected_atoms"]
-    levels, excitation_energy, metastability, g = StandardLevels(None).calculate(
-        atom_data, selected_atoms
-    )
+    levels, excitation_energy, metastability, g = StandardLevels(
+        None
+    ).calculate(atom_data, selected_atoms)
     iip_levels, iip_excitation_energy, iip_metastability, iip_g = Levels(
         None
     ).calculate(atom_data, selected_atoms)
@@ -111,23 +118,9 @@ def lte_equilibrium_inputs(basic_thermodynamic_state):
     }
 
 
-def _assert_canonical_frame_pair(standard, iip):
-    assert standard.index.names == [
-        "atomic_number",
-        "ion_number",
-        *(["level_number"] if standard.index.nlevels == 3 else []),
-    ]
-    pdt.assert_index_equal(standard.index, iip.index)
-    assert standard.shape == iip.shape
-    assert list(standard.columns) == list(iip.columns)
-    # The paired properties use identical formulas and inputs; this only
-    # allows ordinary double-precision round-off.
-    npt.assert_allclose(standard.to_numpy(), iip.to_numpy(), rtol=1e-12)
-
-
 def test_boltzmann_factors_and_partition_functions_match_iip(
-    lte_equilibrium_inputs,
-):
+    lte_equilibrium_inputs: dict[str, Any],
+) -> None:
     inputs = lte_equilibrium_inputs
 
     standard_rad_bf = LevelBoltzmannFactorLTE(None).calculate(
@@ -142,7 +135,7 @@ def test_boltzmann_factors_and_partition_functions_match_iip(
         inputs["beta_rad"],
         inputs["iip_levels"],
     )
-    _assert_canonical_frame_pair(standard_rad_bf, iip_rad_bf)
+    pdt.assert_frame_equal(standard_rad_bf, iip_rad_bf, rtol=1e-12, atol=0.0)
 
     standard_thermal_bf = ThermalLevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
@@ -156,7 +149,9 @@ def test_boltzmann_factors_and_partition_functions_match_iip(
         inputs["beta_electron"],
         inputs["iip_levels"],
     )
-    _assert_canonical_frame_pair(standard_thermal_bf, iip_thermal_bf)
+    pdt.assert_frame_equal(
+        standard_thermal_bf, iip_thermal_bf, rtol=1e-12, atol=0.0
+    )
 
     standard_dilute_bf = LevelBoltzmannFactorDiluteLTE(None).calculate(
         inputs["levels"],
@@ -174,18 +169,25 @@ def test_boltzmann_factors_and_partition_functions_match_iip(
         inputs["w"],
         inputs["iip_metastability"],
     )
-    _assert_canonical_frame_pair(standard_dilute_bf, iip_dilute_bf)
+    pdt.assert_frame_equal(
+        standard_dilute_bf, iip_dilute_bf, rtol=1e-12, atol=0.0
+    )
 
     standard_partition = PartitionFunction(None).calculate(standard_rad_bf)
     iip_partition = IIPPartitionFunction(None).calculate(iip_rad_bf)
-    _assert_canonical_frame_pair(standard_partition, iip_partition)
+    pdt.assert_frame_equal(
+        standard_partition, iip_partition, rtol=1e-12, atol=0.0
+    )
 
     standard_thermal_partition = ThermalLTEPartitionFunction(None).calculate(
         standard_thermal_bf
     )
     iip_thermal_partition = IIPPartitionFunction(None).calculate(iip_thermal_bf)
-    _assert_canonical_frame_pair(
-        standard_thermal_partition, iip_thermal_partition
+    pdt.assert_frame_equal(
+        standard_thermal_partition,
+        iip_thermal_partition,
+        rtol=1e-12,
+        atol=0.0,
     )
 
     expected_partition = standard_rad_bf.groupby(
@@ -196,8 +198,8 @@ def test_boltzmann_factors_and_partition_functions_match_iip(
 
 
 def test_dilute_lte_correction_only_changes_non_metastable_levels(
-    lte_equilibrium_inputs,
-):
+    lte_equilibrium_inputs: dict[str, Any],
+) -> None:
     inputs = lte_equilibrium_inputs
     dilute = LevelBoltzmannFactorDiluteLTE(None).calculate(
         inputs["levels"],
@@ -223,8 +225,8 @@ def test_dilute_lte_correction_only_changes_non_metastable_levels(
 
 
 def test_saha_factors_and_phi_ik_match_iip(
-    lte_equilibrium_inputs,
-):
+    lte_equilibrium_inputs: dict[str, Any],
+) -> None:
     inputs = lte_equilibrium_inputs
     standard_rad_bf = LevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
@@ -245,7 +247,7 @@ def test_saha_factors_and_phi_ik_match_iip(
         standard_partition,
         inputs["ionization_data"],
     )
-    _assert_canonical_frame_pair(standard_phi, iip_phi)
+    pdt.assert_frame_equal(standard_phi, iip_phi, rtol=1e-12, atol=0.0)
 
     standard_thermal_bf = ThermalLevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
@@ -268,7 +270,9 @@ def test_saha_factors_and_phi_ik_match_iip(
         standard_thermal_partition,
         inputs["ionization_data"],
     )
-    _assert_canonical_frame_pair(standard_thermal_phi, iip_thermal_phi)
+    pdt.assert_frame_equal(
+        standard_thermal_phi, iip_thermal_phi, rtol=1e-12, atol=0.0
+    )
 
     standard_phi_ik = SahaFactor(None).calculate(
         standard_thermal_phi, standard_thermal_bf, standard_thermal_partition
@@ -276,12 +280,12 @@ def test_saha_factors_and_phi_ik_match_iip(
     iip_phi_lucy = PhiLucy(None).calculate(
         iip_thermal_phi, standard_thermal_bf, standard_thermal_partition
     )
-    _assert_canonical_frame_pair(standard_phi_ik, iip_phi_lucy)
+    pdt.assert_frame_equal(standard_phi_ik, iip_phi_lucy, rtol=1e-12, atol=0.0)
 
 
 def test_lte_ion_and_level_populations_conserve_elements(
-    lte_equilibrium_inputs,
-):
+    lte_equilibrium_inputs: dict[str, Any],
+) -> None:
     inputs = lte_equilibrium_inputs
     level_bf = LevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
@@ -297,13 +301,13 @@ def test_lte_ion_and_level_populations_conserve_elements(
         inputs["ionization_data"],
     )
 
-    standard_ions, standard_electrons = StandardIonNumberDensity(None).calculate(
-        phi, partition, inputs["number_density"]
-    )
+    standard_ions, standard_electrons = StandardIonNumberDensity(
+        None
+    ).calculate(phi, partition, inputs["number_density"])
     iip_ions, iip_electrons = IIPIonNumberDensity(None).calculate(
         phi, partition, inputs["number_density"]
     )
-    _assert_canonical_frame_pair(standard_ions, iip_ions)
+    pdt.assert_frame_equal(standard_ions, iip_ions, rtol=1e-12, atol=0.0)
     # Both legacy ion solvers stop when their electron-density iteration
     # changes by less than 5%; this is a solver-parity check, not a
     # conservation tolerance.
@@ -312,15 +316,13 @@ def test_lte_ion_and_level_populations_conserve_elements(
     standard_levels = StandardLevelNumberDensity(None).calculate(
         level_bf, standard_ions, inputs["levels"], partition
     )
-    iip_levels = StandardLevelNumberDensity(None).calculate(
+    iip_levels = IIPLevelNumberDensity(None).calculate(
         level_bf, iip_ions, inputs["levels"], partition
     )
-    _assert_canonical_frame_pair(standard_levels, iip_levels)
+    pdt.assert_frame_equal(standard_levels, iip_levels, rtol=1e-12, atol=0.0)
 
     ion_by_element = standard_ions.groupby(level="atomic_number").sum()
-    pdt.assert_index_equal(
-        ion_by_element.index, inputs["number_density"].index
-    )
+    pdt.assert_index_equal(ion_by_element.index, inputs["number_density"].index)
     pdt.assert_index_equal(
         ion_by_element.columns,
         inputs["number_density"].columns,

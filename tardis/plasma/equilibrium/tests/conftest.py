@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import pytest
@@ -40,6 +43,7 @@ def new_chianti_atomic_dataset_si(tardis_regression_path):
     )
     return AtomData.from_hdf(atomic_data_fname)
 
+
 @pytest.fixture
 def new_chianti_atomic_dataset(tardis_regression_path):
     atomic_data_fname = (
@@ -67,6 +71,7 @@ def hydrogen_atomic_data_fname(tardis_regression_path):
         pytest.exit(atom_data_missing_str)
 
     return atomic_data_fname
+
 
 @pytest.fixture(params=[(14, 1, slice(None), slice(None))])
 def radiative_transitions(new_chianti_atomic_dataset_si, request):
@@ -150,7 +155,9 @@ def mock_boltzmann_factor():
 
 
 @pytest.fixture
-def basic_thermodynamic_state(new_chianti_atomic_dataset):
+def basic_thermodynamic_state(
+    new_chianti_atomic_dataset: AtomData,
+) -> dict[str, Any]:
     """Immutable, shared inputs for standard/IIP basic-state comparisons."""
     atomic_numbers = pd.Index([1, 2], name="atomic_number")
     columns = pd.Index(range(3), name="shell")

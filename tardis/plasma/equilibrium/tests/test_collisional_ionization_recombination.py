@@ -9,6 +9,7 @@ from tardis.iip_plasma.properties.continuum import (
     CollIonRateCoeff,
     CollRecombRateCoeff,
 )
+from tardis.io.atom_data import AtomData
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
@@ -18,10 +19,19 @@ from tardis.plasma.equilibrium.rates.collisional_ionization_rates import (
 from tardis.plasma.equilibrium.rates.collisional_ionization_strengths import (
     CollisionalIonizationSeaton,
 )
+from tardis.plasma.properties.general import BetaElectron, ThermalGElectron
+from tardis.plasma.properties.ion_population import (
+    SahaFactor,
+    ThermalPhiSahaLTE,
+)
+from tardis.plasma.properties.partition_function import (
+    ThermalLevelBoltzmannFactorLTE,
+    ThermalLTEPartitionFunction,
+)
 
 
 @pytest.fixture
-def real_photoionization_data(nlte_atom_data):
+def real_photoionization_data(nlte_atom_data: AtomData) -> pd.DataFrame:
     """Regression photoionization data spanning several ion charges."""
     return nlte_atom_data.photoionization_data.sort_values(
         ["atomic_number", "ion_number", "level_number", "nu"]
@@ -29,69 +39,44 @@ def real_photoionization_data(nlte_atom_data):
 
 
 @pytest.fixture
-def electron_temperatures():
+def electron_temperatures() -> u.Quantity:
     return np.array([9000.0, 12000.0]) * u.K
 
 
 @pytest.fixture
 def level_to_ion_factor(
-    real_photoionization_data, nlte_atom_data, electron_temperatures
-):
+    real_photoionization_data: pd.DataFrame,
+    nlte_atom_data: AtomData,
+    electron_temperatures: u.Quantity,
+) -> pd.DataFrame:
     """LTE level-to-ion factors from the regression atomic data."""
     levels = nlte_atom_data.levels
-    partition_functions = levels["g"].groupby(
-        level=["atomic_number", "ion_number"]
-    ).sum()
-    electron_factor = (
-        2
-        * (
-            2
-            * np.pi
-            * const.m_e.cgs.value
-            * const.k_B.cgs.value
-            * electron_temperatures.to_value(u.K)
-            / const.h.cgs.value**2
-        )
-        ** 1.5
+    beta_electron = BetaElectron(None).calculate(
+        electron_temperatures.to_value(u.K)
     )
-    rows = []
-    for atomic_number, ion_number, level_number in (
-        real_photoionization_data.index.unique()
-    ):
-        level = levels.loc[(atomic_number, ion_number, level_number)]
-        ionization_energy = nlte_atom_data.ionization_data.loc[
-            (atomic_number, ion_number + 1)
-        ]
-        saha_factor = (
-            2
-            * electron_factor
-            * partition_functions.loc[(atomic_number, ion_number + 1)]
-            / partition_functions.loc[(atomic_number, ion_number)]
-            * np.exp(
-                -ionization_energy
-                / (const.k_B.cgs.value * electron_temperatures.to_value(u.K))
-            )
-        )
-        rows.append(
-            level["g"]
-            * np.exp(
-                -level["energy"]
-                / (const.k_B.cgs.value * electron_temperatures.to_value(u.K))
-            )
-            / (
-                saha_factor
-                * partition_functions.loc[(atomic_number, ion_number)]
-            )
-        )
-    return pd.DataFrame(
-        rows,
-        index=real_photoionization_data.index.unique(),
+    level_boltzmann_factor = ThermalLevelBoltzmannFactorLTE(None).calculate(
+        levels["energy"], levels["g"], beta_electron, levels.index
+    )
+    partition_function = ThermalLTEPartitionFunction(None).calculate(
+        level_boltzmann_factor
+    )
+    thermal_phi_lte = ThermalPhiSahaLTE(None).calculate(
+        ThermalGElectron(None).calculate(beta_electron),
+        beta_electron,
+        partition_function,
+        nlte_atom_data.ionization_data,
+    )
+    return (
+        SahaFactor(None)
+        .calculate(thermal_phi_lte, level_boltzmann_factor, partition_function)
+        .loc[real_photoionization_data.index.unique()]
     )
 
 
 def test_seaton_thresholds_and_coefficients_match_analytic_expression(
-    real_photoionization_data, electron_temperatures
-):
+    real_photoionization_data: pd.DataFrame,
+    electron_temperatures: u.Quantity,
+) -> None:
     threshold_data = real_photoionization_data.groupby(
         level=["atomic_number", "ion_number", "level_number"]
     ).first()
@@ -132,8 +117,9 @@ def test_seaton_thresholds_and_coefficients_match_analytic_expression(
 
 
 def test_seaton_temperature_dependence_matches_threshold_exponential(
-    real_photoionization_data, electron_temperatures
-):
+    real_photoionization_data: pd.DataFrame,
+    electron_temperatures: u.Quantity,
+) -> None:
     actual = CollisionalIonizationSeaton(real_photoionization_data).solve(
         electron_temperatures
     )
@@ -160,10 +146,10 @@ def test_seaton_temperature_dependence_matches_threshold_exponential(
 
 
 def test_collisional_rates_scale_with_electron_density(
-    real_photoionization_data,
-    electron_temperatures,
-    level_to_ion_factor,
-):
+    real_photoionization_data: pd.DataFrame,
+    electron_temperatures: u.Quantity,
+    level_to_ion_factor: pd.DataFrame,
+) -> None:
     partition_function = 1.0
     level_boltzmann_factor = pd.DataFrame(
         np.ones_like(level_to_ion_factor),
@@ -200,10 +186,10 @@ def test_collisional_rates_scale_with_electron_density(
 
 
 def test_three_body_recombination_uses_lte_detailed_balance_factor(
-    real_photoionization_data,
-    electron_temperatures,
-    level_to_ion_factor,
-):
+    real_photoionization_data: pd.DataFrame,
+    electron_temperatures: u.Quantity,
+    level_to_ion_factor: pd.DataFrame,
+) -> None:
     coll_ion = CollisionalIonizationSeaton(real_photoionization_data).solve(
         electron_temperatures
     )

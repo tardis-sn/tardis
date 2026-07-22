@@ -7,6 +7,7 @@ from tardis.opacities.tau_sobolev import (
     calculate_beta_sobolev,
     calculate_sobolev_line_opacity,
 )
+from tardis.simulation import Simulation
 
 
 def test_calculate_sobolev_line_opacity(
@@ -38,7 +39,7 @@ def test_calculate_beta_sobolevs(nb_simulation_verysimple, regression_data):
     npt.assert_allclose(actual, expected)
 
 
-def test_beta_sobolev_has_correct_thin_and_thick_limits():
+def test_beta_sobolev_has_correct_thin_and_thick_limits() -> None:
     tau = pd.DataFrame(
         [[1.0e-8], [1.0e-5], [1.0e4], [1.0e6]],
         index=pd.Index(range(4), name="line"),
@@ -57,8 +58,8 @@ def test_beta_sobolev_has_correct_thin_and_thick_limits():
 
 
 def test_sobolev_optical_depth_scales_with_time_and_lower_population(
-    nb_simulation_verysimple,
-):
+    nb_simulation_verysimple: Simulation,
+) -> None:
     legacy_plasma = nb_simulation_verysimple.plasma
     base_tau = calculate_sobolev_line_opacity(
         legacy_plasma.lines,

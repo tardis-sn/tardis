@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
@@ -10,6 +12,7 @@ from tardis.iip_plasma.properties.continuum import (
     SpontRecombRateCoeff,
     StimRecombRateCoeff,
 )
+from tardis.io.atom_data import AtomData
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
@@ -26,33 +29,30 @@ from tardis.transport.montecarlo.estimators import init_estimators_continuum
 
 
 @pytest.fixture
-def photoionization_data(nlte_atom_data):
+def photoionization_data(nlte_atom_data: AtomData) -> pd.DataFrame:
     return nlte_atom_data.photoionization_data.loc[(1, 0, [1])].sort_values(
         ["atomic_number", "ion_number", "level_number", "nu"]
     )
 
 
 @pytest.fixture
-def lyman_photoionization_data(nlte_atom_data):
+def lyman_photoionization_data(nlte_atom_data: AtomData) -> pd.DataFrame:
     return nlte_atom_data.photoionization_data.loc[(1, 0, [0, 1])].sort_values(
         ["atomic_number", "ion_number", "level_number", "nu"]
     )
 
 
 @pytest.fixture
-def radiation_field():
+def radiation_field() -> DilutePlanckianRadiationField:
     return DilutePlanckianRadiationField(
         np.array([10000.0, 12000.0]) * u.K, np.array([0.4, 0.8])
     )
 
 
-def _level_frame(index, values):
-    return pd.DataFrame(values, index=index, columns=[0, 1])
-
-
 def test_analytic_photoionization_rates_match_iip(
-    photoionization_data, radiation_field,
-):
+    photoionization_data: pd.DataFrame,
+    radiation_field: DilutePlanckianRadiationField,
+) -> None:
     photo_data = photoionization_data
     electron_temperature = np.array([9000.0, 11000.0]) * u.K
     standard_solver = AnalyticPhotoionizationCoeffSolver(photo_data)
@@ -61,12 +61,16 @@ def test_analytic_photoionization_rates_match_iip(
     )
 
     iip_j_nu = PhotoIonRateCoeff._calculate_j_nus(
-        photo_data, radiation_field.dilution_factor, radiation_field.temperature_kelvin
+        photo_data,
+        radiation_field.dilution_factor,
+        radiation_field.temperature_kelvin,
     )
     standard_j_nu = standard_solver.calculate_mean_intensity_photoionization_df(
         radiation_field
     )
-    npt.assert_allclose(standard_j_nu.to_numpy(), iip_j_nu.to_numpy(), rtol=1e-12)
+    npt.assert_allclose(
+        standard_j_nu.to_numpy(), iip_j_nu.to_numpy(), rtol=1e-12
+    )
 
     iip_gamma = PhotoIonRateCoeff(None).calculate_from_radiation_field_model(
         photo_data,
@@ -81,7 +85,11 @@ def test_analytic_photoionization_rates_match_iip(
         radiation_field.temperature_kelvin,
         None,
         electron_temperature.value,
-        _level_frame(photo_data.index.unique(), np.ones((1, 2))),
+        pd.DataFrame(
+            np.ones((1, 2)),
+            index=photo_data.index.unique(),
+            columns=[0, 1],
+        ),
     )
     # Provenance: gamma and alpha_stim are Lucy (2003) Eqs. 16 and 15,
     # respectively. These calls exercise the standard implementation in
@@ -92,12 +100,14 @@ def test_analytic_photoionization_rates_match_iip(
     npt.assert_allclose(gamma.to_numpy(), iip_gamma.to_numpy(), rtol=2e-7)
     # The stimulated-recombination paths use different cgs constant sources
     # and quadrature implementations.
-    npt.assert_allclose(alpha_stim.to_numpy(), iip_alpha_stim.to_numpy(), rtol=2e-6)
+    npt.assert_allclose(
+        alpha_stim.to_numpy(), iip_alpha_stim.to_numpy(), rtol=2e-6
+    )
 
 
 def test_zero_radiation_gives_zero_photoionization_and_stimulated_recombination(
-    photoionization_data,
-):
+    photoionization_data: pd.DataFrame,
+) -> None:
     photo_data = photoionization_data
     zero_field = DilutePlanckianRadiationField(
         np.array([10000.0, 12000.0]) * u.K, np.zeros(2)
@@ -110,8 +120,8 @@ def test_zero_radiation_gives_zero_photoionization_and_stimulated_recombination(
 
 
 def test_spontaneous_recombination_is_positive_and_lyman_suppression_is_explicit(
-    lyman_photoionization_data,
-):
+    lyman_photoionization_data: pd.DataFrame,
+) -> None:
     photo_data = lyman_photoionization_data
     temperatures = np.array([10000.0, 12000.0]) * u.K
     standard_alpha = SpontaneousRecombinationCoeffSolver(photo_data).solve(
@@ -120,7 +130,11 @@ def test_spontaneous_recombination_is_positive_and_lyman_suppression_is_explicit
     assert (standard_alpha.loc[(1, 0, 1)] >= 0).all()
     assert np.all(standard_alpha.loc[(1, 0, 0)] == 0.0)
 
-    phi_lucy = _level_frame(photo_data.index.unique(), np.ones((2, 2)))
+    phi_lucy = pd.DataFrame(
+        np.ones((2, 2)),
+        index=photo_data.index.unique(),
+        columns=[0, 1],
+    )
     iip_alpha = SpontRecombRateCoeff(
         type("IterationState", (), {"niter": 2, "niter_ly": 1})()
     ).calculate(photo_data, temperatures.value, phi_lucy)
@@ -132,7 +146,9 @@ def test_spontaneous_recombination_is_positive_and_lyman_suppression_is_explicit
     )
 
 
-def test_estimator_coefficients_reproduce_regression_inputs(tardis_regression_path):
+def test_estimator_coefficients_reproduce_regression_inputs(
+    tardis_regression_path: Path,
+) -> None:
     edge_index = pd.MultiIndex.from_tuples(
         [(1, 0, 1), (1, 0, 2)],
         names=["atomic_number", "ion_number", "level_number"],
@@ -180,8 +196,9 @@ def test_estimator_coefficients_reproduce_regression_inputs(tardis_regression_pa
 
 
 def test_bound_free_heating_and_cooling_match_independent_quadrature(
-    lyman_photoionization_data, radiation_field,
-):
+    lyman_photoionization_data: pd.DataFrame,
+    radiation_field: DilutePlanckianRadiationField,
+) -> None:
     photo_data = lyman_photoionization_data
     temperatures = np.array([10000.0, 12000.0])
     electron_distribution = ThermalElectronEnergyDistribution(
@@ -191,12 +208,19 @@ def test_bound_free_heating_and_cooling_match_independent_quadrature(
         [(1, 0, 0), (1, 0, 1)],
         names=["atomic_number", "ion_number", "level_number"],
     )
-    level_population = _level_frame(level_index, np.ones((2, 2)))
-    ion_population = _level_frame(
-        pd.MultiIndex.from_tuples([(1, 1)], names=["atomic_number", "ion_number"]),
-        np.ones((1, 2)),
+    level_population = pd.DataFrame(
+        np.ones((2, 2)), index=level_index, columns=[0, 1]
     )
-    level_population_ratio = _level_frame(level_index, np.ones((2, 2)))
+    ion_population = pd.DataFrame(
+        np.ones((1, 2)),
+        index=pd.MultiIndex.from_tuples(
+            [(1, 1)], names=["atomic_number", "ion_number"]
+        ),
+        columns=[0, 1],
+    )
+    level_population_ratio = pd.DataFrame(
+        np.ones((2, 2)), index=level_index, columns=[0, 1]
+    )
     heating, cooling = BoundFreeThermalRates(photo_data).solve(
         level_population,
         ion_population,
@@ -258,7 +282,11 @@ def test_bound_free_heating_and_cooling_match_independent_quadrature(
             * const.h.cgs.value
             / const.c.cgs.value**2
             * (1 - thresholds[1] / frequencies)
-            * np.exp(-const.h.cgs.value * frequencies / (const.k_B.cgs.value * t_electron))
+            * np.exp(
+                -const.h.cgs.value
+                * frequencies
+                / (const.k_B.cgs.value * t_electron)
+            )
             * 1.0e9
         )
         expected_heating.append(heating_integral)

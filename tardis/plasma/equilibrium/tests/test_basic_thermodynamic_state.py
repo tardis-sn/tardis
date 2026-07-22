@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
@@ -29,6 +31,7 @@ from tardis.iip_plasma.properties.general import (
 from tardis.iip_plasma.properties.general import (
     NumberDensity as IIPNumberDensity,
 )
+from tardis.iip_plasma.properties.plasma_input import JBlues as IIPJBlues
 from tardis.plasma.properties.atomic import IonizationData, Levels
 from tardis.plasma.properties.general import (
     BetaElectron,
@@ -36,10 +39,14 @@ from tardis.plasma.properties.general import (
     ElectronTemperature,
     GElectron,
 )
+from tardis.plasma.properties.plasma_input import JBlues as StandardJBlues
 from tardis.util.base import intensity_black_body
 
 
-def test_atomic_data_basic_properties_match_iip(basic_thermodynamic_state):
+
+def test_atomic_data_basic_properties_match_iip(
+    basic_thermodynamic_state: dict[str, Any],
+) -> None:
     state = basic_thermodynamic_state
     atom_data = state["atomic_data"]
     selected_atoms = state["selected_atoms"]
@@ -63,14 +70,18 @@ def test_atomic_data_basic_properties_match_iip(basic_thermodynamic_state):
     pd.testing.assert_series_equal(standard_mass, iip_mass)
 
 
-def test_number_density_and_mass_reconstruct_density(basic_thermodynamic_state):
+def test_number_density_and_mass_reconstruct_density(
+    basic_thermodynamic_state: dict[str, Any],
+) -> None:
     state = basic_thermodynamic_state
     atom_data = state["atomic_data"]
     abundance = state["abundance"]
     density = state["density"]
     masses = IIPAtomicMass(None).calculate(atom_data, state["selected_atoms"])
 
-    number_density = IIPNumberDensity(None).calculate(masses, abundance, density)
+    number_density = IIPNumberDensity(None).calculate(
+        masses, abundance, density
+    )
     reconstructed_density = number_density.mul(masses, axis=0).sum(axis=0)
 
     npt.assert_allclose(reconstructed_density.to_numpy(), density.to_numpy())
@@ -80,8 +91,8 @@ def test_number_density_and_mass_reconstruct_density(basic_thermodynamic_state):
 
 
 def test_thermodynamic_inputs_match_iip_and_satisfy_identities(
-    basic_thermodynamic_state,
-):
+    basic_thermodynamic_state: dict[str, Any],
+) -> None:
     state = basic_thermodynamic_state
     t_rad = state["t_rad"].to_numpy()
     link = state["link_t_rad_t_electron"]
@@ -101,7 +112,10 @@ def test_thermodynamic_inputs_match_iip_and_satisfy_identities(
     standard_g = GElectron(None).calculate(standard_beta_rad)
     iip_g = IIPGElectron(None).calculate(iip_beta_rad)
     expected_g = (
-        2 * np.pi * const.m_e.cgs.value / standard_beta_rad
+        2
+        * np.pi
+        * const.m_e.cgs.value
+        / standard_beta_rad
         / const.h.cgs.value**2
     ) ** 1.5
     npt.assert_allclose(standard_g, iip_g, rtol=5e-7)
@@ -109,8 +123,8 @@ def test_thermodynamic_inputs_match_iip_and_satisfy_identities(
 
 
 def test_dilute_planckian_mean_intensity_matches_analytic_planck_function(
-    basic_thermodynamic_state,
-):
+    basic_thermodynamic_state: dict[str, Any],
+) -> None:
     state = basic_thermodynamic_state
     frequencies = (
         state["atomic_data"]
@@ -130,13 +144,15 @@ def test_dilute_planckian_mean_intensity_matches_analytic_planck_function(
     npt.assert_allclose(actual, expected)
 
 
-def test_supplied_line_mean_intensities_preserve_canonical_shell_order(
-    basic_thermodynamic_state,
-):
+def test_line_mean_intensity_inputs_preserve_canonical_shell_order(
+    basic_thermodynamic_state: dict[str, Any],
+) -> None:
     state = basic_thermodynamic_state
-    lines = state["atomic_data"].lines.loc[
-        (1, 0, slice(None), slice(None))
-    ].iloc[:2]
+    lines = (
+        state["atomic_data"]
+        .lines.loc[(1, 0, slice(None), slice(None))]
+        .iloc[:2]
+    )
     line_index = lines.index
     expected = state["radiation_field"].calculate_mean_intensity(
         lines.nu.to_numpy() * u.Hz
@@ -147,6 +163,10 @@ def test_supplied_line_mean_intensities_preserve_canonical_shell_order(
         columns=pd.Index([0, 1, 2], name="shell"),
     )
 
-    assert supplied.index.names == list(line_index.names)
-    assert supplied.columns.tolist() == [0, 1, 2]
-    npt.assert_array_equal(supplied.to_numpy(), expected)
+    standard_input = StandardJBlues()
+    standard_input.set_value(supplied)
+    iip_input = IIPJBlues()
+    iip_input.set_value(supplied)
+
+    pdt.assert_frame_equal(standard_input.j_blues, supplied)
+    npt.assert_array_equal(iip_input.j_blues, standard_input.j_blues.to_numpy())

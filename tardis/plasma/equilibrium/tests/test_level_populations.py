@@ -131,9 +131,7 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         atomic_data,
         selected_atoms,
     )
-    beta_radiation = BetaRadiation(None).calculate(
-        temperatures.to_value(u.K)
-    )
+    beta_radiation = BetaRadiation(None).calculate(temperatures.to_value(u.K))
     lte_boltzmann_factors = LevelBoltzmannFactorLTE(None).calculate(
         excitation_energy,
         statistical_weights,
@@ -153,7 +151,9 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         lte_partition_function,
         ionization_data,
     )
-    hydrogen_saha_factor = saha_factor.loc[(species[0], species[1] + 1)].to_numpy()
+    hydrogen_saha_factor = saha_factor.loc[
+        (species[0], species[1] + 1)
+    ].to_numpy()
     hydrogen_density = elemental_number_density.loc[species[0]].to_numpy()
     electron_densities = pd.Series(
         2.0
@@ -166,9 +166,9 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
     ).calculate(saha_factor, lte_partition_function, elemental_number_density)
     lte_electron_densities = (
         lte_ion_populations
-        * lte_ion_populations.index.get_level_values(
-            "ion_number"
-        ).to_numpy()[:, None]
+        * lte_ion_populations.index.get_level_values("ion_number").to_numpy()[
+            :, None
+        ]
     ).sum()
     lte_level_populations = LevelNumberDensity(None).calculate(
         lte_boltzmann_factors,
@@ -210,10 +210,14 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         radiation_field,
         electron_distribution,
     )
-    nlte_level_population_fractions = LevelPopulationSolver(
-        level_matrices,
-        atomic_data.levels,
-    ).solve().loc[species]
+    nlte_level_population_fractions = (
+        LevelPopulationSolver(
+            level_matrices,
+            atomic_data.levels,
+        )
+        .solve()
+        .loc[species]
+    )
     lte_level_population_fractions = lte_level_populations.loc[species].divide(
         lte_ion_populations.loc[species],
         axis=1,

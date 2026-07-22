@@ -105,7 +105,9 @@ def test_solve(rate_matrix_solver, regression_data):
 
     electron_density_from_ions = (
         actual_ion_population
-        * actual_ion_population.index.get_level_values("ion_number").to_numpy()[:, None]
+        * actual_ion_population.index.get_level_values("ion_number").to_numpy()[
+            :, None
+        ]
     ).sum()
     npt.assert_allclose(
         actual_electron_density.to_numpy(),
@@ -117,5 +119,7 @@ def test_solve(rate_matrix_solver, regression_data):
         matrix = ion_population_solver.rates_matrices.loc[1, shell]
         population = actual_ion_population[shell].to_numpy()
         balance = np.array([0.0, elemental_number_density.loc[1, shell]])
-        npt.assert_allclose(matrix @ population, balance, rtol=1e-12, atol=1e-12)
+        npt.assert_allclose(
+            matrix @ population, balance, rtol=1e-12, atol=1e-12
+        )
         assert np.isfinite(np.linalg.cond(matrix))

@@ -289,8 +289,8 @@ class TestContinuumMacroAtomSolver:
         assert (probs.values <= 1.0).all()
 
     def test_transition_probabilities_normalize_by_source_block(
-        self, continuum_macro_atom_state
-    ):
+        self, continuum_macro_atom_state: MacroAtomState
+    ) -> None:
         probs = continuum_macro_atom_state.transition_probabilities
         metadata = continuum_macro_atom_state.transition_metadata
         source_blocks = probs.groupby(

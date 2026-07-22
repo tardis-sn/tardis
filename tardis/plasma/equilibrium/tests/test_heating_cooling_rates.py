@@ -10,6 +10,7 @@ from numpy.testing import (
 )
 from scipy.optimize import brentq
 
+from tardis.io.atom_data import AtomData
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
@@ -517,19 +518,19 @@ def test_thermal_balance_solver(
 
 
 def test_thermal_balance_process_terms_have_consistent_signs_and_scales(
-    thermal_electron_distribution,
-    radiation_field,
-    level_population,
-    ion_population,
-    collisional_ionization_rate_coefficient,
-    collisional_deexcitation_rate_coefficient,
-    collisional_excitation_rate_coefficient,
-    stimulated_recombination_estimator,
-    bound_free_heating_estimator,
-    level_population_ratio,
-    ctardis_lines,
-    nlte_atom_data,
-):
+    thermal_electron_distribution: ThermalElectronEnergyDistribution,
+    radiation_field: DilutePlanckianRadiationField,
+    level_population: pd.DataFrame,
+    ion_population: pd.DataFrame,
+    collisional_ionization_rate_coefficient: pd.DataFrame,
+    collisional_deexcitation_rate_coefficient: pd.DataFrame,
+    collisional_excitation_rate_coefficient: pd.DataFrame,
+    stimulated_recombination_estimator: pd.DataFrame,
+    bound_free_heating_estimator: pd.DataFrame,
+    level_population_ratio: pd.DataFrame,
+    ctardis_lines: pd.DataFrame,
+    nlte_atom_data: AtomData,
+) -> None:
     photoionization_data = nlte_atom_data.photoionization_data.query(
         "atomic_number == 1"
     )
@@ -587,16 +588,16 @@ def test_thermal_balance_process_terms_have_consistent_signs_and_scales(
 
 
 def test_thermal_balance_process_density_scaling(
-    thermal_electron_distribution,
-    ion_population,
-    level_population,
-    collisional_ionization_rate_coefficient,
-    level_population_ratio,
-    collisional_deexcitation_rate_coefficient,
-    collisional_excitation_rate_coefficient,
-    ctardis_lines,
-    nlte_atom_data,
-):
+    thermal_electron_distribution: ThermalElectronEnergyDistribution,
+    ion_population: pd.DataFrame,
+    level_population: pd.DataFrame,
+    collisional_ionization_rate_coefficient: pd.DataFrame,
+    level_population_ratio: pd.DataFrame,
+    collisional_deexcitation_rate_coefficient: pd.DataFrame,
+    collisional_excitation_rate_coefficient: pd.DataFrame,
+    ctardis_lines: pd.DataFrame,
+    nlte_atom_data: AtomData,
+) -> None:
     doubled_distribution = ThermalElectronEnergyDistribution(
         thermal_electron_distribution.energy,
         thermal_electron_distribution.temperature,
@@ -681,19 +682,19 @@ def test_thermal_balance_process_density_scaling(
 
 
 def test_thermal_balance_reconstructs_net_and_fractional_rates(
-    thermal_electron_distribution,
-    radiation_field,
-    level_population,
-    ion_population,
-    collisional_ionization_rate_coefficient,
-    collisional_deexcitation_rate_coefficient,
-    collisional_excitation_rate_coefficient,
-    stimulated_recombination_estimator,
-    bound_free_heating_estimator,
-    level_population_ratio,
-    ctardis_lines,
-    nlte_atom_data,
-):
+    thermal_electron_distribution: ThermalElectronEnergyDistribution,
+    radiation_field: DilutePlanckianRadiationField,
+    level_population: pd.DataFrame,
+    ion_population: pd.DataFrame,
+    collisional_ionization_rate_coefficient: pd.DataFrame,
+    collisional_deexcitation_rate_coefficient: pd.DataFrame,
+    collisional_excitation_rate_coefficient: pd.DataFrame,
+    stimulated_recombination_estimator: pd.DataFrame,
+    bound_free_heating_estimator: pd.DataFrame,
+    level_population_ratio: pd.DataFrame,
+    ctardis_lines: pd.DataFrame,
+    nlte_atom_data: AtomData,
+) -> None:
     photoionization_data = nlte_atom_data.photoionization_data.query(
         "atomic_number == 1"
     )
@@ -748,8 +749,24 @@ def test_thermal_balance_reconstructs_net_and_fractional_rates(
         collisional_excitation_rate_coefficient,
         level_population,
     )
-    heating = sum(term[0] for term in (bound_free, free_free, collisional_ionization, collisional_bound))
-    cooling = sum(term[1] for term in (bound_free, free_free, collisional_ionization, collisional_bound))
+    heating = sum(
+        term[0]
+        for term in (
+            bound_free,
+            free_free,
+            collisional_ionization,
+            collisional_bound,
+        )
+    )
+    cooling = sum(
+        term[1]
+        for term in (
+            bound_free,
+            free_free,
+            collisional_ionization,
+            collisional_bound,
+        )
+    )
     reconstructed_net = heating - cooling
     reconstructed_fractional = reconstructed_net / cooling
 
@@ -772,13 +789,13 @@ def test_thermal_balance_reconstructs_net_and_fractional_rates(
 
 
 def test_free_free_thermal_root_is_stable_to_bracket_perturbations(
-    ion_population,
-):
+    ion_population: pd.DataFrame,
+) -> None:
     estimator = 4.89135279e-24
     rates = FreeFreeThermalRates()
     expected_temperature = estimator / rates.cooling_constant
 
-    def residual(temperature):
+    def residual(temperature: float) -> float:
         distribution = ThermalElectronEnergyDistribution(
             0 * u.erg,
             np.array([temperature]) * u.K,
