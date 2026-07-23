@@ -15,4 +15,4 @@ from tardis.visualization.widgets.shell_info import (
 
 print("Initializing tabulator and plotly panel extensions for widgets to work")
 import panel as pn
-pn.extension("tabulator", "plotly")
+pn.extension("tabulator", "plotly", "katex")

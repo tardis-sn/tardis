@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-import ipywidgets as ipw
 import numpy as np
 import pandas as pd
+import panel as pn
 import plotly.graph_objects as go
 import yaml
 from astropy import units as u
@@ -36,7 +36,13 @@ from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
-
+WIDGET_INPUT_STYLE = """
+    .bk-input-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    }
+    """
 
 class CustomAbundanceWidgetData:
     """The model information and data that required in custom
@@ -276,9 +282,7 @@ class CustomAbundanceWidgetData:
         CustomAbundanceWidgetData
         """
         abundance = sim.simulation_state.abundance.copy()
-        isotope_abundance = (
-            sim.simulation_state.composition.raw_isotope_abundance.copy()
-        )
+        isotope_abundance = sim.simulation_state.composition.isotopic_mass_fraction.copy()
 
         # integrate element and isotope to one DataFrame
         abundance["mass_number"] = ""
@@ -380,7 +384,7 @@ class CustomAbundanceWidget:
         If False, disable the callback when abundance input is changed.
     """
 
-    error_view = ipw.Output()
+    error_view = pn.pane.Alert(visible=False)
 
     def __init__(self, widget_data):
         """Initialize CustomAbundanceWidget with data and generate
@@ -428,154 +432,177 @@ class CustomAbundanceWidget:
 
     def create_widgets(self):
         """Create widget components in GUI and register callbacks for widgets."""
-        self.dpd_shell_no = ipw.Dropdown(
+        self.dpd_shell_no = pn.widgets.Select(
             options=list(range(1, self.no_of_shells + 1)),
-            description="Shell No. ",
+            name="Shell No. ",
             value=1,
-            layout=ipw.Layout(width="160px"),
+            width=100,
+            margin=(5, 5, 5, 0),
         )
-        self.dpd_shell_no.observe(self.dpd_shell_no_eventhandler, "value")
-        self.btn_prev = ipw.Button(
+        self.dpd_shell_no.param.watch(self.dpd_shell_no_eventhandler, "value")
+        self.btn_prev = pn.widgets.Button(
             icon="chevron-left",
             disabled=True,
-            layout=ipw.Layout(width="30px", height="30px"),
+            width=30,
+            height=30,
+            align='end',
+            margin=(5, 5, 5, 0),
         )
         self.btn_prev.on_click(self.on_btn_prev)
-        self.btn_next = ipw.Button(
-            icon="chevron-right", layout=ipw.Layout(width="30px", height="30px")
+        self.btn_next = pn.widgets.Button(
+            icon="chevron-right",
+            width=30,
+            height=30,
+            align='end',
+            margin=5,
         )
         self.btn_next.on_click(self.on_btn_next)
 
         self.checks = [
-            ipw.Checkbox(
-                indent=False,
-                layout=ipw.Layout(
-                    width="30px",
-                ),
+            pn.widgets.Checkbox(
+                width=30,
+                height=30,
+                margin=(11, 0, 0, 0)
             )
             for element in self.data.elements
         ]
         self.input_items = [
-            ipw.BoundedFloatText(min=0, max=1, step=0.01, description=element)
+            pn.widgets.FloatInput(
+                start=0,
+                end=1,
+                step=0.01,
+                name=element,
+                stylesheets=[WIDGET_INPUT_STYLE, "label {width: 15px;}"],
+            )
             for element in self.data.elements
         ]
         for i in range(self.no_of_elements):
-            self.input_items[i].observe(self.input_item_eventhandler, "value")
+            self.input_items[i].param.watch(self.input_item_eventhandler, "value")
             self.input_items[i].index = i
-            self.checks[i].observe(self.check_eventhandler, "value")
+            self.checks[i].param.watch(self.check_eventhandler, "value")
             self.checks[i].index = i
 
-        self.btn_norm = ipw.Button(
-            description="Normalize",
-            icon="cog",
-            layout=ipw.Layout(width="100px", margin="0 0 0 50px"),
+        self.btn_norm = pn.widgets.Button(
+            name="Normalize",
+            icon="settings",
+            width=100,
+            margin=(0, 0, 0, 50),
         )
         self.btn_norm.on_click(self.on_btn_norm)
-        self.norm_warning = ipw.Valid(
-            value=False,
-            readout="Unnormalized",
-            style={"description_width": "initial"},
-            layout=ipw.Layout(visibility="hidden"),
+        self.norm_warning = pn.pane.Alert(
+            "Unnormalized",
+            alert_type="warning",
+            visible=False,
+            width=200,
+            height=30,
+            stylesheets=[":host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}"],
         )
 
-        self.symb_warning = ipw.Valid(
-            value=False, layout=ipw.Layout(visibility="hidden")
+        self.symb_warning = pn.pane.Alert(
+            visible=False,
+            alert_type="warning",
+            width=200,
+            height=30,
+            stylesheets=[":host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}"],
         )
-        self.input_symb = ipw.Text(
-            description="Element: ",
-            style={"description_width": "initial"},
+        self.input_symb = pn.widgets.TextInput(
+            name="Element: ",
             placeholder="symbol",
-            layout=ipw.Layout(width="125px"),
+            width=125,
+            stylesheets=[WIDGET_INPUT_STYLE],
+            margin=5,
         )
-        self.input_symb.observe(self.input_symb_eventhandler, "value")
-        self.btn_add_element = ipw.Button(
-            icon="plus-square",
-            description="Add",
+        self.input_symb.param.watch(self.input_symb_eventhandler, "value")
+        self.btn_add_element = pn.widgets.Button(
+            icon="square-plus",
+            name="Add",
             disabled=True,
-            layout=ipw.Layout(width="60px"),
+            width=60,
+            margin=(5, 0),
         )
         self.btn_add_element.on_click(self.on_btn_add_element)
 
-        self.irs_shell_range = ipw.IntRangeSlider(
-            min=1,
-            max=self.no_of_shells,
+        self.irs_shell_range = pn.widgets.IntRangeSlider(
+            start=1,
+            end=self.no_of_shells,
             step=1,
-            description="Shell No. ",
+            name="Shell No. ",
             disabled=True,
-            style={"description_width": "initial"},
-            continuous_update=False,
-            layout=ipw.Layout(margin="5px 0 0 0"),
+            margin=(32, 0, 0, 0),
         )
-        self.irs_shell_range.observe(self.irs_shell_range_eventhandler, "value")
+        self.irs_shell_range.param.watch(self.irs_shell_range_eventhandler, "value_throttled")
 
-        self.btn_add_shell = ipw.Button(
-            icon="plus-square",
-            description="Add",
+        self.btn_add_shell = pn.widgets.Button(
+            icon="square-plus",
+            name="Add",
             disabled=True,
-            layout=ipw.Layout(
-                width="80px",
-            ),
+            width=80,
+            align='end',
+            margin=5,
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)
-        self.input_v_start = ipw.FloatText(
-            description="Add shell(s) with velocity range (km/s): ",
-            style={"description_width": "initial"},
-            layout=ipw.Layout(
-                width="320px",
-            ),
+        self.input_v_start = pn.widgets.FloatInput(
+            start=0,
+            step=1,
+            name="Add shell(s) with velocity range (km/s): ",
+            align='end',
+            margin=(5, 5, 5, 15),
+            stylesheets=[WIDGET_INPUT_STYLE],
         )
-        self.input_v_end = ipw.FloatText(
-            description="to",
-            style={"description_width": "initial"},
-            layout=ipw.Layout(width="110px"),
+        self.input_v_end = pn.widgets.FloatInput(
+            start=0,
+            step=1,
+            width=90,
+            name="to",
+            align='end',
+            margin=5,
+            stylesheets=[WIDGET_INPUT_STYLE],
         )
-        self.input_v_start.observe(self.input_v_eventhandler, "value")
-        self.input_v_end.observe(self.input_v_eventhandler, "value")
-        self.overwrite_warning = ipw.HTML(
-            value="<font color=darkred><b>Warning:</b></font> Existing shell(s) will be overwritten!",
-            layout=ipw.Layout(visibility="hidden", margin="0 0 0 10px"),
+        self.input_v_start.param.watch(self.input_v_eventhandler, "value")
+        self.input_v_end.param.watch(self.input_v_eventhandler, "value")
+        self.overwrite_warning = pn.pane.HTML(
+            "<font color=darkred><b>Warning:</b></font> Existing shell(s) will be overwritten!",
+            visible=False,
+            margin=(0, 0, 0, 10),
         )
 
-        self.btn_output = ipw.Button(
-            description="Output CSVY File",
+        self.btn_output = pn.widgets.Button(
+            name="Output CSVY File",
+            align="end",
+            margin=5,
         )
         self.btn_output.on_click(self.on_btn_output)
 
-        self.input_path = ipw.Text(
-            description="File path: ", placeholder="Input file name or path"
+        self.input_path = pn.widgets.TextInput(
+            name="File path: ", placeholder="Input file name or path", margin=(5, 0, 5, 10)
         )
 
-        self.input_i_time_0 = ipw.FloatText(
-            description="Isotope time_0 (day): ",
-            style={"description_width": "initial"},
+        self.input_i_time_0 = pn.widgets.FloatInput(
+            name="Isotope time_0 (day): ",
         )
 
-        self.ckb_overwrite = ipw.Checkbox(
-            description="overwrite",
-            indent=False,
+        self.ckb_overwrite = pn.widgets.Checkbox(
+            name="overwrite",
+            margin=(30, 0, 0, 0),
         )
 
-        self.tbs_scale = ipw.ToggleButtons(
+        self.tbs_scale = pn.widgets.RadioButtonGroup(
             options=["Linear", "Log"],
-            description="Scale of yaxes: ",
-            style={"description_width": "initial"},
+            name="Scale of yaxes: ",
             value="Linear",
+            width=200,
         )
-        self.tbs_scale.observe(self.tbs_scale_eventhandler, "value")
+        self.tbs_scale.param.watch(self.tbs_scale_eventhandler, "value")
 
-        self.rbs_single_apply = ipw.RadioButtons(
-            options=["Only selected shell"],
-            layout=ipw.Layout(margin="10px 0 0 0"),
+        self.rbs_shell_edit_mode = pn.widgets.RadioBoxGroup(
+            options=["Only selected shell", "A range of shells: "],
+            value="Only selected shell",
+            inline=False,
+            stylesheets=["label input[type=\"radio\"] + span {top: 0px;}", ".bk-input-group {gap: 10px;}"],
         )
-        self.rbs_single_apply.observe(
-            self.rbs_single_apply_eventhandler, "value"
+        self._watcher_single_apply= self.rbs_shell_edit_mode.param.watch(
+            self.rbs_shell_editing_eventhandler, "value"
         )
-        self.rbs_multi_apply = ipw.RadioButtons(
-            options=["A range of shells: "],
-            index=None,
-            layout=ipw.Layout(width="130px", margin="10px 0 10px 0"),
-        )
-        self.rbs_multi_apply.observe(self.rbs_multi_apply_eventhandler, "value")
 
     def update_input_item_value(self, index, value):
         """Update the value of the widget in the list of abundance inputs.
@@ -739,7 +766,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         v_start = self.input_v_start.value
@@ -780,7 +807,7 @@ class CustomAbundanceWidget:
             # New shell will overwrite the original shell that ends at v_end.
             v_vals = np.delete(v_vals, end_index)
             self.data.abundance = self.data.abundance.drop(
-                max(0, end_index - 1), 1
+                max(0, end_index - 1), axis=1
             )
 
         # Insert new velocities calculate new densities according
@@ -803,7 +830,7 @@ class CustomAbundanceWidget:
             self.data.abundance.insert(start_index, "", new_shell_abundances)
             self.data.abundance = self.data.abundance.drop(
                 self.data.abundance.iloc[:, start_index : end_index - 1],
-                1,
+                axis=1,
             )
         else:
             if start_index == 0:
@@ -836,7 +863,7 @@ class CustomAbundanceWidget:
         self.update_bar_diagonal()
         self.update_front_end()
         self.irs_shell_range.max = self.no_of_shells
-        self.overwrite_warning.layout.visibility = "hidden"
+        self.overwrite_warning.visible = False
 
     def tbs_scale_eventhandler(self, obj):
         """Switch the scale type of y axis between linear mode and log
@@ -844,7 +871,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         scale_mode = obj.new
@@ -872,39 +899,39 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         if self._trigger:
-            item_index = obj.owner.index
-            is_locked = self.checks[item_index]
+            item_index = obj.obj.index
+            is_locked = self.checks[item_index].value
 
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
 
             self.data.abundance.iloc[item_index, self.shell_no - 1] = (
-                obj.owner.value
+                obj.obj.value
             )
 
-            if self.rbs_multi_apply.index is None:
+            if self.rbs_shell_edit_mode.value == "Only selected shell":
                 self.update_abundance_plot(item_index)
             else:
                 self.apply_to_multiple_shells(item_index)
 
         if np.isclose(self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1):
-            self.norm_warning.layout.visibility = "hidden"
+            self.norm_warning.visible = False
         else:
-            self.norm_warning.layout.visibility = "visible"
+            self.norm_warning.visible = True
 
     def check_eventhandler(self, obj):
         """Triggered if the checkbox is changed.
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
-        item_index = obj.owner.index
+        item_index = obj.obj.index
 
         if obj.new is True:
             self.bound_locked_sum_to_1(item_index)
@@ -936,7 +963,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         self.shell_no -= 1
@@ -946,7 +973,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         self.shell_no += 1
@@ -957,7 +984,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         locked_mask = np.array(self.checked_list)
@@ -977,7 +1004,7 @@ class CustomAbundanceWidget:
         self.read_abundance()
 
         for i in range(self.no_of_elements):
-            if self.rbs_multi_apply.index is None:
+            if self.rbs_shell_edit_mode.value == "Only selected shell":
                 # Only normalize selected shell
                 self.update_abundance_plot(i)
             else:
@@ -990,34 +1017,34 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         element_symbol_string = obj.new.capitalize()
 
         if element_symbol_string == "":
-            self.symb_warning.layout.visibility = "hidden"
+            self.symb_warning.visible = False
             self.btn_add_element.disabled = True
             return
 
         if element_symbol_string in self.data.elements:
-            self.symb_warning.layout.visibility = "visible"
+            self.symb_warning.visible = True
             self.btn_add_element.disabled = True
-            self.symb_warning.readout = "Already exists!"
+            self.symb_warning.object = "Already exists!"
             return
 
         try:
             if is_valid_nuclide_or_elem(element_symbol_string):
-                self.symb_warning.layout.visibility = "hidden"
+                self.symb_warning.visible = False
                 self.btn_add_element.disabled = False
                 return
 
         except RuntimeError:
             pass
 
-        self.symb_warning.layout.visibility = "visible"
+        self.symb_warning.visible = True
         self.btn_add_element.disabled = True
-        self.symb_warning.readout = "invalid"
+        self.symb_warning.object = "invalid"
 
     def on_btn_add_element(self, obj):
         """Add new element and update the display in the front end.
@@ -1025,7 +1052,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         element_symbol_string = self.input_symb.value.capitalize()
@@ -1041,25 +1068,23 @@ class CustomAbundanceWidget:
 
         self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
-        # Add new BoundedFloatText control and Checkbox control.
-        item = ipw.BoundedFloatText(min=0, max=1, step=0.01)
-        check = ipw.Checkbox(indent=False, layout=ipw.Layout(width="30px"))
+        # Add new Input control and Checkbox control.
+        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 15px}"])
+        check = pn.widgets.Checkbox(width=30, sizing_mode="stretch_height", margin=(10, 0, 0, 0))
         item.index = self.no_of_elements - 1
         check.index = self.no_of_elements - 1
-        item.observe(self.input_item_eventhandler, "value")
-        check.observe(self.check_eventhandler, "value")
+        item.param.watch(self.input_item_eventhandler, "value")
+        check.param.watch(self.check_eventhandler, "value")
         self.input_items.append(item)
         self.checks.append(check)
 
         # Keep the order of description same with atomic number
         self.data.elements = self.data.get_symbols()
         for i in range(self.no_of_elements):
-            self.input_items[i].description = self.data.elements[i]
+            self.input_items[i].name = self.data.elements[i]
 
-        self.box_editor.children = [
-            ipw.VBox(self.input_items),
-            ipw.VBox(self.checks),
-        ]
+        self.box_editor[0].append(item)
+        self.box_editor[1].append(check)
 
         with self.fig.batch_update():
             # Add new trace to plot.
@@ -1110,7 +1135,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         v_start = self.input_v_start.value
@@ -1123,71 +1148,58 @@ class CustomAbundanceWidget:
 
         # Whether overwrite existing shells
         if self.overwrite_existing_shells(v_start, v_end):
-            self.overwrite_warning.layout.visibility = "visible"
+            self.overwrite_warning.visible = True
         else:
-            self.overwrite_warning.layout.visibility = "hidden"
+            self.overwrite_warning.visible = False
 
     def on_btn_output(self, obj):
         """Triggered if the output button is clicked.
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         path = self.input_path.value
         overwrite = self.ckb_overwrite.value
 
-        self.to_csvy(path, overwrite)
+        self.error_view.visible = False
+        try:
+            self.to_csvy(path, overwrite)
+            self.error_view.alert_type = "success"
+            self.error_view.object = "Saved Successfully!"
+            self.error_view.visible = True
+        except Exception as e:
+            self.error_view.alert_type = "danger"
+            self.error_view.object = f"Error: {e}"
+            self.error_view.visible = True
 
-    def rbs_single_apply_eventhandler(self, obj):
+    def rbs_shell_editing_eventhandler(self, event):
         """Switch to single shell editing mode. Triggered if the
         first radio button is selected.
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
-            The clicked button instance.
+        event : param.parameterized.Event
+            A dictionary holding the information about the change.
         """
-        self.abundance_note.layout.visibility = "hidden"
+        if event.obj.value == "Only selected shell":
+            self.abundance_note.visible = False
 
-        self.rbs_multi_apply.unobserve(
-            self.rbs_multi_apply_eventhandler, "value"
-        )
-        self.rbs_multi_apply.index = None
-        self.rbs_multi_apply.observe(self.rbs_multi_apply_eventhandler, "value")
+            self.dpd_shell_no.disabled = False
+            self.btn_next.disabled = False
+            self.btn_prev.disabled = False
+            self.irs_shell_range.disabled = True
+        else:
+            self.abundance_note.visible = True
 
-        self.dpd_shell_no.disabled = False
-        self.btn_next.disabled = False
-        self.btn_prev.disabled = False
-        self.irs_shell_range.disabled = True
-        self.update_bar_diagonal()
+            self.shell_no = self.irs_shell_range.value[0]
 
-    def rbs_multi_apply_eventhandler(self, obj):
-        """Switch to multi-shells editing mode. Triggered if the
-        second radio button is selected.
+            self.dpd_shell_no.disabled = True
+            self.btn_next.disabled = True
+            self.btn_prev.disabled = True
+            self.irs_shell_range.disabled = False
 
-        Parameters
-        ----------
-        obj : ipywidgets.widgets.widget_button.Button
-            The clicked button instance.
-        """
-        self.abundance_note.layout.visibility = "visible"
-
-        self.shell_no = self.irs_shell_range.value[0]
-
-        self.rbs_single_apply.unobserve(
-            self.rbs_single_apply_eventhandler, "value"
-        )
-        self.rbs_single_apply.index = None
-        self.rbs_single_apply.observe(
-            self.rbs_single_apply_eventhandler, "value"
-        )
-        # self.irs_shell_range.value = [self.shell_no, self.shell_no]
-        self.dpd_shell_no.disabled = True
-        self.btn_next.disabled = True
-        self.btn_prev.disabled = True
-        self.irs_shell_range.disabled = False
         self.update_bar_diagonal()
 
     def irs_shell_range_eventhandler(self, obj):
@@ -1196,7 +1208,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         self.update_bar_diagonal()
@@ -1279,98 +1291,91 @@ class CustomAbundanceWidget:
 
         Returns
         -------
-        ipywidgets.widgets.widget_box.VBox
+        panel.layout.base.Column
             A box that contains all the widgets in the GUI.
         """
         if not Environment.allows_widget_display():
             print("Please use a notebook to display the widget")
         else:
             # --------------Combine widget components--------------
-            self.box_editor = ipw.HBox(
-                [
-                    ipw.VBox(self.input_items),
-                    ipw.VBox(
-                        self.checks, layout=ipw.Layout(margin="0 0 0 10px")
+            self.box_editor = pn.Row(
+                    pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
+                    pn.Column(
+                        *self.checks
                     ),
-                ]
             )
 
-            box_add_shell = ipw.HBox(
-                [
+            box_add_shell = pn.Row(
                     self.input_v_start,
                     self.input_v_end,
                     self.btn_add_shell,
                     self.overwrite_warning,
-                ],
-                layout=ipw.Layout(margin="0 0 0 50px"),
+                margin=(0, 0, 0, 50),
+                align='end',
             )
 
-            box_head = ipw.HBox(
-                [self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell]
+            box_head = pn.Row(
+                self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell,
+                margin=(0, 0, 20, 0)
             )
 
-            box_add_element = ipw.HBox(
-                [self.input_symb, self.btn_add_element, self.symb_warning],
-                layout=ipw.Layout(margin="0 0 0 80px"),
+            box_add_element = pn.Row(
+                self.input_symb, self.btn_add_element, self.symb_warning,
+                width=200,
+                margin=(0, 0, 0, 110),
             )
 
-            help_note = ipw.HTML(
-                value="<p style='text-indent: 40px'>* Select a checkbox "
+            help_note = pn.pane.HTML(
+                "<p style='text-indent: 40px'>* Select a checkbox "
                 "to lock the abundance of corresponding element. </p>"
                 "<p style='text-indent: 40px'> On clicking the 'Normalize' "
                 "button, the locked abundance(s) will <b>not be normalized</b>."
                 " </p>",
             )
 
-            self.abundance_note = ipw.HTML(
-                description="(The following abundances are for the innermost "
+            self.abundance_note = pn.pane.HTML(
+                "(The following abundances are for the innermost "
                 "shell in selected range.)",
-                layout=ipw.Layout(visibility="hidden"),
-                style={"description_width": "initial"},
+                visible=False,
             )
 
-            box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
+            box_norm = pn.Row(self.btn_norm, self.norm_warning)
 
-            box_apply = ipw.VBox(
-                [
-                    ipw.Label(value="Apply abundance(s) to:"),
-                    self.rbs_single_apply,
-                    ipw.HBox(
-                        [
-                            self.rbs_multi_apply,
+            box_apply = pn.Column(
+
+                    pn.pane.Markdown("Apply abundance(s) to:", margin=(0, 0, 0, 0)),
+                    pn.Row(
+                            self.rbs_shell_edit_mode,
                             self.irs_shell_range,
-                            self.abundance_note,
-                        ]
                     ),
-                ],
-                layout=ipw.Layout(margin="0 0 15px 50px"),
+                    self.abundance_note,
+                margin=(0, 0, 15, 50),
             )
 
-            box_features = ipw.VBox([box_norm, help_note])
-            box_abundance = ipw.VBox(
-                [
+            box_features = pn.Column(box_norm, help_note)
+            box_abundance = pn.WidgetBox(
                     box_apply,
-                    ipw.HBox([self.box_editor, box_features]),
+                    pn.Row(self.box_editor, box_features),
                     box_add_element,
-                ]
+                    sizing_mode="stretch_width",
+                    styles={'width':'auto'},
             )
             box_density = self.density_editor.display()
 
-            main_tab = ipw.Tab([box_abundance, box_density])
-            main_tab.set_title(0, "Edit Abundance")
-            main_tab.set_title(1, "Edit Density")
-
-            hint = ipw.HTML(
-                value="<b><font size='3'>Save model as file: </font></b>"
+            main_tab = pn.Tabs(
+                ('Edit Abundance', box_abundance),
+                ('Edit Density', box_density),
             )
-            box_output = ipw.VBox(
-                [
+
+            hint = pn.pane.HTML(
+                "<b><font size='3'>Save model as file: </font></b>"
+            )
+            box_output = pn.Column(
                     hint,
                     self.input_i_time_0,
-                    ipw.HBox(
-                        [self.input_path, self.btn_output, self.ckb_overwrite]
+                    pn.Row(
+                        self.input_path, self.btn_output, self.ckb_overwrite
                     ),
-                ]
             )
 
             # Initialize the widget and plot colormap
@@ -1379,18 +1384,15 @@ class CustomAbundanceWidget:
             self.read_abundance()
             self.density_editor.read_density()
 
-            return ipw.VBox(
-                [
-                    self.tbs_scale,
-                    self.fig,
+            return pn.Column(
+                    pn.Row(pn.pane.Markdown("Scale of yaxes:", margin=(0, 0)), self.tbs_scale),
+                    pn.panel(self.fig, sizing_mode="stretch_width"),
                     box_head,
                     main_tab,
                     box_output,
                     self.error_view,
-                ]
             )
 
-    @error_view.capture(clear_output=True)
     def to_csvy(self, path, overwrite):
         """Output CSVY file on the specified path.
 
@@ -1401,6 +1403,7 @@ class CustomAbundanceWidget:
         overwrite : bool
             True if overwriting, False otherwise.
         """
+        self.error_view.object=""
         posix_path = Path(path)
         posix_path = posix_path.with_suffix(".csvy")
 
@@ -1411,7 +1414,6 @@ class CustomAbundanceWidget:
         self.write_yaml_portion(posix_path)
         self.write_csv_portion(posix_path)
 
-    @error_view.capture(clear_output=True)
     def write_yaml_portion(self, path):
         """Write the YAML portion of the output file.
 
@@ -1419,6 +1421,7 @@ class CustomAbundanceWidget:
         ----------
         path : pathlib.PosixPath
         """
+        self.error_view.object=""
         name = path.name
         d_time_0 = self.data.density_t_0
         i_time_0 = self.input_i_time_0.value * u.day
@@ -1571,6 +1574,7 @@ class DensityEditor:
         self.data = widget_data
         self.fig = fig
         self.shell_no_widget = shell_no_widget
+        self.dtype_out = pn.Column()
 
         self.create_widgets()
         self._trigger = True
@@ -1583,90 +1587,95 @@ class DensityEditor:
         """Create widget components in density editor GUI and register
         callbacks for widgets.
         """
-        self.input_d = ipw.FloatText(
-            description="Density",
-            layout=ipw.Layout(
-                width="230px",
-            ),
+        self.input_d = pn.widgets.FloatInput(
+            name="Density",
+            width=230,
+            margin=(5, 0, 5, 10),
         )
-        self.input_d.observe(self.input_d_eventhandler, "value")
+        self.input_d.param.watch(self.input_d_eventhandler, "value")
 
-        self.input_d_time_0 = ipw.FloatText(
+        self.input_d_time_0 = pn.widgets.FloatInput(
             value=self.data.density_t_0.value,
-            description="Density time_0 (day): ",
-            style={"description_width": "initial"},
-            layout=ipw.Layout(margin="0 0 20px 0"),
+            name="Density time_0 (day): ",
+            margin=(10, 0, 20, 10),
         )
-        self.input_d_time_0.observe(self.input_d_time_0_eventhandler, "value")
+        self.input_d_time_0.param.watch(self.input_d_time_0_eventhandler, "value")
 
-        self.input_d_time_0 = ipw.FloatText(
-            value=self.data.density_t_0.value,
-            description="Density time_0 (day): ",
-            style={"description_width": "initial"},
-            layout=ipw.Layout(margin="0 0 20px 0"),
-        )
-        self.input_d_time_0.observe(self.input_d_time_0_eventhandler, "value")
-
-        self.dpd_dtype = ipw.Dropdown(
+        self.dpd_dtype = pn.widgets.Select(
             options=["-", "uniform", "exponential", "power_law"],
-            description="Density type: ",
-            style={"description_width": "initial"},
-            layout=ipw.Layout(width="300px"),
+            name="Density type: ",
+            width=300,
         )
-        self.dpd_dtype.observe(self.dpd_dtype_eventhandler, "value")
+        self.dpd_dtype.param.watch(self.dpd_dtype_eventhandler, "value")
 
-        self.input_rho_0 = ipw.FloatText(
-            description="rho_0", layout=ipw.Layout(width="300px")
-        )
-
-        self.input_exp = ipw.FloatText(
-            description="exponent", layout=ipw.Layout(width="300px")
+        self.input_rho_0 = pn.widgets.FloatInput(
+            name="rho_0",
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
         )
 
-        self.input_v_0 = ipw.FloatText(
-            description="v_0", layout=ipw.Layout(width="300px")
+        self.input_exp = pn.widgets.FloatInput(
+            name="exponent",
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
         )
 
-        self.input_value = ipw.FloatText(
-            description="value", layout=ipw.Layout(width="300px")
+        self.input_v_0 = pn.widgets.FloatInput(
+            name="v_0",
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
         )
 
-        self.btn_calculate = ipw.Button(
+        self.input_value = pn.widgets.FloatInput(
+            name="value",
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
+        )
+
+        self.btn_calculate = pn.widgets.Button(
             icon="calculator",
-            description="Calculate Density",
-            layout=ipw.Layout(width="300px"),
+            name="Calculate Density",
+            width=300,
         )
         self.btn_calculate.on_click(self.on_btn_calculate)
 
-        self.uniform_box = ipw.HBox(
-            [self.input_value, ipw.Label(value="g cm^3")]
+        self.uniform_box = pn.Row(
+            self.input_value,
+            pn.pane.Markdown("g cm^3", margin=(0,5)),
+            visible=False,
         )
 
         # Formula to compute density profile
-        form_exp = ipw.HTMLMath(
-            value=r"$$\rho = \rho_0 \times \exp \left( -\frac{v}{v_0} \right)$$",
-            layout=ipw.Layout(margin="0 0 0 100px"),
+        form_exp = pn.pane.LaTeX(
+            r"$$\rho = \rho_0 \times \exp \left( -\frac{v}{v_0} \right)$$",
+            margin=(0, 0, 0, 100),
         )
-        form_pow = ipw.HTMLMath(
-            value=r"$$\rho = \rho_0 \times \left( \frac{v}{v_0} \right)^n$$",
-            layout=ipw.Layout(margin="0 0 0 100px"),
+        form_pow = pn.pane.LaTeX(
+            r"$$\rho = \rho_0 \times \left( \frac{v}{v_0} \right)^n$$",
+            margin=(0, 0, 0, 100),
         )
 
-        self.exp_box = ipw.VBox(
-            [
-                form_exp,
-                ipw.HBox([self.input_rho_0, ipw.Label(value="g cm^3")]),
-                ipw.HBox([self.input_v_0, ipw.Label(value="km/s")]),
-            ]
+        self.exp_box = pn.Column(
+            form_exp,
+            pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0,5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0,5))),
+            visible=False,
         )
-        self.pow_box = ipw.VBox(
-            [
-                form_pow,
-                ipw.HBox([self.input_rho_0, ipw.Label(value="g cm^3")]),
-                ipw.HBox([self.input_v_0, ipw.Label(value="km/s")]),
-                self.input_exp,
-            ]
+        self.pow_box = pn.Column(
+            form_pow,
+            pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0,5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0,5))),
+            self.input_exp,
+            visible=False,
         )
+
+        self.dtype_out.append(self.uniform_box)
+        self.dtype_out.append(self.exp_box)
+        self.dtype_out.append(self.pow_box)
 
     def read_density(self):
         """Read density data in DataFrame to density input box when
@@ -1688,7 +1697,7 @@ class DensityEditor:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         if self._trigger:
@@ -1704,47 +1713,31 @@ class DensityEditor:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         new_value = obj.new
         self.data.density_t_0 = new_value * self.data.density_t_0.unit
 
-    def input_d_time_0_eventhandler(self, obj):
-        """Update density time 0 data when the widget gets new input.
-
-        Parameters
-        ----------
-        obj : traitlets.utils.bunch.Bunch
-            A dictionary holding the information about the change.
-        """
-        new_value = obj.new
-        self.data.density_t_0 = new_value * self.data.density_t_0.unit
-
-    dtype_out = ipw.Output()
-
-    @dtype_out.capture(clear_output=True)
     def dpd_dtype_eventhandler(self, obj):
         """Display the input boxes of the specified density type.
         Triggered if the density type dropdown is changed.
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
-
-        Returns
-        -------
-        ipywidgets.widgets.widget_box.VBox
-            A box widget that contains the input boxes of certain density
-            type parameters.
         """
+        self.uniform_box.visible = False
+        self.pow_box.visible = False
+        self.exp_box.visible = False
+
         if obj.new == "uniform":
-            display(self.uniform_box)
+            self.uniform_box.visible = True
         elif obj.new == "exponential":
-            display(self.exp_box)
+            self.exp_box.visible = True
         elif obj.new == "power_law":
-            display(self.pow_box)
+            self.pow_box.visible = True
 
     def on_btn_calculate(self, obj):
         """Calculate density according to density parameters input.
@@ -1752,7 +1745,7 @@ class DensityEditor:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         dtype = self.dpd_dtype.value
@@ -1799,21 +1792,20 @@ class DensityEditor:
 
         Returns
         -------
-        ipywidgets.widgets.widget_box.VBox
+        panel.layout.base.Column
             A box that contains all the widgets in the GUI.
         """
-        hint1 = ipw.HTML(
-            value="<font size='3'>1) Edit density of the selected shell:</font>"
+        hint1 = pn.pane.HTML(
+            "<font size='3'>1) Edit density of the selected shell:</font>"
         )
-        hint2 = ipw.HTML(
-            value="<font size='3'>2) Edit densities for all shells:</font>"
+        hint2 = pn.pane.HTML(
+            "<font size='3'>2) Edit densities for all shells:</font>"
         )
-        d_box = ipw.HBox(
-            [self.input_d, ipw.Label(value="g/cm^3")],
-            layout=ipw.Layout(margin="0 0 20px 0"),
+        d_box = pn.Row(
+            self.input_d, pn.pane.Markdown("g/cm^3", margin=(15, 5)),
+            margin=(0, 0, 20, 0),
         )
-        return ipw.VBox(
-            [
+        widget = pn.WidgetBox(
                 self.input_d_time_0,
                 hint1,
                 d_box,
@@ -1821,5 +1813,7 @@ class DensityEditor:
                 self.dpd_dtype,
                 self.dtype_out,
                 self.btn_calculate,
-            ]
+                sizing_mode="stretch_width",
+                styles={'width':'auto'},
         )
+        return widget
