@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 from astropy import units as u
+from astropy.tests.helper import assert_quantity_allclose
 
+from tardis.io.configuration.config_reader import Configuration
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
@@ -40,6 +42,17 @@ def simple_workflow_one_loop(config_verysimple_for_simulation_one_loop):
 
 
 @pytest.fixture(scope="module")
+def simple_workflow_verysimple(atomic_data_fname, example_configuration_dir):
+    config = Configuration.from_yaml(
+        str(example_configuration_dir / "tardis_configv1_verysimple.yml")
+    )
+    config["atom_data"] = atomic_data_fname
+    workflow = SimpleTARDISWorkflow(config)
+    workflow.run()
+    return workflow
+
+
+@pytest.fixture(scope="module")
 def standard_workflow_one_loop(config_verysimple_for_simulation_one_loop):
     workflow = StandardTARDISWorkflow(config_verysimple_for_simulation_one_loop)
     workflow.run()
@@ -60,17 +73,8 @@ def standard_workflow_one_loop(config_verysimple_for_simulation_one_loop):
     ],
 )
 def test_standard_tardis_workflow_against_run_tardis(
-    standard_workflow_one_loop, attr_type, attr, regression_data
+    standard_workflow_one_loop, simulation_one_loop, attr_type, attr
 ):
-    ref_file = (
-        regression_data.regression_data_path
-        / "tardis"
-        / "simulation"
-        / "tests"
-        / "test_simulation"
-        / f"test_{attr_type}__{attr}__.h5"
-    )
-    ref_data = pd.read_hdf(ref_file)
     if attr_type == "plasma_estimates":
         if attr in ["nu_bar_estimator", "j_estimator"]:
             # Map old attribute names to new ones
@@ -82,24 +86,39 @@ def test_standard_tardis_workflow_against_run_tardis(
                 standard_workflow_one_loop.transport_state.estimators_bulk,
                 attr_map[attr],
             )
+            ref_data = getattr(
+                simulation_one_loop.transport.transport_state.estimators_bulk,
+                attr_map[attr],
+            )
         elif attr in ["output_nus", "output_energies"]:
             attr_data = getattr(
                 standard_workflow_one_loop.transport_state.packet_collection,
+                attr,
+            )
+            ref_data = getattr(
+                simulation_one_loop.transport.transport_state.packet_collection,
                 attr,
             )
         else:
             raise ValueError(f"Unknown plasma_estimates attr: {attr}")
         if hasattr(attr_data, "value"):
             attr_data = attr_data.value
+        if hasattr(ref_data, "value"):
+            ref_data = ref_data.value
         attr_data = pd.Series(attr_data)
+        ref_data = pd.Series(ref_data)
         pd.testing.assert_series_equal(
             attr_data, ref_data, check_exact=False, rtol=1e-6
         )
     elif attr_type == "plasma_state_iterations":
         attr_data = getattr(standard_workflow_one_loop, attr)
+        ref_data = getattr(simulation_one_loop, attr)
         if hasattr(attr_data, "value"):
             attr_data = attr_data.value
+        if hasattr(ref_data, "value"):
+            ref_data = ref_data.value
         attr_data = pd.DataFrame(attr_data)
+        ref_data = pd.DataFrame(ref_data)
         pd.testing.assert_frame_equal(attr_data, ref_data, atol=0, rtol=1e-14)
     else:
         raise ValueError(f"Unknown attr_type: {attr_type}")
@@ -130,6 +149,41 @@ def test_simple_tardis_workflow_against_standard_workflow(
         attr_standard_workflow = attr_standard_workflow.value
     assert np.allclose(
         attr_simple_workflow, attr_standard_workflow, atol=0, rtol=1e-14
+    )
+
+
+def test_simple_tardis_workflow_against_test_tardis_full_regression(
+    simple_workflow_verysimple, simulation_tardis_full
+):
+    j_blue_estimators = simple_workflow_verysimple.transport_state.estimators_line.mean_intensity_blueward
+    expected_j_blue_estimators = (
+        simulation_tardis_full.transport.transport_state.estimators_line.mean_intensity_blueward
+    )
+    np.testing.assert_allclose(
+        j_blue_estimators,
+        expected_j_blue_estimators,
+    )
+
+    spectrum_real_packets_luminosity = (
+        simple_workflow_verysimple.spectrum_solver.spectrum_real_packets.luminosity
+    )
+    expected_spectrum_real_packets_luminosity = (
+        simulation_tardis_full.spectrum_solver.spectrum_real_packets.luminosity
+    )
+    assert_quantity_allclose(
+        spectrum_real_packets_luminosity,
+        expected_spectrum_real_packets_luminosity,
+    )
+
+    spectrum_virtual_packets_luminosity = (
+        simple_workflow_verysimple.spectrum_solver.spectrum_virtual_packets.luminosity
+    )
+    expected_spectrum_virtual_packets_luminosity = (
+        simulation_tardis_full.spectrum_solver.spectrum_virtual_packets.luminosity
+    )
+    assert_quantity_allclose(
+        spectrum_virtual_packets_luminosity,
+        expected_spectrum_virtual_packets_luminosity,
     )
 
 

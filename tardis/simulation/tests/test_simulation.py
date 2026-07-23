@@ -15,14 +15,6 @@ def config(example_configuration_dir):
     )
 
 
-@pytest.fixture(scope="module")
-def simulation_one_loop(config_verysimple_for_simulation_one_loop):
-    sim = Simulation.from_config(config_verysimple_for_simulation_one_loop)
-    sim.run_convergence()
-    sim.run_final()
-    return sim
-
-
 @pytest.mark.parametrize(
     "attr",
     [
