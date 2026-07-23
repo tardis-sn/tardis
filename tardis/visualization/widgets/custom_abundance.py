@@ -1365,7 +1365,6 @@ class CustomAbundanceWidget:
             main_tab = pn.Tabs(
                 ('Edit Abundance', box_abundance),
                 ('Edit Density', box_density),
-                dynamic=True,
             )
 
             hint = pn.pane.HTML(
@@ -1645,7 +1644,9 @@ class DensityEditor:
         self.btn_calculate.on_click(self.on_btn_calculate)
 
         self.uniform_box = pn.Row(
-            self.input_value, pn.pane.Markdown("g cm^3", margin=(0,5))
+            self.input_value,
+            pn.pane.Markdown("g cm^3", margin=(0,5)),
+            visible=False,
         )
 
         # Formula to compute density profile
@@ -1662,13 +1663,19 @@ class DensityEditor:
             form_exp,
             pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0,5))),
             pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0,5))),
+            visible=False,
         )
         self.pow_box = pn.Column(
             form_pow,
             pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0,5))),
             pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0,5))),
             self.input_exp,
+            visible=False,
         )
+
+        self.dtype_out.append(self.uniform_box)
+        self.dtype_out.append(self.exp_box)
+        self.dtype_out.append(self.pow_box)
 
     def read_density(self):
         """Read density data in DataFrame to density input box when
@@ -1721,13 +1728,16 @@ class DensityEditor:
         obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
-        self.dtype_out.clear()
+        self.uniform_box.visible = False
+        self.pow_box.visible = False
+        self.exp_box.visible = False
+
         if obj.new == "uniform":
-            self.dtype_out.append(self.uniform_box)
+            self.uniform_box.visible = True
         elif obj.new == "exponential":
-            self.dtype_out.append(self.exp_box)
+            self.exp_box.visible = True
         elif obj.new == "power_law":
-            self.dtype_out.append(self.pow_box)
+            self.pow_box.visible = True
 
     def on_btn_calculate(self, obj):
         """Calculate density according to density parameters input.
