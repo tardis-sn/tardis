@@ -44,7 +44,7 @@ jobs:
       regression-data-repo: tardis-sn/tardis-regression-data
 
   tests:
-    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
+    name: tests ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -52,7 +52,6 @@ jobs:
       fail-fast: false
       matrix:
         label: [osx-arm64, linux-64]
-        continuum: ["not"]
         pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
         include:
           - label: osx-arm64
@@ -145,7 +144,7 @@ jobs:
           pip install --no-deps lineid_plot
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}
 
       - name: Run JIT-disabled tests
         env:
@@ -153,14 +152,14 @@ jobs:
         run: pytest tardis/transport/montecarlo/tests/test_single_packet_loop.py tardis/energy_input/transport/tests/test_gamma_transport.py -k numba_disabled ${{ env.PYTEST_FLAGS }}
 
       - name: Regression Data Generation tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
 
       - run: mv .coverage .coverage.${{ strategy.job-index }}
 
       - uses: actions/upload-artifact@v7
         with:
-          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}
+          name: coverage-${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}
           include-hidden-files: true
           path: |
             .coverage*
