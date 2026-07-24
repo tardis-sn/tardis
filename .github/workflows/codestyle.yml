@@ -42,6 +42,6 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           git diff --diff-filter=ACMRTUXB --name-only -z \
-            "${BASE_SHA}" "${HEAD_SHA}" -- "*.py" "*.pyi" "*.ipynb" |
+            "${BASE_SHA}...${HEAD_SHA}" -- "*.py" "*.pyi" "*.ipynb" |
             xargs -0 --no-run-if-empty \
               ruff check --output-format=github --exit-zero --
