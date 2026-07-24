@@ -36,12 +36,14 @@ jobs:
           os-label: linux-64
           lockfile-path: ./conda-linux-64.lock
 
-      - name: Run Ruff on changed Python files
+      - name: Install diff-quality
+        run: python -m pip install diff-cover==10.4.1
+
+      - name: Run Ruff on changed Python lines
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          git diff --diff-filter=ACMRTUXB --name-only -z \
-            "${BASE_SHA}...${HEAD_SHA}" -- "*.py" "*.pyi" "*.ipynb" |
-            xargs -0 --no-run-if-empty \
-              ruff check --output-format=github --exit-zero --
+          diff-quality \
+            --violations=ruff.check \
+            --compare-branch="${BASE_SHA}" \
+            --fail-under=100

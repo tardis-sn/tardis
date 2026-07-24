@@ -285,17 +285,17 @@ Codestyle Pipeline
 
 The ``codestyle`` workflow runs for pull requests targeting ``master`` and for
 pushes to ``master``. It checks added, copied, modified, renamed, type-changed,
-unmerged, and otherwise changed Python, Python stub, and Jupyter notebook files
-between the source and base commits.
+unmerged, and otherwise changed Python source lines between the source and base
+commits.
 
-Ruff uses its GitHub output format so each diagnostic appears as a native
-annotation in the workflow check. The workflow does not upload Ruff artifacts,
-post a pull-request comment, or use a separate publisher workflow.
+The workflow uses ``diff-quality`` to run Ruff with the repository
+configuration and fails below 100 percent. Every Ruff diagnostic located on a
+changed line fails the job, while diagnostics on untouched lines do not block
+the change. This permits TARDIS to enforce its current Ruff requirements
+without first resolving the existing repository-wide backlog.
 
-Codestyle annotations are advisory while TARDIS reduces its existing Ruff
-backlog. The workflow passes ``--exit-zero`` explicitly, so diagnostics do not
-fail the job. Contributors should still run Ruff locally on changed code and
-resolve applicable diagnostics before review.
+The workflow does not upload Ruff artifacts, post a pull-request comment, use
+repository secrets, or use a separate publisher workflow.
 
 Documentation Build Pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
