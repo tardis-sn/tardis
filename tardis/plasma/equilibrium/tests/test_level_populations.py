@@ -227,7 +227,8 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         nlte_level_population_fractions.to_numpy(),
         lte_level_population_fractions.to_numpy(),
         # Independent rate and Boltzmann calculations agree to about 5e-8.
-        rtol=1e-7,
+        # Increased to deal with Mac vs Linux numerical differences
+        rtol=5e-7,
         atol=0.0,
     )
 
