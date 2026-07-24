@@ -1,0 +1,78 @@
+name: publish-orcid
+run-name: publish ORCID result · ${{ github.event.workflow_run.display_title }}
+
+on:
+  workflow_run:
+    workflows: [orcid-check]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  comment-on-failure:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      PR_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Get PR number
+        id: pr
+        uses: juliangruber/find-pull-request-action@v1
+        with:
+          github-token: ${{ github.token }}
+          branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+          state: open
+
+      - name: Download ORCID check result
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
+          name: orcid-results-${{ env.PR_SHA }}
+          path: orcid-results
+
+      - name: Check result
+        if: steps.pr.outputs.number != ''
+        id: result
+        run: echo "failed=$(grep -Fxq failure orcid-results/orcid-status.txt && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Find comment
+        if: steps.result.outputs.failed == 'true' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA
+        uses: peter-evans/find-comment@v4
+        id: fc
+        with:
+          issue-number: ${{ steps.pr.outputs.number }}
+          body-includes: Please add your email and ORCID ID
+
+      - name: Create comment
+        if: steps.result.outputs.failed == 'true' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ steps.pr.outputs.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            I'm the @tardis-bot and I noticed that your email is not associated with an ORCID ID in our database.
+
+            Please add your email and ORCID ID to the `.orcid.csv` file in your current branch and push the changes to this pull request.
+
+            If you don't have an ORCID ID yet, you can create one for free at [orcid.org](https://orcid.org/). ORCID IDs help ensure you get proper credit for your scientific contributions.
+
+            The format should be:
+            ```
+            email,orcid
+            your.email@example.com,0000-0000-0000-0000
+            ```
+
+            Runs: [ORCID check](${{ github.event.workflow_run.html_url }}) · [comment publisher](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

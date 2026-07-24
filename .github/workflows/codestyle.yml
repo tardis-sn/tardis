@@ -9,7 +9,7 @@ on:
     branches:
       - "*"
 
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Checkout PR and master branch
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -40,11 +40,11 @@ jobs:
           lockfile-path: ./conda-linux-64.lock
 
       - name: Show statistics pull request
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt
       
       - name: Show entire output pull request
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD -- | grep -E '\.py$') | tee ruff_full.txt
 
       - name: Show statistics push
@@ -55,68 +55,15 @@ jobs:
         if: github.event_name == 'push'
         run: ruff check --output-format=concise . | tee ruff_full.txt
 
-      - name: Statistics output read
-        id: ruff_stats
-        uses: juliangruber/read-file-action@v1.1.8
-        with:
-          path: ruff_stats.txt
-
       - name: Truncate ruff output
         run: head -200 ruff_full.txt > ruff_truncated.txt
 
-      - name: Entire output read
-        id: ruff_complete
-        uses: juliangruber/read-file-action@v1.1.8
-        with:
-          path: ruff_truncated.txt
-      
-      - name: Find Comment
-        if: always() && github.event_name == 'pull_request_target'
-        uses: peter-evans/find-comment@v4
-        id: fc
-        with:
-          issue-number: ${{ github.event.number }}
-          body-includes: I ran ruff on the latest commit
-      
-      - name: Post comment
-        if: github.event_name == 'pull_request_target'
-        uses: peter-evans/create-or-update-comment@v5
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
-            Hi human, 
-            I ran ruff on the latest commit (${{ github.event.pull_request.head.sha }}). 
-            Here are the outputs produced.
-            Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
-            Summarised output:
-            <details>
-
-              ```diff
-              ${{ steps.ruff_stats.outputs.content }}
-              ```
-
-            </details>
-
-            Complete output(might be large):
-            <details>
-
-              ```diff
-              ${{ steps.ruff_complete.outputs.content }}
-              ```
-              
-            </details>
-        env:
-          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
-          
       - name: Save results artifact
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: ruff-results
+          name: ruff-results-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             ruff_full.txt
             ruff_stats.txt
+            ruff_truncated.txt

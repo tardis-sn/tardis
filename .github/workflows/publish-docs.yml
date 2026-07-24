@@ -1,0 +1,129 @@
+name: publish-docs
+run-name: publish docs · ${{ github.event.workflow_run.display_title }}
+
+on:
+  workflow_run:
+    workflows: [docs]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  publish:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_BRANCH: gh-pages
+    steps:
+      - name: Get PR number
+        id: pr
+        uses: juliangruber/find-pull-request-action@v1
+        with:
+          github-token: ${{ github.token }}
+          branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+          state: open
+
+      - name: Check whether documentation publishing was requested
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA
+        id: policy
+        uses: actions/github-script@v9
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        with:
+          script: |
+            const pullNumber = Number(process.env.PR_NUMBER);
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber,
+            });
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber,
+              per_page: 100,
+            });
+            const hasLabel = pullRequest.labels.some((label) => label.name === 'build-docs');
+            const hasDocsChanges = files.some((file) => file.filename.startsWith('docs/'));
+            if (pullRequest.draft) {
+              core.notice('Documentation publishing was skipped because the pull request is a draft.');
+            } else if (!hasLabel && !hasDocsChanges) {
+              core.notice('Documentation publishing was skipped because there are no docs changes and no build-docs label.');
+            }
+            core.setOutput(
+              'should-publish',
+              (!pullRequest.draft && (hasLabel || hasDocsChanges)).toString(),
+            );
+
+      - name: Download documentation artifact
+        if: github.event.workflow_run.conclusion == 'success' && steps.policy.outputs.should-publish == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
+          name: docs-build-${{ github.event.workflow_run.head_sha }}
+          path: ${{ runner.temp }}/docs-artifact
+
+      - name: Deploy documentation
+        if: github.event.workflow_run.conclusion == 'success' && steps.policy.outputs.should-publish == 'true'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.BOT_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
+          publish_dir: ${{ runner.temp }}/docs-artifact
+          destination_dir: pull/${{ steps.pr.outputs.number }}
+          keep_files: true
+          force_orphan: false
+          user_name: "TARDIS Bot"
+          user_email: "tardis.sn.bot@gmail.com"
+
+      - name: Find documentation preview comment
+        if: steps.policy.outputs.should-publish == 'true'
+        uses: peter-evans/find-comment@v4
+        id: fc
+        with:
+          issue-number: ${{ steps.pr.outputs.number }}
+          body-includes: The **docs** workflow has
+
+      - name: Post comment (success)
+        if: github.event.workflow_run.conclusion == 'success' && steps.policy.outputs.should-publish == 'true'
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ steps.pr.outputs.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            <!-- tardis:docs-preview -->
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **docs** workflow has **succeeded** :heavy_check_mark:
+
+            [View the documentation preview](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ steps.pr.outputs.number }}/index.html).
+
+            Runs: [build and test](${{ github.event.workflow_run.html_url }}) · [publish](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+      - name: Post comment (failure)
+        if: github.event.workflow_run.conclusion != 'success' && steps.policy.outputs.should-publish == 'true'
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ steps.pr.outputs.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            <!-- tardis:docs-preview -->
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **docs** workflow has **failed** :x:
+
+            Runs: [build and test](${{ github.event.workflow_run.html_url }}) · [publish](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

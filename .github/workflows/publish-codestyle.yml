@@ -1,0 +1,96 @@
+name: publish-codestyle
+run-name: publish codestyle · ${{ github.event.workflow_run.display_title }}
+
+on:
+  workflow_run:
+    workflows: [codestyle]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  publish:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      PR_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Get PR number
+        id: pr
+        uses: juliangruber/find-pull-request-action@v1
+        with:
+          github-token: ${{ github.token }}
+          branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+          state: open
+
+      - name: Explain skipped comment
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion != 'success'
+        run: echo "::notice::The codestyle workflow concluded ${{ github.event.workflow_run.conclusion }}; no codestyle comment was posted."
+
+      - name: Download Ruff results
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
+          name: ruff-results-${{ env.PR_SHA }}
+          path: ruff-results
+
+      - name: Read statistics output
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion == 'success'
+        id: ruff_stats
+        uses: juliangruber/read-file-action@v1.1.8
+        with:
+          path: ruff-results/ruff_stats.txt
+
+      - name: Read complete output
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion == 'success'
+        id: ruff_complete
+        uses: juliangruber/read-file-action@v1.1.8
+        with:
+          path: ruff-results/ruff_truncated.txt
+
+      - name: Find comment
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA && github.event.workflow_run.conclusion == 'success'
+        uses: peter-evans/find-comment@v4
+        id: fc
+        with:
+          issue-number: ${{ steps.pr.outputs.number }}
+          body-includes: I ran ruff on the latest commit
+
+      - name: Post comment
+        if: steps.pr.outputs.number != '' && github.event.workflow_run.conclusion == 'success'
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ steps.pr.outputs.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+            Hi human,
+            I ran ruff on the latest commit (${{ env.PR_SHA }}).
+            Here are the outputs produced.
+            Runs: [Ruff and artifacts](${{ github.event.workflow_run.html_url }}) · [comment publisher](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            Summarised output:
+            <details>
+
+              ```diff
+              ${{ steps.ruff_stats.outputs.content }}
+              ```
+
+            </details>
+
+            Complete output (might be large):
+            <details>
+
+              ```diff
+              ${{ steps.ruff_complete.outputs.content }}
+              ```
+
+            </details>

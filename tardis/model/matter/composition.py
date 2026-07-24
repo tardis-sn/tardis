@@ -4,8 +4,8 @@ import radioactivedecay as rd
 from astropy import units as u
 from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 
-from tardis.model.matter.decay import IsotopicMassFraction
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.model.matter.decay import IsotopicMassFraction
 
 
 def compile_rd_isotope_masses():
@@ -75,14 +75,17 @@ class Composition:
 
         self.isotope_masses = self.assemble_isotope_masses()
 
-    def assemble_isotope_masses(self):
-        isotope_mass_df = pd.Series(
-            index=self.isotopic_mass_fraction.index, data=-1, dtype="float64"
+    def assemble_isotope_masses(self) -> pd.DataFrame:
+        isotopic_mass_fraction = self.isotopic_mass_fraction
+        isotope_mass_df = pd.DataFrame(
+            index=isotopic_mass_fraction.index,
+            columns=isotopic_mass_fraction.columns,
+            dtype="float64",
         )
-        for isotope_tuple in self.isotopic_mass_fraction.index:
+        for isotope_tuple in isotopic_mass_fraction.index:
             isotope_symbol = int("{:03d}{:03d}0000".format(*isotope_tuple))
             isotope_mass = rd.Nuclide(isotope_symbol).atomic_mass * u.u.to(u.g)
-            isotope_mass_df[isotope_tuple] = isotope_mass
+            isotope_mass_df.loc[isotope_tuple, :] = isotope_mass
 
         return isotope_mass_df
 
@@ -150,10 +153,7 @@ class Composition:
         """Isotopic Number Density computed using the formula: (isotopic_mass_fraction * density) / atomic mass"""
         return (
             self.isotopic_mass_fraction * self.density.to(u.g / u.cm**3).value
-        ).divide(
-            ISOTOPE_MASSES.loc[self.isotopic_mass_fraction.index] * u.u.to(u.g),
-            axis=0,
-        )
+        ).divide(self.isotope_masses, axis=0)
 
     def calculate_mass_fraction_at_time(self, time_explosion):
         """
@@ -175,10 +175,9 @@ class Composition:
         """
         if self.isotopic_mass_fraction.empty:
             return self.elemental_mass_fraction
-        else:
-            return self.isotopic_mass_fraction.calculate_decayed_mass_fractions(
-                time_explosion
-            )
+        return self.isotopic_mass_fraction.calculate_decayed_mass_fractions(
+            time_explosion
+        )
 
     def calculate_elemental_cell_masses(self, volume):
         """

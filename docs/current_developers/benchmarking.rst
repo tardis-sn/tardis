@@ -98,3 +98,10 @@ locally before publishing results:
 
    asv run -b time_intensity_black_body
    asv preview
+
+
+Pull-request benchmark comparisons use the
+:ref:`secure-pull-request-publishing` split. ``benchmarks`` runs the untrusted
+pull-request code and uploads its results. ``publish-benchmark-comparison``
+then publishes the generated HTML and comments without running pull-request
+code.

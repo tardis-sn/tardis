@@ -1,0 +1,132 @@
+name: publish-regdata-comparison
+run-name: publish regression comparison · ${{ github.event.workflow_run.display_title }}
+
+on:
+  workflow_run:
+    workflows: [compare-regdata]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  publish:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_BRANCH: main
+      PR_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Get PR number
+        id: pr
+        uses: juliangruber/find-pull-request-action@v1
+        with:
+          github-token: ${{ github.token }}
+          branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+          state: open
+
+      - name: Check regression comparison label
+        if: steps.pr.outputs.number != '' && steps.pr.outputs.matching-pr-count == '1' && steps.pr.outputs.head-sha == env.PR_SHA
+        id: label
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels" --paginate --jq '.[].name' | grep -Fxq run-regression-comparison; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+
+      - name: Download comparison artifacts
+        if: steps.label.outputs.enabled == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
+          pattern: compare_regression_data_*
+          path: comparison-artifacts
+
+      - name: Get comparison plots paths
+        if: steps.label.outputs.enabled == 'true'
+        id: get_paths
+        run: |
+          for os in "macos-latest" "ubuntu-latest"; do
+            for cont in "" "not_"; do
+              dir=$(find comparison-artifacts -type d -name "comparison_plots*" -path "*${cont}${os}*" | head -n1)
+              if [ -n "$dir" ]; then
+                clean_dir=$(echo "$dir" | sed 's|^comparison-artifacts/||')
+                echo "${cont}${os}_path=${clean_dir}" >> "$GITHUB_OUTPUT"
+              fi
+            done
+          done
+
+      - name: Deploy to GitHub Pages
+        if: steps.label.outputs.enabled == 'true'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.BOT_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
+          publish_dir: comparison-artifacts
+          destination_dir: pull/${{ steps.pr.outputs.number }}
+          keep_files: true
+          external_repository: tardis-sn/reg-data-comp
+          user_name: "TARDIS Bot"
+          user_email: "tardis.sn.bot@gmail.com"
+
+      - name: Find comment
+        if: steps.label.outputs.enabled == 'true'
+        uses: peter-evans/find-comment@v4
+        id: fc
+        with:
+          issue-number: ${{ steps.pr.outputs.number }}
+          body-includes: Regression Data Comparison Results
+
+      - name: Post comment
+        if: steps.label.outputs.enabled == 'true'
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ steps.pr.outputs.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            ### Regression Data Comparison Results
+
+            The comparison results have been generated and can be viewed here:
+
+            - [macOS (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}_not_macos-latest.html/compare_regression_data_${{ env.PR_SHA }}_not_macos-latest.html)
+            - [macOS (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}__macos-latest.html/compare_regression_data_${{ env.PR_SHA }}__macos-latest.html)
+            - [Ubuntu (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}_not_ubuntu-latest.html/compare_regression_data_${{ env.PR_SHA }}_not_ubuntu-latest.html)
+            - [Ubuntu (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}__ubuntu-latest.html/compare_regression_data_${{ env.PR_SHA }}__ubuntu-latest.html)
+
+            <details>
+            <summary>📊 View Comparison Plots</summary>
+
+            ### macOS (not continuum)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/spectrum.png?raw=true)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/same_name_diff.png?raw=true)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/diff_keys.png?raw=true)
+
+            ### macOS (continuum)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/spectrum.png?raw=true)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/same_name_diff.png?raw=true)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/diff_keys.png?raw=true)
+
+            ### Ubuntu (not continuum)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/spectrum.png?raw=true)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/same_name_diff.png?raw=true)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/diff_keys.png?raw=true)
+
+            ### Ubuntu (continuum)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/spectrum.png?raw=true)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/same_name_diff.png?raw=true)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/diff_keys.png?raw=true)
+
+            </details>
+
+            Runs: [build and test](${{ github.event.workflow_run.html_url }}) · [publish](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

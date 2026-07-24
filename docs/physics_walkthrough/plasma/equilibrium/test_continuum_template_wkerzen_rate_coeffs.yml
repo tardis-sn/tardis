@@ -36,11 +36,6 @@ plasma:
   continuum_interaction:
       species:
       - H I
-  nlte_ionization_species:
-    - H I
-  nlte_excitation_species:
-    - H I
-
 montecarlo:
   seed: 23111963
   no_of_packets: 500000

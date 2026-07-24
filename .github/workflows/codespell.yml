@@ -5,7 +5,7 @@ on:
     branches:
       - master
   workflow_dispatch:
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -19,21 +19,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
 
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
-        with:
-          os-label: "linux-64"
-          lockfile-path: ./conda-linux-64.lock
-      
       - name: Run codespell
-        run: |
-          codespell docs/
+        uses: codespell-project/actions-codespell@v2
+        with:
+          path: docs

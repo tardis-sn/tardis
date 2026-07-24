@@ -107,10 +107,8 @@ jobs:
       if: github.repository_owner == 'tardis-sn'
       steps:
         - name: Dispatch to Tardis-org-data
-          run: |
-                curl -X POST \
-                -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
-                -H "Accept: application/vnd.github+json" \
-                -H "Content-Type: application/json" \
-                -d '{ "event_type": "fetch-papers" }' \
-                https://api.github.com/repos/tardis-sn/tardis-org-data/dispatches
+          uses: peter-evans/repository-dispatch@v3
+          with:
+            token: ${{ secrets.BOT_TOKEN }}
+            repository: tardis-sn/tardis-org-data
+            event-type: fetch-papers
