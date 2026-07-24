@@ -165,10 +165,12 @@ The following pairs use this setup:
 
 GitHub displays the producer and publisher as separate workflow runs. Each
 publisher's run name includes the pull request title from
-``workflow_run.display_title``, and successful bot comments link the source and
-publisher runs. GitHub does not provide a token setting that turns a
-``workflow_run`` run into a child job of the producer or natively attaches it to
-the pull request.
+``workflow_run.display_title``. The documentation publisher's bot comment
+reports the producer build conclusion and deployment-step outcome separately.
+It links the preview after the deployment step succeeds. The comment uses
+``always()`` so deployment failures are reported as well as producer failures.
+GitHub does not provide a token setting that turns a ``workflow_run`` run into
+a child job of the producer or natively attaches it to the pull request.
 
 Testing a producer/publisher change
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
