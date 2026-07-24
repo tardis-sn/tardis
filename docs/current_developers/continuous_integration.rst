@@ -153,9 +153,6 @@ The following pairs use this setup:
    * - ``compare-regdata``
      - ``publish-regdata-comparison``
      - Regression-data comparison page and comment
-   * - ``codestyle``
-     - ``publish-codestyle``
-     - Ruff output comment
    * - ``mailmap``
      - ``publish-mailmap``
      - Failure guidance comment
@@ -282,6 +279,23 @@ Common Pipeline Steps
   required.
 - Use ``setup_env`` to configure environment variables and settings.
 - Use ``bash -l {0}`` as the run shell in workflow YAML.
+
+Codestyle Pipeline
+^^^^^^^^^^^^^^^^^^
+
+The ``codestyle`` workflow runs for pull requests targeting ``master`` and for
+pushes to ``master``. It checks added, copied, modified, renamed, type-changed,
+unmerged, and otherwise changed Python, Python stub, and Jupyter notebook files
+between the source and base commits.
+
+Ruff uses its GitHub output format so each diagnostic appears as a native
+annotation in the workflow check. The workflow does not upload Ruff artifacts,
+post a pull-request comment, or use a separate publisher workflow.
+
+Codestyle annotations are advisory while TARDIS reduces its existing Ruff
+backlog. The workflow passes ``--exit-zero`` explicitly, so diagnostics do not
+fail the job. Contributors should still run Ruff locally on changed code and
+resolve applicable diagnostics before review.
 
 Documentation Build Pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
