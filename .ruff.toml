@@ -90,27 +90,6 @@ lint.ignore = [
     "PT022",   # pytest-useless-yield-fixture
     "PT023",   # pytest-incorrect-mark-parentheses-style
 
-    # flake8-use-pathlib (PTH)
-    "PTH100",  # os-path-abspath
-    "PTH101",  # os-chmod
-    "PTH102",  # os-mkdir
-    "PTH103",  # os-makedirs
-    "PTH104",  # os-rename
-    "PTH107",  # os-remove
-    "PTH108",  # os-unlink
-    "PTH109",  # os-getcwd
-    "PTH110",  # os-path-exists
-    "PTH111",  # os-path-expanduser
-    "PTH112",  # os-path-isdir
-    "PTH113",  # os-path-isfile
-    "PTH118",  # os-path-join
-    "PTH119",  # os-path-basename
-    "PTH120",  # os-path-dirname
-    "PTH122",  # os-path-splitext
-    "PTH123",  # builtin-open
-    "PTH202",  # `os.path.getsize` should be replaced by `Path.stat().st_size`
-    "PTH207",  # Replace `glob` with `Path.glob` or `Path.rglob`
-
     # flake8-return (RET)
     "RET501",  # unnecessary-return-none
     "RET502",  # implicit-return-value
