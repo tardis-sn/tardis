@@ -132,9 +132,9 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
             self.transport_solver.radfield_prop_solver.solve(
                 self.transport_state.estimators_bulk,
                 self.transport_state.estimators_line,
-                self.transport_state.geometry_state.velocity_gradient,
+                self.transport_state.geometry_state_numba.velocity_gradient,
                 self.transport_state.time_of_simulation,
-                self.transport_state.geometry_state.volume,
+                self.transport_state.geometry_state_numba.volume,
                 self.transport_state.opacity_state_numba.line_list_nu,
             )
         )

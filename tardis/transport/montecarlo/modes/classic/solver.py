@@ -222,9 +222,9 @@ class MCTransportSolverClassic(HDFWriterMixin):
             estimators_line,
         ) = montecarlo_transport_with_vpackets(
             transport_state.packet_collection,
-            transport_state.geometry_state,
+            transport_state.geometry_state_numba,
             transport_state.time_explosion.cgs.value,
-            transport_state.opacity_state,
+            transport_state.opacity_state_numba,
             self.montecarlo_configuration,
             self.spectrum_frequency_grid.value,
             trackers_list,
