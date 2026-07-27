@@ -27,13 +27,13 @@ from tardis.transport.montecarlo.modes.classic.solver import (
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
-from tardis.workflows.workflow_logging import WorkflowLogging
+from tardis.workflows.workflow_logger import WorkflowLogger
 
 # logging support
 logger = logging.getLogger(__name__)
 
 
-class SimpleTARDISWorkflow(WorkflowLogging):
+class SimpleTARDISWorkflow:
     show_progress_bars = Environment.allows_widget_display()
     enable_virtual_packet_logging = False
     log_level = None
@@ -49,7 +49,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         csvy
             Set true if the configuration uses CSVY.
         """
-        super().__init__(configuration, self.log_level, self.specific_log_level)
+        self.workflow_logger = WorkflowLogger(
+            configuration, self.log_level, self.specific_log_level
+        )
         atom_data = parse_atom_data(configuration)
 
         # set up states and solvers
