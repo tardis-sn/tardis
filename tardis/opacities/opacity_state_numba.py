@@ -1,5 +1,6 @@
 import numba as nb
 import numpy as np
+import numpy.typing as npt
 from numba.experimental import jitclass
 
 from tardis import constants as const
@@ -7,9 +8,16 @@ from tardis import constants as const
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
-### TODO: Remove all continuum attrs from this class
 @jitclass
 class OpacityStateNumba:
+    """Store array-backed opacity and macro-atom data for transport.
+
+    This Numba ``jitclass`` is the compiled representation of
+    :class:`~tardis.opacities.opacity_state.OpacityState` used by classic and
+    nonhomologous Monte Carlo transport. Continuum fields are empty
+    arrays when continuum interactions are disabled.
+    """
+
     electron_density: nb.float64[:]  # type: ignore[misc]
     t_electrons: nb.float64[:]  # type: ignore[misc]
     line_list_nu: nb.float64[:]  # type: ignore[misc]
@@ -37,31 +45,31 @@ class OpacityStateNumba:
 
     def __init__(
         self,
-        electron_density: np.ndarray,
-        t_electrons: np.ndarray,
-        line_list_nu: np.ndarray,
-        tau_sobolev: np.ndarray,
-        transition_probabilities: np.ndarray,
-        line2macro_level_upper: np.ndarray,
-        macro_block_edge_index: np.ndarray,
-        transition_type: np.ndarray,
-        destination_level_id: np.ndarray,
-        transition_line_id: np.ndarray,
-        bf_threshold_list_nu: np.ndarray,
-        p_fb_deactivation: np.ndarray,
-        photo_ion_nu_threshold_mins: np.ndarray,
-        photo_ion_nu_threshold_maxs: np.ndarray,
-        photo_ion_block_references: np.ndarray,
-        chi_bf: np.ndarray,
-        x_sect: np.ndarray,
-        phot_nus: np.ndarray,
-        ff_opacity_factor: np.ndarray,
-        emissivities: np.ndarray,
-        photo_ion_activation_idx: np.ndarray,
+        electron_density: npt.NDArray[np.float64],
+        t_electrons: npt.NDArray[np.float64],
+        line_list_nu: npt.NDArray[np.float64],
+        tau_sobolev: npt.NDArray[np.float64],
+        transition_probabilities: npt.NDArray[np.float64],
+        line2macro_level_upper: npt.NDArray[np.int64],
+        macro_block_edge_index: npt.NDArray[np.int64],
+        transition_type: npt.NDArray[np.int64],
+        destination_level_id: npt.NDArray[np.int64],
+        transition_line_id: npt.NDArray[np.int64],
+        bf_threshold_list_nu: npt.NDArray[np.float64],
+        p_fb_deactivation: npt.NDArray[np.float64],
+        photo_ion_nu_threshold_mins: npt.NDArray[np.float64],
+        photo_ion_nu_threshold_maxs: npt.NDArray[np.float64],
+        photo_ion_block_references: npt.NDArray[np.int64],
+        chi_bf: npt.NDArray[np.float64],
+        x_sect: npt.NDArray[np.float64],
+        phot_nus: npt.NDArray[np.float64],
+        ff_opacity_factor: npt.NDArray[np.float64],
+        emissivities: npt.NDArray[np.float64],
+        photo_ion_activation_idx: npt.NDArray[np.int64],
         k_packet_idx: int,
     ) -> None:
         """
-        Initialize Numba-compatible opacity state for Monte Carlo transport.
+        Initialize the Numba-compatible opacity and interaction state.
 
         Parameters
         ----------
@@ -109,11 +117,6 @@ class OpacityStateNumba:
             Indices for photoionization activation.
         k_packet_idx : int
             Index for k-packet handling.
-        absorbing_markov_probabilities
-            Matrix B: Absorbing probabilities of the Markov-chain macro atom.
-            Shape: (n_shells, n_states, n_states). For each shell, contains the probability
-            of being absorbed in each destination state when starting from each source state.
-            Only for IIp. Here as a placeholder for numba compilation problems.
         """
         self.electron_density = electron_density
         self.t_electrons = t_electrons
@@ -149,20 +152,22 @@ class OpacityStateNumba:
             (0, 0, 0)
         )  # Double check that this is what we want to do. Fixes numba tests.
 
-    def __getitem__(self, i: slice) -> "OpacityStateNumba":
-        """Get a shell or slice of shells of the attributes of the opacity state.
+    def __getitem__(self, i: slice) -> OpacityStateNumba:
+        """Return a shallow state view for a contiguous shell slice.
 
         Parameters
         ----------
         i : slice
-            Shell slice. Will fail if slice is int since class only supports array types.
+            Shell slice. Integer indexing is unsupported because the transport
+            kernels require array-valued shell dimensions.
 
         Returns
         -------
         OpacityStateNumba
-            A shallow copy of the current instance with sliced data.
+            A shallow state copy with shell-dependent line and macro-atom
+            arrays sliced. Continuum arrays are not sliced and therefore this
+            method must not be used with continuum interactions.
         """
-        # NOTE: This currently will not work with continuum processes since it does not slice those arrays
         return OpacityStateNumba(
             self.electron_density[i],
             self.t_electrons[i],

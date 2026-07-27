@@ -1,13 +1,16 @@
 import numba as nb
 import numpy as np
+import numpy.typing as npt
 from numba.experimental import jitclass
 
 
 @jitclass
 class OpacityStateNumbaIIP:
-    """
-    IIP-specific opacity state that extends the base OpacityStateNumba
-    with absorbing Markov chain probabilities for faster macroatom interactions.
+    """Store array-backed opacity and IIP interaction data for transport.
+
+    This is a separate Numba ``jitclass`` because IIP transport requires the
+    absorbing Markov-chain probability matrix in addition to the fields used
+    by :class:`OpacityStateNumba`.
     """
 
     electron_density: nb.float64[:]  # type: ignore[misc]
@@ -36,32 +39,32 @@ class OpacityStateNumbaIIP:
 
     def __init__(
         self,
-        electron_density: np.ndarray,
-        t_electrons: np.ndarray,
-        line_list_nu: np.ndarray,
-        tau_sobolev: np.ndarray,
-        transition_probabilities: np.ndarray,
-        line2macro_level_upper: np.ndarray,
-        macro_block_edge_index: np.ndarray,
-        transition_type: np.ndarray,
-        destination_level_id: np.ndarray,
-        transition_line_id: np.ndarray,
-        bf_threshold_list_nu: np.ndarray,
-        p_fb_deactivation: np.ndarray,
-        photo_ion_nu_threshold_mins: np.ndarray,
-        photo_ion_nu_threshold_maxs: np.ndarray,
-        photo_ion_block_references: np.ndarray,
-        chi_bf: np.ndarray,
-        x_sect: np.ndarray,
-        phot_nus: np.ndarray,
-        ff_opacity_factor: np.ndarray,
-        emissivities: np.ndarray,
-        photo_ion_activation_idx: np.ndarray,
+        electron_density: npt.NDArray[np.float64],
+        t_electrons: npt.NDArray[np.float64],
+        line_list_nu: npt.NDArray[np.float64],
+        tau_sobolev: npt.NDArray[np.float64],
+        transition_probabilities: npt.NDArray[np.float64],
+        line2macro_level_upper: npt.NDArray[np.int64],
+        macro_block_edge_index: npt.NDArray[np.int64],
+        transition_type: npt.NDArray[np.int64],
+        destination_level_id: npt.NDArray[np.int64],
+        transition_line_id: npt.NDArray[np.int64],
+        bf_threshold_list_nu: npt.NDArray[np.float64],
+        p_fb_deactivation: npt.NDArray[np.float64],
+        photo_ion_nu_threshold_mins: npt.NDArray[np.float64],
+        photo_ion_nu_threshold_maxs: npt.NDArray[np.float64],
+        photo_ion_block_references: npt.NDArray[np.int64],
+        chi_bf: npt.NDArray[np.float64],
+        x_sect: npt.NDArray[np.float64],
+        phot_nus: npt.NDArray[np.float64],
+        ff_opacity_factor: npt.NDArray[np.float64],
+        emissivities: npt.NDArray[np.float64],
+        photo_ion_activation_idx: npt.NDArray[np.int64],
         k_packet_idx: int,
-        absorbing_markov_probabilities: np.ndarray,
+        absorbing_markov_probabilities: npt.NDArray[np.float64],
     ) -> None:
         """
-        Initialize IIP-specific Numba-compatible opacity state for Monte Carlo transport.
+        Initialize the Numba-compatible opacity and IIP interaction state.
 
         Parameters
         ----------
@@ -146,18 +149,21 @@ class OpacityStateNumbaIIP:
         self.k_packet_idx = k_packet_idx
         self.absorbing_markov_probabilities = absorbing_markov_probabilities
 
-    def __getitem__(self, i: slice) -> "OpacityStateNumbaIIP":
-        """Get a shell or slice of shells of the attributes of the opacity state.
+    def __getitem__(self, i: slice) -> OpacityStateNumbaIIP:
+        """Return a shallow IIP state view for a contiguous shell slice.
 
         Parameters
         ----------
         i : slice
-            Shell slice. Will fail if slice is int since class only supports array types.
+            Shell slice. Integer indexing is unsupported because the transport
+            kernels require array-valued shell dimensions.
 
         Returns
         -------
         OpacityStateNumbaIIP
-            A shallow copy of the current instance with sliced data.
+            A shallow state copy with the shell-dependent line, macro-atom,
+            and absorbing-probability arrays sliced. Continuum arrays are not
+            sliced and must remain compatible with the selected shell range.
         """
         return OpacityStateNumbaIIP(
             self.electron_density[i],

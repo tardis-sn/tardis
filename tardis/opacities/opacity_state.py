@@ -1,10 +1,17 @@
+from __future__ import annotations
+
+from typing import Self
+
 import numpy as np
+import numpy.typing as npt
+import pandas as pd
 from numba import float64, int64
 
 from tardis.opacities.continuum.continuum_state import ContinuumState
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
+from tardis.plasma.base import BasePlasma
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 opacity_state_spec = [
@@ -34,26 +41,36 @@ opacity_state_spec = [
 
 
 class OpacityState:
+    """Store Python-native line and continuum opacity data for one iteration.
+
+    The state preserves labelled plasma data for the MC solver and formal-integral.
+    Use :meth:`to_numba` to produce the Numba-compatible transport
+    representation.
+    """
+
     def __init__(
         self,
-        electron_density,
-        t_electrons,
-        line_list_nu,
-        tau_sobolev,
-        beta_sobolev,
-        continuum_state,
-    ):
+        electron_density: pd.DataFrame,
+        t_electrons: npt.NDArray[np.float64],
+        line_list_nu: pd.Series,
+        tau_sobolev: pd.DataFrame,
+        beta_sobolev: pd.DataFrame | None,
+        continuum_state: ContinuumState | None,
+    ) -> None:
         """
-        Opacity State in Python
+        Initialize the Python-native opacity state.
 
         Parameters
         ----------
         electron_density : pd.DataFrame
         t_electrons : numpy.ndarray
+            Electron temperatures in each shell [K].
         line_list_nu : pd.DataFrame
         tau_sobolev : pd.DataFrame
-        beta_sobolev : pd.DataFrame
-        continuum_state: tardis.opacities.continuum.continuum_state.ContinuumState
+        beta_sobolev : pd.DataFrame or None
+            Sobolev escape probabilities for each line and shell.
+        continuum_state : tardis.opacities.continuum.continuum_state.ContinuumState or None
+            Continuum quantities needed when continuum interactions are enabled.
         """
         self.electron_density = electron_density
         self.t_electrons = t_electrons
@@ -67,20 +84,25 @@ class OpacityState:
         self.continuum_state = continuum_state
 
     @classmethod
-    def from_legacy_plasma(cls, plasma, tau_sobolev):
+    def from_legacy_plasma(
+        cls,
+        plasma: BasePlasma,
+        tau_sobolev: pd.DataFrame,
+    ) -> Self:
         """
-        Generates an OpacityStatePython object from a tardis BasePlasma
+        Construct an opacity state from a legacy plasma object.
 
         Parameters
         ----------
         plasma : tardis.plasma.BasePlasma
-            legacy base plasma
+            Plasma object containing the line and continuum quantities.
         tau_sobolev : pd.DataFrame
-            Expansion Optical Depths
+            Sobolev optical depths for each line and shell.
 
         Returns
         -------
-        OpacityStatePython
+        OpacityState
+            Python-native opacity state.
         """
         if hasattr(plasma, "photo_ion_cross_sections"):
             continuum_state = ContinuumState.from_legacy_plasma(plasma)
@@ -97,22 +119,28 @@ class OpacityState:
         )
 
     @classmethod
-    def from_plasma(cls, plasma, tau_sobolev, beta_sobolev):
+    def from_plasma(
+        cls,
+        plasma: BasePlasma,
+        tau_sobolev: pd.DataFrame,
+        beta_sobolev: pd.DataFrame | None,
+    ) -> Self:
         """
-        Generates an OpacityStatePython object from a tardis BasePlasma
+        Construct an opacity state from a plasma object.
 
         Parameters
         ----------
-        plasma : tarids.plasma.BasePlasma
-            legacy base plasma
+        plasma : tardis.plasma.base.BasePlasma
+            Plasma object containing the line and continuum quantities.
         tau_sobolev : pd.DataFrame
-            Expansion Optical Depths
-        beta_sobolev : pd.DataFrame
-            Modified expansion Optical Depths
+            Sobolev optical depths for each line and shell.
+        beta_sobolev : pd.DataFrame or None
+            Sobolev escape probabilities for each line and shell.
 
         Returns
         -------
-        OpacityStatePython
+        OpacityState
+            Python-native opacity state.
         """
         if hasattr(plasma, "photo_ion_cross_sections"):
             continuum_state = ContinuumState.from_legacy_plasma(plasma)
@@ -130,16 +158,24 @@ class OpacityState:
 
     def to_numba(
         self,
-        macro_atom_state: MacroAtomState,
-        line_interaction_type,
+        macro_atom_state: MacroAtomState | None,
+        line_interaction_type: str,
     ) -> OpacityStateNumba | OpacityStateNumbaIIP:
         """
-        Initialize the OpacityStateNumba object and copy over the data over from OpacityState class
+        Convert this state to the Numba-compatible transport representation.
 
         Parameters
         ----------
-        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState
-        line_interaction_type : enum
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState or None
+            Macro-atom transition data. It is required unless
+            ``line_interaction_type`` is ``"scatter"``.
+        line_interaction_type : str
+            Configured line-interaction mode.
+
+        Returns
+        -------
+        tardis.opacities.opacity_state_numba.OpacityStateNumba or tardis.opacities.opacity_state_numba_iip.OpacityStateNumbaIIP
+            Array-backed opacity and interaction data used by transport.
         """
         electron_densities = self.electron_density.values
         t_electrons = self.t_electrons
