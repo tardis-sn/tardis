@@ -1,0 +1,4 @@
+interface:
+  display_name: "TARDIS Science Review Guide"
+  short_description: "Highlight science questions in TARDIS PRs"
+  default_prompt: "Use $tardis-pr-review to explain in plain language which scientific questions in TARDIS pull request #123 need close review."
