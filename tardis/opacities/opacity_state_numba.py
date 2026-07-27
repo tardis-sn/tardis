@@ -152,7 +152,7 @@ class OpacityStateNumba:
             (0, 0, 0)
         )  # Double check that this is what we want to do. Fixes numba tests.
 
-    def __getitem__(self, i: slice) -> OpacityStateNumba:
+    def __getitem__(self, i: slice):
         """Return a shallow state view for a contiguous shell slice.
 
         Parameters

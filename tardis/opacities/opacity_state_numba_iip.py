@@ -149,7 +149,7 @@ class OpacityStateNumbaIIP:
         self.k_packet_idx = k_packet_idx
         self.absorbing_markov_probabilities = absorbing_markov_probabilities
 
-    def __getitem__(self, i: slice) -> OpacityStateNumbaIIP:
+    def __getitem__(self, i: slice):
         """Return a shallow IIP state view for a contiguous shell slice.
 
         Parameters
