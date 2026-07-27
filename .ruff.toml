@@ -57,23 +57,6 @@ lint.ignore = [
     "FBT002",  # boolean-default-value-in-function-definition
     "FBT003",  # boolean-positional-value-in-function-call
 
-    # flake8-fixme (FIX)
-    "FIX001",  # Line contains FIXME.  this should be fixed or at least FIXME replaced with TODO
-    "FIX004",  # Line contains HACK. replace HACK with NOTE.
-
-    # pep8-naming (N)
-    # NOTE: some of these can/should be fixed, but this changes the API.
-    "N801",  # invalid-class-name
-    "N802",  # invalid-function-name
-    "N803",  # invalid-argument-name
-    "N804",  # invalid-first-argument-name-for-class-method
-    "N805",  # invalid-first-argument-name-for-method
-    "N807",  # dunder-function-name
-    "N813",  # camelcase-imported-as-lowercase
-    "N815",  # mixed-case-variable-in-class-scope
-    "N816",  # mixed-case-variable-in-global-scope
-    "N818",  # error-suffix-on-exception-name
-
     # NumPy-specific rules (NPY)
     "NPY002", # Replace legacy `np.random.rand` call with `np.random.Generator`  (2023-05-03)
 
