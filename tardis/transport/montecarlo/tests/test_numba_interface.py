@@ -1,9 +1,14 @@
 import numpy as np
 import numpy.testing as npt
 import pytest
+from astropy import units as u
 
 import tardis.opacities.opacity_state as numba_interface
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+    configuration_initialize,
+)
+
 
 @pytest.mark.parametrize(
     "input_params,sliced",
@@ -76,9 +81,22 @@ def test_opacity_state_initialize(
         )
 
 
-@pytest.mark.xfail(reason="To be implemented")
-def test_configuration_initialize():
-    raise AssertionError()
+def test_configuration_initialize_uses_vpacket_spawn_range(
+    nb_simulation_verysimple,
+) -> None:
+    transport = nb_simulation_verysimple.transport
+    montecarlo_configuration = MonteCarloConfiguration()
+
+    configuration_initialize(montecarlo_configuration, transport, 10)
+
+    npt.assert_allclose(
+        montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+        transport.vpacket_spawn_range.end.to(u.Hz, u.spectral()).value,
+    )
+    npt.assert_allclose(
+        montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+        transport.vpacket_spawn_range.start.to(u.Hz, u.spectral()).value,
+    )
 
 
 def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
