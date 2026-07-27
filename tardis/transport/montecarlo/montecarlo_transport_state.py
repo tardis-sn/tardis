@@ -1,8 +1,17 @@
+from __future__ import annotations
+
 import warnings
 
+import pandas as pd
 from astropy import units as u
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.transport.montecarlo.packets.packet_collections import (
+    PacketCollection,
+    VPacketCollection,
+)
 
 
 class MonteCarloTransportState(HDFWriterMixin):
@@ -49,15 +58,37 @@ class MonteCarloTransportState(HDFWriterMixin):
 
     def __init__(
         self,
-        packet_collection,
-        geometry_state,
-        opacity_state,
-        time_explosion,
-        n_levels_bf_species_by_n_cells_tuple,
-        tracker_full_df=None,
-        tracker_last_interaction_df=None,
-        vpacket_tracker=None,
-    ):
+        packet_collection: PacketCollection,
+        geometry_state_numba: NumbaRadial1DGeometry,
+        opacity_state_numba: OpacityStateNumba,
+        time_explosion: u.Quantity,
+        n_levels_bf_species_by_n_cells_tuple: tuple[int, int],
+        tracker_full_df: pd.DataFrame | None = None,
+        tracker_last_interaction_df: pd.DataFrame | None = None,
+        vpacket_tracker: VPacketCollection | None = None,
+    ) -> None:
+        """
+        Initialize the state used by Monte Carlo radiative transfer.
+
+        Parameters
+        ----------
+        packet_collection : tardis.transport.montecarlo.packets.packet_collections.PacketCollection
+            Collection of packets propagated during the simulation.
+        geometry_state_numba : tardis.model.geometry.radial1d.NumbaRadial1DGeometry
+            Numba-compatible geometry state describing the simulation shells.
+        opacity_state_numba : tardis.opacities.opacity_state_numba.OpacityStateNumba
+            Numba-compatible opacity state used for packet interactions.
+        time_explosion : astropy.units.Quantity
+            Time since the explosion in seconds.
+        n_levels_bf_species_by_n_cells_tuple : tuple[int, int]
+            Shape of the bound-free level and cell dimensions.
+        tracker_full_df : pandas.DataFrame, optional
+            DataFrame containing full packet interaction tracking data.
+        tracker_last_interaction_df : pandas.DataFrame, optional
+            DataFrame containing the last interaction for each packet.
+        vpacket_tracker : tardis.transport.montecarlo.packets.packet_collections.VPacketCollection, optional
+            Collection containing virtual packet tracking data.
+        """
         self.packet_collection = packet_collection
         self.n_levels_bf_species_by_n_cells_tuple = (
             n_levels_bf_species_by_n_cells_tuple
@@ -68,8 +99,8 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
         self.time_explosion = time_explosion
-        self.geometry_state = geometry_state
-        self.opacity_state = opacity_state
+        self.geometry_state = geometry_state_numba
+        self.opacity_state_numba = opacity_state_numba
         self.tracker_full_df = tracker_full_df
         self.tracker_last_interaction_df = tracker_last_interaction_df
         self.vpacket_tracker = vpacket_tracker
