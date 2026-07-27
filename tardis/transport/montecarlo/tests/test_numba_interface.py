@@ -2,8 +2,8 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-import tardis.opacities.opacity_state as numba_interface
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+from tardis.simulation import Simulation
+
 
 @pytest.mark.parametrize(
     "input_params,sliced",
@@ -15,15 +15,21 @@ from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
         ("downbranch", True),
     ],
 )
-def test_opacity_state_initialize(
-    nb_simulation_verysimple, input_params, sliced
-):
+def test_opacity_state_to_numba(
+    nb_simulation_verysimple: Simulation,
+    input_params: str,
+    sliced: bool,
+) -> None:
     line_interaction_type = input_params
     plasma = nb_simulation_verysimple.plasma
-    actual = numba_interface.opacity_state_initialize(
-        plasma,
+    macro_atom_state = (
+        None
+        if line_interaction_type == "scatter"
+        else nb_simulation_verysimple.macro_atom_state
+    )
+    actual = nb_simulation_verysimple.opacity_state.to_numba(
+        macro_atom_state,
         line_interaction_type,
-        disable_line_scattering=False,
     )
 
     if sliced:

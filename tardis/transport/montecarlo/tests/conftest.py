@@ -7,10 +7,7 @@ from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.model.geometry.radial1d_nonhomologous import (
     NumbaNonhomologousRadial1DGeometry,
 )
-from tardis.opacities.opacity_state_numba import (
-    OpacityStateNumba,
-    opacity_state_numba_initialize,
-)
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
@@ -55,11 +52,12 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 
 
 @pytest.fixture(scope="package")
-def verysimple_opacity_state(nb_simulation_verysimple):
-    return opacity_state_numba_initialize(
-        nb_simulation_verysimple.plasma,
-        line_interaction_type="macroatom",
-        disable_line_scattering=False,
+def verysimple_opacity_state(
+    nb_simulation_verysimple: Simulation,
+) -> OpacityStateNumba:
+    return nb_simulation_verysimple.opacity_state.to_numba(
+        nb_simulation_verysimple.macro_atom_state,
+        "macroatom",
     )
 
 
