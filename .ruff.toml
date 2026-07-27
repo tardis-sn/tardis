@@ -18,10 +18,6 @@ lint.ignore = [
     "B023",  # FunctionUsesLoopVariable
     "B028",  # No-explicit-stacklevel
     "B904",  # RaiseWithoutFromInsideExcept
-    "B905",  # ZipWithoutExplicitStrict   # requires 3.10+
-
-    # flake8-blind-except (BLE)
-    "BLE001",  # blind-except
 
     # mccabe (C90) : code complexity
     # TODO: configure maximum allowed complexity.
