@@ -99,7 +99,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
         self.time_explosion = time_explosion
-        self.geometry_state = geometry_state_numba
+        self.geometry_state_numba = geometry_state_numba
         self.opacity_state_numba = opacity_state_numba
         self.tracker_full_df = tracker_full_df
         self.tracker_last_interaction_df = tracker_last_interaction_df
