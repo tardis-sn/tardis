@@ -102,15 +102,11 @@ jobs:
           edit-mode: replace
           body: |
             <!-- tardis:docs-preview -->
-            *\*beep\* \*bop\**
-
-            Hi, human.
 
             The **docs** workflow has completed with these results:
 
             - Build: **${{ github.event.workflow_run.conclusion }}**
-            - Deployment: **${{ steps.deploy.outcome }}**
 
-            ${{ steps.deploy.outcome == 'success' && format('[View the documentation preview](https://{0}.github.io/{1}/pull/{2}/index.html).', github.repository_owner, github.event.repository.name, steps.pr.outputs.number) || 'The latest documentation preview was not deployed. See the publisher run for details.' }}
+            [View the documentation preview](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ steps.pr.outputs.number }}/index.html).
 
             Runs: [build and test](${{ github.event.workflow_run.html_url }}) · [publish](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
