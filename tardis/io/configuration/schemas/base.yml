@@ -26,6 +26,10 @@ properties:
   spectrum:
     $ref: spectrum.yml
     description: Final spectrum sampling
+  checkpoints:
+    $ref: checkpoint.yml
+    default: {}
+    description: Checkpoint configuration for resumable workflows
   debug:
     $ref: debug.yml
     description: Debugging setup for the simulation
@@ -33,4 +37,3 @@ required:
 - tardis_config_version
 - atom_data
 - spectrum
-

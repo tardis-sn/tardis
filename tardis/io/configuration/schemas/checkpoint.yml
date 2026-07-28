@@ -1,0 +1,17 @@
+$$target: checkpoint.yml
+type: object
+additionalProperties: false
+properties:
+  path:
+    type:
+      - string
+      - "null"
+    default: null
+    description: Base path for workflow checkpoint files. Set to null to
+      disable checkpoint writing.
+  interval:
+    type: number
+    multipleOf: 1.0
+    minimum: 1
+    default: 1
+    description: Save workflow checkpoints every interval completed iterations.

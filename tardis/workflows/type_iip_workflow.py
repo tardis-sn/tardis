@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -32,7 +33,14 @@ from tardis.transport.montecarlo.modes.iip.solver import (
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
+from tardis.workflows.iip_workflow_checkpoints import (
+    resume_from_checkpoint,
+    save_checkpoint,
+)
 from tardis.workflows.workflow_logging import WorkflowLogging
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # logging support
 logger = logging.getLogger(__name__)
@@ -44,7 +52,7 @@ class TypeIIPWorkflow(WorkflowLogging):
     log_level = None
     specific_log_level = None
 
-    def __init__(self, configuration, csvy=False):
+    def __init__(self, configuration, csvy: bool = False):
         """A TARDIS workflow for simulating Type IIP supernovae.
 
         Parameters
@@ -253,6 +261,34 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.convergence_solvers["dilution_factor"] = ConvergenceSolver(
             self.convergence_strategy.w
         )
+
+    @classmethod
+    def restore_checkpoint(
+        cls,
+        configuration,
+        checkpoint_path: str | Path,
+        csvy: bool = False,
+    ) -> TypeIIPWorkflow:
+        """Create an IIP workflow and restore it from a checkpoint.
+
+        Parameters
+        ----------
+        configuration : Configuration
+            Configuration object used to initialize the workflow.
+        checkpoint_path : str or Path
+            Path to the HDF5 checkpoint file.
+        csvy : bool, optional
+            Set true if the configuration uses CSVY, by default False.
+
+        Returns
+        -------
+        TypeIIPWorkflow
+            Workflow restored to the checkpoint state and ready to resume with
+            :meth:`run`.
+        """
+        workflow = cls(configuration, csvy=csvy)
+        resume_from_checkpoint(workflow, checkpoint_path)
+        return workflow
 
     @staticmethod
     def initialize_radiation_field(
@@ -950,6 +986,16 @@ class TypeIIPWorkflow(WorkflowLogging):
         # probably needs to expand again in the future to handle formal integral
         self.spectrum_solver.transport_state = self.transport_state
 
+    def should_save_checkpoint(self) -> bool:
+        """Return whether the next completed iteration should be checkpointed."""
+        next_completed_iteration = self.completed_iterations + 1
+        checkpoint_path = self.configuration.checkpoints.path
+        checkpoint_interval = self.configuration.checkpoints.interval
+        return (
+            checkpoint_path is not None
+            and next_completed_iteration % checkpoint_interval == 0
+        )
+
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
         # Initialize iterations progress bar if showing progress bars
@@ -988,6 +1034,12 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.solve_continuum_state(normalized_continuum_estimators)
 
+            if self.should_save_checkpoint():
+                save_checkpoint(
+                    self,
+                    normalized_continuum_estimators,
+                    estimated_values,
+                )
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
             if self.converged and self.convergence_strategy.stop_if_converged:
