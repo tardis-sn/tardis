@@ -176,7 +176,7 @@ def test_simple_tardis_workflow_against_test_tardis_full_regression(
         spectrum_real_packets_luminosity,
         expected_spectrum_real_packets_luminosity,
         rtol=1e-14,
-        atol=0
+        atol=None
     )
 
     spectrum_virtual_packets_luminosity = (
@@ -189,7 +189,7 @@ def test_simple_tardis_workflow_against_test_tardis_full_regression(
         spectrum_virtual_packets_luminosity,
         expected_spectrum_virtual_packets_luminosity,
         rtol=1e-14,
-        atol=0
+        atol=None
     )
 
 
