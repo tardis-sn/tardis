@@ -1,6 +1,6 @@
 ---
 name: tardis-pr-review
-description: Analyze a numbered pull request in tardis-sn/tardis and produce a plain-language guide to changed equations, physical assumptions, scientific data, numerical methods, and supporting tests that merit close review by scientists. Use when the user supplies a TARDIS PR number and asks for scientific review priorities or areas of scientific interest. Explain the scientific importance without assuming Git or software-review expertise. Do not use for a comprehensive code review, implementation work, local-only changes, non-TARDIS repositories, or requests without a PR number.
+description: Analyze a numbered pull request in tardis-sn/tardis and produce a concise, plain-language guide to changed equations, physical assumptions, scientific data, numerical methods, and supporting tests that merit close review by scientists. Use when the user supplies a TARDIS PR number and asks for scientific review priorities or areas of scientific interest. Ask only questions directly motivated by changed code or its immediate scientific effects, and explain their importance without assuming Git or software-review expertise. Do not use for a comprehensive code review, implementation work, local-only changes, non-TARDIS repositories, or requests without a PR number.
 ---
 
 # Highlight Science Questions in a TARDIS Pull Request
@@ -65,7 +65,16 @@ can alter a scientific result, its interpretation, or the evidence used to
 validate it. Scan the entire diff, but do not turn the brief into a file-by-file
 software review.
 
-Use these lenses when applicable:
+Require this evidence chain for every reported area:
+
+1. An exact changed line.
+2. The scientific quantity, assumption, or test affected by that line.
+3. A plausible effect on a calculation or result.
+4. A specific unanswered question that would help a scientific reviewer assess
+   that effect, or a directly established scientific consequence.
+
+Omit the area if any link is missing. Use the following lenses only to interpret
+actual changes; never turn them into a generic checklist:
 
 - Physical formulation: equations, conservation laws, approximations, regimes
   of validity, constants, dimensions, units, and normalization.
@@ -106,12 +115,19 @@ For each area:
    affect later in the simulation.
 3. Identify the physical regime, relation that should remain true, convention,
    or meaning of the data that a reviewer should verify.
-4. Pose concrete review questions and name useful evidence, such as a derivation,
-   dimensional check, limiting case, calculation by another method, convergence
-   study, or comparison with stored reference results.
+4. Ask only questions caused by the changed lines or their immediate effects.
+   Make each question identify the changed choice and the scientific uncertainty
+   it creates. Do not ask broad questions such as whether units, conservation,
+   tests, or documentation are generally adequate.
 5. Distinguish demonstrated evidence from inference. If an error is directly
-   established, describe its scientific consequence inside the review area;
-   otherwise present the uncertainty as a review question, not a defect.
+   established, describe its scientific consequence without inventing a
+   question; otherwise present the uncertainty as a review question, not a
+   defect.
+6. Prefer one question and never include more than three questions for one area.
+   Combine overlapping areas and remove duplicate questions.
+7. Do not ask a question already answered by the changed code, tests, PR
+   description, or review discussion. State the answer briefly only when it
+   materially affects the remaining scientific question.
 
 Exclude style, naming, typing, general maintainability, documentation polish,
 and unrelated CI failures unless they obscure scientific meaning or validation.
@@ -166,33 +182,38 @@ GitHub Actions, or software-review terminology.
 4. Focus each area on the scientific choice and its possible effect. Mention
    code mechanics only when they help the reader understand that effect.
 
+5. Keep the brief short. Do not repeat the PR description, explain familiar
+   TARDIS physics, narrate the inspection process, list unaffected files, or
+   restate the same consequence under several headings.
+
 ## Report a Scientific-Review Brief
 
 Lead with: “This brief highlights science questions for specialist review; it
-does not determine whether the proposed change is correct.” Then report:
+does not determine whether the proposed change is correct.” Follow it with at
+most one sentence describing what the PR aims to change.
 
-1. **What the change aims to do**: explain the intended result, physical regime,
-   and assumptions in a short paragraph.
-2. **Areas needing scientific attention**: give each area a scientific title and
-   a `close review` or `check carefully` label, followed by:
+Apart from that opening and the final version line, report only **Areas needing
+scientific attention**. Give each area a scientific title and a `close review`
+or `check carefully` label, followed by:
 
-   - **Where to look**: link to the relevant lines.
-   - **Why it matters**: explain the possible effect on physical quantities or
-     results.
-   - **Questions to answer**: ask concrete scientific questions.
-   - **What evidence exists**: summarize useful tests, comparisons, or missing
-     evidence in plain language.
+- **Where to look**: link to the relevant lines.
+- **Why it matters**: explain the possible scientific effect in one or two
+  sentences.
+- **Question for the reviewer**: include this only for an unresolved question.
+  Ask one concise question directly tied to the changed lines. Add a second or
+  third only when each addresses a distinct scientific uncertainty created by
+  those changes. Do not invent a question for an established consequence.
+- **Evidence**: include at most one sentence when an automated test, comparison,
+  or missing result changes how the reviewer should approach the question.
 
-3. **How the effects move through the simulation**: explain connections among
-   plasma, transport, convergence, and observables only when several review
-   areas are linked.
-4. **What has been checked**: relate automated test results to the scientific
-   questions they address. Explain absent or inconclusive evidence without
-   giving a general software-test status report.
-5. **Version reviewed**: give the PR URL and the identifiers for the starting
-   and proposed versions. State that the proposed code was inspected but not run
-   locally.
+Add one short paragraph about how effects move through the simulation only when
+it is necessary to connect several reported areas. Do not include a separate
+general test summary.
+
+End with one **Version reviewed** line containing the PR URL and identifiers for
+the starting and proposed versions, followed by a note that the proposed code
+was inspected but not run locally.
 
 If no changed area merits scientific review, say so explicitly and briefly
-explain why the change appears science-neutral. Do not fill the report with
-general software-review observations.
+explain why the change appears science-neutral, then give the version reviewed.
+Do not fill the report with general software-review observations.
