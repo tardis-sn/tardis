@@ -324,6 +324,7 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
 @pytest.fixture(scope="module")
 def simulation_tardis_full(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
+    config_verysimple = deepcopy(config_verysimple) # the config is mutated in other places
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.run_convergence()
     sim.run_final()
