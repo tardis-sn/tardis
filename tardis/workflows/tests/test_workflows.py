@@ -162,6 +162,8 @@ def test_simple_tardis_workflow_against_test_tardis_full_regression(
     np.testing.assert_allclose(
         j_blue_estimators,
         expected_j_blue_estimators,
+        rtol=1e-14,
+        atol=1e-14
     )
 
     spectrum_real_packets_luminosity = (
@@ -173,6 +175,8 @@ def test_simple_tardis_workflow_against_test_tardis_full_regression(
     assert_quantity_allclose(
         spectrum_real_packets_luminosity,
         expected_spectrum_real_packets_luminosity,
+        rtol=1e-14,
+        atol=0
     )
 
     spectrum_virtual_packets_luminosity = (
@@ -184,6 +188,8 @@ def test_simple_tardis_workflow_against_test_tardis_full_regression(
     assert_quantity_allclose(
         spectrum_virtual_packets_luminosity,
         expected_spectrum_virtual_packets_luminosity,
+        rtol=1e-14,
+        atol=0
     )
 
 
