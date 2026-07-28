@@ -163,7 +163,7 @@ def test_simple_tardis_workflow_against_test_tardis_full_regression(
         j_blue_estimators,
         expected_j_blue_estimators,
         rtol=1e-14,
-        atol=1e-14
+        atol=1e-14 # many values equal to zero
     )
 
     spectrum_real_packets_luminosity = (
