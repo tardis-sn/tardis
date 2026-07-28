@@ -56,13 +56,11 @@ jobs:
         id: get_paths
         run: |
           for os in "macos-latest" "ubuntu-latest"; do
-            for cont in "" "not_"; do
-              dir=$(find comparison-artifacts -type d -name "comparison_plots*" -path "*${cont}${os}*" | head -n1)
-              if [ -n "$dir" ]; then
-                clean_dir=$(echo "$dir" | sed 's|^comparison-artifacts/||')
-                echo "${cont}${os}_path=${clean_dir}" >> "$GITHUB_OUTPUT"
-              fi
-            done
+            dir=$(find comparison-artifacts -type d -name "comparison_plots*" -path "*${os}*" | head -n1)
+            if [ -n "$dir" ]; then
+              clean_dir=$(echo "$dir" | sed 's|^comparison-artifacts/||')
+              echo "${os}_path=${clean_dir}" >> "$GITHUB_OUTPUT"
+            fi
           done
 
       - name: Deploy to GitHub Pages
@@ -99,30 +97,18 @@ jobs:
 
             The comparison results have been generated and can be viewed here:
 
-            - [macOS (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}_not_macos-latest.html/compare_regression_data_${{ env.PR_SHA }}_not_macos-latest.html)
-            - [macOS (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}__macos-latest.html/compare_regression_data_${{ env.PR_SHA }}__macos-latest.html)
-            - [Ubuntu (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}_not_ubuntu-latest.html/compare_regression_data_${{ env.PR_SHA }}_not_ubuntu-latest.html)
-            - [Ubuntu (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}__ubuntu-latest.html/compare_regression_data_${{ env.PR_SHA }}__ubuntu-latest.html)
+            - [macOS](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}_macos-latest.html/compare_regression_data_${{ env.PR_SHA }}_macos-latest.html)
+            - [Ubuntu](https://tardis-sn.github.io/reg-data-comp/pull/${{ steps.pr.outputs.number }}/compare_regression_data_${{ env.PR_SHA }}_ubuntu-latest.html/compare_regression_data_${{ env.PR_SHA }}_ubuntu-latest.html)
 
             <details>
             <summary>📊 View Comparison Plots</summary>
 
-            ### macOS (not continuum)
-            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/spectrum.png?raw=true)
-            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/same_name_diff.png?raw=true)
-            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/diff_keys.png?raw=true)
-
-            ### macOS (continuum)
+            ### macOS
             ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/spectrum.png?raw=true)
             ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/same_name_diff.png?raw=true)
             ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/diff_keys.png?raw=true)
 
-            ### Ubuntu (not continuum)
-            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/spectrum.png?raw=true)
-            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/same_name_diff.png?raw=true)
-            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/diff_keys.png?raw=true)
-
-            ### Ubuntu (continuum)
+            ### Ubuntu
             ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/spectrum.png?raw=true)
             ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/same_name_diff.png?raw=true)
             ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ steps.pr.outputs.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/diff_keys.png?raw=true)
