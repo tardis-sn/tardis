@@ -322,10 +322,12 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
 
 
 @pytest.fixture(scope="module")
-def simulation_tardis_full(config_verysimple, atomic_dataset):
+def simulation_tardis_full(atomic_dataset, example_configuration_dir):
     atomic_data = deepcopy(atomic_dataset)
-    config_verysimple = deepcopy(config_verysimple) # the config is mutated in other places
-    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )  # the config is mutated in other places
+    sim = Simulation.from_config(config, atom_data=atomic_data)
     sim.run_convergence()
     sim.run_final()
     return sim
