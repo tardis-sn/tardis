@@ -3,7 +3,7 @@ extend = "pyproject.toml"
 
 lint.ignore = [
     # NOTE: to find a good code to fix, run:
-    # ruff --select="ALL" --statistics astropy/<subpackage>
+    # ruff --select="ALL" --statistics tardis/<subpackage>
 
     # flake8-unused-arguments (ARG)
     "ARG001",  # unused-function-argument
@@ -26,17 +26,6 @@ lint.ignore = [
     # pydocstyle (D)
     # Missing Docstrings
     "D100",  # undocumented-public-module
-    "D104",  # undocumented-public-package
-    "D205",  # blank-line-after-summary
-    # Quotes Issues
-    "D300",  # triple-single-quotes
-    "D301",  # escape-sequence-in-docstring
-    # Docstring Content Issues
-    "D403",  # first-line-capitalized
-    "D404",  # docstring-starts-with-this
-    "D401",  # non-imperative-mood.
-    "D414",  # empty-docstring-section
-    "D419",  # docstring is empty
 
     # flake8-datetimez (DTZ)
     "DTZ001",  # call-datetime-without-tzinfo
