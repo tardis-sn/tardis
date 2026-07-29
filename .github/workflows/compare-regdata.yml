@@ -37,7 +37,7 @@ jobs:
       regression-data-repo: tardis-sn/tardis-regression-data
 
   tests:
-    name: compare-regdata ${{ matrix.continuum }} continuum ${{ matrix.os }}
+    name: compare-regdata ${{ matrix.os }}
     if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -45,7 +45,6 @@ jobs:
       fail-fast: false
       matrix:
         label: [osx-arm64, linux-64]
-        continuum: ['not']
         include:
           - label: osx-arm64
             os: macos-latest
@@ -143,7 +142,7 @@ jobs:
           pip install GitPython
 
       - name: Regression Data Generation tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
       
       - name: Commit regression data
         id: commit
@@ -173,7 +172,7 @@ jobs:
         run: |
           jupyter nbconvert --execute ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data.ipynb \
             --to html \
-            --output=compare_regression_data_${{ github.event.pull_request.head.sha || github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html \
+            --output=compare_regression_data_${{ github.event.pull_request.head.sha || github.sha }}_${{ matrix.os }}.html \
         working-directory: ${{ github.workspace }}/tardis-regression-data
         env:
           REGRESSION_DATA_REPO: ${{ github.workspace }}/tardis-regression-data
@@ -182,8 +181,8 @@ jobs:
         if: steps.commit.outputs.has_changes == 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: compare_regression_data_${{ github.event.pull_request.head.sha || github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+          name: compare_regression_data_${{ github.event.pull_request.head.sha || github.sha }}_${{ matrix.os }}.html
           include-hidden-files: true
           path: |
-            ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data_${{ github.event.pull_request.head.sha || github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+            ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data_${{ github.event.pull_request.head.sha || github.sha }}_${{ matrix.os }}.html
             ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/comparison_plots*
