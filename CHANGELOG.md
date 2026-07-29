@@ -1,5 +1,15 @@
 ## Changelog
 
+### release-2026.07.26 (2026/07/25 21:45)
+- [3669](https://github.com/tardis-sn/tardis/pull/3669) Pre-release 2026.07.26 (3669) (@tardis-bot)
+- [3657](https://github.com/tardis-sn/tardis/pull/3657) Migrate Grotrian Widget to Panel (3657) (@SS-9098)
+- [3653](https://github.com/tardis-sn/tardis/pull/3653) Additional design philosophies with skills (3653) (@andrewfullard)
+- [3664](https://github.com/tardis-sn/tardis/pull/3664) Workflow action usage (3664) (@andrewfullard)
+- [3654](https://github.com/tardis-sn/tardis/pull/3654) Remove old continuum/NLTE implementation (3654) (@andrewfullard)
+- [3663](https://github.com/tardis-sn/tardis/pull/3663) Fix failing publish workflow (3663) (@andrewfullard)
+- [3662](https://github.com/tardis-sn/tardis/pull/3662) Fixes and docs (3662) (@andrewfullard)
+- [3660](https://github.com/tardis-sn/tardis/pull/3660) Workflow security fixes (3660) (@andrewfullard)
+- [3659](https://github.com/tardis-sn/tardis/pull/3659) Post-release 2026.07.19 (3659) (@tardis-bot)
 ### release-2026.07.19 (2026/07/18 21:50)
 - [3658](https://github.com/tardis-sn/tardis/pull/3658) Pre-release 2026.07.19 (3658) (@tardis-bot)
 - [3649](https://github.com/tardis-sn/tardis/pull/3649) IIP Plasma Performance improvements (3649) (@andrewfullard)

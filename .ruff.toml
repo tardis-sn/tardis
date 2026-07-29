@@ -3,14 +3,7 @@ extend = "pyproject.toml"
 
 lint.ignore = [
     # NOTE: to find a good code to fix, run:
-    # ruff --select="ALL" --statistics astropy/<subpackage>
-
-    # flake8-annotations (ANN) : static typing
-    "ANN001",  # Function argument without type annotation
-    "ANN003",  # `**kwargs` without type annotation
-    "ANN201",  # Public function without return type annotation
-    "ANN202",  # Private function without return type annotation
-    "ANN401",  # Use of `Any` type
+    # ruff --select="ALL" --statistics tardis/<subpackage>
 
     # flake8-unused-arguments (ARG)
     "ARG001",  # unused-function-argument
@@ -25,10 +18,6 @@ lint.ignore = [
     "B023",  # FunctionUsesLoopVariable
     "B028",  # No-explicit-stacklevel
     "B904",  # RaiseWithoutFromInsideExcept
-    "B905",  # ZipWithoutExplicitStrict   # requires 3.10+
-
-    # flake8-blind-except (BLE)
-    "BLE001",  # blind-except
 
     # mccabe (C90) : code complexity
     # TODO: configure maximum allowed complexity.
@@ -37,19 +26,6 @@ lint.ignore = [
     # pydocstyle (D)
     # Missing Docstrings
     "D100",  # undocumented-public-module
-    "D101",  # undocumented-public-class
-    "D103",  # undocumented-public-function
-    "D104",  # undocumented-public-package
-    "D205",  # blank-line-after-summary
-    # Quotes Issues
-    "D300",  # triple-single-quotes
-    "D301",  # escape-sequence-in-docstring
-    # Docstring Content Issues
-    "D403",  # first-line-capitalized
-    "D404",  # docstring-starts-with-this
-    "D401",  # non-imperative-mood.
-    "D414",  # empty-docstring-section
-    "D419",  # docstring is empty
 
     # flake8-datetimez (DTZ)
     "DTZ001",  # call-datetime-without-tzinfo
@@ -80,23 +56,6 @@ lint.ignore = [
     "FBT001",  # boolean-positional-arg-in-function-definition
     "FBT002",  # boolean-default-value-in-function-definition
     "FBT003",  # boolean-positional-value-in-function-call
-
-    # flake8-fixme (FIX)
-    "FIX001",  # Line contains FIXME.  this should be fixed or at least FIXME replaced with TODO
-    "FIX004",  # Line contains HACK. replace HACK with NOTE.
-
-    # pep8-naming (N)
-    # NOTE: some of these can/should be fixed, but this changes the API.
-    "N801",  # invalid-class-name
-    "N802",  # invalid-function-name
-    "N803",  # invalid-argument-name
-    "N804",  # invalid-first-argument-name-for-class-method
-    "N805",  # invalid-first-argument-name-for-method
-    "N807",  # dunder-function-name
-    "N813",  # camelcase-imported-as-lowercase
-    "N815",  # mixed-case-variable-in-class-scope
-    "N816",  # mixed-case-variable-in-global-scope
-    "N818",  # error-suffix-on-exception-name
 
     # NumPy-specific rules (NPY)
     "NPY002", # Replace legacy `np.random.rand` call with `np.random.Generator`  (2023-05-03)
@@ -130,27 +89,6 @@ lint.ignore = [
     "PT018",   # pytest-composite-assertion
     "PT022",   # pytest-useless-yield-fixture
     "PT023",   # pytest-incorrect-mark-parentheses-style
-
-    # flake8-use-pathlib (PTH)
-    "PTH100",  # os-path-abspath
-    "PTH101",  # os-chmod
-    "PTH102",  # os-mkdir
-    "PTH103",  # os-makedirs
-    "PTH104",  # os-rename
-    "PTH107",  # os-remove
-    "PTH108",  # os-unlink
-    "PTH109",  # os-getcwd
-    "PTH110",  # os-path-exists
-    "PTH111",  # os-path-expanduser
-    "PTH112",  # os-path-isdir
-    "PTH113",  # os-path-isfile
-    "PTH118",  # os-path-join
-    "PTH119",  # os-path-basename
-    "PTH120",  # os-path-dirname
-    "PTH122",  # os-path-splitext
-    "PTH123",  # builtin-open
-    "PTH202",  # `os.path.getsize` should be replaced by `Path.stat().st_size`
-    "PTH207",  # Replace `glob` with `Path.glob` or `Path.rglob`
 
     # flake8-return (RET)
     "RET501",  # unnecessary-return-none
@@ -195,6 +133,8 @@ lint.ignore = [
 
     # type-hinting
     "TC001", # typing-only-first-party-import
+    "TC002", # typing-only-third-party-import
+    "TC003", # typing-only-standard-library-import
 
     # flake8-print (T20)
     "T201",  # PrintUsed
@@ -221,4 +161,3 @@ lint.unfixable = [
 
 [lint.extend-per-file-ignores]
 "docs/*" = []
-
