@@ -27,6 +27,7 @@ Jupyter Notebooks, making data exploration much easier.
 .. toctree::
     :maxdepth: 2
 
-    using_widgets
-    Generating Custom Abundance Widget <how_to_abundance_widget>
-    Generating Data Exploration Widgets <how_to_generating_widgets>
+    Shell Info Widget <shell_info_widget>
+    Line Info Widget <line_info_widget>
+    Custom Abundance Widget <custom_abundance_widget>
+    Energy Level Diagram Widget <energy_level_widget>
