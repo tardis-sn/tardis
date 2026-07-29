@@ -240,7 +240,7 @@ def test_bound_free_heating_and_cooling_match_independent_quadrature(
     expected_heating = []
     expected_cooling = []
     for t_rad, t_electron, dilution in zip(
-        [10000.0, 12000.0], temperatures, [0.4, 0.8]
+        [10000.0, 12000.0], temperatures, [0.4, 0.8], strict=False
     ):
         heating_integral = 0.0
         for level_number in [0, 1]:

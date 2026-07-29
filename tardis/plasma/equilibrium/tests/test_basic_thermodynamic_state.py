@@ -43,7 +43,6 @@ from tardis.plasma.properties.plasma_input import JBlues as StandardJBlues
 from tardis.util.base import intensity_black_body
 
 
-
 def test_atomic_data_basic_properties_match_iip(
     basic_thermodynamic_state: dict[str, Any],
 ) -> None:
