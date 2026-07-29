@@ -201,7 +201,8 @@ The built documentation is available at:
    https://tardis-sn.github.io/tardis/pull/<pull request number>/index.html
 
 
-It is also linked automatically in pull request comments.
+The pull request comment reports the documentation build and deployment
+outcomes separately. It links the preview after the deployment step succeeds.
 
 To view build logs, go to the Actions tab in the TARDIS repository and select
 the ``docs`` workflow. Search documentation builds by branch to find the relevant
