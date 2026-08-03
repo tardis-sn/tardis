@@ -16,7 +16,7 @@ class OpacityStateNumbaIIP:
     tau_sobolev: nb.float64[:, :]  # type: ignore[misc]
     transition_probabilities: nb.float64[:, :]  # type: ignore[misc]
     line2macro_level_upper: nb.int64[:]  # type: ignore[misc]
-    macro_block_references: nb.int64[:]  # type: ignore[misc]
+    macro_block_edge_index: nb.int64[:]  # type: ignore[misc]
     transition_type: nb.int64[:]  # type: ignore[misc]
     destination_level_id: nb.int64[:]  # type: ignore[misc]
     transition_line_id: nb.int64[:]  # type: ignore[misc]
@@ -42,7 +42,7 @@ class OpacityStateNumbaIIP:
         tau_sobolev: np.ndarray,
         transition_probabilities: np.ndarray,
         line2macro_level_upper: np.ndarray,
-        macro_block_references: np.ndarray,
+        macro_block_edge_index: np.ndarray,
         transition_type: np.ndarray,
         destination_level_id: np.ndarray,
         transition_line_id: np.ndarray,
@@ -77,7 +77,7 @@ class OpacityStateNumbaIIP:
             Probabilities for macro atom transitions.
         line2macro_level_upper
             Mapping from line indices to macro atom upper levels.
-        macro_block_references
+        macro_block_edge_index
             Block references for macro atom data.
         transition_type
             Type identifiers for transitions.
@@ -124,7 +124,7 @@ class OpacityStateNumbaIIP:
         self.transition_probabilities = transition_probabilities
         self.line2macro_level_upper = line2macro_level_upper
 
-        self.macro_block_references = macro_block_references
+        self.macro_block_edge_index = macro_block_edge_index
         self.transition_type = transition_type
 
         # Destination level is not needed and/or generated for downbranch
@@ -166,7 +166,7 @@ class OpacityStateNumbaIIP:
             self.tau_sobolev[:, i],
             self.transition_probabilities[:, i],
             self.line2macro_level_upper,
-            self.macro_block_references,
+            self.macro_block_edge_index,
             self.transition_type,
             self.destination_level_id,
             self.transition_line_id,

@@ -10,8 +10,8 @@ from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 def test_dilution_factor_setter_accepts_read_only_initial_array() -> None:
     geometry = SimpleNamespace(
-        v_inner_boundary_index=1,
-        v_outer_boundary_index=3,
+        v_inner_boundary_idx=1,
+        v_outer_boundary_idx=3,
         no_of_shells_active=2,
     )
     dilution_factor = np.array([0.1, 0.2, 0.3, 0.4])

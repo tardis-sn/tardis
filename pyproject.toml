@@ -31,25 +31,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 
-[tool.interrogate]
-color = true
-exclude = ["docs", "build", "*/tests/*", "*test*"]
-#fail-under = 90
-ignore-init-method = true
-ignore-init-module = true
-ignore-magic = true
-ignore-module = true
-ignore-nested-functions = false
-ignore-nested-classes = true
-ignore-private = true
-ignore-property-decorators = true
-ignore-semiprivate = true
-ignore-setters = true
-omit-covered-files = false
-quiet = false
-verbose = 0
-#whitelist-regex = []
-
 [tool.ruff]
 line-length = 80
 lint.select = ["ALL"]
@@ -72,7 +53,6 @@ lint.ignore = [  # NOTE: non-permanent exclusions should be added to `.ruff.toml
 
     # pydocstyle (D)
     # Missing Docstrings
-    "D102",  # Missing docstring in public method. Don't check b/c docstring inheritance.
     "D105",  # Missing docstring in magic method. Don't check b/c class docstring.
     # Whitespace Issues
     "D200",  # FitsOnOneLine

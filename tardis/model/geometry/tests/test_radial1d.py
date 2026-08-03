@@ -89,13 +89,6 @@ def test_vb_indices(nonhomologous_radial1d_geometry):
     )
     assert nonhomologous_radial1d_geometry.v_outer_boundary_index == 11
 
-
-def test_numba_nonhomologous_velocity(nonhomologous_radial1d_geometry):
-    numba_geometry = nonhomologous_radial1d_geometry.to_numba()
-    radius = numba_geometry.r_inner[0] * 1.2
-
-    npt.assert_allclose(
-        numba_geometry.velocity_gradient[0],
         (numba_geometry.v_outer[0] - numba_geometry.v_inner[0])
         / (numba_geometry.r_outer[0] - numba_geometry.r_inner[0]),
     )

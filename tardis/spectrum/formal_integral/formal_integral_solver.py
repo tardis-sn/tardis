@@ -372,23 +372,23 @@ class FormalIntegralSolver:
         electron_densities_interpolated = interp1d(
             r_middle_original,
             electron_densities.iloc[
-                simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+                simulation_state.geometry.v_inner_boundary_idx : simulation_state.geometry.v_outer_boundary_idx
             ],
             fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",
         )(r_middle_interpolated)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        v_inner_boundary_index = (
-            simulation_state.geometry.v_inner_boundary_index
+        v_inner_boundary_idx = (
+            simulation_state.geometry.v_inner_boundary_idx
         )
-        v_outer_boundary_index = (
-            simulation_state.geometry.v_outer_boundary_index
+        v_outer_boundary_idx = (
+            simulation_state.geometry.v_outer_boundary_idx
         )
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
             opacity_state.tau_sobolev.values[
-                :, v_inner_boundary_index:v_outer_boundary_index
+                :, v_inner_boundary_idx:v_outer_boundary_idx
             ],
             fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",

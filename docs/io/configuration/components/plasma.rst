@@ -47,7 +47,7 @@ Continuum Interaction
                 - He II 
             enable_adiabatic_cooling: True
 
-This will add continuum interactions for all specified species. Setting :math:`T_\textrm{rad} = T_\textrm{electron}` through 
+Continuum interactions are supported only by the IIP workflow. This will add continuum interactions for all specified species in that workflow. Setting :math:`T_\textrm{rad} = T_\textrm{electron}` through
 ``link_t_rad_t_electron: 1.0`` is recommended to enforce LTE (unless the simulation uses NLTE treatment). 
 ``enable_adiabatic_cooling`` enables adiabatic cooling.
 
@@ -64,30 +64,3 @@ The NLTE configuration currently allows setting ``coronal_approximation``, which
 This is useful for debugging with :term:`chianti` for example. Furthermore, one can enable 'classical_nebular' to set all
 :math:`\beta_\textrm{Sobolev}` to 1. Both options are used for checking with other codes and should not be enabled in
 normal operations.
-
-NLTE Ionization
-^^^^^^^^^^^^^^^
-
-.. code-block:: yaml
-
-    plasma:
-        nlte_ionization_species: [H I, H II, He I, He II]
-        nlte_solver: root
-    
-This option allows the user to specify which species should be included in the NLTE ionization treatment. Note that the
-species must be present in the continuum interaction species as well.
-Here, ``nlte_solver`` can be set to ``root`` or ``lu``. ``root`` is the default and uses a root solver to calculate the
-NLTE populations. ``lu`` uses an iterative LU decomposition scheme to calculate the NLTE populations.
-
-.. note ::
-
-   ``lu`` iterates over the solutions up to a set tolerance. This tolerance is currently hard-coded to 1e-3. This
-   can be changed in the code by changing the ``NLTE_POPULATION_SOLVER_TOLERANCE`` constant in ``tardis/plasma/properties/nlte_rate_equation_solver.py``.
-   Furthermore, the maximum number of iterations is set to 1000. This can be changed in the code by changing the ``NLTE_POPULATION_SOLVER_MAX_ITERATIONS``
-   constant in ``tardis/plasma/properties/nlte_rate_equation_solver.py``.
-
-.. warning ::
-
-    ``lu`` is generally faster than ``root`` but does not solve explicitly for the electron density. Therefore, it is
-    not recommended to use ``lu`` for simulations where the electron density is important (e.g. for simulations where
-    NLTE excitation is important).

@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 
 import numpy as np
-from astropy import units as u
 
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
@@ -127,14 +126,14 @@ class SimulationState(HDFWriterMixin):
     @property
     def dilution_factor(self):
         return self.radiation_field_state.dilution_factor[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
         ]
 
     @dilution_factor.setter
     def dilution_factor(self, new_dilution_factor):
         if len(new_dilution_factor) == self.no_of_shells:
             self.radiation_field_state.dilution_factor[
-                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+                self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
             ] = new_dilution_factor
         else:
             raise ValueError(
@@ -144,14 +143,14 @@ class SimulationState(HDFWriterMixin):
     @property
     def t_radiative(self):
         return self.radiation_field_state.temperature[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
         ]
 
     @t_radiative.setter
     def t_radiative(self, new_t_radiative):
         if len(new_t_radiative) == self.no_of_shells:
             self.radiation_field_state.temperature[
-                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+                self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
             ] = new_t_radiative
         else:
             raise ValueError(
@@ -169,7 +168,7 @@ class SimulationState(HDFWriterMixin):
         )
         elemental_number_density = elemental_number_density.iloc[
             :,
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx,
         ]
         elemental_number_density.columns = range(
             len(elemental_number_density.columns)
@@ -183,13 +182,12 @@ class SimulationState(HDFWriterMixin):
         ).divide(
             self.composition.isotope_masses.loc[
                 self.composition.isotopic_mass_fraction.index
-            ]
-            * u.u.to(u.g),
+            ],
             axis=0,
         )
         isotopic_number_density = isotopic_number_density.iloc[
             :,
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx,
         ]
         isotopic_number_density.columns = range(
             len(isotopic_number_density.columns)
@@ -240,7 +238,7 @@ class SimulationState(HDFWriterMixin):
     @property
     def density(self):
         return self.composition.density[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
         ]
 
     @property
@@ -250,7 +248,7 @@ class SimulationState(HDFWriterMixin):
         )
         elemental_mass_fraction = elemental_mass_fraction.iloc[
             :,
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx,
         ]
         elemental_mass_fraction.columns = range(
             len(elemental_mass_fraction.columns)
@@ -271,8 +269,11 @@ class SimulationState(HDFWriterMixin):
 
     @classmethod
     def from_config(
-        cls, config: Configuration, atom_data: AtomData, legacy_mode_enabled: bool = False
-    ) -> "SimulationState":
+        cls,
+        config: Configuration,
+        atom_data: AtomData,
+        legacy_mode_enabled: bool = False,
+    ) -> SimulationState:
         """Create a new SimulationState instance from a Configuration object.
 
         Parameters
@@ -322,7 +323,7 @@ class SimulationState(HDFWriterMixin):
         cls,
         config: Configuration,
         legacy_mode_enabled: bool = False,
-    ) -> "SimulationState":
+    ) -> SimulationState:
         """
         Create a new SimulationState instance from a Configuration object.
 
@@ -364,7 +365,8 @@ class SimulationState(HDFWriterMixin):
             )
 
             field_names = {
-                field["name"] for field in csvy_data.model_config.datatype.fields
+                field["name"]
+                for field in csvy_data.model_config.datatype.fields
             }
             assert set(csvy_data.raw_csv_data.columns) - field_names == set(), (
                 "CSVY columns exist without field descriptions"
@@ -376,7 +378,8 @@ class SimulationState(HDFWriterMixin):
                 logger.warning(
                     "The following columns are "
                     "specified in the csvy model file,"
-                    f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
+                    " but are IGNORED by TARDIS: %s",
+                    unsupported_columns,
                 )
 
         time_explosion = config.supernova.time_explosion.cgs
@@ -384,7 +387,10 @@ class SimulationState(HDFWriterMixin):
         electron_densities = None
 
         geometry = parse_geometry_from_csvy(
-            config, csvy_data.model_config, csvy_data.raw_csv_data, time_explosion
+            config,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
+            time_explosion,
         )
 
         composition = parse_composition_from_csvy(
@@ -399,7 +405,11 @@ class SimulationState(HDFWriterMixin):
         )
 
         radiation_field_state = parse_radiation_field_state_from_csvy(
-            config, csvy_data.model_config, csvy_data.raw_csv_data, geometry, packet_source
+            config,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
+            geometry,
+            packet_source,
         )
 
         return cls(

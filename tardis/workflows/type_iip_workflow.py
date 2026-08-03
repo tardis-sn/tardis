@@ -32,13 +32,13 @@ from tardis.transport.montecarlo.modes.iip.solver import (
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
-from tardis.workflows.workflow_logging import WorkflowLogging
+from tardis.workflows.workflow_logger import WorkflowLogger
 
 # logging support
 logger = logging.getLogger(__name__)
 
 
-class TypeIIPWorkflow(WorkflowLogging):
+class TypeIIPWorkflow:
     show_progress_bars = Environment.allows_widget_display()
     enable_virtual_packet_logging = False
     log_level = None
@@ -54,7 +54,9 @@ class TypeIIPWorkflow(WorkflowLogging):
         csvy : bool, optional
             Set true if the configuration uses CSVY, by default False
         """
-        super().__init__(configuration, self.log_level, self.specific_log_level)
+        self.workflow_logger = WorkflowLogger(
+            configuration, self.log_level, self.specific_log_level
+        )
         self.atom_data = parse_atom_data(configuration)
 
         # set up states and solvers
@@ -182,6 +184,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.atom_data.photoionization_data,
             self.atom_data.ionization_data,
             line_interaction_type=line_interaction_type,
+            nthreads=configuration.montecarlo.nthreads,
         )
 
         self.transport_state = None
@@ -364,7 +367,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
         )
 
-        self.log_plasma_state(
+        self.workflow_logger.log_plasma_state(
             self.simulation_state.t_radiative,
             self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,
@@ -652,6 +655,37 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         lower_bound = [0.0, minimum_t_rad_link] * no_shells
         upper_bound = [1.0, 1.5] * no_shells
+        lower_bound = np.asarray(lower_bound, dtype=float)
+        upper_bound = np.asarray(upper_bound, dtype=float)
+
+        out_of_bounds = (initial_guess < lower_bound) | (
+            initial_guess > upper_bound
+        )
+        if np.any(out_of_bounds):
+            offending_indices = np.flatnonzero(out_of_bounds)
+            offending_values = [
+                {
+                    "shell": index // 2,
+                    "source": (
+                        "initial_electron_fraction"
+                        if index % 2 == 0
+                        else "link_t_rad_t_electron_start"
+                    ),
+                    "value": initial_guess[index],
+                    "lower_bound": lower_bound[index],
+                    "upper_bound": upper_bound[index],
+                }
+                for index in offending_indices
+            ]
+            logger.warning(
+                "Out-of-bounds thermal balance initial guess values; "
+                "clipping to bounds: %s",
+                offending_values,
+            )
+            initial_guess = np.clip(
+                initial_guess, lower_bound, upper_bound
+            )
+
         self.plasma_solver.plasma_converged = False
         thermal_lsq_result = lsq(
             self.thermal_balance_iteration,
@@ -930,11 +964,11 @@ class TypeIIPWorkflow(WorkflowLogging):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
-
+            logger.info("Opacity solve started.")
             self.opacity_states = self.solve_opacity()
-
+            logger.info("Opacity solve finished.")
             self.solve_montecarlo(self.opacity_states, self.real_packet_count)
-
+            logger.info("Montecarlo solve finished.")
             (
                 estimated_values,
                 estimated_radfield_properties,
@@ -952,6 +986,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             # After first MC step
             self.solve_thermal_balance()
+            logger.info("Thermal balance solve finished.")
 
             self.solve_continuum_state(normalized_continuum_estimators)
 

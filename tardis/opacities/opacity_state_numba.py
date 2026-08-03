@@ -17,7 +17,7 @@ class OpacityStateNumba:
     tau_sobolev: nb.float64[:, :]  # type: ignore[misc]
     transition_probabilities: nb.float64[:, :]  # type: ignore[misc]
     line2macro_level_upper: nb.int64[:]  # type: ignore[misc]
-    macro_block_references: nb.int64[:]  # type: ignore[misc]
+    macro_block_edge_index: nb.int64[:]  # type: ignore[misc]
     transition_type: nb.int64[:]  # type: ignore[misc]
     destination_level_id: nb.int64[:]  # type: ignore[misc]
     transition_line_id: nb.int64[:]  # type: ignore[misc]
@@ -44,7 +44,7 @@ class OpacityStateNumba:
         tau_sobolev: np.ndarray,
         transition_probabilities: np.ndarray,
         line2macro_level_upper: np.ndarray,
-        macro_block_references: np.ndarray,
+        macro_block_edge_index: np.ndarray,
         transition_type: np.ndarray,
         destination_level_id: np.ndarray,
         transition_line_id: np.ndarray,
@@ -78,7 +78,7 @@ class OpacityStateNumba:
             Probabilities for macro atom transitions.
         line2macro_level_upper : numpy.ndarray
             Mapping from line indices to macro atom upper levels.
-        macro_block_references : numpy.ndarray
+        macro_block_edge_index : numpy.ndarray
             Block references for macro atom data.
         transition_type : numpy.ndarray
             Type identifiers for transitions.
@@ -126,7 +126,7 @@ class OpacityStateNumba:
         self.transition_probabilities = transition_probabilities
         self.line2macro_level_upper = line2macro_level_upper
 
-        self.macro_block_references = macro_block_references
+        self.macro_block_edge_index = macro_block_edge_index
         self.transition_type = transition_type
 
         # Destination level is not needed and/or generated for downbranch
@@ -171,7 +171,7 @@ class OpacityStateNumba:
             self.tau_sobolev[:, i],
             self.transition_probabilities[:, i],
             self.line2macro_level_upper,
-            self.macro_block_references,
+            self.macro_block_edge_index,
             self.transition_type,
             self.destination_level_id,
             self.transition_line_id,
@@ -228,7 +228,7 @@ def opacity_state_numba_initialize(
             (array_size, array_size), dtype=np.float64
         )  # to adhere to data types
         line2macro_level_upper = np.zeros(array_size, dtype=np.int64)
-        macro_block_references = np.zeros(array_size, dtype=np.int64)
+        macro_block_edge_index = np.zeros(array_size, dtype=np.int64)
         transition_type = np.zeros(array_size, dtype=np.int64)
         destination_level_id = np.zeros(array_size, dtype=np.int64)
         transition_line_id = np.zeros(array_size, dtype=np.int64)
@@ -242,9 +242,9 @@ def opacity_state_numba_initialize(
         # TODO: Fix setting of block references for non-continuum mode
 
         if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-            macro_block_references = plasma.macro_block_references
+            macro_block_edge_index = plasma.macro_block_edge_index
         else:
-            macro_block_references = plasma.atomic_data.macro_atom_references[
+            macro_block_edge_index = plasma.atomic_data.macro_atom_references[
                 "block_references"
             ].values
         transition_type = plasma.macro_atom_data["transition_type"].values
@@ -315,7 +315,7 @@ def opacity_state_numba_initialize(
         tau_sobolev,
         transition_probabilities,
         line2macro_level_upper,
-        macro_block_references,
+        macro_block_edge_index,
         transition_type,
         destination_level_id,
         transition_line_id,

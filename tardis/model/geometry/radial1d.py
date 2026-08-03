@@ -86,7 +86,7 @@ class HomologousRadial1DGeometry:
         return (self.v_inner_active + self.v_outer_active) / 2.0
 
     @property
-    def v_inner_boundary_index(self):
+    def v_inner_boundary_idx(self):
         return np.clip(
             np.searchsorted(self.v_inner, self.v_inner_boundary, side="right")
             - 1,
@@ -95,7 +95,7 @@ class HomologousRadial1DGeometry:
         )
 
     @property
-    def v_outer_boundary_index(self):
+    def v_outer_boundary_idx(self):
         return np.clip(
             np.searchsorted(self.v_outer, self.v_outer_boundary, side="left")
             + 1,
@@ -106,7 +106,7 @@ class HomologousRadial1DGeometry:
     @property
     def v_inner_active(self):
         v_inner_active = self.v_inner[
-            self.v_inner_boundary_index : self.v_outer_boundary_index
+            self.v_inner_boundary_idx : self.v_outer_boundary_idx
         ].copy()
         v_inner_active[0] = self.v_inner_boundary
         return v_inner_active
@@ -114,7 +114,7 @@ class HomologousRadial1DGeometry:
     @property
     def v_outer_active(self):
         v_outer_active = self.v_outer[
-            self.v_inner_boundary_index : self.v_outer_boundary_index
+            self.v_inner_boundary_idx : self.v_outer_boundary_idx
         ].copy()
         v_outer_active[-1] = self.v_outer_boundary
         return v_outer_active

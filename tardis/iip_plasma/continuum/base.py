@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from astropy import constants as const
-from astropy import units as units
+from astropy import units
 
 
 def data_type_selection(data_getter):
@@ -82,17 +82,37 @@ class ContinuumProcess:
 
     @staticmethod
     def _normalize_transition_probabilities(dataframe, no_ref_columns=0):
-        normalization_fct = lambda x: (x / x.sum())
-        normalized_dataframe_orig = (
-            dataframe.iloc[:, no_ref_columns:]
-            .groupby(level=0)
-            .transform(normalization_fct)
-        )
+        probabilities = dataframe.iloc[:, no_ref_columns:]
+        probability_values = probabilities.to_numpy(copy=True)
+        if len(probability_values) == 0:
+            normalized_probabilities = probabilities.copy()
+        else:
+            source_level_idx = dataframe.index.get_level_values(0)
+            group_idx, _ = pd.factorize(source_level_idx, sort=False)
+            group_sums = np.zeros(
+                (group_idx.max() + 1, probability_values.shape[1]),
+                dtype=np.float64,
+            )
+            np.add.at(group_sums, group_idx, probability_values)
+            normalization = group_sums[group_idx]
+            np.divide(
+                probability_values,
+                normalization,
+                out=probability_values,
+                where=normalization != 0.0,
+            )
+            probability_values[normalization == 0.0] = 0.0
+            probability_values[np.isnan(probability_values)] = 0.0
+            normalized_probabilities = pd.DataFrame(
+                probability_values,
+                index=probabilities.index,
+                columns=probabilities.columns,
+            )
+
         normalized_dataframe = pd.concat(
-            [dataframe.iloc[:, :no_ref_columns], normalized_dataframe_orig],
+            [dataframe.iloc[:, :no_ref_columns], normalized_probabilities],
             axis=1,
         )
-        normalized_dataframe = normalized_dataframe.fillna(0.0)
         return normalized_dataframe
 
     def _get_level_multi_index(self, level_idx):
@@ -200,9 +220,7 @@ class ContinuumProcess:
 
     @property
     def has_estimators(self):
-        if self.input.estimators:
-            return True
-        return False
+        return bool(self.input.estimators)
 
     @property
     def replace_values_with_low_statistics(self):
@@ -269,7 +287,7 @@ class PhysicalContinuumProcess(ContinuumProcess, TransitionProbabilitiesMixin):
     macro_atom_transitions = None
 
     def __init__(self, input_data, **kwargs):
-        super(PhysicalContinuumProcess, self).__init__(input_data)
+        super().__init__(input_data)
         self.rate_coefficient = self._calculate_rate_coefficient(**kwargs)
         if self.cooling is True:
             self.cooling_rate = self._calculate_cooling_rate(**kwargs)

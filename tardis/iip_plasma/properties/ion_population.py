@@ -451,16 +451,16 @@ class NLTEIonNumberDensity(ProcessingPlasmaProperty):
                 number_density,
                 shell=i,
             )
+            rates = [alpha_tot, gamma_tot, coll_ion_tot, coll_recomb_tot]
+            func, jac = self._get_functions(
+                charge_conservation_vector,
+                number_density_vectors,
+                number_conservation_index,
+                phi_prep,
+                *rates,
+                shell=i,
+            )
             for initial_guess in initial_guesses:
-                rates = [alpha_tot, gamma_tot, coll_ion_tot, coll_recomb_tot]
-                func, jac = self._get_functions(
-                    charge_conservation_vector,
-                    number_density_vectors,
-                    number_conservation_index,
-                    phi_prep,
-                    *rates,
-                    shell=i,
-                )
                 sol = root(
                     fun=func, x0=initial_guess, jac=jac, options={"xtol": 1e-12}
                 )
@@ -751,7 +751,7 @@ class NLTEIonNumberDensity(ProcessingPlasmaProperty):
         ion_guess = []
         for name, group in number_density_neutral[shell].groupby(level=[0]):
             count = len(group)
-            total_density = group[0]
+            total_density = group.iloc[0]
             ion_guess.append(np.ones(count) * total_density / count)
         ion_guess = np.hstack(ion_guess)
         ion_number = number_density_neutral.index.get_level_values(1).values

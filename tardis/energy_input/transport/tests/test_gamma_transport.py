@@ -40,7 +40,7 @@ def gamma_packet(basic_gamma_ray: GXPacket, set_seed_fixture) -> GXPacket:
     basic_gamma_ray.status = GXPacketStatus.IN_PROCESS
     basic_gamma_ray.shell = 0
     basic_gamma_ray.time_start = 1.2e5
-    basic_gamma_ray.time_index = 0
+    basic_gamma_ray.time_idx = 0
     return basic_gamma_ray
 
 
@@ -348,7 +348,7 @@ def test_gamma_packet_loop_negative_time_index(
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
 ) -> None:
-    gamma_packet.time_index = -1
+    gamma_packet.time_idx = -1
 
     with pytest.raises(ValueError, match="Packet time index less than 0!"):
         gamma_packet_loop(
@@ -481,7 +481,7 @@ def test_gamma_packet_loop_time_boundary_end_numba_disabled(
     regression_data,
 ) -> None:
     packet = gamma_packet
-    packet.time_index = 1
+    packet.time_idx = 1
 
     # Force the time-boundary branch without depending on sampled distances.
     monkeypatch.setattr(

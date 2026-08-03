@@ -45,7 +45,7 @@ def test_opacity_state_initialize(
             actual.transition_probabilities, np.zeros((1, 1), dtype=np.float64)
         )
         npt.assert_allclose(actual.line2macro_level_upper, empty)
-        npt.assert_allclose(actual.macro_block_references, empty)
+        npt.assert_allclose(actual.macro_block_edge_index, empty)
         npt.assert_allclose(actual.transition_type, empty)
         npt.assert_allclose(actual.destination_level_id, empty)
         npt.assert_allclose(actual.transition_line_id, empty)
@@ -59,7 +59,7 @@ def test_opacity_state_initialize(
             plasma.atomic_data.lines_upper2macro_reference_idx,
         )
         npt.assert_allclose(
-            actual.macro_block_references,
+            actual.macro_block_edge_index,
             plasma.atomic_data.macro_atom_references["block_references"].values,
         )
         npt.assert_allclose(
