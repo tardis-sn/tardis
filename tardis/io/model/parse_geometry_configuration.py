@@ -5,8 +5,8 @@ from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.readers.base import read_density_file
-from tardis.model.geometry.radial1d import (
-    Radial1DGeometry,
+from tardis.model.geometry.radial1d_homologous import (
+    HomologousRadial1DGeometry,
 )
 from tardis.util.base import quantity_linspace
 
@@ -83,8 +83,8 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
 
     Returns
     -------
-    Radial1DGeometry
-        The parsed geometry.
+    HomologousRadial1DGeometry
+        The parsed homologous geometry.
     """
     (
         density_time,
@@ -94,27 +94,12 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
         temperature,
     ) = parse_structure_from_config(config)
 
-    v_inner = velocity[:-1]
-    v_outer = velocity[1:]
-    v_inner_boundary = config.model.structure.get("v_inner_boundary", None)
-    v_outer_boundary = config.model.structure.get("v_outer_boundary", None)
-    return Radial1DGeometry(
-        r_inner=(v_inner * time_explosion).cgs,
-        r_outer=(v_outer * time_explosion).cgs,
-        v_inner=v_inner,
-        v_outer=v_outer,
-        r_inner_boundary=(
-            None
-            if v_inner_boundary is None or v_inner_boundary < 0
-            else (v_inner_boundary * time_explosion).cgs
-        ),
-        r_outer_boundary=(
-            None
-            if v_outer_boundary is None or v_outer_boundary < 0
-            else (v_outer_boundary * time_explosion).cgs
-        ),
-        v_inner_boundary=v_inner_boundary,
-        v_outer_boundary=v_outer_boundary,
+    return HomologousRadial1DGeometry(
+        velocity[:-1],
+        velocity[1:],
+        v_inner_boundary=config.model.structure.get("v_inner_boundary", None),
+        v_outer_boundary=config.model.structure.get("v_outer_boundary", None),
+        time_explosion=time_explosion,
     )
 
 
@@ -123,7 +108,7 @@ def parse_geometry_from_csvy(
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
-) -> Radial1DGeometry:
+) -> HomologousRadial1DGeometry:
     """Parse the geometry data from a CSVY model.
 
     Parameters
@@ -139,8 +124,8 @@ def parse_geometry_from_csvy(
 
     Returns
     -------
-    Radial1DGeometry
-        The parsed geometry.
+    HomologousRadial1DGeometry
+        The parsed homologous geometry.
 
     Notes
     -----
@@ -168,24 +153,11 @@ def parse_geometry_from_csvy(
         velocity = csvy_model_data["velocity"].values * velocity_unit
         velocity = velocity.to("cm/s")
 
-    v_inner = velocity[:-1]
-    v_outer = velocity[1:]
-    geometry = Radial1DGeometry(
-        r_inner=(v_inner * time_explosion).cgs,
-        r_outer=(v_outer * time_explosion).cgs,
-        v_inner=v_inner,
-        v_outer=v_outer,
-        r_inner_boundary=(
-            None
-            if v_inner_boundary is None or v_inner_boundary < 0
-            else (v_inner_boundary * time_explosion).cgs
-        ),
-        r_outer_boundary=(
-            None
-            if v_outer_boundary is None or v_outer_boundary < 0
-            else (v_outer_boundary * time_explosion).cgs
-        ),
+    geometry = HomologousRadial1DGeometry(
+        velocity[:-1],
+        velocity[1:],
         v_inner_boundary=v_inner_boundary,
         v_outer_boundary=v_outer_boundary,
+        time_explosion=time_explosion,
     )
     return geometry

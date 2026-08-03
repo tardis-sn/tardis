@@ -17,6 +17,7 @@ from tardis.io.model.parse_simulation_state import (
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
 )
+from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
@@ -28,11 +29,8 @@ from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.configuration import montecarlo_globals
-from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
-    OpacitySolver as NonhomologousOpacitySolver,
-)
-from tardis.transport.montecarlo.modes.nonhomologous.solver import (
-    MCTransportSolverNonhomologous,
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
@@ -283,7 +281,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.transport.radfield_prop_solver.solve(
                 self.transport.transport_state.estimators_bulk,
                 self.transport.transport_state.estimators_line,
-                self.transport.transport_state.geometry_state.velocity_gradient,
+                self.transport.transport_state.time_explosion,
                 self.transport.transport_state.time_of_simulation,
                 self.transport.transport_state.geometry_state.volume,
                 self.transport.transport_state.opacity_state.line_list_nu,
@@ -740,14 +738,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 "Cannot specify packet_source and transport at the same time."
             )
         if transport is None:
-            transport = MCTransportSolverNonhomologous.from_config(
+            transport = MCTransportSolverClassic.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
                 enable_virtual_packet_logging=virtual_packet_logging,
             )
         if opacity is None:
-            opacity = NonhomologousOpacitySolver(
-                simulation_state.geometry.velocity_gradient,
+            opacity = OpacitySolver(
                 config.plasma.line_interaction_type,
                 config.plasma.disable_line_scattering,
             )

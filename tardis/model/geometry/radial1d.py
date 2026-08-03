@@ -2,7 +2,7 @@ import warnings
 
 import numpy as np
 from astropy import units as u
-from numba import boolean, float64
+from numba import float64
 from numba.experimental import jitclass
 
 
@@ -327,17 +327,13 @@ numba_geometry_spec = [
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
     ("velocity_gradient", float64[:]),
-    ("time_explosion", float64),
-    ("homologous", boolean),
     ("volume", float64[:]),
 ]
 
 
 @jitclass(numba_geometry_spec)
 class NumbaRadial1DGeometry:
-    def __init__(
-        self, r_inner, r_outer, v_inner, v_outer, homologous=False
-    ):
+    def __init__(self, r_inner, r_outer, v_inner, v_outer):
         """
         Radial 1D Geometry for the Numba mode
 
@@ -348,7 +344,6 @@ class NumbaRadial1DGeometry:
         v_inner : numpy.ndarray
         v_outer : numpy.ndarray
         velocity_gradient : numpy.ndarray
-        homologous : bool
         volume : numpy.ndarray
         """
         self.r_inner = r_inner
@@ -356,10 +351,6 @@ class NumbaRadial1DGeometry:
         self.v_inner = v_inner
         self.v_outer = v_outer
         self.velocity_gradient = (self.v_outer - self.v_inner) / (self.r_outer - self.r_inner)
-        self.homologous = homologous
-        self.time_explosion = 0.0
-        if self.homologous:
-            self.time_explosion = self.r_outer[0] / self.v_outer[0]
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
     def get_velocity(self, r: float, shell_id: int) -> float:
@@ -379,8 +370,6 @@ class NumbaRadial1DGeometry:
         float
             Velocity at radius r within shell shell_id
         """
-        if self.homologous:
-            return r / self.time_explosion
         return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (
             r - self.r_inner[shell_id]
         )

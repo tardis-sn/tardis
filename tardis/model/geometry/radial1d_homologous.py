@@ -2,8 +2,8 @@ import warnings
 
 import numpy as np
 from astropy import units as u
-
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from numba import float64
+from numba.experimental import jitclass
 
 
 class HomologousRadial1DGeometry:
@@ -167,17 +167,43 @@ class HomologousRadial1DGeometry:
 
     def to_numba(self):
         """
-        Returns a new NumbaRadial1DGeometry object
+        Returns a new NumbaHomologousRadial1DGeometry object
 
         Returns
         -------
-        NumbaRadial1DGeometry
-            Numba version of Radial1DGeometry with properties in cgs units
+        NumbaHomologousRadial1DGeometry
+            Numba version of HomologousRadial1DGeometry with properties in cgs units
         """
-        return NumbaRadial1DGeometry(
+        return NumbaHomologousRadial1DGeometry(
             self.r_inner_active.to(u.cm).value,
             self.r_outer_active.to(u.cm).value,
             self.v_inner_active.to(u.cm / u.s).value,
             self.v_outer_active.to(u.cm / u.s).value,
-            homologous=True,
+            self.time_explosion.to(u.s).value,
         )
+
+
+numba_geometry_spec = [
+    ("r_inner", float64[:]),
+    ("r_outer", float64[:]),
+    ("v_inner", float64[:]),
+    ("v_outer", float64[:]),
+    ("time_explosion", float64),
+    ("volume", float64[:]),
+]
+
+
+@jitclass(numba_geometry_spec)
+class NumbaHomologousRadial1DGeometry:
+    def __init__(self, r_inner, r_outer, v_inner, v_outer, time_explosion):
+        """Store homologous radial geometry in Numba-compatible form."""
+        self.r_inner = r_inner
+        self.r_outer = r_outer
+        self.v_inner = v_inner
+        self.v_outer = v_outer
+        self.time_explosion = time_explosion
+        self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+
+    def get_velocity(self, r: float, shell_id: int) -> float:
+        """Calculate homologous velocity at a radius."""
+        return r / self.time_explosion
