@@ -42,3 +42,30 @@ def test_cumulative_integrate_array_by_blocks_matches_python_reference() -> (
             expected[block_start + 1 : block_stop, shell] /= cumulative_integral
 
     np.testing.assert_allclose(actual, expected, rtol=1e-15, atol=0.0)
+
+
+def test_cumulative_integrate_array_by_blocks_keeps_zero_blocks_finite() -> (
+    None
+):
+    """Leave zero-integral blocks at zero instead of normalizing by zero."""
+    x = np.array([1.0, 2.0, 3.0])
+    f = np.array(
+        [
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 1.0],
+        ]
+    )
+    block_references = np.array([0, 3])
+
+    actual = cumulative_integrate_array_by_blocks(f, x, block_references)
+
+    expected = np.array(
+        [
+            [0.0, 0.0],
+            [0.0, 0.5],
+            [0.0, 1.0],
+        ]
+    )
+    np.testing.assert_allclose(actual, expected, rtol=1e-15, atol=0.0)
+    assert np.isfinite(actual).all()

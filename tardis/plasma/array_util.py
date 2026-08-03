@@ -112,6 +112,10 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
                     (x[k] - x[k - 1]) * (f[k, i] + f[k - 1, i]) / 2.0
                 )
                 integrated[k, i] = cumulative_integral
+            if cumulative_integral <= 0.0 or not np.isfinite(
+                cumulative_integral
+            ):
+                continue
             for k in range(start + 1, stop):
                 integrated[k, i] /= cumulative_integral
     return integrated
