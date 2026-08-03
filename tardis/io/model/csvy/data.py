@@ -65,8 +65,8 @@ class CSVYData:
         geometry = NonhomologousRadial1DGeometry(
             r_inner=(v_inner * time_explosion).cgs,
             r_outer=(v_outer * time_explosion).cgs,
-            v_inner=self.velocity[:-1],
-            v_outer=self.velocity[1:],
+            v_inner=v_inner,
+            v_outer=v_outer,
             r_inner_boundary=None,
             r_outer_boundary=None,
             v_inner_boundary=None,

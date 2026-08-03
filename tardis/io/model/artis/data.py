@@ -33,8 +33,8 @@ class ArtisData:
         geometry = NonhomologousRadial1DGeometry(
             r_inner=(v_inner * self.time_of_model).cgs,
             r_outer=(v_outer * self.time_of_model).cgs,
-            v_inner=self.velocity[:-1],
-            v_outer=self.velocity[1:],
+            v_inner=v_inner,
+            v_outer=v_outer,
             r_inner_boundary=None,
             r_outer_boundary=None,
             v_inner_boundary=None,

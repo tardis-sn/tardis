@@ -148,19 +148,9 @@ def parse_geometry_from_csvy(
     information from the CSVY model configuration or data. The parsed velocity data is
     used to create a homologous radial 1D geometry object, which is returned.
     """
-    if hasattr(config, "model"):
-        if hasattr(config.model, "v_inner_boundary"):
-            v_inner_boundary = config.model.v_inner_boundary
-        else:
-            v_inner_boundary = None
-
-        if hasattr(config.model, "v_outer_boundary"):
-            v_outer_boundary = config.model.v_outer_boundary
-        else:
-            v_outer_boundary = None
-    else:
-        v_inner_boundary = None
-        v_outer_boundary = None
+    model = getattr(config, "model", None)
+    v_inner_boundary = getattr(model, "v_inner_boundary", None)
+    v_outer_boundary = getattr(model, "v_outer_boundary", None)
 
     if hasattr(csvy_model_config, "velocity"):
         velocity = quantity_linspace(
