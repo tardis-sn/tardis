@@ -89,6 +89,13 @@ def test_vb_indices(nonhomologous_radial1d_geometry):
     )
     assert nonhomologous_radial1d_geometry.v_outer_boundary_index == 11
 
+
+def test_numba_nonhomologous_velocity(nonhomologous_radial1d_geometry):
+    numba_geometry = nonhomologous_radial1d_geometry.to_numba()
+    radius = numba_geometry.r_inner[0] * 1.2
+
+    npt.assert_allclose(
+        numba_geometry.velocity_gradient[0],
         (numba_geometry.v_outer[0] - numba_geometry.v_inner[0])
         / (numba_geometry.r_outer[0] - numba_geometry.r_inner[0]),
     )
@@ -197,7 +204,9 @@ def test_v_middle_active_default_boundaries(nonhomologous_radial1d_geometry):
     assert v_middle_active.unit == u.km / u.s
 
 
-def test_v_middle_active_modified_inner_boundary(nonhomologous_radial1d_geometry):
+def test_v_middle_active_modified_inner_boundary(
+    nonhomologous_radial1d_geometry,
+):
     """Test v_middle_active when inner boundary is modified"""
     # Set inner boundary to a custom value
     nonhomologous_radial1d_geometry.v_inner_boundary = 9500 * u.km / u.s
@@ -225,7 +234,9 @@ def test_v_middle_active_modified_inner_boundary(nonhomologous_radial1d_geometry
     )
 
 
-def test_v_middle_active_modified_outer_boundary(nonhomologous_radial1d_geometry):
+def test_v_middle_active_modified_outer_boundary(
+    nonhomologous_radial1d_geometry,
+):
     """Test v_middle_active when outer boundary is modified"""
     # Set outer boundary to a custom value
     nonhomologous_radial1d_geometry.v_outer_boundary = 19500 * u.km / u.s
@@ -253,7 +264,9 @@ def test_v_middle_active_modified_outer_boundary(nonhomologous_radial1d_geometry
     )
 
 
-def test_v_middle_active_both_boundaries_modified(nonhomologous_radial1d_geometry):
+def test_v_middle_active_both_boundaries_modified(
+    nonhomologous_radial1d_geometry,
+):
     """Test v_middle_active when both boundaries are modified"""
     # Set both boundaries to custom values
     nonhomologous_radial1d_geometry.v_inner_boundary = 9500 * u.km / u.s
