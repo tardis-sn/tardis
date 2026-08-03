@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from astropy import constants as const
 from scipy.integrate import simpson, trapezoid
@@ -8,7 +9,7 @@ from scipy.interpolate import PchipInterpolator
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.iip_plasma.continuum.util import get_ion_multi_index
-from tardis.iip_plasma.properties.base import Input, ProcessingPlasmaProperty
+from tardis.iip_plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.array_util import (
     cooling_rate_series2dataframe,
     cumulative_integrate_array_by_blocks,
@@ -738,7 +739,6 @@ from tardis.iip_plasma.properties.partition_function import (
 from scipy.special import exp1
 
 from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
-from tardis.iip_plasma.continuum.util import get_ion_multi_index
 
 
 class ThermalBalanceTest(ProcessingPlasmaProperty):
@@ -1432,17 +1432,53 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
 
     def calculate(
         self,
-        atomic_data,
-        alpha_sp,
-        electron_densities,
-        ion_number_density,
-        lte_ion_number_density,
-        t_electrons,
-        level_number_density,
-        lte_level_number_density,
-        gamma,
-        coll_deexc_coeff,
-    ):
+        atomic_data: object,
+        alpha_sp: pd.DataFrame,
+        electron_densities: npt.NDArray[np.float64] | pd.Series,
+        ion_number_density: pd.DataFrame,
+        t_electrons: npt.NDArray[np.float64],
+        level_number_density: pd.DataFrame,
+        phi_lucy: pd.DataFrame,
+        gamma: pd.DataFrame | None,
+        coll_deexc_coeff: pd.DataFrame,
+    ) -> tuple[object, ...]:
+        """Build continuum quantities consumed by the Type IIP workflow.
+
+        Parameters
+        ----------
+        atomic_data : object
+            Prepared atomic data, including photoionization and macro-atom
+            tables.
+        alpha_sp : pandas.DataFrame
+            Spontaneous recombination coefficients.
+        electron_densities : numpy.ndarray or pandas.Series
+            Electron number density in each shell.
+        ion_number_density : pandas.DataFrame
+            Ion number densities in each shell.
+        t_electrons : numpy.ndarray
+            Electron temperature in each shell.
+        level_number_density : pandas.DataFrame
+            Level number densities in each shell.
+        phi_lucy : pandas.DataFrame
+            Saha-Boltzmann factors relating bound levels to the next ion.
+        gamma : pandas.DataFrame or None
+            Photoionization rate coefficients.
+        coll_deexc_coeff : pandas.DataFrame
+            Collisional de-excitation coefficients.
+
+        Returns
+        -------
+        tuple
+            Continuum thresholds, indices, probabilities, opacities, cooling
+            data, emission CDFs, and macro-atom connection data.
+
+        Notes
+        -----
+        The stimulated-recombination population is evaluated from
+        ``phi_lucy * n_ion * n_e``. This is algebraically equivalent to the
+        ratio of LTE populations but remains finite when an LTE ion population
+        is clipped to zero by the ion-population floor.
+        """
         photoionization_data = atomic_data.photoionization_data
         nu_i = photoionization_data.groupby(level=[0, 1, 2]).first().nu
         level2continuum_idx = pd.Series(
@@ -1461,6 +1497,9 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             cool_rate_fb.sum(axis=0), "bf"
         )
         p_fb_deactivation = cool_rate_fb / cool_rate_fb_tot.values
+        p_fb_deactivation = p_fb_deactivation.where(
+            np.isfinite(p_fb_deactivation), 0.0
+        )
         continuum_idx = level2continuum_idx.loc[p_fb_deactivation.index].values
         p_fb_deactivation = p_fb_deactivation.set_index(
             continuum_idx
@@ -1479,34 +1518,26 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         level_number_density = level_number_density.loc[
             photoionization_data.index
         ]
-        lte_level_number_density = lte_level_number_density.loc[
-            photoionization_data.index
-        ]
-        level_number_density_ratio = lte_level_number_density.divide(
-            level_number_density
-        )
 
         ion_index = get_ion_multi_index(
             photoionization_data.index, next_higher=True
         )
 
         bf_ion_number_density = ion_number_density.loc[ion_index]
-        lte_ion_number_density = lte_ion_number_density.loc[ion_index]
-        ion_number_density_ratio = bf_ion_number_density.divide(
-            lte_ion_number_density
-        )
-
-        level_number_density_ratio = level_number_density_ratio.multiply(
-            ion_number_density_ratio.values
+        stimulated_recombination_population = phi_lucy.loc[
+            photoionization_data.index
+        ].multiply(
+            bf_ion_number_density.multiply(
+                electron_densities, axis=1
+            ).values
         )
 
         chi_bf = (
             level_number_density
-            * (1.0 - level_number_density_ratio * boltzmann_factor)
+            - stimulated_recombination_population * boltzmann_factor
         ).multiply(photoionization_data["x_sect"].values, axis=0)
         num_neg_elements = (chi_bf < 0).sum().sum()
         if num_neg_elements:
-            # raise ValueError("Negative values in bound-free opacity.")
             logger.warning("Negative values in bound-free opacity.")
 
         # NOW FF_COOLING_FACTOR
