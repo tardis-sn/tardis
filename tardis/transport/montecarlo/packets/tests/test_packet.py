@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from astropy import units as u
 from numpy.testing import (
     assert_allclose,
     assert_almost_equal,
@@ -13,9 +14,7 @@ import tardis.transport.montecarlo.modes.homologous_rad_packet_transport as r_pa
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
-from tardis.model.geometry.radial1d import (
-    NumbaRadial1DGeometry,
-)
+from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_line,
 )
@@ -34,13 +33,14 @@ def geometry():
     time_explosion = 5.2e7
     r_inner = np.array([6.912e14, 8.64e14], dtype=np.float64)
     r_outer = np.array([8.64e14, 1.0368e15], dtype=np.float64)
-    return NumbaRadial1DGeometry(
-        r_inner=r_inner,
-        r_outer=r_outer,
-        v_inner=r_inner / time_explosion,
-        v_outer=r_outer / time_explosion,
-        homologous=True,
-    )
+    time_explosion_quantity = time_explosion * u.s
+    return HomologousRadial1DGeometry(
+        v_inner=r_inner * u.cm / time_explosion_quantity,
+        v_outer=r_outer * u.cm / time_explosion_quantity,
+        v_inner_boundary=None,
+        v_outer_boundary=None,
+        time_explosion=time_explosion_quantity,
+    ).to_numba()
 
 
 @pytest.fixture(scope="function")

@@ -2,9 +2,14 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
+from astropy import units as u
 
 from tardis.model.geometry.radial1d import (
     NumbaRadial1DGeometry,
+)
+from tardis.model.geometry.radial1d_homologous import (
+    HomologousRadial1DGeometry,
+    NumbaHomologousRadial1DGeometry,
 )
 from tardis.opacities.opacity_state_numba import (
     OpacityStateNumba,
@@ -66,13 +71,7 @@ def verysimple_opacity_state(nb_simulation_verysimple):
 def verysimple_numba_homologous_radial_1d_geometry(nb_simulation_verysimple):
     """Return the complete Numba radial 1D geometry."""
     geometry = nb_simulation_verysimple.simulation_state.geometry
-    return NumbaRadial1DGeometry(
-        geometry.r_inner.to("cm").value,
-        geometry.r_outer.to("cm").value,
-        geometry.v_inner.to("cm/s").value,
-        geometry.v_outer.to("cm/s").value,
-        homologous=True,
-    )
+    return geometry.to_numba()
 
 
 @pytest.fixture(scope="package")
@@ -207,19 +206,21 @@ def parametrized_packet(static_packet: RPacket, request) -> RPacket:
 @pytest.fixture
 def homologous_radial_1d_geometry(
     request: pytest.FixtureRequest,
-) -> NumbaRadial1DGeometry:
+) -> NumbaHomologousRadial1DGeometry:
     """Return a homologous Numba radial 1D geometry."""
     r_outer_first_shell = getattr(request, "param", 8.0e14)
     time_explosion = 5.2e7
-    r_inner = np.array([7.0e14, 8.0e14])
+    r_inner = np.array([7.0e14, r_outer_first_shell])
     r_outer = np.array([r_outer_first_shell, 3.0e16])
-    return NumbaRadial1DGeometry(
-        r_inner,
-        r_outer,
-        r_inner / time_explosion,
-        r_outer / time_explosion,
-        homologous=True,
+    time_explosion_quantity = time_explosion * u.s
+    geometry = HomologousRadial1DGeometry(
+        (r_inner * u.cm / time_explosion_quantity).to(u.cm / u.s),
+        (r_outer * u.cm / time_explosion_quantity).to(u.cm / u.s),
+        None,
+        None,
+        time_explosion_quantity,
     )
+    return geometry.to_numba()
 
 
 @pytest.fixture

@@ -11,6 +11,7 @@ from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
 )
+from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
@@ -21,11 +22,8 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
-    OpacitySolver as NonhomologousOpacitySolver,
-)
-from tardis.transport.montecarlo.modes.nonhomologous.solver import (
-    MCTransportSolverNonhomologous,
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
@@ -94,8 +92,7 @@ class SimpleTARDISWorkflow:
 
         line_interaction_type = configuration.plasma.line_interaction_type
 
-        self.opacity_solver = NonhomologousOpacitySolver(
-            self.simulation_state.geometry.velocity_gradient,
+        self.opacity_solver = OpacitySolver(
             line_interaction_type,
             configuration.plasma.disable_line_scattering,
         )
@@ -109,7 +106,7 @@ class SimpleTARDISWorkflow:
                 line_interaction_type,
             )
         self.transport_state = None
-        self.transport_solver = MCTransportSolverNonhomologous.from_config(
+        self.transport_solver = MCTransportSolverClassic.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
             enable_virtual_packet_logging=self.enable_virtual_packet_logging,
@@ -194,7 +191,7 @@ class SimpleTARDISWorkflow:
             self.transport_solver.radfield_prop_solver.solve(
                 self.transport_state.estimators_bulk,
                 self.transport_state.estimators_line,
-                self.transport_state.geometry_state.velocity_gradient,
+                self.transport_state.time_explosion,
                 self.transport_state.time_of_simulation,
                 self.transport_state.geometry_state.volume,
                 self.transport_state.opacity_state.line_list_nu,

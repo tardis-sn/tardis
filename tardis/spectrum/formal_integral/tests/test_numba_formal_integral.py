@@ -1,12 +1,12 @@
 import numpy as np
 import numpy.testing as ntest
 import pytest
+from astropy import units as u
 
-from tardis import constants as c
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.spectrum.formal_integral.base import C_INV
 import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
-
+from tardis import constants as c
+from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
+from tardis.spectrum.formal_integral.base import C_INV
 
 TESTDATA = [
     {
@@ -22,14 +22,14 @@ TESTDATA = [
 @pytest.fixture(scope="function", params=TESTDATA)
 def formal_integral_geometry(request):
     r = request.param["r"]
-    geometry = NumbaRadial1DGeometry(
-        r[:-1],
-        r[1:],
-        r[:-1] * c.c.cgs.value,
-        r[1:] * c.c.cgs.value,
-        homologous=True,
-    )
-    return geometry
+    time_explosion = (1 / c.c.cgs.value) * u.s
+    return HomologousRadial1DGeometry(
+        r[:-1] * u.cm / time_explosion,
+        r[1:] * u.cm / time_explosion,
+        None,
+        None,
+        time_explosion,
+    ).to_numba()
 
 
 @pytest.fixture(scope="function")
