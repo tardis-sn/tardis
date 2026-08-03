@@ -1,3 +1,5 @@
+from typing import Self
+
 import numba as nb
 import numpy as np
 import numpy.typing as npt
@@ -149,7 +151,7 @@ class OpacityStateNumbaIIP:
         self.k_packet_idx = k_packet_idx
         self.absorbing_markov_probabilities = absorbing_markov_probabilities
 
-    def __getitem__(self, i: slice):
+    def __getitem__(self, i: slice) -> Self:
         """Return a shallow IIP state view for a contiguous shell slice.
 
         Parameters
