@@ -22,6 +22,7 @@ class BenchmarkOpacitiesOpacityState(BenchmarkBase):
         self.sim = self.nb_simulation_verysimple
 
     def time_opacity_state_to_numba(self, input_params: str) -> None:
+        """Time the opacity state to_numba method"""
         macro_atom_state = (
             None if input_params == "scatter" else self.sim.macro_atom_state
         )

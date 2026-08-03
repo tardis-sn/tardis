@@ -55,6 +55,7 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 def verysimple_opacity_state(
     nb_simulation_verysimple: Simulation,
 ) -> OpacityStateNumba:
+    """Numba opacity state from the very simple simulation"""
     return nb_simulation_verysimple.opacity_state.to_numba(
         nb_simulation_verysimple.macro_atom_state,
         "macroatom",
