@@ -58,27 +58,27 @@ def test_opacity_state_to_numba(
     else:
         npt.assert_allclose(
             actual.transition_probabilities,
-            plasma.transition_probabilities.values[:, index],
+            macro_atom_state.transition_probabilities.values[:, index],
         )
         npt.assert_allclose(
             actual.line2macro_level_upper,
-            plasma.atomic_data.lines_upper2macro_reference_idx,
+            macro_atom_state.line2macro_level_upper.values,
         )
         npt.assert_allclose(
             actual.macro_block_edge_index,
-            plasma.atomic_data.macro_atom_references["block_references"].values,
+            macro_atom_state.macro_block_edge_index,
         )
         npt.assert_allclose(
             actual.transition_type,
-            plasma.atomic_data.macro_atom_data["transition_type"].values,
+            macro_atom_state.transition_metadata.transition_type.values,
         )
         npt.assert_allclose(
             actual.destination_level_id,
-            plasma.atomic_data.macro_atom_data["destination_level_idx"].values,
+            macro_atom_state.transition_metadata.destination_level_idx.values,
         )
         npt.assert_allclose(
             actual.transition_line_id,
-            plasma.atomic_data.macro_atom_data["lines_idx"].values,
+            macro_atom_state.transition_metadata.transition_line_idx.values,
         )
 
 
