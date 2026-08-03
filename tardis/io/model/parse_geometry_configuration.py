@@ -5,8 +5,8 @@ from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.readers.base import read_density_file
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NonhomologousRadial1DGeometry,
+from tardis.model.geometry.radial1d import (
+    Radial1DGeometry,
 )
 from tardis.util.base import quantity_linspace
 
@@ -83,7 +83,7 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
 
     Returns
     -------
-    NonhomologousRadial1DGeometry
+    Radial1DGeometry
         The parsed geometry.
     """
     (
@@ -98,7 +98,7 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
     v_outer = velocity[1:]
     v_inner_boundary = config.model.structure.get("v_inner_boundary", None)
     v_outer_boundary = config.model.structure.get("v_outer_boundary", None)
-    return NonhomologousRadial1DGeometry(
+    return Radial1DGeometry(
         r_inner=(v_inner * time_explosion).cgs,
         r_outer=(v_outer * time_explosion).cgs,
         v_inner=v_inner,
@@ -123,7 +123,7 @@ def parse_geometry_from_csvy(
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
-) -> NonhomologousRadial1DGeometry:
+) -> Radial1DGeometry:
     """Parse the geometry data from a CSVY model.
 
     Parameters
@@ -139,7 +139,7 @@ def parse_geometry_from_csvy(
 
     Returns
     -------
-    NonhomologousRadial1DGeometry
+    Radial1DGeometry
         The parsed geometry.
 
     Notes
@@ -170,7 +170,7 @@ def parse_geometry_from_csvy(
 
     v_inner = velocity[:-1]
     v_outer = velocity[1:]
-    geometry = NonhomologousRadial1DGeometry(
+    geometry = Radial1DGeometry(
         r_inner=(v_inner * time_explosion).cgs,
         r_outer=(v_outer * time_explosion).cgs,
         v_inner=v_inner,

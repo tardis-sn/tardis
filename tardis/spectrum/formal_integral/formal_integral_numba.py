@@ -1,15 +1,18 @@
+from typing import Tuple
+
 import numpy as np
 from numba import njit, prange
-from typing import Tuple
 from numpy.typing import NDArray
 
+from tardis.model.geometry.radial1d import (
+    NumbaRadial1DGeometry,
+)
 from tardis.spectrum.formal_integral.base import (
     C_INV,
     BoundsError,
     calculate_impact_parameters,
     intensity_black_body,
 )
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 

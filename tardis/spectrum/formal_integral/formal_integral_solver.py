@@ -146,6 +146,7 @@ class FormalIntegralSolver:
             r_outer,
             r_inner / time_explosion.to("s").value,
             r_outer / time_explosion.to("s").value,
+            homologous=True,
         )
 
         if self.method == "cuda":

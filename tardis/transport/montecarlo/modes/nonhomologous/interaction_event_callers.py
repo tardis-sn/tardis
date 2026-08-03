@@ -38,7 +38,7 @@ def macro_atom_event(
     ----------
     destination_level_idx : int
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : NumbaNonhomologousRadial1DGeometry
+    geometry : NumbaRadial1DGeometry
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
     transition_id, transition_type = macro_atom_interaction(
@@ -147,7 +147,7 @@ def continuum_event(
     Parameters
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : NumbaNonhomologousRadial1DGeometry
+    geometry : NumbaRadial1DGeometry
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     continuum : tardis.transport.montecarlo.numba_interface.Continuum
     """
@@ -199,7 +199,7 @@ def line_scatter_event(
     Parameters
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : NumbaNonhomologousRadial1DGeometry
+    geometry : NumbaRadial1DGeometry
     line_interaction_type : enum
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """

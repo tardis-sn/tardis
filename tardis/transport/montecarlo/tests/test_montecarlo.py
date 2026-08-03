@@ -7,8 +7,8 @@ import pytest
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NumbaNonhomologousRadial1DGeometry,
+from tardis.model.geometry.radial1d import (
+    NumbaRadial1DGeometry,
 )
 from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
@@ -372,11 +372,12 @@ def test_move_packet(packet_params, expected_params, full_relativity):
         mean_intensity_total=packet_params["j"],
         mean_frequency=packet_params["nu_bar"],
     )
-    geometry = NumbaNonhomologousRadial1DGeometry(
+    geometry = NumbaRadial1DGeometry(
         np.array([7.0e14]),
         np.array([9.0e14]),
         np.array([7.0e14 / time_explosion]),
         np.array([9.0e14 / time_explosion]),
+        homologous=True,
     )
     move_r_packet(
         packet, distance, geometry, numba_estimator, full_relativity
@@ -543,11 +544,12 @@ def test_compute_distance2line_relativistic(
     distance = radiative_packet.calculate_distance_line(
         packet, comov_nu, nu_line, t_exp
     )
-    geometry = NumbaNonhomologousRadial1DGeometry(
+    geometry = NumbaRadial1DGeometry(
         np.array([r * 0.9]),
         np.array([r * 1.1]),
         np.array([r * 0.9 / t_exp]),
         np.array([r * 1.1 / t_exp]),
+        homologous=True,
     )
     move_r_packet(
         packet, distance, geometry, numba_estimator, bool(full_relativity)

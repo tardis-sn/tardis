@@ -139,7 +139,7 @@ def test_nonhomologous_move_packet_across_shell_boundary_increment(
 
 
 def test_nonhomologous_thomson_scatter(
-    packet, verysimple_numba_nonhomologous_geometry
+    packet, verysimple_numba_active_radial_1d_geometry
 ):
     """
     Analogous to
@@ -150,7 +150,7 @@ def test_nonhomologous_thomson_scatter(
     init_energy = packet.energy
 
     nonhomologous_thomson_scatter(
-        packet, verysimple_numba_nonhomologous_geometry, False
+        packet, verysimple_numba_active_radial_1d_geometry, False
     )
 
     assert np.abs(packet.mu - init_mu) > 1e-7
@@ -171,7 +171,7 @@ def test_nonhomologous_line_scatter(
     packet,
     verysimple_time_explosion,
     verysimple_opacity_state,
-    verysimple_numba_nonhomologous_geometry,
+    verysimple_numba_active_radial_1d_geometry,
 ):
     """
     Analogous to
@@ -187,7 +187,7 @@ def test_nonhomologous_line_scatter(
 
     nonhomologous_line_scatter_event(
         packet,
-        verysimple_numba_nonhomologous_geometry,
+        verysimple_numba_active_radial_1d_geometry,
         line_interaction_type,
         verysimple_opacity_state,
         enable_full_relativity=False,
@@ -232,7 +232,7 @@ def test_nonhomologous_line_emission(
     packet,
     verysimple_time_explosion,
     verysimple_opacity_state,
-    verysimple_numba_nonhomologous_geometry,
+    verysimple_numba_active_radial_1d_geometry,
     test_packet,
     expected,
 ):
@@ -251,7 +251,7 @@ def test_nonhomologous_line_emission(
     nonhomologous_line_emission(
         packet,
         emission_line_id,
-        verysimple_numba_nonhomologous_geometry,
+        verysimple_numba_active_radial_1d_geometry,
         verysimple_opacity_state,
         full_relativity,
     )
@@ -262,7 +262,7 @@ def test_nonhomologous_line_emission(
 
 
 def test_nonhomologous_calculate_sobolev_line_opacity(
-    nb_simulation_verysimple, verysimple_numba_nonhomologous_geometry, regression_data
+    nb_simulation_verysimple, verysimple_numba_active_radial_1d_geometry, regression_data
 ):
     """
     Analogous to
@@ -270,7 +270,7 @@ def test_nonhomologous_calculate_sobolev_line_opacity(
     """
     legacy_plasma = nb_simulation_verysimple.plasma
     velocity_gradient = (
-        verysimple_numba_nonhomologous_geometry.velocity_gradient * u.Unit("1/s")
+        verysimple_numba_active_radial_1d_geometry.velocity_gradient * u.Unit("1/s")
     )
 
     actual = nonhomologous_calculate_sobolev_line_opacity(
@@ -295,7 +295,7 @@ def test_nonhomologous_calculate_sobolev_line_opacity(
 )
 def test_nonhomologous_opacity_solver(
     nb_simulation_verysimple,
-    verysimple_numba_nonhomologous_geometry,
+    verysimple_numba_active_radial_1d_geometry,
     line_interaction_type,
     disable_line_scattering,
 ):
@@ -305,7 +305,7 @@ def test_nonhomologous_opacity_solver(
     """
     legacy_plasma = nb_simulation_verysimple.plasma
     velocity_gradient = (
-        verysimple_numba_nonhomologous_geometry.velocity_gradient * u.Unit("1/s")
+        verysimple_numba_active_radial_1d_geometry.velocity_gradient * u.Unit("1/s")
     )
 
     solver = NonhomologousOpacitySolver(

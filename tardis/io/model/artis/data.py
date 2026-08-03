@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NonhomologousRadial1DGeometry,
+from tardis.model.geometry.radial1d import (
+    Radial1DGeometry,
 )
 
 
@@ -17,20 +17,20 @@ class ArtisData:
     mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
     isotope_mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
 
-    def to_geometry(self) -> NonhomologousRadial1DGeometry:
+    def to_geometry(self) -> Radial1DGeometry:
         """
-        Construct a NonhomologousRadial1DGeometry object from this ArtisData.
+        Construct a Radial1DGeometry object from this ArtisData.
 
         The time_of_model is used as the time_explosion.
 
         Returns
         -------
-        tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry
+        tardis.model.geometry.radial1d_nonhomologous.Radial1DGeometry
             The geometry object constructed from the ARTIS data.
         """
         v_inner = self.velocity[:-1]
         v_outer = self.velocity[1:]
-        geometry = NonhomologousRadial1DGeometry(
+        geometry = Radial1DGeometry(
             r_inner=(v_inner * self.time_of_model).cgs,
             r_outer=(v_outer * self.time_of_model).cgs,
             v_inner=v_inner,

@@ -16,8 +16,8 @@ from tardis.io.model.parse_mass_fraction_configuration import (
     parse_mass_fractions_from_config,
     parse_mass_fractions_from_csvy,
 )
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NonhomologousRadial1DGeometry,
+from tardis.model.geometry.radial1d import (
+    Radial1DGeometry,
 )
 from tardis.model.matter.composition import Composition
 
@@ -74,7 +74,7 @@ def parse_composition_from_config(
     atom_data,
     config: Configuration,
     time_explosion: u.Quantity,
-    geometry: NonhomologousRadial1DGeometry,
+    geometry: Radial1DGeometry,
 ) -> tuple[Composition, u.Quantity | None]:
     """Parse the composition data from a config.
 
@@ -115,7 +115,7 @@ def parse_composition_from_csvy(
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
-    geometry: NonhomologousRadial1DGeometry,
+    geometry: Radial1DGeometry,
 ) -> Composition:
     """Parse the composition data from a CSVY model.
 

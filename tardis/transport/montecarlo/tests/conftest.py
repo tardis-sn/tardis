@@ -3,8 +3,8 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NumbaNonhomologousRadial1DGeometry,
+from tardis.model.geometry.radial1d import (
+    NumbaRadial1DGeometry,
 )
 from tardis.opacities.opacity_state_numba import (
     OpacityStateNumba,
@@ -63,14 +63,23 @@ def verysimple_opacity_state(nb_simulation_verysimple):
 
 
 @pytest.fixture(scope="package")
-def verysimple_numba_radial_1d_geometry(nb_simulation_verysimple):
-    return nb_simulation_verysimple.simulation_state.geometry.to_numba()
+def verysimple_numba_homologous_radial_1d_geometry(nb_simulation_verysimple):
+    """Return the complete Numba radial 1D geometry."""
+    geometry = nb_simulation_verysimple.simulation_state.geometry
+    return NumbaRadial1DGeometry(
+        geometry.r_inner.to("cm").value,
+        geometry.r_outer.to("cm").value,
+        geometry.v_inner.to("cm/s").value,
+        geometry.v_outer.to("cm/s").value,
+        homologous=True,
+    )
 
 
 @pytest.fixture(scope="package")
-def verysimple_numba_nonhomologous_geometry(nb_simulation_verysimple):
+def verysimple_numba_active_radial_1d_geometry(nb_simulation_verysimple):
+    """Return the active-shell Numba radial 1D geometry."""
     geometry = nb_simulation_verysimple.simulation_state.geometry
-    return NumbaNonhomologousRadial1DGeometry(
+    return NumbaRadial1DGeometry(
         geometry.r_inner_active.to("cm").value,
         geometry.r_outer_active.to("cm").value,
         geometry.v_inner_active.to("cm/s").value,
@@ -196,21 +205,28 @@ def parametrized_packet(static_packet: RPacket, request) -> RPacket:
 
 
 @pytest.fixture
-def radial_geometry(request) -> NumbaNonhomologousRadial1DGeometry:
+def homologous_radial_1d_geometry(
+    request: pytest.FixtureRequest,
+) -> NumbaRadial1DGeometry:
+    """Return a homologous Numba radial 1D geometry."""
     r_outer_first_shell = getattr(request, "param", 8.0e14)
     time_explosion = 5.2e7
     r_inner = np.array([7.0e14, 8.0e14])
     r_outer = np.array([r_outer_first_shell, 3.0e16])
-    return NumbaNonhomologousRadial1DGeometry(
+    return NumbaRadial1DGeometry(
         r_inner,
         r_outer,
         r_inner / time_explosion,
         r_outer / time_explosion,
+        homologous=True,
     )
 
 
 @pytest.fixture
-def nonhomologous_geometry(request) -> NumbaNonhomologousRadial1DGeometry:
+def radial_1d_geometry(
+    request: pytest.FixtureRequest,
+) -> NumbaRadial1DGeometry:
+    """Return a parameterized Numba radial 1D geometry."""
     params = getattr(request, "param", {})
     if params.get("negative_velocity_gradient", False):
         v_inner = np.array([1.0e9, 1.5e9])
@@ -219,7 +235,7 @@ def nonhomologous_geometry(request) -> NumbaNonhomologousRadial1DGeometry:
         v_inner = np.array([2.0e9, 1.5e9])
         v_outer = np.array([1.5e9, 1.0e9])
 
-    return NumbaNonhomologousRadial1DGeometry(
+    return NumbaRadial1DGeometry(
         np.array([7.0e14, 8.0e14]),
         np.array([params.get("r_outer_first_shell", 8.0e14), 3.0e16]),
         v_inner,

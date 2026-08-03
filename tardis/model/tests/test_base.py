@@ -8,7 +8,7 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
 

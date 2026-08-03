@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from tardis.conftest import sync_ndarray_assert_allclose
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     init_estimators_bulk,
 )
@@ -43,7 +44,7 @@ FALLTHROUGH_OPACITY = {
 @pytest.mark.parametrize("enable_full_relativity", [False, True])
 def test_homologous_move_r_packet(
     parametrized_packet,
-    radial_geometry,
+    homologous_radial_1d_geometry,
     enable_full_relativity: bool,
     regression_data,
 ) -> None:
@@ -54,7 +55,7 @@ def test_homologous_move_r_packet(
     move_r_packet(
         packet,
         1.0e13,
-        radial_geometry,
+        homologous_radial_1d_geometry,
         estimators,
         enable_full_relativity,
     )
@@ -70,7 +71,7 @@ def test_homologous_move_r_packet(
 
 def test_nonhomologous_move_r_packet(
     parametrized_packet,
-    nonhomologous_geometry,
+    radial_1d_geometry: NumbaRadial1DGeometry,
     bulk_estimators,
     regression_data,
 ) -> None:
@@ -80,7 +81,7 @@ def test_nonhomologous_move_r_packet(
     move_r_packet(
         packet,
         1.0e13,
-        nonhomologous_geometry,
+        radial_1d_geometry,
         bulk_estimators,
         False,
     )
@@ -96,7 +97,7 @@ def test_nonhomologous_move_r_packet(
 
 def test_homologous_move_r_packet_zero_distance(
     parametrized_packet,
-    radial_geometry,
+    homologous_radial_1d_geometry,
     regression_data,
 ) -> None:
     packet = parametrized_packet
@@ -106,7 +107,7 @@ def test_homologous_move_r_packet_zero_distance(
     move_r_packet(
         packet,
         0.0,
-        radial_geometry,
+        homologous_radial_1d_geometry,
         estimators,
         False,
     )
@@ -122,7 +123,7 @@ def test_homologous_move_r_packet_zero_distance(
 
 def test_nonhomologous_move_r_packet_zero_distance(
     parametrized_packet,
-    nonhomologous_geometry,
+    radial_1d_geometry: NumbaRadial1DGeometry,
     bulk_estimators,
     regression_data,
 ) -> None:
@@ -132,7 +133,7 @@ def test_nonhomologous_move_r_packet_zero_distance(
     move_r_packet(
         packet,
         0.0,
-        nonhomologous_geometry,
+        radial_1d_geometry,
         bulk_estimators,
         False,
     )
@@ -183,7 +184,7 @@ def test_move_packet_across_shell_boundary(
         "opacity_electron",
         "opacity_state_args",
         "disable_line_scattering",
-        "radial_geometry",
+        "homologous_radial_1d_geometry",
         "expected_interaction_type",
     ),
     [
@@ -216,14 +217,14 @@ def test_move_packet_across_shell_boundary(
             InteractionType.ESCATTERING,
         ),
     ],
-    indirect=["opacity_state_args", "radial_geometry"],
+    indirect=["opacity_state_args", "homologous_radial_1d_geometry"],
 )
 def test_classic_trace_packet(
     parametrized_packet,
     opacity_electron: float,
     classic_opacity_state,
     disable_line_scattering: bool,
-    radial_geometry,
+    homologous_radial_1d_geometry,
     line_estimators,
     set_seed_fixture,
     expected_interaction_type: InteractionType,
@@ -233,7 +234,7 @@ def test_classic_trace_packet(
 
     distance, interaction_type, delta_shell = homologous_trace_packet(
         parametrized_packet,
-        radial_geometry,
+        homologous_radial_1d_geometry,
         5.2e7,
         classic_opacity_state,
         line_estimators,
@@ -261,7 +262,7 @@ def test_classic_trace_packet(
 @pytest.mark.parametrize(
     "parametrized_packet", [{"next_line_id": 2}], indirect=True
 )
-@pytest.mark.parametrize("radial_geometry", [2.0e16], indirect=True)
+@pytest.mark.parametrize("homologous_radial_1d_geometry", [2.0e16], indirect=True)
 @pytest.mark.parametrize(
     "opacity_state_args",
     [FALLTHROUGH_OPACITY],
@@ -269,7 +270,7 @@ def test_classic_trace_packet(
 )
 def test_classic_trace_packet_no_line_fallthrough(
     parametrized_packet,
-    radial_geometry,
+    homologous_radial_1d_geometry,
     classic_opacity_state,
     line_estimators,
     set_seed_fixture,
@@ -280,7 +281,7 @@ def test_classic_trace_packet_no_line_fallthrough(
 
     distance, interaction_type, delta_shell = homologous_trace_packet(
         parametrized_packet,
-        radial_geometry,
+        homologous_radial_1d_geometry,
         5.2e7,
         classic_opacity_state,
         line_estimators,
@@ -308,7 +309,7 @@ def test_classic_trace_packet_no_line_fallthrough(
         "escat_prob",
         "opacity_state_args",
         "disable_line_scattering",
-        "radial_geometry",
+        "homologous_radial_1d_geometry",
         "expected_interaction_type",
     ),
     [
@@ -353,7 +354,7 @@ def test_classic_trace_packet_no_line_fallthrough(
             InteractionType.ESCATTERING,
         ),
     ],
-    indirect=["opacity_state_args", "radial_geometry"],
+    indirect=["opacity_state_args", "homologous_radial_1d_geometry"],
 )
 def test_iip_trace_packet(
     parametrized_packet,
@@ -361,7 +362,7 @@ def test_iip_trace_packet(
     escat_prob: float,
     iip_opacity_state,
     disable_line_scattering: bool,
-    radial_geometry,
+    homologous_radial_1d_geometry,
     line_estimators,
     set_seed_fixture,
     expected_interaction_type: InteractionType,
@@ -371,7 +372,7 @@ def test_iip_trace_packet(
 
     distance, interaction_type, delta_shell = homologous_trace_packet(
         parametrized_packet,
-        radial_geometry,
+        homologous_radial_1d_geometry,
         5.2e7,
         iip_opacity_state,
         line_estimators,
@@ -399,7 +400,7 @@ def test_iip_trace_packet(
 @pytest.mark.parametrize(
     "parametrized_packet", [{"next_line_id": 2}], indirect=True
 )
-@pytest.mark.parametrize("radial_geometry", [2.0e16], indirect=True)
+@pytest.mark.parametrize("homologous_radial_1d_geometry", [2.0e16], indirect=True)
 @pytest.mark.parametrize(
     "opacity_state_args",
     [FALLTHROUGH_OPACITY],
@@ -407,7 +408,7 @@ def test_iip_trace_packet(
 )
 def test_iip_trace_packet_no_line_fallthrough(
     parametrized_packet,
-    radial_geometry,
+    homologous_radial_1d_geometry,
     iip_opacity_state,
     line_estimators,
     set_seed_fixture,
@@ -418,7 +419,7 @@ def test_iip_trace_packet_no_line_fallthrough(
 
     distance, interaction_type, delta_shell = homologous_trace_packet(
         parametrized_packet,
-        radial_geometry,
+        homologous_radial_1d_geometry,
         5.2e7,
         iip_opacity_state,
         line_estimators,
@@ -442,7 +443,7 @@ def test_iip_trace_packet_no_line_fallthrough(
 
 @pytest.mark.parametrize(
     (
-        "nonhomologous_geometry",
+        "radial_1d_geometry",
         "opacity_electron",
         "opacity_state_args",
         "parametrized_packet",
@@ -489,13 +490,13 @@ def test_iip_trace_packet_no_line_fallthrough(
         ),
     ],
     indirect=[
-        "nonhomologous_geometry",
+        "radial_1d_geometry",
         "opacity_state_args",
         "parametrized_packet",
     ],
 )
 def test_nonhomologous_trace_packet(
-    nonhomologous_geometry,
+    radial_1d_geometry: NumbaRadial1DGeometry,
     opacity_electron: float,
     parametrized_packet,
     classic_opacity_state,
@@ -510,7 +511,7 @@ def test_nonhomologous_trace_packet(
 
     distance, interaction_type, delta_shell = nonhomologous_trace_packet(
         parametrized_packet,
-        nonhomologous_geometry,
+        radial_1d_geometry,
         classic_opacity_state,
         line_estimators,
         opacity_electron,
@@ -537,7 +538,7 @@ def test_nonhomologous_trace_packet(
     indirect=True,
 )
 @pytest.mark.parametrize(
-    "nonhomologous_geometry",
+    "radial_1d_geometry",
     [{"r_outer_first_shell": 2.0e16}],
     indirect=True,
 )
@@ -548,7 +549,7 @@ def test_nonhomologous_trace_packet(
 )
 def test_nonhomologous_trace_packet_no_line_fallthrough(
     parametrized_packet,
-    nonhomologous_geometry,
+    radial_1d_geometry: NumbaRadial1DGeometry,
     classic_opacity_state,
     line_estimators,
     set_seed_fixture,
@@ -559,7 +560,7 @@ def test_nonhomologous_trace_packet_no_line_fallthrough(
 
     distance, interaction_type, delta_shell = nonhomologous_trace_packet(
         parametrized_packet,
-        nonhomologous_geometry,
+        radial_1d_geometry,
         classic_opacity_state,
         line_estimators,
         1.0e-12,
