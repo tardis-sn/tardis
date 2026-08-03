@@ -32,13 +32,13 @@ from tardis.transport.montecarlo.modes.iip.solver import (
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
-from tardis.workflows.workflow_logging import WorkflowLogging
+from tardis.workflows.workflow_logger import WorkflowLogger
 
 # logging support
 logger = logging.getLogger(__name__)
 
 
-class TypeIIPWorkflow(WorkflowLogging):
+class TypeIIPWorkflow:
     show_progress_bars = Environment.allows_widget_display()
     enable_virtual_packet_logging = False
     log_level = None
@@ -54,7 +54,9 @@ class TypeIIPWorkflow(WorkflowLogging):
         csvy : bool, optional
             Set true if the configuration uses CSVY, by default False
         """
-        super().__init__(configuration, self.log_level, self.specific_log_level)
+        self.workflow_logger = WorkflowLogger(
+            configuration, self.log_level, self.specific_log_level
+        )
         self.atom_data = parse_atom_data(configuration)
 
         # set up states and solvers
@@ -365,7 +367,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
         )
 
-        self.log_plasma_state(
+        self.workflow_logger.log_plasma_state(
             self.simulation_state.t_radiative,
             self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,

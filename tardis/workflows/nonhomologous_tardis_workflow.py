@@ -183,7 +183,7 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
 
-        self.log_plasma_state(
+        self.workflow_logger.log_plasma_state(
             self.simulation_state.t_radiative,
             self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,

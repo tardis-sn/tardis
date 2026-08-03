@@ -153,9 +153,6 @@ The following pairs use this setup:
    * - ``compare-regdata``
      - ``publish-regdata-comparison``
      - Regression-data comparison page and comment
-   * - ``codestyle``
-     - ``publish-codestyle``
-     - Ruff output comment
    * - ``mailmap``
      - ``publish-mailmap``
      - Failure guidance comment
@@ -165,10 +162,12 @@ The following pairs use this setup:
 
 GitHub displays the producer and publisher as separate workflow runs. Each
 publisher's run name includes the pull request title from
-``workflow_run.display_title``, and successful bot comments link the source and
-publisher runs. GitHub does not provide a token setting that turns a
-``workflow_run`` run into a child job of the producer or natively attaches it to
-the pull request.
+``workflow_run.display_title``. The documentation publisher's bot comment
+reports the producer build conclusion and includes the preview link regardless
+of the deployment result. The comment uses ``always()`` so deployment failures
+are reported as well as producer failures.
+GitHub does not provide a token setting that turns a ``workflow_run`` run into
+a child job of the producer or natively attaches it to the pull request.
 
 Testing a producer/publisher change
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -282,6 +281,23 @@ Common Pipeline Steps
   required.
 - Use ``setup_env`` to configure environment variables and settings.
 - Use ``bash -l {0}`` as the run shell in workflow YAML.
+
+Codestyle Pipeline
+^^^^^^^^^^^^^^^^^^
+
+The ``codestyle`` workflow runs for pull requests targeting ``master`` and for
+pushes to ``master``. It checks added, copied, modified, renamed, type-changed,
+unmerged, and otherwise changed Python source lines between the source and base
+commits.
+
+The workflow uses ``diff-quality`` to run Ruff with the repository
+configuration and fails below 100 percent. Every Ruff diagnostic located on a
+changed line fails the job, while diagnostics on untouched lines do not block
+the change. This permits TARDIS to enforce its current Ruff requirements
+without first resolving the existing repository-wide backlog.
+
+The workflow does not upload Ruff artifacts, post a pull-request comment, use
+repository secrets, or use a separate publisher workflow.
 
 Documentation Build Pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
