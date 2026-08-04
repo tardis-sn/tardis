@@ -11,6 +11,8 @@ where test data is prepared in fixtures and regression data is used for validati
 ### FIX THIS TO ONLY TEST HYDROGEN FOR NOW
 # from copy import deepcopy
 
+from typing import Any
+
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
@@ -20,6 +22,9 @@ from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.plasma.equilibrium.continuum_state import (
+    EquilibriumContinuumState,
+)
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 
@@ -205,9 +210,63 @@ def continuum_solver_input_data(iip_atom_data):
 
 
 @pytest.fixture
+def equilibrium_continuum_state(
+    continuum_solver_input_data: dict[str, Any],
+) -> EquilibriumContinuumState:
+    """Collect deterministic continuum coefficients into structured state."""
+    return EquilibriumContinuumState(
+        radiative_ionization_rate=continuum_solver_input_data[
+            "stim_recomb_corrected_photoionization_rate_coeff"
+        ],
+        radiative_recombination_rate=continuum_solver_input_data[
+            "spontaneous_recombination_coeff"
+        ],
+        collisional_excitation_rate=continuum_solver_input_data[
+            "coll_exc_coeff"
+        ],
+        collisional_deexcitation_rate=continuum_solver_input_data[
+            "coll_deexc_coeff"
+        ],
+        collisional_ionization_rate=continuum_solver_input_data[
+            "coll_ion_coeff"
+        ],
+        collisional_recombination_rate=continuum_solver_input_data[
+            "coll_recomb_coeff"
+        ],
+        delta_E_yg=continuum_solver_input_data["delta_E_yg"],
+        collisional_excitation_cooling_probability=continuum_solver_input_data[
+            "coll_exc_cool_rate"
+        ],
+        collisional_excitation_cooling_array=continuum_solver_input_data[
+            "coll_exc_cool_arr"
+        ],
+        collisional_excitation_references=continuum_solver_input_data[
+            "coll_exc_cool_destinations"
+        ],
+        collisional_ionization_cooling_probability=continuum_solver_input_data[
+            "coll_ion_cool_rate"
+        ],
+        collisional_ionization_cooling_array=continuum_solver_input_data[
+            "coll_ion_cool_arr"
+        ],
+        radiative_recombination_cooling_probability=continuum_solver_input_data[
+            "fb_cool_rate"
+        ],
+        radiative_recombination_cooling_array=continuum_solver_input_data[
+            "fb_cool_probs_arr"
+        ],
+        free_free_cooling_probability=continuum_solver_input_data[
+            "ff_cool_rate"
+        ],
+    )
+
+
+@pytest.fixture
 def continuum_macro_atom_state(
-    continuum_macro_atom_solver, continuum_solver_input_data
-):
+    continuum_macro_atom_solver: ContinuumMacroAtomSolver,
+    continuum_solver_input_data: dict[str, Any],
+    equilibrium_continuum_state: EquilibriumContinuumState,
+) -> MacroAtomState:
     """Fixture solving for macro-atom state with continuum processes.
 
     Calls the ContinuumMacroAtomSolver.solve() method with the prepared
@@ -221,28 +280,8 @@ def continuum_macro_atom_state(
         stimulated_emission_factors=continuum_solver_input_data[
             "stimulated_emission_factors"
         ],
-        stim_recomb_corrected_photoionization_rate_coeff=continuum_solver_input_data[
-            "stim_recomb_corrected_photoionization_rate_coeff"
-        ],
-        spontaneous_recombination_coeff=continuum_solver_input_data[
-            "spontaneous_recombination_coeff"
-        ],
-        coll_deexc_coeff=continuum_solver_input_data["coll_deexc_coeff"],
-        coll_exc_coeff=continuum_solver_input_data["coll_exc_coeff"],
-        coll_ion_coeff=continuum_solver_input_data["coll_ion_coeff"],
-        coll_recomb_coeff=continuum_solver_input_data["coll_recomb_coeff"],
+        continuum_state=equilibrium_continuum_state,
         electron_densities=continuum_solver_input_data["electron_densities"],
-        delta_E_yg=continuum_solver_input_data["delta_E_yg"],
-        coll_exc_cool_rate=continuum_solver_input_data["coll_exc_cool_rate"],
-        coll_exc_cool_arr=continuum_solver_input_data["coll_exc_cool_arr"],
-        coll_exc_cool_destinations=continuum_solver_input_data[
-            "coll_exc_cool_destinations"
-        ],
-        coll_ion_cool_rate=continuum_solver_input_data["coll_ion_cool_rate"],
-        coll_ion_cool_arr=continuum_solver_input_data["coll_ion_cool_arr"],
-        fb_cool_rate=continuum_solver_input_data["fb_cool_rate"],
-        fb_cool_probs_arr=continuum_solver_input_data["fb_cool_probs_arr"],
-        ff_cool_rate=continuum_solver_input_data["ff_cool_rate"],
     )
 
 
@@ -380,8 +419,11 @@ class TestContinuumMacroAtomSolver:
         pdt.assert_frame_equal(actual, expected)
 
     def test_multiple_solve_consistency(
-        self, continuum_macro_atom_solver, continuum_solver_input_data
-    ):
+        self,
+        continuum_macro_atom_solver: ContinuumMacroAtomSolver,
+        continuum_solver_input_data: dict[str, Any],
+        equilibrium_continuum_state: EquilibriumContinuumState,
+    ) -> None:
         """Test that solving twice with same data gives identical results."""
         # Solve twice
         state1 = continuum_macro_atom_solver.solve(
@@ -392,34 +434,10 @@ class TestContinuumMacroAtomSolver:
             stimulated_emission_factors=continuum_solver_input_data[
                 "stimulated_emission_factors"
             ],
-            stim_recomb_corrected_photoionization_rate_coeff=continuum_solver_input_data[
-                "stim_recomb_corrected_photoionization_rate_coeff"
-            ],
-            spontaneous_recombination_coeff=continuum_solver_input_data[
-                "spontaneous_recombination_coeff"
-            ],
-            coll_deexc_coeff=continuum_solver_input_data["coll_deexc_coeff"],
-            coll_exc_coeff=continuum_solver_input_data["coll_exc_coeff"],
-            coll_ion_coeff=continuum_solver_input_data["coll_ion_coeff"],
-            coll_recomb_coeff=continuum_solver_input_data["coll_recomb_coeff"],
+            continuum_state=equilibrium_continuum_state,
             electron_densities=continuum_solver_input_data[
                 "electron_densities"
             ],
-            delta_E_yg=continuum_solver_input_data["delta_E_yg"],
-            coll_exc_cool_rate=continuum_solver_input_data[
-                "coll_exc_cool_rate"
-            ],
-            coll_exc_cool_arr=continuum_solver_input_data["coll_exc_cool_arr"],
-            coll_exc_cool_destinations=continuum_solver_input_data[
-                "coll_exc_cool_destinations"
-            ],
-            coll_ion_cool_rate=continuum_solver_input_data[
-                "coll_ion_cool_rate"
-            ],
-            coll_ion_cool_arr=continuum_solver_input_data["coll_ion_cool_arr"],
-            fb_cool_rate=continuum_solver_input_data["fb_cool_rate"],
-            fb_cool_probs_arr=continuum_solver_input_data["fb_cool_probs_arr"],
-            ff_cool_rate=continuum_solver_input_data["ff_cool_rate"],
         )
 
         state2 = continuum_macro_atom_solver.solve(
@@ -430,34 +448,10 @@ class TestContinuumMacroAtomSolver:
             stimulated_emission_factors=continuum_solver_input_data[
                 "stimulated_emission_factors"
             ],
-            stim_recomb_corrected_photoionization_rate_coeff=continuum_solver_input_data[
-                "stim_recomb_corrected_photoionization_rate_coeff"
-            ],
-            spontaneous_recombination_coeff=continuum_solver_input_data[
-                "spontaneous_recombination_coeff"
-            ],
-            coll_deexc_coeff=continuum_solver_input_data["coll_deexc_coeff"],
-            coll_exc_coeff=continuum_solver_input_data["coll_exc_coeff"],
-            coll_ion_coeff=continuum_solver_input_data["coll_ion_coeff"],
-            coll_recomb_coeff=continuum_solver_input_data["coll_recomb_coeff"],
+            continuum_state=equilibrium_continuum_state,
             electron_densities=continuum_solver_input_data[
                 "electron_densities"
             ],
-            delta_E_yg=continuum_solver_input_data["delta_E_yg"],
-            coll_exc_cool_rate=continuum_solver_input_data[
-                "coll_exc_cool_rate"
-            ],
-            coll_exc_cool_arr=continuum_solver_input_data["coll_exc_cool_arr"],
-            coll_exc_cool_destinations=continuum_solver_input_data[
-                "coll_exc_cool_destinations"
-            ],
-            coll_ion_cool_rate=continuum_solver_input_data[
-                "coll_ion_cool_rate"
-            ],
-            coll_ion_cool_arr=continuum_solver_input_data["coll_ion_cool_arr"],
-            fb_cool_rate=continuum_solver_input_data["fb_cool_rate"],
-            fb_cool_probs_arr=continuum_solver_input_data["fb_cool_probs_arr"],
-            ff_cool_rate=continuum_solver_input_data["ff_cool_rate"],
         )
 
         # Probabilities should be identical

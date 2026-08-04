@@ -76,7 +76,6 @@ class BoundFreeThermalRates:
             level=[0, 1, 2]
         ).first()
         nu_is = nu_i.loc[self.photoionization_cross_sections.index].to_numpy()
-        n_cells = level_population.columns
 
         ### HEATING
         # Lucy 03 eq 58
@@ -121,78 +120,95 @@ class BoundFreeThermalRates:
             * level_population.loc[integrated_heating_coefficient.index]
         ).sum()
 
-        ### COOLING
-        # Lucy 03 eq 59
+        cooling_rate = self.calculate_cooling_rate(
+            ion_population,
+            thermal_electron_distribution,
+            level_population_ratio,
+            stimulated_recombination_cooling_estimator,
+        ).sum()
 
-        # Calculate Boltzmann factor
+        return heating_rate, cooling_rate
+
+    def calculate_cooling_rate(
+        self,
+        ion_population: pd.DataFrame,
+        thermal_electron_distribution: ThermalElectronEnergyDistribution,
+        level_population_ratio: pd.DataFrame,
+        stimulated_recombination_cooling_estimator: pd.DataFrame | None = None,
+    ) -> pd.DataFrame:
+        """Calculate free-bound cooling rates for each recombining level.
+
+        Parameters
+        ----------
+        ion_population : pd.DataFrame
+            Ion number density. Columns represent cells.
+        thermal_electron_distribution : ThermalElectronEnergyDistribution
+            Electron energy distribution containing the number density and
+            temperature.
+        level_population_ratio : pd.DataFrame
+            Saha factor for the ion populations from Lucy 2003, equation 14.
+        stimulated_recombination_cooling_estimator : pd.DataFrame, optional
+            Monte Carlo stimulated-recombination cooling estimator.
+
+        Returns
+        -------
+        pd.DataFrame
+            Free-bound cooling rates indexed by recombining level.
+        """
+        nu_i = self.photoionization_cross_sections.nu.groupby(
+            level=[0, 1, 2]
+        ).first()
+        nu_is = nu_i.loc[self.photoionization_cross_sections.index].to_numpy()
         boltzmann_factor = np.exp(
             -self.nu[:, np.newaxis]
             * u.Hz
             / thermal_electron_distribution.temperature[np.newaxis, :]
             * (const.h.cgs / const.k_B.cgs)
         )
-
-        spontaneous_recombination_cooling_coefficient = pd.DataFrame(
+        cooling_coefficient = pd.DataFrame(
             (
                 8
                 * np.pi
                 * self.photoionization_cross_sections["x_sect"].to_numpy()[
                     :, np.newaxis
                 ]
-                * (self.nu[:, np.newaxis] ** 3)
+                * self.nu[:, np.newaxis] ** 3
                 * const.h.cgs.value
                 / const.c.cgs.value**2
             )
             * (1 - nu_is[:, np.newaxis] / self.nu[:, np.newaxis])
             * boltzmann_factor
         )
-
         integrated_cooling_coefficient = pd.DataFrame(
             integrate_array_by_blocks(
-                spontaneous_recombination_cooling_coefficient.values,
+                cooling_coefficient.to_numpy(),
                 self.nu,
                 self.photoionization_block_references,
             ),
             index=self.photoionization_index,
         )
-
-        # Lymann continuum handling
         integrated_cooling_coefficient.loc[(1, 0, 0)] = 0.0
 
         ion_cooling_factor = (
             thermal_electron_distribution.number_density.value
             * ion_population.loc[(1, 1)]
-        )  # Hydrogen ion population
-
-        spontaneous_recombination_cooling_rate = (
+        )
+        spontaneous_cooling_rate = (
             integrated_cooling_coefficient
             * level_population_ratio.loc[integrated_cooling_coefficient.index]
-            * ion_cooling_factor  # Hydrogen ion population
+            * ion_cooling_factor
         )
+        if stimulated_recombination_cooling_estimator is None:
+            return spontaneous_cooling_rate
 
-        if stimulated_recombination_cooling_estimator is not None:
-            stimulated_recombination_cooling_rate = (
-                stimulated_recombination_cooling_estimator
-                * level_population_ratio.loc[
-                    stimulated_recombination_cooling_estimator.index
-                ]
-                * ion_cooling_factor
-            )
-        else:
-            stimulated_recombination_cooling_rate = pd.DataFrame(
-                np.zeros(
-                    (len(spontaneous_recombination_cooling_rate), len(n_cells))
-                ),
-                index=spontaneous_recombination_cooling_rate.index,
-                columns=n_cells,
-            )
-
-        cooling_rate = (
-            spontaneous_recombination_cooling_rate
-            + stimulated_recombination_cooling_rate
-        ).sum()
-
-        return heating_rate, cooling_rate
+        stimulated_cooling_rate = (
+            stimulated_recombination_cooling_estimator
+            * level_population_ratio.loc[
+                stimulated_recombination_cooling_estimator.index
+            ]
+            * ion_cooling_factor
+        )
+        return spontaneous_cooling_rate + stimulated_cooling_rate
 
 
 class FreeFreeThermalRates:

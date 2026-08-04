@@ -12,6 +12,8 @@ from astropy.version import version as astropy_version
 from numba import njit
 
 from tardis import run_tardis
+from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
+from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
@@ -375,6 +377,35 @@ def pytest_sessionfinish(session, exitstatus):
         packet_pbar.close()
     if iterations_pbar is not None:
         iterations_pbar.close()
+
+
+@pytest.fixture
+def iip_atom_data(tardis_regression_path: Path) -> AtomData:
+    """Return legacy IIP atomic data configured for parity tests."""
+    # identical atomic data to that used by C Vogl
+    atom_data = AtomData.from_hdf(
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+
+    # need to set up macroatom and continuum data for ctardis plasma
+    atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
+
+    atom_data.continuum_data = ContinuumData(
+        atom_data, selected_continuum_species=[(1, 0)]
+    )
+
+    # matching prep in workflow
+    atom_data.continuum_data.photoionization_data.loc[(1, 0, 0), "x_sect"] *= (
+        0.0
+    )
+
+    atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
+    atom_data.nlte_data._init_indices()
+    atom_data.has_collision_data = False
+
+    return atom_data
 
 
 def _as_regression_dataframe(value: pd.DataFrame | pd.Series) -> pd.DataFrame:

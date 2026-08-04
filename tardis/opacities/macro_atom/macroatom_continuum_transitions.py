@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 
 from tardis import constants as const
+from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 K_B = const.k_B.cgs.value
-from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 
 def probability_recombination_internal(

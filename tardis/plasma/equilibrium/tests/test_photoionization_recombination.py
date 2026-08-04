@@ -97,12 +97,20 @@ def test_analytic_photoionization_rates_match_iip(
     # the test is intended to catch differences in grouping or normalization.
     # The implementations use the same integrand but different numerical
     # integration backends and constant sources.
-    npt.assert_allclose(gamma.to_numpy(), iip_gamma.to_numpy(), rtol=2e-7)
+    npt.assert_allclose(
+        gamma.loc[iip_gamma.index].to_numpy(),
+        iip_gamma.to_numpy(),
+        rtol=2e-7,
+    )
+    assert np.all(gamma.loc[(1, 0, 0)] == 0.0)
     # The stimulated-recombination paths use different cgs constant sources
     # and quadrature implementations.
     npt.assert_allclose(
-        alpha_stim.to_numpy(), iip_alpha_stim.to_numpy(), rtol=2e-6
+        alpha_stim.loc[iip_alpha_stim.index].to_numpy(),
+        iip_alpha_stim.to_numpy(),
+        rtol=2e-6,
     )
+    assert np.all(alpha_stim.loc[(1, 0, 0)] == 0.0)
 
 
 def test_zero_radiation_gives_zero_photoionization_and_stimulated_recombination(
@@ -146,7 +154,7 @@ def test_spontaneous_recombination_is_positive_and_lyman_suppression_is_explicit
     )
 
 
-def test_estimator_coefficients_reproduce_regression_inputs(
+def test_estimated_corrected_coefficient_reproduces_regression_inputs(
     tardis_regression_path: Path,
 ) -> None:
     edge_index = pd.MultiIndex.from_tuples(
@@ -181,18 +189,42 @@ def test_estimator_coefficients_reproduce_regression_inputs(
         * volume.to_value(u.cm**3)
         * const.h.cgs.value
     )
-    gamma, alpha_stim = EstimatedPhotoionizationCoeffSolver(
+    estimators_continuum = {
+        "photoionization_rate_estimator": (
+            estimators.photo_ion_estimator * normalization
+        ),
+        "stimulated_recombination_rate_estimator": (
+            estimators.stim_recomb_estimator * normalization
+        ),
+    }
+    level_population = pd.DataFrame(1.0, index=edge_index, columns=[0, 1])
+    lte_level_population = level_population.copy()
+    ion_population = pd.DataFrame(
+        1.0,
+        index=pd.MultiIndex.from_tuples(
+            [(1, 1)], names=["atomic_number", "ion_number"]
+        ),
+        columns=[0, 1],
+    )
+    lte_ion_population = ion_population.copy()
+
+    corrected_gamma = EstimatedPhotoionizationCoeffSolver(
         pd.Series([0, 1], index=edge_index)
-    ).solve(estimators, time_simulation, volume)
-    npt.assert_allclose(
-        gamma.to_numpy(),
-        photo_ion_estimator.to_numpy() * normalization,
+    ).solve(
+        estimators_continuum,
+        level_population,
+        lte_level_population,
+        ion_population,
+        lte_ion_population,
     )
+    expected_corrected_gamma = (
+        photo_ion_estimator - stim_recomb_estimator
+    ) * normalization
     npt.assert_allclose(
-        alpha_stim.to_numpy(),
-        stim_recomb_estimator.to_numpy() * normalization,
+        corrected_gamma.loc[edge_index].to_numpy(),
+        expected_corrected_gamma.to_numpy(),
     )
-    assert gamma.index.equals(edge_index)
+    assert np.all(corrected_gamma.loc[(1, 0, 0)] == 0.0)
 
 
 def test_bound_free_heating_and_cooling_match_independent_quadrature(

@@ -7,26 +7,25 @@ from numba import njit
 from scipy.interpolate import PchipInterpolator
 from scipy.special import exp1
 
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.plasma.array_util import get_ground_state_multi_index
+from tardis.plasma.equilibrium.rates.collision_strengths import (
+    A0,
+    BETA_COLL,
+    K_B,
+    M_E,
+    H,
+)
 from tardis.plasma.exceptions import IncompleteAtomicData
 from tardis.plasma.properties.base import (
     BaseAtomicDataProperty,
     HiddenPlasmaProperty,
     ProcessingPlasmaProperty,
 )
-from tardis import constants as const
-from tardis.plasma.equilibrium.rates.util import get_ground_state_multi_index
-
-A0 = const.a0.cgs.value
-BETA_COLL = (
-    const.h.cgs.value**4
-    / (8 * const.k_B.cgs.value * const.m_e.cgs.value**3 * np.pi**3)
-) ** 0.5
-K_B = const.k_B.cgs.value
-M_E = const.m_e.cgs.value
-H = const.h.cgs.value
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 logger = logging.getLogger(__name__)
+
+BETA_COLL = BETA_COLL.value
 
 __all__ = [
     "Levels",

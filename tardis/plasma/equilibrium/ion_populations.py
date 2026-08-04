@@ -2,6 +2,7 @@ import logging
 
 import astropy.units as u
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -9,7 +10,9 @@ logger = logging.getLogger(__name__)
 LOWER_ION_LEVEL_H = 0
 
 
-def get_lower_ion_level_index(level_population: pd.DataFrame):
+def get_lower_ion_level_index(
+    level_population: pd.DataFrame,
+) -> npt.NDArray[np.bool_]:
     """Return the mask for levels belonging to the lower ionization stage."""
     return (
         level_population.index.get_level_values("ion_number")
@@ -17,7 +20,9 @@ def get_lower_ion_level_index(level_population: pd.DataFrame):
     )
 
 
-def get_upper_ion_population_index(ion_population: pd.DataFrame):
+def get_upper_ion_population_index(
+    ion_population: pd.DataFrame,
+) -> npt.NDArray[np.bool_]:
     """Return the mask for ion populations above the lower ionization stage."""
     return (
         ion_population.index.get_level_values("ion_number") > LOWER_ION_LEVEL_H
@@ -27,8 +32,8 @@ def get_upper_ion_population_index(ion_population: pd.DataFrame):
 def calculate_level_to_ion_population_factor(
     level_population_at_lower_ion: pd.DataFrame,
     ion_population_at_upper_ion: pd.DataFrame,
-    electron_number_density,
-):
+    electron_number_density: u.Quantity,
+) -> pd.DataFrame:
     """Compute the Lucy 2003 Eq. 14 level-to-ion population factor."""
     return level_population_at_lower_ion / (
         ion_population_at_upper_ion.values * electron_number_density.value
@@ -36,6 +41,8 @@ def calculate_level_to_ion_population_factor(
 
 
 class AnalyticEquilibriumIonPopulationSolver:
+    """Solve ion populations using analytic radiative rates."""
+
     def __init__(
         self,
         rate_matrix_solver,
@@ -68,8 +75,9 @@ class AnalyticEquilibriumIonPopulationSolver:
         rate_matrix_index,
         charge_conservation=False,
     ):
-        """Constructs the balance vector for the NLTE ionization solver set of
-        equations by combining all solution vector blocks.
+        """Construct the balance vector for the NLTE ionization equations.
+
+        Combines all solution-vector blocks.
 
         Parameters
         ----------
@@ -203,6 +211,7 @@ class AnalyticEquilibriumIonPopulationSolver:
                 collision_recombination_rates_df,
                 charge_conservation,
             )
+            self.rates_matrices = rates_matrices
             solved_matrices = pd.DataFrame(
                 index=rates_matrices.index,
                 columns=rates_matrices.columns,
@@ -268,6 +277,8 @@ class AnalyticEquilibriumIonPopulationSolver:
 class EstimatedEquilibriumIonPopulationSolver(
     AnalyticEquilibriumIonPopulationSolver
 ):
+    """Solve ion populations using Monte Carlo rate estimators."""
+
     def solve(
         self,
         estimated_radiation_field,
@@ -367,6 +378,7 @@ class EstimatedEquilibriumIonPopulationSolver(
                 collision_recombination_rates_df,
                 charge_conservation,
             )
+            self.rates_matrices = rates_matrices
             solved_matrices = pd.DataFrame(
                 index=rates_matrices.index,
                 columns=rates_matrices.columns,
@@ -430,6 +442,8 @@ class EstimatedEquilibriumIonPopulationSolver(
 
 
 class LTEIonPopulationSolver(AnalyticEquilibriumIonPopulationSolver):
+    """Solve ion populations from LTE rate matrices."""
+
     def __init__(
         self,
         rate_matrix_solver,
@@ -496,6 +510,7 @@ class LTEIonPopulationSolver(AnalyticEquilibriumIonPopulationSolver):
                 new_electron_energy_distribution.number_density.value,
                 charge_conservation,
             )
+            self.rates_matrices = rates_matrices
             solved_matrices = pd.DataFrame(
                 index=rates_matrices.index,
                 columns=rates_matrices.columns,

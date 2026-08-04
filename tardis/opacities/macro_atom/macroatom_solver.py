@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
@@ -47,7 +48,7 @@ from tardis.opacities.macro_atom.macroatom_state import (
     LegacyMacroAtomState,
     MacroAtomState,
 )
-from tardis.plasma.equilibrium.rates.util import (
+from tardis.plasma.array_util import (
     get_ground_state_multi_index,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
@@ -796,7 +797,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
     line_interaction_type: str
     photoionization_data: pd.DataFrame
     ionization_energies: pd.Series
-    selected_continuum_transitions: np.ndarray
+    selected_continuum_transitions: npt.NDArray
 
     def __init__(
         self,
@@ -804,8 +805,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         lines: pd.DataFrame,
         photoionization_data: pd.DataFrame,
         ionization_energies: pd.Series,
-        selected_continuum_transitions: np.ndarray = np.array([]),
+        selected_continuum_transitions: npt.NDArray = np.array([]),
         line_interaction_type: str = "macroatom",
+        nthreads: int = 1,
     ) -> None:
         """
         Initialize the ContinuumMacroAtomSolver.
@@ -825,6 +827,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             If empty, all photoionization transitions are included.
         line_interaction_type
             Type of line interaction to use. Default is "macroatom".
+        nthreads
+            Maximum number of worker threads for shell-independent opacity
+            calculations.
         """
         super().__init__(
             lines=lines,
@@ -837,15 +842,13 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
 
         if selected_continuum_transitions.size > 0:
-            selected_continuum_transitions = [
+            selected_continuum_transition_tuples = [
                 tuple(transition)
-                for transition in np.asarray(
-                    selected_continuum_transitions
-                ).tolist()
+                for transition in selected_continuum_transitions.tolist()
             ]
             included_species = photoionization_data.index.droplevel(
                 "level_number"
-            ).isin(selected_continuum_transitions)
+            ).isin(selected_continuum_transition_tuples)
             self.photoionization_data = photoionization_data[included_species]
         else:
             self.photoionization_data = photoionization_data
@@ -858,6 +861,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         #     self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
         # )
         self.ionization_energies = ionization_energies
+        self.nthreads = nthreads
 
     def solve(
         self,
@@ -1307,7 +1311,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities, macro_atom_transition_metadata
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            max_workers=self.nthreads,
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
@@ -1638,7 +1644,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities, macro_atom_transition_metadata
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            max_workers=self.nthreads,
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata

@@ -6,9 +6,11 @@ import numpy as np
 import pandas as pd
 from scipy import interpolate
 
+from tardis.plasma.array_util import (
+    get_ion_multi_index,
+)
 from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
-from tardis.plasma.equilibrium.rates.util import get_ion_multi_index
 
 logger = logging.getLogger(__name__)
 

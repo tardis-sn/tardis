@@ -17,6 +17,7 @@ from tardis.plasma.equilibrium.rates import (
     ThermalCollisionalRateSolver,
 )
 from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
+    BoundFreeThermalRates,
     FreeFreeThermalRates,
 )
 
@@ -50,8 +51,14 @@ def _normalize_rows(rates: pd.DataFrame) -> tuple[pd.Series, np.ndarray]:
     return total.to_numpy(), probabilities.to_numpy().T
 
 
-def _macro_atom_collisional_index(index: pd.Index) -> pd.Index:
+def _macro_atom_collisional_index(
+    index: pd.Index, *, reverse: bool = False
+) -> pd.Index:
     """Use the transition-level names expected by macro-atom kernels."""
+    if reverse:
+        index = index.swaplevel(
+            "level_number_source", "level_number_destination"
+        )
     redundant_levels = [
         level
         for level in ("ion_number_source", "ion_number_destination")
@@ -59,12 +66,18 @@ def _macro_atom_collisional_index(index: pd.Index) -> pd.Index:
     ]
     if redundant_levels:
         index = index.droplevel(redundant_levels)
-    return index.rename(
+    level_names = (
         {
+            "level_number_source": "level_number_upper",
+            "level_number_destination": "level_number_lower",
+        }
+        if reverse
+        else {
             "level_number_source": "level_number_lower",
             "level_number_destination": "level_number_upper",
         }
     )
+    return index.rename(level_names)
 
 
 @dataclass
@@ -77,7 +90,7 @@ class EquilibriumContinuumState:
     collisional_deexcitation_rate: pd.DataFrame
     collisional_ionization_rate: pd.DataFrame
     collisional_recombination_rate: pd.DataFrame
-    delta_E_yg: pd.Series
+    delta_E_yg: pd.Series  # noqa: N815 - retained continuum-state field name
     collisional_excitation_cooling_probability: pd.Series
     collisional_excitation_cooling_array: np.ndarray
     collisional_excitation_references: pd.Index
@@ -88,7 +101,11 @@ class EquilibriumContinuumState:
     free_free_cooling_probability: pd.Series
 
     @classmethod
-    def from_plasma(cls, plasma, estimators=None):
+    def from_plasma(
+        cls,
+        plasma: object,
+        estimators: dict[str, object] | None = None,
+    ) -> EquilibriumContinuumState:
         """Build continuum inputs from standard equilibrium-plasma outputs."""
         electron_distribution = ThermalElectronEnergyDistribution(
             0 * u.erg,
@@ -132,6 +149,21 @@ class EquilibriumContinuumState:
         spontaneous = SpontaneousRecombinationCoeffSolver(photo_data).solve(
             electron_distribution.temperature
         )
+        lower_ions = spontaneous.index.droplevel("level_number")
+        upper_ions = pd.MultiIndex.from_arrays(
+            [
+                lower_ions.get_level_values("atomic_number"),
+                lower_ions.get_level_values("ion_number") + 1,
+            ],
+            names=["atomic_number", "ion_number"],
+        )
+        level_factor = plasma.lte_level_number_density.loc[
+            spontaneous.index
+        ].divide(
+            plasma.lte_ion_number_density.loc[upper_ions].to_numpy()
+            * electron_distribution.number_density.value
+        )
+        radiative_recombination_rate = spontaneous * level_factor
 
         lines = plasma.atomic_data.lines
         collisional_solver = ThermalCollisionalRateSolver(
@@ -155,12 +187,6 @@ class EquilibriumContinuumState:
         collisional_ionization_rate = CollisionalIonizationSeaton(
             photo_data
         ).solve(electron_distribution.temperature)
-        level_factor = plasma.lte_level_number_density / (
-            plasma.lte_ion_number_density.loc[
-                plasma.lte_level_number_density.index.droplevel(2)
-            ].values
-            * electron_distribution.number_density.value
-        )
         collisional_recombination_rate = collisional_ionization_rate.multiply(
             level_factor.loc[collisional_ionization_rate.index]
         )
@@ -206,25 +232,18 @@ class EquilibriumContinuumState:
                 np.newaxis,
             ]
         )
-        lower_ions = spontaneous.index.droplevel(2)
-        upper_ions = pd.MultiIndex.from_arrays(
-            [
-                lower_ions.get_level_values(0),
-                lower_ions.get_level_values(1) + 1,
-            ]
+        stimulated_cooling_estimator = (
+            None
+            if estimators is None
+            else estimators.get("stimulated_recombination_cooling_estimator")
         )
-        ionization_index = upper_ions.set_names(["atomic_number", "ion_number"])
-        recombination_energy = (
-            plasma.atomic_data.ionization_data.loc[ionization_index].values
-            - level_energy.loc[spontaneous.index].values
-        )
-        recombination_cooling = (
-            spontaneous
-            * plasma.lte_level_number_density.loc[spontaneous.index]
-            / plasma.lte_ion_number_density.loc[lower_ions].values
-            * plasma.ion_number_density.loc[upper_ions].values
-            * electron_distribution.number_density.value
-            * recombination_energy[:, np.newaxis]
+        recombination_cooling = BoundFreeThermalRates(
+            photo_data
+        ).calculate_cooling_rate(
+            plasma.ion_number_density,
+            electron_distribution,
+            level_factor,
+            stimulated_cooling_estimator,
         )
 
         exc_total, exc_array = _normalize_rows(excitation_cooling)
@@ -248,7 +267,8 @@ class EquilibriumContinuumState:
             collisional_excitation_rate.index
         )
         collisional_deexcitation_rate.index = _macro_atom_collisional_index(
-            collisional_deexcitation_rate.index
+            collisional_deexcitation_rate.index,
+            reverse=True,
         )
         deexc_index = collisional_deexcitation_rate.index
         deexc_lower = pd.MultiIndex.from_arrays(
@@ -283,7 +303,7 @@ class EquilibriumContinuumState:
 
         return cls(
             radiative_ionization_rate,
-            spontaneous,
+            radiative_recombination_rate,
             collisional_excitation_rate,
             collisional_deexcitation_rate,
             collisional_ionization_rate,

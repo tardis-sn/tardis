@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from astropy import units as u
 from scipy.interpolate import interp1d
@@ -12,6 +13,7 @@ from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
+    LegacyMacroAtomSolver,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.opacities.opacity_state_continuum import (
@@ -159,6 +161,7 @@ class TypeIIPWorkflow:
             line_interaction_type=line_interaction_type,
             nthreads=configuration.montecarlo.nthreads,
         )
+        self.legacy_macro_atom_solver = LegacyMacroAtomSolver(normalize=False)
         self._synchronize_plasma_contract()
 
         self.transport_state = None
@@ -497,8 +500,10 @@ class TypeIIPWorkflow:
         )
 
     def thermal_balance_iteration(
-        self, initial_guess, max_electron_number_density
-    ):
+        self,
+        initial_guess: npt.NDArray[np.float64],
+        max_electron_number_density: npt.NDArray[np.float64],
+    ) -> npt.NDArray[np.float64]:
         """Compute the thermal balance of the plasma
 
         Parameters
@@ -524,18 +529,31 @@ class TypeIIPWorkflow:
 
         pl = self.plasma_solver
 
-        electron_densities = pd.Series(
-            max_electron_number_density * electron_density_fraction,
-            index=self.plasma_solver.electron_densities.index,
+        electron_densities = (
+            max_electron_number_density * electron_density_fraction
         )
 
-        self.plasma_solver.update(
-            previous_ion_number_density=pl.ion_number_density.copy(),
-            previous_electron_densities=electron_densities,
-            previous_level_number_density=pl.level_number_density.copy(),
-            link_t_rad_t_electron=link_t_rad_t_electron,
-            iteration=1,
-        )
+        update_kwargs = {
+            "previous_ion_number_density": pl.ion_number_density.copy(),
+            "previous_electron_densities": electron_densities,
+            "link_t_rad_t_electron": link_t_rad_t_electron,
+        }
+        if "previous_beta_sobolev" in self.plasma_solver.outputs_dict:
+            update_kwargs.update(
+                previous_beta_sobolev=pl.beta_sobolev.copy(),
+                previous_b=pl.b,
+                previous_t_electrons=pl.t_rad * link_t_rad_t_electron,
+            )
+        else:
+            update_kwargs.update(
+                previous_electron_densities=pd.Series(
+                    electron_densities,
+                    index=self.plasma_solver.electron_densities.index,
+                ),
+                previous_level_number_density=(pl.level_number_density.copy()),
+                iteration=1,
+            )
+        self.plasma_solver.update(**update_kwargs)
 
         solution = np.zeros(2 * len(self.plasma_solver.fractional_heating))
         normalized_electron_fraction_change = (
@@ -656,9 +674,7 @@ class TypeIIPWorkflow:
                 "clipping to bounds: %s",
                 offending_values,
             )
-            initial_guess = np.clip(
-                initial_guess, lower_bound, upper_bound
-            )
+            initial_guess = np.clip(initial_guess, lower_bound, upper_bound)
 
         self.plasma_solver.plasma_converged = False
         thermal_lsq_result = lsq(
@@ -705,16 +721,24 @@ class TypeIIPWorkflow:
         )
         self._synchronize_plasma_contract()
 
-    def _synchronize_plasma_contract(self):
-        """Expose structured continuum outputs on the standard plasma."""
+    def _synchronize_plasma_contract(self) -> None:
+        """Expose continuum and legacy macro-atom outputs on the plasma."""
         self.plasma_solver.p_fb_deactivation = (
             self.continuum_opacity_state.p_fb_deactivation
         )
         self.plasma_solver.chi_bf = self.continuum_opacity_state.chi_bf
-        if hasattr(self, "macro_atom_solver"):
-            macro_atom_state = self.solve_macro_atom_state()
+        if hasattr(self, "legacy_macro_atom_solver"):
             self.plasma_solver.transition_probabilities = (
-                macro_atom_state.transition_probabilities
+                self.legacy_macro_atom_solver.solve_transition_probabilities(
+                    self.atom_data,
+                    pd.DataFrame(
+                        self.plasma_solver.j_blues,
+                        index=self.plasma_solver.lines.index,
+                    ),
+                    self.plasma_solver.tau_sobolevs,
+                    self.plasma_solver.beta_sobolev,
+                    self.plasma_solver.stimulated_emission_factor,
+                )
             )
 
     def normalize_continuum_estimators(

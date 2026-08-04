@@ -1,25 +1,6 @@
 import pandas as pd
 
 
-def get_ground_state_multi_index(multi_index_full: pd.MultiIndex):
-    """Return the ground-state index of the next ionization stage."""
-    atomic_number = multi_index_full.get_level_values(0)
-    ion_number = multi_index_full.get_level_values(1) + 1
-    level_number = ion_number * 0
-    return pd.MultiIndex.from_arrays([atomic_number, ion_number, level_number])
-
-
-def get_ion_multi_index(
-    multi_index_full: pd.MultiIndex, next_higher: bool = True
-):
-    """Convert a level index to its corresponding ion index."""
-    atomic_number = multi_index_full.get_level_values(0)
-    ion_number = multi_index_full.get_level_values(1)
-    if next_higher:
-        ion_number = ion_number + 1
-    return pd.MultiIndex.from_arrays([atomic_number, ion_number])
-
-
 def reindex_ionization_rate_dataframe(
     rate_dataframe: pd.DataFrame, recombination=False
 ):
