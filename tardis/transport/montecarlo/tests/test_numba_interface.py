@@ -1,13 +1,8 @@
 import numpy as np
 import numpy.testing as npt
 import pytest
-from astropy import units as u
 
 import tardis.opacities.opacity_state as numba_interface
-from tardis.transport.montecarlo.configuration.base import (
-    MonteCarloConfiguration,
-    configuration_initialize,
-)
 
 
 @pytest.mark.parametrize(
