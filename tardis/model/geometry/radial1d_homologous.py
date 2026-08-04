@@ -189,6 +189,7 @@ numba_geometry_spec = [
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
     ("time_explosion", float64),
+    ("velocity_gradient", float64),
     ("volume", float64[:]),
 ]
 
@@ -202,6 +203,7 @@ class NumbaHomologousRadial1DGeometry:
         self.v_inner = v_inner
         self.v_outer = v_outer
         self.time_explosion = time_explosion
+        self.velocity_gradient = 1.0 / self.time_explosion
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
     def get_velocity(self, r: float, shell_id: int) -> float:

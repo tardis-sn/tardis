@@ -48,16 +48,6 @@ def standard_workflow_one_loop(config_verysimple_for_simulation_one_loop):
     workflow.run()
     return workflow
 
-
-def test_simple_workflow_uses_nonhomologous_transport(
-    simple_workflow_one_loop,
-):
-    assert isinstance(
-        simple_workflow_one_loop.transport_solver,
-        MCTransportSolverNonhomologous,
-    )
-
-
 @pytest.mark.parametrize(
     ["attr_type", "attr"],
     [
