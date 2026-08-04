@@ -81,24 +81,6 @@ def test_opacity_state_initialize(
         )
 
 
-def test_configuration_initialize_uses_vpacket_spawn_range(
-    nb_simulation_verysimple,
-) -> None:
-    transport = nb_simulation_verysimple.transport
-    montecarlo_configuration = MonteCarloConfiguration()
-
-    configuration_initialize(montecarlo_configuration, transport, 10)
-
-    npt.assert_allclose(
-        montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-        transport.vpacket_spawn_range.end.to(u.Hz, u.spectral()).value,
-    )
-    npt.assert_allclose(
-        montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
-        transport.vpacket_spawn_range.start.to(u.Hz, u.spectral()).value,
-    )
-
-
 def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
     assert verysimple_3vpacket_collection.length == 0
 

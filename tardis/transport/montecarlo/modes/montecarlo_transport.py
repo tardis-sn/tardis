@@ -136,6 +136,7 @@ def create_vpacket_collections(
         Number of real packets.
     spectrum_frequency_grid : numpy.ndarray
         Frequency-bin edges for the real- and virtual-packet histograms.
+        n + 1 edges for n bins, with uniform spacing.
     montecarlo_configuration : MonteCarloConfiguration
         Monte Carlo transport configuration.
     number_of_vpackets : int

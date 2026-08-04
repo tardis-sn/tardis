@@ -9,7 +9,7 @@ Finally, the spectrum configuration tells TARDIS information needed for spectrum
 .. jsonschema:: schemas/spectrum.yml
 
 ``start`` and ``stop`` are given as wavelength values with units. They define
-the frequency-bin grid used for the real- and virtual-packet histograms and for
+the boundaries of the frequency grid used for the real- and virtual-packet histograms and for
 the generated spectrum. The histogram range is independent of the range that
 controls which R-packets may spawn virtual packets.
 ``num`` specifies the number of bins used to build the spectrum and must be given as an integer. 
