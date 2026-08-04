@@ -5,7 +5,9 @@ from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.readers.base import read_density_file
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    HomologousRadial1DGeometry,
+)
 from tardis.util.base import quantity_linspace
 
 
@@ -82,7 +84,7 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
     Returns
     -------
     HomologousRadial1DGeometry
-        The parsed geometry.
+        The parsed homologous geometry.
     """
     (
         density_time,
@@ -93,8 +95,8 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
     ) = parse_structure_from_config(config)
 
     return HomologousRadial1DGeometry(
-        velocity[:-1],  # v_inner
-        velocity[1:],  # v_outer
+        velocity[:-1],
+        velocity[1:],
         v_inner_boundary=config.model.structure.get("v_inner_boundary", None),
         v_outer_boundary=config.model.structure.get("v_outer_boundary", None),
         time_explosion=time_explosion,
@@ -123,7 +125,7 @@ def parse_geometry_from_csvy(
     Returns
     -------
     HomologousRadial1DGeometry
-        The parsed geometry.
+        The parsed homologous geometry.
 
     Notes
     -----
@@ -131,19 +133,9 @@ def parse_geometry_from_csvy(
     information from the CSVY model configuration or data. The parsed velocity data is
     used to create a homologous radial 1D geometry object, which is returned.
     """
-    if hasattr(config, "model"):
-        if hasattr(config.model, "v_inner_boundary"):
-            v_inner_boundary = config.model.v_inner_boundary
-        else:
-            v_inner_boundary = None
-
-        if hasattr(config.model, "v_outer_boundary"):
-            v_outer_boundary = config.model.v_outer_boundary
-        else:
-            v_outer_boundary = None
-    else:
-        v_inner_boundary = None
-        v_outer_boundary = None
+    model = getattr(config, "model", None)
+    v_inner_boundary = getattr(model, "v_inner_boundary", None)
+    v_outer_boundary = getattr(model, "v_outer_boundary", None)
 
     if hasattr(csvy_model_config, "velocity"):
         velocity = quantity_linspace(
@@ -162,8 +154,8 @@ def parse_geometry_from_csvy(
         velocity = velocity.to("cm/s")
 
     geometry = HomologousRadial1DGeometry(
-        velocity[:-1],  # v_inner
-        velocity[1:],  # v_outer
+        velocity[:-1],
+        velocity[1:],
         v_inner_boundary=v_inner_boundary,
         v_outer_boundary=v_outer_boundary,
         time_explosion=time_explosion,

@@ -5,6 +5,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
+from tardis.model.geometry.radial1d import Radial1DGeometry
 
 
 @dataclass
@@ -35,9 +36,11 @@ class CSVYData:
     isotope_mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
     raw_csv_data: pd.DataFrame | None = None
 
-    def to_geometry(self, time_explosion: u.Quantity | None = None):
+    def to_geometry(
+        self, time_explosion: u.Quantity | None = None
+    ) -> Radial1DGeometry:
         """
-        Construct a HomologousRadial1DGeometry object from this CSVYData.
+        Construct a Radial1DGeometry object from this CSVYData.
 
         Parameters
         ----------
@@ -46,11 +49,9 @@ class CSVYData:
 
         Returns
         -------
-        HomologousRadial1DGeometry
+        Radial1DGeometry
             The geometry object constructed from the CSVY data.
         """
-        from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
-
         if time_explosion is None:
             # Try to extract time_explosion from model_config
             if hasattr(self.model_config, "time_explosion"):
@@ -58,11 +59,16 @@ class CSVYData:
                 if not isinstance(time_explosion, u.Quantity):
                     time_explosion = u.Quantity(time_explosion)
 
-        geometry = HomologousRadial1DGeometry(
-            v_inner=self.velocity[:-1],
-            v_outer=self.velocity[1:],
+        v_inner = self.velocity[:-1]
+        v_outer = self.velocity[1:]
+        geometry = Radial1DGeometry(
+            r_inner=(v_inner * time_explosion).cgs,
+            r_outer=(v_outer * time_explosion).cgs,
+            v_inner=v_inner,
+            v_outer=v_outer,
+            r_inner_boundary=None,
+            r_outer_boundary=None,
             v_inner_boundary=None,
             v_outer_boundary=None,
-            time_explosion=time_explosion,
         )
         return geometry

@@ -3,6 +3,9 @@ import pandas as pd
 import pytest
 from astropy import units as u
 
+from tardis.transport.montecarlo.modes.nonhomologous.solver import (
+    MCTransportSolverNonhomologous,
+)
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
@@ -44,7 +47,6 @@ def standard_workflow_one_loop(config_verysimple_for_simulation_one_loop):
     workflow = StandardTARDISWorkflow(config_verysimple_for_simulation_one_loop)
     workflow.run()
     return workflow
-
 
 @pytest.mark.parametrize(
     ["attr_type", "attr"],

@@ -69,7 +69,7 @@ def bound_free_emission(
     Parameters
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : NumbaNonhomologousRadial1DGeometry
+    geometry : NumbaRadial1DGeometry
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     continuum_id : int
     """
@@ -102,7 +102,7 @@ def bf_cooling(r_packet, geometry, opacity_state, enable_full_relativity):
     Parameters
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : NumbaNonhomologousRadial1DGeometry
+    geometry : NumbaRadial1DGeometry
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
     fb_cooling_prob = opacity_state.p_fb_deactivation[
@@ -160,7 +160,7 @@ def free_free_emission(
     Parameters
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : NumbaNonhomologousRadial1DGeometry
+    geometry : NumbaRadial1DGeometry
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
@@ -238,7 +238,7 @@ def line_emission(
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
     emission_line_id : int
-    geometry : NumbaNonhomologousRadial1DGeometry
+    geometry : NumbaRadial1DGeometry
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
     if emission_line_id != r_packet.next_line_id:

@@ -1,15 +1,18 @@
+from typing import Tuple
+
 import numpy as np
 from numba import njit, prange
-from typing import Tuple
 from numpy.typing import NDArray
 
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
 from tardis.spectrum.formal_integral.base import (
     C_INV,
     BoundsError,
     calculate_impact_parameters,
     intensity_black_body,
 )
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
@@ -51,7 +54,7 @@ def calculate_intersection_point(
 
 @njit(**njit_dict_no_parallel)
 def populate_intersection_points(
-    geometry: NumbaRadial1DGeometry,
+    geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
     impact_parameter: float,
     intersection_points: NDArray[np.float64],
@@ -190,7 +193,7 @@ def initialize_formal_integral_inputs(
     frequencies: NDArray[np.float64],
     inner_temperature: float,
     n_impact_parameters: int,
-    geometry: NumbaRadial1DGeometry,
+    geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
     tau_sobolev: NDArray[np.float64],
 ) -> Tuple[
@@ -372,7 +375,7 @@ def get_electron_scattering_optical_depth(
 
 @njit(**njit_dict)
 def numba_formal_integral(
-    geometry: NumbaRadial1DGeometry,
+    geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
     plasma,
     inner_temperature: float,
@@ -575,7 +578,7 @@ class NumbaFormalIntegrator:
 
     def __init__(
         self,
-        geometry: NumbaRadial1DGeometry,
+        geometry: NumbaHomologousRadial1DGeometry,
         time_explosion: float,
         plasma,
         n_impact_parameters: int = 1000,
