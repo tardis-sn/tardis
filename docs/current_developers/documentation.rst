@@ -23,6 +23,11 @@ TARDIS follows the NumPy docstring format:
 
 https://numpydoc.readthedocs.io/en/latest/format.html
 
+The codestyle workflow requires changed Python lines to follow the repository's
+Ruff configuration. This includes rules ``D101``, ``D102``, and ``D103`` for
+changed public class, method, and function definitions. Contributors are not
+required to resolve unrelated legacy omissions on untouched lines.
+
 Sphinx uses docstrings to auto-generate API documentation:
 
 https://tardis-sn.github.io/tardis/api/modules.html
@@ -201,7 +206,8 @@ The built documentation is available at:
    https://tardis-sn.github.io/tardis/pull/<pull request number>/index.html
 
 
-It is also linked automatically in pull request comments.
+The pull request comment reports the documentation build and deployment
+outcomes separately. It links the preview after the deployment step succeeds.
 
 To view build logs, go to the Actions tab in the TARDIS repository and select
 the ``docs`` workflow. Search documentation builds by branch to find the relevant

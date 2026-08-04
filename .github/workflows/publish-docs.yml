@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: gh-pages
+      PR_SHA: ${{ github.event.workflow_run.head_sha }}
     steps:
       - name: Get PR number
         id: pr
@@ -70,6 +71,7 @@ jobs:
           path: ${{ runner.temp }}/docs-artifact
 
       - name: Deploy documentation
+        id: deploy
         if: github.event.workflow_run.conclusion == 'success' && steps.policy.outputs.should-publish == 'true'
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -83,15 +85,15 @@ jobs:
           user_email: "tardis.sn.bot@gmail.com"
 
       - name: Find documentation preview comment
-        if: steps.policy.outputs.should-publish == 'true'
+        if: always() && steps.policy.outputs.should-publish == 'true'
         uses: peter-evans/find-comment@v4
         id: fc
         with:
           issue-number: ${{ steps.pr.outputs.number }}
           body-includes: The **docs** workflow has
 
-      - name: Post comment (success)
-        if: github.event.workflow_run.conclusion == 'success' && steps.policy.outputs.should-publish == 'true'
+      - name: Post documentation preview status
+        if: always() && steps.policy.outputs.should-publish == 'true'
         uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
@@ -100,30 +102,11 @@ jobs:
           edit-mode: replace
           body: |
             <!-- tardis:docs-preview -->
-            *\*beep\* \*bop\**
 
-            Hi, human.
+            The **docs** workflow has completed with these results:
 
-            The **docs** workflow has **succeeded** :heavy_check_mark:
+            - Build: **${{ github.event.workflow_run.conclusion }}**
 
             [View the documentation preview](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ steps.pr.outputs.number }}/index.html).
-
-            Runs: [build and test](${{ github.event.workflow_run.html_url }}) · [publish](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
-      - name: Post comment (failure)
-        if: github.event.workflow_run.conclusion != 'success' && steps.policy.outputs.should-publish == 'true'
-        uses: peter-evans/create-or-update-comment@v5
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ steps.pr.outputs.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            <!-- tardis:docs-preview -->
-            *\*beep\* \*bop\**
-
-            Hi, human.
-
-            The **docs** workflow has **failed** :x:
 
             Runs: [build and test](${{ github.event.workflow_run.html_url }}) · [publish](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

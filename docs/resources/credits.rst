@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_21581237
+.. |CITATION| replace:: kerzendorf_2026_21753304
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.1581237-blue
-                 :target: https://doi.org/10.5281/zenodo.1581237
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.1753304-blue
+                 :target: https://doi.org/10.5281/zenodo.1753304
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_21581237,
+    @software{kerzendorf_2026_21753304,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -143,9 +143,9 @@ The following BibTeX entries are needed for the references:
                       Bartnik, Matthew and
                       Srivastava, Sarthak and
                       Alam, Arib and
+                      Saraf, Shreyans and
                       Varma Buddaraju, Rohith and
                       Magee, Mark and
-                      Saraf, Shreyans and
                       Daksh, Ayushi and
                       Livneh, Ran and
                       Kambham, Satwik and
@@ -207,11 +207,11 @@ The following BibTeX entries are needed for the references:
                       Kunisetty, Saanvi and
                       Sharma, Sampark and
                       Venkat, Shashank},
-      title        = {tardis-sn/tardis: TARDIS v2026.07.26},
-      month        = jul,
+      title        = {tardis-sn/tardis: TARDIS v2026.08.02},
+      month        = aug,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.07.26},
-      doi          = {10.5281/zenodo.21581237},
-      url          = {https://doi.org/10.5281/zenodo.21581237},
+      version      = {release-2026.08.02},
+      doi          = {10.5281/zenodo.21753304},
+      url          = {https://doi.org/10.5281/zenodo.21753304},
     }
