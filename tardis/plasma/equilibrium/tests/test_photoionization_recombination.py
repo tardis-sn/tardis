@@ -102,7 +102,7 @@ def test_analytic_photoionization_rates_match_iip(
         iip_gamma.to_numpy(),
         rtol=2e-7,
     )
-    assert np.all(gamma.loc[(1, 0, 0)] == 0.0)
+    assert (1, 0, 0) not in gamma.index
     # The stimulated-recombination paths use different cgs constant sources
     # and quadrature implementations.
     npt.assert_allclose(
@@ -110,7 +110,7 @@ def test_analytic_photoionization_rates_match_iip(
         iip_alpha_stim.to_numpy(),
         rtol=2e-6,
     )
-    assert np.all(alpha_stim.loc[(1, 0, 0)] == 0.0)
+    assert (1, 0, 0) not in alpha_stim.index
 
 
 def test_zero_radiation_gives_zero_photoionization_and_stimulated_recombination(
@@ -210,7 +210,7 @@ def test_estimated_corrected_coefficient_reproduces_regression_inputs(
 
     corrected_gamma = EstimatedPhotoionizationCoeffSolver(
         pd.Series([0, 1], index=edge_index)
-    ).solve(
+    ).solve_corrected(
         estimators_continuum,
         level_population,
         lte_level_population,
@@ -224,7 +224,7 @@ def test_estimated_corrected_coefficient_reproduces_regression_inputs(
         corrected_gamma.loc[edge_index].to_numpy(),
         expected_corrected_gamma.to_numpy(),
     )
-    assert np.all(corrected_gamma.loc[(1, 0, 0)] == 0.0)
+    assert (1, 0, 0) not in corrected_gamma.index
 
 
 def test_bound_free_heating_and_cooling_match_independent_quadrature(

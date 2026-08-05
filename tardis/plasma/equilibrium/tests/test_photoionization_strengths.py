@@ -9,6 +9,7 @@ from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticPhotoionizationCoeffSolver,
     EstimatedPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
+    apply_lte_level_to_ion_factor,
 )
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -178,25 +179,11 @@ def test_estimated_photoionization_coeff_solver():
         "stimulated_recombination_rate_estimator": estimator_state.stim_recomb_estimator,
     }
 
-    lte_level_population = pd.DataFrame(
-        1.0, index=photoionization_index, columns=[0]
-    )
-    level_population = lte_level_population.copy()
-    ion_population = pd.DataFrame(
-        1.0,
-        index=pd.MultiIndex.from_tuples(
-            [(1, 1), (1, 2)], names=["atomic_number", "ion_number"]
-        ),
-        columns=[0],
-    )
-    lte_ion_population = ion_population.copy()
-
-    actual_photoionization_rate_coeff = solver.solve(
+    (
+        actual_photoionization_rate_coeff,
+        actual_stimulated_recombination_rate_coeff,
+    ) = solver.solve(
         estimators_continuum,
-        level_population,
-        lte_level_population,
-        ion_population,
-        lte_ion_population,
     )
 
     assert isinstance(actual_photoionization_rate_coeff, pd.DataFrame)
@@ -204,7 +191,7 @@ def test_estimated_photoionization_coeff_solver():
         level2continuum_edge_idx
     )
     expected_photoionization_rate_coeff = pd.DataFrame(
-        [[0.0], [1.8e-5], [2.7e-5]],
+        [[0.0], [2.0e-5], [3.0e-5]],
         index=photoionization_index,
         columns=pd.Index([0], name="Shell No."),
     )
@@ -213,4 +200,91 @@ def test_estimated_photoionization_coeff_solver():
         expected_photoionization_rate_coeff,
         atol=0,
         rtol=1e-15,
+    )
+    expected_stimulated_recombination_rate_coeff = pd.DataFrame(
+        [[0.0], [2.0e-6], [3.0e-6]],
+        index=photoionization_index,
+        columns=pd.Index([0], name="Shell No."),
+    )
+    pdt.assert_frame_equal(
+        actual_stimulated_recombination_rate_coeff,
+        expected_stimulated_recombination_rate_coeff,
+        atol=0,
+        rtol=1e-15,
+    )
+
+
+def test_estimated_solver_exposes_raw_coefficients_without_population_correction():
+    photoionization_index = pd.MultiIndex.from_tuples(
+        [(2, 0, 0)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    level2continuum_edge_idx = pd.Series([0], index=photoionization_index)
+    solver = EstimatedPhotoionizationCoeffSolver(level2continuum_edge_idx)
+
+    estimators_continuum = {
+        "photoionization_rate_estimator": pd.DataFrame(
+            [[5.0]], index=photoionization_index, columns=[0]
+        ),
+        "stimulated_recombination_rate_estimator": pd.DataFrame(
+            [[2.0]], index=photoionization_index, columns=[0]
+        ),
+    }
+    photoionization, stimulated_recombination = solver.solve(
+        estimators_continuum,
+    )
+
+    pdt.assert_frame_equal(
+        photoionization,
+        estimators_continuum["photoionization_rate_estimator"].set_axis(
+            pd.Index([0], name="Shell No."), axis=1
+        ),
+    )
+    pdt.assert_frame_equal(
+        stimulated_recombination,
+        estimators_continuum[
+            "stimulated_recombination_rate_estimator"
+        ].set_axis(pd.Index([0], name="Shell No."), axis=1),
+    )
+
+
+def test_photoionization_solver_does_not_add_hydrogen_policy_rows_to_helium(
+    mock_photoionization_cross_sections,
+):
+    helium_index = pd.MultiIndex.from_tuples(
+        [(2, 0, 0)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    helium_cross_sections = mock_photoionization_cross_sections.copy()
+    helium_cross_sections.index = helium_index.repeat(2)
+    solver = AnalyticPhotoionizationCoeffSolver(helium_cross_sections)
+    radiation_field = DilutePlanckianRadiationField(
+        np.array([10000.0, 10000.0]) * u.K, np.ones(2)
+    )
+
+    gamma, stimulated_recombination = solver.solve(
+        radiation_field, np.array([10000.0, 10000.0]) * u.K
+    )
+
+    assert list(gamma.index) == [(2, 0, 0)]
+    assert list(stimulated_recombination.index) == [(2, 0, 0)]
+
+
+def test_lucy_recombination_factor_is_applied_once():
+    index = pd.MultiIndex.from_tuples(
+        [(1, 0, 1)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    raw_coefficient = pd.DataFrame([[2.0]], index=index, columns=[0])
+    phi_ik = pd.DataFrame([[3.0]], index=index, columns=[0])
+
+    actual = apply_lte_level_to_ion_factor(raw_coefficient, phi_ik)
+
+    pdt.assert_frame_equal(
+        actual,
+        pd.DataFrame([[6.0]], index=index, columns=[0]),
+    )
+    pdt.assert_frame_equal(
+        raw_coefficient,
+        pd.DataFrame([[2.0]], index=index, columns=[0]),
     )

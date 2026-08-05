@@ -1,14 +1,13 @@
 import astropy.units as u
+import numpy as np
 import pandas as pd
 import pandas.testing as pdt
 import pytest
 
-from tardis.io.atom_data import AtomData
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
 from tardis.plasma.radiation_field.planck_rad_field import (
     PlanckianRadiationField,
 )
-
 
 invalid_index_df = pd.DataFrame(
     {
@@ -18,7 +17,7 @@ invalid_index_df = pd.DataFrame(
         "nu": [3e15],
     },
     index=pd.MultiIndex.from_tuples(
-        [(1, 0, 0, 1)],  
+        [(1, 0, 0, 1)],
         names=[
             "atomic_num",
             "ion_numb",
@@ -35,7 +34,7 @@ invalid_column_df = pd.DataFrame(
         "B_lu": [2e-19],
     },
     index=pd.MultiIndex.from_tuples(
-        [(1, 0, 0, 1)],  
+        [(1, 0, 0, 1)],
         names=[
             "atomic_number",
             "ion_number",
@@ -53,7 +52,7 @@ invalid_lower_higher_df = pd.DataFrame(
         "nu": [3e15],
     },
     index=pd.MultiIndex.from_tuples(
-        [(1, 0, 2, 1)],  
+        [(1, 0, 2, 1)],
         names=[
             "atomic_number",
             "ion_number",
@@ -99,7 +98,31 @@ def test_radiative_rate_solver_solve(new_chianti_atomic_dataset, mock_radiation_
     )
     pdt.assert_frame_equal(actual_radiative_rates,expected_radiative_rates,atol=0,rtol=1e-15)
 
+
+def test_radiative_rate_solver_applies_sobolev_escape_probability(
+    new_chianti_atomic_dataset,
+):
+    einstein_coefficients = new_chianti_atomic_dataset.lines.loc[
+        (1, 0, slice(None), slice(None)),
+        ["A_ul", "B_ul", "B_lu", "nu"],
+    ].iloc[:1]
+    solver = RadiativeRatesSolver(einstein_coefficients)
+    radiation_field = PlanckianRadiationField(
+        temperature=np.array([10000.0, 10000.0]) * u.K
+    )
+    beta_sobolevs = pd.DataFrame(
+        [[0.25, 0.5]], index=einstein_coefficients.index, columns=[0, 1]
+    )
+
+    unscaled_rates = solver.solve(radiation_field)
+    scaled_rates = solver.solve(radiation_field, beta_sobolevs=beta_sobolevs)
+
+    pdt.assert_frame_equal(
+        scaled_rates,
+        unscaled_rates.multiply(beta_sobolevs.iloc[0].to_numpy(), axis=1),
+    )
+
 @pytest.mark.xfail(strict=True, raises=AssertionError)
 def test_invalid_coefficients(invalid_coefficients):
     solver = RadiativeRatesSolver(invalid_coefficients)
-    
+

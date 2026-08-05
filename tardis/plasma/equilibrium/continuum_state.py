@@ -20,6 +20,9 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     BoundFreeThermalRates,
     FreeFreeThermalRates,
 )
+from tardis.plasma.equilibrium.rates.photoionization_strengths import (
+    apply_lte_level_to_ion_factor,
+)
 
 
 def _cumulative_integrate_by_blocks(
@@ -120,7 +123,7 @@ class EquilibriumContinuumState:
             corrected_solver = EstimatedPhotoionizationCoeffSolver(
                 plasma.atomic_data.level2continuum_edge_idx
             )
-            radiative_ionization_rate = corrected_solver.solve(
+            radiative_ionization_rate = corrected_solver.solve_corrected(
                 {
                     "photoionization_rate_estimator": estimators[
                         "photoionization_rate_estimator"
@@ -163,7 +166,9 @@ class EquilibriumContinuumState:
             plasma.lte_ion_number_density.loc[upper_ions].to_numpy()
             * electron_distribution.number_density.value
         )
-        radiative_recombination_rate = spontaneous * level_factor
+        radiative_recombination_rate = apply_lte_level_to_ion_factor(
+            spontaneous, level_factor
+        )
 
         lines = plasma.atomic_data.lines
         collisional_solver = ThermalCollisionalRateSolver(

@@ -11,6 +11,94 @@ from tardis.transport.montecarlo.estimators.util import (
 C = const.c.cgs
 H = const.h.cgs
 K_B = const.k_B.cgs
+LYMAN_CONTINUUM_INDEX = (1, 0, 0)
+
+
+def _suppress_lyman_continuum(
+    rate_coefficients: pd.DataFrame,
+) -> pd.DataFrame:
+    """Apply the configured H I ground-edge suppression policy."""
+    if LYMAN_CONTINUUM_INDEX in rate_coefficients.index:
+        rate_coefficients.loc[LYMAN_CONTINUUM_INDEX] = 0.0
+    return rate_coefficients
+
+
+def apply_lte_level_to_ion_factor(
+    raw_rate_coefficients: pd.DataFrame,
+    lte_level_to_ion_factor: pd.DataFrame,
+) -> pd.DataFrame:
+    """Apply the Lucy detailed-balance factor once to a raw coefficient.
+
+    Parameters
+    ----------
+    raw_rate_coefficients : pandas.DataFrame
+        Density-independent recombination coefficient indexed by photoionizing
+        levels, with columns corresponding to shells.
+    lte_level_to_ion_factor : pandas.DataFrame
+        Lucy phi_ik detailed-balance factor with the same level index and shell
+        columns.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Recombination coefficient after applying ``phi_ik`` exactly once.
+    """
+    aligned_lte_level_to_ion_factor = lte_level_to_ion_factor.reindex(
+        raw_rate_coefficients.index
+    )
+    if aligned_lte_level_to_ion_factor.isna().any().any():
+        raise ValueError(
+            "lte_level_to_ion_factor does not cover all recombination levels"
+        )
+    return raw_rate_coefficients.multiply(
+        aligned_lte_level_to_ion_factor, axis=0
+    )
+
+
+def calculate_corrected_photoionization_rate_coeff(
+    photoionization_rate_coefficients: pd.DataFrame,
+    stimulated_recombination_rate_coefficients: pd.DataFrame,
+    lte_level_population: pd.DataFrame,
+    level_population: pd.DataFrame,
+    lte_ion_population: pd.DataFrame,
+    ion_population: pd.DataFrame,
+) -> pd.DataFrame:
+    """Apply the legacy stimulated-emission correction to raw coefficients.
+
+    Parameters
+    ----------
+    photoionization_rate_coefficients : pandas.DataFrame
+        Raw density-independent photoionization coefficients.
+    stimulated_recombination_rate_coefficients : pandas.DataFrame
+        Raw density-independent stimulated-recombination coefficients.
+    lte_level_population, level_population : pandas.DataFrame
+        LTE and current level populations.
+    lte_ion_population, ion_population : pandas.DataFrame
+        LTE and current ion populations.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Population-corrected photoionization coefficient.
+
+    This is an explicit rate assembly operation. The two input coefficients
+    remain independent, density-free quantities and are not modified.
+    """
+    photoionization_index = photoionization_rate_coefficients.index
+    lte_level_population = lte_level_population.reindex(photoionization_index)
+    level_population = level_population.reindex(photoionization_index)
+    lte_ion_population = _align_photoionization_population(
+        lte_ion_population, photoionization_index
+    )
+    ion_population = _align_photoionization_population(
+        ion_population, photoionization_index
+    )
+    population_ratio = (ion_population / lte_ion_population) * (
+        lte_level_population / level_population
+    )
+    return photoionization_rate_coefficients - (
+        population_ratio * stimulated_recombination_rate_coefficients
+    )
 
 
 def _align_photoionization_population(
@@ -34,6 +122,8 @@ def _align_photoionization_population(
 
 
 class SpontaneousRecombinationCoeffSolver:
+    """Calculate raw spontaneous-recombination coefficients."""
+
     def __init__(
         self,
         photoionization_cross_sections,
@@ -54,7 +144,9 @@ class SpontaneousRecombinationCoeffSolver:
 
     @property
     def common_prefactor(self):
-        """Used to multiply with both spontaneous recombination and
+        """Return the common Lucy coefficient prefactor.
+
+        Used to multiply with both spontaneous recombination and
         photoionization coefficients. Lucy 2003 Eq 13, 15, 16.
 
         Returns
@@ -128,13 +220,14 @@ class SpontaneousRecombinationCoeffSolver:
             index=self.photoionization_index,
         )
 
-        # Lymann continuum handling
-        spontaneous_recombination_rate_coeff_df.loc[(1, 0, 0)] = 0.0
-
-        return spontaneous_recombination_rate_coeff_df
+        return _suppress_lyman_continuum(
+            spontaneous_recombination_rate_coeff_df
+        )
 
 
 class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
+    """Calculate raw analytic photoionization coefficients."""
+
     def __init__(
         self,
         photoionization_cross_sections,
@@ -145,7 +238,7 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         self,
         dilute_blackbody_radiationfield_state,
     ):
-        """Calculates the mean intensity of the radiation field at each photoionization frequency.
+        """Calculate the mean intensity at each photoionization frequency.
 
         Parameters
         ----------
@@ -257,9 +350,7 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         dilute_blackbody_radiationfield_state,
         electron_temperature,
     ):
-        """
-        Prepares the ionization and recombination coefficients by grouping them for
-        ion numbers.
+        """Prepare grouped ionization and recombination coefficients.
 
         Parameters
         ----------
@@ -300,19 +391,17 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
             mean_intensity_photoionization_df,
         )
 
-        # Lymann continuum handling
-        photoionization_rate_coeff.loc[(1, 0, 0)] = 0.0
-        stimulated_recombination_rate_coeff.loc[(1, 0, 0)] = 0.0
-
         return (
-            photoionization_rate_coeff,
-            stimulated_recombination_rate_coeff,
+            _suppress_lyman_continuum(photoionization_rate_coeff),
+            _suppress_lyman_continuum(stimulated_recombination_rate_coeff),
         )
 
 
 class AnalyticCorrectedPhotoionizationCoeffSolver(
     SpontaneousRecombinationCoeffSolver
 ):
+    """Assemble the legacy population-corrected photoionization coefficient."""
+
     def __init__(
         self,
         photoionization_cross_sections,
@@ -323,7 +412,7 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
         self,
         radiation_field,
     ):
-        """Calculates the mean intensity of the radiation field at each photoionization frequency.
+        """Calculate the mean intensity at each photoionization frequency.
 
         Parameters
         ----------
@@ -420,9 +509,7 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
         lte_ion_population,
         ion_population,
     ):
-        """
-        Prepares the ionization and recombination coefficients by grouping them for
-        ion numbers.
+        """Prepare grouped ionization and recombination coefficients.
 
         Parameters
         ----------
@@ -462,13 +549,12 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
             )
         )
 
-        # Lymann continuum handling
-        corrected_photoionization_rate_coeff.loc[(1, 0, 0)] = 0.0
-
-        return corrected_photoionization_rate_coeff
+        return _suppress_lyman_continuum(corrected_photoionization_rate_coeff)
 
 
 class EstimatedPhotoionizationCoeffSolver:
+    """Expose raw Monte Carlo photoionization coefficients."""
+
     def __init__(
         self,
         level2continuum_edge_idx,
@@ -477,14 +563,9 @@ class EstimatedPhotoionizationCoeffSolver:
 
     def solve(
         self,
-        estimators_continuum,
-        level_population,
-        lte_level_population,
-        ion_population,
-        lte_ion_population,
-    ):
-        """
-        Solve for the continuum properties.
+        estimators_continuum: dict[str, object],
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Return raw Monte Carlo photoionization coefficients.
 
         Parameters
         ----------
@@ -493,8 +574,8 @@ class EstimatedPhotoionizationCoeffSolver:
 
         Returns
         -------
-        ContinuumProperties
-            The calculated continuum properties.
+        tuple[pandas.DataFrame, pandas.DataFrame]
+            Raw photoionization and stimulated-recombination coefficients.
 
         Notes
         -----
@@ -515,27 +596,43 @@ class EstimatedPhotoionizationCoeffSolver:
             self.level2continuum_edge_idx,
         )
 
-        photoionization_index = self.level2continuum_edge_idx.index
-        lte_level_population = lte_level_population.reindex(
-            photoionization_index
-        )
-        level_population = level_population.reindex(photoionization_index)
-        lte_ion_population = _align_photoionization_population(
-            lte_ion_population, photoionization_index
-        )
-        ion_population = _align_photoionization_population(
-            ion_population, photoionization_index
-        )
-        lte_nlte_population_ratio = (
-            ion_population / lte_ion_population
-        ).values * (lte_level_population / level_population)
-
-        photoionization_rate_coeff = (
-            photoionization_rate_coeff
-            - lte_nlte_population_ratio * stimulated_recombination_rate_coeff
+        return (
+            _suppress_lyman_continuum(photoionization_rate_coeff),
+            _suppress_lyman_continuum(stimulated_recombination_rate_coeff),
         )
 
-        # Lymann continuum handling
-        photoionization_rate_coeff.loc[(1, 0, 0)] = 0.0
+    def solve_corrected(
+        self,
+        estimators_continuum: dict[str, object],
+        level_population: pd.DataFrame,
+        lte_level_population: pd.DataFrame,
+        ion_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Assemble the legacy corrected photoionization coefficient.
 
-        return photoionization_rate_coeff
+        Parameters
+        ----------
+        estimators_continuum : dict[str, object]
+            Monte Carlo bound-free estimators.
+        level_population, lte_level_population : pandas.DataFrame
+            Current and LTE level populations.
+        ion_population, lte_ion_population : pandas.DataFrame
+            Current and LTE ion populations.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Population-corrected photoionization coefficient.
+        """
+        photoionization_rate_coeff, stimulated_recombination_rate_coeff = (
+            self.solve(estimators_continuum)
+        )
+        return calculate_corrected_photoionization_rate_coeff(
+            photoionization_rate_coeff,
+            stimulated_recombination_rate_coeff,
+            lte_level_population,
+            level_population,
+            lte_ion_population,
+            ion_population,
+        )
