@@ -955,13 +955,11 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.spectrum_solver.transport_state = self.transport_state
 
     def should_save_checkpoint(self) -> bool:
-        """Return whether the next completed iteration should be checkpointed."""
-        next_completed_iteration = self.completed_iterations + 1
         checkpoint_path = self.configuration.checkpoints.path
         checkpoint_interval = self.configuration.checkpoints.interval
         return (
             checkpoint_path is not None
-            and next_completed_iteration % checkpoint_interval == 0
+            and self.completed_iterations % checkpoint_interval == 0
         )
 
     def run(self):
@@ -969,8 +967,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         # Initialize iterations progress bar if showing progress bars
         if self.show_progress_bars:
             initialize_iterations_pbar(self.total_iterations)
-
-        self.converged = False
 
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
@@ -1001,14 +997,10 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.solve_continuum_state(normalized_continuum_estimators)
 
-            if self.should_save_checkpoint():
-                save_checkpoint(
-                    self,
-                    normalized_continuum_estimators,
-                    estimated_values,
-                )
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
+            if self.should_save_checkpoint():
+                save_checkpoint(self, normalized_continuum_estimators)
             if self.converged and self.convergence_strategy.stop_if_converged:
                 break
 
