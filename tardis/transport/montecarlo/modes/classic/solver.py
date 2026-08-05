@@ -135,8 +135,8 @@ class MCTransportSolverClassic(HDFWriterMixin):
 
         transport_state = MonteCarloTransportState(
             packet_collection,
-            geometry_state=geometry_state,
-            opacity_state=opacity_state_numba,
+            geometry_state_numba=geometry_state,
+            opacity_state_numba=opacity_state_numba,
             time_explosion=simulation_state.time_explosion,
             n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
@@ -222,9 +222,9 @@ class MCTransportSolverClassic(HDFWriterMixin):
             estimators_line,
         ) = montecarlo_transport_with_vpackets(
             transport_state.packet_collection,
-            transport_state.geometry_state,
+            transport_state.geometry_state_numba,
             transport_state.time_explosion.cgs.value,
-            transport_state.opacity_state,
+            transport_state.opacity_state_numba,
             self.montecarlo_configuration,
             self.spectrum_frequency_grid.value,
             trackers_list,
