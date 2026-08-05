@@ -22,155 +22,19 @@ from tardis.util.environment import Environment
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
-class LineInfoWidget:
+class LineInfoData:
     """
-    Widget to explore atomic lines that produced features in the simulated spectrum.
-
-    It allows selection of a wavelength range in the spectrum to display a
-    table giving the fraction of packets that experienced their last
-    interaction with each species. Using toggle buttons, users can specify
-    whether to filter the selected range by emitted or absorbed wavelengths
-    of packets. Clicking on a row in the fractional species interactions table
-    shows packet counts for each last line interaction of the selected species,
-    which can be grouped in several ways using the dropdown menu.
+    Data for line interaction computations used by LineInfoWidget.
     """
 
     FILTER_MODES = ("packet_out_nu", "packet_in_nu")
-    FILTER_MODES_DESC = ("Emitted Wavelength", "Absorbed Wavelength")
     GROUP_MODES = ("both", "exc", "de-exc")
-    GROUP_MODES_DESC = (
-        "Both excitation line (absorption) and de-excitation line (emission)",
-        "Only excitation line (absorption)",
-        "Only de-excitation line (emission)",
-    )
-    COLORS = {"selection_area": "lightpink", "selection_border": "salmon"}
 
-    def __init__(
-        self,
-        lines_data,
-        line_interaction_analysis,
-        spectrum_wavelength,
-        spectrum_luminosity_density_lambda,
-        virt_spectrum_wavelength,
-        virt_spectrum_luminosity_density_lambda,
-        sdec_figure=None
-    ):
-        """
-        Initialize the LineInfoWidget with line interaction and spectrum data.
-
-        Parameters
-        ----------
-        lines_data : pd.DataFrame
-            Data about the atomic lines present in simulation model's plasma
-        line_interaction_analysis : dict of tardis.analysis.LastLineInteraction
-            Dictionary in which keys are the FILTER_MODES and values are the
-            LastLineInteraction objects initialized with corresponding modes
-        spectrum_wavelength : astropy.Quantity
-            Wavelength values of a real spectrum, having unit of Angstrom
-        spectrum_luminosity_density_lambda : astropy.Quantity
-            Luminosity density lambda values of a real spectrum, having unit
-            of (erg/s)/Angstrom
-        virt_spectrum_wavelength : astropy.Quantity, optional
-            Wavelength values of a virtual spectrum, having unit of Angstrom
-        virt_spectrum_luminosity_density_lambda : astropy.Quantity, optional
-            Luminosity density lambda values of a virtual spectrum, having unit
-            of (erg/s)/Angstrom
-        sdec_figure : bokeh.plotting.figure or None
-            Bokeh figure to use instead of base plot_spectrum() when sdec plot is needed.
-        """
+    def __init__(self, lines_data, line_interaction_analysis):
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
 
-        # Widgets ------------------------------------------------
-        max_rows_option = {"maxVisibleRows": 9}
-        self.species_interactions_table = create_table_widget(
-            data=self.get_species_interactions(None),
-            table_options=max_rows_option,
-        )
-
-        self.last_line_counts_table = create_table_widget(
-            data=self.get_last_line_counts(None),
-            table_options=max_rows_option,
-        )
-        self.total_packets_label = TableSummaryLabel(
-            target_table=self.last_line_counts_table,
-            table_col_widths=[75, 25],
-            label_key="Total Packets",
-            label_value=0,
-        )
-
-        if sdec_figure is not None:
-            self.figure_widget = self._setup_selection(
-                p=sdec_figure,
-                wavelength=spectrum_wavelength,
-                luminosity_density_lambda=spectrum_luminosity_density_lambda
-            )
-        else:
-            self.figure_widget = self.plot_spectrum(
-                spectrum_wavelength,
-                spectrum_luminosity_density_lambda,
-                virt_spectrum_wavelength,
-                virt_spectrum_luminosity_density_lambda,
-            )
-
-        self.filter_mode_buttons = pn.widgets.RadioButtonGroup(
-            options=list(self.FILTER_MODES_DESC),
-            value=self.FILTER_MODES_DESC[0],
-        )
-
-        self.group_mode_dropdown = pn.widgets.Select(
-            options=list(self.GROUP_MODES_DESC), value=self.GROUP_MODES_DESC[0]
-        )
-
-        self._current_wavelength_range = None  # Track current selection
-
-    @classmethod
-    def from_simulation(cls, sim, show_sdec=False, sdec_kwargs={}):
-        """
-        Create an instance of LineInfoWidget from a TARDIS simulation object.
-
-        Parameters
-        ----------
-        sim : tardis.simulation.Simulation
-            TARDIS Simulation object produced by running a simulation
-        show_sdec : bool, optional
-            Whether to show SDEC Plot in place of the base spectrum plot. Default is False.
-        sdec_kwargs : dict, optional
-            Keyword arguments supported by SDECPlotter.generate_plot_bk().
-
-        Returns
-        -------
-        LineInfoWidget object
-        """
-        spectrum_solver = sim.spectrum_solver
-
-        sdec_figure = None
-        if show_sdec:
-            plotter = SDECPlotter.from_simulation(sim)
-            sdec_figure = plotter.generate_plot_bk(**sdec_kwargs)
-
-        return cls(
-            lines_data=sim.plasma.lines.reset_index().set_index("line_id"),
-            line_interaction_analysis={
-                filter_mode: LastLineInteraction.from_simulation(
-                    sim, filter_mode
-                )
-                for filter_mode in cls.FILTER_MODES
-            },
-            spectrum_wavelength=spectrum_solver.spectrum_real_packets.wavelength,
-            spectrum_luminosity_density_lambda=spectrum_solver.spectrum_real_packets.luminosity_density_lambda.to(
-                "erg/(s AA)"
-            ),
-            virt_spectrum_wavelength=spectrum_solver.spectrum_virtual_packets.wavelength,
-            virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
-                "erg/(s AA)"
-            ),
-            sdec_figure=sdec_figure
-        )
-
-    def get_species_interactions(
-        self, wavelength_range, filter_mode=FILTER_MODES[0]
-    ):
+    def get_species_interactions(self, wavelength_range, filter_mode=FILTER_MODES[0]):
         """
         Get fractional species interactions in specified wavelength range.
 
@@ -250,6 +114,7 @@ class LineInfoWidget:
             ascending=False, kind=SORTING_ALGORITHM
         ).to_frame()
 
+
     def get_last_line_counts(
         self,
         selected_species,
@@ -297,7 +162,6 @@ class LineInfoWidget:
         """
         if selected_species:
             selected_species_tuple = species_string_to_tuple(selected_species)
-
             try:
                 # Get selected species' rows from last_line_in dataframe
                 current_last_lines_in = (
@@ -330,7 +194,7 @@ class LineInfoWidget:
                 allowed_species = [
                     species_tuple_to_string(species)
                     for species in self.line_interaction_analysis[filter_mode]
-                    .last_line_in.groupby(["atomic_number", "ion_number"])
+                    .last_line_in.groupby(["atomic_number", "ion_number"]) 
                     .groups.keys()
                 ]
                 raise ValueError(
@@ -442,6 +306,154 @@ class LineInfoWidget:
             (arr[-1] - arr[0]) / 4 + arr[1],
             (arr[-1] - arr[0]) * 3 / 4 + arr[1],
         ]
+
+
+class LineInfoWidget:
+    """
+    Widget to explore atomic lines that produced features in the simulated spectrum.
+
+    It allows selection of a wavelength range in the spectrum to display a
+    table giving the fraction of packets that experienced their last
+    interaction with each species. Using toggle buttons, users can specify
+    whether to filter the selected range by emitted or absorbed wavelengths
+    of packets. Clicking on a row in the fractional species interactions table
+    shows packet counts for each last line interaction of the selected species,
+    which can be grouped in several ways using the dropdown menu.
+    """
+
+    FILTER_MODES = ("packet_out_nu", "packet_in_nu")
+    FILTER_MODES_DESC = ("Emitted Wavelength", "Absorbed Wavelength")
+    GROUP_MODES = ("both", "exc", "de-exc")
+    GROUP_MODES_DESC = (
+        "Both excitation line (absorption) and de-excitation line (emission)",
+        "Only excitation line (absorption)",
+        "Only de-excitation line (emission)",
+    )
+    COLORS = {"selection_area": "lightpink", "selection_border": "salmon"}
+
+    def __init__(
+        self,
+        lines_data,
+        line_interaction_analysis,
+        spectrum_wavelength,
+        spectrum_luminosity_density_lambda,
+        virt_spectrum_wavelength,
+        virt_spectrum_luminosity_density_lambda,
+        sdec_figure=None
+    ):
+        """
+        Initialize the LineInfoWidget with line interaction and spectrum data.
+
+        Parameters
+        ----------
+        lines_data : pd.DataFrame
+            Data about the atomic lines present in simulation model's plasma
+        line_interaction_analysis : dict of tardis.analysis.LastLineInteraction
+            Dictionary in which keys are the FILTER_MODES and values are the
+            LastLineInteraction objects initialized with corresponding modes
+        spectrum_wavelength : astropy.Quantity
+            Wavelength values of a real spectrum, having unit of Angstrom
+        spectrum_luminosity_density_lambda : astropy.Quantity
+            Luminosity density lambda values of a real spectrum, having unit
+            of (erg/s)/Angstrom
+        virt_spectrum_wavelength : astropy.Quantity, optional
+            Wavelength values of a virtual spectrum, having unit of Angstrom
+        virt_spectrum_luminosity_density_lambda : astropy.Quantity, optional
+            Luminosity density lambda values of a virtual spectrum, having unit
+            of (erg/s)/Angstrom
+        sdec_figure : bokeh.plotting.figure or None
+            Bokeh figure to use instead of base plot_spectrum() when sdec plot is needed.
+        """
+        self.lines_data = lines_data
+        self.line_interaction_analysis = line_interaction_analysis
+        self.data = LineInfoData(self.lines_data, self.line_interaction_analysis)
+
+        # Widgets ------------------------------------------------
+        max_rows_option = {"maxVisibleRows": 9}
+        self.species_interactions_table = create_table_widget(
+            data=self.data.get_species_interactions(None),
+            table_options=max_rows_option,
+        )
+
+        self.last_line_counts_table = create_table_widget(
+            data=self.data.get_last_line_counts(None),
+            table_options=max_rows_option,
+        )
+        self.total_packets_label = TableSummaryLabel(
+            target_table=self.last_line_counts_table,
+            table_col_widths=[75, 25],
+            label_key="Total Packets",
+            label_value=0,
+        )
+
+        if sdec_figure is not None:
+            self.figure_widget = self._setup_selection(
+                p=sdec_figure,
+                wavelength=spectrum_wavelength,
+                luminosity_density_lambda=spectrum_luminosity_density_lambda
+            )
+        else:
+            self.figure_widget = self.plot_spectrum(
+                spectrum_wavelength,
+                spectrum_luminosity_density_lambda,
+                virt_spectrum_wavelength,
+                virt_spectrum_luminosity_density_lambda,
+            )
+
+        self.filter_mode_buttons = pn.widgets.RadioButtonGroup(
+            options=list(self.FILTER_MODES_DESC),
+            value=self.FILTER_MODES_DESC[0],
+        )
+
+        self.group_mode_dropdown = pn.widgets.Select(
+            options=list(self.GROUP_MODES_DESC), value=self.GROUP_MODES_DESC[0]
+        )
+
+        self._current_wavelength_range = None  # Track current selection
+
+    @classmethod
+    def from_simulation(cls, sim, show_sdec=False, sdec_kwargs={}):
+        """
+        Create an instance of LineInfoWidget from a TARDIS simulation object.
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS Simulation object produced by running a simulation
+        show_sdec : bool, optional
+            Whether to show SDEC Plot in place of the base spectrum plot. Default is False.
+        sdec_kwargs : dict, optional
+            Keyword arguments supported by SDECPlotter.generate_plot_bk().
+
+        Returns
+        -------
+        LineInfoWidget object
+        """
+        spectrum_solver = sim.spectrum_solver
+
+        sdec_figure = None
+        if show_sdec:
+            plotter = SDECPlotter.from_simulation(sim)
+            sdec_figure = plotter.generate_plot_bk(**sdec_kwargs)
+
+        return cls(
+            lines_data=sim.plasma.lines.reset_index().set_index("line_id"),
+            line_interaction_analysis={
+                filter_mode: LastLineInteraction.from_simulation(
+                    sim, filter_mode
+                )
+                for filter_mode in cls.FILTER_MODES
+            },
+            spectrum_wavelength=spectrum_solver.spectrum_real_packets.wavelength,
+            spectrum_luminosity_density_lambda=spectrum_solver.spectrum_real_packets.luminosity_density_lambda.to(
+                "erg/(s AA)"
+            ),
+            virt_spectrum_wavelength=spectrum_solver.spectrum_virtual_packets.wavelength,
+            virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
+                "erg/(s AA)"
+            ),
+            sdec_figure=sdec_figure
+        )
 
     def _setup_selection(self, p, wavelength, luminosity_density_lambda):
         """
@@ -595,7 +607,7 @@ class LineInfoWidget:
         update in last_line_counts_table.
         """
         # Update data in species_interactions_table
-        self.species_interactions_table.df = self.get_species_interactions(
+        self.species_interactions_table.df = self.data.get_species_interactions(
             wavelength_range, filter_mode
         )
 
@@ -624,7 +636,7 @@ class LineInfoWidget:
         The parameters are exact same as that of :code:`get_last_line_counts`.
         """
         # Update data in line counts table
-        self.last_line_counts_table.df = self.get_last_line_counts(
+        self.last_line_counts_table.df = self.data.get_last_line_counts(
             species, filter_mode, group_mode
         )
 
