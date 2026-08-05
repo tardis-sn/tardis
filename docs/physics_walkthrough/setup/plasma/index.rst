@@ -25,6 +25,9 @@ plasma:
 The standard property graph uses these options to construct a map of the necessary plasma parameters and their dependencies
 (using `NetworkX <https://networkx.github.io/>`_). For Type IIP simulations, hydrogen continuum populations, rate
 coefficients, heating and cooling, and transport continuum state are calculated through the equilibrium solver components.
+Before Monte Carlo continuum estimators are available, Type IIP continuum initialization uses dilute-LTE excitation and
+nebular ionization with charge neutrality. Estimator-backed continuum updates use the Monte Carlo bound-free estimators
+from the previous transport step.
 
 Properties, Inputs and Outputs
 ------------------------------

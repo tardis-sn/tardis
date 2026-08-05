@@ -585,24 +585,21 @@ class HydrogenContinuumIonPopulations(ProcessingPlasmaProperty):
         photoionization_rate_estimator,
         stimulated_recombination_rate_estimator,
     ):
-        # Need to solve iteratively to get a consistent solution between
-        # hydrogen and other elements. First iteration of the TARDIS simulation
-        # uses the analytic solution for the hydrogen ion number density.
-        # After that use estimators.
+        # No-estimator initialization uses dilute-LTE excitation with nebular
+        # ionization and charge neutrality. Later iterations use estimators.
 
         if iteration == 0:
-            hydrogen_ion_number_density, electron_number_density = (
-                self.calculate_analytic_equilibrium_hydrogen_ion_populations(
-                    t_electrons,
-                    previous_electron_densities,
-                    dilute_planckian_radiation_field,
-                    number_density,
-                    lte_level_number_density,
-                    lte_ion_number_density,
-                    hydrogen_continuum_partition_function,
-                    hydrogen_continuum_level_boltzmann_factor,
-                )
+            hydrogen_ion_number_density, _ = IonNumberDensity(None).calculate(
+                phi,
+                hydrogen_continuum_partition_function,
+                number_density,
             )
+            charges = hydrogen_ion_number_density.index.get_level_values(
+                "ion_number"
+            )
+            electron_number_density = hydrogen_ion_number_density.multiply(
+                charges, axis=0
+            ).sum(axis=0)
         else:
             radiation_field_estimators = {
                 "photoionization_rate_estimator": photoionization_rate_estimator,
