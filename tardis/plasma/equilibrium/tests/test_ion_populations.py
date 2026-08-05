@@ -8,10 +8,14 @@ import pytest
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
+from tardis.plasma.equilibrium.charge_conservation import (
+    ChargeConservationSolver,
+)
 from tardis.plasma.equilibrium.ion_populations import (
     AnalyticEquilibriumIonPopulationSolver,
 )
 from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix
+from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
 )
@@ -226,3 +230,243 @@ def test_build_elemental_population_solution_reports_singular_matrix() -> None:
         AnalyticEquilibriumIonPopulationSolver._build_elemental_population_solution(
             matrix_set, pd.Series([1.0], index=[0])
         )
+
+
+def test_analytic_charge_conservation_uses_elemental_rate_matrices() -> None:
+    transition_names = [
+        "atomic_number",
+        "ion_number",
+        "ion_number_source",
+        "ion_number_destination",
+        "level_number_source",
+        "level_number_destination",
+    ]
+    photoionization_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0, 1, 0, 0)], names=transition_names
+    )
+    recombination_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 1, 0, 0, 0)], names=transition_names
+    )
+
+    class PhotoionizationRates:
+        def solve(
+            self,
+            _radiation_field: object,
+            electron_distribution: ThermalElectronEnergyDistribution,
+            *rate_args: object,
+        ) -> tuple[pd.DataFrame, pd.DataFrame]:
+            del rate_args
+            recombination_rate = 2.0 * electron_distribution.number_density.value[
+                0
+            ]
+            return (
+                pd.DataFrame(
+                    [3.0], index=photoionization_index, columns=[0]
+                ),
+                pd.DataFrame(
+                    [recombination_rate],
+                    index=recombination_index,
+                    columns=[0],
+                ),
+            )
+
+    class CollisionalRates:
+        def solve(
+            self, *rate_args: object
+        ) -> tuple[pd.DataFrame, pd.DataFrame]:
+            del rate_args
+            return (
+                pd.DataFrame([0.0], index=photoionization_index, columns=[0]),
+                pd.DataFrame([0.0], index=recombination_index, columns=[0]),
+            )
+
+    lte_level_population = pd.DataFrame(
+        [[1.0]],
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0, 0)],
+            names=["atomic_number", "ion_number", "level_number"],
+        ),
+        columns=[0],
+    )
+    lte_ion_population = pd.DataFrame(
+        [[1.0], [1.0]],
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0), (1, 1)],
+            names=["atomic_number", "ion_number"],
+        ),
+        columns=[0],
+    )
+    estimated_ion_population = pd.DataFrame(
+        [[1.0], [1.0], [0.5], [0.5]],
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0), (1, 1), (6, 0), (6, 6)],
+            names=["atomic_number", "ion_number"],
+        ),
+        columns=[0],
+    )
+    solver = AnalyticEquilibriumIonPopulationSolver(
+        IonRateMatrix(),
+        PhotoionizationRates(),
+        CollisionalRates(),
+        pd.DataFrame(
+            [[10.0], [1.0]],
+            index=pd.Index([1, 6], name="atomic_number"),
+            columns=[0],
+        ),
+    )
+
+    ion_populations, electron_number_density = solver.solve(
+        None,
+        ThermalElectronEnergyDistribution(
+            0 * u.erg,
+            np.array([10000.0]) * u.K,
+            np.array([1.0]) / u.cm**3,
+        ),
+        lte_level_population,
+        lte_level_population,
+        lte_ion_population,
+        estimated_ion_population,
+        pd.DataFrame([[1.0]], index=lte_level_population.index, columns=[0]),
+        pd.DataFrame([[1.0]], index=lte_level_population.index, columns=[0]),
+        charge_conservation=True,
+        tolerance=1e-8,
+    )
+    expected = (3.0 + np.sqrt(3.0**2 + 4 * 2.0 * 39.0)) / (2 * 2.0)
+
+    npt.assert_allclose(electron_number_density, [expected])
+    npt.assert_allclose(
+        ion_populations.loc[(1, 1)].to_numpy(), [expected - 3.0]
+    )
+
+
+def test_charge_conservation_solver_solves_pure_hydrogen() -> None:
+    elemental_number_density = pd.DataFrame(
+        [[10.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
+    )
+    alpha = 2.0
+    gamma = 3.0
+
+    def solve_trial(electron_density: pd.Series) -> pd.DataFrame:
+        denominator = gamma + alpha * electron_density.iloc[0]
+        ionized = gamma * 10.0 / denominator
+        return pd.DataFrame(
+            [[10.0 - ionized], [ionized]],
+            index=pd.MultiIndex.from_tuples(
+                [(1, 0), (1, 1)],
+                names=["atomic_number", "ion_number"],
+            ),
+            columns=[0],
+        )
+
+    electron_number_density, ion_populations = ChargeConservationSolver(
+        elemental_number_density, solve_trial
+    ).solve()
+    expected = (-gamma + np.sqrt(gamma**2 + 4 * alpha * gamma * 10.0)) / (
+        2 * alpha
+    )
+
+    npt.assert_allclose(electron_number_density, [expected])
+    npt.assert_allclose(
+        ion_populations.loc[(1, 1)].to_numpy(), [expected]
+    )
+
+
+def test_charge_conservation_solver_includes_all_carbon_stages() -> None:
+    elemental_number_density = pd.DataFrame(
+        [[1.0], [1.0]],
+        index=pd.Index([1, 6], name="atomic_number"),
+        columns=[0],
+    )
+    carbon_populations = np.array([0.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5])
+
+    def solve_trial(electron_density: pd.Series) -> pd.DataFrame:
+        hydrogen_ionized = 0.1 * electron_density.iloc[0]
+        hydrogen = np.array([1.0 - hydrogen_ionized, hydrogen_ionized])
+        rows = [(1, 0), (1, 1)] + [(6, ion_number) for ion_number in range(7)]
+        return pd.DataFrame(
+            np.concatenate((hydrogen, carbon_populations))[:, None],
+            index=pd.MultiIndex.from_tuples(
+                rows, names=["atomic_number", "ion_number"]
+            ),
+            columns=[0],
+        )
+
+    electron_number_density, _ = ChargeConservationSolver(
+        elemental_number_density, solve_trial
+    ).solve()
+
+    npt.assert_allclose(electron_number_density, [5.0])
+
+
+@pytest.mark.parametrize(
+    ("ionized_at_zero", "ionized_at_max"), [(0.0, 0.0), (1.0, 1.0)]
+)
+def test_charge_conservation_solver_accepts_physical_endpoints(
+    ionized_at_zero: float, ionized_at_max: float
+) -> None:
+    elemental_number_density = pd.DataFrame(
+        [[1.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
+    )
+
+    def solve_trial(electron_density: pd.Series) -> pd.DataFrame:
+        ionized = (
+            ionized_at_zero
+            if electron_density.iloc[0] == 0
+            else ionized_at_max
+        )
+        return pd.DataFrame(
+            [[1.0 - ionized], [ionized]],
+            index=pd.MultiIndex.from_tuples(
+                [(1, 0), (1, 1)],
+                names=["atomic_number", "ion_number"],
+            ),
+            columns=[0],
+        )
+
+    electron_number_density, _ = ChargeConservationSolver(
+        elemental_number_density, solve_trial
+    ).solve()
+
+    assert electron_number_density.iloc[0] in (0.0, 1.0)
+
+
+def test_charge_conservation_solver_reports_nonfinite_residual() -> None:
+    elemental_number_density = pd.DataFrame(
+        [[1.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
+    )
+
+    def solve_trial(_: pd.Series) -> pd.DataFrame:
+        return pd.DataFrame(
+            [[0.0], [1.0]],
+            index=pd.MultiIndex.from_tuples(
+                [(1, 0), (1, np.inf)],
+                names=["atomic_number", "ion_number"],
+            ),
+            columns=[0],
+        )
+
+    with pytest.raises(PlasmaIonizationError, match="nonfinite"):
+        ChargeConservationSolver(
+            elemental_number_density, solve_trial
+        ).solve()
+
+
+def test_charge_conservation_solver_reports_missing_bracket() -> None:
+    elemental_number_density = pd.DataFrame(
+        [[1.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
+    )
+
+    def solve_trial(_: pd.Series) -> pd.DataFrame:
+        return pd.DataFrame(
+            [[0.0], [1.0]],
+            index=pd.MultiIndex.from_tuples(
+                [(1, 0), (1, 2)],
+                names=["atomic_number", "ion_number"],
+            ),
+            columns=[0],
+        )
+
+    with pytest.raises(PlasmaIonizationError, match="does not bracket"):
+        ChargeConservationSolver(
+            elemental_number_density, solve_trial
+        ).solve()

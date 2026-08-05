@@ -1,3 +1,5 @@
+import numpy as np
+
 from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticCorrectedPhotoionizationCoeffSolver,
     EstimatedPhotoionizationCoeffSolver,
@@ -10,6 +12,7 @@ from tardis.plasma.equilibrium.rates.util import (
 
 class AnalyticPhotoionizationRateSolver:
     """Solve the photoionization and spontaneous recombination rates in the
+
     case where the radiation field is computed analytically.
     """
 
@@ -34,6 +37,7 @@ class AnalyticPhotoionizationRateSolver:
         level_boltzmann_factor,
     ):
         """Solve the photoionization and spontaneous recombination rates in the
+
         case where the radiation field is not estimated.
 
         Parameters
@@ -84,10 +88,17 @@ class AnalyticPhotoionizationRateSolver:
             level_boltzmann_factor / partition_function
         )
 
-        # Lucy 2003 Eq 14
+        # Lucy 2003 Eq 14. At zero density the factor's finite
+        # density-independent ratio is sufficient because the resulting
+        # recombination rate is multiplied by the physical density below.
+        electron_number_density = (
+            electron_energy_distribution.number_density.value
+        )
+        density_for_factor = np.where(
+            electron_number_density == 0.0, 1.0, electron_number_density
+        )
         level_to_ion_population_factor = lte_level_population.values / (
-            lte_ion_population.values
-            * electron_energy_distribution.number_density.value
+            lte_ion_population.values * density_for_factor
         )
 
         # used to scale the photoionization rate because we keep the level population
@@ -100,7 +111,7 @@ class AnalyticPhotoionizationRateSolver:
         spontaneous_recombination_rate = (
             spontaneous_recombination_rate_coeff
             * level_to_ion_population_factor
-            * electron_energy_distribution.number_density.value
+            * electron_number_density
         )
 
         photoionization_rate = reindex_ionization_rate_dataframe(
@@ -116,6 +127,7 @@ class AnalyticPhotoionizationRateSolver:
 
 class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
     """Solve the photoionization and spontaneous recombination rates in the
+
     case where the radiation field is estimated by Monte Carlo processes.
     """
 
@@ -137,6 +149,7 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
         lte_ion_population,
     ):
         """Solve the photoionization and spontaneous recombination rates in the
+
         case where the radiation field is estimated by Monte Carlo processes.
 
         Parameters
