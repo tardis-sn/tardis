@@ -10,7 +10,7 @@ from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
 from tardis.plasma.equilibrium.rate_matrix import (
-    EquilibriumIonRateMatrix,
+    IonRateMatrix,
     LevelRateMatrix,
 )
 from tardis.plasma.equilibrium.rates import (
@@ -44,10 +44,14 @@ def test_level_rate_matrix_exposes_raw_rate_matrix_for_selected_ion() -> None:
             "level_number_destination",
         ],
     )
-    radiative_rates = pd.DataFrame([2.0, 3.0], index=transition_index, columns=[0])
+    radiative_rates = pd.DataFrame(
+        [2.0, 3.0], index=transition_index, columns=[0]
+    )
     collisional_rates = pd.DataFrame(0.0, index=transition_index, columns=[0])
 
-    raw_rate_matrices = LevelRateMatrix(levels).build_raw_rate_matrix_block(
+    raw_rate_matrices = LevelRateMatrix(
+        levels
+    ).build_raw_level_matrices_for_ion(
         radiative_rates,
         collisional_rates,
         np.array([1.0]),
@@ -60,7 +64,9 @@ def test_level_rate_matrix_exposes_raw_rate_matrix_for_selected_ion() -> None:
     assert not np.all(raw_rate_matrix[0] == 1.0)
 
 
-def test_augmented_elemental_rate_matrix_retains_carbon_ion_states() -> None:
+def test_elemental_level_ion_rate_matrix_set_retains_carbon_ion_states() -> (
+    None
+):
     levels = pd.DataFrame(
         {"energy": [0.0, 1.0]},
         index=pd.MultiIndex.from_tuples(
@@ -101,7 +107,7 @@ def test_augmented_elemental_rate_matrix_retains_carbon_ion_states() -> None:
     )
     zero_rates = pd.DataFrame(0.0, index=bound_free_index, columns=[0])
 
-    augmented = EquilibriumIonRateMatrix().solve_elemental(
+    matrix_set = IonRateMatrix().solve_ion_and_level(
         atomic_number=6,
         raw_level_rate_matrices=raw_level_rate_matrices,
         photoion_rates_df=photoion_rates,
@@ -111,8 +117,8 @@ def test_augmented_elemental_rate_matrix_retains_carbon_ion_states() -> None:
         ion_stage_count=7,
     )
 
-    assert augmented.state_index.level_positions == {(0, 0): 0, (0, 1): 1}
-    assert augmented.state_index.ion_positions == {
+    assert matrix_set.state_index.level_positions == {(0, 0): 0, (0, 1): 1}
+    assert matrix_set.state_index.ion_positions == {
         1: 2,
         2: 3,
         3: 4,
@@ -120,10 +126,10 @@ def test_augmented_elemental_rate_matrix_retains_carbon_ion_states() -> None:
         5: 6,
         6: 7,
     }
-    normalized_rate_matrix = augmented.normalized_rate_matrices.loc[6, 0]
+    normalized_rate_matrix = matrix_set.normalized_rate_matrices.loc[6, 0]
     assert normalized_rate_matrix.shape == (8, 8)
     np.testing.assert_array_equal(normalized_rate_matrix[0], np.ones(8))
-    raw_rate_matrix = augmented.raw_elemental_rate_matrices.loc[6, 0]
+    raw_rate_matrix = matrix_set.raw_elemental_rate_matrices.loc[6, 0]
     np.testing.assert_allclose(raw_rate_matrix.sum(axis=0), 0.0)
     assert raw_rate_matrix[2, 0] == 5.0
     assert raw_rate_matrix[0, 2] == 7.0
@@ -259,7 +265,7 @@ def test_ion_rate_matrix_has_charge_and_normalization_rows(
             mock_boltzmann_factor,
         )
     )
-    matrices = EquilibriumIonRateMatrix().solve(
+    matrices = IonRateMatrix().solve(
         photoion_rates,
         recombination_rates,
         collisional_ionization_rates,
@@ -365,7 +371,7 @@ def test_ion_rate_matrix_solver(
             mock_boltzmann_factor,
         )
     )
-    actual = EquilibriumIonRateMatrix().solve(
+    actual = IonRateMatrix().solve(
         photoion_rates,
         recombination_rates,
         collisional_ionization_rates,

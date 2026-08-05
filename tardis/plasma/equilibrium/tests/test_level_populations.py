@@ -13,7 +13,7 @@ from tardis.plasma.equilibrium.ion_populations import (
 )
 from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
 from tardis.plasma.equilibrium.rate_matrix import (
-    EquilibriumIonRateMatrix,
+    IonRateMatrix,
     LevelRateMatrix,
 )
 from tardis.plasma.equilibrium.rates import (
@@ -68,31 +68,6 @@ class TestLevelPopulationSolver:
         self.solver = LevelPopulationSolver(
             rates_matrices, new_chianti_atomic_dataset_si.levels
         )
-
-    def test_calculate_level_population_simple(self):
-        """Test solving a 2-level ion."""
-        rates_matrix = np.array([[1, 1], [2, -2]])
-        expected_population = np.array([0.5, 0.5])
-        result = self.solver._LevelPopulationSolver__calculate_level_population(
-            rates_matrix
-        )
-        np.testing.assert_array_almost_equal(result, expected_population)
-
-    def test_calculate_level_population_empty(self):
-        """Test empty rate matrix."""
-        rates_matrix = np.array([[]])
-        with pytest.raises(np.linalg.LinAlgError):
-            self.solver._LevelPopulationSolver__calculate_level_population(
-                rates_matrix
-            )
-
-    def test_calculate_level_population_zeros(self):
-        """Test zero rate matrix."""
-        rates_matrix = np.array([[0, 0], [0, 0]])
-        with pytest.raises(np.linalg.LinAlgError):
-            self.solver._LevelPopulationSolver__calculate_level_population(
-                rates_matrix
-            )
 
     def test_solve(self, regression_data):
         """Test the solve method."""
@@ -255,7 +230,7 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         :,
     ].sort_values("nu")
     ion_population_solver = AnalyticEquilibriumIonPopulationSolver(
-        EquilibriumIonRateMatrix(),
+        IonRateMatrix(),
         AnalyticPhotoionizationRateSolver(photoionization_data),
         CollisionalIonizationRateSolver(photoionization_data),
         elemental_number_density,
@@ -283,3 +258,25 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         rtol=1e-8,
         atol=0.0,
     )
+
+
+def test_level_population_solver_solves_raw_level_block() -> None:
+    levels = pd.DataFrame(
+        {"energy": [0.0, 1.0]},
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0, 0), (1, 0, 1)],
+            names=["atomic_number", "ion_number", "level_number"],
+        ),
+    )
+    raw_rate_matrices = pd.DataFrame(
+        [[np.array([[-2.0, 3.0], [2.0, -3.0]])]],
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0)], names=["atomic_number", "ion_number"]
+        ),
+        columns=[0],
+    )
+
+    solver = LevelPopulationSolver(raw_rate_matrices, levels)
+    populations = solver.solve_raw(raw_rate_matrices)
+
+    np.testing.assert_allclose(populations.loc[(1, 0), 0], [0.6, 0.4])

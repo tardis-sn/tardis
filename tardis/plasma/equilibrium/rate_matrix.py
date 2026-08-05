@@ -150,9 +150,7 @@ class LevelRateMatrix:
 
         for species_id, species_rates in grouped_rates:
             number_of_levels = len(self.levels.energy.loc[species_id])
-            source = species_rates.index.get_level_values(
-                "level_number_source"
-            )
+            source = species_rates.index.get_level_values("level_number_source")
             destination = species_rates.index.get_level_values(
                 "level_number_destination"
             )
@@ -174,7 +172,7 @@ class LevelRateMatrix:
         raw_rate_matrices.index.names = ["atomic_number", "ion_number"]
         return raw_rate_matrices
 
-    def build_raw_rate_matrix_block(
+    def build_raw_level_matrices_for_ion(
         self,
         radiative_rates_df: pd.DataFrame,
         collisional_rates_df: pd.DataFrame,
@@ -220,25 +218,19 @@ class LevelRateMatrix:
             per cell.
         """
         species_mask = (
-            (
-                radiative_rates_df.index.get_level_values("atomic_number")
-                == species_id[0]
-            )
-            & (
-                radiative_rates_df.index.get_level_values("ion_number")
-                == species_id[1]
-            )
+            radiative_rates_df.index.get_level_values("atomic_number")
+            == species_id[0]
+        ) & (
+            radiative_rates_df.index.get_level_values("ion_number")
+            == species_id[1]
         )
         radiative_rates_df = radiative_rates_df.loc[species_mask]
         species_mask = (
-            (
-                collisional_rates_df.index.get_level_values("atomic_number")
-                == species_id[0]
-            )
-            & (
-                collisional_rates_df.index.get_level_values("ion_number")
-                == species_id[1]
-            )
+            collisional_rates_df.index.get_level_values("atomic_number")
+            == species_id[0]
+        ) & (
+            collisional_rates_df.index.get_level_values("ion_number")
+            == species_id[1]
         )
         collisional_rates_df = collisional_rates_df.loc[species_mask]
         raw_rate_matrices = self.build_raw_rate_matrices(
@@ -281,13 +273,9 @@ class LevelRateMatrix:
         normalized_rate_matrices = raw_rate_matrices.copy(deep=True)
         for species_id in raw_rate_matrices.index:
             for cell in raw_rate_matrices.columns:
-                raw_rate_matrix = raw_rate_matrices.loc[
-                    species_id, cell
-                ].copy()
+                raw_rate_matrix = raw_rate_matrices.loc[species_id, cell].copy()
                 raw_rate_matrix[0, :] = 1
-                normalized_rate_matrices.loc[
-                    species_id, cell
-                ] = raw_rate_matrix
+                normalized_rate_matrices.loc[species_id, cell] = raw_rate_matrix
 
         normalized_rate_matrices.index.names = [
             "atomic_number",
@@ -305,7 +293,6 @@ class ElementalStateIndex:
     states: pd.MultiIndex
     level_positions: dict[tuple[int, int], int]
     ion_positions: dict[int, int]
-    normalization_row: int = 0
 
     @property
     def size(self) -> int:
@@ -314,15 +301,15 @@ class ElementalStateIndex:
 
 
 @dataclass(frozen=True)
-class AugmentedElementalRateMatrix:
-    """Element-normalized rate matrices and their state layout."""
+class IonLevelRateMatrixSet:
+    """Elemental rate matrices containing explicit levels and ion states."""
 
     normalized_rate_matrices: pd.DataFrame
     raw_elemental_rate_matrices: pd.DataFrame
     state_index: ElementalStateIndex
 
 
-class EquilibriumIonRateMatrix:
+class IonRateMatrix:
     """Construct ionization rate matrices from precomputed rates."""
 
     def __init__(self):
@@ -350,7 +337,7 @@ class EquilibriumIonRateMatrix:
         return state_index.ion_positions[ion_number]
 
     @staticmethod
-    def _rate_frames(
+    def _remove_empty_rate_frames(
         rate_frames: tuple[pd.DataFrame | None, ...],
     ) -> tuple[pd.DataFrame, ...]:
         """Discard absent optional rate tables while preserving their order."""
@@ -493,11 +480,11 @@ class EquilibriumIonRateMatrix:
                 raw_elemental_rate_matrix[
                     destination_position, source_position
                 ] += rate
-                raw_elemental_rate_matrix[
-                    source_position, source_position
-                ] -= rate
+                raw_elemental_rate_matrix[source_position, source_position] -= (
+                    rate
+                )
 
-    def solve_elemental(
+    def solve_ion_and_level(
         self,
         atomic_number: int,
         raw_level_rate_matrices: pd.DataFrame | None = None,
@@ -507,7 +494,7 @@ class EquilibriumIonRateMatrix:
         collision_recombination_rates_df: pd.DataFrame | None = None,
         nebular_rates_df: pd.DataFrame | None = None,
         ion_stage_count: int | None = None,
-    ) -> AugmentedElementalRateMatrix:
+    ) -> IonLevelRateMatrixSet:
         """Build an element-normalized matrix with explicit level blocks.
 
         ``raw_level_rate_matrices`` must be produced by
@@ -525,7 +512,7 @@ class EquilibriumIonRateMatrix:
         stationary equations are ``A @ p = 0`` and every raw column sums to
         zero. The normalized matrix replaces one dependent balance row with
         ones, so the linear solve uses ``A_normalized @ p = b`` where ``b`` is
-        zero except for a one in that normalization row.
+        zero except for a one in row 0.
 
         The returned object contains two DataFrames. Each has one row for the
         element and one column per cell; the value at ``.loc[6, 0]`` is the
@@ -562,7 +549,7 @@ class EquilibriumIonRateMatrix:
 
         Returns
         -------
-        AugmentedElementalRateMatrix
+        ElementalLevelIonRateMatrixSet
             Normalized and raw elemental rate-matrix DataFrames plus the
             explicit state-index metadata needed to interpret their arrays.
         """
@@ -578,15 +565,14 @@ class EquilibriumIonRateMatrix:
         else:
             selected_raw_level_rate_matrices = None
         if selected_raw_level_rate_matrices is not None and any(
-            ion_number < 0
-            or ion_number >= ion_stage_count - 1
+            ion_number < 0 or ion_number >= ion_stage_count - 1
             for _, ion_number in selected_raw_level_rate_matrices.index
         ):
             raise ValueError(
                 "A level block must represent a non-terminal ion stage"
             )
 
-        frames = self._rate_frames(
+        frames = self._remove_empty_rate_frames(
             (
                 raw_level_rate_matrices,
                 photoion_rates_df,
@@ -599,7 +585,9 @@ class EquilibriumIonRateMatrix:
         columns = frames[0].columns
         for frame in frames[1:]:
             if not frame.columns.equals(columns):
-                raise ValueError("All rate frames must use the same cell columns")
+                raise ValueError(
+                    "All rate frames must use the same cell columns"
+                )
 
         state_index = self._build_state_index(
             atomic_number,
@@ -610,10 +598,8 @@ class EquilibriumIonRateMatrix:
             index=pd.Index([atomic_number], name="atomic_number"),
             columns=columns,
         )
-        normalized_rate_matrices = raw_elemental_rate_matrices.copy(
-            deep=True
-        )
-        rate_frames = self._rate_frames(
+        normalized_rate_matrices = raw_elemental_rate_matrices.copy(deep=True)
+        rate_frames = self._remove_empty_rate_frames(
             (
                 photoion_rates_df,
                 recomb_rates_df,
@@ -663,19 +649,19 @@ class EquilibriumIonRateMatrix:
             )
             if not np.isfinite(raw_elemental_rate_matrix).all():
                 raise ValueError("The assembled rate matrix is not finite")
-            raw_elemental_rate_matrices.loc[
-                atomic_number, cell
-            ] = raw_elemental_rate_matrix
+            raw_elemental_rate_matrices.loc[atomic_number, cell] = (
+                raw_elemental_rate_matrix
+            )
             normalized_rate_matrix = raw_elemental_rate_matrix.copy()
-            # Replace one balance equation with elemental normalization.
-            normalized_rate_matrix[state_index.normalization_row, :] = 1.0
-            normalized_rate_matrices.loc[
-                atomic_number, cell
-            ] = normalized_rate_matrix
+            # Replace the first balance equation with elemental normalization.
+            normalized_rate_matrix[0, :] = 1.0
+            normalized_rate_matrices.loc[atomic_number, cell] = (
+                normalized_rate_matrix
+            )
 
         raw_elemental_rate_matrices.attrs["state_index"] = state_index
         normalized_rate_matrices.attrs["state_index"] = state_index
-        return AugmentedElementalRateMatrix(
+        return IonLevelRateMatrixSet(
             normalized_rate_matrices,
             raw_elemental_rate_matrices,
             state_index,

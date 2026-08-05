@@ -3,6 +3,7 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pandas.testing as pdt
+import pytest
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -10,7 +11,7 @@ from tardis.plasma.electron_energy_distribution import (
 from tardis.plasma.equilibrium.ion_populations import (
     AnalyticEquilibriumIonPopulationSolver,
 )
-from tardis.plasma.equilibrium.rate_matrix import EquilibriumIonRateMatrix
+from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
 )
@@ -66,22 +67,24 @@ def test_solve(
     charge_conservation = False
 
     ion_population_solver = AnalyticEquilibriumIonPopulationSolver(
-        EquilibriumIonRateMatrix(),
+        IonRateMatrix(),
         photoionization_rate_solver,
         collisional_ionization_rate_solver,
         elemental_number_density,
     )
 
-    actual_ion_population, actual_electron_density = ion_population_solver.solve(
-        radiation_field,
-        thermal_electron_energy_distribution,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
-        1.0,
-        boltzmann_factor,
-        charge_conservation,
+    actual_ion_population, actual_electron_density = (
+        ion_population_solver.solve(
+            radiation_field,
+            thermal_electron_energy_distribution,
+            lte_level_population,
+            level_population,
+            lte_ion_population,
+            ion_population,
+            1.0,
+            boltzmann_factor,
+            charge_conservation,
+        )
     )
 
     expected_ion_population = regression_data.sync_dataframe(
@@ -133,3 +136,93 @@ def test_solve(
             matrix @ population, balance, rtol=1e-12, atol=1e-12
         )
         assert np.isfinite(np.linalg.cond(matrix))
+
+
+def test_build_elemental_population_solution_returns_populations() -> None:
+    transition_names = [
+        "atomic_number",
+        "ion_number",
+        "ion_number_source",
+        "ion_number_destination",
+        "level_number_source",
+        "level_number_destination",
+    ]
+    transition_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0, 1, 0, 0)], names=transition_names
+    )
+    raw_level_rate_matrices = pd.DataFrame(
+        [[np.zeros((1, 1))]],
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0)], names=["atomic_number", "ion_number"]
+        ),
+        columns=[0],
+    )
+    photoionization_rates = pd.DataFrame(
+        [4.0], index=transition_index, columns=[0]
+    )
+    recombination_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 1, 0, 0, 0)], names=transition_names
+    )
+    recombination_rates = pd.DataFrame(
+        [2.0], index=recombination_index, columns=[0]
+    )
+    matrix_set = IonRateMatrix().solve_ion_and_level(
+        atomic_number=1,
+        raw_level_rate_matrices=raw_level_rate_matrices,
+        photoion_rates_df=photoionization_rates,
+        recomb_rates_df=recombination_rates,
+        ion_stage_count=2,
+    )
+
+    solution = (
+        AnalyticEquilibriumIonPopulationSolver._build_elemental_population_solution(
+            matrix_set, pd.Series([9.0], index=[0])
+        )
+    )
+
+    npt.assert_allclose(
+        solution.normalized_level_populations.loc[(1, 0, 0)].to_numpy(),
+        [1.0 / 3.0],
+    )
+    npt.assert_allclose(
+        solution.normalized_ion_populations[0].to_numpy(),
+        [1.0 / 3.0, 2.0 / 3.0],
+    )
+    npt.assert_allclose(
+        solution.level_populations.loc[(1, 0, 0)].to_numpy(), [3.0]
+    )
+    npt.assert_allclose(solution.ion_populations[0].to_numpy(), [3.0, 6.0])
+    npt.assert_allclose(solution.normalized_ion_populations[0].sum(), 1.0)
+
+
+def test_build_elemental_population_solution_reports_singular_matrix() -> None:
+    transition_names = [
+        "atomic_number",
+        "ion_number",
+        "ion_number_source",
+        "ion_number_destination",
+        "level_number_source",
+        "level_number_destination",
+    ]
+    transition_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0, 1, 0, 0)], names=transition_names
+    )
+    raw_level_rate_matrices = pd.DataFrame(
+        [[np.zeros((1, 1))]],
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0)], names=["atomic_number", "ion_number"]
+        ),
+        columns=[0],
+    )
+    zero_rates = pd.DataFrame([0.0], index=transition_index, columns=[0])
+    matrix_set = IonRateMatrix().solve_ion_and_level(
+        atomic_number=1,
+        raw_level_rate_matrices=raw_level_rate_matrices,
+        photoion_rates_df=zero_rates,
+        ion_stage_count=2,
+    )
+
+    with pytest.raises(np.linalg.LinAlgError):
+        AnalyticEquilibriumIonPopulationSolver._build_elemental_population_solution(
+            matrix_set, pd.Series([1.0], index=[0])
+        )

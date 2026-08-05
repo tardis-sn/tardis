@@ -15,7 +15,7 @@ from tardis.plasma.equilibrium.ion_populations import (
 )
 from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
 from tardis.plasma.equilibrium.rate_matrix import (
-    EquilibriumIonRateMatrix,
+    IonRateMatrix,
     LevelRateMatrix,
     LTEIonRateMatrix,
 )
@@ -492,7 +492,7 @@ class HydrogenContinuumIonPopulations(ProcessingPlasmaProperty):
             self.photoionization_data
         )
         solver = AnalyticEquilibriumIonPopulationSolver(
-            EquilibriumIonRateMatrix(),
+            IonRateMatrix(),
             photoionization_rate_solver,
             collisional_rate_solver,
             elemental_number_density,
@@ -536,7 +536,7 @@ class HydrogenContinuumIonPopulations(ProcessingPlasmaProperty):
             self.photoionization_data
         )
 
-        ion_rate_matrix_solver = EquilibriumIonRateMatrix()
+        ion_rate_matrix_solver = IonRateMatrix()
 
         solver = EstimatedEquilibriumIonPopulationSolver(
             ion_rate_matrix_solver,

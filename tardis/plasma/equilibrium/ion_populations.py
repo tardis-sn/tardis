@@ -1,9 +1,15 @@
 import logging
+from dataclasses import dataclass
 
 import astropy.units as u
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+
+from tardis.plasma.equilibrium.rate_matrix import (
+    ElementalStateIndex,
+    IonLevelRateMatrixSet,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +44,40 @@ def calculate_level_to_ion_population_factor(
     return level_population_at_lower_ion / (
         ion_population_at_upper_ion.values * electron_number_density.value
     )
+
+
+@dataclass(frozen=True)
+class ElementalPopulationSolution:
+    """Element-normalized and absolute populations for one element.
+
+    Attributes
+    ----------
+    normalized_state_populations : pandas.DataFrame
+        Population for every explicit level and total-ion state in the
+        matrix ordering described by ``state_index.states``. Columns are
+        shells.
+    normalized_level_populations : pandas.DataFrame
+        Element-normalized populations for explicit levels, indexed by
+        ``(atomic_number, ion_number, level_number)``.
+    normalized_ion_populations : pandas.DataFrame
+        Element-normalized total population for every retained ion stage,
+        including the terminal bare-nucleus state.
+    level_populations : pandas.DataFrame
+        Absolute explicit-level populations reconstructed from the elemental
+        number density.
+    ion_populations : pandas.DataFrame
+        Absolute total-ion populations reconstructed from the elemental
+        number density.
+    state_index : ElementalStateIndex
+        Mapping between physical level/ion labels and matrix positions.
+    """
+
+    normalized_state_populations: pd.DataFrame
+    normalized_level_populations: pd.DataFrame
+    normalized_ion_populations: pd.DataFrame
+    level_populations: pd.DataFrame
+    ion_populations: pd.DataFrame
+    state_index: ElementalStateIndex
 
 
 class AnalyticEquilibriumIonPopulationSolver:
@@ -115,6 +155,134 @@ class AnalyticEquilibriumIonPopulationSolver:
     def delta_quantity(estimated, solution):
         """Return the relative change between estimated and solved values."""
         return (estimated - solution) / solution
+
+    @staticmethod
+    def _build_elemental_population_solution(
+        elemental_rate_matrices: IonLevelRateMatrixSet,
+        elemental_number_density: pd.Series,
+    ) -> ElementalPopulationSolution:
+        """Solve and unpack all shells in an elemental rate-matrix set.
+
+        The normalized matrix is solved once per shell. The returned state
+        vector is then unpacked exclusively through ``state_index``: explicit
+        level positions become level populations, while all level positions
+        belonging to one ion are summed to recover its total population. Ion
+        stages without explicit levels are read from their single total-state
+        position, which preserves the terminal bare-nucleus state.
+
+        Absolute populations are reconstructed only after the normalized
+        state is complete by multiplying each shell by the elemental number
+        density. This keeps the linear solve independent of the abundance
+        scale.
+
+        Parameters
+        ----------
+        elemental_rate_matrices : IonLevelRateMatrixSet
+            Element-normalized matrices and explicit state-index metadata from
+            :meth:`~tardis.plasma.equilibrium.rate_matrix.IonRateMatrix.solve_ion_and_level`.
+        elemental_number_density : pandas.Series
+            Absolute number density of the element indexed by matrix shell.
+
+        Returns
+        -------
+        ElementalPopulationSolution
+            Element-normalized level and ion fractions and reconstructed
+            absolute populations.
+        """
+        normalized_rate_matrices = elemental_rate_matrices.normalized_rate_matrices
+        state_index = elemental_rate_matrices.state_index
+        atomic_number = state_index.atomic_number
+        columns = normalized_rate_matrices.columns
+        density = elemental_number_density.reindex(columns).astype(float)
+
+        state_populations = pd.DataFrame(
+            index=state_index.states,
+            columns=columns,
+            dtype=float,
+        )
+        for cell in columns:
+            # The matrix state index is the single source of truth for the
+            # shell vector; level and ion offsets must not be reconstructed.
+            normalized_rate_matrix = normalized_rate_matrices.loc[
+                atomic_number, cell
+            ]
+            normalization = np.zeros(normalized_rate_matrix.shape[0])
+            normalization[0] = 1.0
+            population = np.linalg.solve(
+                normalized_rate_matrix,
+                normalization,
+            )
+            state_populations[cell] = population
+
+        level_positions = sorted(
+            state_index.level_positions.items(), key=lambda item: item[1]
+        )
+        level_index = pd.MultiIndex.from_tuples(
+            [
+                (atomic_number, ion_number, level_number)
+                for (ion_number, level_number), _ in level_positions
+            ],
+            names=["atomic_number", "ion_number", "level_number"],
+        )
+        normalized_level_populations = pd.DataFrame(
+            [
+                state_populations.iloc[position].to_numpy()
+                for _, position in level_positions
+            ],
+            index=level_index,
+            columns=columns,
+        )
+
+        # Sum explicit level states to recover the total population of each
+        # level-bearing ion. Bare and level-free ions already have one total
+        # state and therefore require no summation.
+        ion_numbers = sorted(
+            set(state_index.ion_positions)
+            | {ion_number for ion_number, _ in state_index.level_positions}
+        )
+        normalized_ion_populations = pd.DataFrame(
+            index=pd.MultiIndex.from_tuples(
+                [(atomic_number, ion_number) for ion_number in ion_numbers],
+                names=["atomic_number", "ion_number"],
+            ),
+            columns=columns,
+            dtype=float,
+        )
+        for ion_number in ion_numbers:
+            ion_level_positions = [
+                position
+                for (
+                    level_ion_number,
+                    _,
+                ), position in state_index.level_positions.items()
+                if level_ion_number == ion_number
+            ]
+            if ion_level_positions:
+                ion_population = state_populations.iloc[
+                    ion_level_positions
+                ].sum(axis=0)
+            else:
+                ion_population = state_populations.iloc[
+                    state_index.ion_positions[ion_number]
+                ]
+            normalized_ion_populations.loc[(atomic_number, ion_number)] = (
+                ion_population.to_numpy()
+            )
+
+        level_populations = normalized_level_populations.multiply(
+            density, axis="columns"
+        )
+        ion_populations = normalized_ion_populations.multiply(
+            density, axis="columns"
+        )
+        return ElementalPopulationSolution(
+            normalized_state_populations=state_populations,
+            normalized_level_populations=normalized_level_populations,
+            normalized_ion_populations=normalized_ion_populations,
+            level_populations=level_populations,
+            ion_populations=ion_populations,
+            state_index=state_index,
+        )
 
     def solve(
         self,

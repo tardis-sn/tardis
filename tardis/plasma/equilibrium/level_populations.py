@@ -3,6 +3,8 @@ import pandas as pd
 
 
 class LevelPopulationSolver:
+    """Solve normalized populations from level rate matrices."""
+
     def __init__(self, rates_matrices: pd.DataFrame, levels: pd.DataFrame):
         """Solve the normalized level population values from the rate matrices.
 
@@ -17,28 +19,12 @@ class LevelPopulationSolver:
         self.rates_matrices = rates_matrices
         self.levels = levels
 
-    def __calculate_level_population(self, rates_matrix: np.ndarray):
-        """Helper function to calculate the normalized, per-level boltzmann factor.
+    def solve(self) -> pd.DataFrame:
+        """Solve every level block independently for every cell.
 
-        Parameters
-        ----------
-        rates_matrix : np.ndarray
-            The rate matrix for a given species and cell.
-
-        Returns
-        -------
-        np.ndarray
-            The normalized, per-level population.
-        """
-        normalized_ion_population = np.zeros(rates_matrix.shape[0])
-        normalized_ion_population[0] = 1.0
-        normalized_level_population = np.linalg.solve(
-            rates_matrix, normalized_ion_population
-        )
-        return normalized_level_population
-
-    def solve(self):
-        """Solves the normalized level population values from the rate matrices.
+        Each matrix is solved with a unit population normalization. The
+        species and cell labels are retained in the returned DataFrame; no
+        population is mixed between ions or cells.
 
         Returns
         -------
@@ -52,16 +38,58 @@ class LevelPopulationSolver:
             dtype=np.float64,
         )
 
-        # try converting the set of vectors into a single 2D array and then applying index
         for species_id in self.rates_matrices.index:
-            # TODO: resolve the chained assignment here. Maybe an intermediate df
-            # is needed
-
-            solved_matrices = self.rates_matrices.loc[species_id].apply(
-                self.__calculate_level_population
-            )
+            solved_matrices = []
+            for cell in self.rates_matrices.columns:
+                normalized_rate_matrix = self.rates_matrices.loc[species_id, cell]
+                normalization = np.zeros(normalized_rate_matrix.shape[0])
+                normalization[0] = 1.0
+                population = np.linalg.solve(
+                    normalized_rate_matrix,
+                    normalization,
+                )
+                solved_matrices.append(population)
             normalized_level_populations.loc[species_id, :] = np.vstack(
-                solved_matrices.values
+                solved_matrices
             ).T
-
         return normalized_level_populations
+
+    def solve_raw(
+        self, raw_rate_matrices: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Normalize and solve raw level blocks from ``LevelRateMatrix``.
+
+        ``LevelRateMatrix.build_raw_rate_matrices`` returns generators whose
+        columns sum to zero. This method copies those matrices, replaces the
+        first equilibrium row with ones, and delegates the linear solves to
+        :meth:`solve`. The input DataFrame and its matrix objects are not
+        modified.
+
+        Parameters
+        ----------
+        raw_rate_matrices : pandas.DataFrame
+            Unnormalized level rate matrices indexed by species and with one
+            matrix per cell.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Element-normalized level fractions, indexed like ``levels``.
+        """
+        normalized_rate_matrices = raw_rate_matrices.copy(deep=True)
+        for species_id in raw_rate_matrices.index:
+            for cell in raw_rate_matrices.columns:
+                normalized_rate_matrix = np.asarray(
+                    raw_rate_matrices.loc[species_id, cell], dtype=float
+                ).copy()
+                # Replace one dependent equilibrium equation with normalization
+                # without mutating the caller's raw generator.
+                normalized_rate_matrix[0, :] = 1.0
+                normalized_rate_matrices.loc[
+                    species_id, cell
+                ] = normalized_rate_matrix
+        solver = LevelPopulationSolver(
+            normalized_rate_matrices,
+            self.levels,
+        )
+        return solver.solve()
