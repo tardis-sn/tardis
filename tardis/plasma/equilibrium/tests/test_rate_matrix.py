@@ -59,9 +59,10 @@ def test_level_rate_matrix_exposes_raw_rate_matrix_for_selected_ion() -> None:
     )
     raw_rate_matrix = raw_rate_matrices.loc[(6, 1), 0]
 
+    # The distinct synthetic rates 2 and 3 expose the source/destination
+    # orientation: columns sum to zero in this unnormalized generator.
     np.testing.assert_array_equal(raw_rate_matrix, [[-2.0, 3.0], [2.0, -3.0]])
     np.testing.assert_allclose(raw_rate_matrix.sum(axis=0), 0.0)
-    assert not np.all(raw_rate_matrix[0] == 1.0)
 
 
 def test_elemental_level_ion_rate_matrix_set_retains_carbon_ion_states() -> (
@@ -93,6 +94,8 @@ def test_elemental_level_ion_rate_matrix_set_retains_carbon_ion_states() -> (
         pd.DataFrame(0.0, index=bound_bound_index, columns=[0]),
         np.array([1.0]),
     )
+    # The unequal 5 and 7 bound-free rates make both off-diagonal directions
+    # and their state-index positions independently observable.
     bound_free_index = pd.MultiIndex.from_tuples(
         [(6, 0, 0, 1, 0, 0)],
         names=bound_bound_index.names,
@@ -117,6 +120,8 @@ def test_elemental_level_ion_rate_matrix_set_retains_carbon_ion_states() -> (
         ion_stage_count=7,
     )
 
+    # The state vector has two explicit C I levels, then six ion-stage totals,
+    # ending with the bare C 6+ charge state that has no level block.
     assert matrix_set.state_index.level_positions == {(0, 0): 0, (0, 1): 1}
     assert matrix_set.state_index.ion_positions == {
         1: 2,

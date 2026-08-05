@@ -538,7 +538,12 @@ class TypeIIPWorkflow:
             "previous_electron_densities": electron_densities,
             "link_t_rad_t_electron": link_t_rad_t_electron,
         }
-        if "previous_beta_sobolev" in self.plasma_solver.outputs_dict:
+        legacy_continuum_outputs = {
+            "previous_beta_sobolev",
+            "previous_b",
+            "previous_t_electrons",
+        }
+        if legacy_continuum_outputs <= set(self.plasma_solver.outputs_dict):
             update_kwargs.update(
                 previous_beta_sobolev=pl.beta_sobolev.copy(),
                 previous_b=pl.b,
@@ -553,6 +558,8 @@ class TypeIIPWorkflow:
                 previous_level_number_density=(pl.level_number_density.copy()),
                 iteration=1,
             )
+            if "previous_beta_sobolev" in self.plasma_solver.outputs_dict:
+                update_kwargs["previous_beta_sobolev"] = pl.beta_sobolev.copy()
         self.plasma_solver.update(**update_kwargs)
 
         solution = np.zeros(2 * len(self.plasma_solver.fractional_heating))

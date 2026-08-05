@@ -107,6 +107,8 @@ def test_radiative_rate_solver_applies_sobolev_escape_probability(
         ["A_ul", "B_ul", "B_lu", "nu"],
     ].iloc[:1]
     solver = RadiativeRatesSolver(einstein_coefficients)
+    # Hold both shells at 10,000 K so the distinct beta values are the only
+    # source of the expected quarter- and half-rate scaling.
     radiation_field = PlanckianRadiationField(
         temperature=np.array([10000.0, 10000.0]) * u.K
     )
@@ -117,6 +119,8 @@ def test_radiative_rate_solver_applies_sobolev_escape_probability(
     unscaled_rates = solver.solve(radiation_field)
     scaled_rates = solver.solve(radiation_field, beta_sobolevs=beta_sobolevs)
 
+    # Escape probabilities scale every radiative transition independently in
+    # each shell; the unscaled solve is the reference for that multiplication.
     pdt.assert_frame_equal(
         scaled_rates,
         unscaled_rates.multiply(beta_sobolevs.iloc[0].to_numpy(), axis=1),
@@ -125,4 +129,3 @@ def test_radiative_rate_solver_applies_sobolev_escape_probability(
 @pytest.mark.xfail(strict=True, raises=AssertionError)
 def test_invalid_coefficients(invalid_coefficients):
     solver = RadiativeRatesSolver(invalid_coefficients)
-

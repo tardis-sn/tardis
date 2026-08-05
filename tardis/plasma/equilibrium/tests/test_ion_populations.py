@@ -170,6 +170,8 @@ def test_build_elemental_population_solution_returns_populations() -> None:
     recombination_rates = pd.DataFrame(
         [2.0], index=recombination_index, columns=[0]
     )
+    # The synthetic rates 4 and 2 give a 1:2 H I/H II stationary population
+    # ratio; abundance 9 therefore produces the exact 3 and 6 populations.
     matrix_set = IonRateMatrix().solve_ion_and_level(
         atomic_number=1,
         raw_level_rate_matrices=raw_level_rate_matrices,
@@ -218,6 +220,7 @@ def test_build_elemental_population_solution_reports_singular_matrix() -> None:
         ),
         columns=[0],
     )
+    # Zero photoionization and recombination rates leave the state disconnected.
     zero_rates = pd.DataFrame([0.0], index=transition_index, columns=[0])
     matrix_set = IonRateMatrix().solve_ion_and_level(
         atomic_number=1,
@@ -248,6 +251,8 @@ def test_analytic_charge_conservation_uses_elemental_rate_matrices() -> None:
         [(1, 0, 1, 0, 0, 0)], names=transition_names
     )
 
+    # The synthetic photoionization rate 3 and recombination factor 2 give the
+    # charge-conservation solve a closed-form quadratic reference solution.
     class PhotoionizationRates:
         def solve(
             self,
@@ -329,7 +334,7 @@ def test_analytic_charge_conservation_uses_elemental_rate_matrices() -> None:
         pd.DataFrame([[1.0]], index=lte_level_population.index, columns=[0]),
         pd.DataFrame([[1.0]], index=lte_level_population.index, columns=[0]),
         charge_conservation=True,
-        tolerance=1e-8,
+        tolerance=1e-8,  # Looser than production to isolate the analytic root.
     )
     expected = (3.0 + np.sqrt(3.0**2 + 4 * 2.0 * 39.0)) / (2 * 2.0)
 
@@ -340,6 +345,8 @@ def test_analytic_charge_conservation_uses_elemental_rate_matrices() -> None:
 
 
 def test_charge_conservation_solver_solves_pure_hydrogen() -> None:
+    # The abundance 10 and synthetic alpha/gamma values yield a simple
+    # quadratic charge-closure root independent of atomic-data fixtures.
     elemental_number_density = pd.DataFrame(
         [[10.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
     )
@@ -380,6 +387,8 @@ def test_charge_conservation_solver_includes_all_carbon_stages() -> None:
     carbon_populations = np.array([0.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5])
 
     def solve_trial(electron_density: pd.Series) -> pd.DataFrame:
+        # Carbon contributes 4.5 electrons; the 0.1 hydrogen response then
+        # closes at the analytic electron density 5.0.
         hydrogen_ionized = 0.1 * electron_density.iloc[0]
         hydrogen = np.array([1.0 - hydrogen_ionized, hydrogen_ionized])
         rows = [(1, 0), (1, 1)] + [(6, ion_number) for ion_number in range(7)]
@@ -399,16 +408,21 @@ def test_charge_conservation_solver_includes_all_carbon_stages() -> None:
 
 
 @pytest.mark.parametrize(
-    ("ionized_at_zero", "ionized_at_max"), [(0.0, 0.0), (1.0, 1.0)]
+    ("ionized_at_zero", "ionized_at_max", "expected_electron_density"),
+    [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)],
 )
 def test_charge_conservation_solver_accepts_physical_endpoints(
-    ionized_at_zero: float, ionized_at_max: float
+    ionized_at_zero: float,
+    ionized_at_max: float,
+    expected_electron_density: float,
 ) -> None:
     elemental_number_density = pd.DataFrame(
         [[1.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
     )
 
     def solve_trial(electron_density: pd.Series) -> pd.DataFrame:
+        # The 0 and 1 ion fractions place the exact root at each end of the
+        # physical bracket, without calling the interior root finder.
         ionized = (
             ionized_at_zero
             if electron_density.iloc[0] == 0
@@ -427,7 +441,7 @@ def test_charge_conservation_solver_accepts_physical_endpoints(
         elemental_number_density, solve_trial
     ).solve()
 
-    assert electron_number_density.iloc[0] in (0.0, 1.0)
+    npt.assert_allclose(electron_number_density, [expected_electron_density])
 
 
 def test_charge_conservation_solver_reports_nonfinite_residual() -> None:

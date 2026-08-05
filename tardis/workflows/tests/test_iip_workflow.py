@@ -64,9 +64,12 @@ def _assert_regression_dataframe(
     )
 
 
-def _ctardis_after_mc_continuum_estimators(
+@pytest.fixture
+def ctardis_after_mc_continuum_estimators(
     iip_regression_path: Path,
 ) -> dict[str, object]:
+    # Replay the stored post-Monte-Carlo inputs so the parity diagnostic
+    # isolates the plasma fixed point from transport differences.
     photo_ion_estimator = pd.read_hdf(
         iip_regression_path / "ctardis_photo_ion_estimator_after_mc.h5",
         key="data",
@@ -92,6 +95,8 @@ def _ctardis_after_mc_continuum_estimators(
         "stimulated_recombination_cooling_estimator": (
             stim_recomb_cooling_estimator
         ),
+        # C-TARDIS stores these 24 per-shell free-free heating values only in
+        # the legacy fixture, so replay them verbatim for the parity input.
         "free_free_heating_estimator": [
             4.89135279e-24,
             4.37696370e-24,
@@ -150,7 +155,7 @@ WORKFLOW_INITIAL_REGRESSION_CASES = (
     pytest.param("p_fb_deactivation", marks=INITIAL_PARITY_XFAIL),
     pytest.param("chi_bf", marks=INITIAL_PARITY_XFAIL),
     pytest.param("stimulated_emission_factor", marks=INITIAL_PARITY_XFAIL),
-    pytest.param("ion_ratio", marks=INITIAL_PARITY_XFAIL),
+    "ion_ratio",
     "t_electrons",
     "link_t_rad_t_electron",
     "j_blues",
@@ -708,6 +713,10 @@ def test_initial_continuum_level_factor_uses_dilute_lte_without_estimators(
 ) -> None:
     """Verify the initial no-estimator continuum plasma contract."""
     standard_plasma = initial_type_iip_workflow.plasma_solver
+    # With no estimators, continuum excitation is configured dilute LTE rather
+    # than the bound-free statistical-equilibrium update.
+    # These 1e-12 comparisons are algebraic property-graph identities, not
+    # integrated legacy-parity tolerances.
     pd.testing.assert_frame_equal(
         standard_plasma.level_boltzmann_factor.loc[(1, 0)],
         standard_plasma.general_level_boltzmann_factor.loc[(1, 0)],
@@ -722,6 +731,7 @@ def test_initial_continuum_level_factor_uses_dilute_lte_without_estimators(
         standard_plasma.number_density,
     )
     charges = expected_ion_number_density.index.get_level_values("ion_number")
+    # Charge neutrality is reconstructed from all ion stages, not just H II.
     expected_electron_densities = expected_ion_number_density.multiply(
         charges, axis=0
     ).sum(axis=0)
@@ -1079,7 +1089,7 @@ def test_iip_plasma_after_mc(
 )
 def test_standard_post_mc_fixed_point_parity_diagnostic(
     type_iip_workflow: TypeIIPWorkflow,
-    iip_regression_path: Path,
+    ctardis_after_mc_continuum_estimators: dict[str, object],
     iip_plasma_after_mc: LegacyPlasmaArray,
 ) -> None:
     """Compare standard and legacy states from identical post-MC estimators."""
@@ -1087,10 +1097,10 @@ def test_standard_post_mc_fixed_point_parity_diagnostic(
     workflow.simulation_state.t_radiative = iip_plasma_after_mc.t_rad * u.K
     workflow.simulation_state.dilution_factor = iip_plasma_after_mc.w
 
-    continuum_estimators = _ctardis_after_mc_continuum_estimators(
-        iip_regression_path
+    workflow.solve_plasma(
+        ctardis_after_mc_continuum_estimators,
+        iip_plasma_after_mc.j_blues,
     )
-    workflow.solve_plasma(continuum_estimators, iip_plasma_after_mc.j_blues)
     plasma = workflow.plasma_solver
 
     pd.testing.assert_frame_equal(

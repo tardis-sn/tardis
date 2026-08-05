@@ -1,6 +1,9 @@
 import logging
+from collections.abc import Collection
 
 import astropy.units as u
+import numpy.typing as npt
+import pandas as pd
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -260,13 +263,15 @@ class HydrogenContinuumLevelBoltzmannFactor(ProcessingPlasmaProperty):
 
     def calculate_equilibrium_level_boltzmann_factor(
         self,
-        atomic_data,
-        species_list,
-        t_electrons,
-        dilute_planckian_radiation_field,
-        general_level_boltzmann_factor,
-        previous_electron_densities,
-    ):
+        atomic_data: object,
+        species_list: Collection[tuple[int, int]],
+        t_electrons: npt.ArrayLike,
+        dilute_planckian_radiation_field: object,
+        beta_sobolevs: pd.DataFrame,
+        general_level_boltzmann_factor: pd.DataFrame,
+        previous_electron_densities: pd.Series,
+    ) -> pd.DataFrame:
+        """Solve configured level populations using supplied Sobolev rates."""
         for species in species_list:
             logger.info("Calculating rates for species %s", species)
             species_slice = (species[0], species[1], slice(None), slice(None))
@@ -295,7 +300,10 @@ class HydrogenContinuumLevelBoltzmannFactor(ProcessingPlasmaProperty):
             )
 
             radiative_rates_df = radiative_rate_solver.solve(
-                dilute_planckian_radiation_field
+                dilute_planckian_radiation_field,
+                beta_sobolevs=beta_sobolevs.reindex(
+                    radiative_transitions.index
+                ),
             )
             collisional_rates_df = collisional_rate_solver.solve(
                 electron_distribution.temperature
@@ -318,14 +326,16 @@ class HydrogenContinuumLevelBoltzmannFactor(ProcessingPlasmaProperty):
 
     def calculate(
         self,
-        atomic_data,
-        nlte_data,
-        t_electrons,
-        dilute_planckian_radiation_field,
-        general_level_boltzmann_factor,
-        previous_electron_densities,
-        j_blues,
-    ):
+        atomic_data: object,
+        nlte_data: object,
+        t_electrons: npt.ArrayLike,
+        dilute_planckian_radiation_field: object,
+        previous_beta_sobolev: pd.DataFrame,
+        general_level_boltzmann_factor: pd.DataFrame,
+        previous_electron_densities: pd.Series,
+        j_blues: object | None,
+    ) -> pd.DataFrame:
+        """Calculate the continuum level Boltzmann factors."""
         if j_blues is None:
             return general_level_boltzmann_factor
 
@@ -335,6 +345,7 @@ class HydrogenContinuumLevelBoltzmannFactor(ProcessingPlasmaProperty):
             nlte_data.nlte_species,
             t_electrons,
             estimated_radiation_field,
+            previous_beta_sobolev,
             general_level_boltzmann_factor,
             previous_electron_densities,
         )

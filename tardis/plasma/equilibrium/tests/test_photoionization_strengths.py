@@ -191,6 +191,8 @@ def test_estimated_photoionization_coeff_solver():
         level2continuum_edge_idx
     )
     expected_photoionization_rate_coeff = pd.DataFrame(
+        # These fixed estimator coefficients distinguish the raw 1e-5 channel
+        # from the corresponding stimulated-recombination 1e-6 channel.
         [[0.0], [2.0e-5], [3.0e-5]],
         index=photoionization_index,
         columns=pd.Index([0], name="Shell No."),
@@ -223,6 +225,7 @@ def test_estimated_solver_exposes_raw_coefficients_without_population_correction
     solver = EstimatedPhotoionizationCoeffSolver(level2continuum_edge_idx)
 
     estimators_continuum = {
+        # Unequal tallies make an unintended population correction observable.
         "photoionization_rate_estimator": pd.DataFrame(
             [[5.0]], index=photoionization_index, columns=[0]
         ),
@@ -234,6 +237,8 @@ def test_estimated_solver_exposes_raw_coefficients_without_population_correction
         estimators_continuum,
     )
 
+    # Estimator-backed coefficients are raw inputs to rate assembly; applying
+    # any population correction here would change these values.
     pdt.assert_frame_equal(
         photoionization,
         estimators_continuum["photoionization_rate_estimator"].set_axis(
@@ -280,6 +285,8 @@ def test_lucy_recombination_factor_is_applied_once():
 
     actual = apply_lte_level_to_ion_factor(raw_coefficient, phi_ik)
 
+    # Recombination assembly owns this Lucy factor, and the raw coefficient
+    # must remain reusable for the other shells and transitions.
     pdt.assert_frame_equal(
         actual,
         pd.DataFrame([[6.0]], index=index, columns=[0]),
