@@ -22,6 +22,113 @@ from tardis.plasma.radiation_field import (
 )
 
 
+def test_level_rate_matrix_exposes_raw_rate_matrix_for_selected_ion() -> None:
+    levels = pd.DataFrame(
+        {"energy": [0.0, 1.0]},
+        index=pd.MultiIndex.from_tuples(
+            [(6, 1, 0), (6, 1, 1)],
+            names=["atomic_number", "ion_number", "level_number"],
+        ),
+    )
+    transition_index = pd.MultiIndex.from_tuples(
+        [
+            (6, 1, 1, 0, 0, 1),
+            (6, 1, 1, 0, 1, 0),
+        ],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "ion_number_source",
+            "ion_number_destination",
+            "level_number_source",
+            "level_number_destination",
+        ],
+    )
+    radiative_rates = pd.DataFrame([2.0, 3.0], index=transition_index, columns=[0])
+    collisional_rates = pd.DataFrame(0.0, index=transition_index, columns=[0])
+
+    raw_rate_matrices = LevelRateMatrix(levels).build_raw_rate_matrix_block(
+        radiative_rates,
+        collisional_rates,
+        np.array([1.0]),
+        (6, 1),
+    )
+    raw_rate_matrix = raw_rate_matrices.loc[(6, 1), 0]
+
+    np.testing.assert_array_equal(raw_rate_matrix, [[-2.0, 3.0], [2.0, -3.0]])
+    np.testing.assert_allclose(raw_rate_matrix.sum(axis=0), 0.0)
+    assert not np.all(raw_rate_matrix[0] == 1.0)
+
+
+def test_augmented_elemental_rate_matrix_retains_carbon_ion_states() -> None:
+    levels = pd.DataFrame(
+        {"energy": [0.0, 1.0]},
+        index=pd.MultiIndex.from_tuples(
+            [(6, 0, 0), (6, 0, 1)],
+            names=["atomic_number", "ion_number", "level_number"],
+        ),
+    )
+    bound_bound_index = pd.MultiIndex.from_tuples(
+        [
+            (6, 0, 0, 0, 0, 1),
+            (6, 0, 0, 0, 1, 0),
+        ],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "ion_number_source",
+            "ion_number_destination",
+            "level_number_source",
+            "level_number_destination",
+        ],
+    )
+    raw_level_rate_matrices = LevelRateMatrix(levels).build_raw_rate_matrices(
+        pd.DataFrame([2.0, 3.0], index=bound_bound_index, columns=[0]),
+        pd.DataFrame(0.0, index=bound_bound_index, columns=[0]),
+        np.array([1.0]),
+    )
+    bound_free_index = pd.MultiIndex.from_tuples(
+        [(6, 0, 0, 1, 0, 0)],
+        names=bound_bound_index.names,
+    )
+    photoion_rates = pd.DataFrame([5.0], index=bound_free_index, columns=[0])
+    recombination_index = pd.MultiIndex.from_tuples(
+        [(6, 0, 1, 0, 0, 0)],
+        names=bound_bound_index.names,
+    )
+    recombination_rates = pd.DataFrame(
+        [7.0], index=recombination_index, columns=[0]
+    )
+    zero_rates = pd.DataFrame(0.0, index=bound_free_index, columns=[0])
+
+    augmented = EquilibriumIonRateMatrix().solve_elemental(
+        atomic_number=6,
+        raw_level_rate_matrices=raw_level_rate_matrices,
+        photoion_rates_df=photoion_rates,
+        recomb_rates_df=recombination_rates,
+        collisional_ionization_rates_df=zero_rates,
+        collision_recombination_rates_df=zero_rates,
+        ion_stage_count=7,
+    )
+
+    assert augmented.state_index.level_positions == {(0, 0): 0, (0, 1): 1}
+    assert augmented.state_index.ion_positions == {
+        1: 2,
+        2: 3,
+        3: 4,
+        4: 5,
+        5: 6,
+        6: 7,
+    }
+    normalized_rate_matrix = augmented.normalized_rate_matrices.loc[6, 0]
+    assert normalized_rate_matrix.shape == (8, 8)
+    np.testing.assert_array_equal(normalized_rate_matrix[0], np.ones(8))
+    raw_rate_matrix = augmented.raw_elemental_rate_matrices.loc[6, 0]
+    np.testing.assert_allclose(raw_rate_matrix.sum(axis=0), 0.0)
+    assert raw_rate_matrix[2, 0] == 5.0
+    assert raw_rate_matrix[0, 2] == 7.0
+
+
 def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
     new_chianti_atomic_dataset_si: AtomData,
     rate_solver_list: list[tuple[object, str]],
