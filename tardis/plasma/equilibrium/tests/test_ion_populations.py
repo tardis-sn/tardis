@@ -75,6 +75,7 @@ def test_solve(
         photoionization_rate_solver,
         collisional_ionization_rate_solver,
         elemental_number_density,
+        charge_conservation=charge_conservation,
     )
 
     actual_ion_population, actual_electron_density = (
@@ -87,7 +88,6 @@ def test_solve(
             ion_population,
             1.0,
             boltzmann_factor,
-            charge_conservation,
         )
     )
 
@@ -318,6 +318,8 @@ def test_analytic_charge_conservation_uses_elemental_rate_matrices() -> None:
             index=pd.Index([1, 6], name="atomic_number"),
             columns=[0],
         ),
+        charge_conservation=True,
+        tolerance=1e-8,  # Looser than production to isolate the analytic root.
     )
 
     ion_populations, electron_number_density = solver.solve(
@@ -333,8 +335,6 @@ def test_analytic_charge_conservation_uses_elemental_rate_matrices() -> None:
         estimated_ion_population,
         pd.DataFrame([[1.0]], index=lte_level_population.index, columns=[0]),
         pd.DataFrame([[1.0]], index=lte_level_population.index, columns=[0]),
-        charge_conservation=True,
-        tolerance=1e-8,  # Looser than production to isolate the analytic root.
     )
     expected = (3.0 + np.sqrt(3.0**2 + 4 * 2.0 * 39.0)) / (2 * 2.0)
 
@@ -366,8 +366,8 @@ def test_charge_conservation_solver_solves_pure_hydrogen() -> None:
         )
 
     electron_number_density, ion_populations = ChargeConservationSolver(
-        elemental_number_density, solve_trial
-    ).solve()
+        elemental_number_density
+    ).solve(solve_trial)
     expected = (-gamma + np.sqrt(gamma**2 + 4 * alpha * gamma * 10.0)) / (
         2 * alpha
     )
@@ -401,8 +401,8 @@ def test_charge_conservation_solver_includes_all_carbon_stages() -> None:
         )
 
     electron_number_density, _ = ChargeConservationSolver(
-        elemental_number_density, solve_trial
-    ).solve()
+        elemental_number_density
+    ).solve(solve_trial)
 
     npt.assert_allclose(electron_number_density, [5.0])
 
@@ -438,8 +438,8 @@ def test_charge_conservation_solver_accepts_physical_endpoints(
         )
 
     electron_number_density, _ = ChargeConservationSolver(
-        elemental_number_density, solve_trial
-    ).solve()
+        elemental_number_density
+    ).solve(solve_trial)
 
     npt.assert_allclose(electron_number_density, [expected_electron_density])
 
@@ -460,9 +460,7 @@ def test_charge_conservation_solver_reports_nonfinite_residual() -> None:
         )
 
     with pytest.raises(PlasmaIonizationError, match="nonfinite"):
-        ChargeConservationSolver(
-            elemental_number_density, solve_trial
-        ).solve()
+        ChargeConservationSolver(elemental_number_density).solve(solve_trial)
 
 
 def test_charge_conservation_solver_reports_missing_bracket() -> None:
@@ -481,6 +479,4 @@ def test_charge_conservation_solver_reports_missing_bracket() -> None:
         )
 
     with pytest.raises(PlasmaIonizationError, match="does not bracket"):
-        ChargeConservationSolver(
-            elemental_number_density, solve_trial
-        ).solve()
+        ChargeConservationSolver(elemental_number_density).solve(solve_trial)

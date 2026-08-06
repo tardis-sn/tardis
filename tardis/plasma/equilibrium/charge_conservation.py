@@ -23,12 +23,6 @@ class ChargeConservationSolver:
     elemental_number_density : pandas.DataFrame
         Elemental number densities indexed by atomic number and columned by
         shell.
-    solve_trial_populations : callable
-        Existing fixed-electron-density elemental solve. It receives a copy of
-        the trial electron densities and returns absolute ion populations
-        indexed by ``(atomic_number, ion_number)``. The callable is where the
-        extended :class:`EquilibriumIonRateMatrix` path is assembled and
-        solved.
     tolerance : float, optional
         Maximum allowed normalized charge residual, by default ``1e-10``.
     max_solver_iterations : int, optional
@@ -39,7 +33,6 @@ class ChargeConservationSolver:
     def __init__(
         self,
         elemental_number_density: pd.DataFrame,
-        solve_trial_populations: Callable[[pd.Series], pd.DataFrame],
         tolerance: float = 1e-10,
         max_solver_iterations: int = 100,
     ) -> None:
@@ -50,8 +43,6 @@ class ChargeConservationSolver:
         elemental_number_density : pandas.DataFrame
             Elemental number densities indexed by atomic number and columned
             by shell.
-        solve_trial_populations : callable
-            Fixed-electron-density population calculation used for each trial.
         tolerance : float, optional
             Maximum normalized charge residual accepted at convergence.
         max_solver_iterations : int, optional
@@ -59,12 +50,13 @@ class ChargeConservationSolver:
         """
         density = elemental_number_density.astype(float)
         self.elemental_number_density = density
-        self.solve_trial_populations = solve_trial_populations
         self.tolerance = tolerance
         self.max_solver_iterations = max_solver_iterations
 
     def _calculate_charge_residual(
-        self, electron_number_density: pd.Series
+        self,
+        electron_number_density: pd.Series,
+        solve_trial_populations: Callable[[pd.Series], pd.DataFrame],
     ) -> tuple[pd.DataFrame, pd.Series]:
         """Calculate the unnormalized charge residual from trial populations.
 
@@ -72,6 +64,8 @@ class ChargeConservationSolver:
         ----------
         electron_number_density : pandas.Series
             Trial electron densities indexed by shell.
+        solve_trial_populations : callable
+            Fixed-electron-density population calculation used for this solve.
 
         Returns
         -------
@@ -85,7 +79,7 @@ class ChargeConservationSolver:
         PlasmaIonizationError
             If the charge residual is nonfinite.
         """
-        ion_populations = self.solve_trial_populations(
+        ion_populations = solve_trial_populations(
             electron_number_density.copy()
         )
         # Weight every retained ion stage by its charge, including the bare
@@ -100,7 +94,10 @@ class ChargeConservationSolver:
         return ion_populations, charge_residual
 
     def _calculate_shell_charge_residual(
-        self, electron_number_density: float, shell: int
+        self,
+        electron_number_density: float,
+        shell: int,
+        solve_trial_populations: Callable[[pd.Series], pd.DataFrame],
     ) -> float:
         """Calculate one shell's charge residual at a trial density.
 
@@ -110,6 +107,8 @@ class ChargeConservationSolver:
             Trial electron density for ``shell``.
         shell : int
             Shell whose electron density is being evaluated.
+        solve_trial_populations : callable
+            Fixed-electron-density population calculation used for this solve.
 
         Returns
         -------
@@ -122,10 +121,17 @@ class ChargeConservationSolver:
         # Shell equations are independent, so other shells can remain at zero
         # while Brent's method evaluates this shell.
         trial_density[shell] = electron_number_density
-        _, charge_residual = self._calculate_charge_residual(trial_density)
+        _, charge_residual = self._calculate_charge_residual(
+            trial_density, solve_trial_populations
+        )
         return charge_residual[shell]
 
-    def _solve_shell(self, shell: int, maximum: float) -> float:
+    def _solve_shell(
+        self,
+        shell: int,
+        maximum: float,
+        solve_trial_populations: Callable[[pd.Series], pd.DataFrame],
+    ) -> float:
         """Solve one shell on the physical electron-density interval.
 
         Parameters
@@ -135,6 +141,8 @@ class ChargeConservationSolver:
         maximum : float
             Maximum physical electron density when every element is fully
             ionized in this shell.
+        solve_trial_populations : callable
+            Fixed-electron-density population calculation used for this solve.
 
         Returns
         -------
@@ -149,8 +157,12 @@ class ChargeConservationSolver:
         if maximum == 0.0:
             return 0.0
 
-        lower_residual = self._calculate_shell_charge_residual(0.0, shell)
-        upper_residual = self._calculate_shell_charge_residual(maximum, shell)
+        lower_residual = self._calculate_shell_charge_residual(
+            0.0, shell, solve_trial_populations
+        )
+        upper_residual = self._calculate_shell_charge_residual(
+            maximum, shell, solve_trial_populations
+        )
         if lower_residual * upper_residual > 0.0:
             raise PlasmaIonizationError(
                 f"Charge-conservation residual does not bracket shell {shell}: "
@@ -165,14 +177,25 @@ class ChargeConservationSolver:
             self._calculate_shell_charge_residual,
             0.0,
             maximum,
-            args=(shell,),
+            args=(shell, solve_trial_populations),
             xtol=1e-14,
             rtol=1e-14,
             maxiter=self.max_solver_iterations,
         )
 
-    def solve(self) -> tuple[pd.Series, pd.DataFrame]:
+    def solve(
+        self,
+        solve_trial_populations: Callable[[pd.Series], pd.DataFrame],
+    ) -> tuple[pd.Series, pd.DataFrame]:
         """Solve charge conservation independently in every shell.
+
+        Parameters
+        ----------
+        solve_trial_populations : callable
+            Fixed-electron-density population calculation used for this solve.
+            It receives a copy of the trial electron densities and returns
+            absolute ion populations indexed by ``(atomic_number,
+            ion_number)``.
 
         Returns
         -------
@@ -196,13 +219,13 @@ class ChargeConservationSolver:
         electron_number_density = pd.Series(index=columns, dtype=float)
         for shell in columns:
             electron_number_density[shell] = self._solve_shell(
-                shell, maximum[shell]
+                shell, maximum[shell], solve_trial_populations
             )
 
         # Recompute populations once at the shared final electron densities so
         # the returned populations and residuals describe the same state.
         ion_populations, charge_residual = self._calculate_charge_residual(
-            electron_number_density
+            electron_number_density, solve_trial_populations
         )
         normalized_charge_residual = charge_residual / maximum.replace(0.0, 1.0)
         if (np.abs(normalized_charge_residual) > self.tolerance).any():

@@ -97,12 +97,14 @@ class AnalyticEquilibriumIonPopulationSolver:
 
     def __init__(
         self,
-        rate_matrix_solver,
-        photoionization_rate_solver,
-        collisional_ionization_rate_solver,
-        elemental_number_density,
-        max_solver_iterations=100,
-    ):
+        rate_matrix_solver: object,
+        photoionization_rate_solver: object,
+        collisional_ionization_rate_solver: object,
+        elemental_number_density: pd.DataFrame,
+        max_solver_iterations: int = 100,
+        charge_conservation: bool = False,
+        tolerance: float = 1e-14,
+    ) -> None:
         """Solve the normalized ion population values from the rate matrices.
 
         Parameters
@@ -110,8 +112,16 @@ class AnalyticEquilibriumIonPopulationSolver:
         rate_matrix_solver : EquilibriumIonRateMatrix
         photoionization_rate_solver : RadiativeIonizationRateSolver
         collisional_ionization_rate_solver : CollisionalIonizationRateSolver
+        elemental_number_density : pandas.DataFrame
+            Elemental number density indexed by atomic number and columned by
+            shell.
         max_solver_iterations : int, optional
             Maximum number of iterations for the ion population solver, by default 100.
+        charge_conservation : bool, optional
+            Whether to enforce charge conservation, by default ``False``.
+        tolerance : float, optional
+            Convergence tolerance for ion and electron populations, by default
+            ``1e-14``.
         """
         self.rate_matrix_solver = rate_matrix_solver
         self.photoionization_rate_solver = photoionization_rate_solver
@@ -120,6 +130,12 @@ class AnalyticEquilibriumIonPopulationSolver:
         )
         self.elemental_number_density = elemental_number_density
         self.max_solver_iterations = max_solver_iterations
+        self.charge_conservation = charge_conservation
+        self.tolerance = tolerance
+        self.charge_conservation_solver = ChargeConservationSolver(
+            elemental_number_density,
+            max_solver_iterations=max_solver_iterations,
+        )
 
     @staticmethod
     def calculate_balance_vector(
@@ -385,16 +401,13 @@ class AnalyticEquilibriumIonPopulationSolver:
         fallback_ion_populations: pd.DataFrame,
     ) -> tuple[pd.Series, pd.DataFrame]:
         """Solve trial elemental populations and close their total charge."""
-        solver = ChargeConservationSolver(
-            self.elemental_number_density,
+        return self.charge_conservation_solver.solve(
             partial(
                 self._solve_trial_populations,
                 solve_trial_rates=solve_trial_rates,
                 fallback_ion_populations=fallback_ion_populations,
             ),
-            max_solver_iterations=self.max_solver_iterations,
         )
-        return solver.solve()
 
     def _calculate_trial_rates(
         self,
@@ -515,8 +528,6 @@ class AnalyticEquilibriumIonPopulationSolver:
         estimated_ion_population: pd.DataFrame,
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
-        charge_conservation: bool = False,
-        tolerance: float = 1e-14,
     ) -> tuple[pd.DataFrame, pd.Series]:
         """Solves the normalized ion population values from the rate matrices.
 
@@ -536,10 +547,6 @@ class AnalyticEquilibriumIonPopulationSolver:
             LTE ion number density. Columns are cells.
         estimated_ion_population : pd.DataFrame
             Estimated ion number density. Columns are cells.
-        charge_conservation : bool, optional
-            Whether to include a charge conservation row in the rate matrix.
-        tolerance : float, optional
-            Tolerance for convergence of the ion population solver.
 
         Returns
         -------
@@ -552,7 +559,7 @@ class AnalyticEquilibriumIonPopulationSolver:
         new_electron_energy_distribution = thermal_electron_energy_distribution
 
         for iteration in range(self.max_solver_iterations):
-            if charge_conservation:
+            if self.charge_conservation:
                 calculate_trial_rates = partial(
                     self._calculate_trial_rates,
                     base_electron_energy_distribution=new_electron_energy_distribution,
@@ -593,7 +600,7 @@ class AnalyticEquilibriumIonPopulationSolver:
                     recomb_rates_df,
                     collisional_ionization_rates_df,
                     collision_recombination_rates_df,
-                    charge_conservation,
+                    self.charge_conservation,
                 )
                 self.rates_matrices = rates_matrices
                 solved_matrices = pd.DataFrame(
@@ -604,7 +611,7 @@ class AnalyticEquilibriumIonPopulationSolver:
                     balance_vector = self.calculate_balance_vector(
                         self.elemental_number_density[cell],
                         rates_matrices.index,
-                        charge_conservation,
+                        self.charge_conservation,
                     )
                     solved_matrix = rates_matrices[cell].apply(
                         np.linalg.solve, args=(balance_vector,)
@@ -638,8 +645,8 @@ class AnalyticEquilibriumIonPopulationSolver:
             )
 
             if (
-                np.all(np.abs(delta_ion) < tolerance).any().any()
-                and (np.abs(delta_electron) < tolerance).any().any()
+                np.all(np.abs(delta_ion) < self.tolerance).any().any()
+                and (np.abs(delta_electron) < self.tolerance).any().any()
             ):
                 logger.info(
                     "Ion population solver converged after %d iterations.",
@@ -721,10 +728,12 @@ class LTEIonPopulationSolver(AnalyticEquilibriumIonPopulationSolver):
 
     def __init__(
         self,
-        rate_matrix_solver,
-        elemental_number_density,
-        max_solver_iterations=100,
-    ):
+        rate_matrix_solver: object,
+        elemental_number_density: pd.DataFrame,
+        max_solver_iterations: int = 100,
+        charge_conservation: bool = False,
+        tolerance: float = 1e-14,
+    ) -> None:
         """Solve the normalized ion population values from the rate matrices.
 
         Parameters
@@ -733,24 +742,29 @@ class LTEIonPopulationSolver(AnalyticEquilibriumIonPopulationSolver):
         elemental_number_density : pd.DataFrame
             Elemental number density. Index is atomic number, columns are cells.
         max_solver_iterations : int, optional
+            Maximum number of iterations for the ion population solver.
+        charge_conservation : bool, optional
+            Whether to include charge conservation in the rate matrix.
+        tolerance : float, optional
+            Convergence tolerance for ion and electron populations.
         """
         super().__init__(
             rate_matrix_solver,
             None,
             None,
             elemental_number_density,
-            max_solver_iterations,
+            max_solver_iterations=max_solver_iterations,
+            charge_conservation=charge_conservation,
+            tolerance=tolerance,
         )
 
     def solve(
         self,
-        thermal_electron_energy_distribution,
-        lte_ion_population,
-        phi,
-        partition_function,
-        charge_conservation=False,
-        tolerance=1e-14,
-    ):
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+        lte_ion_population: pd.DataFrame,
+        phi: pd.DataFrame,
+        partition_function: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.Series]:
         """Solves the normalized ion population values from the rate matrices.
 
         Parameters
@@ -763,10 +777,6 @@ class LTEIonPopulationSolver(AnalyticEquilibriumIonPopulationSolver):
             Radiation field mean intensity. Columns are cells.
         partition_function : pd.DataFrame
             Partition function values. Columns are cells.
-        charge_conservation : bool, optional
-            Whether to include a charge conservation row in the rate matrix.
-        tolerance : float, optional
-            Tolerance for convergence of the ion population solver.
 
         Returns
         -------
@@ -783,7 +793,7 @@ class LTEIonPopulationSolver(AnalyticEquilibriumIonPopulationSolver):
                 phi,
                 partition_function,
                 new_electron_energy_distribution.number_density.value,
-                charge_conservation,
+                self.charge_conservation,
             )
             self.rates_matrices = rates_matrices
             solved_matrices = pd.DataFrame(
@@ -794,7 +804,7 @@ class LTEIonPopulationSolver(AnalyticEquilibriumIonPopulationSolver):
                 balance_vector = self.calculate_balance_vector(
                     self.elemental_number_density[cell],
                     rates_matrices.index,
-                    charge_conservation,
+                    self.charge_conservation,
                 )
                 solved_matrix = rates_matrices[cell].apply(
                     np.linalg.solve, args=(balance_vector,)
@@ -826,8 +836,8 @@ class LTEIonPopulationSolver(AnalyticEquilibriumIonPopulationSolver):
             )
 
             if (
-                np.all(np.abs(delta_ion) < tolerance).any().any()
-                and (np.abs(delta_electron) < tolerance).any().any()
+                np.all(np.abs(delta_ion) < self.tolerance).any().any()
+                and (np.abs(delta_electron) < self.tolerance).any().any()
             ):
                 logger.info(
                     "Ion population solver converged after %d iterations.",
