@@ -131,8 +131,8 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
 
         transport_state = MonteCarloTransportStateNonhomologous(
             packet_collection,
-            geometry_state=geometry_state,
-            opacity_state=opacity_state_numba,
+            geometry_state_numba=geometry_state,
+            opacity_state_numba=opacity_state_numba,
             n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
 
