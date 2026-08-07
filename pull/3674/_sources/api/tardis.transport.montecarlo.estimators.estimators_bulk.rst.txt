@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.estimators.estimators\_bulk module
+==============================================================
+
+.. automodule:: tardis.transport.montecarlo.estimators.estimators_bulk
+   :members:
+   :show-inheritance:
+   :undoc-members:

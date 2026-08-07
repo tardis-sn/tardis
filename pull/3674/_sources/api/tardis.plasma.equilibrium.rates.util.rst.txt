@@ -1,0 +1,7 @@
+tardis.plasma.equilibrium.rates.util module
+===========================================
+
+.. automodule:: tardis.plasma.equilibrium.rates.util
+   :members:
+   :show-inheritance:
+   :undoc-members:

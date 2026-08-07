@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.configuration.base module
+=====================================================
+
+.. automodule:: tardis.transport.montecarlo.configuration.base
+   :members:
+   :show-inheritance:
+   :undoc-members:

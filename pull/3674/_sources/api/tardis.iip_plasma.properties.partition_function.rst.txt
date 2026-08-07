@@ -1,0 +1,7 @@
+tardis.iip\_plasma.properties.partition\_function module
+========================================================
+
+.. automodule:: tardis.iip_plasma.properties.partition_function
+   :members:
+   :show-inheritance:
+   :undoc-members:
