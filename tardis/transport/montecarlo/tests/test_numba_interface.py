@@ -50,7 +50,7 @@ def test_opacity_state_to_numba(
         npt.assert_allclose(
             actual.transition_probabilities, np.zeros((1, 1), dtype=np.float64)
         )
-        npt.assert_allclose(actual.linf2macro_level_upper, empty)
+        npt.assert_allclose(actual.line2macro_level_upper, empty)
         npt.assert_allclose(actual.macro_block_edge_index, empty)
         npt.assert_allclose(actual.transition_type, empty)
         npt.assert_allclose(actual.destination_level_id, empty)
