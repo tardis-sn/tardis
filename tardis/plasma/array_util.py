@@ -31,7 +31,9 @@ def get_ion_multi_index(
     return pd.MultiIndex.from_arrays([atomic_number, ion_number])
 
 
-def get_ground_state_multi_index(multi_index_full: pd.MultiIndex) -> pd.MultiIndex:
+def get_ground_state_multi_index(
+    multi_index_full: pd.MultiIndex,
+) -> pd.MultiIndex:
     """Return the next-ion ground-state index for a level MultiIndex."""
     atomic_number = multi_index_full.get_level_values(0)
     ion_number = multi_index_full.get_level_values(1) + 1
