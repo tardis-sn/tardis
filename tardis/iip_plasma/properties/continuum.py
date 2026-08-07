@@ -1562,9 +1562,15 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         alpha_sp_E = cumulative_integrate_array_by_blocks(
             alpha_sp_E, nu.values, photo_ion_block_references
         )
+
         fb_emission_cdf = pd.DataFrame(
             alpha_sp_E, index=photoionization_data.index
         )
+        # in the case where alpha_sp_E has zeros, the CDF can do a division by zero
+        # so any NaN need to be set to zero to avoid segfaults down the line
+        # physically this is probably okay because the CDF should be zero if
+        # the spontaneous recomb rate is zero
+        fb_emission_cdf.fillna(0, inplace=True)
 
         # NOW PHOTO_ION_IDX
         photo_ion_index = photoionization_data.index.unique()
