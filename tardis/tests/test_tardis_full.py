@@ -57,23 +57,13 @@ class TestTransportSimple:
     def simulation(
         self,
         request,
-        atomic_data_fname,
         generate_reference,
-        example_configuration_dir: Path,
+        simulation_tardis_full,
     ):
-        config = Configuration.from_yaml(
-            str(example_configuration_dir / "tardis_configv1_verysimple.yml")
-        )
-        config["atom_data"] = atomic_data_fname
-
-        simulation = Simulation.from_config(config)
-        simulation.run_convergence()
-        simulation.run_final()
-
         request.cls.regression_data = RegressionData(request)
-        data = request.cls.regression_data.sync_hdf_store(simulation)
+        data = request.cls.regression_data.sync_hdf_store(simulation_tardis_full)
 
-        yield simulation
+        yield simulation_tardis_full
         data.close()
 
     def get_expected_data(self, key: str):
