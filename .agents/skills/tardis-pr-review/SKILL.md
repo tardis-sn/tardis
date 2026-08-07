@@ -100,12 +100,33 @@ actual changes; never turn them into a generic checklist:
   regression baselines, tolerances, packet counts, stochastic variance, test
   oracle provenance, and assertions on physically meaningful quantities.
 
-Label an area `close review` when the PR changes a physical model, conservation
-or frame convention, coupled calculation, interpretation of scientific data, or
-stored reference result. Label it `check carefully` when calculation details,
-defaults, boundaries, or tests can indirectly change or conceal scientific
-behavior. These labels show where scientific attention is most useful; they do
-not mean that the change is wrong.
+Assign each area exactly one of these labels, choosing the most specific label
+supported by the changed lines:
+
+- `Physical model change`: equations, physical assumptions, conservation laws,
+  approximations, or regimes of validity change.
+- `Convention change`: a frame, geometry, sign, normalization, unit, indexing,
+  or other scientific convention changes.
+- `Coupled calculation with downstream effects`: a change in one calculation
+  changes inputs, state, or iteration behavior in later coupled calculations.
+- `Change in interpretation of scientific data`: the meaning, provenance,
+  mapping, filtering, units, or conversion of scientific data changes.
+- `Change in stored reference result`: an expected or regression result changes,
+  whether because the calculation or the stored comparison changes.
+- `Calculation details changed`: discretization, interpolation, tolerances,
+  ordering, floating-point handling, or other numerical details change without
+  a more specific close-review classification above.
+- `Defaults changed`: a default parameter, option, packet count, seed, or other
+  implicit user input changes.
+- `Boundary values changed`: shell, grid, mask, cutoff, range, or other
+  boundary handling changes.
+- `Tests changed`: tests, fixtures, assertions, tolerances, or test data change
+  in a way that can alter or conceal scientific validation.
+
+Use the first five labels for changes needing close review and the last four
+for changes to check carefully. If a change genuinely covers multiple distinct
+labels, split it into separate areas. These labels show where scientific
+attention is most useful; they do not mean that the change is wrong.
 
 For each area:
 
@@ -193,8 +214,8 @@ does not determine whether the proposed change is correct.” Follow it with at
 most one sentence describing what the PR aims to change.
 
 Apart from that opening and the final version line, report only **Areas needing
-scientific attention**. Give each area a scientific title and a `close review`
-or `check carefully` label, followed by:
+scientific attention**. Give each area a scientific title and exactly one of the
+specific labels above, followed by:
 
 - **Where to look**: link to the relevant lines.
 - **Why it matters**: explain the possible scientific effect in one or two
