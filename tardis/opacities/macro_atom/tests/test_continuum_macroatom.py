@@ -288,6 +288,25 @@ class TestContinuumMacroAtomSolver:
         assert (probs.values >= 0).all()
         assert (probs.values <= 1.0).all()
 
+    def test_transition_probabilities_normalize_by_source_block(
+        self, continuum_macro_atom_state: MacroAtomState
+    ) -> None:
+        probs = continuum_macro_atom_state.transition_probabilities
+        metadata = continuum_macro_atom_state.transition_metadata
+        source_blocks = probs.groupby(
+            metadata["source_level_idx"].to_numpy()
+        ).sum()
+
+        # Raw propensities are normalized after energy weighting by source;
+        # every surviving source block therefore distributes unit probability
+        # across its available macro-atom branches.
+        active_source_blocks = source_blocks.loc[
+            source_blocks.sum(axis=1) > 0.0
+        ]
+        np.testing.assert_allclose(
+            active_source_blocks.to_numpy(), 1.0, rtol=1e-12
+        )
+
     def test_transition_metadata_structure(self, continuum_macro_atom_state):
         """Test that transition metadata has required columns."""
         metadata = continuum_macro_atom_state.transition_metadata
