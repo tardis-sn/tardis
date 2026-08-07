@@ -321,7 +321,7 @@ class BfHeatingRateCoeff(ProcessingPlasmaProperty):
         tmp = {}
         for i in range(len(w)):
             tmp[i] = photoion_heating_coeff.apply(
-                lambda sub: simpson(sub[i], sub["nu"], even="first")
+                lambda sub: simpson(sub[i], x=sub["nu"])
             )
         photoion_heating_coeff = pd.DataFrame(tmp)
 

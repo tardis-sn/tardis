@@ -8,9 +8,11 @@ from astropy import units as u
 
 from tardis import constants as const
 from tardis.iip_plasma.properties.continuum import (
+    BfHeatingRateCoeff,
     PhotoIonRateCoeff,
     SpontRecombRateCoeff,
     StimRecombRateCoeff,
+    ThermalBalanceTest,
 )
 from tardis.io.atom_data import AtomData
 from tardis.plasma.electron_energy_distribution import (
@@ -195,7 +197,75 @@ def test_estimator_coefficients_reproduce_regression_inputs(
     assert gamma.index.equals(edge_index)
 
 
-def test_bound_free_heating_and_cooling_match_independent_quadrature(
+def test_bound_free_heating_and_cooling_match_iip_plasma(
+    lyman_photoionization_data: pd.DataFrame,
+) -> None:
+    photo_data = lyman_photoionization_data
+    temperatures = np.array([10000.0, 12000.0])
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg, temperatures * u.K, np.ones(2) * 1.0e9 / u.cm**3
+    )
+    level_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    level_population = pd.DataFrame(
+        np.ones((2, 2)), index=level_index, columns=[0, 1]
+    )
+    ion_population = pd.DataFrame(
+        np.ones((1, 2)),
+        index=pd.MultiIndex.from_tuples(
+            [(1, 1)], names=["atomic_number", "ion_number"]
+        ),
+        columns=[0, 1],
+    )
+    level_population_ratio = pd.DataFrame(
+        np.ones((2, 2)), index=level_index, columns=[0, 1]
+    )
+    # The IIP workflow supplies bound-free heating through its MC estimator.
+    # Its Lyman-continuum heating coefficient is suppressed in this state.
+    bf_heating_estimator = pd.DataFrame(
+        [[0.0, 0.0], [3.0, 4.0]], index=level_index, columns=[0, 1]
+    )
+    heating, cooling = BoundFreeThermalRates(photo_data).solve(
+        level_population,
+        ion_population,
+        electron_distribution,
+        level_population_ratio,
+        bound_free_heating_estimator=bf_heating_estimator,
+    )
+    iip_heating_coeff = BfHeatingRateCoeff(
+        type("IterationState", (), {"niter": 0, "niter_ly": -1})()
+    ).calculate(
+        bf_heating_estimator,
+        level_index,
+    )
+    iip_heating = (
+        iip_heating_coeff * level_population.loc[iip_heating_coeff.index]
+    ).sum()
+
+    thermal_balance = ThermalBalanceTest(None)
+    iip_cooling_coeff = pd.DataFrame(
+        {
+            cell: thermal_balance._calculate_sp_recomb_heating_rate_coeff(
+                temperature, photo_data
+            )
+            for cell, temperature in enumerate(temperatures)
+        }
+    )
+    iip_cooling_coeff.loc[(1, 0, 0)] = 0.0
+    iip_cooling = (
+        iip_cooling_coeff
+        * level_population_ratio.loc[iip_cooling_coeff.index]
+        * electron_distribution.number_density.value
+        * ion_population.loc[(1, 1)]
+    ).sum()
+
+    npt.assert_allclose(heating.to_numpy(), iip_heating.to_numpy(), rtol=1e-12)
+    npt.assert_allclose(cooling.to_numpy(), iip_cooling.to_numpy(), rtol=2e-6)
+
+
+def test_bound_free_non_estimator_rates_match_iip_plasma(
     lyman_photoionization_data: pd.DataFrame,
     radiation_field: DilutePlanckianRadiationField,
 ) -> None:
@@ -228,68 +298,34 @@ def test_bound_free_heating_and_cooling_match_independent_quadrature(
         level_population_ratio,
         radiation_field,
     )
-    thresholds = {
-        level_number: photo_data.loc[(1, 0, level_number), "nu"].min()
-        for level_number in [0, 1]
-    }
-    # Provenance: the heating and cooling integrands are Lucy (2003) Eqs. 58
-    # and 59, as implemented by BoundFreeThermalRates and the matching IIP
-    # continuum properties. Reconstruct them here directly from the real
-    # regression cross-section grid so the test remains independent of the
-    # solver's block-integration implementation.
-    expected_heating = []
-    expected_cooling = []
-    for t_rad, t_electron, dilution in zip(
-        [10000.0, 12000.0], temperatures, [0.4, 0.8], strict=False
-    ):
-        heating_integral = 0.0
-        for level_number in [0, 1]:
-            level_data = photo_data.loc[(1, 0, level_number)].sort_values("nu")
-            frequencies = level_data["nu"].to_numpy()
-            cross_section = level_data["x_sect"].to_numpy()
-            mean_intensity = dilution * (
-                2
-                * const.h.cgs.value
-                * frequencies**3
-                / const.c.cgs.value**2
-                * np.exp(
-                    -const.h.cgs.value
-                    * frequencies
-                    / (const.k_B.cgs.value * t_rad)
-                )
-                / -np.expm1(
-                    -const.h.cgs.value
-                    * frequencies
-                    / (const.k_B.cgs.value * t_rad)
-                )
+
+    iip_heating_coeff = BfHeatingRateCoeff(
+        None
+    ).calculate_from_radiation_field_model(
+        photo_data,
+        radiation_field.dilution_factor,
+        radiation_field.temperature_kelvin,
+    )
+    iip_heating = (
+        iip_heating_coeff * level_population.loc[iip_heating_coeff.index]
+    ).sum()
+
+    thermal_balance = ThermalBalanceTest(None)
+    iip_cooling_coeff = pd.DataFrame(
+        {
+            cell: thermal_balance._calculate_sp_recomb_heating_rate_coeff(
+                temperature, photo_data
             )
-            heating_integrand = (
-                4
-                * np.pi
-                * cross_section
-                * frequencies**3
-                * const.h.cgs.value
-                / const.c.cgs.value**2
-                * (1 - thresholds[level_number] / frequencies)
-                * mean_intensity
-            )
-            heating_integral += np.trapezoid(heating_integrand, frequencies)
-        cooling_integrand = (
-            8
-            * np.pi
-            * photo_data.loc[(1, 0, 1), "x_sect"].to_numpy()
-            * frequencies**3
-            * const.h.cgs.value
-            / const.c.cgs.value**2
-            * (1 - thresholds[1] / frequencies)
-            * np.exp(
-                -const.h.cgs.value
-                * frequencies
-                / (const.k_B.cgs.value * t_electron)
-            )
-            * 1.0e9
-        )
-        expected_heating.append(heating_integral)
-        expected_cooling.append(np.trapezoid(cooling_integrand, frequencies))
-    npt.assert_allclose(heating.to_numpy(), expected_heating, rtol=1e-12)
-    npt.assert_allclose(cooling.to_numpy(), expected_cooling, rtol=1e-12)
+            for cell, temperature in enumerate(temperatures)
+        }
+    )
+    iip_cooling_coeff.loc[(1, 0, 0)] = 0.0
+    iip_cooling = (
+        iip_cooling_coeff
+        * level_population_ratio.loc[iip_cooling_coeff.index]
+        * electron_distribution.number_density.value
+        * ion_population.loc[(1, 1)]
+    ).sum()
+
+    npt.assert_allclose(heating.to_numpy(), iip_heating.to_numpy(), rtol=2e-2)
+    npt.assert_allclose(cooling.to_numpy(), iip_cooling.to_numpy(), rtol=2e-6)
