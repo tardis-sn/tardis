@@ -1,5 +1,9 @@
 ## Changelog
 
+### release-2026.08.09 (2026/08/06 16:35)
+- [3684](https://github.com/tardis-sn/tardis/pull/3684) Fix geometry state naming for nonhomologous workflow (3684) (@andrewfullard)
+- [3675](https://github.com/tardis-sn/tardis/pull/3675) Opacity and Transport state disambiguation (3675) (@andrewfullard)
+- [3681](https://github.com/tardis-sn/tardis/pull/3681) Post-release 2026.08.02 (3681) (@tardis-bot)
 ### release-2026.08.02 (2026/08/01 21:48)
 - [3680](https://github.com/tardis-sn/tardis/pull/3680) Pre-release 2026.08.02 (3680) (@tardis-bot)
 - [3671](https://github.com/tardis-sn/tardis/pull/3671) Stricter Ruff configuration (3671) (@andrewfullard)
