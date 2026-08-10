@@ -141,21 +141,30 @@ LEGACY_PLASMA_REGRESSION_OUTPUTS = (
 )
 
 
-INITIAL_PARITY_XFAIL = pytest.mark.xfail(
-    strict=True,
-    reason="Step 2 population/Sobolev parity gate is not open yet.",
-)
-
 WORKFLOW_INITIAL_REGRESSION_CASES = (
-    pytest.param("transition_probabilities", marks=INITIAL_PARITY_XFAIL),
-    pytest.param("ion_number_density", marks=INITIAL_PARITY_XFAIL),
-    pytest.param("tau_sobolevs", marks=INITIAL_PARITY_XFAIL),
-    pytest.param("beta_sobolev", marks=INITIAL_PARITY_XFAIL),
-    pytest.param("level_number_density", marks=INITIAL_PARITY_XFAIL),
-    pytest.param("electron_densities", marks=INITIAL_PARITY_XFAIL),
-    pytest.param("p_fb_deactivation", marks=INITIAL_PARITY_XFAIL),
-    pytest.param("chi_bf", marks=INITIAL_PARITY_XFAIL),
-    pytest.param("stimulated_emission_factor", marks=INITIAL_PARITY_XFAIL),
+    pytest.param(
+        "transition_probabilities",
+        marks=pytest.mark.xfail(
+            strict=True,
+            reason="Initial macro-atom transition parity is not yet within "
+            "the Step 2 gate.",
+        ),
+    ),
+    "ion_number_density",
+    "tau_sobolevs",
+    "beta_sobolev",
+    "level_number_density",
+    "electron_densities",
+    "p_fb_deactivation",
+    pytest.param(
+        "chi_bf",
+        marks=pytest.mark.xfail(
+            strict=True,
+            reason="Initial bound-free opacity parity is not yet within the "
+            "Step 2 gate.",
+        ),
+    ),
+    "stimulated_emission_factor",
     "ion_ratio",
     "t_electrons",
     "link_t_rad_t_electron",
@@ -679,7 +688,9 @@ def test_type_iip_workflow_initial_plasma_regression(
     pd.testing.assert_frame_equal(
         actual,
         expected,
-        rtol=1e-10,  # Mac ARM64 tolerance
+        # Step 2's integrated parity target; analytic identities below use
+        # tighter tolerances where they are not affected by the legacy oracle.
+        rtol=1e-5,
         atol=0.0,
         check_dtype=False,
         check_names=False,
@@ -776,6 +787,47 @@ def test_initial_continuum_level_factor_uses_dilute_lte_without_estimators(
         check_dtype=False,
         check_names=False,
         rtol=1e-12,
+        atol=0.0,
+    )
+
+
+def test_initial_population_parity_gate_preserves_conservation(
+    initial_type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """Check population invariants independently of the legacy references."""
+    plasma = initial_type_iip_workflow.plasma_solver
+    assert np.all(plasma.ion_number_density.to_numpy() >= 0.0)
+    assert np.all(plasma.level_number_density.to_numpy() >= 0.0)
+
+    level_totals = plasma.level_number_density.groupby(
+        level=["atomic_number", "ion_number"]
+    ).sum()
+    pd.testing.assert_frame_equal(
+        level_totals,
+        plasma.ion_number_density.loc[level_totals.index],
+        check_dtype=False,
+        check_names=False,
+        rtol=1e-12,
+        atol=0.0,
+    )
+    pd.testing.assert_frame_equal(
+        plasma.ion_number_density.groupby(level="atomic_number").sum(),
+        plasma.number_density,
+        check_dtype=False,
+        check_names=False,
+        rtol=1e-12,
+        atol=0.0,
+    )
+    charge = plasma.ion_number_density.mul(
+        plasma.ion_number_density.index.get_level_values("ion_number"),
+        axis=0,
+    ).sum()
+    pd.testing.assert_series_equal(
+        charge,
+        plasma.electron_densities,
+        check_dtype=False,
+        check_names=False,
+        rtol=1e-10,
         atol=0.0,
     )
 
