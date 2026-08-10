@@ -1,30 +1,30 @@
-from collections.abc import Callable
-
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from astropy import units as u
 
-from tardis.opacities.tau_sobolev import (
+from tardis.opacities.sobolev import (
     calculate_beta_sobolev,
     calculate_sobolev_line_opacity,
 )
+from tardis.plasma.equilibrium.charge_conservation import (
+    ChargeConservationSolver,
+)
+from tardis.plasma.equilibrium.ion_populations import PopulationState
 from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.properties.radiative_properties import (
     calculate_stimulated_emission_factor,
 )
 
-__all__ = ["CoupledSobolevPopulationSolver"]
 
-
-class CoupledSobolevPopulationSolver:
+class SobolevPopulationSolver:
     """Solve populations while refreshing population-dependent Sobolev rates.
 
     Parameters
     ----------
-    solve_population : callable
-        Population solve accepting a DataFrame of escape probabilities and
-        returning the corresponding complete level number density.
+    charge_conservation_solver : ChargeConservationSolver
+        Charge solver returning a complete coupled population state for a
+        DataFrame of escape probabilities.
     lines : pandas.DataFrame
         Atomic line data indexed like the Sobolev property.
     time_explosion : astropy.units.Quantity
@@ -47,7 +47,7 @@ class CoupledSobolevPopulationSolver:
 
     def __init__(
         self,
-        solve_population: Callable[[pd.DataFrame], pd.DataFrame],
+        charge_conservation_solver: ChargeConservationSolver,
         lines: pd.DataFrame,
         time_explosion: u.Quantity,
         g: pd.Series,
@@ -59,7 +59,7 @@ class CoupledSobolevPopulationSolver:
         max_iterations: int = 100,
         relaxation_floor: float = 1e-3,
     ) -> None:
-        self.solve_population = solve_population
+        self.charge_conservation_solver = charge_conservation_solver
         self.lines = lines
         self.time_explosion = time_explosion
         self.g = g
@@ -108,12 +108,15 @@ class CoupledSobolevPopulationSolver:
         initial_level_number_density: pd.DataFrame,
         initial_beta_sobolev: pd.DataFrame | None = None,
     ) -> tuple[
-        pd.DataFrame, npt.NDArray[np.float64], pd.DataFrame, pd.DataFrame
+        PopulationState,
+        npt.NDArray[np.float64],
+        pd.DataFrame,
+        pd.DataFrame,
     ]:
         """Solve the coupled population and Sobolev escape-probability state.
 
         The supplied level populations are copied and used only as the initial
-        state. For each iteration, the population callback solves at the
+        state. For each iteration, the charge coordinator solves at the
         current escape probabilities. The resulting populations then
         determine the stimulated-emission factors, Sobolev optical depths, and
         proposed escape probabilities through plasma property calculations.
@@ -123,7 +126,7 @@ class CoupledSobolevPopulationSolver:
 
         Convergence requires both the relative beta update and the relative
         level-population update to be no larger than ``tolerance``. After
-        convergence, the population callback is evaluated once more at the
+        convergence, the population solver is evaluated once more at the
         final escape probabilities. This back-substitution ensures that all
         returned values describe the same state and that the returned beta is
         reproducible from the returned optical depth.
@@ -133,7 +136,7 @@ class CoupledSobolevPopulationSolver:
         initial_level_number_density : pandas.DataFrame
             Complete positive level state used to seed the iteration. Its
             index and columns define the level and shell layout returned by
-            the population callback.
+            the population solver.
         initial_beta_sobolev : pandas.DataFrame, optional
             Escape probabilities from the previous iteration. If omitted,
             they are calculated from ``initial_level_number_density``. When
@@ -142,10 +145,10 @@ class CoupledSobolevPopulationSolver:
 
         Returns
         -------
-        tuple[pandas.DataFrame, numpy.ndarray, pandas.DataFrame, pandas.DataFrame]
+        tuple[PopulationState, numpy.ndarray, pandas.DataFrame, pandas.DataFrame]
             Values are returned in this order:
 
-            * final level number density;
+            * final coupled population state;
             * stimulated-emission factor for each line and shell;
             * Sobolev optical depth for each line and shell;
             * Sobolev escape probability for each line and shell.
@@ -172,10 +175,11 @@ class CoupledSobolevPopulationSolver:
         previous_update_norm = np.inf
         relaxation = 1.0
         converged = False
-        for iteration in range(1, self.max_iterations + 1):
-            new_level_number_density = self.solve_population(
+        for _iteration in range(1, self.max_iterations + 1):
+            population_state = self.charge_conservation_solver.solve(
                 beta_sobolev.copy(deep=True)
             )
+            new_level_number_density = population_state.level_number_density
             (
                 stimulated_emission_factor,
                 tau_sobolevs,
@@ -215,7 +219,10 @@ class CoupledSobolevPopulationSolver:
 
         # Back-substitute once at the final beta so the returned population and
         # public Sobolev properties describe one identical state.
-        level_number_density = self.solve_population(beta_sobolev.copy())
+        population_state = self.charge_conservation_solver.solve(
+            beta_sobolev.copy(deep=True)
+        )
+        level_number_density = population_state.level_number_density
         (
             stimulated_emission_factor,
             tau_sobolevs,
@@ -226,7 +233,7 @@ class CoupledSobolevPopulationSolver:
                 "Final Sobolev back-substitution is not self-consistent"
             )
         return (
-            level_number_density,
+            population_state,
             stimulated_emission_factor,
             tau_sobolevs,
             final_beta,
