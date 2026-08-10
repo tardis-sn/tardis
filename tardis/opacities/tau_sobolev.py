@@ -1,117 +1,17 @@
-import numpy as np
 import pandas as pd
-from astropy import units as u
-from numba import jit, prange
 
-from tardis import constants as const
-from tardis.plasma.properties.base import ProcessingPlasmaProperty
-
-SOBOLEV_COEFFICIENT = (
-    (
-        ((np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs))
-        * u.cm
-        * u.s
-        / u.cm**3
-    )
-    .to(1)
-    .value
+from tardis.opacities.sobolev import (
+    calculate_beta_sobolev as _calculate_beta_sobolev,
 )
-
-
-def calculate_sobolev_line_opacity(
-    lines,
-    level_number_density,
-    time_explosion,
-    stimulated_emission_factor,
-):
-    """
-    Calculates the Sobolev line opacity based on the provided parameters.
-
-    Parameters
-    ----------
-    lines : pandas.DataFrame
-        DataFrame containing information about spectral lines.
-    level_number_density : pandas.DataFrame
-        DataFrame with level number densities.
-    time_explosion : astropy.units.Quantity
-        Time since explosion.
-    stimulated_emission_factor : float
-        Factor for stimulated emission.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Calculated Sobolev line opacity values.
-
-    Raises
-    ------
-    ValueError
-        If any calculated tau_sobolevs are nan or inf.
-
-    Examples
-    --------
-    >>> calculate_sobolev_line_opacity(lines_data, level_density_data, time_exp, stim_factor)
-    """
-    tau_sobolevs = (
-        (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
-        * SOBOLEV_COEFFICIENT
-        * time_explosion.to(u.s).value
-        * stimulated_emission_factor
-        * level_number_density.reindex(lines.droplevel(-1).index).values
-    )
-
-    if np.any(np.isnan(tau_sobolevs)) or np.any(np.isinf(np.abs(tau_sobolevs))):
-        raise ValueError(
-            "Some tau_sobolevs are nan, inf, -inf in tau_sobolevs."
-            " Something went wrong!"
-        )
-
-    return pd.DataFrame(
-        tau_sobolevs,
-        index=lines.index,
-        columns=np.array(level_number_density.columns),
-    )
-
-
-@jit(nopython=True, parallel=True)
-def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
-    for i in prange(len(tau_sobolevs)):
-        if tau_sobolevs[i] > 1e3:
-            beta_sobolevs[i] = tau_sobolevs[i] ** -1
-        elif tau_sobolevs[i] < 1e-4:
-            beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
-        else:
-            beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
-                tau_sobolevs[i]
-            )
-    return beta_sobolevs
-
-
-def calculate_beta_sobolev(tau_sobolevs):
-    """Calculate the beta Sobolev values based on the provided tau_sobolevs.
-    Parameters
-    ----------
-    tau_sobolevs : pd.DataFrame
-        Tau Sobolev opacities.
-    Returns
-    -------
-    pd.DataFrame
-        The latest Beta Sobolev opacities.
-    """
-    tau_values_1d = tau_sobolevs.to_numpy().ravel()
-    beta_values_1d = np.zeros(tau_values_1d.shape[0], dtype=np.float64)
-
-    numba_calculate_beta_sobolev(tau_values_1d, beta_values_1d)
-
-    return pd.DataFrame(
-        beta_values_1d.reshape(tau_sobolevs.shape),
-        index=tau_sobolevs.index,
-        columns=tau_sobolevs.columns,
-    )
+from tardis.opacities.sobolev import (
+    calculate_sobolev_line_opacity as _calculate_sobolev_line_opacity,
+)
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 
 class TauSobolev(ProcessingPlasmaProperty):
-    """
+    """Calculate the Sobolev optical depth plasma property.
+
     Attributes
     ----------
     tau_sobolev : Pandas DataFrame, dtype float
@@ -159,7 +59,7 @@ class TauSobolev(ProcessingPlasmaProperty):
         ValueError
             If any calculated tau_sobolevs are nan or inf.
         """
-        return calculate_sobolev_line_opacity(
+        return _calculate_sobolev_line_opacity(
             lines,
             level_number_density,
             time_explosion,
@@ -168,7 +68,8 @@ class TauSobolev(ProcessingPlasmaProperty):
 
 
 class BetaSobolev(ProcessingPlasmaProperty):
-    """
+    """Calculate Sobolev escape probabilities.
+
     Attributes
     ----------
     beta_sobolev : Numpy Array, dtype float
@@ -177,5 +78,6 @@ class BetaSobolev(ProcessingPlasmaProperty):
     outputs = ("beta_sobolev",)
     latex_name = (r"\beta_{\textrm{sobolev}}",)
 
-    def calculate(self, tau_sobolevs):
-        return calculate_beta_sobolev(tau_sobolevs)
+    def calculate(self, tau_sobolevs: pd.DataFrame) -> pd.DataFrame:
+        """Return escape probabilities for the supplied optical depths."""
+        return _calculate_beta_sobolev(tau_sobolevs)

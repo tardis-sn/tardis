@@ -22,8 +22,8 @@ from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
-from tardis.plasma.equilibrium.continuum_state import (
-    EquilibriumContinuumState,
+from tardis.plasma.equilibrium.continuum import (
+    ContinuumRateState,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
@@ -212,9 +212,9 @@ def continuum_solver_input_data(iip_atom_data):
 @pytest.fixture
 def equilibrium_continuum_state(
     continuum_solver_input_data: dict[str, Any],
-) -> EquilibriumContinuumState:
+) -> ContinuumRateState:
     """Collect deterministic continuum coefficients into structured state."""
-    return EquilibriumContinuumState(
+    return ContinuumRateState(
         radiative_ionization_rate=continuum_solver_input_data[
             "stim_recomb_corrected_photoionization_rate_coeff"
         ],
@@ -265,7 +265,7 @@ def equilibrium_continuum_state(
 def continuum_macro_atom_state(
     continuum_macro_atom_solver: ContinuumMacroAtomSolver,
     continuum_solver_input_data: dict[str, Any],
-    equilibrium_continuum_state: EquilibriumContinuumState,
+    equilibrium_continuum_state: ContinuumRateState,
 ) -> MacroAtomState:
     """Fixture solving for macro-atom state with continuum processes.
 
@@ -422,7 +422,7 @@ class TestContinuumMacroAtomSolver:
         self,
         continuum_macro_atom_solver: ContinuumMacroAtomSolver,
         continuum_solver_input_data: dict[str, Any],
-        equilibrium_continuum_state: EquilibriumContinuumState,
+        equilibrium_continuum_state: ContinuumRateState,
     ) -> None:
         """Test that solving twice with same data gives identical results."""
         # Solve twice

@@ -3,7 +3,7 @@ import numpy.testing as npt
 import pandas as pd
 import pandas.testing as pdt
 
-from tardis.opacities.tau_sobolev import (
+from tardis.opacities.sobolev import (
     calculate_beta_sobolev,
     calculate_sobolev_line_opacity,
 )

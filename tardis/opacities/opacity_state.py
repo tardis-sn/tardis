@@ -5,7 +5,7 @@ from tardis.opacities.continuum.continuum_state import ContinuumState
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
-from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
+from tardis.opacities.sobolev import calculate_sobolev_line_opacity
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 opacity_state_spec = [

@@ -4,14 +4,14 @@ import numpy as np
 import pandas as pd
 
 from tardis import constants as const
-from tardis.plasma.equilibrium.continuum_state import (
-    EquilibriumContinuumState,
+from tardis.plasma.equilibrium.continuum import (
+    ContinuumRateState,
     _cumulative_integrate_by_blocks,
 )
 
 
 @dataclass
-class EquilibriumContinuumOpacityState:
+class ContinuumOpacityState:
     """Continuum opacity data derived from equilibrium plasma quantities."""
 
     nu_i: pd.Series
@@ -26,8 +26,8 @@ class EquilibriumContinuumOpacityState:
 
     @classmethod
     def from_plasma(
-        cls, plasma, continuum_state: EquilibriumContinuumState
-    ) -> EquilibriumContinuumOpacityState:
+        cls, plasma, continuum_state: ContinuumRateState
+    ) -> ContinuumOpacityState:
         """Build transport opacity data without legacy continuum properties."""
         photo_data = plasma.photo_ion_cross_sections
         photo_index = plasma.photo_ion_index
