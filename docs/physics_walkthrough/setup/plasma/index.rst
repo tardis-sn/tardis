@@ -29,6 +29,88 @@ Before Monte Carlo continuum estimators are available, Type IIP continuum initia
 nebular ionization with charge neutrality. Estimator-backed continuum updates use the Monte Carlo bound-free estimators
 from the previous transport step.
 
+The continuum population solve treats each ejecta shell independently. At a fixed electron density and Sobolev escape
+probability, the level and ion rate matrices produce an element-normalized solution for every element, including the
+fully stripped charge state. Ionization edges without configured continuum rates use the nebular balance
+:math:`n_e N_{j+1} - \phi_j N_j = 0`. For estimator-backed updates, the level populations and Sobolev escape
+probabilities are coupled to a bounded scalar charge-neutrality solve in each shell. The resulting level populations
+update the escape probabilities until both population and escape-probability changes converge. Previous level populations
+and escape probabilities initialize this iteration; previous ion and electron populations are not held fixed in the
+converged equations. A final charge solve at the converged escape probabilities ensures that the public population and
+Sobolev quantities describe the same state, following the iterative statistical-
+equilibrium strategy of :cite:`Lucy2001` and the repeated transition-rate
+back-substitution used in Monte Carlo line-transfer calculations
+(:cite:`Lucy2003`).
+Exact-zero nebular ionization factors follow the IIP input convention and are replaced by :math:`10^{-10}` times the
+smallest positive factor before matrix assembly; this is not a fallback for an otherwise disconnected rate system.
+
+Coupled continuum population calculation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For an element with atomic number :math:`Z` and number density :math:`N_Z`,
+the coupled solver uses the element-normalized state
+
+.. math::
+
+    \boldsymbol{y}_Z = (p_{0,0}, \ldots, p_{0,L-1}, Y_1, \ldots, Y_Z),
+
+where the :math:`p_{0,i}` are neutral-atom level fractions and :math:`Y_j` is
+the fraction in charge state :math:`j`. The final state includes the fully
+stripped :math:`Y_Z` state, even though it has no bound levels. The level
+fractions in each level-bearing ion are summed to recover its total ion
+population. Element conservation is imposed by
+
+.. math::
+
+    \sum_i p_{0,i} + \sum_{j=1}^{Z} Y_j = 1.
+
+At fixed electron density and fixed Sobolev escape probabilities, every
+element is solved with one linear rate matrix. Bound-bound rates combine
+radiative rates scaled by the escape probability with electron-density-scaled
+collisional rates. Bound-free edges use the photoionization and recombination
+coefficients, including the Lucy detailed-balance factor exactly once. Edges
+without configured continuum rates use the nebular balance
+:math:`n_e Y_{j+1} - \phi_j Y_j = 0`.
+
+The independent element solutions are coordinated through scalar charge
+closure in each shell:
+
+.. math::
+
+    Q(n_e) = \sum_Z N_Z \sum_j jY_{Z,j}(n_e) - n_e = 0.
+
+The root is bracketed between zero and the fully ionized electron density.
+After charge closure, the solver recalculates the stimulated-emission factor,
+Sobolev optical depth, and escape probability from the new level populations.
+This back-substitution is repeated until both the population and escape-
+probability updates converge, with deterministic damping if an update grows.
+The final population solve is performed at the final escape probabilities, so
+the public level, ion, electron-density, and Sobolev outputs describe one
+coherent state. This scalar/Picard decomposition avoids the full linearization
+approach of :cite:`AuerMihalas1969`; accelerated lambda iteration is likewise
+not required because the Monte Carlo radiation estimators are held fixed during
+the local plasma update (see :cite:`RybickiHummer1991`).
+
+Initialization and diagnostics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When bound-free estimators are unavailable, initialization uses dilute-LTE
+excitation together with nebular ionization and charge neutrality. Once a
+complete set of Monte Carlo bound-free estimators is available, the current
+estimators and current blue-line intensities determine the coupled update.
+Previous populations and escape probabilities are warm starts only; they are
+not mixed into the converged equations. Partial estimator or previous-state
+inputs are errors rather than partial updates.
+
+The hydrogen ground-state/Lyman-continuum suppression is an explicit policy of
+the bound-free rate assembly and is independent of the iteration count. Exact
+zero nebular ionization factors are regularized using the IIP convention above.
+The solver rejects nonfinite or materially negative populations, singular or
+disconnected rate systems, unbracketed charge residuals, and failed final
+Sobolev back-substitution. Population residuals, element conservation, charge
+closure, and the public Sobolev identities are checked before the state is
+published.
+
 Properties, Inputs and Outputs
 ------------------------------
 Each TARDIS plasma possesses an array of plasma properties, which are used to calculate plasma parameter values. Most plasma properties have a single output, e.g.
