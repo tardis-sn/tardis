@@ -12,7 +12,10 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_distance_line_nonhomologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
+from tardis.transport.montecarlo.configuration.constants import (
+    C_SPEED_OF_LIGHT,
+    MISS_DISTANCE,
+)
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
 )
@@ -20,6 +23,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     RPacket,
 )
+from tardis.transport.montecarlo.utils import MonteCarloException
 
 
 @njit(**njit_dict_no_parallel)
@@ -72,64 +76,34 @@ def trace_packet(
     tau_event = -np.log(np.random.random())
     tau_trace_line_combined = 0.0
 
-    dvdr = numba_radial_1d_geometry.velocity_gradient[r_packet.current_shell_id]
-
-    # defining start for line interaction
-    # If redshifting, use next line and line list in order
-    # If blueshifting, use previous line and reverse line list
-    if dvdr >= 0.0:
-        start_line_id = r_packet.next_line_id
-        loop_lim, loop_direction = len(opacity_state.line_list_nu), 1
-    else:
-        start_line_id = r_packet.prev_line_id
-        loop_lim, loop_direction = -1, -1
-
+    dvdr = numba_radial_1d_geometry.velocity_gradient[
+        r_packet.current_shell_id
+    ]
     distance_electron = tau_event / opacity_electron
-    cur_line_id = start_line_id  # initializing varibale for Numba
-    for cur_line_id in range(start_line_id, loop_lim, loop_direction):
-        # Going through the lines
-        nu_line = opacity_state.line_list_nu[cur_line_id]
+    distance_trace_previous = 0.0
+    while True:
+        distance_trace = MISS_DISTANCE
+        cur_line_id = -1
+        for line_id in range(len(opacity_state.line_list_nu)):
+            nu_line = opacity_state.line_list_nu[line_id]
+            distance_trace_line = calculate_distance_line_nonhomologous(
+                r_packet,
+                numba_radial_1d_geometry,
+                nu_line,
+                distance_trace_previous,
+            )
+            if distance_trace_line < distance_trace:
+                distance_trace = distance_trace_line
+                cur_line_id = line_id
 
-        # Getting the tau for the next line
-        tau_trace_line = opacity_state.tau_sobolev[
-            cur_line_id, r_packet.current_shell_id
-        ]
-
-        # Adding it to the tau_trace_line_combined
-        tau_trace_line_combined += tau_trace_line
-
-        # Calculating the distance until the current photons co-moving nu
-        # redshifts to the line frequency
-        distance_trace = calculate_distance_line_nonhomologous(
-            r_packet,
-            numba_radial_1d_geometry,
-            nu_line,
-        )
-
-        # calculating the tau electron of how far the trace has progressed
-        tau_trace_electron = opacity_electron * distance_trace
-
-        # calculating the trace
-        tau_trace_combined = tau_trace_line_combined + tau_trace_electron
-
-        distance = min(distance_trace, distance_boundary, distance_electron)
-
-        if distance_trace != 0:
-            if (distance == distance_boundary) or (
-                distance == distance_electron
-            ):
-                if dvdr >= 0.0:
-                    r_packet.next_line_id = cur_line_id
-                    r_packet.prev_line_id = cur_line_id - 1
-                else:
-                    r_packet.next_line_id = cur_line_id + 1
-                    r_packet.prev_line_id = cur_line_id
-            if distance == distance_boundary:
-                interaction_type = InteractionType.BOUNDARY
-                break
-            if distance == distance_electron:
-                interaction_type = InteractionType.ESCATTERING
-                break
+        if distance_electron < min(distance_trace, distance_boundary):
+            distance = distance_electron
+            interaction_type = InteractionType.ESCATTERING
+            break
+        if distance_boundary <= distance_trace:
+            distance = distance_boundary
+            interaction_type = InteractionType.BOUNDARY
+            break
 
         # Updating the J_b_lu and E_dot_lu
         # This means we are still looking for line interaction and have not
@@ -152,12 +126,42 @@ def trace_packet(
         new_v = v_inner + dvdr * (new_r - r_inner)
         new_doppler_factor = 1.0 - new_v / C_SPEED_OF_LIGHT * new_mu
         energy = r_packet.energy * new_doppler_factor
+        projected_velocity_gradient = (
+            new_mu * new_mu * dvdr
+            + (1.0 - new_mu * new_mu) * new_v / new_r
+        )
+        if projected_velocity_gradient == 0.0:
+            raise MonteCarloException(
+                "Sobolev optical depth is singular at the line resonance."
+            )
+
+        tau_trace_line = opacity_state.sobolev_line_strength[
+            cur_line_id, r_packet.current_shell_id
+        ]
+        if tau_trace_line == 0.0:
+            tau_trace_line = (
+                opacity_state.tau_sobolev[
+                    cur_line_id, r_packet.current_shell_id
+                ]
+                * abs(dvdr)
+            )
+        if disable_line_scattering:
+            tau_trace_line = 0.0
+        else:
+            tau_trace_line /= abs(projected_velocity_gradient)
+
+        tau_trace_electron = opacity_electron * distance_trace
+        tau_trace_combined = (
+            tau_trace_line_combined
+            + tau_trace_line
+            + tau_trace_electron
+        )
 
         # Update the estimators
         # Replaces the call to `update_estimators_line`
         estimators_line.mean_intensity_blueward[
             cur_line_id, r_packet.current_shell_id
-        ] += energy / r_packet.nu
+        ] += energy / r_packet.nu / abs(projected_velocity_gradient)
         estimators_line.energy_deposition_line_rate[
             cur_line_id, r_packet.current_shell_id
         ] += energy
@@ -169,30 +173,10 @@ def trace_packet(
             distance = distance_trace
             break
 
-        # Recalculating distance_electron using tau_event -
-        # tau_trace_line_combined
+        tau_trace_line_combined += tau_trace_line
         distance_electron = (tau_event - tau_trace_line_combined) / (
             opacity_electron
         )
-
-    else:  # Executed when no break occurs in the for loop
-        # We are beyond the line list now and the only next thing is to see
-        # if we are interacting with the boundary or electron scattering
-        if dvdr >= 0.0:
-            if cur_line_id == (len(opacity_state.line_list_nu) - 1):
-                cur_line_id += 1
-            r_packet.next_line_id = cur_line_id
-            r_packet.prev_line_id = cur_line_id - 1
-        else:
-            if cur_line_id == 0:
-                cur_line_id -= 1
-            r_packet.next_line_id = cur_line_id + 1
-            r_packet.prev_line_id = cur_line_id
-        if distance_electron < distance_boundary:
-            distance = distance_electron
-            interaction_type = InteractionType.ESCATTERING
-        else:
-            distance = distance_boundary
-            interaction_type = InteractionType.BOUNDARY
+        distance_trace_previous = distance_trace
 
     return distance, interaction_type, delta_shell

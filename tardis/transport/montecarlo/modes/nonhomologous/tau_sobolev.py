@@ -52,22 +52,56 @@ def calculate_sobolev_line_opacity(
     --------
     >>> calculate_sobolev_line_opacity(lines_data, level_density_data, time_exp, stim_factor)
     """
-    tau_sobolevs = (
+    sobolev_line_strength = (
         (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
         * SOBOLEV_COEFFICIENT
-        / velocity_gradient.to(1 / u.s).value
         * stimulated_emission_factor
         * level_number_density.reindex(lines.droplevel(-1).index).values
     )
+    velocity_gradient = np.abs(velocity_gradient.to(1 / u.s).value)
+    tau_sobolevs = np.divide(
+        sobolev_line_strength,
+        velocity_gradient,
+        out=np.full_like(sobolev_line_strength, np.inf),
+        where=velocity_gradient != 0.0,
+    )
+    tau_sobolevs[sobolev_line_strength == 0.0] = 0.0
 
-    if np.any(np.isnan(tau_sobolevs)) or np.any(np.isinf(np.abs(tau_sobolevs))):
+    if np.any(np.isnan(tau_sobolevs)):
         raise ValueError(
-            "Some tau_sobolevs are nan, inf, -inf in tau_sobolevs."
+            "Some tau_sobolevs are nan in tau_sobolevs."
             " Something went wrong!"
         )
 
     return pd.DataFrame(
         tau_sobolevs,
+        index=lines.index,
+        columns=np.array(level_number_density.columns),
+    )
+
+
+def calculate_sobolev_line_strength(
+    lines,
+    level_number_density,
+    stimulated_emission_factor,
+):
+    sobolev_line_strength = (
+        (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
+        * SOBOLEV_COEFFICIENT
+        * stimulated_emission_factor
+        * level_number_density.reindex(lines.droplevel(-1).index).values
+    )
+
+    if np.any(np.isnan(sobolev_line_strength)) or np.any(
+        np.isinf(np.abs(sobolev_line_strength))
+    ):
+        raise ValueError(
+            "Some Sobolev line strengths are nan, inf, or -inf."
+            " Something went wrong!"
+        )
+
+    return pd.DataFrame(
+        sobolev_line_strength,
         index=lines.index,
         columns=np.array(level_number_density.columns),
     )
@@ -110,6 +144,47 @@ def calculate_beta_sobolev(tau_sobolevs):
         beta_values_1d.reshape(tau_sobolevs.shape),
         index=tau_sobolevs.index,
         columns=tau_sobolevs.columns,
+    )
+
+
+def calculate_beta_sobolev_directional(
+    sobolev_line_strength,
+    velocity_gradient,
+    velocity_over_radius,
+):
+    mus, weights = np.polynomial.legendre.leggauss(20)
+    beta_sobolevs = np.zeros_like(sobolev_line_strength.values)
+    velocity_gradient = velocity_gradient.to(1 / u.s).value
+    velocity_over_radius = velocity_over_radius.to(1 / u.s).value
+
+    for mu, weight in zip(mus, weights, strict=True):
+        projected_velocity_gradient = (
+            mu * mu * velocity_gradient
+            + (1.0 - mu * mu) * velocity_over_radius
+        )
+        tau_sobolevs = np.divide(
+            sobolev_line_strength.values,
+            np.abs(projected_velocity_gradient),
+            out=np.full_like(sobolev_line_strength.values, np.inf),
+            where=projected_velocity_gradient != 0.0,
+        )
+        tau_sobolevs[sobolev_line_strength.values == 0.0] = 0.0
+
+        beta_directional = np.empty_like(tau_sobolevs)
+        thick = tau_sobolevs > 1e3
+        thin = tau_sobolevs < 1e-4
+        intermediate = np.logical_not(np.logical_or(thick, thin))
+        beta_directional[thick] = tau_sobolevs[thick] ** -1
+        beta_directional[thin] = 1.0 - 0.5 * tau_sobolevs[thin]
+        beta_directional[intermediate] = (
+            1.0 - np.exp(-tau_sobolevs[intermediate])
+        ) / tau_sobolevs[intermediate]
+        beta_sobolevs += 0.5 * weight * beta_directional
+
+    return pd.DataFrame(
+        beta_sobolevs,
+        index=sobolev_line_strength.index,
+        columns=sobolev_line_strength.columns,
     )
 
 

@@ -6,7 +6,9 @@ from tardis.opacities.opacity_state import (
 )
 from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
     calculate_beta_sobolev,
+    calculate_beta_sobolev_directional,
     calculate_sobolev_line_opacity,
+    calculate_sobolev_line_strength,
 )
 
 
@@ -20,6 +22,7 @@ class OpacitySolver:
         velocity_gradient,
         line_interaction_type="scatter",
         disable_line_scattering=False,
+        velocity_over_radius=None,
     ):
         """Solver class for opacities
 
@@ -33,6 +36,7 @@ class OpacitySolver:
         self.velocity_gradient = velocity_gradient
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
+        self.velocity_over_radius = velocity_over_radius
 
     def legacy_solve(self, plasma) -> OpacityState:
         """
@@ -66,7 +70,22 @@ class OpacitySolver:
                 plasma.stimulated_emission_factor,
             )
 
+        sobolev_line_strength = calculate_sobolev_line_strength(
+            plasma.atomic_data.lines,
+            plasma.level_number_density,
+            plasma.stimulated_emission_factor,
+        )
+        if self.disable_line_scattering:
+            sobolev_line_strength.iloc[:, :] = 0.0
+
         opacity_state = OpacityState.from_legacy_plasma(plasma, tau_sobolev)
+        opacity_state.sobolev_line_strength = sobolev_line_strength
+        if self.velocity_over_radius is not None:
+            opacity_state.beta_sobolev = calculate_beta_sobolev_directional(
+                sobolev_line_strength,
+                self.velocity_gradient,
+                self.velocity_over_radius,
+            )
 
         return opacity_state
 
@@ -94,6 +113,11 @@ class OpacitySolver:
                 ),
                 index=plasma.atomic_data.lines.index,
             )
+            beta_sobolev = pd.DataFrame(
+                np.ones_like(tau_sobolev),
+                index=tau_sobolev.index,
+                columns=tau_sobolev.columns,
+            )
         else:
             tau_sobolev = calculate_sobolev_line_opacity(
                 plasma.atomic_data.lines,
@@ -101,10 +125,27 @@ class OpacitySolver:
                 self.velocity_gradient,
                 plasma.stimulated_emission_factor,
             )
+
+        sobolev_line_strength = calculate_sobolev_line_strength(
+            plasma.atomic_data.lines,
+            plasma.level_number_density,
+            plasma.stimulated_emission_factor,
+        )
+        if self.disable_line_scattering:
+            sobolev_line_strength.iloc[:, :] = 0.0
+
+        if self.velocity_over_radius is None:
             beta_sobolev = calculate_beta_sobolev(tau_sobolev)
+        else:
+            beta_sobolev = calculate_beta_sobolev_directional(
+                sobolev_line_strength,
+                self.velocity_gradient,
+                self.velocity_over_radius,
+            )
 
         opacity_state = OpacityState.from_plasma(
             plasma, tau_sobolev, beta_sobolev
         )
+        opacity_state.sobolev_line_strength = sobolev_line_strength
 
         return opacity_state

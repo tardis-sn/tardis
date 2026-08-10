@@ -114,10 +114,11 @@ def calculate_distance_line(
 
 @njit(**njit_dict_no_parallel)
 def calculate_distance_line_nonhomologous(
-    rpacket : RPacket,
-    geometry : NumbaNonhomologousRadial1DGeometry,
-    nu_line : float
-):
+    rpacket: RPacket,
+    geometry: NumbaNonhomologousRadial1DGeometry,
+    nu_line: float,
+    minimum_distance: float = 0.0,
+) -> float:
     """
     Calculate distance until RPacket is in resonance with the next line
 
@@ -133,7 +134,6 @@ def calculate_distance_line_nonhomologous(
 
     r = rpacket.r
     dvdr = geometry.velocity_gradient[rpacket.current_shell_id]
-    v = geometry.get_velocity(r, rpacket.current_shell_id)
     nu_rest = rpacket.nu
     mu = rpacket.mu
 
@@ -146,50 +146,70 @@ def calculate_distance_line_nonhomologous(
     # Characteristic scales for non-dimensionalization
     r0 = r_outer - r_inner
     v0 = v_outer - v_inner
+    distance_tolerance = CLOSE_LINE_THRESHOLD * r0
     if v0 == 0.0:
-        # Velocity gradient is zero - packet cannot shift into a line in this shell
-        return MISS_DISTANCE
+        impact_parameter_squared = r * r * p
+        if q != 0.0 and n * n < q * q:
+            x_squared = (
+                n * n * impact_parameter_squared / (q * q - n * n)
+            )
+            x_root = math.copysign(math.sqrt(x_squared), n / q) / r0
+            x = (x_root, math.nan, math.nan, math.nan)
+        else:
+            x = (math.nan, math.nan, math.nan, math.nan)
+    else:
+        # Dimensionless quantities to use in the quartic solver - improves floating point accuracy
+        rd = r / r0
+        nd = n / v0
+        md = 1.0  # m/(v0/r0) # dimensionless m will always be 1
+        qd = q / v0
 
-    # Dimensionless quantities to use in the quartic solver - improves floating point accuracy
-    rd = r/r0
-    nd = n/v0
-    md = 1.0 # m/(v0/r0) # dimensionless m will always be 1
-    qd = q/v0
+        md2 = md * md
+        rd2 = rd * rd
+        nd2 = nd * nd
+        qd2 = qd * qd
 
-    md2 = md*md
-    rd2 = rd*rd
-    nd2 = nd*nd
-    qd2 = qd*qd
+        # Define coefficients of the quartic polynomial
+        a = md2
+        b = -2.0 * nd * md
+        c = nd2 + md * rd2 * p - qd2
+        d = -2.0 * nd * md * rd2 * p
+        e = nd2 * rd2 * p
 
-    # Define coefficients of the quartic polynomial
-    a = md2
-    b = -2.0 * nd * md
-    c = nd2 + md * rd2 * p - qd2
-    d = -2.0 * nd * md * rd2 * p
-    e = nd2 * rd2 * p
-
-    # m is the velocity gradient
-    # n is the relative line velocity
-    # If m and n have the same sign, a doppler shift *may* reach the line in this cell
-    # If m and n have opposite signs, the velocity in this cell *cannot* shift the packet towards the line
-    beta = v/C_SPEED_OF_LIGHT
-    doppler_factor = 1.0 - mu * beta
-    comov_nu = nu_rest * doppler_factor
-
-    if (comov_nu - nu_line > 1e-14*nu_line and m > 0.0) or (comov_nu - nu_line < -1e-14*nu_line and m < 0.0):
         # Obtain roots of the quartic polynomial for x (= d_line + r_i \mu_i)
         x = depressed_quartic(a, b, c, d, e)
-        # Convert each root x_i to a candidate distance: d = r0*x_i - r*mu
-        # Select the smallest positive, finite distance among all four roots.
-        distance = MISS_DISTANCE
-        for x_root in x:
-            if math.isnan(x_root):
-                continue
-            d_candidate = r0 * x_root - r * mu
-            if d_candidate > 0.0 and d_candidate < distance:
-                distance = d_candidate
-    else:
-        distance = MISS_DISTANCE
+
+    # Convert each root x_i to a candidate distance: d = r0*x_i - r*mu
+    # Select the nearest root that satisfies the original, unsquared resonance equation.
+    distance = MISS_DISTANCE
+    for x_root in x:
+        if not math.isfinite(x_root):
+            continue
+        d_candidate = r0 * x_root - r * mu
+        if d_candidate <= minimum_distance + distance_tolerance:
+            continue
+
+        new_r = math.sqrt(
+            r * r + d_candidate * d_candidate + 2.0 * r * d_candidate * mu
+        )
+        if (
+            new_r < r_inner - distance_tolerance
+            or new_r > r_outer + distance_tolerance
+        ):
+            continue
+
+        new_mu = (r * mu + d_candidate) / new_r
+        new_v = v_inner + m * (new_r - r_inner)
+        comov_nu = nu_rest * (
+            1.0 - new_v / C_SPEED_OF_LIGHT * new_mu
+        )
+        if (
+            not math.isfinite(comov_nu)
+            or abs(comov_nu - nu_line) > 1.0e-7 * nu_line
+        ):
+            continue
+
+        distance = min(distance, d_candidate)
 
     return distance
 
