@@ -78,6 +78,7 @@ class OpacityState:
         self.line_list_nu = line_list_nu
 
         self.tau_sobolev = tau_sobolev
+        self.sobolev_line_strength = None
 
         self.beta_sobolev = beta_sobolev
 
@@ -330,7 +331,7 @@ class OpacityState:
                 macro_atom_state.transition_metadata.transition_line_idx.values
             )
 
-        return OpacityStateNumba(
+        opacity_state_numba = OpacityStateNumba(
             electron_densities,
             t_electrons,
             line_list_nu,
@@ -354,3 +355,8 @@ class OpacityState:
             photo_ion_activation_idx,
             k_packet_idx,
         )
+        if self.sobolev_line_strength is not None:
+            opacity_state_numba.sobolev_line_strength = np.ascontiguousarray(
+                self.sobolev_line_strength, dtype=np.float64
+            )
+        return opacity_state_numba

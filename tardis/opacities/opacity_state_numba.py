@@ -24,6 +24,7 @@ class OpacityStateNumba:
     t_electrons: nb.float64[:]  # type: ignore[misc]
     line_list_nu: nb.float64[:]  # type: ignore[misc]
     tau_sobolev: nb.float64[:, :]  # type: ignore[misc]
+    sobolev_line_strength: nb.float64[:, :]  # type: ignore[misc]
     transition_probabilities: nb.float64[:, :]  # type: ignore[misc]
     line2macro_level_upper: nb.int64[:]  # type: ignore[misc]
     macro_block_edge_index: nb.int64[:]  # type: ignore[misc]
@@ -124,6 +125,7 @@ class OpacityStateNumba:
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
+        self.sobolev_line_strength = np.zeros_like(tau_sobolev)
         self.bf_threshold_list_nu = bf_threshold_list_nu
 
         #### Macro Atom transition probabilities
@@ -170,7 +172,7 @@ class OpacityStateNumba:
             arrays sliced. Continuum arrays are not sliced and therefore this
             method must not be used with continuum interactions.
         """
-        return OpacityStateNumba(
+        opacity_state = OpacityStateNumba(
             self.electron_density[i],
             self.t_electrons[i],
             self.line_list_nu,
@@ -194,3 +196,5 @@ class OpacityStateNumba:
             self.photo_ion_activation_idx,
             self.k_packet_idx,
         )
+        opacity_state.sobolev_line_strength = self.sobolev_line_strength[:, i]
+        return opacity_state

@@ -16,12 +16,14 @@ from tardis.transport.geometry.calculate_distances import (
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import (
+    MISS_DISTANCE,
     SIGMA_THOMSON,
 )
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
+from tardis.transport.montecarlo.utils import MonteCarloException
 
 
 @jitclass
@@ -134,54 +136,65 @@ def trace_vpacket_within_shell(
     tau_continuum = chi_continuum * distance_boundary
     tau_trace_combined = tau_continuum
 
-    # defining start for line interaction
-    # If redshifting, use next line and line list in order
-    # If blueshifting, use previous line and reverse line list
-    dvdr = numba_radial_1d_geometry.velocity_gradient[v_packet.current_shell_id]
-    if dvdr >= 0.0:
-        start_line_id = v_packet.next_line_id
-        loop_lim, loop_direction = len(opacity_state.line_list_nu), 1
-    else:
-        start_line_id = v_packet.prev_line_id
-        loop_lim, loop_direction = -1, -1
-
-    cur_line_id = start_line_id  # initialize variable for Numba - do not remove
-
-    for cur_line_id in range(start_line_id, loop_lim, loop_direction):
-        nu_line = opacity_state.line_list_nu[cur_line_id]
-
-        tau_trace_line = opacity_state.tau_sobolev[
-            cur_line_id, v_packet.current_shell_id
-        ]
-
-        distance_trace_line = calculate_distance_line_nonhomologous(
-            v_packet,
-            numba_radial_1d_geometry,
-            nu_line
-        )
+    dvdr = numba_radial_1d_geometry.velocity_gradient[
+        v_packet.current_shell_id
+    ]
+    distance_trace_previous = 0.0
+    while True:
+        distance_trace_line = MISS_DISTANCE
+        cur_line_id = -1
+        for line_id in range(len(opacity_state.line_list_nu)):
+            nu_line = opacity_state.line_list_nu[line_id]
+            distance_trace = calculate_distance_line_nonhomologous(
+                v_packet,
+                numba_radial_1d_geometry,
+                nu_line,
+                distance_trace_previous,
+            )
+            if distance_trace < distance_trace_line:
+                distance_trace_line = distance_trace
+                cur_line_id = line_id
 
         if distance_boundary <= distance_trace_line:
             break
 
-        tau_trace_combined += tau_trace_line
+        new_r = math.sqrt(
+            v_packet.r * v_packet.r
+            + distance_trace_line * distance_trace_line
+            + 2.0
+            * v_packet.r
+            * distance_trace_line
+            * v_packet.mu
+        )
+        new_mu = (
+            v_packet.mu * v_packet.r + distance_trace_line
+        ) / new_r
+        new_v = numba_radial_1d_geometry.get_velocity(
+            new_r, v_packet.current_shell_id
+        )
+        projected_velocity_gradient = (
+            new_mu * new_mu * dvdr
+            + (1.0 - new_mu * new_mu) * new_v / new_r
+        )
+        if projected_velocity_gradient == 0.0:
+            raise MonteCarloException(
+                "Sobolev optical depth is singular at the line resonance."
+            )
 
-    else:
-        # All lines in search direction were reached
-        # Advance cur_line_id past the end of the list so that next_line_id/prev_line_id
-        # correctly indicate no remaining lines in this direction
-        if dvdr >= 0.0:
-            if cur_line_id == (len(opacity_state.line_list_nu) - 1):
-                cur_line_id += 1
-        else:
-            if cur_line_id == 0:
-                cur_line_id -= 1
-
-    if dvdr >= 0.0:
-        v_packet.next_line_id = cur_line_id
-        v_packet.prev_line_id = cur_line_id - 1
-    else:
-        v_packet.next_line_id = cur_line_id + 1
-        v_packet.prev_line_id = cur_line_id
+        tau_trace_line = opacity_state.sobolev_line_strength[
+            cur_line_id, v_packet.current_shell_id
+        ]
+        if tau_trace_line == 0.0:
+            tau_trace_line = (
+                opacity_state.tau_sobolev[
+                    cur_line_id, v_packet.current_shell_id
+                ]
+                * abs(dvdr)
+            )
+        tau_trace_combined += tau_trace_line / abs(
+            projected_velocity_gradient
+        )
+        distance_trace_previous = distance_trace_line
 
     return tau_trace_combined, distance_boundary, delta_shell
 
