@@ -10,11 +10,11 @@ A collection of tools that post-process TARDIS simulations to generate
 diagnostic visualizations.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
-    visualization/how_to_sdec_plot
-    visualization/how_to_liv_plot
-    visualization/tutorial_convergence_plot
+    SDEC Plot <visualization/how_to_sdec_plot>
+    LIV Plot <visualization/how_to_liv_plot>
+    Convergence Plot <visualization/tutorial_convergence_plot>
 
 
 TARDIS Widgets (Graphical User Interfaces)
@@ -25,9 +25,9 @@ simulations. Widgets are simple Graphical User Interfaces (GUIs) that run within
 Jupyter Notebooks, making data exploration much easier.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
-    visualization/Shell Info Widget <shell_info_widget>
-    visualization/Line Info Widget <line_info_widget>
-    visualization/Custom Abundance Widget <custom_abundance_widget>
-    visualization/Energy Level Diagram Widget <energy_level_widget>
+    Shell Info Widget <visualization/shell_info_widget>
+    Line Info Widget <visualization/line_info_widget>
+    Custom Abundance Widget <visualization/custom_abundance_widget>
+    Energy Level Diagram Widget <visualization/energy_level_widget>
