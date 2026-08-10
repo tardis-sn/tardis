@@ -1,5 +1,18 @@
 ## Changelog
 
+### release-2026.08.09 (2026/08/06 16:35)
+- [3684](https://github.com/tardis-sn/tardis/pull/3684) Fix geometry state naming for nonhomologous workflow (3684) (@andrewfullard)
+- [3675](https://github.com/tardis-sn/tardis/pull/3675) Opacity and Transport state disambiguation (3675) (@andrewfullard)
+- [3681](https://github.com/tardis-sn/tardis/pull/3681) Post-release 2026.08.02 (3681) (@tardis-bot)
+### release-2026.08.02 (2026/08/01 21:48)
+- [3680](https://github.com/tardis-sn/tardis/pull/3680) Pre-release 2026.08.02 (3680) (@tardis-bot)
+- [3671](https://github.com/tardis-sn/tardis/pull/3671) Stricter Ruff configuration (3671) (@andrewfullard)
+- [3667](https://github.com/tardis-sn/tardis/pull/3667) Codestyle workflow fixes (3667) (@andrewfullard)
+- [3668](https://github.com/tardis-sn/tardis/pull/3668) Fix docs publish workflow bugs (3668) (@andrewfullard)
+- [3673](https://github.com/tardis-sn/tardis/pull/3673) Move the workflow logging class to composition over inheritance (3673) (@andrewfullard)
+- [3661](https://github.com/tardis-sn/tardis/pull/3661) Remove continuum matrix from workflows (3661) (@andrewfullard)
+- [3597](https://github.com/tardis-sn/tardis/pull/3597) Migrate Custom Abundance Widget to Panel (3597) (@SS-9098)
+- [3670](https://github.com/tardis-sn/tardis/pull/3670) Post-release 2026.07.26 (3670) (@tardis-bot)
 ### release-2026.07.26 (2026/07/25 21:45)
 - [3669](https://github.com/tardis-sn/tardis/pull/3669) Pre-release 2026.07.26 (3669) (@tardis-bot)
 - [3657](https://github.com/tardis-sn/tardis/pull/3657) Migrate Grotrian Widget to Panel (3657) (@SS-9098)

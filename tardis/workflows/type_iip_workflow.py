@@ -312,8 +312,8 @@ class TypeIIPWorkflow:
                 self.transport_state.estimators_line,
                 self.transport_state.time_explosion,
                 self.transport_state.time_of_simulation,
-                self.transport_state.geometry_state.volume,
-                self.transport_state.opacity_state.line_list_nu,
+                self.transport_state.geometry_state_numba.volume,
+                self.transport_state.opacity_state_numba.line_list_nu,
             )
         )
 
@@ -455,8 +455,8 @@ class TypeIIPWorkflow:
                 self.simulation_state.radiation_field_state,
                 self.transport_state.time_explosion,
                 self.transport_state.time_of_simulation,
-                self.transport_state.geometry_state.volume,
-                self.transport_state.opacity_state.line_list_nu,
+                self.transport_state.geometry_state_numba.volume,
+                self.transport_state.opacity_state_numba.line_list_nu,
                 detailed_optical_window=True,
             )
         )
@@ -764,7 +764,7 @@ class TypeIIPWorkflow:
             1.0
             / (
                 self.transport_state.time_of_simulation
-                * self.transport_state.geometry_state.volume
+                * self.transport_state.geometry_state_numba.volume
                 * const.h.cgs.value
             ).value
         )
@@ -818,7 +818,7 @@ class TypeIIPWorkflow:
             4.0
             * np.pi
             * self.transport_state.time_of_simulation.value
-            * self.transport_state.geometry_state.volume
+            * self.transport_state.geometry_state_numba.volume
         )
         damping_factor = J / J_estim
         return damping_factor

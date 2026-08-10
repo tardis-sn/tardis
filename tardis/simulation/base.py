@@ -283,8 +283,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.transport.transport_state.estimators_line,
                 self.transport.transport_state.time_explosion,
                 self.transport.transport_state.time_of_simulation,
-                self.transport.transport_state.geometry_state.volume,
-                self.transport.transport_state.opacity_state.line_list_nu,
+                self.transport.transport_state.geometry_state_numba.volume,
+                self.transport.transport_state.opacity_state_numba.line_list_nu,
             )
         )
 
