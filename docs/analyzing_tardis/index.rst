@@ -12,9 +12,9 @@ diagnostic visualizations.
 .. toctree::
     :maxdepth: 2
 
-    how_to_sdec_plot
-    how_to_liv_plot
-    tutorial_convergence_plot
+    visualization/how_to_sdec_plot
+    visualization/how_to_liv_plot
+    visualization/tutorial_convergence_plot
 
 
 TARDIS Widgets (Graphical User Interfaces)
@@ -27,7 +27,7 @@ Jupyter Notebooks, making data exploration much easier.
 .. toctree::
     :maxdepth: 2
 
-    Shell Info Widget <shell_info_widget>
-    Line Info Widget <line_info_widget>
-    Custom Abundance Widget <custom_abundance_widget>
-    Energy Level Diagram Widget <energy_level_widget>
+    visualization/Shell Info Widget <shell_info_widget>
+    visualization/Line Info Widget <line_info_widget>
+    visualization/Custom Abundance Widget <custom_abundance_widget>
+    visualization/Energy Level Diagram Widget <energy_level_widget>
