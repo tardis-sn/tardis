@@ -1,0 +1,131 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Shell Info Widget\n",
+    "\n",
+    "The Shell Info Widget allows you to explore the chemical abundances in different\n",
+    "shells of the model Supernova ejecta interactively within a Jupyter Notebook.\n",
+    "\n",
+    "![Shell Info Widget Demo](../images/shell_info_widget_demo.gif)\n",
+    "\n",
+    "It consists of four interlinked tables — clicking on any row in a table\n",
+    "populates data in the table(s) to the right of it. Each table contains the\n",
+    "following information:\n",
+    "\n",
+    "1. **Shells Data** — Radiative temperature and Dilution Factor (W) of each shell\n",
+    "   (computational partition) of the model Supernova ejecta. Shell numbers are\n",
+    "   given in ascending order, from the innermost shell to the outermost.\n",
+    "\n",
+    "2. **Element Abundances** — Fractional mass abundance of each element present\n",
+    "   in the selected shell.\n",
+    "\n",
+    "3. **Ion Abundances** — Fractional mass abundance of each ion (species) of the\n",
+    "   selected element present in the selected shell.\n",
+    "\n",
+    "4. **Level Abundances** — Fractional mass abundance of each level of the\n",
+    "   selected ion and element in the selected shell."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Generating the Widget\n",
+    "\n",
+    "First, create and run a simulation (see [Quickstart](https://tardis-sn.github.io/tardis/quickstart/quickstart.html)\n",
+    "for details), then import the helper functions from the `visualization` subpackage."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from tardis import run_tardis\n",
+    "from tardis.io.atom_data import download_atom_data\n",
+    "from tardis.io.configuration.config_reader import Configuration\n",
+    "from tardis.visualization import shell_info_from_simulation, shell_info_from_hdf\n",
+    "\n",
+    "# Download the atomic data needed to run the simulation\n",
+    "download_atom_data('kurucz_cd23_chianti_H_He_latest')\n",
+    "\n",
+    "config = Configuration.from_yaml(\"tardis_example.yml\")\n",
+    "config.montecarlo.tracking.track_rpacket = True\n",
+    "\n",
+    "sim = run_tardis(config, virtual_packet_logging=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Using a Simulation Object\n",
+    "\n",
+    "Pass the simulation object to `shell_info_from_simulation` and call `.display()`\n",
+    "to start using the widget."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "**Note for Documentation Viewers**\n",
+    "\n",
+    "The interactive widget below will not function in the published documentation.\n",
+    "To use this widget, please run this notebook locally in a Jupyter environment\n",
+    "with TARDIS installed.\n",
+    "\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "shell_info_widget = shell_info_from_simulation(sim)\n",
+    "shell_info_widget.display()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Using a Saved Simulation (HDF File)\n",
+    "\n",
+    "Alternatively, if you have a TARDIS simulation saved as an HDF file on disk,\n",
+    "you can generate the widget directly from it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# shell_info_widget = shell_info_from_hdf('demo.h5')\n",
+    "# shell_info_widget.display()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "tardis",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python",
+   "version": "3.13.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
