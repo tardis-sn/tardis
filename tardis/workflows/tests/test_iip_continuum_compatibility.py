@@ -7,8 +7,8 @@ import pytest
 from tardis import constants as const
 from tardis.io.configuration.config_reader import Configuration
 from tardis.plasma import BasePlasma
-from tardis.plasma.equilibrium.continuum_state import (
-    EquilibriumContinuumState,
+from tardis.plasma.equilibrium.continuum import (
+    ContinuumRateState,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
@@ -67,7 +67,7 @@ def test_standard_continuum_state_is_complete(
     continuum_workflow: TypeIIPWorkflow,
 ) -> None:
     state = continuum_workflow.continuum_state
-    assert isinstance(state, EquilibriumContinuumState)
+    assert isinstance(state, ContinuumRateState)
     for value in (
         state.radiative_ionization_rate,
         state.radiative_recombination_rate,
@@ -173,13 +173,11 @@ def test_continuum_opacity_state_obeys_bound_free_identity(
     )
     ion_ratio = workflow.plasma_solver.ion_number_density.loc[
         upper_ions
-    ].divide(
-        workflow.plasma_solver.lte_ion_number_density.loc[upper_ions]
-    )
+    ].divide(workflow.plasma_solver.lte_ion_number_density.loc[upper_ions])
     boltzmann_factor = np.exp(
         -photo_data.nu.to_numpy()[:, np.newaxis]
         / workflow.plasma_solver.t_electrons[np.newaxis, :]
-            * (const.h.cgs.value / const.k_B.cgs.value)
+        * (const.h.cgs.value / const.k_B.cgs.value)
     )
     expected = (
         photo_levels

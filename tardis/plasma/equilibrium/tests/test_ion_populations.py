@@ -8,11 +8,8 @@ import pytest
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.charge_conservation import (
-    ChargeConservationSolver,
-)
 from tardis.plasma.equilibrium.ion_populations import (
-    AnalyticEquilibriumIonPopulationSolver,
+    AnalyticIonPopulationSolver,
 )
 from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix
 from tardis.plasma.exceptions import PlasmaIonizationError
@@ -68,27 +65,26 @@ def test_solve(
 
     level_population = lte_level_population.copy() * 1.4
     ion_population = lte_ion_population.copy() * 1.1
-    charge_conservation = False
 
-    ion_population_solver = AnalyticEquilibriumIonPopulationSolver(
+    ion_population_solver = AnalyticIonPopulationSolver(
         IonRateMatrix(),
         photoionization_rate_solver,
         collisional_ionization_rate_solver,
         elemental_number_density,
-        charge_conservation=charge_conservation,
+        radiation_field=radiation_field,
+        thermal_electron_energy_distribution=(
+            thermal_electron_energy_distribution
+        ),
+        lte_level_population=lte_level_population,
+        estimated_level_population=level_population,
+        lte_ion_population=lte_ion_population,
+        estimated_ion_population=ion_population,
+        partition_function=1.0,
+        boltzmann_factor=boltzmann_factor,
     )
 
     actual_ion_population, actual_electron_density = (
-        ion_population_solver.solve(
-            radiation_field,
-            thermal_electron_energy_distribution,
-            lte_level_population,
-            level_population,
-            lte_ion_population,
-            ion_population,
-            1.0,
-            boltzmann_factor,
-        )
+        ion_population_solver.solve()
     )
 
     expected_ion_population = regression_data.sync_dataframe(
@@ -180,10 +176,8 @@ def test_build_elemental_population_solution_returns_populations() -> None:
         ion_stage_count=2,
     )
 
-    solution = (
-        AnalyticEquilibriumIonPopulationSolver._build_elemental_population_solution(
-            matrix_set, pd.Series([9.0], index=[0])
-        )
+    solution = AnalyticIonPopulationSolver._build_elemental_population_solution(
+        matrix_set, pd.Series([9.0], index=[0])
     )
 
     npt.assert_allclose(
@@ -229,254 +223,7 @@ def test_build_elemental_population_solution_reports_singular_matrix() -> None:
         ion_stage_count=2,
     )
 
-    with pytest.raises(np.linalg.LinAlgError):
-        AnalyticEquilibriumIonPopulationSolver._build_elemental_population_solution(
+    with pytest.raises(PlasmaIonizationError, match="Singular population"):
+        AnalyticIonPopulationSolver._build_elemental_population_solution(
             matrix_set, pd.Series([1.0], index=[0])
         )
-
-
-def test_analytic_charge_conservation_uses_elemental_rate_matrices() -> None:
-    transition_names = [
-        "atomic_number",
-        "ion_number",
-        "ion_number_source",
-        "ion_number_destination",
-        "level_number_source",
-        "level_number_destination",
-    ]
-    photoionization_index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0, 1, 0, 0)], names=transition_names
-    )
-    recombination_index = pd.MultiIndex.from_tuples(
-        [(1, 0, 1, 0, 0, 0)], names=transition_names
-    )
-
-    # The synthetic photoionization rate 3 and recombination factor 2 give the
-    # charge-conservation solve a closed-form quadratic reference solution.
-    class PhotoionizationRates:
-        def solve(
-            self,
-            _radiation_field: object,
-            electron_distribution: ThermalElectronEnergyDistribution,
-            *rate_args: object,
-        ) -> tuple[pd.DataFrame, pd.DataFrame]:
-            del rate_args
-            recombination_rate = 2.0 * electron_distribution.number_density.value[
-                0
-            ]
-            return (
-                pd.DataFrame(
-                    [3.0], index=photoionization_index, columns=[0]
-                ),
-                pd.DataFrame(
-                    [recombination_rate],
-                    index=recombination_index,
-                    columns=[0],
-                ),
-            )
-
-    class CollisionalRates:
-        def solve(
-            self, *rate_args: object
-        ) -> tuple[pd.DataFrame, pd.DataFrame]:
-            del rate_args
-            return (
-                pd.DataFrame([0.0], index=photoionization_index, columns=[0]),
-                pd.DataFrame([0.0], index=recombination_index, columns=[0]),
-            )
-
-    lte_level_population = pd.DataFrame(
-        [[1.0]],
-        index=pd.MultiIndex.from_tuples(
-            [(1, 0, 0)],
-            names=["atomic_number", "ion_number", "level_number"],
-        ),
-        columns=[0],
-    )
-    lte_ion_population = pd.DataFrame(
-        [[1.0], [1.0]],
-        index=pd.MultiIndex.from_tuples(
-            [(1, 0), (1, 1)],
-            names=["atomic_number", "ion_number"],
-        ),
-        columns=[0],
-    )
-    estimated_ion_population = pd.DataFrame(
-        [[1.0], [1.0], [0.5], [0.5]],
-        index=pd.MultiIndex.from_tuples(
-            [(1, 0), (1, 1), (6, 0), (6, 6)],
-            names=["atomic_number", "ion_number"],
-        ),
-        columns=[0],
-    )
-    solver = AnalyticEquilibriumIonPopulationSolver(
-        IonRateMatrix(),
-        PhotoionizationRates(),
-        CollisionalRates(),
-        pd.DataFrame(
-            [[10.0], [1.0]],
-            index=pd.Index([1, 6], name="atomic_number"),
-            columns=[0],
-        ),
-        charge_conservation=True,
-        tolerance=1e-8,  # Looser than production to isolate the analytic root.
-    )
-
-    ion_populations, electron_number_density = solver.solve(
-        None,
-        ThermalElectronEnergyDistribution(
-            0 * u.erg,
-            np.array([10000.0]) * u.K,
-            np.array([1.0]) / u.cm**3,
-        ),
-        lte_level_population,
-        lte_level_population,
-        lte_ion_population,
-        estimated_ion_population,
-        pd.DataFrame([[1.0]], index=lte_level_population.index, columns=[0]),
-        pd.DataFrame([[1.0]], index=lte_level_population.index, columns=[0]),
-    )
-    expected = (3.0 + np.sqrt(3.0**2 + 4 * 2.0 * 39.0)) / (2 * 2.0)
-
-    npt.assert_allclose(electron_number_density, [expected])
-    npt.assert_allclose(
-        ion_populations.loc[(1, 1)].to_numpy(), [expected - 3.0]
-    )
-
-
-def test_charge_conservation_solver_solves_pure_hydrogen() -> None:
-    # The abundance 10 and synthetic alpha/gamma values yield a simple
-    # quadratic charge-closure root independent of atomic-data fixtures.
-    elemental_number_density = pd.DataFrame(
-        [[10.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
-    )
-    alpha = 2.0
-    gamma = 3.0
-
-    def solve_trial(electron_density: pd.Series) -> pd.DataFrame:
-        denominator = gamma + alpha * electron_density.iloc[0]
-        ionized = gamma * 10.0 / denominator
-        return pd.DataFrame(
-            [[10.0 - ionized], [ionized]],
-            index=pd.MultiIndex.from_tuples(
-                [(1, 0), (1, 1)],
-                names=["atomic_number", "ion_number"],
-            ),
-            columns=[0],
-        )
-
-    electron_number_density, ion_populations = ChargeConservationSolver(
-        elemental_number_density
-    ).solve(solve_trial)
-    expected = (-gamma + np.sqrt(gamma**2 + 4 * alpha * gamma * 10.0)) / (
-        2 * alpha
-    )
-
-    npt.assert_allclose(electron_number_density, [expected])
-    npt.assert_allclose(
-        ion_populations.loc[(1, 1)].to_numpy(), [expected]
-    )
-
-
-def test_charge_conservation_solver_includes_all_carbon_stages() -> None:
-    elemental_number_density = pd.DataFrame(
-        [[1.0], [1.0]],
-        index=pd.Index([1, 6], name="atomic_number"),
-        columns=[0],
-    )
-    carbon_populations = np.array([0.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5])
-
-    def solve_trial(electron_density: pd.Series) -> pd.DataFrame:
-        # Carbon contributes 4.5 electrons; the 0.1 hydrogen response then
-        # closes at the analytic electron density 5.0.
-        hydrogen_ionized = 0.1 * electron_density.iloc[0]
-        hydrogen = np.array([1.0 - hydrogen_ionized, hydrogen_ionized])
-        rows = [(1, 0), (1, 1)] + [(6, ion_number) for ion_number in range(7)]
-        return pd.DataFrame(
-            np.concatenate((hydrogen, carbon_populations))[:, None],
-            index=pd.MultiIndex.from_tuples(
-                rows, names=["atomic_number", "ion_number"]
-            ),
-            columns=[0],
-        )
-
-    electron_number_density, _ = ChargeConservationSolver(
-        elemental_number_density
-    ).solve(solve_trial)
-
-    npt.assert_allclose(electron_number_density, [5.0])
-
-
-@pytest.mark.parametrize(
-    ("ionized_at_zero", "ionized_at_max", "expected_electron_density"),
-    [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)],
-)
-def test_charge_conservation_solver_accepts_physical_endpoints(
-    ionized_at_zero: float,
-    ionized_at_max: float,
-    expected_electron_density: float,
-) -> None:
-    elemental_number_density = pd.DataFrame(
-        [[1.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
-    )
-
-    def solve_trial(electron_density: pd.Series) -> pd.DataFrame:
-        # The 0 and 1 ion fractions place the exact root at each end of the
-        # physical bracket, without calling the interior root finder.
-        ionized = (
-            ionized_at_zero
-            if electron_density.iloc[0] == 0
-            else ionized_at_max
-        )
-        return pd.DataFrame(
-            [[1.0 - ionized], [ionized]],
-            index=pd.MultiIndex.from_tuples(
-                [(1, 0), (1, 1)],
-                names=["atomic_number", "ion_number"],
-            ),
-            columns=[0],
-        )
-
-    electron_number_density, _ = ChargeConservationSolver(
-        elemental_number_density
-    ).solve(solve_trial)
-
-    npt.assert_allclose(electron_number_density, [expected_electron_density])
-
-
-def test_charge_conservation_solver_reports_nonfinite_residual() -> None:
-    elemental_number_density = pd.DataFrame(
-        [[1.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
-    )
-
-    def solve_trial(_: pd.Series) -> pd.DataFrame:
-        return pd.DataFrame(
-            [[0.0], [1.0]],
-            index=pd.MultiIndex.from_tuples(
-                [(1, 0), (1, np.inf)],
-                names=["atomic_number", "ion_number"],
-            ),
-            columns=[0],
-        )
-
-    with pytest.raises(PlasmaIonizationError, match="nonfinite"):
-        ChargeConservationSolver(elemental_number_density).solve(solve_trial)
-
-
-def test_charge_conservation_solver_reports_missing_bracket() -> None:
-    elemental_number_density = pd.DataFrame(
-        [[1.0]], index=pd.Index([1], name="atomic_number"), columns=[0]
-    )
-
-    def solve_trial(_: pd.Series) -> pd.DataFrame:
-        return pd.DataFrame(
-            [[0.0], [1.0]],
-            index=pd.MultiIndex.from_tuples(
-                [(1, 0), (1, 2)],
-                names=["atomic_number", "ion_number"],
-            ),
-            columns=[0],
-        )
-
-    with pytest.raises(PlasmaIonizationError, match="does not bracket"):
-        ChargeConservationSolver(elemental_number_density).solve(solve_trial)

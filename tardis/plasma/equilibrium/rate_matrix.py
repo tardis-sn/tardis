@@ -624,10 +624,16 @@ class IonRateMatrix:
                     block = np.asarray(
                         selected_raw_level_rate_matrices.loc[species_id, cell]
                     )
+                    column_residual = block.sum(axis=0)
+                    roundoff_tolerance = (
+                        np.finfo(float).eps
+                        * block.shape[0]
+                        * np.abs(block).sum(axis=0)
+                    )
                     if (
                         not np.isfinite(block).all()
                         or (block - np.diag(np.diag(block)) < 0).any()
-                        or not np.allclose(block.sum(axis=0), 0.0)
+                        or np.any(np.abs(column_residual) > roundoff_tolerance)
                     ):
                         raise ValueError(
                             f"Invalid raw level rate matrix for {species_id}"

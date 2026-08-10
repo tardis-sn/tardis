@@ -17,9 +17,28 @@ from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
 )
+from tardis.plasma.equilibrium.rates.util import (
+    reindex_level_resolved_recombination_rate_dataframe,
+)
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
 )
+
+
+def test_recombination_returns_population_to_its_bound_level() -> None:
+    """Level-resolved recombination must populate its originating bound level."""
+    rate = pd.DataFrame(
+        [[2.0]],
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0, 7)],
+            names=["atomic_number", "ion_number", "level_number"],
+        ),
+        columns=[0],
+    )
+
+    indexed_rate = reindex_level_resolved_recombination_rate_dataframe(rate)
+
+    assert indexed_rate.index[0] == (1, 0, 1, 0, 0, 7)
 
 
 def test_level_rate_matrix_exposes_raw_rate_matrix_for_selected_ion() -> None:
@@ -138,6 +157,52 @@ def test_elemental_level_ion_rate_matrix_set_retains_carbon_ion_states() -> (
     np.testing.assert_allclose(raw_rate_matrix.sum(axis=0), 0.0)
     assert raw_rate_matrix[2, 0] == 5.0
     assert raw_rate_matrix[0, 2] == 7.0
+
+
+def test_elemental_matrix_accepts_scale_accurate_level_conservation() -> None:
+    """Large physical rates may conserve population within roundoff, not absolute zero."""
+    large_rate = 1e9
+    small_rate = 1e-6
+    raw_level_matrix = np.array(
+        [
+            [-(large_rate + small_rate), 1.0, 1.0],
+            [large_rate, -1.0, 0.0],
+            [small_rate, 0.0, -1.0],
+        ]
+    )
+    raw_level_rate_matrices = pd.DataFrame(
+        [[raw_level_matrix]],
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0)], names=["atomic_number", "ion_number"]
+        ),
+        columns=[0],
+    )
+    transition_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0, 1, 0, 0)],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "ion_number_source",
+            "ion_number_destination",
+            "level_number_source",
+            "level_number_destination",
+        ],
+    )
+    zero_bound_free_rate = pd.DataFrame(
+        [0.0], index=transition_index, columns=[0]
+    )
+
+    matrix_set = IonRateMatrix().solve_ion_and_level(
+        atomic_number=1,
+        raw_level_rate_matrices=raw_level_rate_matrices,
+        photoion_rates_df=zero_bound_free_rate,
+        ion_stage_count=2,
+    )
+
+    np.testing.assert_array_equal(
+        matrix_set.raw_elemental_rate_matrices.loc[1, 0][:3, :3],
+        raw_level_matrix,
+    )
 
 
 def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(

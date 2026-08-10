@@ -17,12 +17,10 @@ from tardis.opacities.macro_atom.macroatom_solver import (
 )
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.opacities.opacity_state_continuum import (
-    EquilibriumContinuumOpacityState,
+    ContinuumOpacityState,
 )
 from tardis.plasma.assembly import IIPPlasmaSolverFactory
-from tardis.plasma.equilibrium.continuum_state import (
-    EquilibriumContinuumState,
-)
+from tardis.plasma.equilibrium.continuum import build_continuum_rate_state
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
@@ -130,13 +128,9 @@ class TypeIIPWorkflow:
             bound_free_heating_estimator=None,
             stimulated_recombination_cooling_estimator=None,
         )
-        self.continuum_state = EquilibriumContinuumState.from_plasma(
-            self.plasma_solver
-        )
-        self.continuum_opacity_state = (
-            EquilibriumContinuumOpacityState.from_plasma(
-                self.plasma_solver, self.continuum_state
-            )
+        self.continuum_state = build_continuum_rate_state(self.plasma_solver)
+        self.continuum_opacity_state = ContinuumOpacityState.from_plasma(
+            self.plasma_solver, self.continuum_state
         )
 
         # After initializing NLTE
@@ -718,13 +712,11 @@ class TypeIIPWorkflow:
 
     def solve_continuum_state(self, continuum_estimators):
         """Refresh continuum coefficients from the equilibrium plasma."""
-        self.continuum_state = EquilibriumContinuumState.from_plasma(
+        self.continuum_state = build_continuum_rate_state(
             self.plasma_solver, continuum_estimators
         )
-        self.continuum_opacity_state = (
-            EquilibriumContinuumOpacityState.from_plasma(
-                self.plasma_solver, self.continuum_state
-            )
+        self.continuum_opacity_state = ContinuumOpacityState.from_plasma(
+            self.plasma_solver, self.continuum_state
         )
         self._synchronize_plasma_contract()
 

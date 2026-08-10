@@ -16,12 +16,9 @@ from tardis.plasma.properties import (
     FreeFreeHeatingEstimator,
     GElectron,
     HydrogenContinuumFractionalHeating,
-    HydrogenContinuumIonPopulations,
     HydrogenContinuumIonRatio,
-    HydrogenContinuumLevelBoltzmannFactor,
-    HydrogenContinuumLevelNumberDensity,
     HydrogenContinuumLTEPopulations,
-    HydrogenContinuumPartitionFunction,
+    IIPContinuumPopulations,
     IonizationData,
     Iteration,
     JBlues,
@@ -39,8 +36,8 @@ from tardis.plasma.properties import (
     PhiSahaNebular,
     PhotoIonizationData,
     PhotoionizationRateEstimator,
-    PreviousElectronDensities,
     PreviousBetaSobolev,
+    PreviousElectronDensities,
     PreviousIonNumberDensity,
     PreviousLevelNumberDensity,
     RadiationFieldCorrection,
@@ -58,7 +55,7 @@ from tardis.plasma.properties import (
 
 
 class PlasmaPropertyCollection(list):
-    pass
+    """Group plasma properties used by the IIP configuration."""
 
 
 basic_inputs = PlasmaPropertyCollection(
@@ -129,11 +126,8 @@ hydrogen_continuum_inputs = PlasmaPropertyCollection(
 hydrogen_continuum_properties = PlasmaPropertyCollection(
     [
         NLTEData,
-        HydrogenContinuumLevelBoltzmannFactor,
-        HydrogenContinuumPartitionFunction,
+        IIPContinuumPopulations,
         HydrogenContinuumLTEPopulations,
-        HydrogenContinuumIonPopulations,
-        HydrogenContinuumLevelNumberDensity,
         HydrogenContinuumFractionalHeating,
         HydrogenContinuumIonRatio,
     ]

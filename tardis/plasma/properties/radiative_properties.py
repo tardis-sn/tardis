@@ -1,12 +1,12 @@
 import logging
 
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
 from tardis.opacities.macro_atom.base import TransitionProbabilities
+from tardis.opacities.sobolev import calculate_stimulated_emission_factor
 from tardis.plasma.properties.base import (
     ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
@@ -23,79 +23,6 @@ __all__ = [
 C_EINSTEIN = (
     4.0 * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)
 ).value  # See tardis/docs/physics/plasma/macroatom.rst
-
-
-def calculate_stimulated_emission_factor(
-    g: pd.Series,
-    level_number_density: pd.DataFrame,
-    lines_lower_level_index: npt.ArrayLike,
-    lines_upper_level_index: npt.ArrayLike,
-    metastability: pd.Series,
-    lines: pd.DataFrame,
-    nlte_species: set[tuple[int, int]] | None = None,
-) -> npt.NDArray[np.float64]:
-    """Calculate the stimulated-emission correction for each line.
-
-    Parameters
-    ----------
-    g : pandas.Series
-        Statistical weights for all atomic levels.
-    level_number_density : pandas.DataFrame
-        Level number densities, with shells in columns.
-    lines_lower_level_index, lines_upper_level_index : array-like
-        Positional level indexes for the lower and upper line levels.
-    metastability : pandas.Series
-        Metastability flags indexed by level.
-    lines : pandas.DataFrame
-        Atomic line data used to identify configured NLTE species.
-    nlte_species : set[tuple[int, int]], optional
-        Species for which population inversions are clipped to zero.
-
-    Returns
-    -------
-    numpy.ndarray
-        Stimulated-emission factors indexed by line and shell.
-    """
-    n_lower = level_number_density.values.take(
-        lines_lower_level_index, axis=0, mode="raise"
-    )
-    n_upper = level_number_density.values.take(
-        lines_upper_level_index, axis=0, mode="raise"
-    )
-    g_lower = np.asarray(g.iloc[lines_lower_level_index], dtype=np.float64)[
-        np.newaxis
-    ].T
-    g_upper = np.asarray(g.iloc[lines_upper_level_index], dtype=np.float64)[
-        np.newaxis
-    ].T
-    metastable_upper = metastability.values[lines_upper_level_index][
-        np.newaxis
-    ].T
-
-    stimulated_emission_factor = np.zeros(n_lower.shape, dtype=np.float64)
-    n_lower_zero_mask = n_lower == 0.0
-    stimulated_emission_factor[~n_lower_zero_mask] = 1 - (
-        (g_lower * n_upper)[~n_lower_zero_mask]
-        / (g_upper * n_lower)[~n_lower_zero_mask]
-    )
-    stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = 0.0
-    stimulated_emission_factor[
-        metastable_upper & (stimulated_emission_factor < 0)
-    ] = 0.0
-    if nlte_species:
-        nlte_lines_mask = (
-            lines.reset_index()
-            .apply(
-                lambda row: (row.atomic_number, row.ion_number)
-                in nlte_species,
-                axis=1,
-            )
-            .values
-        )
-        stimulated_emission_factor[
-            (stimulated_emission_factor < 0) & nlte_lines_mask[np.newaxis].T
-        ] = 0.0
-    return stimulated_emission_factor
 
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):

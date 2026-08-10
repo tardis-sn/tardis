@@ -9,7 +9,7 @@ from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
 from tardis.plasma.equilibrium.ion_populations import (
-    AnalyticEquilibriumIonPopulationSolver,
+    AnalyticIonPopulationSolver,
 )
 from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
 from tardis.plasma.equilibrium.rate_matrix import (
@@ -229,21 +229,22 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         (species[0], species[1], slice(None)),
         :,
     ].sort_values("nu")
-    ion_population_solver = AnalyticEquilibriumIonPopulationSolver(
+    ion_population_solver = AnalyticIonPopulationSolver(
         IonRateMatrix(),
         AnalyticPhotoionizationRateSolver(photoionization_data),
         CollisionalIonizationRateSolver(photoionization_data),
         elemental_number_density,
+        radiation_field=radiation_field,
+        thermal_electron_energy_distribution=electron_distribution,
+        lte_level_population=lte_level_populations,
+        estimated_level_population=estimated_level_populations,
+        lte_ion_population=lte_ion_populations,
+        estimated_ion_population=lte_ion_populations.copy(),
+        partition_function=lte_partition_function,
+        boltzmann_factor=lte_boltzmann_factors,
     )
-    nlte_ion_populations, nlte_electron_densities = ion_population_solver.solve(
-        radiation_field,
-        electron_distribution,
-        lte_level_populations,
-        estimated_level_populations,
-        lte_ion_populations,
-        lte_ion_populations.copy(),
-        lte_partition_function,
-        lte_boltzmann_factors,
+    nlte_ion_populations, nlte_electron_densities = (
+        ion_population_solver.solve()
     )
 
     np.testing.assert_allclose(

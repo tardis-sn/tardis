@@ -6,7 +6,7 @@ import pytest
 from numpy.testing import assert_almost_equal
 
 from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
-from tardis.opacities.tau_sobolev import (
+from tardis.opacities.sobolev import (
     calculate_sobolev_line_opacity as classic_calculate_sobolev_line_opacity,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.interaction_event_callers import (
@@ -24,9 +24,6 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
 from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
     OpacitySolver as NonhomologousOpacitySolver,
 )
-from tardis.transport.montecarlo.packets.movement import (
-    move_packet_across_shell_boundary,
-)
 from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
     calculate_beta_sobolev,
 )
@@ -34,6 +31,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
     calculate_sobolev_line_opacity as nonhomologous_calculate_sobolev_line_opacity,
 )
 from tardis.transport.montecarlo.nonhomologous_grid import depressed_quartic
+from tardis.transport.montecarlo.packets.movement import (
+    move_packet_across_shell_boundary,
+)
 from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
     RPacket,
@@ -90,7 +90,6 @@ def test_nonhomologous_calculate_beta_sobolevs(
     ["current_shell_id", "delta_shell", "no_of_shells"],
     [(132, 11, 132), (132, 1, 133), (132, 2, 133)],
 )
-
 def test_nonhomologous_move_packet_across_shell_boundary_emitted(
     current_shell_id, delta_shell, no_of_shells
 ):
@@ -262,7 +261,9 @@ def test_nonhomologous_line_emission(
 
 
 def test_nonhomologous_calculate_sobolev_line_opacity(
-    nb_simulation_verysimple, verysimple_numba_nonhomologous_geometry, regression_data
+    nb_simulation_verysimple,
+    verysimple_numba_nonhomologous_geometry,
+    regression_data,
 ):
     """
     Analogous to
@@ -270,7 +271,8 @@ def test_nonhomologous_calculate_sobolev_line_opacity(
     """
     legacy_plasma = nb_simulation_verysimple.plasma
     velocity_gradient = (
-        verysimple_numba_nonhomologous_geometry.velocity_gradient * u.Unit("1/s")
+        verysimple_numba_nonhomologous_geometry.velocity_gradient
+        * u.Unit("1/s")
     )
 
     actual = nonhomologous_calculate_sobolev_line_opacity(
@@ -305,7 +307,8 @@ def test_nonhomologous_opacity_solver(
     """
     legacy_plasma = nb_simulation_verysimple.plasma
     velocity_gradient = (
-        verysimple_numba_nonhomologous_geometry.velocity_gradient * u.Unit("1/s")
+        verysimple_numba_nonhomologous_geometry.velocity_gradient
+        * u.Unit("1/s")
     )
 
     solver = NonhomologousOpacitySolver(

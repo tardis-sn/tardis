@@ -1,5 +1,4 @@
 import logging
-from collections.abc import Collection
 
 import astropy.units as u
 import numpy.typing as npt
@@ -8,26 +7,17 @@ import pandas as pd
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
+from tardis.plasma.equilibrium.charge_conservation import (
+    ChargeConservationSolver,
+)
+from tardis.plasma.equilibrium.continuum import ContinuumPopulationSolver
 from tardis.plasma.equilibrium.ion_populations import (
-    AnalyticEquilibriumIonPopulationSolver,
-    EstimatedEquilibriumIonPopulationSolver,
-    LTEIonPopulationSolver,
     calculate_level_to_ion_population_factor,
     get_lower_ion_level_index,
     get_upper_ion_population_index,
 )
-from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
-from tardis.plasma.equilibrium.rate_matrix import (
-    IonRateMatrix,
-    LevelRateMatrix,
-    LTEIonRateMatrix,
-)
 from tardis.plasma.equilibrium.rates import (
-    AnalyticPhotoionizationRateSolver,
-    CollisionalIonizationRateSolver,
     CollisionalIonizationSeaton,
-    EstimatedPhotoionizationRateSolver,
-    RadiativeRatesSolver,
     ThermalCollisionalRateSolver,
 )
 from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
@@ -35,6 +25,9 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     CollisionalBoundThermalRates,
     CollisionalIonizationThermalRates,
     FreeFreeThermalRates,
+)
+from tardis.plasma.equilibrium.sobolev_solver import (
+    SobolevPopulationSolver,
 )
 from tardis.plasma.equilibrium.thermal_balance import ThermalBalanceSolver
 from tardis.plasma.properties.base import (
@@ -61,12 +54,9 @@ __all__ = [
     "CollisionalIonizationRateCoefficient",
     "FreeFreeHeatingEstimator",
     "HydrogenContinuumFractionalHeating",
-    "HydrogenContinuumIonPopulations",
     "HydrogenContinuumIonRatio",
     "HydrogenContinuumLTEPopulations",
-    "HydrogenContinuumLevelBoltzmannFactor",
-    "HydrogenContinuumLevelNumberDensity",
-    "HydrogenContinuumPartitionFunction",
+    "IIPContinuumPopulations",
     "Iteration",
     "PhotoionizationRateEstimator",
     "PreviousIonNumberDensity",
@@ -77,7 +67,8 @@ __all__ = [
 
 
 class Iteration(Input):
-    """
+    """Store the current continuum iteration number.
+
     Attributes
     ----------
     iteration : int
@@ -88,7 +79,8 @@ class Iteration(Input):
 
 
 class CollisionalIonizationRateCoefficient(Input):
-    """
+    """Store collisional-ionization rate coefficients.
+
     Attributes
     ----------
     collisional_ionization_rate_coefficient : pd.DataFrame
@@ -99,7 +91,8 @@ class CollisionalIonizationRateCoefficient(Input):
 
 
 class CollisionalExcitationRateCoefficient(Input):
-    """
+    """Store collisional-excitation rate coefficients.
+
     Attributes
     ----------
     collisional_excitation_rate_coefficient : pd.DataFrame
@@ -110,7 +103,8 @@ class CollisionalExcitationRateCoefficient(Input):
 
 
 class CollisionalDeexcitationRateCoefficient(Input):
-    """
+    """Store collisional-deexcitation rate coefficients.
+
     Attributes
     ----------
     collisional_deexcitation_rate_coefficient : pd.DataFrame
@@ -121,7 +115,8 @@ class CollisionalDeexcitationRateCoefficient(Input):
 
 
 class PhotoionizationRateEstimator(Input):
-    """
+    """Store Monte Carlo photoionization-rate estimators.
+
     Attributes
     ----------
     photoionization_rate_estimator : pd.DataFrame
@@ -132,7 +127,8 @@ class PhotoionizationRateEstimator(Input):
 
 
 class StimulatedRecombinationRateEstimator(Input):
-    """
+    """Store Monte Carlo stimulated-recombination estimators.
+
     Attributes
     ----------
     stimulated_recombination_rate_estimator : pd.DataFrame
@@ -143,7 +139,8 @@ class StimulatedRecombinationRateEstimator(Input):
 
 
 class FreeFreeHeatingEstimator(Input):
-    """
+    """Store Monte Carlo free-free heating estimators.
+
     Attributes
     ----------
     free_free_heating_estimator : pandas.DataFrame
@@ -154,7 +151,8 @@ class FreeFreeHeatingEstimator(Input):
 
 
 class BoundFreeHeatingEstimator(Input):
-    """
+    """Store Monte Carlo bound-free heating estimators.
+
     Attributes
     ----------
     bound_free_heating_estimator : pandas.DataFrame
@@ -165,7 +163,8 @@ class BoundFreeHeatingEstimator(Input):
 
 
 class StimulatedRecombinationCoolingEstimator(Input):
-    """
+    """Store Monte Carlo stimulated-recombination cooling estimators.
+
     Attributes
     ----------
     stimulated_recombination_cooling_estimator : pandas.DataFrame
@@ -176,7 +175,8 @@ class StimulatedRecombinationCoolingEstimator(Input):
 
 
 class PreviousIonNumberDensity(PreviousIterationProperty):
-    """
+    """Store ion populations from the previous plasma iteration.
+
     Attributes
     ----------
     previous_ion_number_density : pd.DataFrame
@@ -185,12 +185,14 @@ class PreviousIonNumberDensity(PreviousIterationProperty):
 
     outputs = ("previous_ion_number_density",)
 
-    def set_initial_value(self, kwargs):
+    def set_initial_value(self, kwargs: dict[str, object]) -> None:
+        """Initialize the previous ion population as unavailable."""
         self._set_initial_value(None)
 
 
 class PreviousLevelNumberDensity(PreviousIterationProperty):
-    """
+    """Store level populations from the previous plasma iteration.
+
     Attributes
     ----------
     previous_level_number_density : pd.DataFrame
@@ -199,7 +201,8 @@ class PreviousLevelNumberDensity(PreviousIterationProperty):
 
     outputs = ("previous_level_number_density",)
 
-    def set_initial_value(self, kwargs):
+    def set_initial_value(self, kwargs: dict[str, object]) -> None:
+        """Initialize the previous level population as unavailable."""
         self._set_initial_value(None)
 
 
@@ -244,131 +247,243 @@ class LTELevelNumberDensity(LevelNumberDensity):
         )
 
 
-class HydrogenContinuumLevelBoltzmannFactor(ProcessingPlasmaProperty):
-    """
-    Calculate level Boltzmann factors for the hydrogen continuum plasma.
+class IIPContinuumPopulations(ProcessingPlasmaProperty):
+    """Calculate the configured-continuum population state in one step."""
 
-    Attributes
-    ----------
-    hydrogen_continuum_level_boltzmann_factor : pandas.DataFrame
-        Level population proportionality factors indexed by atomic number,
-        ion number, and level number with columns corresponding to zones.
-    """
+    outputs = (
+        "hydrogen_continuum_level_boltzmann_factor",
+        "hydrogen_continuum_partition_function",
+        "ion_number_density",
+        "electron_densities",
+        "level_number_density",
+    )
 
-    outputs = ("hydrogen_continuum_level_boltzmann_factor",)
-
-    def __init__(self, plasma_parent):
-        super().__init__(plasma_parent)
-        self._update_inputs()
-
-    def calculate_equilibrium_level_boltzmann_factor(
-        self,
-        atomic_data: object,
-        species_list: Collection[tuple[int, int]],
-        t_electrons: npt.ArrayLike,
-        dilute_planckian_radiation_field: object,
-        beta_sobolevs: pd.DataFrame,
-        general_level_boltzmann_factor: pd.DataFrame,
-        previous_electron_densities: pd.Series,
+    @staticmethod
+    def _partition_function(
+        level_boltzmann_factor: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Solve configured level populations using supplied Sobolev rates."""
-        for species in species_list:
-            logger.info("Calculating rates for species %s", species)
-            species_slice = (species[0], species[1], slice(None), slice(None))
-            radiative_transitions = atomic_data.lines.loc[species_slice, :]
-            radiative_rate_solver = RadiativeRatesSolver(radiative_transitions)
-
-            col_strength_temperatures = atomic_data.collision_data_temperatures
-            col_strengths = atomic_data.yg_data.loc[species_slice, :]
-
-            collisional_rate_solver = ThermalCollisionalRateSolver(
-                atomic_data.levels,
-                radiative_transitions,
-                col_strength_temperatures,
-                col_strengths,
-                "cmfgen",
-            )
-
-            rate_matrix_solver = LevelRateMatrix(atomic_data.levels)
-
-            # A fake electron distribution. Will eventually be a direct input
-            # to the plasma property.
-            electron_distribution = ThermalElectronEnergyDistribution(
-                0 * u.erg,
-                t_electrons * u.K,
-                previous_electron_densities * u.g / u.cm**3,
-            )
-
-            radiative_rates_df = radiative_rate_solver.solve(
-                dilute_planckian_radiation_field,
-                beta_sobolevs=beta_sobolevs.reindex(
-                    radiative_transitions.index
-                ),
-            )
-            collisional_rates_df = collisional_rate_solver.solve(
-                electron_distribution.temperature
-            )
-
-            rate_matrix = rate_matrix_solver.solve(
-                radiative_rates_df,
-                collisional_rates_df,
-                electron_distribution.number_density,
-            )
-
-            solver = LevelPopulationSolver(rate_matrix, atomic_data.levels)
-
-            level_pops = solver.solve()
-
-            general_level_boltzmann_factor.loc[species] = (
-                level_pops.loc[species]
-            ).values
-        return general_level_boltzmann_factor
+        return level_boltzmann_factor.groupby(
+            level=["atomic_number", "ion_number"]
+        ).sum()
 
     def calculate(
         self,
         atomic_data: object,
         nlte_data: object,
+        continuum_interaction_species: pd.MultiIndex,
         t_electrons: npt.ArrayLike,
         dilute_planckian_radiation_field: object,
-        previous_beta_sobolev: pd.DataFrame,
+        j_blues: pd.DataFrame | None,
+        previous_beta_sobolev: pd.DataFrame | None,
+        previous_electron_densities: pd.Series | None,
+        previous_level_number_density: pd.DataFrame | None,
+        previous_ion_number_density: pd.DataFrame | None,
+        number_density: pd.DataFrame,
         general_level_boltzmann_factor: pd.DataFrame,
-        previous_electron_densities: pd.Series,
-        j_blues: object | None,
-    ) -> pd.DataFrame:
-        """Calculate the continuum level Boltzmann factors."""
-        if j_blues is None:
-            return general_level_boltzmann_factor
+        thermal_g_electron: npt.ArrayLike,
+        beta_electron: npt.ArrayLike,
+        thermal_lte_level_boltzmann_factor: pd.DataFrame,
+        thermal_lte_partition_function: pd.DataFrame,
+        ionization_data: pd.DataFrame,
+        phi: pd.DataFrame,
+        g: pd.Series,
+        lines_lower_level_index: npt.ArrayLike,
+        lines_upper_level_index: npt.ArrayLike,
+        metastability: pd.Series,
+        lines: pd.DataFrame,
+        time_explosion: u.Quantity,
+        photoionization_rate_estimator: object | None,
+        stimulated_recombination_rate_estimator: object | None,
+    ) -> tuple[
+        pd.DataFrame,
+        pd.DataFrame,
+        pd.DataFrame,
+        pd.Series,
+        pd.DataFrame,
+    ]:
+        """Solve and publish the coherent continuum population state.
 
-        estimated_radiation_field = EstimatedRadiationField(j_blues)
-        return self.calculate_equilibrium_level_boltzmann_factor(
-            atomic_data,
-            nlte_data.nlte_species,
-            t_electrons,
-            estimated_radiation_field,
-            previous_beta_sobolev,
-            general_level_boltzmann_factor,
-            previous_electron_densities,
+        Parameters
+        ----------
+        atomic_data : object
+            Atomic data used to assemble bound-bound and bound-free rates.
+        nlte_data : object
+            Configured NLTE species and line-population policy.
+        continuum_interaction_species : pandas.MultiIndex
+            Ion stages with explicit continuum level blocks.
+        t_electrons : array-like
+            Electron temperatures for every shell.
+        dilute_planckian_radiation_field : object
+            Radiation field used before estimator-backed updates.
+        j_blues : pandas.DataFrame, optional
+            Line mean intensities for estimator-backed updates.
+        previous_beta_sobolev : pandas.DataFrame
+            Escape-probability warm start.
+        previous_electron_densities : pandas.Series
+            Previous electron-density state retained by the property graph.
+        previous_level_number_density : pandas.DataFrame
+            Level-population warm start for the Sobolev iteration.
+        previous_ion_number_density : pandas.DataFrame
+            Previous ion state retained by the property graph; it is not a
+            frozen contribution to charge conservation.
+        number_density : pandas.DataFrame
+            Elemental number densities indexed by atomic number.
+        general_level_boltzmann_factor : pandas.DataFrame
+            Baseline level factors for all ions.
+        thermal_g_electron, beta_electron : array-like
+            Thermal electron statistical weight and inverse temperature.
+        thermal_lte_level_boltzmann_factor : pandas.DataFrame
+            Thermal LTE level factors used for detailed balance.
+        thermal_lte_partition_function : pandas.DataFrame
+            Thermal LTE partition functions.
+        ionization_data : pandas.DataFrame
+            Ionization energies indexed by ion stage.
+        phi : pandas.DataFrame
+            Nebular ionization factors for uncovered ionization edges.
+        g : pandas.Series
+            Statistical weights for the atomic levels.
+        lines_lower_level_index, lines_upper_level_index : array-like
+            Positional lower- and upper-level indexes for each line.
+        metastability : pandas.Series
+            Metastability flags for the atomic levels.
+        lines : pandas.DataFrame
+            Atomic line data.
+        time_explosion : astropy.units.Quantity
+            Time since explosion.
+        photoionization_rate_estimator, stimulated_recombination_rate_estimator : object, optional
+            Paired Monte Carlo bound-free estimators.
+
+        Returns
+        -------
+        tuple[pandas.DataFrame, pandas.DataFrame, pandas.DataFrame, pandas.Series, pandas.DataFrame]
+            Level factors, partition functions, ion populations, electron
+            densities, and level populations from one coherent state.
+        """
+        level_boltzmann_factor = general_level_boltzmann_factor.copy(deep=True)
+        if (photoionization_rate_estimator is None) != (
+            stimulated_recombination_rate_estimator is None
+        ):
+            raise ValueError(
+                "Photoionization and stimulated-recombination estimators must be supplied together"
+            )
+        general_partition_function = self._partition_function(
+            level_boltzmann_factor
+        )
+        if photoionization_rate_estimator is None:
+            population_solver = ContinuumPopulationSolver(
+                atomic_data=atomic_data,
+                lines=lines,
+                continuum_species=(),
+                radiation_field=dilute_planckian_radiation_field,
+                electron_temperatures=t_electrons,
+                elemental_number_density=number_density,
+                general_level_boltzmann_factor=level_boltzmann_factor,
+                general_partition_function=general_partition_function,
+                thermal_g_electron=thermal_g_electron,
+                beta_electron=beta_electron,
+                thermal_lte_level_boltzmann_factor=(
+                    thermal_lte_level_boltzmann_factor
+                ),
+                thermal_lte_partition_function=(thermal_lte_partition_function),
+                ionization_data=ionization_data,
+                nebular_phi=phi,
+                photoionization_rate_estimator=None,
+                stimulated_recombination_rate_estimator=None,
+            )
+            population_state = ChargeConservationSolver(
+                number_density, population_solver
+            ).solve(
+                electron_number_density_seed=(
+                    None
+                    if previous_electron_densities is None
+                    else previous_electron_densities.copy(deep=True)
+                )
+            )
+            updated_partition_function = self._partition_function(
+                population_state.level_boltzmann_factor
+            )
+            return (
+                population_state.level_boltzmann_factor,
+                updated_partition_function,
+                population_state.ion_number_density,
+                population_state.electron_densities,
+                population_state.level_number_density,
+            )
+        if j_blues is None:
+            raise ValueError(
+                "Estimator-backed continuum updates require j_blues"
+            )
+        if any(
+            value is None
+            for value in (
+                previous_beta_sobolev,
+                previous_electron_densities,
+                previous_level_number_density,
+                previous_ion_number_density,
+            )
+        ):
+            raise ValueError(
+                "Estimator-backed continuum updates require a complete previous population state"
+            )
+
+        radiation_field = EstimatedRadiationField(
+            pd.DataFrame(
+                j_blues,
+                index=lines.index,
+                columns=number_density.columns,
+            )
         )
 
-
-class HydrogenContinuumPartitionFunction(ProcessingPlasmaProperty):
-    """
-    Calculate partition functions from hydrogen continuum level factors.
-
-    Attributes
-    ----------
-    hydrogen_continuum_partition_function : pandas.DataFrame
-        Partition function indexed by atomic number and ion number with
-        columns corresponding to zones.
-    """
-
-    outputs = ("hydrogen_continuum_partition_function",)
-
-    @staticmethod
-    def calculate(hydrogen_continuum_level_boltzmann_factor):
-        return hydrogen_continuum_level_boltzmann_factor.groupby(
-            level=["atomic_number", "ion_number"]
-        ).sum()
+        population_solver = ContinuumPopulationSolver(
+            atomic_data=atomic_data,
+            lines=lines,
+            continuum_species=continuum_interaction_species,
+            radiation_field=radiation_field,
+            electron_temperatures=t_electrons,
+            elemental_number_density=number_density,
+            general_level_boltzmann_factor=level_boltzmann_factor,
+            general_partition_function=general_partition_function,
+            thermal_g_electron=thermal_g_electron,
+            beta_electron=beta_electron,
+            thermal_lte_level_boltzmann_factor=(
+                thermal_lte_level_boltzmann_factor
+            ),
+            thermal_lte_partition_function=(thermal_lte_partition_function),
+            ionization_data=ionization_data,
+            nebular_phi=phi,
+            photoionization_rate_estimator=(photoionization_rate_estimator),
+            stimulated_recombination_rate_estimator=(
+                stimulated_recombination_rate_estimator
+            ),
+        )
+        charge_conservation_solver = ChargeConservationSolver(
+            number_density, population_solver
+        )
+        sobolev_solver = SobolevPopulationSolver(
+            charge_conservation_solver,
+            lines,
+            time_explosion,
+            g,
+            lines_lower_level_index,
+            lines_upper_level_index,
+            metastability,
+            nlte_species=set(nlte_data.nlte_species),
+        )
+        population_state, _, _, _ = sobolev_solver.solve(
+            previous_level_number_density.copy(deep=True),
+            previous_beta_sobolev,
+            previous_electron_densities.copy(deep=True),
+        )
+        partition_function = self._partition_function(
+            population_state.level_boltzmann_factor
+        )
+        return (
+            population_state.level_boltzmann_factor,
+            partition_function,
+            population_state.ion_number_density,
+            population_state.electron_densities,
+            population_state.level_number_density,
+        )
 
 
 class HydrogenContinuumLTEPopulations(ProcessingPlasmaProperty):
@@ -389,16 +504,42 @@ class HydrogenContinuumLTEPopulations(ProcessingPlasmaProperty):
 
     def calculate(
         self,
-        number_density,
-        previous_electron_densities,
-        levels,
-        hydrogen_continuum_partition_function,
-        thermal_g_electron,
-        beta_electron,
-        ionization_data,
-        thermal_lte_level_boltzmann_factor,
-        thermal_lte_partition_function,
-    ):
+        number_density: pd.DataFrame,
+        electron_densities: pd.Series,
+        levels: pd.MultiIndex,
+        hydrogen_continuum_partition_function: pd.DataFrame,
+        thermal_g_electron: npt.ArrayLike,
+        beta_electron: npt.ArrayLike,
+        ionization_data: pd.DataFrame,
+        thermal_lte_level_boltzmann_factor: pd.DataFrame,
+        thermal_lte_partition_function: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Calculate LTE reference populations at the current electron density.
+
+        Parameters
+        ----------
+        number_density : pandas.DataFrame
+            Elemental number densities.
+        electron_densities : pandas.Series
+            Charge-conserving electron densities from the coupled state.
+        levels : pandas.MultiIndex
+            Atomic level index.
+        hydrogen_continuum_partition_function : pandas.DataFrame
+            Partition functions from the coupled level factors.
+        thermal_g_electron, beta_electron : array-like
+            Thermal electron degeneracy and inverse temperature factors.
+        ionization_data : pandas.DataFrame
+            Ionization energies indexed by ion stage.
+        thermal_lte_level_boltzmann_factor : pandas.DataFrame
+            Thermal LTE level factors.
+        thermal_lte_partition_function : pandas.DataFrame
+            Thermal LTE partition functions.
+
+        Returns
+        -------
+        tuple[pandas.DataFrame, pandas.DataFrame]
+            LTE ion and level number densities.
+        """
         thermal_phi_lte = ThermalPhiSahaLTE.calculate(
             thermal_g_electron,
             beta_electron,
@@ -411,12 +552,12 @@ class HydrogenContinuumLTEPopulations(ProcessingPlasmaProperty):
         )
 
         lte_ion_number_density, block_ids = LTEIonNumberDensity(
-            self.plasma_parent, electron_densities=previous_electron_densities
+            self.plasma_parent, electron_densities=electron_densities
         ).calculate(
             thermal_phi_lte,
             thermal_lte_partition_function,
             number_density,
-            previous_electron_densities,
+            electron_densities,
             block_ids,
         )
 
@@ -430,242 +571,6 @@ class HydrogenContinuumLTEPopulations(ProcessingPlasmaProperty):
         )
 
         return lte_ion_number_density, lte_level_number_density
-
-
-class HydrogenContinuumIonPopulations(ProcessingPlasmaProperty):
-    """
-    Solve hydrogen continuum ion populations and electron densities.
-
-    Attributes
-    ----------
-    ion_number_density : pandas.DataFrame
-        Hydrogen ion number density indexed by atomic number and ion number
-        with columns corresponding to zones.
-    electron_densities : pandas.Series
-        Electron number density in each zone.
-    """
-
-    outputs = ("ion_number_density", "electron_densities")
-
-    def __init__(self, plasma_parent, photo_ion_cross_sections):
-        super().__init__(plasma_parent)
-        self._update_inputs()
-        self.photoionization_data = photo_ion_cross_sections
-
-    def calculate_lte_hydrogen_ion_number_density(
-        self,
-        t_electrons,
-        previous_electron_densities,
-        elemental_number_density,
-        lte_ion_number_density,
-        phi,
-        partition_function,
-    ):
-        electron_dist = ThermalElectronEnergyDistribution(
-            0 * u.erg,
-            t_electrons * u.K,
-            previous_electron_densities.values
-            * u.g
-            / u.cm**3,  # convert series to quantity
-        )
-
-        ion_rate_matrix_solver = LTEIonRateMatrix()
-
-        solver = LTEIonPopulationSolver(
-            ion_rate_matrix_solver, elemental_number_density
-        )
-
-        ion_population, electron_density = solver.solve(
-            electron_dist,
-            lte_ion_number_density,
-            phi,
-            partition_function,
-            charge_conservation=False,
-        )
-
-        return ion_population, electron_density
-
-    def calculate_analytic_equilibrium_hydrogen_ion_populations(
-        self,
-        t_electrons,
-        previous_electron_densities,
-        radiation_field,
-        elemental_number_density,
-        lte_level_number_density,
-        lte_ion_number_density,
-        partition_function,
-        level_boltzmann_factor,
-    ):
-        photoionization_rate_solver = AnalyticPhotoionizationRateSolver(
-            self.photoionization_data
-        )
-        collisional_rate_solver = CollisionalIonizationRateSolver(
-            self.photoionization_data
-        )
-        solver = AnalyticEquilibriumIonPopulationSolver(
-            IonRateMatrix(),
-            photoionization_rate_solver,
-            collisional_rate_solver,
-            elemental_number_density,
-        )
-        electron_dist = ThermalElectronEnergyDistribution(
-            0 * u.erg,
-            t_electrons * u.K,
-            previous_electron_densities.values * u.cm**-3,
-        )
-        return solver.solve(
-            radiation_field,
-            electron_dist,
-            lte_level_number_density,
-            lte_level_number_density,
-            lte_ion_number_density,
-            lte_ion_number_density,
-            partition_function,
-            level_boltzmann_factor,
-            charge_conservation=False,
-        )
-
-    def calculate_estimated_equilibrium_hydrogen_ion_populations(
-        self,
-        t_electrons,
-        previous_electron_densities,
-        radiation_field_estimators,
-        elemental_number_density,
-        lte_level_number_density,
-        level_number_density,
-        lte_ion_number_density,
-        ion_number_density,
-        partition_function,
-        level_boltzmann_factor,
-        level2continuum_edge_idx,
-    ):
-        photoionization_rate_solver = EstimatedPhotoionizationRateSolver(
-            self.photoionization_data, level2continuum_edge_idx
-        )
-
-        collisional_rate_solver = CollisionalIonizationRateSolver(
-            self.photoionization_data
-        )
-
-        ion_rate_matrix_solver = IonRateMatrix()
-
-        solver = EstimatedEquilibriumIonPopulationSolver(
-            ion_rate_matrix_solver,
-            photoionization_rate_solver,
-            collisional_rate_solver,
-            elemental_number_density,
-        )
-
-        electron_dist = ThermalElectronEnergyDistribution(
-            0 * u.erg,
-            t_electrons * u.K,
-            previous_electron_densities.values
-            * u.g
-            / u.cm**3,  # convert series to quantity
-        )
-
-        ion_number_density, electron_densities = solver.solve(
-            radiation_field_estimators,
-            electron_dist,
-            lte_level_number_density,
-            level_number_density,
-            lte_ion_number_density,
-            ion_number_density,
-            partition_function,
-            level_boltzmann_factor,
-            charge_conservation=False,
-        )
-
-        return ion_number_density, electron_densities
-
-    def calculate(
-        self,
-        atomic_data,
-        dilute_planckian_radiation_field,
-        t_electrons,
-        previous_electron_densities,
-        previous_level_number_density,
-        previous_ion_number_density,
-        number_density,
-        phi,
-        hydrogen_continuum_partition_function,
-        lte_level_number_density,
-        lte_ion_number_density,
-        hydrogen_continuum_level_boltzmann_factor,
-        iteration,
-        photoionization_rate_estimator,
-        stimulated_recombination_rate_estimator,
-    ):
-        # No-estimator initialization uses dilute-LTE excitation with nebular
-        # ionization and charge neutrality. Later iterations use estimators.
-
-        if iteration == 0:
-            hydrogen_ion_number_density, _ = IonNumberDensity(None).calculate(
-                phi,
-                hydrogen_continuum_partition_function,
-                number_density,
-            )
-            charges = hydrogen_ion_number_density.index.get_level_values(
-                "ion_number"
-            )
-            electron_number_density = hydrogen_ion_number_density.multiply(
-                charges, axis=0
-            ).sum(axis=0)
-        else:
-            radiation_field_estimators = {
-                "photoionization_rate_estimator": photoionization_rate_estimator,
-                "stimulated_recombination_rate_estimator": (
-                    stimulated_recombination_rate_estimator
-                ),
-            }
-
-            hydrogen_ion_number_density, electron_number_density = (
-                self.calculate_estimated_equilibrium_hydrogen_ion_populations(
-                    t_electrons,
-                    previous_electron_densities,
-                    radiation_field_estimators,
-                    number_density,
-                    lte_level_number_density,
-                    previous_level_number_density,
-                    lte_ion_number_density,
-                    previous_ion_number_density,
-                    hydrogen_continuum_partition_function,
-                    hydrogen_continuum_level_boltzmann_factor,
-                    atomic_data.level2continuum_edge_idx,
-                )
-            )
-
-        hydrogen_ion_number_density.columns = number_density.columns
-        electron_number_density.index = number_density.columns
-        return hydrogen_ion_number_density, electron_number_density
-
-
-class HydrogenContinuumLevelNumberDensity(ProcessingPlasmaProperty):
-    """
-    Calculate level populations from hydrogen continuum ion populations.
-
-    Attributes
-    ----------
-    level_number_density : pandas.DataFrame
-        Level number density indexed by atomic number, ion number, and level
-        number with columns corresponding to zones.
-    """
-
-    outputs = ("level_number_density",)
-
-    def calculate(
-        self,
-        hydrogen_continuum_level_boltzmann_factor,
-        ion_number_density,
-        levels,
-        hydrogen_continuum_partition_function,
-    ):
-        return LevelNumberDensity(self.plasma_parent).calculate(
-            hydrogen_continuum_level_boltzmann_factor,
-            ion_number_density,
-            levels,
-            hydrogen_continuum_partition_function,
-        )
 
 
 class HydrogenContinuumFractionalHeating(ProcessingPlasmaProperty):
@@ -705,6 +610,7 @@ class HydrogenContinuumFractionalHeating(ProcessingPlasmaProperty):
         bound_free_heating_estimator,
         stimulated_recombination_cooling_estimator,
     ):
+        """Calculate the fractional heating for one continuum update."""
         if iteration == 0:
             return None
 
@@ -820,6 +726,7 @@ class HydrogenContinuumIonRatio(ProcessingPlasmaProperty):
 
     @staticmethod
     def calculate(ion_number_density):
+        """Calculate the H II to H I population ratio."""
         ion_ratio = (
             ion_number_density.loc[(1, 1)] / ion_number_density.loc[(1, 0)]
         )

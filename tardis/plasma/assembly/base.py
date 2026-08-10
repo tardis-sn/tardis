@@ -10,7 +10,6 @@ from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import (
     HeliumNumericalNLTE,
     HydrogenContinuumFractionalHeating,
-    HydrogenContinuumIonPopulations,
     IonNumberDensity,
     IonNumberDensityHeNLTE,
     LevelBoltzmannFactorNLTE,
@@ -507,11 +506,11 @@ class IIPPlasmaSolverFactory:
         hydrogen_photoionization_kwargs = dict(
             photo_ion_cross_sections=self.atom_data.photoionization_data
         )
-        self.property_kwargs[HydrogenContinuumIonPopulations] = (
-            hydrogen_photoionization_kwargs
-        )
         self.property_kwargs[HydrogenContinuumFractionalHeating] = (
             hydrogen_photoionization_kwargs
+        )
+        self.property_kwargs[StimulatedEmissionFactor] = dict(
+            nlte_species=set(nlte_species)
         )
 
     def initialize_j_blues(self, dilute_planckian_radiation_field, lines_df):
@@ -591,6 +590,7 @@ class IIPPlasma(BasePlasma):
             ),
             j_blues=j_blues,
             iteration=next_iteration,
+            previous_beta_sobolev=self.get_value("beta_sobolev").copy(),
             previous_electron_densities=self.get_value("electron_densities"),
             previous_ion_number_density=self.get_value(
                 "ion_number_density"

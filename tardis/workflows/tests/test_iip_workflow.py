@@ -11,10 +11,11 @@ from tardis.conftest import assert_regression_dataframe
 from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.configuration.config_reader import Configuration
-from tardis.plasma.equilibrium.continuum_state import (
-    EquilibriumContinuumState,
+from tardis.plasma.equilibrium.continuum import (
+    ContinuumRateState,
+    build_continuum_rate_state,
 )
-from tardis.plasma.properties.ion_population import IonNumberDensity
+from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.properties.level_population import LevelNumberDensity
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
@@ -335,11 +336,13 @@ def iip_plasma_nlte_init(
 @pytest.fixture
 def initial_continuum_numerical_contract(
     iip_plasma_nlte_init: LegacyPlasmaArray,
-) -> tuple[EquilibriumContinuumState, BaseContinuum, LegacyPlasmaArray]:
+) -> tuple[ContinuumRateState, BaseContinuum, LegacyPlasmaArray]:
     """Build standard and legacy continuum states from identical populations."""
     plasma = iip_plasma_nlte_init
     legacy_atomic_data = plasma.atomic_data
-    photoionization_data = legacy_atomic_data.continuum_data.photoionization_data
+    photoionization_data = (
+        legacy_atomic_data.continuum_data.photoionization_data
+    )
     atomic_data = SimpleNamespace(
         photoionization_data=photoionization_data,
         levels=legacy_atomic_data.levels,
@@ -363,7 +366,7 @@ def initial_continuum_numerical_contract(
         lte_ion_number_density=plasma.lte_ion_number_density,
         ion_number_density=plasma.ion_number_density,
     )
-    standard_state = EquilibriumContinuumState.from_plasma(standard_inputs)
+    standard_state = build_continuum_rate_state(standard_inputs)
     legacy_continuum = BaseContinuum(
         atom_data=legacy_atomic_data,
         plasma_array=plasma,
@@ -383,7 +386,7 @@ def initial_continuum_numerical_contract(
 )
 def test_standard_radiative_continuum_rates_match_numerical_contract(
     initial_continuum_numerical_contract: tuple[
-        EquilibriumContinuumState,
+        ContinuumRateState,
         BaseContinuum,
         LegacyPlasmaArray,
     ],
@@ -406,7 +409,7 @@ def test_standard_radiative_continuum_rates_match_numerical_contract(
 
 def test_standard_collisional_continuum_rates_match_numerical_contract(
     initial_continuum_numerical_contract: tuple[
-        EquilibriumContinuumState,
+        ContinuumRateState,
         BaseContinuum,
         LegacyPlasmaArray,
     ],
@@ -450,7 +453,7 @@ def test_standard_collisional_continuum_rates_match_numerical_contract(
 
 def test_structured_cooling_numerical_contract_replaces_legacy_output(
     initial_continuum_numerical_contract: tuple[
-        EquilibriumContinuumState,
+        ContinuumRateState,
         BaseContinuum,
         LegacyPlasmaArray,
     ],
@@ -725,35 +728,45 @@ def test_initial_continuum_level_factor_uses_dilute_lte_without_estimators(
         rtol=1e-12,
         atol=0.0,
     )
-    expected_ion_number_density, _ = IonNumberDensity(None).calculate(
-        standard_plasma.phi,
-        standard_plasma.hydrogen_continuum_partition_function,
-        standard_plasma.number_density,
-    )
-    charges = expected_ion_number_density.index.get_level_values("ion_number")
-    # Charge neutrality is reconstructed from all ion stages, not just H II.
-    expected_electron_densities = expected_ion_number_density.multiply(
-        charges, axis=0
-    ).sum(axis=0)
+    ion_number_density = standard_plasma.ion_number_density
+    elemental_number_density = ion_number_density.groupby(
+        level="atomic_number"
+    ).sum()
     pd.testing.assert_frame_equal(
-        standard_plasma.ion_number_density,
-        expected_ion_number_density,
+        elemental_number_density,
+        standard_plasma.number_density,
         check_dtype=False,
         check_names=False,
         rtol=1e-12,
         atol=0.0,
     )
+    for atomic_number, upper_ion_number in standard_plasma.phi.index:
+        lower_population = ion_number_density.loc[
+            (atomic_number, upper_ion_number - 1)
+        ]
+        upper_population = ion_number_density.loc[
+            (atomic_number, upper_ion_number)
+        ]
+        np.testing.assert_allclose(
+            standard_plasma.phi.loc[(atomic_number, upper_ion_number)]
+            * lower_population,
+            standard_plasma.electron_densities * upper_population,
+            rtol=1e-12,
+            atol=0.0,
+        )
+    charges = ion_number_density.index.get_level_values("ion_number")
+    charge_density = ion_number_density.multiply(charges, axis=0).sum(axis=0)
     pd.testing.assert_series_equal(
         standard_plasma.electron_densities,
-        expected_electron_densities,
+        charge_density,
         check_dtype=False,
         check_names=False,
-        rtol=1e-12,
+        rtol=1e-10,
         atol=0.0,
     )
     expected_level_number_density = LevelNumberDensity(None).calculate(
         standard_plasma.hydrogen_continuum_level_boltzmann_factor,
-        expected_ion_number_density,
+        ion_number_density,
         standard_plasma.levels,
         standard_plasma.hydrogen_continuum_partition_function,
     )
@@ -767,9 +780,7 @@ def test_initial_continuum_level_factor_uses_dilute_lte_without_estimators(
     )
 
 
-def test_iip_plasma_initialization(
-    iip_plasma_nlte_init, iip_regression_path
-):
+def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
     """Retain the legacy initial state as numerical parity evidence."""
     tau_sobolevs_ctardis = pd.read_hdf(
         iip_regression_path / "ctardis_tau_sobolevs_init_nlte.h5",
@@ -1080,22 +1091,36 @@ def test_iip_plasma_after_mc(
         )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Step 2 needs the independent linear/Picard/scalar-charge solver "
-        "before the fixed post-MC parity target can be opened."
-    ),
-)
 def test_standard_post_mc_fixed_point_parity_diagnostic(
     type_iip_workflow: TypeIIPWorkflow,
     ctardis_after_mc_continuum_estimators: dict[str, object],
     iip_plasma_after_mc: LegacyPlasmaArray,
+    iip_regression_path: Path,
 ) -> None:
     """Compare standard and legacy states from identical post-MC estimators."""
     workflow = type_iip_workflow
     workflow.simulation_state.t_radiative = iip_plasma_after_mc.t_rad * u.K
     workflow.simulation_state.dilution_factor = iip_plasma_after_mc.w
+    population_owner = workflow.plasma_solver.outputs_dict["electron_densities"]
+    population_owner.electron_densities = pd.read_hdf(
+        iip_regression_path / "ctardis_electron_densities_init_nlte.h5",
+        key="data",
+    )
+    population_owner.ion_number_density = pd.read_hdf(
+        iip_regression_path / "ctardis_ion_density_init_nlte.h5",
+        key="data",
+    )
+    population_owner.level_number_density = pd.read_hdf(
+        iip_regression_path / "ctardis_level_number_density_init_nlte.h5",
+        key="data",
+    )
+    previous_beta_sobolev = pd.read_hdf(
+        iip_regression_path / "ctardis_beta_sobolevs_init_nlte.h5",
+        key="data",
+    )
+    previous_beta_sobolev.index = workflow.plasma_solver.lines.index
+    beta_owner = workflow.plasma_solver.outputs_dict["beta_sobolev"]
+    beta_owner.beta_sobolev = previous_beta_sobolev
 
     workflow.solve_plasma(
         ctardis_after_mc_continuum_estimators,
@@ -1272,10 +1297,10 @@ def test_thermal_balance_solver(
     assert np.all(np.isfinite(residual))
 
 
-def test_thermal_balance_iteration_stays_finite(
+def test_thermal_balance_rejects_disconnected_zero_rate_system(
     type_iip_workflow: object,
-    thermal_balance_guess: Callable[[object], tuple[np.ndarray, np.ndarray]],
 ) -> None:
+    """A zero-rate population matrix must fail instead of inventing a state."""
     plasma = type_iip_workflow.plasma_solver
     estimator_index = plasma.photo_ion_index
     estimator_columns = plasma.electron_densities.index
@@ -1285,33 +1310,20 @@ def test_thermal_balance_iteration_stays_finite(
     zero_line_estimator = pd.DataFrame(
         0.0, index=plasma.lines.index, columns=estimator_columns
     )
-    plasma.update(
-        photoionization_rate_estimator=zero_photo_estimator,
-        stimulated_recombination_rate_estimator=zero_photo_estimator,
-        collisional_ionization_rate_coefficient=zero_photo_estimator,
-        collisional_excitation_rate_coefficient=zero_line_estimator,
-        collisional_deexcitation_rate_coefficient=zero_line_estimator,
-        free_free_heating_estimator=pd.Series(0.0, index=estimator_columns),
-        bound_free_heating_estimator=zero_photo_estimator,
-        stimulated_recombination_cooling_estimator=zero_photo_estimator,
-    )
-    initial_guess, max_electron_number_density = thermal_balance_guess(plasma)
-    initial_residual = type_iip_workflow.thermal_balance_iteration(
-        initial_guess,
-        max_electron_number_density,
-    )
-    assert np.all(np.isfinite(initial_residual))
-
-    for attr in (
-        "electron_densities",
-        "t_electrons",
-        "ion_number_density",
-        "level_number_density",
-        "fractional_heating",
+    plasma.store_previous_properties()
+    with pytest.raises(
+        PlasmaIonizationError, match="Singular population matrix"
     ):
-        value = getattr(plasma, attr)
-        values = getattr(value, "values", value)
-        assert np.all(np.isfinite(values))
+        plasma.update(
+            photoionization_rate_estimator=zero_photo_estimator,
+            stimulated_recombination_rate_estimator=zero_photo_estimator,
+            collisional_ionization_rate_coefficient=zero_photo_estimator,
+            collisional_excitation_rate_coefficient=zero_line_estimator,
+            collisional_deexcitation_rate_coefficient=zero_line_estimator,
+            free_free_heating_estimator=pd.Series(0.0, index=estimator_columns),
+            bound_free_heating_estimator=zero_photo_estimator,
+            stimulated_recombination_cooling_estimator=zero_photo_estimator,
+        )
 
 
 def test_solve_opacity_exposes_structured_macro_atom_state(
@@ -1360,7 +1372,10 @@ def test_standard_workflow_completes_two_owned_iterations(
 
     for _iteration in range(2):
         opacity_states = workflow.solve_opacity()
-        assert opacity_states["macro_atom_state"].absorbing_probability_matrix is not None
+        assert (
+            opacity_states["macro_atom_state"].absorbing_probability_matrix
+            is not None
+        )
 
         workflow.solve_montecarlo(opacity_states, 256)
         assert np.all(

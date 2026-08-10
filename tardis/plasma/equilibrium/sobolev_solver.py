@@ -6,15 +6,13 @@ from astropy import units as u
 from tardis.opacities.sobolev import (
     calculate_beta_sobolev,
     calculate_sobolev_line_opacity,
+    calculate_stimulated_emission_factor,
 )
 from tardis.plasma.equilibrium.charge_conservation import (
     ChargeConservationSolver,
 )
-from tardis.plasma.equilibrium.ion_populations import PopulationState
+from tardis.plasma.equilibrium.population_state import PopulationState
 from tardis.plasma.exceptions import PlasmaIonizationError
-from tardis.plasma.properties.radiative_properties import (
-    calculate_stimulated_emission_factor,
-)
 
 
 class SobolevPopulationSolver:
@@ -38,9 +36,10 @@ class SobolevPopulationSolver:
     nlte_species : set[tuple[int, int]], optional
         Species for which population inversions are clipped to zero.
     tolerance : float, optional
-        Relative beta and population update tolerance.
+        Relative beta and population update tolerance, by default
+        ``1.49012e-8``, matching the legacy MINPACK level solve.
     max_iterations : int, optional
-        Maximum number of population/beta updates.
+        Maximum number of population/beta updates, by default ``200``.
     relaxation_floor : float, optional
         Smallest relaxation factor used after a growing update.
     """
@@ -55,8 +54,8 @@ class SobolevPopulationSolver:
         lines_upper_level_index: npt.ArrayLike,
         metastability: pd.Series,
         nlte_species: set[tuple[int, int]] | None = None,
-        tolerance: float = 1e-8,
-        max_iterations: int = 100,
+        tolerance: float = 1.49012e-8,
+        max_iterations: int = 200,
         relaxation_floor: float = 1e-3,
     ) -> None:
         self.charge_conservation_solver = charge_conservation_solver
@@ -75,7 +74,13 @@ class SobolevPopulationSolver:
     def _relative_norm(previous: pd.DataFrame, current: pd.DataFrame) -> float:
         """Return a finite relative maximum norm for two aligned frames."""
         difference = np.abs(current.to_numpy() - previous.to_numpy())
-        scale = np.maximum(np.abs(previous.to_numpy()), 1e-300)
+        scale = np.maximum.reduce(
+            (
+                np.abs(previous.to_numpy()),
+                np.abs(current.to_numpy()),
+                np.full(previous.shape, 1e-300),
+            )
+        )
         return float(np.max(difference / scale))
 
     def _calculate_sobolev_state(
@@ -107,58 +112,36 @@ class SobolevPopulationSolver:
         self,
         initial_level_number_density: pd.DataFrame,
         initial_beta_sobolev: pd.DataFrame | None = None,
+        initial_electron_densities: pd.Series | None = None,
     ) -> tuple[
         PopulationState,
         npt.NDArray[np.float64],
         pd.DataFrame,
         pd.DataFrame,
     ]:
-        """Solve the coupled population and Sobolev escape-probability state.
-
-        The supplied level populations are copied and used only as the initial
-        state. For each iteration, the charge coordinator solves at the
-        current escape probabilities. The resulting populations then
-        determine the stimulated-emission factors, Sobolev optical depths, and
-        proposed escape probabilities through plasma property calculations.
-        The beta update is initially undamped. If its relative
-        update norm grows, the relaxation factor is halved, down to
-        ``relaxation_floor``, before the next population solve.
-
-        Convergence requires both the relative beta update and the relative
-        level-population update to be no larger than ``tolerance``. After
-        convergence, the population solver is evaluated once more at the
-        final escape probabilities. This back-substitution ensures that all
-        returned values describe the same state and that the returned beta is
-        reproducible from the returned optical depth.
+        """Converge charge, populations, and Sobolev escape probabilities.
 
         Parameters
         ----------
         initial_level_number_density : pandas.DataFrame
-            Complete positive level state used to seed the iteration. Its
-            index and columns define the level and shell layout returned by
-            the population solver.
+            Complete previous level state used to seed the iteration.
         initial_beta_sobolev : pandas.DataFrame, optional
-            Escape probabilities from the previous iteration. If omitted,
-            they are calculated from ``initial_level_number_density``. When
-            provided, it must cover every line in ``lines`` and every shell in
-            the initial level state.
+            Previous escape probabilities. When omitted, they are calculated
+            from ``initial_level_number_density``.
+        initial_electron_densities : pandas.Series, optional
+            Previous electron densities used to seed nearby charge brackets.
 
         Returns
         -------
         tuple[PopulationState, numpy.ndarray, pandas.DataFrame, pandas.DataFrame]
-            Values are returned in this order:
-
-            * final coupled population state;
-            * stimulated-emission factor for each line and shell;
-            * Sobolev optical depth for each line and shell;
-            * Sobolev escape probability for each line and shell.
+            Converged populations, stimulated emission factors, Sobolev
+            optical depths, and escape probabilities.
 
         Raises
         ------
         PlasmaIonizationError
-            If an update is nonfinite, the fixed point does not converge
-            within ``max_iterations``, or final back-substitution is not
-            self-consistent.
+            If the fixed point is nonfinite, fails to converge, or fails final
+            back-substitution.
         """
         level_number_density = initial_level_number_density.copy(deep=True)
         if initial_beta_sobolev is None:
@@ -168,23 +151,26 @@ class SobolevPopulationSolver:
         else:
             beta_sobolev = initial_beta_sobolev.reindex(
                 self.lines.index, columns=level_number_density.columns
-            ).copy()
+            ).copy(deep=True)
         if not np.isfinite(beta_sobolev.to_numpy()).all():
             raise PlasmaIonizationError("Initial Sobolev beta is nonfinite")
 
-        previous_update_norm = np.inf
+        accepted_merit = np.inf
+        update_norm = np.inf
+        population_norm = np.inf
         relaxation = 1.0
+        retry_origin_beta = beta_sobolev
+        retry_target_beta = beta_sobolev
         converged = False
         for _iteration in range(1, self.max_iterations + 1):
             population_state = self.charge_conservation_solver.solve(
-                beta_sobolev.copy(deep=True)
+                beta_sobolev.copy(deep=True),
+                initial_electron_densities,
             )
             new_level_number_density = population_state.level_number_density
-            (
-                stimulated_emission_factor,
-                tau_sobolevs,
-                proposed_beta,
-            ) = self._calculate_sobolev_state(new_level_number_density)
+            _, _, proposed_beta = self._calculate_sobolev_state(
+                new_level_number_density
+            )
             update_norm = self._relative_norm(beta_sobolev, proposed_beta)
             population_norm = self._relative_norm(
                 level_number_density, new_level_number_density
@@ -193,6 +179,24 @@ class SobolevPopulationSolver:
                 raise PlasmaIonizationError(
                     "Sobolev fixed-point update is nonfinite"
                 )
+            update_merit = max(update_norm, population_norm)
+            if update_merit > accepted_merit:
+                if relaxation <= self.relaxation_floor:
+                    raise PlasmaIonizationError(
+                        "Sobolev fixed-point damping reached its floor: "
+                        f"update_norm={update_norm}, "
+                        f"population_norm={population_norm}, "
+                        f"accepted_merit={accepted_merit}, "
+                        f"relaxation={relaxation}"
+                    )
+                relaxation = max(self.relaxation_floor, relaxation / 2.0)
+                beta_sobolev = retry_origin_beta + relaxation * (
+                    retry_target_beta - retry_origin_beta
+                )
+                continue
+            initial_electron_densities = (
+                population_state.electron_densities.copy(deep=True)
+            )
             if (
                 update_norm <= self.tolerance
                 and population_norm <= self.tolerance
@@ -201,36 +205,44 @@ class SobolevPopulationSolver:
                 beta_sobolev = proposed_beta
                 converged = True
                 break
-
-            if update_norm > previous_update_norm:
-                relaxation = max(self.relaxation_floor, relaxation / 2.0)
-            next_beta = beta_sobolev + relaxation * (
-                proposed_beta - beta_sobolev
-            )
             level_number_density = new_level_number_density
-            beta_sobolev = next_beta
-            previous_update_norm = update_norm
+            retry_origin_beta = beta_sobolev
+            retry_target_beta = proposed_beta
+            beta_sobolev = proposed_beta
+            accepted_merit = update_merit
+            relaxation = 1.0
 
         if not converged:
             raise PlasmaIonizationError(
                 "Sobolev fixed-point iteration did not converge after "
-                f"{self.max_iterations} iterations"
+                f"{self.max_iterations} iterations: "
+                f"update_norm={update_norm}, "
+                f"population_norm={population_norm}, "
+                f"relaxation={relaxation}"
             )
 
-        # Back-substitute once at the final beta so the returned population and
-        # public Sobolev properties describe one identical state.
         population_state = self.charge_conservation_solver.solve(
-            beta_sobolev.copy(deep=True)
+            beta_sobolev.copy(deep=True),
+            initial_electron_densities,
         )
-        level_number_density = population_state.level_number_density
         (
             stimulated_emission_factor,
             tau_sobolevs,
             final_beta,
-        ) = self._calculate_sobolev_state(level_number_density)
-        if self._relative_norm(beta_sobolev, final_beta) > self.tolerance:
+        ) = self._calculate_sobolev_state(population_state.level_number_density)
+        final_update_norm = self._relative_norm(beta_sobolev, final_beta)
+        final_population_norm = self._relative_norm(
+            level_number_density,
+            population_state.level_number_density,
+        )
+        if (
+            final_update_norm > self.tolerance
+            or final_population_norm > self.tolerance
+        ):
             raise PlasmaIonizationError(
-                "Final Sobolev back-substitution is not self-consistent"
+                "Final Sobolev back-substitution is not self-consistent: "
+                f"update_norm={final_update_norm}, "
+                f"population_norm={final_population_norm}"
             )
         return (
             population_state,
