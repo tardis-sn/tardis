@@ -11,7 +11,6 @@ diagnostic visualizations.
 
 .. toctree::
     :maxdepth: 2
-    :hidden:
 
     SDEC Plot <visualization/how_to_sdec_plot>
     LIV Plot <visualization/how_to_liv_plot>
@@ -27,7 +26,6 @@ Jupyter Notebooks, making data exploration much easier.
 
 .. toctree::
     :maxdepth: 2
-    :hidden:
 
     Shell Info Widget <visualization/shell_info_widget>
     Line Info Widget <visualization/line_info_widget>
