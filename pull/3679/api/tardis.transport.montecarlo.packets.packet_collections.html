@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5cc39823"></script>
+      <script src="../_static/documentation_options.js?v=3772e781"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -158,7 +158,70 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Visualization Tools &amp; Widgets</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../analyzing_tardis/index.html#tardis-visualization-tools">TARDIS Visualization Tools</a><ul class="simple">
+<li class="toctree-l2"><a class="reference internal" href="../analyzing_tardis/index.html#tardis-visualization-tools">TARDIS Visualization Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html">How to Generate a Spectral element DEComposition (SDEC) Plot</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Static-Plot-(in-matplotlib)">Static Plot (in matplotlib)</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Virtual-packets-mode">Virtual packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Real-packets-mode">Real packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Plotting-a-specific-wavelength-range">Plotting a specific wavelength range</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Plotting-only-the-top-contributing-elements">Plotting only the top contributing elements</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Choosing-what-elements/ions-to-plot">Choosing what elements/ions to plot</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Plotting-flux-instead-of-luminosity">Plotting flux instead of luminosity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Plotting-an-observed-spectrum">Plotting an observed spectrum</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Hiding-modeled-spectrum">Hiding modeled spectrum</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Marking-locations-of-spectral-lines">Marking locations of spectral lines</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Additional-plotting-options">Additional plotting options</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Interactive-Plot-(in-plotly)">Interactive Plot (in plotly)</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#id1">Virtual packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#id2">Real packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#id3">Additional plotting options</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Interactive-plot-(in-bokeh)">Interactive plot (in bokeh)</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#id4">Virtual packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#id5">Real packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Additional-plotting-options-(Bokeh)">Additional plotting options (Bokeh)</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_sdec_plot.html#Using-simulation-saved-as-HDF">Using simulation saved as HDF</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html">How to Generate a Last Interaction Velocity (LIV) Plot</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Static-Plot-(in-matplotlib)">Static Plot (in matplotlib)</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Virtual-packets-mode">Virtual packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Real-packets-mode">Real packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Plotting-a-specific-wavelength-range">Plotting a specific wavelength range</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Plotting-only-the-top-contributing-elements">Plotting only the top contributing elements</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Choosing-what-elements/ions-to-plot">Choosing what elements/ions to plot</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Plotting-a-specific-number-of-bins">Plotting a specific number of bins</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Plotting-on-the-Log-Scale">Plotting on the Log Scale</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Plotting-a-specific-velocity-range">Plotting a specific velocity range</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Additional-plotting-options">Additional plotting options</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Interactive-Plot-(in-plotly)">Interactive Plot (in plotly)</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#id1">Virtual packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#id2">Real packets mode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#id3">Plotting a specific wavelength range</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#id4">Plotting only the top contributing elements</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#id5">Choosing what elements/ions to plot</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#id6">Plotting a specific number of bins</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#id7">Plotting on the Log Scale</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#id8">Plotting a specific velocity range</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#id9">Additional plotting options</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/how_to_liv_plot.html#Using-simulation-saved-as-HDF">Using simulation saved as HDF</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_convergence_plot.html">Convergence Plots</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_convergence_plot.html#Displaying-Convergence-Plots">Displaying Convergence Plots</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_convergence_plot.html#Changing-Line-Colors">Changing Line Colors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_convergence_plot.html#Changing-the-default-layout">Changing the default layout</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../analyzing_tardis/index.html#tardis-widgets-graphical-user-interfaces">TARDIS Widgets (Graphical User Interfaces)</a><ul class="simple">
@@ -4639,7 +4702,7 @@
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.packet_collections.PacketCollection.class_type">
-<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.PacketCollection#7f06b56f1e50&lt;initial_radii:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_nus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_mus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_energies:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),packet_seeds:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A),time_of_simulation:float64,radiation_field_luminosity:float64,output_nus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),output_energies:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A)&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.packet_collections.PacketCollection.class_type" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.PacketCollection#7fad02abde50&lt;initial_radii:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_nus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_mus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_energies:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),packet_seeds:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A),time_of_simulation:float64,radiation_field_luminosity:float64,output_nus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),output_energies:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A)&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.packet_collections.PacketCollection.class_type" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -4669,7 +4732,7 @@
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.packet_collections.VPacketCollection.class_type">
-<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.VPacketCollection#7f06b56f1f90&lt;source_rpacket_index:int64,spectrum_frequency_grid:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),v_packet_spawn_start_frequency:float64,v_packet_spawn_end_frequency:float64,nus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),energies:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_mus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_rs:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),idx:int64,number_of_vpackets:int64,length:int64,last_interaction_in_nu:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_in_r:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_type:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_in_id:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_out_id:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_shell_id:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A)&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.packet_collections.VPacketCollection.class_type" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.VPacketCollection#7fad02abdf90&lt;source_rpacket_index:int64,spectrum_frequency_grid:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),v_packet_spawn_start_frequency:float64,v_packet_spawn_end_frequency:float64,nus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),energies:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_mus:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),initial_rs:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),idx:int64,number_of_vpackets:int64,length:int64,last_interaction_in_nu:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_in_r:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_type:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_in_id:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_out_id:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A),last_interaction_shell_id:array(int64,</span> <span class="pre">1d,</span> <span class="pre">A)&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.packet_collections.VPacketCollection.class_type" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
