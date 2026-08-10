@@ -10,7 +10,8 @@ A collection of tools that post-process TARDIS simulations to generate
 diagnostic visualizations.
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
+    :hidden:
 
     SDEC Plot <visualization/how_to_sdec_plot>
     LIV Plot <visualization/how_to_liv_plot>
@@ -25,7 +26,8 @@ simulations. Widgets are simple Graphical User Interfaces (GUIs) that run within
 Jupyter Notebooks, making data exploration much easier.
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
+    :hidden:
 
     Shell Info Widget <visualization/shell_info_widget>
     Line Info Widget <visualization/line_info_widget>
