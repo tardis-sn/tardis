@@ -5,21 +5,20 @@ import pandas as pd
 import panel as pn
 import param
 from astropy import units as u
-
-from bokeh.plotting import figure
 from bokeh.models import BoxSelectTool, ColumnDataSource
+from bokeh.plotting import figure
+
 from tardis.analysis import LastLineInteraction
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.util.base import (
     species_string_to_tuple,
     species_tuple_to_string,
 )
-
+from tardis.util.environment import Environment
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 from tardis.visualization.widgets.util import (
     TableSummaryLabel,
 )
-from tardis.visualization.tools.sdec_plot import SDECPlotter
-from tardis.util.environment import Environment
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class LineInfoData:
@@ -194,7 +193,7 @@ class LineInfoData:
                 allowed_species = [
                     species_tuple_to_string(species)
                     for species in self.line_interaction_analysis[filter_mode]
-                    .last_line_in.groupby(["atomic_number", "ion_number"]) 
+                    .last_line_in.groupby(["atomic_number", "ion_number"])
                     .groups.keys()
                 ]
                 raise ValueError(
@@ -352,6 +351,7 @@ class LineInfoWidget(param.Parameterized):
     def _create_table_widget(data, page_size=None):
         """
         Create a table widget using Panel's Tabulator widget.
+
         Parameters
         ----------
         data : pandas.DataFrame
@@ -359,6 +359,7 @@ class LineInfoWidget(param.Parameterized):
         page_size : int or None, optional
             Maximum number of visible rows per page. If provided, enables
             remote pagination.
+
         Returns
         -------
         panel.widgets.Tabulator
@@ -570,7 +571,6 @@ class LineInfoWidget(param.Parameterized):
         """
         Shared logic for setting up plot selection callbacks and shapes.
         """
-
         # Create invisible scatter for selection (needed for box select to work)
         source = ColumnDataSource(
             dict(x=wavelength.value, y=luminosity_density_lambda.value)
