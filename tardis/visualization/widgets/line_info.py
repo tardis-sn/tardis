@@ -472,7 +472,7 @@ class LineInfoWidget(param.Parameterized):
         """Update species interactions table when wavelength range or filter
         mode changes.
         """
-        wl_range = self.wavelength_range if self.wavelength_range else None
+        wl_range = self.wavelength_range or None
 
         new_data = self.data.get_species_interactions(
             wl_range, self.filter_mode
