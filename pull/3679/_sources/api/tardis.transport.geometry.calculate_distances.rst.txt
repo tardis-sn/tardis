@@ -1,7 +1,0 @@
-tardis.transport.geometry.calculate\_distances module
-=====================================================
-
-.. automodule:: tardis.transport.geometry.calculate_distances
-   :members:
-   :show-inheritance:
-   :undoc-members:
