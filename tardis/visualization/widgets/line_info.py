@@ -364,15 +364,14 @@ class LineInfoWidget(param.Parameterized):
         -------
         panel.widgets.Tabulator
         """
-        _df = data.copy()
         table = pn.widgets.Tabulator(
-            _df,
+            data,
             pagination="remote" if page_size else None,
-            page_size=page_size or len(_df),
+            page_size=page_size or len(data),
             selectable=True,
             show_index=True,
             sizing_mode="stretch_width",
-            height=min(400, max(200, len(_df) * 30 + 50)),
+            height=min(400, max(200, len(data) * 30 + 50)),
             disabled=True,
         )
         return table
