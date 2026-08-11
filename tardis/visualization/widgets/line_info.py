@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import panel as pn
+import param
 from astropy import units as u
 
 from bokeh.plotting import figure
@@ -15,7 +16,6 @@ from tardis.util.base import (
 
 from tardis.visualization.widgets.util import (
     TableSummaryLabel,
-    create_table_widget,
 )
 from tardis.visualization.tools.sdec_plot import SDECPlotter
 from tardis.util.environment import Environment
@@ -308,7 +308,7 @@ class LineInfoData:
         ]
 
 
-class LineInfoWidget:
+class LineInfoWidget(param.Parameterized):
     """
     Widget to explore atomic lines that produced features in the simulated spectrum.
 
@@ -331,6 +331,51 @@ class LineInfoWidget:
     )
     COLORS = {"selection_area": "lightpink", "selection_border": "salmon"}
 
+    wavelength_range = param.List(
+        default=[],
+        doc="Selected wavelength range [start, end] in Angstroms",
+    )
+    species_selection_idx = param.List(
+        default=[],
+        doc="Index of current selected row in species interactions table",
+    )
+    filter_mode = param.String(
+        default=FILTER_MODES[0],
+        doc="Filter mode for wavelength range selection",
+    )
+    group_mode = param.String(
+        default=GROUP_MODES[0],
+        doc="Group mode for last line interaction counts",
+    )
+
+    @staticmethod
+    def _create_table_widget(data, page_size=None):
+        """
+        Create a table widget using Panel's Tabulator widget.
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data to be displayed in the table widget
+        page_size : int or None, optional
+            Maximum number of visible rows per page. If provided, enables
+            remote pagination.
+        Returns
+        -------
+        panel.widgets.Tabulator
+        """
+        _df = data.copy()
+        table = pn.widgets.Tabulator(
+            _df,
+            pagination="remote" if page_size else None,
+            page_size=page_size or len(_df),
+            selectable=True,
+            show_index=True,
+            sizing_mode="stretch_width",
+            height=min(400, max(200, len(_df) * 30 + 50)),
+            disabled=True,
+        )
+        return table
+
     def __init__(
         self,
         lines_data,
@@ -339,7 +384,7 @@ class LineInfoWidget:
         spectrum_luminosity_density_lambda,
         virt_spectrum_wavelength,
         virt_spectrum_luminosity_density_lambda,
-        sdec_figure=None
+        sdec_figure=None,
     ):
         """
         Initialize the LineInfoWidget with line interaction and spectrum data.
@@ -362,22 +407,24 @@ class LineInfoWidget:
             Luminosity density lambda values of a virtual spectrum, having unit
             of (erg/s)/Angstrom
         sdec_figure : bokeh.plotting.figure or None
-            Bokeh figure to use instead of base plot_spectrum() when sdec plot is needed.
+            Bokeh figure to use instead of base plot_spectrum() when sdec plot
+            is needed.
         """
+        super().__init__()
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
         self.data = LineInfoData(self.lines_data, self.line_interaction_analysis)
+        max_rows = 9
 
-        # Widgets ------------------------------------------------
-        max_rows_option = {"maxVisibleRows": 9}
-        self.species_interactions_table = create_table_widget(
+        # Create table widgets with initial empty data
+        self.species_interactions_table = self._create_table_widget(
             data=self.data.get_species_interactions(None),
-            table_options=max_rows_option,
+            page_size=max_rows,
         )
 
-        self.last_line_counts_table = create_table_widget(
+        self.last_line_counts_table = self._create_table_widget(
             data=self.data.get_last_line_counts(None),
-            table_options=max_rows_option,
+            page_size=max_rows,
         )
         self.total_packets_label = TableSummaryLabel(
             target_table=self.last_line_counts_table,
@@ -390,7 +437,7 @@ class LineInfoWidget:
             self.figure_widget = self._setup_selection(
                 p=sdec_figure,
                 wavelength=spectrum_wavelength,
-                luminosity_density_lambda=spectrum_luminosity_density_lambda
+                luminosity_density_lambda=spectrum_luminosity_density_lambda,
             )
         else:
             self.figure_widget = self.plot_spectrum(
@@ -400,16 +447,79 @@ class LineInfoWidget:
                 virt_spectrum_luminosity_density_lambda,
             )
 
+        # Create control widgets with dict options mapping descriptions
+        # to internal mode values
         self.filter_mode_buttons = pn.widgets.RadioButtonGroup(
-            options=list(self.FILTER_MODES_DESC),
-            value=self.FILTER_MODES_DESC[0],
+            options=dict(zip(self.FILTER_MODES_DESC, self.FILTER_MODES)),
+            value=self.FILTER_MODES[0],
         )
 
         self.group_mode_dropdown = pn.widgets.Select(
-            options=list(self.GROUP_MODES_DESC), value=self.GROUP_MODES_DESC[0]
+            options=dict(zip(self.GROUP_MODES_DESC, self.GROUP_MODES)),
+            value=self.GROUP_MODES[0],
         )
 
-        self._current_wavelength_range = None  # Track current selection
+        # Link widget interactions to params
+        self.species_interactions_table.link(
+            self, selection="species_selection_idx"
+        )
+        self.filter_mode_buttons.link(self, value="filter_mode")
+        self.group_mode_dropdown.link(self, value="group_mode")
+
+    @param.depends("wavelength_range", "filter_mode", watch=True)
+    def _update_species_table(self):
+        """Update species interactions table when wavelength range or filter
+        mode changes.
+        """
+        wl_range = self.wavelength_range if self.wavelength_range else None
+
+        new_data = self.data.get_species_interactions(
+            wl_range, self.filter_mode
+        )
+        self.species_interactions_table.value = new_data
+
+        if not new_data.empty and new_data.index[0] != "":
+            # Force selection change even if already at [0] so the linked
+            # species_selection_idx param fires and cascades downstream
+            if self.species_interactions_table.selection == [0]:
+                self.species_interactions_table.selection = []
+            self.species_interactions_table.selection = [0]
+        else:
+            self.species_interactions_table.selection = []
+
+    @param.depends(
+        "species_selection_idx",
+        "wavelength_range",
+        "filter_mode",
+        "group_mode",
+        watch=True,
+    )
+    def _update_last_line_counts_table(self):
+        """Update last line counts table and total packets label when species
+        selection, filter mode, or group mode changes.
+        """
+        if not self.species_selection_idx:
+            species_selected = None
+        else:
+            species_selected = self.species_interactions_table.value.index[
+                self.species_selection_idx[0]
+            ]
+            if species_selected == "":
+                species_selected = None
+
+        new_data = self.data.get_last_line_counts(
+            species_selected, self.filter_mode, self.group_mode
+        )
+        self.last_line_counts_table.value = new_data
+
+        if species_selected:
+            self.total_packets_label.update_and_resize(
+                new_data.iloc[:, 0].sum()
+            )
+        else:
+            self.total_packets_label.update_and_resize(0)
+
+    # --- Plotting and selection ---
 
     @classmethod
     def from_simulation(cls, sim, show_sdec=False, sdec_kwargs={}):
@@ -421,7 +531,8 @@ class LineInfoWidget:
         sim : tardis.simulation.Simulation
             TARDIS Simulation object produced by running a simulation
         show_sdec : bool, optional
-            Whether to show SDEC Plot in place of the base spectrum plot. Default is False.
+            Whether to show SDEC Plot in place of the base spectrum plot.
+            Default is False.
         sdec_kwargs : dict, optional
             Keyword arguments supported by SDECPlotter.generate_plot_bk().
 
@@ -452,7 +563,7 @@ class LineInfoWidget:
             virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
-            sdec_figure=sdec_figure
+            sdec_figure=sdec_figure,
         )
 
     def _setup_selection(self, p, wavelength, luminosity_density_lambda):
@@ -492,8 +603,14 @@ class LineInfoWidget:
         self._selection_source = selection_source
 
         # Approximate y_range bounds
-        y_max = np.max(np.abs(luminosity_density_lambda.value)) * 1.5 if len(luminosity_density_lambda.value) > 0 else 1
-        y_min = -y_max if p.title and "SDEC" in str(p.title.text) else 0.0
+        y_max = (
+            np.max(np.abs(luminosity_density_lambda.value)) * 1.5
+            if len(luminosity_density_lambda.value) > 0
+            else 1
+        )
+        y_min = (
+            -y_max if p.title and "SDEC" in str(p.title.text) else 0.0
+        )
         self._y_range = [y_min, y_max]
 
         self._wavelength_data = (
@@ -562,7 +679,8 @@ class LineInfoWidget:
         Bokeh selection callback for spectrum plot.
 
         This method handles selection events from the Bokeh plot and updates
-        the species interactions table based on the selected wavelength range.
+        the wavelength_range param, which triggers reactive updates of the
+        species interactions and last line counts tables.
 
         Parameters
         ----------
@@ -587,143 +705,8 @@ class LineInfoWidget:
                     bottom=[self._y_range[0]],
                 )
 
-                # Track the current selection
-                self._current_wavelength_range = x_range
-
-                # Get current filter mode from buttons
-                filter_mode_index = list(self.FILTER_MODES_DESC).index(
-                    self.filter_mode_buttons.value
-                )
-                self._update_species_interactions(
-                    x_range, self.FILTER_MODES[filter_mode_index]
-                )
-
-    def _update_species_interactions(self, wavelength_range, filter_mode):
-        """
-        Update data in species_interactions_table.
-
-        The parameters are exact same as that of :code:`get_species_interactions`.
-        Besides, it also does selection of 1st row in this table to trigger
-        update in last_line_counts_table.
-        """
-        # Update data in species_interactions_table
-        self.species_interactions_table.df = self.data.get_species_interactions(
-            wavelength_range, filter_mode
-        )
-
-        # Get index of 0th row in species_interactions_table
-        if (
-            not self.species_interactions_table.df.empty
-            and self.species_interactions_table.df.index[0] != ""
-        ):
-            species0 = self.species_interactions_table.df.index[0]
-
-            # Also update last_line_counts_table by triggering its event listener
-            if self.species_interactions_table.get_selected_rows() == [0]:
-                # Listener won't trigger if last row selected in
-                # species_interactions_table was also 0th, so unselect the rows
-                self.species_interactions_table.change_selection([])
-            # Select 0th row in this table to trigger _update_last_line_counts
-            self.species_interactions_table.change_selection([species0])
-        else:
-            # Clear selection if no valid data
-            self.species_interactions_table.change_selection([])
-
-    def _update_last_line_counts(self, species, filter_mode, group_mode):
-        """
-        Update data in last_line_counts_table and associated total_packets_label.
-
-        The parameters are exact same as that of :code:`get_last_line_counts`.
-        """
-        # Update data in line counts table
-        self.last_line_counts_table.df = self.data.get_last_line_counts(
-            species, filter_mode, group_mode
-        )
-
-        # Update its corresponding total_packets_label
-        if species:
-            self.total_packets_label.update_and_resize(
-                self.last_line_counts_table.df.iloc[:, 0].sum()
-            )
-        else:  # Line counts table will be empty
-            self.total_packets_label.update_and_resize(0)
-
-    def _filter_mode_toggle_handler(self, event):
-        """
-        Event handler for toggle in filter_mode_buttons.
-
-        This method has the expected signature of the callback function
-        for Panel widgets.
-        """
-        # Use tracked wavelength range instead of trying to access plotly shapes
-        if self._current_wavelength_range is not None:
-            # Get index from the selected value
-            filter_mode_index = list(self.FILTER_MODES_DESC).index(event.new)
-            self._update_species_interactions(
-                self._current_wavelength_range,
-                self.FILTER_MODES[filter_mode_index],
-            )
-
-    def _species_intrctn_selection_handler(self, event, _panel_widget):
-        """
-        Event handler for selection in species_interactions_table.
-
-        This method has the expected signature of the function passed to
-        :code:`handler` argument of :code:`on` method of PanelTableWidget.
-        """
-        # Don't execute function if no row was selected
-        if not event["new"]:
-            return
-
-        # Get species from the selected row in species_interactions_table
-        species_selected = self.species_interactions_table.df.index[
-            event["new"][0]
-        ]
-        if species_selected == "":  # when species_interactions_table is empty
-            species_selected = None
-
-        # Get indices from the selected values
-        filter_mode_index = list(self.FILTER_MODES_DESC).index(
-            self.filter_mode_buttons.value
-        )
-        group_mode_index = list(self.GROUP_MODES_DESC).index(
-            self.group_mode_dropdown.value
-        )
-
-        self._update_last_line_counts(
-            species_selected,
-            self.FILTER_MODES[filter_mode_index],
-            self.GROUP_MODES[group_mode_index],
-        )
-
-    def _group_mode_dropdown_handler(self, event):
-        """
-        Event handler for selection in group_mode_dropdown.
-
-        This method has the expected signature of the callback function
-        for Panel widgets.
-        """
-        try:
-            selected_row_idx = (
-                self.species_interactions_table.get_selected_rows()[0]
-            )
-            species_selected = self.species_interactions_table.df.index[
-                selected_row_idx
-            ]
-        except IndexError:  # No row is selected in species_interactions_table
-            return
-
-        # Get indices from the selected values
-        filter_mode_index = list(self.FILTER_MODES_DESC).index(
-            self.filter_mode_buttons.value
-        )
-        group_mode_index = list(self.GROUP_MODES_DESC).index(event.new)
-
-        self._update_last_line_counts(
-            species_selected,
-            self.FILTER_MODES[filter_mode_index],
-            self.GROUP_MODES[group_mode_index],
-        )
+                # Set wavelength range param — triggers reactive updates
+                self.wavelength_range = x_range
 
     @staticmethod
     def ui_control_description(text):
@@ -734,8 +717,9 @@ class LineInfoWidget:
         """
         Display the fully-functional line info widget.
 
-        It puts together all component widgets nicely together and enables
-        interaction between all the components.
+        It puts together all component widgets nicely together. All
+        interaction between components is handled by param-based reactivity
+        set up in :meth:`__init__`.
 
         Returns
         -------
@@ -747,16 +731,6 @@ class LineInfoWidget:
         else:
             # Panel tables handle their own sizing
             self.total_packets_label.update_and_resize(0)
-
-            self.filter_mode_buttons.param.watch(
-                self._filter_mode_toggle_handler, "value"
-            )
-            self.species_interactions_table.on(
-                "selection_changed", self._species_intrctn_selection_handler
-            )
-            self.group_mode_dropdown.param.watch(
-                self._group_mode_dropdown_handler, "value"
-            )
 
             selection_box_symbol = (
                 "<span style='display: inline-block; "
@@ -778,14 +752,14 @@ class LineInfoWidget:
             table_container_left = pn.Column(
                 filter_description,
                 self.filter_mode_buttons,
-                self.species_interactions_table.table,
+                self.species_interactions_table,
                 margin=(0, 15),
             )
 
             table_container_right = pn.Column(
                 group_description,
                 self.group_mode_dropdown,
-                self.last_line_counts_table.table,
+                self.last_line_counts_table,
                 self.total_packets_label.widget,
                 margin=(0, 15),
             )
