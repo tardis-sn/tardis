@@ -181,7 +181,7 @@ def trace_vpacket_within_shell(
                 "Sobolev optical depth is singular at the line resonance."
             )
 
-        tau_trace_line = opacity_state.sobolev_line_strength[
+        tau_trace_line = opacity_state.sobolev_optical_depth_coefficient[
             cur_line_id, v_packet.current_shell_id
         ]
         if tau_trace_line == 0.0:

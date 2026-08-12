@@ -18,13 +18,20 @@ class OpacityStateNumba:
     :class:`~tardis.opacities.opacity_state.OpacityState` used by classic and
     nonhomologous Monte Carlo transport. Continuum fields are empty
     arrays when continuum interactions are disabled.
+
+    Attributes
+    ----------
+    sobolev_optical_depth_coefficient : numpy.ndarray
+        Gradient-independent coefficient for each line and shell [s^-1].
+        Division by the absolute projected velocity gradient gives the
+        directional Sobolev optical depth.
     """
 
     electron_density: nb.float64[:]  # type: ignore[misc]
     t_electrons: nb.float64[:]  # type: ignore[misc]
     line_list_nu: nb.float64[:]  # type: ignore[misc]
     tau_sobolev: nb.float64[:, :]  # type: ignore[misc]
-    sobolev_line_strength: nb.float64[:, :]  # type: ignore[misc]
+    sobolev_optical_depth_coefficient: nb.float64[:, :]  # type: ignore[misc]
     transition_probabilities: nb.float64[:, :]  # type: ignore[misc]
     line2macro_level_upper: nb.int64[:]  # type: ignore[misc]
     macro_block_edge_index: nb.int64[:]  # type: ignore[misc]
@@ -125,7 +132,7 @@ class OpacityStateNumba:
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
-        self.sobolev_line_strength = np.zeros_like(tau_sobolev)
+        self.sobolev_optical_depth_coefficient = np.zeros_like(tau_sobolev)
         self.bf_threshold_list_nu = bf_threshold_list_nu
 
         #### Macro Atom transition probabilities
@@ -196,5 +203,7 @@ class OpacityStateNumba:
             self.photo_ion_activation_idx,
             self.k_packet_idx,
         )
-        opacity_state.sobolev_line_strength = self.sobolev_line_strength[:, i]
+        opacity_state.sobolev_optical_depth_coefficient = (
+            self.sobolev_optical_depth_coefficient[:, i]
+        )
         return opacity_state
