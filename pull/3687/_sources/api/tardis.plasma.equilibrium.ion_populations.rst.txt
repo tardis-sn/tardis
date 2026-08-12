@@ -1,7 +1,0 @@
-tardis.plasma.equilibrium.ion\_populations module
-=================================================
-
-.. automodule:: tardis.plasma.equilibrium.ion_populations
-   :members:
-   :show-inheritance:
-   :undoc-members:
