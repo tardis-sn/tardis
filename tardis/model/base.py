@@ -344,6 +344,7 @@ class SimulationState(HDFWriterMixin):
             "density",
             "t_rad",
             "dilution_factor",
+            "radius",
         }
 
         if Path(config.csvy_model).is_absolute():
