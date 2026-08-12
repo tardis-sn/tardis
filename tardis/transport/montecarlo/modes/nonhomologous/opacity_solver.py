@@ -8,7 +8,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
     calculate_beta_sobolev,
     calculate_beta_sobolev_directional,
     calculate_sobolev_line_opacity,
-    calculate_sobolev_line_strength,
+    calculate_sobolev_optical_depth_coefficient,
 )
 
 
@@ -70,19 +70,23 @@ class OpacitySolver:
                 plasma.stimulated_emission_factor,
             )
 
-        sobolev_line_strength = calculate_sobolev_line_strength(
-            plasma.atomic_data.lines,
-            plasma.level_number_density,
-            plasma.stimulated_emission_factor,
+        sobolev_optical_depth_coefficient = (
+            calculate_sobolev_optical_depth_coefficient(
+                plasma.atomic_data.lines,
+                plasma.level_number_density,
+                plasma.stimulated_emission_factor,
+            )
         )
         if self.disable_line_scattering:
-            sobolev_line_strength.iloc[:, :] = 0.0
+            sobolev_optical_depth_coefficient.iloc[:, :] = 0.0
 
         opacity_state = OpacityState.from_legacy_plasma(plasma, tau_sobolev)
-        opacity_state.sobolev_line_strength = sobolev_line_strength
+        opacity_state.sobolev_optical_depth_coefficient = (
+            sobolev_optical_depth_coefficient
+        )
         if self.velocity_over_radius is not None:
             opacity_state.beta_sobolev = calculate_beta_sobolev_directional(
-                sobolev_line_strength,
+                sobolev_optical_depth_coefficient,
                 self.velocity_gradient,
                 self.velocity_over_radius,
             )
@@ -126,19 +130,21 @@ class OpacitySolver:
                 plasma.stimulated_emission_factor,
             )
 
-        sobolev_line_strength = calculate_sobolev_line_strength(
-            plasma.atomic_data.lines,
-            plasma.level_number_density,
-            plasma.stimulated_emission_factor,
+        sobolev_optical_depth_coefficient = (
+            calculate_sobolev_optical_depth_coefficient(
+                plasma.atomic_data.lines,
+                plasma.level_number_density,
+                plasma.stimulated_emission_factor,
+            )
         )
         if self.disable_line_scattering:
-            sobolev_line_strength.iloc[:, :] = 0.0
+            sobolev_optical_depth_coefficient.iloc[:, :] = 0.0
 
         if self.velocity_over_radius is None:
             beta_sobolev = calculate_beta_sobolev(tau_sobolev)
         else:
             beta_sobolev = calculate_beta_sobolev_directional(
-                sobolev_line_strength,
+                sobolev_optical_depth_coefficient,
                 self.velocity_gradient,
                 self.velocity_over_radius,
             )
@@ -146,6 +152,8 @@ class OpacitySolver:
         opacity_state = OpacityState.from_plasma(
             plasma, tau_sobolev, beta_sobolev
         )
-        opacity_state.sobolev_line_strength = sobolev_line_strength
+        opacity_state.sobolev_optical_depth_coefficient = (
+            sobolev_optical_depth_coefficient
+        )
 
         return opacity_state

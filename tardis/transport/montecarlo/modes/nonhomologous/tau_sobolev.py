@@ -52,7 +52,7 @@ def calculate_sobolev_line_opacity(
     --------
     >>> calculate_sobolev_line_opacity(lines_data, level_density_data, time_exp, stim_factor)
     """
-    sobolev_line_strength = (
+    sobolev_optical_depth_coefficient = (
         (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
         * SOBOLEV_COEFFICIENT
         * stimulated_emission_factor
@@ -60,12 +60,12 @@ def calculate_sobolev_line_opacity(
     )
     velocity_gradient = np.abs(velocity_gradient.to(1 / u.s).value)
     tau_sobolevs = np.divide(
-        sobolev_line_strength,
+        sobolev_optical_depth_coefficient,
         velocity_gradient,
-        out=np.full_like(sobolev_line_strength, np.inf),
+        out=np.full_like(sobolev_optical_depth_coefficient, np.inf),
         where=velocity_gradient != 0.0,
     )
-    tau_sobolevs[sobolev_line_strength == 0.0] = 0.0
+    tau_sobolevs[sobolev_optical_depth_coefficient == 0.0] = 0.0
 
     if np.any(np.isnan(tau_sobolevs)):
         raise ValueError(
@@ -80,28 +80,45 @@ def calculate_sobolev_line_opacity(
     )
 
 
-def calculate_sobolev_line_strength(
-    lines,
-    level_number_density,
-    stimulated_emission_factor,
-):
-    sobolev_line_strength = (
+def calculate_sobolev_optical_depth_coefficient(
+    lines: pd.DataFrame,
+    level_number_density: pd.DataFrame,
+    stimulated_emission_factor: pd.DataFrame,
+) -> pd.DataFrame:
+    """Calculate the gradient-independent Sobolev optical-depth coefficient.
+
+    Parameters
+    ----------
+    lines : pandas.DataFrame
+        Atomic line data containing wavelength and oscillator strength.
+    level_number_density : pandas.DataFrame
+        Lower-level number densities for each shell [cm^-3].
+    stimulated_emission_factor : pandas.DataFrame
+        Stimulated-emission correction for each line and shell.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Coefficient for each line and shell [s^-1]. Dividing by the absolute
+        projected velocity gradient gives the directional Sobolev optical
+        depth.
+    """
+    sobolev_optical_depth_coefficient = (
         (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
         * SOBOLEV_COEFFICIENT
         * stimulated_emission_factor
         * level_number_density.reindex(lines.droplevel(-1).index).values
     )
 
-    if np.any(np.isnan(sobolev_line_strength)) or np.any(
-        np.isinf(np.abs(sobolev_line_strength))
+    if np.any(np.isnan(sobolev_optical_depth_coefficient)) or np.any(
+        np.isinf(np.abs(sobolev_optical_depth_coefficient))
     ):
         raise ValueError(
-            "Some Sobolev line strengths are nan, inf, or -inf."
-            " Something went wrong!"
+            "Some Sobolev optical-depth coefficients are nan, inf, or -inf."
         )
 
     return pd.DataFrame(
-        sobolev_line_strength,
+        sobolev_optical_depth_coefficient,
         index=lines.index,
         columns=np.array(level_number_density.columns),
     )
@@ -148,12 +165,30 @@ def calculate_beta_sobolev(tau_sobolevs):
 
 
 def calculate_beta_sobolev_directional(
-    sobolev_line_strength,
-    velocity_gradient,
-    velocity_over_radius,
-):
+    sobolev_optical_depth_coefficient: pd.DataFrame,
+    velocity_gradient: u.Quantity,
+    velocity_over_radius: u.Quantity,
+) -> pd.DataFrame:
+    """Calculate the angle-averaged Sobolev escape probability.
+
+    Parameters
+    ----------
+    sobolev_optical_depth_coefficient : pandas.DataFrame
+        Gradient-independent Sobolev optical-depth coefficient [s^-1].
+    velocity_gradient : astropy.units.Quantity
+        Radial velocity derivative in each shell [s^-1].
+    velocity_over_radius : astropy.units.Quantity
+        Ratio of radial velocity to radius in each shell [s^-1].
+
+    Returns
+    -------
+    pandas.DataFrame
+        Angle-averaged Sobolev escape probabilities for each line and shell.
+    """
     mus, weights = np.polynomial.legendre.leggauss(20)
-    beta_sobolevs = np.zeros_like(sobolev_line_strength.values)
+    beta_sobolevs = np.zeros_like(
+        sobolev_optical_depth_coefficient.values
+    )
     velocity_gradient = velocity_gradient.to(1 / u.s).value
     velocity_over_radius = velocity_over_radius.to(1 / u.s).value
 
@@ -163,12 +198,16 @@ def calculate_beta_sobolev_directional(
             + (1.0 - mu * mu) * velocity_over_radius
         )
         tau_sobolevs = np.divide(
-            sobolev_line_strength.values,
+            sobolev_optical_depth_coefficient.values,
             np.abs(projected_velocity_gradient),
-            out=np.full_like(sobolev_line_strength.values, np.inf),
+            out=np.full_like(
+                sobolev_optical_depth_coefficient.values, np.inf
+            ),
             where=projected_velocity_gradient != 0.0,
         )
-        tau_sobolevs[sobolev_line_strength.values == 0.0] = 0.0
+        tau_sobolevs[
+            sobolev_optical_depth_coefficient.values == 0.0
+        ] = 0.0
 
         beta_directional = np.empty_like(tau_sobolevs)
         thick = tau_sobolevs > 1e3
@@ -183,8 +222,8 @@ def calculate_beta_sobolev_directional(
 
     return pd.DataFrame(
         beta_sobolevs,
-        index=sobolev_line_strength.index,
-        columns=sobolev_line_strength.columns,
+        index=sobolev_optical_depth_coefficient.index,
+        columns=sobolev_optical_depth_coefficient.columns,
     )
 
 
