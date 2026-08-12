@@ -5,6 +5,9 @@ import pytest
 import tardis.transport.montecarlo.modes.iip.packet_propagation as iip_propagation
 from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.modes.classic import (
     packet_propagation as classic_propagation,
@@ -102,10 +105,10 @@ def patch_common_classic_hooks(monkeypatch):
     ],
 )
 def test_classic_packet_propagation_dispatch_numba_disabled(
-    python_numba_disabled,
+    python_numba_disabled: None,
     patch_common_classic_hooks,
     parametrized_packet: RPacket,
-    homologous_radial_1d_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     classic_opacity_state,
     bulk_estimators,
     line_estimators,
@@ -167,10 +170,10 @@ def test_classic_packet_propagation_dispatch_numba_disabled(
 )
 def test_iip_packet_propagation_dispatch_numba_disabled(
     python_numba_disabled,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
     patch_common_classic_hooks,
     parametrized_packet: RPacket,
-    homologous_radial_1d_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     iip_opacity_state,
     bulk_estimators,
     line_estimators,
@@ -250,7 +253,7 @@ def test_iip_packet_propagation_dispatch_numba_disabled(
     ],
 )
 def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
-    python_numba_disabled,
+    python_numba_disabled: None,
     patch_common_classic_hooks,
     parametrized_packet: RPacket,
     radial_1d_geometry: NumbaRadial1DGeometry,

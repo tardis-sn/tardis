@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import numpy as np
 from numba import njit, prange
 from numpy.typing import NDArray
@@ -7,6 +5,7 @@ from numpy.typing import NDArray
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.spectrum.formal_integral.base import (
     C_INV,
     BoundsError,
@@ -196,7 +195,7 @@ def initialize_formal_integral_inputs(
     geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
     tau_sobolev: NDArray[np.float64],
-) -> Tuple[
+) -> tuple[
     NDArray[np.float64],  # intensities_nu_p
     NDArray[np.float64],  # impact_parameters
     NDArray[np.float64],  # intersection_points
@@ -307,7 +306,7 @@ def get_electron_scattering_optical_depth(
     mean_intensity_blue_lu: float,
     mean_intensity_red_lu: float,
     intensities_nu_p: float,
-) -> Tuple[float, int, int]:
+) -> tuple[float, int, int]:
     """
     Compute the electron scattering optical depth for given segment
 
@@ -377,7 +376,7 @@ def get_electron_scattering_optical_depth(
 def numba_formal_integral(
     geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
-    plasma,
+    plasma: OpacityStateNumba,
     inner_temperature: float,
     frequencies: NDArray[np.float64],
     att_S_ul: NDArray[np.float64],
@@ -386,7 +385,7 @@ def numba_formal_integral(
     tau_sobolev: NDArray[np.float64],
     electron_densities: NDArray[np.float64],
     n_impact_parameters: int,
-) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
     Compute the formal integral.
 
@@ -580,7 +579,7 @@ class NumbaFormalIntegrator:
         self,
         geometry: NumbaHomologousRadial1DGeometry,
         time_explosion: float,
-        plasma,
+        plasma: OpacityStateNumba,
         n_impact_parameters: int = 1000,
     ):
         self.geometry = geometry
@@ -598,7 +597,7 @@ class NumbaFormalIntegrator:
         tau_sobolev: NDArray[np.float64],
         electron_densities: NDArray[np.float64],
         n_impact_parameters: int,
-    ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """
         Wrapper for the Numba implementation of the formal integral.
 

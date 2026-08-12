@@ -3,6 +3,9 @@ import pytest
 
 from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     init_estimators_bulk,
 )
@@ -44,7 +47,7 @@ FALLTHROUGH_OPACITY = {
 @pytest.mark.parametrize("enable_full_relativity", [False, True])
 def test_homologous_move_r_packet(
     parametrized_packet,
-    homologous_radial_1d_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     enable_full_relativity: bool,
     regression_data,
 ) -> None:
@@ -97,7 +100,7 @@ def test_nonhomologous_move_r_packet(
 
 def test_homologous_move_r_packet_zero_distance(
     parametrized_packet,
-    homologous_radial_1d_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     regression_data,
 ) -> None:
     packet = parametrized_packet
@@ -224,7 +227,7 @@ def test_classic_trace_packet(
     opacity_electron: float,
     classic_opacity_state,
     disable_line_scattering: bool,
-    homologous_radial_1d_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     line_estimators,
     set_seed_fixture,
     expected_interaction_type: InteractionType,
@@ -270,7 +273,7 @@ def test_classic_trace_packet(
 )
 def test_classic_trace_packet_no_line_fallthrough(
     parametrized_packet,
-    homologous_radial_1d_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     classic_opacity_state,
     line_estimators,
     set_seed_fixture,
@@ -362,7 +365,7 @@ def test_iip_trace_packet(
     escat_prob: float,
     iip_opacity_state,
     disable_line_scattering: bool,
-    homologous_radial_1d_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     line_estimators,
     set_seed_fixture,
     expected_interaction_type: InteractionType,
@@ -408,7 +411,7 @@ def test_iip_trace_packet(
 )
 def test_iip_trace_packet_no_line_fallthrough(
     parametrized_packet,
-    homologous_radial_1d_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     iip_opacity_state,
     line_estimators,
     set_seed_fixture,

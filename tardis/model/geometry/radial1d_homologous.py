@@ -79,14 +79,17 @@ class HomologousRadial1DGeometry:
 
     @property
     def v_middle(self):
+        """Return the velocity at the middle of each shell."""
         return (self.v_inner + self.v_outer) / 2.0
 
     @property
     def v_middle_active(self):
+        """Return the velocity at the middle of each active shell."""
         return (self.v_inner_active + self.v_outer_active) / 2.0
 
     @property
     def v_inner_boundary_idx(self):
+        """Return the index of the active inner velocity boundary."""
         return np.clip(
             np.searchsorted(self.v_inner, self.v_inner_boundary, side="right")
             - 1,
@@ -96,6 +99,7 @@ class HomologousRadial1DGeometry:
 
     @property
     def v_outer_boundary_idx(self):
+        """Return the index after the active outer velocity boundary."""
         return np.clip(
             np.searchsorted(self.v_outer, self.v_outer_boundary, side="left")
             + 1,
@@ -105,6 +109,7 @@ class HomologousRadial1DGeometry:
 
     @property
     def v_inner_active(self):
+        """Return the inner velocities of the active shells."""
         v_inner_active = self.v_inner[
             self.v_inner_boundary_idx : self.v_outer_boundary_idx
         ].copy()
@@ -113,6 +118,7 @@ class HomologousRadial1DGeometry:
 
     @property
     def v_outer_active(self):
+        """Return the outer velocities of the active shells."""
         v_outer_active = self.v_outer[
             self.v_inner_boundary_idx : self.v_outer_boundary_idx
         ].copy()
@@ -121,26 +127,32 @@ class HomologousRadial1DGeometry:
 
     @property
     def r_inner(self):
+        """Return the inner radii of all shells."""
         return (self.v_inner * self.time_explosion).cgs
 
     @property
     def r_inner_active(self):
+        """Return the inner radii of the active shells."""
         return (self.v_inner_active * self.time_explosion).cgs
 
     @property
     def r_outer(self):
+        """Return the outer radii of all shells."""
         return (self.v_outer * self.time_explosion).cgs
 
     @property
     def r_outer_active(self):
+        """Return the outer radii of the active shells."""
         return (self.v_outer_active * self.time_explosion).cgs
 
     @property
     def r_middle(self):
+        """Return the radii at the middle of all shells."""
         return (self.v_middle * self.time_explosion).cgs
 
     @property
     def r_middle_active(self):
+        """Return the radii at the middle of the active shells."""
         return (self.v_middle_active * self.time_explosion).cgs
 
     @property
@@ -159,15 +171,16 @@ class HomologousRadial1DGeometry:
 
     @property
     def no_of_shells(self):
+        """Return the number of shells."""
         return len(self.r_inner)
 
     @property
     def no_of_shells_active(self):
+        """Return the number of active shells."""
         return len(self.r_inner_active)
 
     def to_numba(self):
-        """
-        Returns a new NumbaHomologousRadial1DGeometry object
+        """Return a new NumbaHomologousRadial1DGeometry object.
 
         Returns
         -------
@@ -196,6 +209,8 @@ numba_geometry_spec = [
 
 @jitclass(numba_geometry_spec)
 class NumbaHomologousRadial1DGeometry:
+    """Store homologous radial geometry in Numba-compatible form."""
+
     def __init__(self, r_inner, r_outer, v_inner, v_outer, time_explosion):
         """Store homologous radial geometry in Numba-compatible form."""
         self.r_inner = r_inner
