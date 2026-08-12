@@ -239,16 +239,16 @@ class FormalIntegralSolver:
         mct_state = transport_solver.transport_state
         if interpolate_shells > 0:
             radius_interpolated = np.linspace(
-                mct_state.geometry_state.r_inner[0],
-                mct_state.geometry_state.r_outer[-1],
+                mct_state.geometry_state_numba.r_inner[0],
+                mct_state.geometry_state_numba.r_outer[-1],
                 interpolate_shells,
             )
             r_inner_interpolated = radius_interpolated[:-1]
             r_outer_interpolated = radius_interpolated[1:]
         elif interpolate_shells <= 0:
             # Use original radii values when interpolate_shells < 0
-            r_inner_interpolated = mct_state.geometry_state.r_inner
-            r_outer_interpolated = mct_state.geometry_state.r_outer
+            r_inner_interpolated = mct_state.geometry_state_numba.r_inner
+            r_outer_interpolated = mct_state.geometry_state_numba.r_outer
 
         (
             att_S_ul_interpolated,
@@ -259,8 +259,8 @@ class FormalIntegralSolver:
             tau_sobolevs_interpolated,
             electron_densities_interpolated,
         ) = self.interpolate_integrator_quantities(
-            mct_state.geometry_state.r_inner,
-            mct_state.geometry_state.r_outer,
+            mct_state.geometry_state_numba.r_inner,
+            mct_state.geometry_state_numba.r_outer,
             r_inner_interpolated,
             r_outer_interpolated,
             source_function_state,

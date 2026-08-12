@@ -63,7 +63,7 @@ def test_continuum_estimators(
     continuum_properties_mc = continuum_properties_solver_mc.solve(
         transport_state.estimators_continuum,
         transport_state.time_of_simulation,
-        transport_state.geometry_state.volume,
+        transport_state.geometry_state_numba.volume,
     )
 
     continuum_plasma.update(
