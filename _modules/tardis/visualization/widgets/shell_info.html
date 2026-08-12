@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=dcb1b29d"></script>
+      <script src="../../../../_static/documentation_options.js?v=56c98889"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4104,6 +4104,8 @@
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.atomic_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.display"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.display()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_hdf"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.from_hdf()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_simulation"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.from_simulation()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.ion_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.name"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.name</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.shell_idx</span></code></a></li>
@@ -4113,8 +4115,6 @@
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.SimulationShellInfo"><code class="docutils literal notranslate"><span class="pre">SimulationShellInfo</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_hdf"><code class="docutils literal notranslate"><span class="pre">shell_info_from_hdf()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_simulation"><code class="docutils literal notranslate"><span class="pre">shell_info_from_simulation()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.util.html">tardis.visualization.widgets.util module</a><ul>
@@ -5043,6 +5043,46 @@ class ShellInfoWidget(param.Parameterized):
         self.element_count_table.selection = [0]
         self.ion_count_table.selection = [0]
 
+<div class="viewcode-block" id="ShellInfoWidget.from_simulation">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_simulation">[docs]</a>
+    @classmethod
+    def from_simulation(cls, sim_model):
+        &quot;&quot;&quot;Create shell info widget from a TARDIS simulation object
+
+        Parameters
+        ----------
+        sim_model : tardis.simulation.Simulation
+            TARDIS Simulation object produced by running a simulation
+
+        Returns
+        -------
+        ShellInfoWidget
+        &quot;&quot;&quot;
+        shell_info_data = SimulationShellInfo(sim_model)
+        return cls(shell_info_data)</div>
+
+
+<div class="viewcode-block" id="ShellInfoWidget.from_hdf">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_hdf">[docs]</a>
+    @classmethod
+    def from_hdf(cls, hdf_fpath):
+        &quot;&quot;&quot;Create shell info widget from a simulation HDF file
+
+        Parameters
+        ----------
+        hdf_fpath : str
+            A valid path to a simulation HDF file (HDF file must be created
+            from a TARDIS Simulation object using :code:`to_hdf` method with
+            default arguments)
+
+        Returns
+        -------
+        ShellInfoWidget
+        &quot;&quot;&quot;
+        shell_info_data = HDFShellInfo(hdf_fpath)
+        return cls(shell_info_data)</div>
+
+
 <div class="viewcode-block" id="ShellInfoWidget.update_element_count_table">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table">[docs]</a>
     @param.depends(&quot;shell_idx&quot;, watch=True)
@@ -5126,46 +5166,6 @@ class ShellInfoWidget(param.Parameterized):
             return shell_info_widget</div>
 </div>
 
-
-
-<div class="viewcode-block" id="shell_info_from_simulation">
-<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_simulation">[docs]</a>
-def shell_info_from_simulation(sim_model):
-    &quot;&quot;&quot;Create shell info widget from a TARDIS simulation object
-
-    Parameters
-    ----------
-    sim_model : tardis.simulation.Simulation
-        TARDIS Simulation object produced by running a simulation
-
-    Returns
-    -------
-    ShellInfoWidget
-    &quot;&quot;&quot;
-    shell_info_data = SimulationShellInfo(sim_model)
-    return ShellInfoWidget(shell_info_data)</div>
-
-
-
-<div class="viewcode-block" id="shell_info_from_hdf">
-<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_hdf">[docs]</a>
-def shell_info_from_hdf(hdf_fpath):
-    &quot;&quot;&quot;Create shell info widget from a simulation HDF file
-
-    Parameters
-    ----------
-    hdf_fpath : str
-        A valid path to a simulation HDF file (HDF file must be created
-        from a TARDIS Simulation object using :code:`to_hdf` method with
-        default arguments)
-
-    Returns
-    -------
-    ShellInfoWidget
-    &quot;&quot;&quot;
-    shell_info_data = HDFShellInfo(hdf_fpath)
-    return ShellInfoWidget(shell_info_data)</div>
-
 </pre></div>
 
            </div>
@@ -5176,7 +5176,7 @@ def shell_info_from_hdf(hdf_fpath):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 11 Aug 2026.
+      <span class="lastupdated">Last updated on 12 Aug 2026.
       </span></p>
   </div>
 

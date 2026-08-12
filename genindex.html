@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=dcb1b29d"></script>
+      <script src="_static/documentation_options.js?v=56c98889"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4104,6 +4104,8 @@
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.atomic_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.display"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.display()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_hdf"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.from_hdf()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_simulation"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.from_simulation()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.ion_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.name"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.name</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.shell_idx</span></code></a></li>
@@ -4113,8 +4115,6 @@
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.SimulationShellInfo"><code class="docutils literal notranslate"><span class="pre">SimulationShellInfo</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_hdf"><code class="docutils literal notranslate"><span class="pre">shell_info_from_hdf()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_simulation"><code class="docutils literal notranslate"><span class="pre">shell_info_from_simulation()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.visualization.widgets.util.html">tardis.visualization.widgets.util module</a><ul>
@@ -6228,8 +6228,6 @@
         <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigurationNameSpace.from_config_dict">(tardis.io.configuration.config_reader.ConfigurationNameSpace class method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.from_csvy">from_csvy() (tardis.model.base.SimulationState class method)</a>
 
       <ul>
@@ -6238,6 +6236,8 @@
         <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData.from_csvy">(tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData class method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.from_hdf">from_hdf() (tardis.io.atom_data.base.AtomData class method)</a>
 
       <ul>
@@ -6248,6 +6248,8 @@
         <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.from_hdf">(tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget class method)</a>
 </li>
         <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData.from_hdf">(tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData class method)</a>
+</li>
+        <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_hdf">(tardis.visualization.widgets.shell_info.ShellInfoWidget class method)</a>
 </li>
       </ul></li>
       <li><a href="api/tardis.iip_plasma.continuum.base_continuum_data.html#tardis.iip_plasma.continuum.base_continuum_data.PhotoionizationData.from_hdf5">from_hdf5() (tardis.iip_plasma.continuum.base_continuum_data.PhotoionizationData class method)</a>
@@ -6284,6 +6286,8 @@
         <li><a href="api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianWidget.from_simulation">(tardis.visualization.widgets.grotrian.GrotrianWidget class method)</a>
 </li>
         <li><a href="api/tardis.visualization.widgets.line_info.html#tardis.visualization.widgets.line_info.LineInfoWidget.from_simulation">(tardis.visualization.widgets.line_info.LineInfoWidget class method)</a>
+</li>
+        <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_simulation">(tardis.visualization.widgets.shell_info.ShellInfoWidget class method)</a>
 </li>
       </ul></li>
       <li><a href="api/tardis.transport.montecarlo.packet_source.black_body.html#tardis.transport.montecarlo.packet_source.black_body.BlackBodySimpleSource.from_simulation_state">from_simulation_state() (tardis.transport.montecarlo.packet_source.black_body.BlackBodySimpleSource class method)</a>
@@ -9283,10 +9287,6 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx">shell_idx (tardis.visualization.widgets.shell_info.ShellInfoWidget attribute)</a>
 </li>
-      <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_hdf">shell_info_from_hdf() (in module tardis.visualization.widgets.shell_info)</a>
-</li>
-      <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_simulation">shell_info_from_simulation() (in module tardis.visualization.widgets.shell_info)</a>
-</li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.shell_no">shell_no (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget property)</a>
 
       <ul>
@@ -11793,7 +11793,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 11 Aug 2026.
+      <span class="lastupdated">Last updated on 12 Aug 2026.
       </span></p>
   </div>
 

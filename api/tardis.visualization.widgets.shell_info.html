@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=dcb1b29d"></script>
+      <script src="../_static/documentation_options.js?v=56c98889"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4107,6 +4107,8 @@
 <li class="toctree-l9"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.atomic_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.display"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.display()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_hdf"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.from_hdf()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_simulation"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.from_simulation()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.ion_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.name"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.name</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.shell_idx</span></code></a></li>
@@ -4116,8 +4118,6 @@
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.SimulationShellInfo"><code class="docutils literal notranslate"><span class="pre">SimulationShellInfo</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.shell_info_from_hdf"><code class="docutils literal notranslate"><span class="pre">shell_info_from_hdf()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.shell_info_from_simulation"><code class="docutils literal notranslate"><span class="pre">shell_info_from_simulation()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.visualization.widgets.util.html">tardis.visualization.widgets.util module</a><ul>
@@ -4897,6 +4897,46 @@ together and allowing interaction between the table widgets</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.from_hdf">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_hdf" title="Link to this definition"></a></dt>
+<dd><p>Create shell info widget from a simulation HDF file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>hdf_fpath</strong><span class="classifier">str</span></dt><dd><p>A valid path to a simulation HDF file (HDF file must be created
+from a TARDIS Simulation object using <code class="code docutils literal notranslate"><span class="pre">to_hdf</span></code> method with
+default arguments)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ShellInfoWidget</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.from_simulation">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.from_simulation" title="Link to this definition"></a></dt>
+<dd><p>Create shell info widget from a TARDIS simulation object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sim_model</strong><span class="classifier">tardis.simulation.Simulation</span></dt><dd><p>TARDIS Simulation object produced by running a simulation</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ShellInfoWidget</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx">
 <span class="sig-name descname"><span class="pre">ion_idx</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx" title="Link to this definition"></a></dt>
@@ -4952,46 +4992,6 @@ from a TARDIS Simulation object</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.shell_info_from_hdf">
-<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">shell_info_from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#shell_info_from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.shell_info_from_hdf" title="Link to this definition"></a></dt>
-<dd><p>Create shell info widget from a simulation HDF file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>hdf_fpath</strong><span class="classifier">str</span></dt><dd><p>A valid path to a simulation HDF file (HDF file must be created
-from a TARDIS Simulation object using <code class="code docutils literal notranslate"><span class="pre">to_hdf</span></code> method with
-default arguments)</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>ShellInfoWidget</dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.shell_info_from_simulation">
-<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">shell_info_from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#shell_info_from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.shell_info_from_simulation" title="Link to this definition"></a></dt>
-<dd><p>Create shell info widget from a TARDIS simulation object</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>sim_model</strong><span class="classifier">tardis.simulation.Simulation</span></dt><dd><p>TARDIS Simulation object produced by running a simulation</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>ShellInfoWidget</dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 
 
@@ -5006,7 +5006,7 @@ default arguments)</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 11 Aug 2026.
+      <span class="lastupdated">Last updated on 12 Aug 2026.
       </span></p>
   </div>
 
