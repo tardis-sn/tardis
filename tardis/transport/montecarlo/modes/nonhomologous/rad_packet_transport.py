@@ -8,14 +8,14 @@ from tardis.model.geometry.radial1d_nonhomologous import (
 )
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.geometry.calculate_distances import (
+    calculate_comoving_frequency_nonhomologous,
     calculate_distance_boundary,
     calculate_distance_line_nonhomologous,
+    calculate_projected_gradient_zero_distances,
+    get_line_id_range_nonhomologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.configuration.constants import (
-    C_SPEED_OF_LIGHT,
-    MISS_DISTANCE,
-)
+from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
 )
@@ -80,103 +80,135 @@ def trace_packet(
         r_packet.current_shell_id
     ]
     distance_electron = tau_event / opacity_electron
-    distance_trace_previous = 0.0
-    while True:
-        distance_trace = MISS_DISTANCE
-        cur_line_id = -1
-        for line_id in range(len(opacity_state.line_list_nu)):
-            nu_line = opacity_state.line_list_nu[line_id]
-            distance_trace_line = calculate_distance_line_nonhomologous(
+    (
+        first_gradient_zero_distance,
+        second_gradient_zero_distance,
+        gradient_zero_count,
+    ) = calculate_projected_gradient_zero_distances(
+        r_packet, numba_radial_1d_geometry, distance_boundary
+    )
+
+    interval_start = 0.0
+    for interval_id in range(gradient_zero_count + 1):
+        if interval_id == 0 and gradient_zero_count > 0:
+            interval_end = first_gradient_zero_distance
+        elif interval_id == 1 and gradient_zero_count > 1:
+            interval_end = second_gradient_zero_distance
+        else:
+            interval_end = distance_boundary
+
+        comov_nu_start = calculate_comoving_frequency_nonhomologous(
+            r_packet, numba_radial_1d_geometry, interval_start
+        )
+        comov_nu_end = calculate_comoving_frequency_nonhomologous(
+            r_packet, numba_radial_1d_geometry, interval_end
+        )
+        (
+            start_line_id,
+            stop_line_id,
+            line_id_step,
+        ) = get_line_id_range_nonhomologous(
+            opacity_state.line_list_nu,
+            comov_nu_start,
+            comov_nu_end,
+        )
+
+        for cur_line_id in range(
+            start_line_id, stop_line_id, line_id_step
+        ):
+            distance_trace = calculate_distance_line_nonhomologous(
                 r_packet,
                 numba_radial_1d_geometry,
-                nu_line,
-                distance_trace_previous,
+                opacity_state.line_list_nu[cur_line_id],
+                interval_start,
+                interval_end,
             )
-            if distance_trace_line < distance_trace:
-                distance_trace = distance_trace_line
-                cur_line_id = line_id
+            if distance_trace > interval_end:
+                continue
 
-        if distance_electron < min(distance_trace, distance_boundary):
-            distance = distance_electron
-            interaction_type = InteractionType.ESCATTERING
-            break
-        if distance_boundary <= distance_trace:
-            distance = distance_boundary
-            interaction_type = InteractionType.BOUNDARY
-            break
+            if distance_electron < distance_trace:
+                return (
+                    distance_electron,
+                    InteractionType.ESCATTERING,
+                    delta_shell,
+                )
+            if distance_boundary <= distance_trace:
+                return (
+                    distance_boundary,
+                    InteractionType.BOUNDARY,
+                    delta_shell,
+                )
 
-        # Updating the J_b_lu and E_dot_lu
-        # This means we are still looking for line interaction and have not
-        # been kicked out of the path by boundary or electron interaction
-
-        # connor-mcclellan: some hardcoded overrides here until update_estimators_line
-        # is updated and generalized to support nonhomologous geometry
-
-        # Get the packet's new energy to use for the estimator update
-        # Replaces the call to `calc_packet_energy` within `update_estimators_line`
-        new_r = np.sqrt(
-            r_packet.r * r_packet.r
-            + distance_trace * distance_trace
-            + 2.0 * r_packet.r * distance_trace * r_packet.mu
-        )
-        new_mu = (r_packet.mu * r_packet.r + distance_trace) / new_r
-        dvdr = numba_radial_1d_geometry.velocity_gradient[
-            r_packet.current_shell_id
-        ]
-        new_v = v_inner + dvdr * (new_r - r_inner)
-        new_doppler_factor = 1.0 - new_v / C_SPEED_OF_LIGHT * new_mu
-        energy = r_packet.energy * new_doppler_factor
-        projected_velocity_gradient = (
-            new_mu * new_mu * dvdr
-            + (1.0 - new_mu * new_mu) * new_v / new_r
-        )
-        if projected_velocity_gradient == 0.0:
-            raise MonteCarloException(
-                "Sobolev optical depth is singular at the line resonance."
+            # connor-mcclellan: some hardcoded overrides here until
+            # update_estimators_line is generalized for nonhomologous geometry
+            new_r = np.sqrt(
+                r_packet.r * r_packet.r
+                + distance_trace * distance_trace
+                + 2.0 * r_packet.r * distance_trace * r_packet.mu
             )
+            new_mu = (r_packet.mu * r_packet.r + distance_trace) / new_r
+            new_v = v_inner + dvdr * (new_r - r_inner)
+            new_doppler_factor = 1.0 - new_v / C_SPEED_OF_LIGHT * new_mu
+            energy = r_packet.energy * new_doppler_factor
+            projected_velocity_gradient = (
+                new_mu * new_mu * dvdr
+                + (1.0 - new_mu * new_mu) * new_v / new_r
+            )
+            if projected_velocity_gradient == 0.0:
+                raise MonteCarloException(
+                    "Sobolev optical depth is singular at the line resonance."
+                )
 
-        tau_trace_line = opacity_state.sobolev_optical_depth_coefficient[
-            cur_line_id, r_packet.current_shell_id
-        ]
-        if tau_trace_line == 0.0:
             tau_trace_line = (
-                opacity_state.tau_sobolev[
+                opacity_state.sobolev_optical_depth_coefficient[
                     cur_line_id, r_packet.current_shell_id
                 ]
-                * abs(dvdr)
             )
-        if disable_line_scattering:
-            tau_trace_line = 0.0
-        else:
-            tau_trace_line /= abs(projected_velocity_gradient)
+            if tau_trace_line == 0.0:
+                tau_trace_line = (
+                    opacity_state.tau_sobolev[
+                        cur_line_id, r_packet.current_shell_id
+                    ]
+                    * abs(dvdr)
+                )
+            if disable_line_scattering:
+                tau_trace_line = 0.0
+            else:
+                tau_trace_line /= abs(projected_velocity_gradient)
 
-        tau_trace_electron = opacity_electron * distance_trace
-        tau_trace_combined = (
-            tau_trace_line_combined
-            + tau_trace_line
-            + tau_trace_electron
-        )
+            tau_trace_electron = opacity_electron * distance_trace
+            tau_trace_combined = (
+                tau_trace_line_combined
+                + tau_trace_line
+                + tau_trace_electron
+            )
 
-        # Update the estimators
-        # Replaces the call to `update_estimators_line`
-        estimators_line.mean_intensity_blueward[
-            cur_line_id, r_packet.current_shell_id
-        ] += energy / r_packet.nu / abs(projected_velocity_gradient)
-        estimators_line.energy_deposition_line_rate[
-            cur_line_id, r_packet.current_shell_id
-        ] += energy
+            estimators_line.mean_intensity_blueward[
+                cur_line_id, r_packet.current_shell_id
+            ] += energy / r_packet.nu / abs(projected_velocity_gradient)
+            estimators_line.energy_deposition_line_rate[
+                cur_line_id, r_packet.current_shell_id
+            ] += energy
 
-        if tau_trace_combined > tau_event and not disable_line_scattering:
-            interaction_type = InteractionType.LINE  # Line
-            r_packet.next_line_id = cur_line_id
-            r_packet.prev_line_id = cur_line_id - 1
-            distance = distance_trace
-            break
+            if (
+                tau_trace_combined > tau_event
+                and not disable_line_scattering
+            ):
+                r_packet.next_line_id = cur_line_id
+                r_packet.prev_line_id = cur_line_id - 1
+                return distance_trace, InteractionType.LINE, delta_shell
 
-        tau_trace_line_combined += tau_trace_line
-        distance_electron = (tau_event - tau_trace_line_combined) / (
-            opacity_electron
-        )
-        distance_trace_previous = distance_trace
+            tau_trace_line_combined += tau_trace_line
+            distance_electron = (
+                tau_event - tau_trace_line_combined
+            ) / opacity_electron
 
-    return distance, interaction_type, delta_shell
+        if distance_electron < interval_end:
+            return (
+                distance_electron,
+                InteractionType.ESCATTERING,
+                delta_shell,
+            )
+        interval_start = interval_end
+
+    return distance_boundary, InteractionType.BOUNDARY, delta_shell
