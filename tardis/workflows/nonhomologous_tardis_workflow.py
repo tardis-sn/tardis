@@ -100,6 +100,10 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
             self.simulation_state.geometry.velocity_gradient,
             line_interaction_type,
             configuration.plasma.disable_line_scattering,
+            velocity_over_radius=(
+                self.simulation_state.geometry.v_middle
+                / self.simulation_state.geometry.r_middle
+            ),
         )
 
         # TODO: continuum support
