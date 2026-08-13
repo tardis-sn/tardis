@@ -51,10 +51,11 @@ def radiation_field() -> DilutePlanckianRadiationField:
     )
 
 
-def test_analytic_photoionization_rates_match_iip(
+@pytest.fixture
+def analytic_photoionization_rates(
     photoionization_data: pd.DataFrame,
     radiation_field: DilutePlanckianRadiationField,
-) -> None:
+) -> dict[str, pd.DataFrame]:
     photo_data = photoionization_data
     electron_temperature = np.array([9000.0, 11000.0]) * u.K
     standard_solver = AnalyticPhotoionizationCoeffSolver(photo_data)
@@ -70,10 +71,6 @@ def test_analytic_photoionization_rates_match_iip(
     standard_j_nu = standard_solver.calculate_mean_intensity_photoionization_df(
         radiation_field
     )
-    npt.assert_allclose(
-        standard_j_nu.to_numpy(), iip_j_nu.to_numpy(), rtol=1e-12
-    )
-
     iip_gamma = PhotoIonRateCoeff(None).calculate_from_radiation_field_model(
         photo_data,
         radiation_field.dilution_factor,
@@ -93,17 +90,43 @@ def test_analytic_photoionization_rates_match_iip(
             columns=[0, 1],
         ),
     )
-    # Provenance: gamma and alpha_stim are Lucy (2003) Eqs. 16 and 15,
-    # respectively. These calls exercise the standard implementation in
-    # photoionization_strengths.py against the corresponding IIP properties;
-    # the test is intended to catch differences in grouping or normalization.
-    # The implementations use the same integrand but different numerical
-    # integration backends and constant sources.
-    npt.assert_allclose(gamma.to_numpy(), iip_gamma.to_numpy(), rtol=2e-7)
-    # The stimulated-recombination paths use different cgs constant sources
-    # and quadrature implementations.
+    return {
+        "standard_j_nu": standard_j_nu,
+        "iip_j_nu": iip_j_nu,
+        "gamma": gamma,
+        "iip_gamma": iip_gamma,
+        "alpha_stim": alpha_stim,
+        "iip_alpha_stim": iip_alpha_stim,
+    }
+
+
+def test_photoionization_mean_intensity_matches_iip(
+    analytic_photoionization_rates: dict[str, pd.DataFrame],
+) -> None:
     npt.assert_allclose(
-        alpha_stim.to_numpy(), iip_alpha_stim.to_numpy(), rtol=2e-6
+        analytic_photoionization_rates["standard_j_nu"].to_numpy(),
+        analytic_photoionization_rates["iip_j_nu"].to_numpy(),
+        rtol=1e-12,
+    )
+
+
+def test_photoionization_rate_matches_iip(
+    analytic_photoionization_rates: dict[str, pd.DataFrame],
+) -> None:
+    npt.assert_allclose(
+        analytic_photoionization_rates["gamma"].to_numpy(),
+        analytic_photoionization_rates["iip_gamma"].to_numpy(),
+        rtol=2e-7,
+    )
+
+
+def test_stimulated_recombination_rate_matches_iip(
+    analytic_photoionization_rates: dict[str, pd.DataFrame],
+) -> None:
+    npt.assert_allclose(
+        analytic_photoionization_rates["alpha_stim"].to_numpy(),
+        analytic_photoionization_rates["iip_alpha_stim"].to_numpy(),
+        rtol=2e-6,
     )
 
 

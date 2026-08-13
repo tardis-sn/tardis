@@ -30,6 +30,7 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     FreeFreeThermalRates,
 )
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
+from tardis.plasma.equilibrium.thermal_balance import ThermalBalanceSolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
@@ -1110,6 +1111,156 @@ def test_nlte_beta_sobolev_calculation_matches_plasma_property(
         beta_sobolev,
         iip_plasma_after_mc.beta_sobolev.values[:, [0]],
         rtol=5e-13,  # AVX-512 tolerance
+        atol=0.0,
+    )
+
+
+def test_standard_thermal_rates_match_iip_plasma_after_mc(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+) -> None:
+    """Compare each standard thermal rate with the IIP plasma value."""
+    plasma = iip_plasma_after_mc
+    photoionization_data = plasma.atomic_data.continuum_data.photoionization_data
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        plasma.t_electrons * u.K,
+        plasma.electron_densities.to_numpy() * u.cm**-3,
+    )
+    bound_free_solver = BoundFreeThermalRates(photoionization_data)
+    free_free_solver = FreeFreeThermalRates()
+    collisional_ionization_solver = CollisionalIonizationThermalRates(
+        photoionization_data
+    )
+    collisional_bound_solver = CollisionalBoundThermalRates(
+        pd.DataFrame({"nu": np.asarray(plasma.nu_lines_coll)})
+    )
+
+    standard_rates = {
+        "bound_free": bound_free_solver.solve(
+            plasma.level_number_density,
+            plasma.ion_number_density,
+            electron_distribution,
+            plasma.phi_lucy,
+            bound_free_heating_estimator=plasma.bf_heating_coeff,
+            stimulated_recombination_estimator=(
+                plasma.stim_recomb_cooling_coeff
+            ),
+        ),
+        "free_free": free_free_solver.solve(
+            plasma.ff_heating_estimator,
+            electron_distribution,
+            plasma.ion_number_density,
+        ),
+        "collisional_ionization": collisional_ionization_solver.solve(
+            electron_distribution.number_density,
+            plasma.ion_number_density,
+            plasma.level_number_density,
+            plasma.coll_ion_coeff,
+            plasma.phi_lucy,
+        ),
+        "collisional_bound": collisional_bound_solver.solve(
+            electron_distribution.number_density,
+            plasma.coll_deexc_coeff,
+            plasma.coll_exc_coeff,
+            plasma.level_number_density,
+        ),
+    }
+
+    thermal_balance = plasma.outputs_dict["fractional_heating"]
+    legacy_rates = {
+        name: np.empty((2, len(plasma.t_electrons)))
+        for name in standard_rates
+    }
+    for shell, temperature in enumerate(plasma.t_electrons):
+        legacy_rates["bound_free"][:, shell] = (
+            thermal_balance._calculate_bf_heating_rate(
+                plasma.bf_heating_coeff,
+                plasma.level_number_density,
+                shell,
+                temperature,
+                photoionization_data,
+                plasma.b,
+                plasma.previous_t_electrons,
+            ),
+            thermal_balance._calculate_fb_cooling_rate(
+                temperature,
+                plasma.stim_recomb_cooling_coeff,
+                plasma.phi_lucy[shell],
+                plasma.electron_densities,
+                plasma.ion_number_density,
+                photoionization_data,
+                shell,
+            )[0],
+        )
+        legacy_rates["free_free"][:, shell] = (
+            thermal_balance._calculate_ff_heating_balance(
+                temperature,
+                plasma.ff_heating_estimator,
+                plasma.electron_densities,
+                plasma.ion_number_density,
+                shell,
+            )
+        )
+        legacy_rates["collisional_ionization"][:, shell] = (
+            thermal_balance._calculate_coll_ion_heating_balance(
+                temperature,
+                photoionization_data,
+                plasma.phi_lucy[shell],
+                plasma.electron_densities,
+                plasma.level_number_density,
+                plasma.ion_number_density,
+                shell,
+            )
+        )
+        legacy_rates["collisional_bound"][:, shell] = (
+            plasma.coll_deexc_heating[shell],
+            plasma.coll_exc_cooling[shell],
+        )
+
+    for process, (heating, cooling) in standard_rates.items():
+        relative_tolerance = {
+            "bound_free": 2e-6,
+            "collisional_ionization": 1e-7,
+            "collisional_bound": 1e-7,
+        }.get(process, 1e-12)
+        np.testing.assert_allclose(
+            np.vstack([heating, cooling]),
+            legacy_rates[process],
+            rtol=relative_tolerance,
+            atol=0.0,
+            err_msg=f"{process} thermal rates differ",
+        )
+
+    standard_total = ThermalBalanceSolver(
+        bound_free_solver,
+        free_free_solver,
+        collisional_ionization_solver,
+        collisional_bound_solver,
+    ).solve(
+        electron_distribution,
+        plasma.level_number_density,
+        plasma.ion_number_density,
+        plasma.coll_ion_coeff,
+        plasma.coll_deexc_coeff,
+        plasma.coll_exc_coeff,
+        plasma.ff_heating_estimator,
+        plasma.phi_lucy,
+        bound_free_heating_estimator=plasma.bf_heating_coeff,
+        stimulated_recombination_estimator=(
+            plasma.stim_recomb_cooling_coeff
+        ),
+    )
+    legacy_heating = sum(rates[0] for rates in legacy_rates.values())
+    legacy_cooling = sum(rates[1] for rates in legacy_rates.values())
+    np.testing.assert_allclose(
+        np.vstack(standard_total),
+        np.vstack(
+            [
+                legacy_heating - legacy_cooling,
+                plasma.fractional_heating,
+            ]
+        ),
+        rtol=3e-6,
         atol=0.0,
     )
 
