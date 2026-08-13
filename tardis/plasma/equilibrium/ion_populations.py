@@ -110,11 +110,11 @@ class IonPopulationSolver:
         lte_level_population : pandas.DataFrame
             LTE level number density. Columns are cells.
         estimated_level_population : pandas.DataFrame
-            Lagged estimated level number density. Columns are cells.
+            Previous estimated level number density. Columns are cells.
         lte_ion_population : pandas.DataFrame
             LTE ion number density. Columns are cells.
         estimated_ion_population : pandas.DataFrame
-            Lagged estimated ion number density. Columns are cells.
+            Previous estimated ion number density. Columns are cells.
         elemental_number_density : pandas.DataFrame
             Elemental number density. Index is atomic number, columns are cells.
 
@@ -129,6 +129,7 @@ class IonPopulationSolver:
             thermal_electron_energy_distribution.temperature,
             electron_density * u.cm**-3,
         )
+
         rate_matrices = self.rate_matrix_solver.solve(
             radiation_field,
             trial_electron_distribution,
@@ -139,75 +140,73 @@ class IonPopulationSolver:
             partition_function,
             boltzmann_factor,
         )
+
         ion_population_index = self.rate_matrix_solver.ion_population_index
         ion_population = np.zeros(
             (len(ion_population_index), len(rate_matrices.columns))
         )
+
         atomic_numbers = ion_population_index.get_level_values(
             "atomic_number"
         ).to_numpy()
+
         rate_matrix_atomic_numbers = rate_matrices.index.to_numpy()
         rate_matrix_arrays = rate_matrices.to_numpy()
+
         population_indices = [
             np.flatnonzero(atomic_numbers == atomic_number)
             for atomic_number in rate_matrix_atomic_numbers
         ]
+
         elemental_indices = elemental_number_density.index.get_indexer(
             rate_matrix_atomic_numbers
         )
         elemental_number_density_array = elemental_number_density.to_numpy()
+
         for atomic_number_idx, atomic_number in enumerate(
             rate_matrix_atomic_numbers
         ):
             matrices = np.stack(rate_matrix_arrays[atomic_number_idx])
             nonfinite_matrices = ~np.isfinite(matrices).all(axis=(1, 2))
+
             if np.any(nonfinite_matrices):
                 shell_idx = np.flatnonzero(nonfinite_matrices)[0]
                 raise PlasmaIonizationError(
                     "Nonfinite ion population matrix for atomic number "
                     f"{atomic_number}, shell {rate_matrices.columns[shell_idx]}."
                 )
+
             right_hand_side = np.zeros((len(matrices), matrices.shape[1], 1))
             right_hand_side[:, 1] = 1.0
-            try:
-                normalized_population = np.linalg.solve(
-                    matrices, right_hand_side
-                )[:, :, 0]
-            except np.linalg.LinAlgError as exc:
-                raise PlasmaIonizationError(
-                    "Singular ion population matrix for atomic number "
-                    f"{atomic_number}."
-                ) from exc
+
+            normalized_population = np.linalg.solve(matrices, right_hand_side)[
+                :, :, 0
+            ]
+
             nonfinite_populations = ~np.isfinite(normalized_population).all(
                 axis=1
             )
-            if np.any(nonfinite_populations):
+            minimum_population = normalized_population.min(axis=1)
+            if np.any(nonfinite_populations) or np.any(
+                minimum_population < -1e-12
+            ):
                 shell_idx = np.flatnonzero(nonfinite_populations)[0]
                 raise PlasmaIonizationError(
-                    "Nonfinite ion population for atomic number "
+                    "Nonfinite or negative ion population for atomic number "
                     f"{atomic_number}, shell {rate_matrices.columns[shell_idx]}."
-                )
-            minimum_population = normalized_population.min(axis=1)
-            if np.any(minimum_population < -1e-12):
-                shell_idx = np.argmin(minimum_population)
-                raise PlasmaIonizationError(
-                    "Negative ion population for atomic number "
-                    f"{atomic_number}, shell {rate_matrices.columns[shell_idx]}: "
                     f"{minimum_population[shell_idx]}."
                 )
+
             normalized_population[normalized_population < 0.0] = 0.0
             normalized_population /= normalized_population.sum(axis=1)[:, None]
             population_idx = population_indices[atomic_number_idx]
-            if len(population_idx) != matrices.shape[1]:
-                raise PlasmaIonizationError(
-                    "Ion population index size does not match matrix shape "
-                    f"for atomic number {atomic_number}."
-                )
+
             elemental_idx = elemental_indices[atomic_number_idx]
             ion_population[population_idx] = (
                 normalized_population.T
                 * elemental_number_density_array[elemental_idx]
             )
+
         self.rates_matrices = rate_matrices
         return ion_population
 
@@ -226,7 +225,40 @@ class IonPopulationSolver:
         elemental_number_density: pd.DataFrame,
         maximum_electron_density: npt.NDArray[np.float64],
     ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
-        """Solve all shells and return their normalized charge residuals."""
+        """Solve ion populations and calculate the normalized charge residual.
+
+        Parameters
+        ----------
+        electron_density : npt.NDArray[np.float64]
+            Trial electron number densities for each shell.
+        radiation_field : DilutePlanckianRadiationField | PlanckianRadiationField
+            Radiation field used to calculate ionization rates.
+        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
+            Electron energy distribution used by the rate-matrix solver.
+        lte_level_population : pd.DataFrame
+            LTE level populations used by the rate-matrix solver.
+        estimated_level_population : pd.DataFrame
+            Estimated level populations used for lagged rate corrections.
+        lte_ion_population : pd.DataFrame
+            LTE ion populations used by the rate-matrix solver.
+        estimated_ion_population : pd.DataFrame
+            Estimated ion populations used for lagged rate corrections.
+        partition_function : pd.DataFrame
+            Partition functions used by the rate-matrix solver.
+        boltzmann_factor : pd.DataFrame
+            Boltzmann factors used by the rate-matrix solver.
+        elemental_number_density : pd.DataFrame
+            Elemental number densities indexed by atomic number and shell.
+        maximum_electron_density : npt.NDArray[np.float64]
+            Maximum possible electron number density for each shell, used to
+            normalize the charge residual.
+
+        Returns
+        -------
+        tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]
+            Absolute ion populations and normalized charge residuals for each
+            shell.
+        """
         ion_population = self.solve_element_populations_at_electron_density(
             electron_density,
             radiation_field,
@@ -239,12 +271,14 @@ class IonPopulationSolver:
             boltzmann_factor,
             elemental_number_density,
         )
+
         charge_density = (
             ion_population
             * self.rate_matrix_solver.ion_population_index.get_level_values(
                 "ion_number"
             ).to_numpy()[:, None]
         ).sum(axis=0)
+
         charge_residual = (charge_density - electron_density) / np.where(
             maximum_electron_density == 0.0, 1.0, maximum_electron_density
         )
@@ -267,13 +301,57 @@ class IonPopulationSolver:
         elemental_number_density: pd.DataFrame,
         maximum_electron_densities: npt.NDArray[np.float64],
     ) -> float:
-        """Solve the scalar charge equation for one shell."""
+        """Solve the charge balance for one shell.
+
+        Parameters
+        ----------
+        shell_idx : int
+            Index of the shell whose electron density is being solved.
+        maximum_electron_density : float
+            Maximum possible electron number density in the shell.
+        base_electron_density : npt.NDArray[np.float64]
+            Electron number densities used for all shells before updating the
+            selected shell.
+        radiation_field : DilutePlanckianRadiationField | PlanckianRadiationField
+            Radiation field used to calculate ionization rates.
+        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
+            Electron energy distribution used by the rate-matrix solver.
+        lte_level_population : pd.DataFrame
+            LTE level populations used by the rate-matrix solver.
+        estimated_level_population : pd.DataFrame
+            Estimated level populations used for lagged rate corrections.
+        lte_ion_population : pd.DataFrame
+            LTE ion populations used by the rate-matrix solver.
+        estimated_ion_population : pd.DataFrame
+            Estimated ion populations used for lagged rate corrections.
+        partition_function : pd.DataFrame
+            Partition functions used by the rate-matrix solver.
+        boltzmann_factor : pd.DataFrame
+            Boltzmann factors used by the rate-matrix solver.
+        elemental_number_density : pd.DataFrame
+            Elemental number densities indexed by atomic number and shell.
+        maximum_electron_densities : npt.NDArray[np.float64]
+            Maximum possible electron number density for each shell, used to
+            normalize the charge residual.
+
+        Returns
+        -------
+        float
+            Charge-balanced electron number density for the selected shell.
+
+        Raises
+        ------
+        PlasmaIonizationError
+            If the charge residual is not bracketed over the allowed electron
+            density interval.
+        """
         if maximum_electron_density == 0.0:
             return 0.0
 
         def charge_residual(
             electron_density_fraction: float,
         ) -> float:
+            """Calculate the normalized charge residual for one trial density."""
             electron_density = base_electron_density.copy()
             electron_density[shell_idx] = (
                 electron_density_fraction * maximum_electron_density
@@ -308,6 +386,7 @@ class IonPopulationSolver:
                 f"Charge residual does not bracket shell {shell_idx}: "
                 f"Q_hat(0)={lower_residual}, Q_hat(1)={upper_residual}."
             ) from exc
+
         return electron_density_fraction * maximum_electron_density
 
     def solve_charge_conserving(
@@ -324,20 +403,62 @@ class IonPopulationSolver:
         boltzmann_factor: pd.DataFrame,
         tolerance: float,
     ) -> tuple[pd.DataFrame, pd.Series]:
-        """Solve ion populations with one shared electron density per shell."""
+        """Solve ion populations while enforcing charge conservation.
+
+        Parameters
+        ----------
+        radiation_field : DilutePlanckianRadiationField | PlanckianRadiationField
+            Radiation field used to calculate ionization rates.
+        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
+            Electron energy distribution, including the initial electron
+            number densities.
+        elemental_number_density : pd.DataFrame
+            Elemental number densities indexed by atomic number and shell.
+        lte_level_population : pd.DataFrame
+            LTE level populations used by the rate-matrix solver.
+        estimated_level_population : pd.DataFrame
+            Estimated level populations used for lagged rate corrections.
+        lte_ion_population : pd.DataFrame
+            LTE ion populations used by the rate-matrix solver.
+        estimated_ion_population : pd.DataFrame
+            Estimated ion populations used for lagged rate corrections.
+        partition_function : pd.DataFrame | float
+            Partition functions used by the rate-matrix solver.
+        boltzmann_factor : pd.DataFrame
+            Boltzmann factors used by the rate-matrix solver.
+        tolerance : float
+            Relative convergence tolerance for the ion populations.
+
+        Returns
+        -------
+        tuple[pd.DataFrame, pd.Series]
+            Ion populations indexed by atomic number and ion number, and
+            charge-balanced electron number densities indexed by shell.
+
+        Raises
+        ------
+        PlasmaIonizationError
+            If the ion population solver does not converge within the maximum
+            number of iterations or a shell charge balance cannot be bracketed.
+        """
         electron_density = (
             thermal_electron_energy_distribution.number_density.cgs.value.copy()
         )
+
         atomic_numbers = elemental_number_density.index.to_numpy(dtype=float)
+
         maximum_electron_density = elemental_number_density.multiply(
             atomic_numbers, axis=0
         ).sum()
         maximum_electron_density_array = maximum_electron_density.to_numpy()
+
         converged_shells = np.zeros(
             len(elemental_number_density.columns), dtype=bool
         )
+
         estimated_population_indices: npt.NDArray[np.intp] | None = None
         solution_population_indices: npt.NDArray[np.intp] | None = None
+
         for iteration in range(self.max_solver_iterations):
             for shell_idx in np.flatnonzero(~converged_shells):
                 electron_density[shell_idx] = self.solve_shell_charge(
@@ -355,18 +476,20 @@ class IonPopulationSolver:
                     elemental_number_density,
                     maximum_electron_density_array,
                 )
-            ion_population_solution, charge_residual = self.solve_charge_balance(
-                electron_density,
-                radiation_field,
-                thermal_electron_energy_distribution,
-                lte_level_population,
-                estimated_level_population,
-                lte_ion_population,
-                estimated_ion_population,
-                partition_function,
-                boltzmann_factor,
-                elemental_number_density,
-                maximum_electron_density_array,
+            ion_population_solution, charge_residual = (
+                self.solve_charge_balance(
+                    electron_density,
+                    radiation_field,
+                    thermal_electron_energy_distribution,
+                    lte_level_population,
+                    estimated_level_population,
+                    lte_ion_population,
+                    estimated_ion_population,
+                    partition_function,
+                    boltzmann_factor,
+                    elemental_number_density,
+                    maximum_electron_density_array,
+                )
             )
             if estimated_population_indices is None:
                 solution_indices = (
@@ -399,6 +522,7 @@ class IonPopulationSolver:
                 population_converged = np.all(
                     np.abs(population_delta) < tolerance, axis=0
                 )
+
             converged_shells |= (
                 np.abs(charge_residual) < CHARGE_TOLERANCE
             ) & population_converged
@@ -418,6 +542,7 @@ class IonPopulationSolver:
                         index=elemental_number_density.columns,
                     ),
                 )
+
             if len(estimated_population_indices) != 0:
                 estimated_population_values = estimated_ion_population.to_numpy(
                     copy=True
