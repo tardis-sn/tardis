@@ -253,17 +253,21 @@ as shown in the schema below:
 
 .. jsonschema:: ../schemas/csvy_model.yml
 
-The CSV part of the CSVY file creates a table that can include information about shell velocities, densities,
-and abundances in each cell. The column headers (the first row of the CSV part) may contain ``velocity``,
-``density``, ``t_rad``, ``dilution_factor``, or the name of any element or isotope (e.g. ``H``, ``Mg``,
-``Ni56``). These columns are explained in the following example:
+The CSV part of the CSVY file creates a table that can include information about shell radii, velocities,
+densities, and abundances in each cell. The column headers (the first row of the CSV part) may contain
+``radius``, ``velocity``, ``density``, ``t_rad``, ``dilution_factor``, or the name of any element or isotope
+(e.g. ``H``, ``Mg``, ``Ni56``). These columns are explained in the following example:
 
 .. literalinclude:: csvy_full_rad.csvy
 
 Notice that for each column that is used in the CSV section of the file, there is a corresponding field under
 ``datatype`` in the YAML section of the file. In our example, each of the fields under ``datatype`` has a brief
 description to go along with it. While the description is not necessary for any of the fields, the unit section
-is required for ``velocity``, ``density``, and ``t_rad``.
+is required for ``radius``, ``velocity``, ``density``, and ``t_rad``.
+
+When both ``radius`` and ``velocity`` are present, their entries specify the same shell boundaries and TARDIS
+retains them as independent quantities. In particular, it does not replace the supplied radii with radii derived
+from homologous expansion.
 
 Since the ``velocity`` column contains the outer shell velocity, the first entry in the velocity column is the
 velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :doc:`../../../../physics_walkthrough/setup/model`).

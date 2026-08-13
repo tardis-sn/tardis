@@ -2,9 +2,8 @@ import logging
 
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NonhomologousRadial1DGeometry,
-)
+from tardis.model.geometry.radial1d import Radial1DGeometry
+from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
 )
@@ -20,8 +19,6 @@ from tardis.transport.montecarlo.modes.nonhomologous.plasma_assembly_base import
 from tardis.transport.montecarlo.modes.nonhomologous.solver import (
     MCTransportSolverNonhomologous,
 )
-from tardis.util.environment import Environment
-from tardis.visualization import ConvergencePlots
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 # logging support
@@ -65,9 +62,9 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
         atom_data = parse_atom_data(configuration)
 
         geometry = self.simulation_state.geometry
-        if not isinstance(geometry, NonhomologousRadial1DGeometry):
+        if isinstance(geometry, HomologousRadial1DGeometry):
             t_exp = self.simulation_state.time_explosion
-            self.simulation_state.geometry = NonhomologousRadial1DGeometry(
+            self.simulation_state.geometry = Radial1DGeometry(
                 r_inner=geometry.v_inner * t_exp,
                 r_outer=geometry.v_outer * t_exp,
                 v_inner=geometry.v_inner,
@@ -76,7 +73,7 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
                 r_outer_boundary=geometry.v_outer_boundary * t_exp,
                 v_inner_boundary=geometry.v_inner_boundary,
                 v_outer_boundary=geometry.v_outer_boundary,
-            )
+        )
 
         plasma_solver_factory = PlasmaSolverFactory(
             atom_data,

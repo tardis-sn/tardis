@@ -5,8 +5,8 @@ from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.readers.base import read_density_file
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
-from tardis.model.geometry.radial1d_nonhomologous import NonhomologousRadial1DGeometry
+from tardis.model.geometry.radial1d import Radial1DGeometry
+from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
 
 
@@ -83,7 +83,7 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
     Returns
     -------
     HomologousRadial1DGeometry
-        The parsed geometry.
+        The parsed homologous geometry.
     """
     (
         density_time,
@@ -94,8 +94,8 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
     ) = parse_structure_from_config(config)
 
     return HomologousRadial1DGeometry(
-        velocity[:-1],  # v_inner
-        velocity[1:],  # v_outer
+        velocity[:-1],
+        velocity[1:],
         v_inner_boundary=config.model.structure.get("v_inner_boundary", None),
         v_outer_boundary=config.model.structure.get("v_outer_boundary", None),
         time_explosion=time_explosion,
@@ -107,7 +107,7 @@ def parse_geometry_from_csvy(
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
-) -> HomologousRadial1DGeometry | NonhomologousRadial1DGeometry:
+) -> HomologousRadial1DGeometry | Radial1DGeometry:
     """Parse the geometry data from a CSVY model.
 
     Parameters
@@ -123,28 +123,18 @@ def parse_geometry_from_csvy(
 
     Returns
     -------
-    HomologousRadial1DGeometry
+    HomologousRadial1DGeometry | Radial1DGeometry
         The parsed geometry.
 
     Notes
     -----
     This function parses the geometry data from a CSVY model. It extracts the velocity
     information from the CSVY model configuration or data. The parsed velocity data is
-    used to create a homologous radial 1D geometry object, which is returned.
+    used to create a radial 1D geometry object, which is returned.
     """
-    if hasattr(config, "model"):
-        if hasattr(config.model, "v_inner_boundary"):
-            v_inner_boundary = config.model.v_inner_boundary
-        else:
-            v_inner_boundary = None
-
-        if hasattr(config.model, "v_outer_boundary"):
-            v_outer_boundary = config.model.v_outer_boundary
-        else:
-            v_outer_boundary = None
-    else:
-        v_inner_boundary = None
-        v_outer_boundary = None
+    model = getattr(config, "model", None)
+    v_inner_boundary = getattr(model, "v_inner_boundary", None)
+    v_outer_boundary = getattr(model, "v_outer_boundary", None)
 
     if hasattr(csvy_model_config, "velocity"):
         velocity = quantity_linspace(
@@ -170,7 +160,7 @@ def parse_geometry_from_csvy(
             csvy_model_config.datatype.fields[radius_field_index]["unit"]
         )
         radius = (csvy_model_data["radius"].values * radius_unit).to("cm")
-        return NonhomologousRadial1DGeometry(
+        return Radial1DGeometry(
             r_inner=radius[:-1],
             r_outer=radius[1:],
             v_inner=velocity[:-1],
@@ -181,8 +171,8 @@ def parse_geometry_from_csvy(
             v_outer_boundary=v_outer_boundary if v_outer_boundary is not None else velocity[-1],
         )
     geometry = HomologousRadial1DGeometry(
-        velocity[:-1],  # v_inner
-        velocity[1:],  # v_outer
+        velocity[:-1],
+        velocity[1:],
         v_inner_boundary=v_inner_boundary,
         v_outer_boundary=v_outer_boundary,
         time_explosion=time_explosion,

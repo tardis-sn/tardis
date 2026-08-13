@@ -3,8 +3,8 @@
 import numpy as np
 from numba import njit
 
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NumbaNonhomologousRadial1DGeometry,
+from tardis.model.geometry.radial1d import (
+    NumbaRadial1DGeometry,
 )
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.geometry.calculate_distances import (
@@ -25,7 +25,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 @njit(**njit_dict_no_parallel)
 def trace_packet(
     r_packet: RPacket,
-    numba_radial_1d_geometry: NumbaNonhomologousRadial1DGeometry,
+    numba_radial_1d_geometry: NumbaRadial1DGeometry,
     opacity_state: OpacityStateNumba,
     estimators_line: EstimatorsLine,
     opacity_electron: float,
@@ -41,7 +41,7 @@ def trace_packet(
     ----------
     r_packet : RPacket
         The radiative packet being transported
-    numba_radial_1d_geometry : NumbaNonhomologousRadial1DGeometry
+    numba_radial_1d_geometry : NumbaRadial1DGeometry
         Radial 1D geometry of the model
     opacity_state : OpacityStateNumba
         Opacity state containing line list and tau sobolev

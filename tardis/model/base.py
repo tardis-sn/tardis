@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from astropy import units as u
 
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
@@ -195,8 +196,9 @@ class SimulationState(HDFWriterMixin):
         return isotopic_number_density
 
     @property
-    def radius(self):
-        return self.time_explosion * self.velocity
+    def radius(self) -> u.Quantity:
+        radius = self.geometry.r_outer_active.copy()
+        return radius.insert(0, self.geometry.r_inner_active[0])
 
     @property
     def v_inner_boundary(self):
