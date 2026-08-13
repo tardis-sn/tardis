@@ -96,6 +96,28 @@ with the additional constraint that all the level number populations need to add
     \right)
 
 
+For ion-stage populations at fixed electron temperature and radiation field,
+TARDIS uses the same statistical-equilibrium convention for each element. One
+dependent rate equation is replaced by elemental abundance conservation,
+
+.. math::
+
+    \sum_j y_{i,j} = 1,
+
+where :math:`y_{i,j}` is the fraction of element :math:`i` in ion stage
+:math:`j`. When charge conservation is requested, the elemental matrices remain
+linear in the ion populations at a trial electron density. TARDIS then solves
+one bounded scalar equation for each shell so that all elements share the same
+electron density,
+
+.. math::
+
+    \sum_i N_i \sum_j j y_{i,j}(n_e) - n_e = 0.
+
+The scalar solve is bounded between a neutral plasma and the fully ionized
+electron density :math:`\sum_i i N_i`. Thermal balance and radiation transport
+are held fixed during this solve.
+
 
 
 
@@ -184,7 +206,6 @@ Next, we will group the stimulated emission and stimulated absorption terms, as 
                         - n_2 \bigg{(}A_{21} + C_{23} n_e + n_2 B_{23} \bar{J}_{23}
                         \underbrace{\bigg{(}1 - \frac{n_3}{n_2}\frac{B_{32}}{B_{23}}\bigg{)}}_\text{stimulated emission term}\bigg{)}
                         + n_3 (A_{32} + C_{32} n_e)
-
 
 
 
