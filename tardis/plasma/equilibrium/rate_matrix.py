@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy.sparse import coo_matrix
 
@@ -38,9 +39,10 @@ class RateMatrix:
 
     def solve(
         self,
-        radiation_field,
-        thermal_electron_energy_distribution,
-    ):
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+    ) -> pd.DataFrame:
         """Construct the compiled rate matrix dataframe.
 
         Parameters
@@ -94,12 +96,13 @@ class RateMatrix:
             level=("atomic_number", "ion_number")
         )
 
-        rate_matrices = pd.DataFrame(
-            index=grouped_rates_df.groups.keys(), columns=rates_df.columns
-        )
+        rate_matrices: dict[tuple[int, int], npt.NDArray[np.float64]] = {}
 
         for species_id, rates in grouped_rates_df:
             number_of_levels = self.levels.energy.loc[species_id].count()
+            matrices = np.empty(
+                (len(rates.columns), number_of_levels, number_of_levels)
+            )
             for shell in range(len(rates.columns)):
                 matrix = coo_matrix(
                     (
@@ -116,11 +119,22 @@ class RateMatrix:
                 matrix_array = matrix.toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
                 matrix_array[0, :] = 1
-                rate_matrices.loc[species_id, shell] = matrix_array
+                matrices[shell] = matrix_array
+            rate_matrices[species_id] = matrices
 
-        rate_matrices.index.names = ["atomic_number", "ion_number"]
+        rate_matrix_array = np.empty(
+            (len(rate_matrices), len(rates_df.columns)), dtype=object
+        )
+        for species_idx, matrices in enumerate(rate_matrices.values()):
+            rate_matrix_array[species_idx] = list(matrices)
 
-        return rate_matrices
+        return pd.DataFrame(
+            rate_matrix_array,
+            index=pd.MultiIndex.from_tuples(
+                rate_matrices, names=["atomic_number", "ion_number"]
+            ),
+            columns=rates_df.columns,
+        )
 
 
 class IonRateMatrix:
@@ -240,9 +254,9 @@ class IonRateMatrix:
 
         Returns
         -------
-        pd.DataFrame
-            A DataFrame of rate matrices indexed by atomic number and ion number,
-            with each column being a cell. Each entry is a numpy array.
+        pandas.DataFrame
+            Rate matrices indexed by atomic number, with each column being a
+            shell.
         """
         photoion_rates_df, recomb_rates_df = (
             self.radiative_ionization_rate_solver.solve(
@@ -289,10 +303,7 @@ class IonRateMatrix:
             )
         )
 
-        rate_matrices = pd.DataFrame(
-            index=grouped_photoion_rates_df.groups.keys(),
-            columns=photoion_rates_df.columns,
-        )
+        rate_matrices = {}
 
         atomic_numbers = list(grouped_photoion_rates_df.groups.keys())
         self.ion_population_index = pd.MultiIndex.from_tuples(
@@ -316,18 +327,21 @@ class IonRateMatrix:
                 )
             )
             ion_states = atomic_number + 1
-            for shell in range(len(photoion_rates.columns)):
+            matrix_arrays = np.empty(
+                (len(photoion_rates.columns), ion_states, ion_states)
+            )
+            for shell_idx in range(len(photoion_rates.columns)):
                 photoion_matrix = self.__construct_rate_matrix(
-                    photoion_rates, shell, ion_states
+                    photoion_rates, shell_idx, ion_states
                 )
                 recomb_matrix = self.__construct_rate_matrix(
-                    recomb_rates, shell, ion_states
+                    recomb_rates, shell_idx, ion_states
                 )
                 coll_ion_matrix = self.__construct_rate_matrix(
-                    coll_ion_rates, shell, ion_states
+                    coll_ion_rates, shell_idx, ion_states
                 )
                 coll_recomb_matrix = self.__construct_rate_matrix(
-                    recomb_ion_rates, shell, ion_states
+                    recomb_ion_rates, shell_idx, ion_states
                 )
 
                 matrix_array = (
@@ -338,7 +352,17 @@ class IonRateMatrix:
                 ).toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
                 matrix_array[1, :] = 1
-                rate_matrices.loc[atomic_number, shell] = matrix_array
+                matrix_arrays[shell_idx] = matrix_array
+            rate_matrices[atomic_number] = matrix_arrays
 
-        rate_matrices.index.names = ["atomic_number"]
-        return rate_matrices
+        rate_matrix_array = np.empty(
+            (len(rate_matrices), len(photoion_rates_df.columns)), dtype=object
+        )
+        for atomic_number_idx, matrices in enumerate(rate_matrices.values()):
+            rate_matrix_array[atomic_number_idx] = list(matrices)
+
+        return pd.DataFrame(
+            rate_matrix_array,
+            index=pd.Index(rate_matrices, name="atomic_number"),
+            columns=photoion_rates_df.columns,
+        )

@@ -96,7 +96,7 @@ class IonPopulationSolver:
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
-    ) -> pd.DataFrame:
+    ) -> npt.NDArray[np.float64]:
         """Solve elemental ion populations at supplied electron densities.
 
         Parameters
@@ -120,15 +120,16 @@ class IonPopulationSolver:
 
         Returns
         -------
-        pandas.DataFrame
-            Absolute ion populations indexed by atomic number and ion number.
+        numpy.ndarray
+            Absolute ion populations ordered like ``ion_population_index`` and
+            the elemental-density columns.
         """
         trial_electron_distribution = ThermalElectronEnergyDistribution(
             thermal_electron_energy_distribution.energy,
             thermal_electron_energy_distribution.temperature,
             electron_density * u.cm**-3,
         )
-        self.rates_matrices = self.rate_matrix_solver.solve(
+        rate_matrices = self.rate_matrix_solver.solve(
             radiation_field,
             trial_electron_distribution,
             lte_level_population,
@@ -139,58 +140,75 @@ class IonPopulationSolver:
             boltzmann_factor,
         )
         ion_population_index = self.rate_matrix_solver.ion_population_index
-        ion_population = pd.DataFrame(
-            0.0,
-            index=ion_population_index,
-            columns=elemental_number_density.columns,
+        ion_population = np.zeros(
+            (len(ion_population_index), len(rate_matrices.columns))
         )
-        for shell in ion_population.columns:
-            for atomic_number in self.rates_matrices.index:
-                matrix = self.rates_matrices.loc[atomic_number, shell]
-                if not np.all(np.isfinite(matrix)):
-                    raise PlasmaIonizationError(
-                        "Nonfinite ion population matrix for atomic number "
-                        f"{atomic_number}, shell {shell}."
-                    )
-                right_hand_side = np.zeros(matrix.shape[0])
-                right_hand_side[1] = 1.0
-                try:
-                    normalized_population = np.linalg.solve(
-                        matrix, right_hand_side
-                    )
-                except np.linalg.LinAlgError as exc:
-                    raise PlasmaIonizationError(
-                        "Singular ion population matrix for atomic number "
-                        f"{atomic_number}, shell {shell}."
-                    ) from exc
-                if not np.all(np.isfinite(normalized_population)):
-                    raise PlasmaIonizationError(
-                        "Nonfinite ion population for atomic number "
-                        f"{atomic_number}, shell {shell}."
-                    )
-                minimum_population = normalized_population.min()
-                if minimum_population < -1e-12:
-                    raise PlasmaIonizationError(
-                        "Negative ion population for atomic number "
-                        f"{atomic_number}, shell {shell}: "
-                        f"{minimum_population}."
-                    )
-                normalized_population[normalized_population < 0.0] = 0.0
-                normalized_population /= normalized_population.sum()
-                population_index = ion_population_index[
-                    ion_population_index.get_level_values("atomic_number")
-                    == atomic_number
-                ]
-                if len(population_index) != matrix.shape[0]:
-                    raise PlasmaIonizationError(
-                        "Ion population index size does not match matrix "
-                        f"shape for atomic number {atomic_number}, "
-                        f"shell {shell}."
-                    )
-                ion_population.loc[population_index, shell] = (
-                    normalized_population
-                    * elemental_number_density.loc[atomic_number, shell]
+        atomic_numbers = ion_population_index.get_level_values(
+            "atomic_number"
+        ).to_numpy()
+        rate_matrix_atomic_numbers = rate_matrices.index.to_numpy()
+        rate_matrix_arrays = rate_matrices.to_numpy()
+        population_indices = [
+            np.flatnonzero(atomic_numbers == atomic_number)
+            for atomic_number in rate_matrix_atomic_numbers
+        ]
+        elemental_indices = elemental_number_density.index.get_indexer(
+            rate_matrix_atomic_numbers
+        )
+        elemental_number_density_array = elemental_number_density.to_numpy()
+        for atomic_number_idx, atomic_number in enumerate(
+            rate_matrix_atomic_numbers
+        ):
+            matrices = np.stack(rate_matrix_arrays[atomic_number_idx])
+            nonfinite_matrices = ~np.isfinite(matrices).all(axis=(1, 2))
+            if np.any(nonfinite_matrices):
+                shell_idx = np.flatnonzero(nonfinite_matrices)[0]
+                raise PlasmaIonizationError(
+                    "Nonfinite ion population matrix for atomic number "
+                    f"{atomic_number}, shell {rate_matrices.columns[shell_idx]}."
                 )
+            right_hand_side = np.zeros((len(matrices), matrices.shape[1], 1))
+            right_hand_side[:, 1] = 1.0
+            try:
+                normalized_population = np.linalg.solve(
+                    matrices, right_hand_side
+                )[:, :, 0]
+            except np.linalg.LinAlgError as exc:
+                raise PlasmaIonizationError(
+                    "Singular ion population matrix for atomic number "
+                    f"{atomic_number}."
+                ) from exc
+            nonfinite_populations = ~np.isfinite(normalized_population).all(
+                axis=1
+            )
+            if np.any(nonfinite_populations):
+                shell_idx = np.flatnonzero(nonfinite_populations)[0]
+                raise PlasmaIonizationError(
+                    "Nonfinite ion population for atomic number "
+                    f"{atomic_number}, shell {rate_matrices.columns[shell_idx]}."
+                )
+            minimum_population = normalized_population.min(axis=1)
+            if np.any(minimum_population < -1e-12):
+                shell_idx = np.argmin(minimum_population)
+                raise PlasmaIonizationError(
+                    "Negative ion population for atomic number "
+                    f"{atomic_number}, shell {rate_matrices.columns[shell_idx]}: "
+                    f"{minimum_population[shell_idx]}."
+                )
+            normalized_population[normalized_population < 0.0] = 0.0
+            normalized_population /= normalized_population.sum(axis=1)[:, None]
+            population_idx = population_indices[atomic_number_idx]
+            if len(population_idx) != matrices.shape[1]:
+                raise PlasmaIonizationError(
+                    "Ion population index size does not match matrix shape "
+                    f"for atomic number {atomic_number}."
+                )
+            elemental_idx = elemental_indices[atomic_number_idx]
+            ion_population[population_idx] = (
+                normalized_population.T
+                * elemental_number_density_array[elemental_idx]
+            )
+        self.rates_matrices = rate_matrices
         return ion_population
 
     def solve_charge_balance(
@@ -206,8 +224,8 @@ class IonPopulationSolver:
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
-        maximum_electron_density: pd.Series,
-    ) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
+        maximum_electron_density: npt.NDArray[np.float64],
+    ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """Solve all shells and return their normalized charge residuals."""
         ion_population = self.solve_element_populations_at_electron_density(
             electron_density,
@@ -221,17 +239,16 @@ class IonPopulationSolver:
             boltzmann_factor,
             elemental_number_density,
         )
-        electron_population = pd.Series(
-            electron_density, index=elemental_number_density.columns
-        )
         charge_density = (
             ion_population
-            * ion_population.index.get_level_values("ion_number").to_numpy()[:, None]
-        ).sum()
-        charge_residual = (charge_density - electron_population) / (
-            maximum_electron_density.replace(0.0, 1.0)
+            * self.rate_matrix_solver.ion_population_index.get_level_values(
+                "ion_number"
+            ).to_numpy()[:, None]
+        ).sum(axis=0)
+        charge_residual = (charge_density - electron_density) / np.where(
+            maximum_electron_density == 0.0, 1.0, maximum_electron_density
         )
-        return ion_population, electron_population, charge_residual
+        return ion_population, charge_residual
 
     def solve_shell_charge(
         self,
@@ -248,7 +265,7 @@ class IonPopulationSolver:
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
-        maximum_electron_densities: pd.Series,
+        maximum_electron_densities: npt.NDArray[np.float64],
     ) -> float:
         """Solve the scalar charge equation for one shell."""
         if maximum_electron_density == 0.0:
@@ -273,27 +290,24 @@ class IonPopulationSolver:
                 boltzmann_factor,
                 elemental_number_density,
                 maximum_electron_densities,
-            )[2].iloc[shell_idx]
+            )[1][shell_idx]
 
-        lower_residual = charge_residual(0.0)
-        upper_residual = charge_residual(1.0)
-        if lower_residual == 0.0:
-            return 0.0
-        if upper_residual == 0.0:
-            return maximum_electron_density
-        if lower_residual * upper_residual > 0.0:
+        try:
+            electron_density_fraction = brentq(
+                charge_residual,
+                0.0,
+                1.0,
+                xtol=CHARGE_TOLERANCE,
+                rtol=MINIMUM_BRENT_RELATIVE_TOLERANCE,
+                maxiter=self.max_solver_iterations,
+            )
+        except ValueError as exc:
+            lower_residual = charge_residual(0.0)
+            upper_residual = charge_residual(1.0)
             raise PlasmaIonizationError(
                 f"Charge residual does not bracket shell {shell_idx}: "
                 f"Q_hat(0)={lower_residual}, Q_hat(1)={upper_residual}."
-            )
-        electron_density_fraction = brentq(
-            charge_residual,
-            0.0,
-            1.0,
-            xtol=CHARGE_TOLERANCE,
-            rtol=MINIMUM_BRENT_RELATIVE_TOLERANCE,
-            maxiter=self.max_solver_iterations,
-        )
+            ) from exc
         return electron_density_fraction * maximum_electron_density
 
     def solve_charge_conserving(
@@ -318,11 +332,17 @@ class IonPopulationSolver:
         maximum_electron_density = elemental_number_density.multiply(
             atomic_numbers, axis=0
         ).sum()
+        maximum_electron_density_array = maximum_electron_density.to_numpy()
+        converged_shells = np.zeros(
+            len(elemental_number_density.columns), dtype=bool
+        )
+        estimated_population_indices: npt.NDArray[np.intp] | None = None
+        solution_population_indices: npt.NDArray[np.intp] | None = None
         for iteration in range(self.max_solver_iterations):
-            for shell_idx in range(len(elemental_number_density.columns)):
+            for shell_idx in np.flatnonzero(~converged_shells):
                 electron_density[shell_idx] = self.solve_shell_charge(
                     shell_idx,
-                    maximum_electron_density.iloc[shell_idx],
+                    maximum_electron_density_array[shell_idx],
                     electron_density,
                     radiation_field,
                     thermal_electron_energy_distribution,
@@ -333,13 +353,9 @@ class IonPopulationSolver:
                     partition_function,
                     boltzmann_factor,
                     elemental_number_density,
-                    maximum_electron_density,
+                    maximum_electron_density_array,
                 )
-            (
-                ion_population_solution,
-                electron_population_solution,
-                charge_residual,
-            ) = self.solve_charge_balance(
+            ion_population_solution, charge_residual = self.solve_charge_balance(
                 electron_density,
                 radiation_field,
                 thermal_electron_energy_distribution,
@@ -350,36 +366,70 @@ class IonPopulationSolver:
                 partition_function,
                 boltzmann_factor,
                 elemental_number_density,
-                maximum_electron_density,
+                maximum_electron_density_array,
             )
-            common_index = estimated_ion_population.index.intersection(
-                ion_population_solution.index
-            )
-            if len(common_index) == 0:
-                population_converged = True
+            if estimated_population_indices is None:
+                solution_indices = (
+                    self.rate_matrix_solver.ion_population_index.get_indexer(
+                        estimated_ion_population.index
+                    )
+                )
+                estimated_population_indices = np.flatnonzero(
+                    solution_indices >= 0
+                )
+                solution_population_indices = solution_indices[
+                    estimated_population_indices
+                ]
+            if len(estimated_population_indices) == 0:
+                population_converged = np.ones_like(
+                    converged_shells, dtype=bool
+                )
             else:
                 population_delta = (
-                    estimated_ion_population.loc[common_index]
-                    - ion_population_solution.loc[common_index]
+                    estimated_ion_population.to_numpy()[
+                        estimated_population_indices
+                    ]
+                    - ion_population_solution[solution_population_indices]
                 ) / np.maximum(
-                    np.abs(ion_population_solution.loc[common_index]), 1e-300
+                    np.abs(
+                        ion_population_solution[solution_population_indices]
+                    ),
+                    1e-300,
                 )
                 population_converged = np.all(
-                    np.abs(population_delta) < tolerance
-                ).all()
-            if (
-                np.all(np.abs(charge_residual) < CHARGE_TOLERANCE)
-                and population_converged
-            ):
+                    np.abs(population_delta) < tolerance, axis=0
+                )
+            converged_shells |= (
+                np.abs(charge_residual) < CHARGE_TOLERANCE
+            ) & population_converged
+            if np.all(converged_shells):
                 logger.info(
                     "Ion population solver converged after %d iterations.",
                     iteration + 1,
                 )
-                return ion_population_solution, electron_population_solution
-            if len(common_index) != 0:
-                estimated_ion_population = ion_population_solution.loc[
-                    estimated_ion_population.index
-                ]
+                return (
+                    pd.DataFrame(
+                        ion_population_solution,
+                        index=self.rate_matrix_solver.ion_population_index,
+                        columns=elemental_number_density.columns,
+                    ),
+                    pd.Series(
+                        electron_density,
+                        index=elemental_number_density.columns,
+                    ),
+                )
+            if len(estimated_population_indices) != 0:
+                estimated_population_values = estimated_ion_population.to_numpy(
+                    copy=True
+                )
+                estimated_population_values[estimated_population_indices] = (
+                    ion_population_solution[solution_population_indices]
+                )
+                estimated_ion_population = pd.DataFrame(
+                    estimated_population_values,
+                    index=estimated_ion_population.index,
+                    columns=estimated_ion_population.columns,
+                )
 
         raise PlasmaIonizationError(
             "Ion population solver did not converge after "
