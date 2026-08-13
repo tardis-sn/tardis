@@ -91,6 +91,7 @@ class SimpleTARDISWorkflow:
         )
 
         line_interaction_type = configuration.plasma.line_interaction_type
+
         self.opacity_solver = OpacitySolver(
             line_interaction_type,
             configuration.plasma.disable_line_scattering,

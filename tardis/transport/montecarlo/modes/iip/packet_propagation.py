@@ -1,7 +1,9 @@
 from numba import njit
 
 from tardis import constants as const
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
@@ -52,7 +54,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 @njit
 def packet_propagation(
     r_packet: RPacket,
-    geometry: NumbaRadial1DGeometry,
+    geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state: OpacityStateNumbaIIP,
     estimators_bulk: EstimatorsBulk,

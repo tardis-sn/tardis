@@ -2,8 +2,8 @@ import math
 
 from numba import njit
 
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NumbaNonhomologousRadial1DGeometry,
+from tardis.model.geometry.radial1d import (
+    NumbaRadial1DGeometry,
 )
 from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
@@ -115,7 +115,7 @@ def calculate_distance_line(
 @njit(**njit_dict_no_parallel)
 def calculate_distance_line_nonhomologous(
     rpacket : RPacket,
-    geometry : NumbaNonhomologousRadial1DGeometry,
+    geometry : NumbaRadial1DGeometry,
     nu_line : float
 ):
     """

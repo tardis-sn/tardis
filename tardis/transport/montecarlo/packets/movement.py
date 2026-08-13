@@ -15,9 +15,11 @@ from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
 
 if TYPE_CHECKING:
-    from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-    from tardis.model.geometry.radial1d_nonhomologous import (
-        NumbaNonhomologousRadial1DGeometry,
+    from tardis.model.geometry.radial1d import (
+        NumbaRadial1DGeometry,
+    )
+    from tardis.model.geometry.radial1d_homologous import (
+        NumbaHomologousRadial1DGeometry,
     )
     from tardis.transport.montecarlo.estimators.estimators_bulk import (
         EstimatorsBulk,
@@ -29,7 +31,7 @@ if TYPE_CHECKING:
 def move_r_packet(
     r_packet: RPacket,
     distance: float,
-    geometry: NumbaRadial1DGeometry | NumbaNonhomologousRadial1DGeometry,
+    geometry: NumbaRadial1DGeometry | NumbaHomologousRadial1DGeometry,
     estimators_bulk: EstimatorsBulk,
     enable_full_relativity: bool,
 ) -> None:
@@ -42,7 +44,7 @@ def move_r_packet(
         Radiative packet to move.
     distance : float
         Lab-frame distance traveled by the packet [cm].
-    geometry : NumbaRadial1DGeometry or NumbaNonhomologousRadial1DGeometry
+    geometry : NumbaRadial1DGeometry or NumbaHomologousRadial1DGeometry
         Geometry object that provides local packet-frame velocity.
     estimators_bulk : tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk
         Cell-level bulk radiation field estimators to update in place.

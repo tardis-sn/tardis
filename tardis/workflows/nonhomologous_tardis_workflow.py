@@ -2,8 +2,8 @@ import logging
 
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NonhomologousRadial1DGeometry,
+from tardis.model.geometry.radial1d import (
+    Radial1DGeometry,
 )
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
@@ -67,7 +67,7 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
         # Replace the default geometry of the SimpleTARDISWorkflow
         geometry = self.simulation_state.geometry
         t_exp = self.simulation_state.time_explosion
-        self.simulation_state.geometry = NonhomologousRadial1DGeometry(
+        self.simulation_state.geometry = Radial1DGeometry(
             r_inner=geometry.v_inner * t_exp,
             r_outer=geometry.v_outer * t_exp,
             v_inner=geometry.v_inner,
