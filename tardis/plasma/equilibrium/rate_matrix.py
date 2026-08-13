@@ -2,19 +2,34 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import coo_matrix
 
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
+from tardis.plasma.equilibrium.rates import (
+    AnalyticPhotoionizationRateSolver,
+    CollisionalIonizationRateSolver,
+    EstimatedPhotoionizationRateSolver,
+)
+from tardis.plasma.radiation_field import (
+    DilutePlanckianRadiationField,
+    PlanckianRadiationField,
+)
+
 
 class RateMatrix:
+    """Build bound-bound rate matrices from rate solvers."""
+
     def __init__(
         self,
         rate_solvers: list,
         levels: pd.DataFrame,
-    ):
-        """Constructs the rate matrix from an arbitrary number of rate solvers.
+    ) -> None:
+        """Construct a rate matrix from an arbitrary number of rate solvers.
 
         Parameters
         ----------
         rate_solvers : list
-            List of rate solver objects.
+            List of rate solver pairs.
         levels : pd.DataFrame
             DataFrame of energy levels.
         """
@@ -69,7 +84,7 @@ class RateMatrix:
             if solver_arg_tuple[1] == "electron"
             else rates_df
             for solver_arg_tuple, rates_df in zip(
-                self.rate_solvers, rates_df_list
+                self.rate_solvers, rates_df_list, strict=True
             )
         ]
 
@@ -109,13 +124,15 @@ class RateMatrix:
 
 
 class IonRateMatrix:
+    """Build ionization rate matrices from radiative and collisional rates."""
+
     def __init__(
         self,
-        radiative_ionization_rate_solver,
-        collisional_ionization_rate_solver,
-    ):
-        """Constructs the ionization rate matrix from radiative and collisional
-        ionization rate solvers.
+        radiative_ionization_rate_solver: AnalyticPhotoionizationRateSolver
+        | EstimatedPhotoionizationRateSolver,
+        collisional_ionization_rate_solver: CollisionalIonizationRateSolver,
+    ) -> None:
+        """Construct an ionization rate matrix solver.
 
         Parameters
         ----------
@@ -128,10 +145,14 @@ class IonRateMatrix:
         self.collisional_ionization_rate_solver = (
             collisional_ionization_rate_solver
         )
+        self.ion_population_index = pd.MultiIndex.from_tuples(
+            [], names=["atomic_number", "ion_number"]
+        )
 
-    def __calculate_total_grouped_rates(self, rates_df):
-        """Helper function to calculate the total rates from the
-        photoionization and recombination rates.
+    def __calculate_total_grouped_rates(
+        self, rates_df: pd.DataFrame
+    ) -> pd.core.groupby.DataFrameGroupBy:
+        """Calculate grouped total ionization and recombination rates.
 
         Parameters
         ----------
@@ -158,7 +179,9 @@ class IonRateMatrix:
             .groupby(level=("atomic_number"))
         )
 
-    def __construct_rate_matrix(self, rate, cell, ion_states):
+    def __construct_rate_matrix(
+        self, rate: pd.DataFrame, cell: int, ion_states: int
+    ) -> coo_matrix:
         """Construct a sparse rate matrix from the rates.
 
         Parameters
@@ -188,16 +211,16 @@ class IonRateMatrix:
 
     def solve(
         self,
-        radiation_field,
-        thermal_electron_energy_distribution,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
-        partition_function,
-        boltzmann_factor,
-        charge_conservation=False,
-    ):
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+        lte_level_population: pd.DataFrame,
+        level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        boltzmann_factor: pd.DataFrame,
+    ) -> pd.DataFrame:
         """Compute the ionization rate matrix.
 
         Parameters
@@ -214,8 +237,6 @@ class IonRateMatrix:
             LTE ion number density. Columns are cells.
         ion_population : pd.DataFrame
             Estimated ion number density. Columns are cells.
-        charge_conservation : bool, optional
-            Whether to include a charge conservation row in the rate matrix.
 
         Returns
         -------
@@ -250,7 +271,6 @@ class IonRateMatrix:
                 boltzmann_factor,
             )
         )
-
         grouped_photoion_rates_df = self.__calculate_total_grouped_rates(
             photoion_rates_df
         )
@@ -274,7 +294,17 @@ class IonRateMatrix:
             columns=photoion_rates_df.columns,
         )
 
-        for atomic_number in grouped_photoion_rates_df.groups.keys():
+        atomic_numbers = list(grouped_photoion_rates_df.groups.keys())
+        self.ion_population_index = pd.MultiIndex.from_tuples(
+            [
+                (atomic_number, ion_number)
+                for atomic_number in atomic_numbers
+                for ion_number in range(atomic_number + 1)
+            ],
+            names=["atomic_number", "ion_number"],
+        )
+
+        for atomic_number in atomic_numbers:
             photoion_rates = grouped_photoion_rates_df.get_group(atomic_number)
             recomb_rates = grouped_recomb_rates_df.get_group(atomic_number)
             coll_ion_rates = grouped_collisional_ionization_rates_df.get_group(
@@ -308,16 +338,7 @@ class IonRateMatrix:
                 ).toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
                 matrix_array[1, :] = 1
-                if charge_conservation:
-                    charge_conservation_row = np.hstack(
-                        (np.arange(0, ion_states), -1)
-                    )
-                    matrix_array = np.pad(matrix_array, ((0, 0), (0, 1)))
-                    matrix_array = np.vstack(
-                        (charge_conservation_row, matrix_array)
-                    )
                 rate_matrices.loc[atomic_number, shell] = matrix_array
 
         rate_matrices.index.names = ["atomic_number"]
-
         return rate_matrices
