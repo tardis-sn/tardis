@@ -390,6 +390,10 @@ def iip_charge_conserving_rate_matrix(
         plasma.coll_recomb_coeff,
         ion_index,
     ).loc[(1, 0)]
+    radiative_ionization_values = radiative_ionization.to_numpy()
+    radiative_recombination_values = radiative_recombination.to_numpy()
+    collisional_ionization_values = collisional_ionization.to_numpy()
+    collisional_recombination_values = collisional_recombination.to_numpy()
 
     def solve(
         radiation_field: object,
@@ -402,30 +406,27 @@ def iip_charge_conserving_rate_matrix(
         boltzmann_factor: pd.DataFrame,
     ) -> pd.DataFrame:
         """Build the IIP two-stage hydrogen matrices at trial densities."""
-        electron_number_density = electron_distribution.number_density.cgs.value
-        shells = radiative_recombination.index
-        rate_matrices = pd.DataFrame(
-            index=pd.Index([1], name="atomic_number"),
-            columns=shells,
-            dtype=object,
+        electron_number_density = electron_distribution.number_density.value
+        ionization_rate = (
+            radiative_ionization_values
+            + collisional_ionization_values * electron_number_density
         )
-        for shell in shells:
-            shell_idx = radiative_recombination.index.get_loc(shell)
-            ionization_rate = (
-                radiative_ionization[shell]
-                + collisional_ionization[shell]
-                * electron_number_density[shell_idx]
-            )
-            recombination_rate = (
-                radiative_recombination[shell]
-                * electron_number_density[shell_idx]
-                + collisional_recombination[shell]
-                * electron_number_density[shell_idx] ** 2
-            )
-            rate_matrices.loc[1, shell] = np.array(
-                [[-ionization_rate, recombination_rate], [1.0, 1.0]]
-            )
-        return rate_matrices
+        recombination_rate = (
+            radiative_recombination_values * electron_number_density
+            + collisional_recombination_values
+            * electron_number_density**2
+        )
+        rate_matrices = np.empty((len(electron_number_density), 2, 2))
+        rate_matrices[:, 0, 0] = -ionization_rate
+        rate_matrices[:, 0, 1] = recombination_rate
+        rate_matrices[:, 1, :] = 1.0
+        rate_matrix_array = np.empty((1, len(rate_matrices)), dtype=object)
+        rate_matrix_array[0] = list(rate_matrices)
+        return pd.DataFrame(
+            rate_matrix_array,
+            index=pd.Index([1], name="atomic_number"),
+            columns=radiative_recombination.index,
+        )
 
     return SimpleNamespace(
         ion_population_index=pd.MultiIndex.from_tuples(
@@ -495,6 +496,51 @@ def test_charge_conserving_solver_matches_iip_with_full_atomic_data(
         rtol=3e-10,
         atol=0.0,
     )
+
+
+def test_charge_conserving_solver_only_resolves_unconverged_shells(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+    iip_charge_conserving_rate_matrix: SimpleNamespace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep converged shell charge roots fixed during lagged iterations."""
+    plasma = iip_plasma_after_mc
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        plasma.t_electrons * u.K,
+        plasma.electron_densities.to_numpy() / u.cm**3,
+    )
+    estimated_ion_population = plasma.ion_number_density.copy()
+    estimated_ion_population.iloc[:, 0] = 0.0
+    solver = IonPopulationSolver(iip_charge_conserving_rate_matrix)
+    solve_shell_charge = solver.solve_shell_charge
+    solved_shell_indices = []
+
+    def record_solve_shell_charge(
+        shell_idx: int, *args: object, **kwargs: object
+    ) -> float:
+        solved_shell_indices.append(shell_idx)
+        return solve_shell_charge(shell_idx, *args, **kwargs)
+
+    monkeypatch.setattr(solver, "solve_shell_charge", record_solve_shell_charge)
+    solver.solve(
+        None,
+        electron_distribution,
+        plasma.number_density,
+        plasma.lte_level_number_density,
+        plasma.level_number_density,
+        plasma.lte_ion_number_density,
+        estimated_ion_population,
+        plasma.partition_function,
+        plasma.level_boltzmann_factor,
+        charge_conservation=True,
+    )
+
+    assert [
+        solved_shell_indices.count(shell_idx)
+        for shell_idx in range(len(plasma.number_density.columns))
+    ] == [2] + [1] * (len(plasma.number_density.columns) - 1)
+
 
 def test_type_iip_workflow_initial_plasma_regression(
     type_iip_workflow,
