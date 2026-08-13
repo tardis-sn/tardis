@@ -1,7 +1,4 @@
-from __future__ import annotations
-
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 import pytest
@@ -157,7 +154,7 @@ def mock_boltzmann_factor():
 @pytest.fixture
 def basic_thermodynamic_state(
     new_chianti_atomic_dataset: AtomData,
-) -> dict[str, Any]:
+) -> dict:
     """Immutable, shared inputs for standard/IIP basic-state comparisons."""
     atomic_numbers = pd.Index([1, 2], name="atomic_number")
     columns = pd.Index(range(3), name="shell")
