@@ -114,9 +114,11 @@ electron density,
 
     \sum_i N_i \sum_j j y_{i,j}(n_e) - n_e = 0.
 
-The scalar solve is bounded between a neutral plasma and the fully ionized
-electron density :math:`\sum_i i N_i`. Thermal balance and radiation transport
-are held fixed during this solve.
+The scalar solve is bounded between a nearly neutral plasma and the fully
+ionized electron density :math:`\sum_i i N_i`. The strictly positive lower
+bound respects the Lyman-continuum on-the-spot approximation, which can
+disconnect a fully neutral hydrogen rate matrix. Thermal balance and radiation
+transport are held fixed during this solve.
 
 
 
@@ -206,7 +208,6 @@ Next, we will group the stimulated emission and stimulated absorption terms, as 
                         - n_2 \bigg{(}A_{21} + C_{23} n_e + n_2 B_{23} \bar{J}_{23}
                         \underbrace{\bigg{(}1 - \frac{n_3}{n_2}\frac{B_{32}}{B_{23}}\bigg{)}}_\text{stimulated emission term}\bigg{)}
                         + n_3 (A_{32} + C_{32} n_e)
-
 
 
 
