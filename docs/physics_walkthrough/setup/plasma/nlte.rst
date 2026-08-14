@@ -117,6 +117,19 @@ electron density,
 Continuum rates are assembled for every bound ion stage. A level in stage
 :math:`j` is paired with its continuum population in stage :math:`j + 1`, so
 multi-electron elements contribute through every supported ionization stage.
+The reverse rates use the level-to-continuum Saha factor from equation 14 of
+:cite:`Lucy2003`,
+
+.. math::
+
+    \Phi_{i\kappa}(T_e) = \frac{n_i^*}{n_\kappa^* n_e}.
+
+At a fixed thermal state, this factor is independent of electron density. It is
+therefore computed once from the thermal Saha, Boltzmann, and partition-function
+inputs and held fixed during the charge solve. Trial electron densities enter
+only through their explicit rate powers: photoionization is proportional to
+:math:`n_e^0`, radiative recombination and collisional ionization to
+:math:`n_e^1`, and three-body recombination to :math:`n_e^2`.
 
 The scalar solve is bounded between a nearly neutral plasma and the fully
 ionized electron density :math:`\sum_i i N_i`. The strictly positive lower
@@ -212,5 +225,4 @@ Next, we will group the stimulated emission and stimulated absorption terms, as 
                         - n_2 \bigg{(}A_{21} + C_{23} n_e + n_2 B_{23} \bar{J}_{23}
                         \underbrace{\bigg{(}1 - \frac{n_3}{n_2}\frac{B_{32}}{B_{23}}\bigg{)}}_\text{stimulated emission term}\bigg{)}
                         + n_3 (A_{32} + C_{32} n_e)
-
 

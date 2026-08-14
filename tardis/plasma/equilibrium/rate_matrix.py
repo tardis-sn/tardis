@@ -237,6 +237,7 @@ class IonRateMatrix:
         ion_population: pd.DataFrame,
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame | None = None,
     ) -> pd.DataFrame:
         """Compute the ionization rate matrix.
 
@@ -254,6 +255,9 @@ class IonRateMatrix:
             LTE ion number density. Columns are cells.
         ion_population : pd.DataFrame
             Estimated ion number density. Columns are cells.
+        level_to_continuum_saha_factor : pandas.DataFrame, optional
+            Density-independent Lucy level-to-continuum Saha factor. When
+            omitted, retain the existing LTE-population-derived behavior.
 
         Returns
         -------
@@ -271,22 +275,23 @@ class IonRateMatrix:
                 ion_population,
                 partition_function,
                 boltzmann_factor,
+                level_to_continuum_saha_factor,
             )
         )
 
-        # Lucy 2003 Eq 14
-        lte_ion_population = align_ion_population_to_level_population(
-            lte_ion_population, lte_level_population
-        )
-        level_to_ion_population_factor = lte_level_population / (
-            lte_ion_population.values
-            * thermal_electron_energy_distribution.number_density.value
-        )
+        if level_to_continuum_saha_factor is None:
+            lte_ion_population = align_ion_population_to_level_population(
+                lte_ion_population, lte_level_population
+            )
+            level_to_continuum_saha_factor = lte_level_population / (
+                lte_ion_population.values
+                * thermal_electron_energy_distribution.number_density.value
+            )
 
         collisional_ionization_rates_df, collision_recombination_rates_df = (
             self.collisional_ionization_rate_solver.solve(
                 thermal_electron_energy_distribution,
-                level_to_ion_population_factor,
+                level_to_continuum_saha_factor,
                 partition_function,
                 boltzmann_factor,
             )

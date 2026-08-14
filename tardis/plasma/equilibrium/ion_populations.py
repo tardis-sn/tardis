@@ -95,6 +95,7 @@ class IonPopulationSolver:
         estimated_ion_population: pd.DataFrame,
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
     ) -> npt.NDArray[np.float64]:
         """Solve elemental ion populations at supplied electron densities.
@@ -115,6 +116,8 @@ class IonPopulationSolver:
             LTE ion number density. Columns are cells.
         estimated_ion_population : pandas.DataFrame
             Previous estimated ion number density. Columns are cells.
+        level_to_continuum_saha_factor : pandas.DataFrame
+            Density-independent Lucy level-to-continuum Saha factor.
         elemental_number_density : pandas.DataFrame
             Elemental number density. Index is atomic number, columns are cells.
 
@@ -139,6 +142,7 @@ class IonPopulationSolver:
             estimated_ion_population,
             partition_function,
             boltzmann_factor,
+            level_to_continuum_saha_factor,
         )
 
         ion_population_index = self.rate_matrix_solver.ion_population_index
@@ -222,6 +226,7 @@ class IonPopulationSolver:
         estimated_ion_population: pd.DataFrame,
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
         maximum_electron_density: npt.NDArray[np.float64],
     ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
@@ -247,6 +252,8 @@ class IonPopulationSolver:
             Partition functions used by the rate-matrix solver.
         boltzmann_factor : pd.DataFrame
             Boltzmann factors used by the rate-matrix solver.
+        level_to_continuum_saha_factor : pd.DataFrame
+            Density-independent Lucy level-to-continuum Saha factor.
         elemental_number_density : pd.DataFrame
             Elemental number densities indexed by atomic number and shell.
         maximum_electron_density : npt.NDArray[np.float64]
@@ -269,6 +276,7 @@ class IonPopulationSolver:
             estimated_ion_population,
             partition_function,
             boltzmann_factor,
+            level_to_continuum_saha_factor,
             elemental_number_density,
         )
 
@@ -298,6 +306,7 @@ class IonPopulationSolver:
         estimated_ion_population: pd.DataFrame,
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
         maximum_electron_densities: npt.NDArray[np.float64],
     ) -> float:
@@ -328,6 +337,8 @@ class IonPopulationSolver:
             Partition functions used by the rate-matrix solver.
         boltzmann_factor : pd.DataFrame
             Boltzmann factors used by the rate-matrix solver.
+        level_to_continuum_saha_factor : pd.DataFrame
+            Density-independent Lucy level-to-continuum Saha factor.
         elemental_number_density : pd.DataFrame
             Elemental number densities indexed by atomic number and shell.
         maximum_electron_densities : npt.NDArray[np.float64]
@@ -366,6 +377,7 @@ class IonPopulationSolver:
                 estimated_ion_population,
                 partition_function,
                 boltzmann_factor,
+                level_to_continuum_saha_factor,
                 elemental_number_density,
                 maximum_electron_densities,
             )[1][shell_idx]
@@ -404,6 +416,7 @@ class IonPopulationSolver:
         estimated_ion_population: pd.DataFrame,
         partition_function: pd.DataFrame | float,
         boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame,
         tolerance: float,
     ) -> tuple[pd.DataFrame, pd.Series]:
         """Solve ion populations while enforcing charge conservation.
@@ -429,6 +442,8 @@ class IonPopulationSolver:
             Partition functions used by the rate-matrix solver.
         boltzmann_factor : pd.DataFrame
             Boltzmann factors used by the rate-matrix solver.
+        level_to_continuum_saha_factor : pd.DataFrame
+            Density-independent Lucy level-to-continuum Saha factor.
         tolerance : float
             Relative convergence tolerance for the ion populations.
 
@@ -476,6 +491,7 @@ class IonPopulationSolver:
                     estimated_ion_population,
                     partition_function,
                     boltzmann_factor,
+                    level_to_continuum_saha_factor,
                     elemental_number_density,
                     maximum_electron_density_array,
                 )
@@ -490,6 +506,7 @@ class IonPopulationSolver:
                     estimated_ion_population,
                     partition_function,
                     boltzmann_factor,
+                    level_to_continuum_saha_factor,
                     elemental_number_density,
                     maximum_electron_density_array,
                 )
@@ -700,6 +717,7 @@ class IonPopulationSolver:
         boltzmann_factor: pd.DataFrame,
         charge_conservation: bool = False,
         tolerance: float = 1e-14,
+        level_to_continuum_saha_factor: pd.DataFrame | None = None,
     ) -> tuple[pd.DataFrame, pd.Series]:
         """Solves the normalized ion population values from the rate matrices.
 
@@ -728,6 +746,9 @@ class IonPopulationSolver:
             shell.
         tolerance : float, optional
             Tolerance for convergence of the ion population solver.
+        level_to_continuum_saha_factor : pd.DataFrame, optional
+            Density-independent Lucy level-to-continuum Saha factor. Required
+            when charge conservation varies the trial electron density.
 
         Returns
         -------
@@ -746,6 +767,11 @@ class IonPopulationSolver:
         )
 
         if charge_conservation:
+            if level_to_continuum_saha_factor is None:
+                raise ValueError(
+                    "level_to_continuum_saha_factor is required when "
+                    "charge_conservation is enabled."
+                )
             return self.solve_charge_conserving(
                 radiation_field,
                 thermal_electron_energy_distribution,
@@ -756,6 +782,9 @@ class IonPopulationSolver:
                 estimated_ion_population.loc[continuum_ion_index],
                 partition_function,
                 boltzmann_factor.loc[bound_level_index],
+                level_to_continuum_saha_factor.loc[
+                    lte_level_population.index[bound_level_index]
+                ],
                 tolerance,
             )
 
