@@ -11,6 +11,9 @@ from tardis.plasma.equilibrium.rates import (
     CollisionalIonizationRateSolver,
     EstimatedPhotoionizationRateSolver,
 )
+from tardis.plasma.equilibrium.rates.util import (
+    align_ion_population_to_level_population,
+)
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
     PlanckianRadiationField,
@@ -272,6 +275,9 @@ class IonRateMatrix:
         )
 
         # Lucy 2003 Eq 14
+        lte_ion_population = align_ion_population_to_level_population(
+            lte_ion_population, lte_level_population
+        )
         level_to_ion_population_factor = lte_level_population / (
             lte_ion_population.values
             * thermal_electron_energy_distribution.number_density.value
@@ -330,18 +336,18 @@ class IonRateMatrix:
             matrix_arrays = np.empty(
                 (len(photoion_rates.columns), ion_states, ion_states)
             )
-            for shell_idx in range(len(photoion_rates.columns)):
+            for shell_idx, shell in enumerate(photoion_rates.columns):
                 photoion_matrix = self.__construct_rate_matrix(
-                    photoion_rates, shell_idx, ion_states
+                    photoion_rates, shell, ion_states
                 )
                 recomb_matrix = self.__construct_rate_matrix(
-                    recomb_rates, shell_idx, ion_states
+                    recomb_rates, shell, ion_states
                 )
                 coll_ion_matrix = self.__construct_rate_matrix(
-                    coll_ion_rates, shell_idx, ion_states
+                    coll_ion_rates, shell, ion_states
                 )
                 coll_recomb_matrix = self.__construct_rate_matrix(
-                    recomb_ion_rates, shell_idx, ion_states
+                    recomb_ion_rates, shell, ion_states
                 )
 
                 matrix_array = (

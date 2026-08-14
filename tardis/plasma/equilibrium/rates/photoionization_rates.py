@@ -1,9 +1,12 @@
+import pandas as pd
+
 from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticCorrectedPhotoionizationCoeffSolver,
     EstimatedPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
 )
 from tardis.plasma.equilibrium.rates.util import (
+    align_ion_population_to_level_population,
     reindex_ionization_rate_dataframe,
 )
 
@@ -72,19 +75,31 @@ class AnalyticPhotoionizationRateSolver:
             lte_ion_population,
             ion_population,
         )
+        photoionization_rate_coeff.columns = lte_level_population.columns
 
         spontaneous_recombination_rate_coeff = (
             self.spontaneous_recombination_rate_coeff_solver.solve(
                 electron_energy_distribution.temperature
             )
         )
+        spontaneous_recombination_rate_coeff.columns = (
+            lte_level_population.columns
+        )
 
-        # TODO: Update for non-Hydrogenic species
+        partition_function = align_ion_population_to_level_population(
+            partition_function,
+            level_boltzmann_factor,
+            next_higher=False,
+        )
+
         fractional_level_population = (
             level_boltzmann_factor / partition_function
         )
 
         # Lucy 2003 Eq 14
+        lte_ion_population = align_ion_population_to_level_population(
+            lte_ion_population, lte_level_population
+        )
         level_to_ion_population_factor = lte_level_population.values / (
             lte_ion_population.values
             * electron_energy_distribution.number_density

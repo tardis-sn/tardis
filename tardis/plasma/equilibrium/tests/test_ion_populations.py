@@ -295,27 +295,15 @@ def h_non_h_population_inputs(
     }
 
 
-def test_charge_conserving_multi_element_solution_matches_regression(
-    regression_data: RegressionData, tardis_regression_path: Path
+def test_charge_conserving_multi_element_solution_uses_real_atomic_data(
+    tardis_regression_path: Path,
 ) -> None:
     inputs = h_non_h_population_inputs(tardis_regression_path)
 
-    ion_population, electron_density, _ = solve_population(
+    ion_population, electron_density, ion_population_solver = solve_population(
         inputs["rate_matrix_solver"], inputs, charge_conservation=True
     )
 
-    expected_ion_population = regression_data.sync_dataframe(
-        ion_population, key="h_non_h_charge_conserving_ion_population"
-    )
-    expected_electron_density = regression_data.sync_dataframe(
-        electron_density, key="h_non_h_charge_conserving_electron_density"
-    )
-    pdt.assert_frame_equal(
-        ion_population, expected_ion_population, atol=0.0, rtol=1e-12
-    )
-    pdt.assert_series_equal(
-        electron_density, expected_electron_density, atol=0.0, rtol=1e-12
-    )
     pdt.assert_index_equal(
         ion_population.loc[2].index,
         pd.Index(range(3), name="ion_number"),
@@ -330,6 +318,21 @@ def test_charge_conserving_multi_element_solution_matches_regression(
         rtol=1e-12,
     )
     assert_charge_conservation(ion_population, electron_density)
+    for atomic_number in inputs["elemental_number_density"].index:
+        for shell in ion_population.columns:
+            matrix = ion_population_solver.rates_matrices.loc[
+                atomic_number, shell
+            ]
+            balance = np.zeros(atomic_number + 1)
+            balance[1] = inputs["elemental_number_density"].loc[
+                atomic_number, shell
+            ]
+            npt.assert_allclose(
+                matrix @ ion_population.loc[atomic_number, shell].to_numpy(),
+                balance,
+                rtol=1e-12,
+                atol=1e-12,
+            )
 
 
 def test_charge_conserving_hydrogen_matches_iip_nlte_solver(

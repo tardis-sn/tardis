@@ -18,7 +18,6 @@ from tardis.plasma.radiation_field import (
 
 logger = logging.getLogger(__name__)
 
-LOWER_ION_LEVEL_H = 0
 MINIMUM_BRENT_RELATIVE_TOLERANCE = 4 * np.finfo(float).eps
 CHARGE_TOLERANCE = 1e-10
 MINIMUM_ELECTRON_DENSITY_FRACTION = np.finfo(float).eps
@@ -738,17 +737,12 @@ class IonPopulationSolver:
         pd.Series
             Electron number densities indexed by cell.
         """
-        # TODO: make more general indices that work for non-Hydrogen species
-        # this is the i level in Lucy 2003
-        lower_ion_level_index = (
+        bound_level_index = (
             lte_level_population.index.get_level_values("ion_number")
-            == LOWER_ION_LEVEL_H
+            < lte_level_population.index.get_level_values("atomic_number")
         )
-
-        # this is the k level in Lucy 2003
-        upper_ion_population_index = (
-            lte_ion_population.index.get_level_values("ion_number")
-            > LOWER_ION_LEVEL_H
+        continuum_ion_index = (
+            lte_ion_population.index.get_level_values("ion_number") > 0
         )
 
         if charge_conservation:
@@ -756,12 +750,12 @@ class IonPopulationSolver:
                 radiation_field,
                 thermal_electron_energy_distribution,
                 elemental_number_density,
-                lte_level_population.loc[lower_ion_level_index],
-                estimated_level_population.loc[lower_ion_level_index],
-                lte_ion_population.loc[upper_ion_population_index],
-                estimated_ion_population.loc[upper_ion_population_index],
+                lte_level_population.loc[bound_level_index],
+                estimated_level_population.loc[bound_level_index],
+                lte_ion_population.loc[continuum_ion_index],
+                estimated_ion_population.loc[continuum_ion_index],
                 partition_function,
-                boltzmann_factor,
+                boltzmann_factor.loc[bound_level_index],
                 tolerance,
             )
 
@@ -769,11 +763,11 @@ class IonPopulationSolver:
             radiation_field,
             thermal_electron_energy_distribution,
             elemental_number_density,
-            lte_level_population.loc[lower_ion_level_index],
-            estimated_level_population.loc[lower_ion_level_index],
-            lte_ion_population.loc[upper_ion_population_index],
-            estimated_ion_population.loc[upper_ion_population_index],
+            lte_level_population.loc[bound_level_index],
+            estimated_level_population.loc[bound_level_index],
+            lte_ion_population.loc[continuum_ion_index],
+            estimated_ion_population.loc[continuum_ion_index],
             partition_function,
-            boltzmann_factor,
+            boltzmann_factor.loc[bound_level_index],
             tolerance,
         )
