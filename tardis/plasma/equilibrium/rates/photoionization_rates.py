@@ -86,11 +86,12 @@ class AnalyticPhotoionizationRateSolver:
             lte_level_population.columns
         )
 
-        partition_function = align_ion_population_to_level_population(
-            partition_function,
-            level_boltzmann_factor,
-            next_higher=False,
-        )
+        if isinstance(partition_function, pd.DataFrame):
+            partition_function = align_ion_population_to_level_population(
+                partition_function,
+                level_boltzmann_factor,
+                next_higher=False,
+            )
 
         fractional_level_population = (
             level_boltzmann_factor / partition_function

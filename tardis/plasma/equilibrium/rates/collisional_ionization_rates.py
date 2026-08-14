@@ -73,11 +73,12 @@ class CollisionalIonizationRateSolver:
             level_to_ion_population_factor
         )
 
-        partition_function = align_ion_population_to_level_population(
-            partition_function,
-            level_boltzmann_factor,
-            next_higher=False,
-        )
+        if isinstance(partition_function, pd.DataFrame):
+            partition_function = align_ion_population_to_level_population(
+                partition_function,
+                level_boltzmann_factor,
+                next_higher=False,
+            )
         level_population_fraction = level_boltzmann_factor / partition_function
 
         # used to scale the photoionization rate because we keep the level population
