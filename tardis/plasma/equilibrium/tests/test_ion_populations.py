@@ -21,6 +21,9 @@ from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
 )
+from tardis.plasma.equilibrium.rates.util import (
+    align_ion_population_to_level_population,
+)
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
 )
@@ -295,75 +298,222 @@ def h_non_h_population_inputs(
     }
 
 
+def rate_dataframe_to_level_dataframe(
+    rate_dataframe: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a level-indexed rate DataFrame from an ion-transition rate."""
+    level_rate_dataframe = rate_dataframe.reset_index().set_index(
+        ["atomic_number", "ion_number", "level_number_source"]
+    )[rate_dataframe.columns]
+    level_rate_dataframe.index = level_rate_dataframe.index.set_names(
+        ["atomic_number", "ion_number", "level_number"]
+    )
+    return level_rate_dataframe
+
+
+def calculate_iip_rate_coefficients(
+    rate_matrix_solver: IonRateMatrix,
+    thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+    radiation_field: DilutePlanckianRadiationField,
+    lte_level_population: pd.DataFrame,
+    lte_ion_population: pd.DataFrame,
+    estimated_level_population: pd.DataFrame,
+    estimated_ion_population: pd.DataFrame,
+    partition_function: pd.DataFrame | float,
+    boltzmann_factor: pd.DataFrame,
+    electron_density: pd.Series,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Calculate IIP coefficients from the production rate solvers.
+
+    The equilibrium solver returns rates after the electron-density factors in
+    Lucy (2003) have been applied. IIP accepts the corresponding coefficients,
+    so these rates are converted at the converged electron density.
+    """
+    photoionization_level_index = (
+        rate_matrix_solver.radiative_ionization_rate_solver.photoionization_cross_sections.index.unique()
+    )
+    lte_level_population = lte_level_population.loc[
+        photoionization_level_index
+    ]
+    estimated_level_population = estimated_level_population.loc[
+        photoionization_level_index
+    ]
+    boltzmann_factor = boltzmann_factor.loc[photoionization_level_index]
+    final_electron_distribution = ThermalElectronEnergyDistribution(
+        thermal_electron_energy_distribution.energy,
+        thermal_electron_energy_distribution.temperature,
+        electron_density.to_numpy() * u.cm**-3,
+    )
+    photoionization_rates, spontaneous_recombination_rates = (
+        rate_matrix_solver.radiative_ionization_rate_solver.solve(
+            radiation_field,
+            final_electron_distribution,
+            lte_level_population,
+            estimated_level_population,
+            lte_ion_population,
+            estimated_ion_population,
+            partition_function,
+            boltzmann_factor,
+        )
+    )
+    aligned_lte_ion_population = align_ion_population_to_level_population(
+        lte_ion_population, lte_level_population
+    )
+    level_to_ion_population_factor = lte_level_population / (
+        aligned_lte_ion_population.to_numpy()
+        * final_electron_distribution.number_density.value
+    )
+    collisional_ionization_rates, collisional_recombination_rates = (
+        rate_matrix_solver.collisional_ionization_rate_solver.solve(
+            final_electron_distribution,
+            level_to_ion_population_factor,
+            partition_function,
+            boltzmann_factor,
+        )
+    )
+    level_population_fraction = boltzmann_factor.groupby(
+        level=["atomic_number", "ion_number"]
+    ).transform(lambda values: values / values.sum())
+    gamma = rate_dataframe_to_level_dataframe(photoionization_rates).divide(
+        level_population_fraction, axis="index"
+    )
+    alpha_sp = rate_dataframe_to_level_dataframe(
+        spontaneous_recombination_rates
+    ).divide(electron_density, axis="columns")
+    coll_ion_coeff = rate_dataframe_to_level_dataframe(
+        collisional_ionization_rates
+    ).divide(electron_density, axis="columns").divide(
+        level_population_fraction, axis="index"
+    )
+    coll_recomb_coeff = rate_dataframe_to_level_dataframe(
+        collisional_recombination_rates
+    ).divide(electron_density**2, axis="columns")
+    return gamma, alpha_sp, coll_ion_coeff, coll_recomb_coeff
+
+
+def add_missing_iip_ion_levels(
+    boltzmann_factor: pd.DataFrame, ion_index: pd.MultiIndex
+) -> pd.DataFrame:
+    """Add ground levels for ion stages absent from the level data."""
+    present_ions = set(
+        boltzmann_factor.index.droplevel("level_number").unique().tolist()
+    )
+    missing_ions = [ion for ion in ion_index if ion not in present_ions]
+    if not missing_ions:
+        return boltzmann_factor
+
+    missing_level_index = pd.MultiIndex.from_tuples(
+        [(atomic_number, ion_number, 0) for atomic_number, ion_number in missing_ions],
+        names=boltzmann_factor.index.names,
+    )
+    return pd.concat(
+        [
+            boltzmann_factor,
+            pd.DataFrame(
+                1.0,
+                index=missing_level_index,
+                columns=boltzmann_factor.columns,
+            ),
+        ]
+    )
+
+
 def test_charge_conserving_multi_element_solution_uses_real_atomic_data(
     tardis_regression_path: Path,
 ) -> None:
     inputs = h_non_h_population_inputs(tardis_regression_path)
 
-    ion_population, electron_density, ion_population_solver = solve_population(
+    ion_population, electron_density, _ = solve_population(
         inputs["rate_matrix_solver"], inputs, charge_conservation=True
     )
 
-    pdt.assert_index_equal(
-        ion_population.loc[2].index,
-        pd.Index(range(3), name="ion_number"),
+    columns = pd.RangeIndex(len(ion_population.columns))
+    ion_index = ion_population.index
+    gamma, alpha_sp, coll_ion_coeff, coll_recomb_coeff = (
+        calculate_iip_rate_coefficients(
+            inputs["rate_matrix_solver"],
+            inputs["thermal_electron_energy_distribution"],
+            inputs["radiation_field"],
+            inputs["lte_level_population"],
+            inputs["lte_ion_population"],
+            inputs["estimated_level_population"],
+            inputs["estimated_ion_population"],
+            inputs["partition_function"],
+            inputs["boltzmann_factor"],
+            electron_density,
+        )
     )
-    pdt.assert_index_equal(
-        ion_population.columns,
-        inputs["elemental_number_density"].columns,
+    iip_level_boltzmann_factor = add_missing_iip_ion_levels(
+        inputs["boltzmann_factor"], ion_index
+    ).set_axis(columns, axis="columns")
+    zero_level_rate = pd.DataFrame(0.0, index=gamma.index, columns=columns)
+    iip_ion_population, iip_electron_density = IIPNLTEIonNumberDensity(
+        SimpleNamespace(
+            previous_ion_number_density=None,
+            previous_electron_densities=None,
+            nlte_species=[
+                (atomic_number, ion_number)
+                for atomic_number, ion_number in gamma.index.droplevel(
+                    "level_number"
+                ).unique()
+            ],
+        )
+    ).calculate(
+        pd.DataFrame(
+            1.0,
+            index=ion_index[ion_index.get_level_values("ion_number") > 0],
+            columns=columns,
+        ),
+        zero_level_rate,
+        alpha_sp.set_axis(columns, axis="columns"),
+        gamma.set_axis(columns, axis="columns"),
+        coll_ion_coeff.set_axis(columns, axis="columns"),
+        coll_recomb_coeff.set_axis(columns, axis="columns"),
+        inputs["elemental_number_density"].set_axis(columns, axis="columns"),
+        iip_level_boltzmann_factor,
     )
-    npt.assert_allclose(
-        ion_population.groupby(level="atomic_number").sum(),
-        inputs["elemental_number_density"],
-        rtol=1e-12,
-    )
-    assert_charge_conservation(ion_population, electron_density)
-    for atomic_number in inputs["elemental_number_density"].index:
-        for shell in ion_population.columns:
-            matrix = ion_population_solver.rates_matrices.loc[
-                atomic_number, shell
-            ]
-            balance = np.zeros(atomic_number + 1)
-            balance[1] = inputs["elemental_number_density"].loc[
-                atomic_number, shell
-            ]
-            npt.assert_allclose(
-                matrix @ ion_population.loc[atomic_number, shell].to_numpy(),
-                balance,
-                rtol=1e-12,
-                atol=1e-12,
-            )
+
+    actual_ion_population = ion_population.set_axis(columns, axis="columns")
+    actual_electron_density = electron_density.set_axis(columns)
+    pdt.assert_frame_equal(actual_ion_population, iip_ion_population, rtol=1e-12)
+    pdt.assert_series_equal(actual_electron_density, iip_electron_density, rtol=1e-12)
 
 
 def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
     rate_matrix_solver: IonRateMatrix,
 ) -> None:
     inputs = hydrogen_population_inputs()
-    ion_population, electron_density, ion_population_solver = solve_population(
+    ion_population, electron_density, _ = solve_population(
         rate_matrix_solver, inputs, charge_conservation=True
     )
     shell = ion_population.columns[0]
-    matrix = ion_population_solver.rates_matrices.loc[1, shell]
-    level_index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0)], names=["atomic_number", "ion_number", "level_number"]
-    )
     phi_index = pd.MultiIndex.from_tuples(
         [(1, 1)], names=["atomic_number", "ion_number"]
-    )
-    full_level_index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0), (1, 1, 0)],
-        names=["atomic_number", "ion_number", "level_number"],
     )
     columns = pd.Index([0])
     hydrogen_density = inputs["elemental_number_density"][[shell]].copy()
     hydrogen_density.columns = columns
-    gamma = pd.DataFrame([[-matrix[0, 0]]], index=level_index, columns=columns)
-    alpha_sp = pd.DataFrame(
-        [[matrix[0, 1] / electron_density.loc[shell]]],
-        index=level_index,
-        columns=columns,
+    gamma, alpha_sp, coll_ion_coeff, coll_recomb_coeff = (
+        calculate_iip_rate_coefficients(
+            rate_matrix_solver,
+            inputs["thermal_electron_energy_distribution"],
+            inputs["radiation_field"],
+            inputs["lte_level_population"],
+            inputs["lte_ion_population"],
+            inputs["estimated_level_population"],
+            inputs["estimated_ion_population"],
+            inputs["partition_function"],
+            inputs["boltzmann_factor"],
+            electron_density,
+        )
     )
-    zero_level_rate = pd.DataFrame([[0.0]], index=level_index, columns=columns)
+    gamma = gamma[[shell]].set_axis(columns, axis="columns")
+    alpha_sp = alpha_sp[[shell]].set_axis(columns, axis="columns")
+    coll_ion_coeff = coll_ion_coeff[[shell]].set_axis(columns, axis="columns")
+    coll_recomb_coeff = coll_recomb_coeff[[shell]].set_axis(
+        columns, axis="columns"
+    )
+    zero_level_rate = pd.DataFrame(0.0, index=gamma.index, columns=columns)
     iip_ion_population, iip_electron_density = IIPNLTEIonNumberDensity(
         SimpleNamespace(
             previous_ion_number_density=None,
@@ -375,10 +525,10 @@ def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
         zero_level_rate,
         alpha_sp,
         gamma,
-        zero_level_rate,
-        zero_level_rate,
+        coll_ion_coeff,
+        coll_recomb_coeff,
         hydrogen_density,
-        pd.DataFrame([[1.0], [1.0]], index=full_level_index, columns=columns),
+        inputs["boltzmann_factor"][[shell]].set_axis(columns, axis="columns"),
     )
 
     actual_ion_population = ion_population[[shell]].copy()
@@ -386,5 +536,9 @@ def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
     actual_electron_density = pd.Series(
         [electron_density.loc[shell]], index=columns
     )
-    pdt.assert_frame_equal(actual_ion_population, iip_ion_population, rtol=1e-5)
-    pdt.assert_series_equal(actual_electron_density, iip_electron_density, rtol=1e-5)
+    pdt.assert_frame_equal(
+        actual_ion_population, iip_ion_population, rtol=1e-11, atol=0.0
+    )
+    pdt.assert_series_equal(
+        actual_electron_density, iip_electron_density, rtol=1e-11, atol=0.0
+    )
