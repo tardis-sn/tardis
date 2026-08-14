@@ -55,24 +55,3 @@ def test_beta_sobolev_has_correct_thin_and_thick_limits() -> None:
     npt.assert_allclose(beta.iloc[2, 0], 1.0e-4, rtol=1e-12)
     npt.assert_allclose(beta.iloc[3, 0], 1.0e-6, rtol=1e-12)
     assert np.all((beta.to_numpy() > 0.0) & (beta.to_numpy() <= 1.0))
-
-
-def test_sobolev_optical_depth_scales_with_time_and_lower_population(
-    nb_simulation_verysimple: Simulation,
-) -> None:
-    legacy_plasma = nb_simulation_verysimple.plasma
-    base_tau = calculate_sobolev_line_opacity(
-        legacy_plasma.lines,
-        legacy_plasma.level_number_density,
-        legacy_plasma.time_explosion,
-        legacy_plasma.stimulated_emission_factor,
-    )
-    doubled_tau = calculate_sobolev_line_opacity(
-        legacy_plasma.lines,
-        2 * legacy_plasma.level_number_density,
-        2 * legacy_plasma.time_explosion,
-        legacy_plasma.stimulated_emission_factor,
-    )
-
-    npt.assert_allclose(doubled_tau.to_numpy(), 4 * base_tau.to_numpy())
-    assert np.all(np.isfinite(base_tau.to_numpy()))

@@ -26,6 +26,13 @@ from tardis.plasma.radiation_field.planck_rad_field import (
 )
 from tardis.util.base import intensity_black_body
 
+REFERENCE_RADIATION_TEMPERATURES = np.array([10000.0, 12000.0]) * u.K
+REFERENCE_RADIATION_DILUTION_FACTORS = np.array([0.3, 0.7])
+REFERENCE_SINGLE_RADIATION_TEMPERATURE = np.array([10000.0]) * u.K
+REFERENCE_LOW_DILUTION_FACTOR = np.array([0.25])
+REFERENCE_HIGH_DILUTION_FACTOR = np.array([0.5])
+REFERENCE_COLLISION_TEMPERATURES = np.array([12500.0, 17500.0]) * u.K
+
 
 @pytest.fixture
 def transition_index() -> pd.MultiIndex:
@@ -66,7 +73,8 @@ def test_radiative_rates_match_einstein_relations(
 ) -> None:
     einstein = real_einstein_data
     radiation_field = DilutePlanckianRadiationField(
-        np.array([10000.0, 12000.0]) * u.K, np.array([0.3, 0.7])
+        REFERENCE_RADIATION_TEMPERATURES,
+        REFERENCE_RADIATION_DILUTION_FACTORS,
     )
     rates = RadiativeRatesSolver(einstein).solve(radiation_field)
     j_nu = radiation_field.calculate_mean_intensity(einstein.nu.values)
@@ -86,9 +94,9 @@ def test_radiative_rates_match_einstein_relations(
     # using the same cgs radiation intensity as the IIP line-rate path.
     npt.assert_allclose(
         j_nu[0],
-        np.array([0.3, 0.7])
+        REFERENCE_RADIATION_DILUTION_FACTORS
         * intensity_black_body(
-            einstein.nu.values * u.Hz, np.array([10000.0, 12000.0]) * u.K
+            einstein.nu.values * u.Hz, REFERENCE_RADIATION_TEMPERATURES
         ),
     )
 
@@ -99,10 +107,12 @@ def test_radiative_rates_scale_linearly_with_dilution(
     einstein = real_einstein_data
     einstein["A_ul"] = 0.0
     field_a = DilutePlanckianRadiationField(
-        np.array([10000.0]) * u.K, np.array([0.25])
+        REFERENCE_SINGLE_RADIATION_TEMPERATURE,
+        REFERENCE_LOW_DILUTION_FACTOR,
     )
     field_b = DilutePlanckianRadiationField(
-        np.array([10000.0]) * u.K, np.array([0.5])
+        REFERENCE_SINGLE_RADIATION_TEMPERATURE,
+        REFERENCE_HIGH_DILUTION_FACTOR,
     )
     rates_a = RadiativeRatesSolver(einstein).solve(field_a)
     rates_b = RadiativeRatesSolver(einstein).solve(field_b)
@@ -126,7 +136,7 @@ def test_tabulated_collision_strength_interpolation_matches_iip(
         index=transition_index,
         columns=temperatures,
     )
-    test_temperatures = np.array([12500.0, 17500.0]) * u.K
+    test_temperatures = REFERENCE_COLLISION_TEMPERATURES
 
     standard_solver = ThermalCollisionalRateSolver(
         standard_atom_data.levels,

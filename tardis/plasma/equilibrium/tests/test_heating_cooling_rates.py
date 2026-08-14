@@ -24,20 +24,44 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
 from tardis.plasma.equilibrium.thermal_balance import ThermalBalanceSolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
+REFERENCE_SHELL_COUNT = 24
+REFERENCE_ELECTRON_TEMPERATURE = 9992.2722969523056 * u.K
+REFERENCE_ELECTRON_NUMBER_DENSITY = 2.20676447e09 * u.cm**-3
+REFERENCE_RADIATION_TEMPERATURE = 10000 * u.K
+REFERENCE_DILUTION_FACTOR = 0.5
+REFERENCE_BOUND_FREE_HEATING_RATE = 1.2809489753862688e-06
+REFERENCE_BOUND_FREE_COOLING_RATE = 1.235774260367592e-06
+REFERENCE_FREE_FREE_HEATING_FACTOR = 4.869809426191116e18
+# Normalized shell-0 Monte Carlo estimator from the ctardis reference run.
+REFERENCE_FREE_FREE_HEATING_ESTIMATOR = 4.89135279e-24
+REFERENCE_FREE_FREE_HEATING_RATE = 2.3829164962085199e-07
+REFERENCE_FREE_FREE_COOLING_RATE = 6.941664530316456e-07
+REFERENCE_COLLISIONAL_IONIZATION_HEATING_RATE = 1.5946196993219911e-07
+REFERENCE_COLLISIONAL_IONIZATION_COOLING_RATE = 1.6125333965984259e-07
+REFERENCE_COLLISIONAL_BOUND_HEATING_RATE = 8.49837495539e-06
+REFERENCE_COLLISIONAL_BOUND_COOLING_RATE = 8.5059159013e-06
+REFERENCE_ADIABATIC_COOLING_RATE = (
+    0.009133236799630136 * u.erg / (u.s * u.cm**3)
+)
+REFERENCE_TOTAL_HEATING_RATE = -4.2003240358632565e-07
+REFERENCE_FRACTIONAL_HEATING_RATE = -0.03963650747926685
+
 
 @pytest.fixture
 def thermal_electron_distribution():
     return ThermalElectronEnergyDistribution(
         0 * u.erg,
-        np.ones(24) * 9992.2722969523056 * u.K,
-        np.ones(24) * 2.20676447e09 * u.cm**-3,
+        np.ones(REFERENCE_SHELL_COUNT) * REFERENCE_ELECTRON_TEMPERATURE,
+        np.ones(REFERENCE_SHELL_COUNT) * REFERENCE_ELECTRON_NUMBER_DENSITY,
     )
 
 
 @pytest.fixture
 def radiation_field():
     return DilutePlanckianRadiationField(
-        np.ones(24) * 10000 * u.K, np.ones(24) * 0.5, geometry=None
+        np.ones(REFERENCE_SHELL_COUNT) * REFERENCE_RADIATION_TEMPERATURE,
+        np.ones(REFERENCE_SHELL_COUNT) * REFERENCE_DILUTION_FACTOR,
+        geometry=None,
     )
 
 
@@ -206,7 +230,7 @@ def test_bound_free_thermal_rates_solve(
 
 @pytest.mark.parametrize(
     "heating_rate, cooling_rate",
-    [(1.2809489753862688e-06, 1.235774260367592e-06)],
+    [(REFERENCE_BOUND_FREE_HEATING_RATE, REFERENCE_BOUND_FREE_COOLING_RATE)],
 )
 def test_bound_free_thermal_rates_solve_with_estimators(
     nlte_atom_data,
@@ -262,7 +286,7 @@ def test_free_free_thermal_rates_heating_factor(
         ion_population,
         thermal_electron_distribution.number_density.cgs.value,
     )
-    expected_factor = 4.869809426191116e18
+    expected_factor = REFERENCE_FREE_FREE_HEATING_FACTOR
 
     # Original parametrized assertion
     assert_almost_equal(actual_factor[0], expected_factor, decimal=10)
@@ -281,7 +305,13 @@ def test_free_free_thermal_rates_heating_factor(
     "ff_heating_estimator, expected_heating_rate, expected_cooling_rate",
     # Normalized shell-0 Monte Carlo free-free estimator from the ctardis
     # reference run.
-    [(4.89135279e-24, 2.3829164962085199e-07, 6.941664530316456e-07)],
+    [
+        (
+            REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
+            REFERENCE_FREE_FREE_HEATING_RATE,
+            REFERENCE_FREE_FREE_COOLING_RATE,
+        )
+    ],
 )
 def test_free_free_thermal_rates_solve(
     thermal_electron_distribution,
@@ -324,7 +354,12 @@ def test_free_free_thermal_rates_solve(
 
 @pytest.mark.parametrize(
     "heating_rate, cooling_rate",
-    [(1.5946196993219911e-07, 1.6125333965984259e-07)],
+    [
+        (
+            REFERENCE_COLLISIONAL_IONIZATION_HEATING_RATE,
+            REFERENCE_COLLISIONAL_IONIZATION_COOLING_RATE,
+        )
+    ],
 )
 def test_collisional_ionization_thermal_rates_solve(
     nlte_atom_data,
@@ -370,7 +405,12 @@ def test_collisional_ionization_thermal_rates_solve(
 
 @pytest.mark.parametrize(
     "heating_rate, cooling_rate",
-    [(8.49837495539e-06, 8.5059159013e-06)],
+    [
+        (
+            REFERENCE_COLLISIONAL_BOUND_HEATING_RATE,
+            REFERENCE_COLLISIONAL_BOUND_COOLING_RATE,
+        )
+    ],
 )
 def test_collisional_bound_thermal_rates_solve(
     ctardis_lines,
@@ -412,7 +452,7 @@ def test_collisional_bound_thermal_rates_solve(
 
 @pytest.mark.parametrize(
     "time, expected_cooling_rate",
-    [(1 * u.s, 0.009133236799630136 * u.erg / (u.s * u.cm**3))],
+    [(1 * u.s, REFERENCE_ADIABATIC_COOLING_RATE)],
 )
 def test_adiabatic_thermal_rates_solve(
     thermal_electron_distribution,
@@ -458,7 +498,7 @@ def test_thermal_balance_solver(
     )
     collisional_bound_rates_solver = CollisionalBoundThermalRates(ctardis_lines)
 
-    ff_heating_estimator = 4.89135279e-24  # from chvogl's code
+    ff_heating_estimator = REFERENCE_FREE_FREE_HEATING_ESTIMATOR
 
     thermal_balance_solver = ThermalBalanceSolver(
         bound_free_rates_solver,
@@ -483,8 +523,8 @@ def test_thermal_balance_solver(
         )
     )
 
-    expected_total_heating_rate = -4.2003240358632565e-07
-    expected_fractional_heating_rate = -0.03963650747926685
+    expected_total_heating_rate = REFERENCE_TOTAL_HEATING_RATE
+    expected_fractional_heating_rate = REFERENCE_FRACTIONAL_HEATING_RATE
 
     # Original parametrized assertions
     assert_almost_equal(
@@ -546,7 +586,7 @@ def test_thermal_balance_process_terms_have_consistent_signs_and_scales(
         stimulated_recombination_estimator,
     )
     free_free = FreeFreeThermalRates().solve(
-        4.89135279e-24,  # Normalized shell-0 Monte Carlo free-free estimator from the ctardis reference run
+        REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
         thermal_electron_distribution,
         ion_population,
     )
@@ -638,12 +678,12 @@ def test_thermal_balance_process_density_scaling(
 
     free_free = FreeFreeThermalRates()
     free_free_low = free_free.solve(
-        4.89135279e-24,
+        REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
         thermal_electron_distribution,
         ion_population,
     )
     free_free_high = free_free.solve(
-        4.89135279e-24,
+        REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
         doubled_distribution,
         ion_population,
     )
@@ -718,7 +758,7 @@ def test_thermal_balance_reconstructs_net_and_fractional_rates(
         collisional_ionization_rate_coefficient,
         collisional_deexcitation_rate_coefficient,
         collisional_excitation_rate_coefficient,
-        4.89135279e-24,
+        REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
         level_population_ratio,
         radiation_field,
         bound_free_heating_estimator,
@@ -734,7 +774,7 @@ def test_thermal_balance_reconstructs_net_and_fractional_rates(
         stimulated_recombination_estimator,
     )
     free_free = free_free_solver.solve(
-        4.89135279e-24,
+        REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
         thermal_electron_distribution,
         ion_population,
     )
@@ -793,7 +833,7 @@ def test_thermal_balance_reconstructs_net_and_fractional_rates(
 def test_free_free_thermal_root_is_stable_to_bracket_perturbations(
     ion_population: pd.DataFrame,
 ) -> None:
-    estimator = 4.89135279e-24
+    estimator = REFERENCE_FREE_FREE_HEATING_ESTIMATOR
     rates = FreeFreeThermalRates()
     expected_temperature = estimator / rates.cooling_constant
 
@@ -801,7 +841,7 @@ def test_free_free_thermal_root_is_stable_to_bracket_perturbations(
         distribution = ThermalElectronEnergyDistribution(
             0 * u.erg,
             np.array([temperature]) * u.K,
-            np.array([2.20676447e9]) * u.cm**-3,
+            np.ones(1) * REFERENCE_ELECTRON_NUMBER_DENSITY,
         )
         heating, cooling = rates.solve(
             estimator,

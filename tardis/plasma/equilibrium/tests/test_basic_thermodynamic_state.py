@@ -193,7 +193,7 @@ def test_electron_statistical_factor_matches_iip(
     npt.assert_allclose(
         thermodynamic_property_values["standard_g"],
         thermodynamic_property_values["iip_g"],
-        rtol=5e-7,
+        rtol=5e-7, #  iip_plasma uses raw astropy constants not tardis.constants
     )
     npt.assert_allclose(thermodynamic_property_values["standard_g"], expected_g)
 

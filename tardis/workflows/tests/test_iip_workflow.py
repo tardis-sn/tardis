@@ -605,15 +605,14 @@ def continuum_comparison_state(
 def collisional_bound_rates(
     continuum_comparison_state: ContinuumComparisonState,
 ) -> CollisionalBoundRates:
-    state = continuum_comparison_state
-    plasma = state.plasma
+
     collisional_rates = ThermalCollisionalRateSolver(
-        plasma.atomic_data.levels,
-        plasma.atomic_data.lines,
-        plasma.atomic_data.collision_data_temperatures,
-        plasma.atomic_data.yg_data,
+        continuum_comparison_state.plasma.atomic_data.levels,
+        continuum_comparison_state.plasma.atomic_data.lines,
+        continuum_comparison_state.plasma.atomic_data.collision_data_temperatures,
+        continuum_comparison_state.plasma.atomic_data.yg_data,
         collision_strengths_type="cmfgen",
-    ).solve(state.electron_temperature)
+    ).solve(continuum_comparison_state.electron_temperature)
     source_levels = collisional_rates.index.get_level_values(
         "level_number_source"
     )
@@ -665,42 +664,45 @@ def equilibrium_cooling_channels(
     collisional_bound_rates: CollisionalBoundRates,
     collisional_ionization_rate: pd.DataFrame,
 ) -> npt.NDArray[np.float64]:
-    state = continuum_comparison_state
-    plasma = state.plasma
     bound_free_cooling = BoundFreeThermalRates(
         state.photoionization_data
     ).solve(
-        plasma.level_number_density,
-        plasma.ion_number_density,
-        state.electron_distribution,
-        state.level_to_ion_population_factor,
-        state.radiation_field,
+        continuum_comparison_state.plasma.level_number_density,
+        continuum_comparison_state.plasma.ion_number_density,
+        continuum_comparison_state.electron_distribution,
+        continuum_comparison_state.level_to_ion_population_factor,
+        continuum_comparison_state.radiation_field,
     )[1]
     free_free_cooling = FreeFreeThermalRates().solve(
-        pd.Series(0.0, index=plasma.electron_densities.index),
-        state.electron_distribution,
-        plasma.ion_number_density,
+        pd.Series(
+            0.0,
+            index=continuum_comparison_state.plasma.electron_densities.index,
+        ),
+        continuum_comparison_state.electron_distribution,
+        continuum_comparison_state.plasma.ion_number_density,
     )[1]
     collisional_ionization_cooling = CollisionalIonizationThermalRates(
-        state.photoionization_data
+        continuum_comparison_state.photoionization_data
     ).solve(
-        state.electron_distribution.number_density,
-        plasma.ion_number_density,
-        plasma.level_number_density,
+        continuum_comparison_state.electron_distribution.number_density,
+        continuum_comparison_state.plasma.ion_number_density,
+        continuum_comparison_state.plasma.level_number_density,
         collisional_ionization_rate,
-        state.level_to_ion_population_factor,
+        continuum_comparison_state.level_to_ion_population_factor,
     )[1]
     collisional_bound_cooling = CollisionalBoundThermalRates(
-        plasma.atomic_data.lines.loc[collisional_bound_rates.excitation_index]
+        continuum_comparison_state.plasma.atomic_data.lines.loc[
+            collisional_bound_rates.excitation_index
+        ]
     ).solve(
-        state.electron_distribution.number_density,
+        continuum_comparison_state.electron_distribution.number_density,
         collisional_bound_rates.deexcitation.set_axis(
             collisional_bound_rates.deexcitation_index
         ),
         collisional_bound_rates.excitation.set_axis(
             collisional_bound_rates.excitation_index
         ),
-        plasma.level_number_density,
+        continuum_comparison_state.plasma.level_number_density,
     )[1]
 
     return np.vstack(
@@ -716,25 +718,32 @@ def equilibrium_cooling_channels(
 def test_radiative_ionization_rates_match_iip_continuum(
     continuum_comparison_state: ContinuumComparisonState,
 ) -> None:
-    state = continuum_comparison_state
 
     radiative_ionization_rate = AnalyticCorrectedPhotoionizationCoeffSolver(
-        state.photoionization_data
+        continuum_comparison_state.photoionization_data
     ).solve(
-        state.radiation_field,
-        state.electron_temperature,
-        state.plasma.lte_level_number_density.loc[state.photoionization_index],
-        state.plasma.level_number_density.loc[state.photoionization_index],
-        state.plasma.lte_ion_number_density.loc[state.upper_ion_index],
-        state.plasma.ion_number_density.loc[state.upper_ion_index],
+        continuum_comparison_state.radiation_field,
+        continuum_comparison_state.electron_temperature,
+        continuum_comparison_state.plasma.lte_level_number_density.loc[
+            continuum_comparison_state.photoionization_index
+        ],
+        continuum_comparison_state.plasma.level_number_density.loc[
+            continuum_comparison_state.photoionization_index
+        ],
+        continuum_comparison_state.plasma.lte_ion_number_density.loc[
+            continuum_comparison_state.upper_ion_index
+        ],
+        continuum_comparison_state.plasma.ion_number_density.loc[
+            continuum_comparison_state.upper_ion_index
+        ],
     )
     pd.testing.assert_index_equal(
         radiative_ionization_rate.index,
-        state.continuum.radiative_ionization.rate_coefficient.index,
+        continuum_comparison_state.continuum.radiative_ionization.rate_coefficient.index,
     )
     np.testing.assert_allclose(
         radiative_ionization_rate.to_numpy(),
-        state.continuum.radiative_ionization.rate_coefficient.to_numpy(),
+        continuum_comparison_state.continuum.radiative_ionization.rate_coefficient.to_numpy(),
         rtol=2e-6,
         atol=0.0,
     )
@@ -743,20 +752,19 @@ def test_radiative_ionization_rates_match_iip_continuum(
 def test_radiative_recombination_rates_match_iip_continuum(
     continuum_comparison_state: ContinuumComparisonState,
 ) -> None:
-    state = continuum_comparison_state
     radiative_recombination_rate = (
-        SpontaneousRecombinationCoeffSolver(state.photoionization_data).solve(
-            state.electron_temperature
-        )
-        * state.level_to_ion_population_factor
+        SpontaneousRecombinationCoeffSolver(
+            continuum_comparison_state.photoionization_data
+        ).solve(continuum_comparison_state.electron_temperature)
+        * continuum_comparison_state.level_to_ion_population_factor
     )
     pd.testing.assert_index_equal(
         radiative_recombination_rate.index,
-        state.continuum.radiative_recombination.rate_coefficient.index,
+        continuum_comparison_state.continuum.radiative_recombination.rate_coefficient.index,
     )
     np.testing.assert_allclose(
         radiative_recombination_rate.to_numpy(),
-        state.continuum.radiative_recombination.rate_coefficient.to_numpy(),
+        continuum_comparison_state.continuum.radiative_recombination.rate_coefficient.to_numpy(),
         rtol=2e-4,
         atol=0.0,
     )
@@ -1120,7 +1128,9 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
 ) -> None:
     """Compare each standard thermal rate with the IIP plasma value."""
     plasma = iip_plasma_after_mc
-    photoionization_data = plasma.atomic_data.continuum_data.photoionization_data
+    photoionization_data = (
+        plasma.atomic_data.continuum_data.photoionization_data
+    )
     electron_distribution = ThermalElectronEnergyDistribution(
         0 * u.erg,
         plasma.t_electrons * u.K,
@@ -1168,8 +1178,7 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
 
     thermal_balance = plasma.outputs_dict["fractional_heating"]
     legacy_rates = {
-        name: np.empty((2, len(plasma.t_electrons)))
-        for name in standard_rates
+        name: np.empty((2, len(plasma.t_electrons))) for name in standard_rates
     }
     for shell, temperature in enumerate(plasma.t_electrons):
         legacy_rates["bound_free"][:, shell] = (
@@ -1246,9 +1255,7 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
         plasma.ff_heating_estimator,
         plasma.phi_lucy,
         bound_free_heating_estimator=plasma.bf_heating_coeff,
-        stimulated_recombination_estimator=(
-            plasma.stim_recomb_cooling_coeff
-        ),
+        stimulated_recombination_estimator=(plasma.stim_recomb_cooling_coeff),
     )
     legacy_heating = sum(rates[0] for rates in legacy_rates.values())
     legacy_cooling = sum(rates[1] for rates in legacy_rates.values())

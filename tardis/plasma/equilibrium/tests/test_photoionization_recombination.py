@@ -29,6 +29,13 @@ from tardis.plasma.equilibrium.rates.photoionization_strengths import (
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.transport.montecarlo.estimators import init_estimators_continuum
 
+REFERENCE_RADIATION_TEMPERATURES_K = np.array([10000.0, 12000.0])
+REFERENCE_RADIATION_DILUTION_FACTORS = np.array([0.4, 0.8])
+REFERENCE_ELECTRON_TEMPERATURES_K = np.array([9000.0, 11000.0])
+REFERENCE_ELECTRON_DENSITY_CM3 = 1.0e9
+REFERENCE_ESTIMATOR_TIME_S = 2.0e5
+REFERENCE_ESTIMATOR_VOLUME_CM3 = 3.0e30
+
 
 @pytest.fixture
 def photoionization_data(nlte_atom_data: AtomData) -> pd.DataFrame:
@@ -47,7 +54,8 @@ def lyman_photoionization_data(nlte_atom_data: AtomData) -> pd.DataFrame:
 @pytest.fixture
 def radiation_field() -> DilutePlanckianRadiationField:
     return DilutePlanckianRadiationField(
-        np.array([10000.0, 12000.0]) * u.K, np.array([0.4, 0.8])
+        REFERENCE_RADIATION_TEMPERATURES_K * u.K,
+        REFERENCE_RADIATION_DILUTION_FACTORS,
     )
 
 
@@ -57,7 +65,7 @@ def analytic_photoionization_rates(
     radiation_field: DilutePlanckianRadiationField,
 ) -> dict[str, pd.DataFrame]:
     photo_data = photoionization_data
-    electron_temperature = np.array([9000.0, 11000.0]) * u.K
+    electron_temperature = REFERENCE_ELECTRON_TEMPERATURES_K * u.K
     standard_solver = AnalyticPhotoionizationCoeffSolver(photo_data)
     gamma, alpha_stim = standard_solver.solve(
         radiation_field, electron_temperature
@@ -135,10 +143,10 @@ def test_zero_radiation_gives_zero_photoionization_and_stimulated_recombination(
 ) -> None:
     photo_data = photoionization_data
     zero_field = DilutePlanckianRadiationField(
-        np.array([10000.0, 12000.0]) * u.K, np.zeros(2)
+        REFERENCE_RADIATION_TEMPERATURES_K * u.K, np.zeros(2)
     )
     gamma, alpha_stim = AnalyticPhotoionizationCoeffSolver(photo_data).solve(
-        zero_field, np.array([9000.0, 11000.0]) * u.K
+        zero_field, REFERENCE_ELECTRON_TEMPERATURES_K * u.K
     )
     assert np.all(gamma.to_numpy() == 0.0)
     assert np.all(alpha_stim.to_numpy() == 0.0)
@@ -148,7 +156,7 @@ def test_spontaneous_recombination_is_positive_and_lyman_suppression_is_explicit
     lyman_photoionization_data: pd.DataFrame,
 ) -> None:
     photo_data = lyman_photoionization_data
-    temperatures = np.array([10000.0, 12000.0]) * u.K
+    temperatures = REFERENCE_RADIATION_TEMPERATURES_K * u.K
     standard_alpha = SpontaneousRecombinationCoeffSolver(photo_data).solve(
         temperatures
     )
@@ -199,8 +207,8 @@ def test_estimator_coefficients_reproduce_regression_inputs(
     )
     estimators.photo_ion_estimator[:] = photo_ion_estimator.to_numpy()
     estimators.stim_recomb_estimator[:] = stim_recomb_estimator.to_numpy()
-    time_simulation = 2.0e5 * u.s
-    volume = 3.0e30 * u.cm**3
+    time_simulation = REFERENCE_ESTIMATOR_TIME_S * u.s
+    volume = REFERENCE_ESTIMATOR_VOLUME_CM3 * u.cm**3
     normalization = 1.0 / (
         time_simulation.to_value(u.s)
         * volume.to_value(u.cm**3)
@@ -224,9 +232,11 @@ def test_bound_free_heating_and_cooling_match_iip_plasma(
     lyman_photoionization_data: pd.DataFrame,
 ) -> None:
     photo_data = lyman_photoionization_data
-    temperatures = np.array([10000.0, 12000.0])
+    temperatures = REFERENCE_RADIATION_TEMPERATURES_K
     electron_distribution = ThermalElectronEnergyDistribution(
-        0 * u.erg, temperatures * u.K, np.ones(2) * 1.0e9 / u.cm**3
+        0 * u.erg,
+        temperatures * u.K,
+        np.ones(2) * REFERENCE_ELECTRON_DENSITY_CM3 / u.cm**3,
     )
     level_index = pd.MultiIndex.from_tuples(
         [(1, 0, 0), (1, 0, 1)],
@@ -293,9 +303,11 @@ def test_bound_free_non_estimator_rates_match_iip_plasma(
     radiation_field: DilutePlanckianRadiationField,
 ) -> None:
     photo_data = lyman_photoionization_data
-    temperatures = np.array([10000.0, 12000.0])
+    temperatures = REFERENCE_RADIATION_TEMPERATURES_K
     electron_distribution = ThermalElectronEnergyDistribution(
-        0 * u.erg, temperatures * u.K, np.ones(2) * 1.0e9 / u.cm**3
+        0 * u.erg,
+        temperatures * u.K,
+        np.ones(2) * REFERENCE_ELECTRON_DENSITY_CM3 / u.cm**3,
     )
     level_index = pd.MultiIndex.from_tuples(
         [(1, 0, 0), (1, 0, 1)],

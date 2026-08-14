@@ -297,7 +297,7 @@ class TestContinuumMacroAtomSolver:
             metadata["source_level_idx"].to_numpy()
         ).sum()
 
-        # Raw propensities are normalized after energy weighting by source;
+        # Raw probabilities are normalized after energy weighting by source;
         # every surviving source block therefore distributes unit probability
         # across its available macro-atom branches.
         active_source_blocks = source_blocks.loc[

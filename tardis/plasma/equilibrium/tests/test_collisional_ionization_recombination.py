@@ -29,6 +29,11 @@ from tardis.plasma.properties.partition_function import (
     ThermalLTEPartitionFunction,
 )
 
+REFERENCE_ELECTRON_TEMPERATURES = np.array([9000.0, 12000.0]) * u.K
+REFERENCE_SEATON_RATE_COEFFICIENT = 1.55e13
+REFERENCE_LOW_ELECTRON_DENSITY_CM3 = 1.0e9
+REFERENCE_HIGH_ELECTRON_DENSITY_CM3 = 2.0e9
+
 
 @pytest.fixture
 def real_photoionization_data(nlte_atom_data: AtomData) -> pd.DataFrame:
@@ -40,7 +45,7 @@ def real_photoionization_data(nlte_atom_data: AtomData) -> pd.DataFrame:
 
 @pytest.fixture
 def electron_temperatures() -> u.Quantity:
-    return np.array([9000.0, 12000.0]) * u.K
+    return REFERENCE_ELECTRON_TEMPERATURES
 
 
 @pytest.fixture
@@ -96,7 +101,7 @@ def test_seaton_thresholds_and_coefficients_match_analytic_expression(
     expected = (
         # Hubeny & Mihalas Eq. 9.60 cgs prefactor (K**0.5 cm / s), p. 276:
         # https://books.google.com/books?id=VA_rAwAAQBAJ&pg=PA276
-        1.55e13
+        REFERENCE_SEATON_RATE_COEFFICIENT
         * threshold_data["x_sect"].to_numpy()[:, np.newaxis]
         * charge_factor
         * np.exp(-u0)
@@ -160,12 +165,12 @@ def test_collisional_rates_scale_with_electron_density(
     low_density = ThermalElectronEnergyDistribution(
         0 * u.erg,
         electron_temperatures,
-        np.full(2, 1.0e9) / u.cm**3,
+        np.full(2, REFERENCE_LOW_ELECTRON_DENSITY_CM3) / u.cm**3,
     )
     high_density = ThermalElectronEnergyDistribution(
         0 * u.erg,
         electron_temperatures,
-        np.full(2, 2.0e9) / u.cm**3,
+        np.full(2, REFERENCE_HIGH_ELECTRON_DENSITY_CM3) / u.cm**3,
     )
     solver = CollisionalIonizationRateSolver(real_photoionization_data)
     ion_low, recomb_low = solver.solve(
