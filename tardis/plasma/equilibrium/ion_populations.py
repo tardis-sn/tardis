@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 LOWER_ION_LEVEL_H = 0
 MINIMUM_BRENT_RELATIVE_TOLERANCE = 4 * np.finfo(float).eps
 CHARGE_TOLERANCE = 1e-10
+MINIMUM_ELECTRON_DENSITY_FRACTION = np.finfo(float).eps
 
 
 class IonPopulationSolver:
@@ -373,18 +374,21 @@ class IonPopulationSolver:
         try:
             electron_density_fraction = brentq(
                 charge_residual,
-                0.0,
+                MINIMUM_ELECTRON_DENSITY_FRACTION,
                 1.0,
                 xtol=CHARGE_TOLERANCE,
                 rtol=MINIMUM_BRENT_RELATIVE_TOLERANCE,
                 maxiter=self.max_solver_iterations,
             )
         except ValueError as exc:
-            lower_residual = charge_residual(0.0)
+            lower_residual = charge_residual(
+                MINIMUM_ELECTRON_DENSITY_FRACTION
+            )
             upper_residual = charge_residual(1.0)
             raise PlasmaIonizationError(
                 f"Charge residual does not bracket shell {shell_idx}: "
-                f"Q_hat(0)={lower_residual}, Q_hat(1)={upper_residual}."
+                "Q_hat(near-neutral)="
+                f"{lower_residual}, Q_hat(1)={upper_residual}."
             ) from exc
 
         return electron_density_fraction * maximum_electron_density
