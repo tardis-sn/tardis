@@ -665,7 +665,7 @@ def equilibrium_cooling_channels(
     collisional_ionization_rate: pd.DataFrame,
 ) -> npt.NDArray[np.float64]:
     bound_free_cooling = BoundFreeThermalRates(
-        state.photoionization_data
+        continuum_comparison_state.photoionization_data
     ).solve(
         continuum_comparison_state.plasma.level_number_density,
         continuum_comparison_state.plasma.ion_number_density,
