@@ -94,6 +94,8 @@ def test_seaton_thresholds_and_coefficients_match_analytic_expression(
         default=0.3,
     )[:, np.newaxis]
     expected = (
+        # Hubeny & Mihalas Eq. 9.60 cgs prefactor (K**0.5 cm / s), p. 276:
+        # https://books.google.com/books?id=VA_rAwAAQBAJ&pg=PA276
         1.55e13
         * threshold_data["x_sect"].to_numpy()[:, np.newaxis]
         * charge_factor
@@ -110,10 +112,10 @@ def test_seaton_thresholds_and_coefficients_match_analytic_expression(
 
     # The IIP property is a compatibility comparison; the expression above
     # is the independent Seaton/Hummer-Mihalas rate oracle.
-    iip = CollIonRateCoeff(None).calculate(
+    legacy_rate_coeff = CollIonRateCoeff(None).calculate(
         real_photoionization_data, electron_temperatures.to_value(u.K)
     )
-    pd.testing.assert_frame_equal(actual, iip, check_names=False)
+    pd.testing.assert_frame_equal(actual, legacy_rate_coeff, check_names=False)
 
 
 def test_seaton_temperature_dependence_matches_threshold_exponential(

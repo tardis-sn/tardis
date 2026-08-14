@@ -279,6 +279,8 @@ def test_free_free_thermal_rates_heating_factor(
 
 @pytest.mark.parametrize(
     "ff_heating_estimator, expected_heating_rate, expected_cooling_rate",
+    # Normalized shell-0 Monte Carlo free-free estimator from the ctardis
+    # reference run.
     [(4.89135279e-24, 2.3829164962085199e-07, 6.941664530316456e-07)],
 )
 def test_free_free_thermal_rates_solve(
@@ -544,7 +546,7 @@ def test_thermal_balance_process_terms_have_consistent_signs_and_scales(
         stimulated_recombination_estimator,
     )
     free_free = FreeFreeThermalRates().solve(
-        4.89135279e-24,
+        4.89135279e-24,  # Normalized shell-0 Monte Carlo free-free estimator from the ctardis reference run
         thermal_electron_distribution,
         ion_population,
     )
