@@ -1,28 +1,22 @@
 """Create publication-ready summaries of TARDIS atomic data."""
 
-from __future__ import annotations
-
 import json
 from collections.abc import Iterable
 from importlib.resources import files
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import pandas as pd
 
+from tardis.io.atom_data.base import AtomData
 from tardis.util.base import (
     atomic_number2element_symbol,
     element_symbol2atomic_number,
     int_to_roman,
 )
 
-if TYPE_CHECKING:
-    from tardis.io.atom_data.base import AtomData
-
 BUILTIN_JOURNALS = ("aa", "aas", "mnras", "nature")
 JOURNAL_TEMPLATES_FILE = "atomic_data_summary_templates.json"
 
-# Add one, de-duplicate stages, combine consecutive values into ranges, use Roman-numeral converter.
 def _format_ion_stage_range(ion_numbers: Iterable[int]) -> str:
     """Format zero-based ion numbers as spectroscopic ranges."""
     # Convert the zero-based ion numbers to spectroscopic stages.
@@ -145,7 +139,6 @@ def build_atom_data_summary(
     return summary
 
 
-# Function accepts two input forms of HDF path or AtomData object.
 def _read_atom_data_tables(
     atom_data: AtomData | str | Path,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -227,8 +220,6 @@ def _render_atom_data_summary(
     # Place the finished rows inside the selected journal template.
     return str(config["template"]).replace("{{TABLE_ROWS}}", "\n".join(rows))
 
-# The user-facing public function.
-# Read tables in, build summary, load format, output .tex and .txt file, return dataframe.
 def export_atom_data_summary(
     atom_data: AtomData | str | Path,
     output_path: str | Path,
