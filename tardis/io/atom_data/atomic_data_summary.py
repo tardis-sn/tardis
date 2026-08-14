@@ -133,12 +133,14 @@ def build_atom_data_summary(
     )
     # Finish the table with clean integer counts and a total row.
     summary = summary.reset_index(drop=True)
-    summary[["Levels", "Lines"]] = summary[["Levels", "Lines"]].astype(int)
+    # Rename numeric columns to requested labels and ensure integer dtype.
+    summary = summary.rename(columns={"Levels": "No. of Levels", "Lines": "No. of Lines"})
+    summary[["No. of Levels", "No. of Lines"]] = summary[["No. of Levels", "No. of Lines"]].astype(int)
     summary.loc[len(summary)] = [
         "Total",
         "",
-        int(summary["Levels"].sum()),
-        int(summary["Lines"].sum()),
+        int(summary["No. of Levels"].sum()),
+        int(summary["No. of Lines"].sum()),
     ]
     return summary
 
@@ -199,18 +201,27 @@ def _render_atom_data_summary(
     """Render an atomic-data summary with a journal configuration."""
     rows = []
 
-    # Turn each summary record into one LaTeX table row.
+    # Turn each summary record into one LaTeX table row. Insert a horizontal
+    # line before the final total row to separate totals from individual rows.
     for record in summary.itertuples(index=False):
-        if record.Element == "Total" and config["bold_total"]:
-            row = (
-                rf"\textbf{{Total}} &  & \textbf{{{record.Levels}}} & "
-                rf"\textbf{{{record.Lines}}} \\"
-            )
+        # Use index-based access because column names may contain spaces.
+        elem = record[0]
+        ion_stage = record[1]
+        n_levels = record[2]
+        n_lines = record[3]
+
+        if elem == "Total":
+            # Add an horizontal line before total row.
+            rows.append(r"\hline")
+            if config["bold_total"]:
+                row = (
+                    rf"\textbf{{Total}} &  & \textbf{{{n_levels}}} & "
+                    rf"\textbf{{{n_lines}}} \\\""
+                )
+            else:
+                row = f"{elem} & {ion_stage} & {n_levels} & {n_lines} " + r"\\"
         else:
-            row = (
-                f"{record.Element} & {record[1]} & "
-                f"{record.Levels} & {record.Lines} " + r"\\"
-            )
+            row = f"{elem} & {ion_stage} & {n_levels} & {n_lines} " + r"\\"
         rows.append(row)
 
     # Place the finished rows inside the selected journal template.
@@ -221,7 +232,6 @@ def _render_atom_data_summary(
 def export_atom_data_summary(
     atom_data: AtomData | str | Path,
     output_path: str | Path,
-    *,
     journal: str | Path = "aas",
     elements: Iterable[str] | None = None,
 ) -> pd.DataFrame:

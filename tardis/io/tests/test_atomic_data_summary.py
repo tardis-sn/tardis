@@ -64,8 +64,8 @@ def test_export_atom_data_summary_from_atom_data(tmp_path):
         {
             "Element": [r"$\mathrm{H}_{1}$", "Total"],
             "Ion stages": ["I--II", ""],
-            "Levels": [4, 4],
-            "Lines": [3, 3],
+            "No. of Levels": [4, 4],
+            "No. of Lines": [3, 3],
         }
     )
     assert_frame_equal(summary, expected)
@@ -76,7 +76,37 @@ def test_export_atom_data_summary_from_atom_data(tmp_path):
     assert r"\textbf{Total}" in latex
 
 # Test 3: Do additional features (element filtering and custom journal config) work as expected?
-def test_export_atom_data_summary_with_elements_and_custom_journal(tmp_path):
+def test_export_atom_data_summary_with_elements_only(tmp_path):
+    # Create usable data for hydrogen and helium.
+    levels = pd.DataFrame(
+        {
+            "atomic_number": [1, 1, 2, 2],
+            "ion_number": [0, 0, 0, 0],
+        }
+    )
+    lines = pd.DataFrame(
+        {
+            "atomic_number": [1, 2],
+            "ion_number": [0, 0],
+        }
+    )
+    atom_data = object.__new__(AtomData)
+    atom_data.levels = levels
+    atom_data.lines = lines
+
+    # Export only hydrogen using the default journal.
+    output_path = tmp_path / "hydrogen_table"
+    summary = export_atom_data_summary(
+        atom_data,
+        output_path,
+        elements=["H"],
+    )
+
+    # Check that only hydrogen rows are present.
+    assert summary["Element"].tolist() == [r"$\mathrm{H}_{1}$", "Total"]
+
+
+def test_export_atom_data_summary_with_custom_journal(tmp_path):
     # Create usable data for hydrogen and helium.
     levels = pd.DataFrame(
         {
@@ -105,22 +135,20 @@ def test_export_atom_data_summary_with_elements_and_custom_journal(tmp_path):
         encoding="utf-8",
     )
 
-    # Export only hydrogen with the custom template.
-    output_path = tmp_path / "hydrogen_table.tex"
+    # Export using the custom template.
+    output_path = tmp_path / "custom_table.tex"
     summary = export_atom_data_summary(
         atom_data,
         output_path,
-        elements=["H"],
         journal=config_path,
     )
 
-    # Check the filter and custom formatting.
-    assert summary["Element"].tolist() == [r"$\mathrm{H}_{1}$", "Total"]
-    latex = output_path.read_text(encoding="utf-8")
+    # Check custom formatting is applied and total is not bold.
+    latex = output_path.with_suffix(".tex").read_text(encoding="utf-8")
     assert latex.startswith("BEGIN\n")
     assert r"\textbf{Total}" not in latex
 
-# Test 4: Can the original HDF files be read directly, not just the AtomData object?
+# Test 4: Can the original HDF files be read directly, not just the AtomData object?-spli
 def test_export_atom_data_summary_from_hdf(tmp_path):
     # Store a minimal silicon dataset in the expected HDF tables.
     input_path = tmp_path / "atom_data.h5"
@@ -148,6 +176,6 @@ def test_export_atom_data_summary_from_hdf(tmp_path):
     assert summary.iloc[0].to_dict() == {
         "Element": r"$\mathrm{Si}_{14}$",
         "Ion stages": "II",
-        "Levels": 2,
-        "Lines": 1,
+        "No. of Levels": 2,
+        "No. of Lines": 1,
     }
