@@ -1,7 +1,10 @@
+import pandas as pd
+
 from tardis.plasma.equilibrium.rates.collisional_ionization_strengths import (
     CollisionalIonizationSeaton,
 )
 from tardis.plasma.equilibrium.rates.util import (
+    align_ion_population_to_level_population,
     reindex_ionization_rate_dataframe,
 )
 
@@ -61,13 +64,20 @@ class CollisionalIonizationRateSolver:
         collision_ionization_rates = strength_solver.solve(
             electron_distribution.temperature
         )
+        collision_ionization_rates.columns = (
+            level_to_ion_population_factor.columns
+        )
 
         # Inverse of the ionization rate for equilibrium
         collision_recombination_rates = collision_ionization_rates.multiply(
             level_to_ion_population_factor
         )
 
-        # TODO: Update for non-Hydrogenic species
+        partition_function = align_ion_population_to_level_population(
+            partition_function,
+            level_boltzmann_factor,
+            next_higher=False,
+        )
         level_population_fraction = level_boltzmann_factor / partition_function
 
         # used to scale the photoionization rate because we keep the level population
