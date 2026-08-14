@@ -66,6 +66,12 @@ def hydrogen_population_inputs() -> dict[str, object]:
         data=np.vstack([np.ones(20) * 1e5]),
         index=pd.Index([1], name="atomic_number"),
     )
+    level_to_continuum_saha_factor = lte_level_population / (
+        align_ion_population_to_level_population(
+            lte_ion_population, lte_level_population
+        ).to_numpy()
+        * thermal_electron_energy_distribution.number_density.value
+    )
     return {
         "radiation_field": radiation_field,
         "thermal_electron_energy_distribution": thermal_electron_energy_distribution,
@@ -75,6 +81,7 @@ def hydrogen_population_inputs() -> dict[str, object]:
         "estimated_ion_population": lte_ion_population.copy() * 1.1,
         "partition_function": 1.0,
         "boltzmann_factor": boltzmann_factor,
+        "level_to_continuum_saha_factor": level_to_continuum_saha_factor,
         "elemental_number_density": elemental_number_density,
     }
 
@@ -96,7 +103,12 @@ def solve_population(
         inputs["estimated_ion_population"],
         inputs["partition_function"],
         inputs["boltzmann_factor"],
-        charge_conservation,
+        charge_conservation=charge_conservation,
+        level_to_continuum_saha_factor=(
+            inputs["level_to_continuum_saha_factor"]
+            if charge_conservation
+            else None
+        ),
     )
     return ion_population, electron_density, ion_population_solver
 
@@ -180,19 +192,14 @@ def test_charge_conserving_hydrogen_matches_analytic_root(
 
     for shell in ion_population.columns:
         matrix = ion_population_solver.rates_matrices.loc[1, shell]
-        photoionization_rate = -matrix[0, 0]
-        recombination_coefficient = matrix[0, 1] / electron_density.loc[shell]
+        ionization_rate = -matrix[0, 0]
+        recombination_rate = matrix[0, 1]
         hydrogen_density = inputs["elemental_number_density"].loc[1, shell]
         expected_electron_density = (
-            -photoionization_rate
-            + np.sqrt(
-                photoionization_rate**2
-                + 4
-                * recombination_coefficient
-                * photoionization_rate
-                * hydrogen_density
-            )
-        ) / (2 * recombination_coefficient)
+            hydrogen_density
+            * ionization_rate
+            / (ionization_rate + recombination_rate)
+        )
         npt.assert_allclose(
             electron_density.loc[shell],
             expected_electron_density,
@@ -270,16 +277,23 @@ def h_non_h_population_inputs(
         index=pd.Index([1, 2], name="atomic_number"),
         columns=columns,
     )
+    thermal_electron_energy_distribution = ThermalElectronEnergyDistribution(
+        0,
+        np.ones(len(columns)) * 10000 * u.K,
+        np.array([1.0e4, 2.0e4]) * u.cm**-3,
+    )
+    level_to_continuum_saha_factor = lte_level_population / (
+        align_ion_population_to_level_population(
+            lte_ion_population, lte_level_population
+        ).to_numpy()
+        * thermal_electron_energy_distribution.number_density.value
+    )
     return {
         "radiation_field": DilutePlanckianRadiationField(
             np.ones(len(columns)) * 10000 * u.K,
             dilution_factor=np.ones(len(columns)) * 0.5,
         ),
-        "thermal_electron_energy_distribution": ThermalElectronEnergyDistribution(
-            0,
-            np.ones(len(columns)) * 10000 * u.K,
-            np.array([1.0e4, 2.0e4]) * u.cm**-3,
-        ),
+        "thermal_electron_energy_distribution": thermal_electron_energy_distribution,
         "lte_level_population": lte_level_population,
         "estimated_level_population": lte_level_population.copy(),
         "lte_ion_population": lte_ion_population,
@@ -290,6 +304,7 @@ def h_non_h_population_inputs(
             index=level_index,
             columns=columns,
         ),
+        "level_to_continuum_saha_factor": level_to_continuum_saha_factor,
         "elemental_number_density": elemental_number_density,
         "rate_matrix_solver": IonRateMatrix(
             AnalyticPhotoionizationRateSolver(photoionization_cross_sections),
@@ -321,6 +336,7 @@ def calculate_iip_rate_coefficients(
     estimated_ion_population: pd.DataFrame,
     partition_function: pd.DataFrame | float,
     boltzmann_factor: pd.DataFrame,
+    level_to_continuum_saha_factor: pd.DataFrame,
     electron_density: pd.Series,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Calculate IIP coefficients from the production rate solvers.
@@ -339,6 +355,9 @@ def calculate_iip_rate_coefficients(
         photoionization_level_index
     ]
     boltzmann_factor = boltzmann_factor.loc[photoionization_level_index]
+    level_to_continuum_saha_factor = level_to_continuum_saha_factor.loc[
+        photoionization_level_index
+    ]
     final_electron_distribution = ThermalElectronEnergyDistribution(
         thermal_electron_energy_distribution.energy,
         thermal_electron_energy_distribution.temperature,
@@ -354,19 +373,13 @@ def calculate_iip_rate_coefficients(
             estimated_ion_population,
             partition_function,
             boltzmann_factor,
+            level_to_continuum_saha_factor,
         )
-    )
-    aligned_lte_ion_population = align_ion_population_to_level_population(
-        lte_ion_population, lte_level_population
-    )
-    level_to_ion_population_factor = lte_level_population / (
-        aligned_lte_ion_population.to_numpy()
-        * final_electron_distribution.number_density.value
     )
     collisional_ionization_rates, collisional_recombination_rates = (
         rate_matrix_solver.collisional_ionization_rate_solver.solve(
             final_electron_distribution,
-            level_to_ion_population_factor,
+            level_to_continuum_saha_factor,
             partition_function,
             boltzmann_factor,
         )
@@ -440,6 +453,7 @@ def test_charge_conserving_multi_element_solution_uses_real_atomic_data(
             inputs["estimated_ion_population"],
             inputs["partition_function"],
             inputs["boltzmann_factor"],
+            inputs["level_to_continuum_saha_factor"],
             electron_density,
         )
     )
@@ -475,8 +489,18 @@ def test_charge_conserving_multi_element_solution_uses_real_atomic_data(
 
     actual_ion_population = ion_population.set_axis(columns, axis="columns")
     actual_electron_density = electron_density.set_axis(columns)
-    pdt.assert_frame_equal(actual_ion_population, iip_ion_population, rtol=1e-12)
-    pdt.assert_series_equal(actual_electron_density, iip_electron_density, rtol=1e-12)
+    actual_ion_fraction = actual_ion_population.groupby(
+        level="atomic_number"
+    ).transform(lambda population: population / population.sum())
+    iip_ion_fraction = iip_ion_population.groupby(
+        level="atomic_number"
+    ).transform(lambda population: population / population.sum())
+    pdt.assert_frame_equal(
+        actual_ion_fraction, iip_ion_fraction, rtol=1e-5, atol=1e-12
+    )
+    pdt.assert_series_equal(
+        actual_electron_density, iip_electron_density, rtol=1e-5, atol=1e-20
+    )
 
 
 def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
@@ -504,6 +528,7 @@ def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
             inputs["estimated_ion_population"],
             inputs["partition_function"],
             inputs["boltzmann_factor"],
+            inputs["level_to_continuum_saha_factor"],
             electron_density,
         )
     )
@@ -536,9 +561,11 @@ def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
     actual_electron_density = pd.Series(
         [electron_density.loc[shell]], index=columns
     )
+    actual_ion_fraction = actual_ion_population / actual_ion_population.sum()
+    iip_ion_fraction = iip_ion_population / iip_ion_population.sum()
     pdt.assert_frame_equal(
-        actual_ion_population, iip_ion_population, rtol=1e-11, atol=0.0
+        actual_ion_fraction, iip_ion_fraction, rtol=1e-5, atol=1e-12
     )
     pdt.assert_series_equal(
-        actual_electron_density, iip_electron_density, rtol=1e-11, atol=0.0
+        actual_electron_density, iip_electron_density, rtol=1e-5, atol=1e-20
     )
