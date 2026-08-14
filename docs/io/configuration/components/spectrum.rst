@@ -41,10 +41,9 @@ The following example shows how to edit variables for the different methods.
                         virtual_packet_logging: True
 
 The virtual-packet spawn range is configured separately in the ``montecarlo``
-section. It limits the wavelength of an R-packet when a virtual-packet volley
-is considered; it does not change the histogram bin edges. The limits are
-converted to frequency internally, so the lower wavelength limit corresponds
-to the upper frequency limit::
+section. It determines the wavelength range of R-packets that can spawn a 
+virtual-packet volley. The limits are converted to frequency internally, so the 
+lower wavelength limit corresponds to the upper frequency limit::
 
         montecarlo:
                 virtual_spectrum_spawn_range:
