@@ -119,7 +119,7 @@ def ctardis_compare_config(
 
     config.plasma.nlte.species = [
         (1, 0)
-    ]  # Hack to force config necessary for ctardis plasma
+    ]  # Force the configuration required by the ctardis plasma.
     return config
 
 
@@ -404,6 +404,7 @@ def iip_charge_conserving_rate_matrix(
         estimated_ion_population: pd.DataFrame,
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame,
     ) -> pd.DataFrame:
         """Build the IIP two-stage hydrogen matrices at trial densities."""
         electron_number_density = electron_distribution.number_density.value
@@ -478,6 +479,7 @@ def test_charge_conserving_solver_matches_iip_with_full_atomic_data(
         plasma.partition_function,
         plasma.level_boltzmann_factor,
         charge_conservation=True,
+        level_to_continuum_saha_factor=plasma.phi_lucy,
     )
 
     pd.testing.assert_frame_equal(
@@ -534,6 +536,7 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
         plasma.partition_function,
         plasma.level_boltzmann_factor,
         charge_conservation=True,
+        level_to_continuum_saha_factor=plasma.phi_lucy,
     )
 
     assert [
