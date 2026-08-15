@@ -102,7 +102,9 @@ def parse_mass_fractions_from_config(
     # The next line is if the mass_fractions are given via dict
     # and not gone through the schema validator
 
-    model_isotope_time_0 = config.model.abundances.model_isotope_time_0
+    model_isotope_time_0 = mass_fractions_section.get(
+        "model_isotope_time_0", np.nan * u.s
+    )
 
     if not np.isnan(model_isotope_time_0):
         assert model_isotope_time_0 < time_explosion
