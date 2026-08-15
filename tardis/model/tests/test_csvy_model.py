@@ -83,6 +83,48 @@ def test_compare_models(model_config_fnames, atomic_dataset):
     )
 
 
+@pytest.mark.parametrize(
+    ("csvy_model_name", "density_profile"),
+    [
+        ("powerlaw", lambda velocity_ratio: velocity_ratio**-2),
+        ("exponential", lambda velocity_ratio: np.exp(-velocity_ratio)),
+    ],
+)
+def test_density_profile_from_csvy_header(
+    csvy_model_name, density_profile, example_csvy_file_dir
+):
+    """A density profile declared in the CSVY header has to be evaluated at
+    the middle of every shell and has to produce one density per shell.
+
+    Both models declare rho_0 = 1e-9 g/cm^3 and v_0 = 10000 km/s and no
+    time_0, so the densities are analytic and are not scaled in time.
+    """
+    csvy_config_file = example_csvy_file_dir / f"{csvy_model_name}_csvy.yml"
+    csvy_simulation_state = SimulationState.from_csvy(
+        Configuration.from_yaml(csvy_config_file)
+    )
+
+    velocity = csvy_simulation_state.velocity
+    v_middle = 0.5 * (velocity[:-1] + velocity[1:])
+    velocity_ratio = (v_middle / (10000 * u.km / u.s)).to(
+        u.dimensionless_unscaled
+    )
+    expected_density = (
+        1e-9 * u.g / u.cm**3 * density_profile(velocity_ratio.value)
+    )
+
+    assert (
+        len(csvy_simulation_state.composition.density)
+        == csvy_simulation_state.no_of_shells
+    )
+    npt.assert_allclose(
+        csvy_simulation_state.density.cgs.value,
+        expected_density.cgs.value,
+        rtol=1e-12,
+        atol=0,
+    )
+
+
 def test_dimensionality_after_update_v_inner_boundary(
     example_csvy_file_dir, atomic_dataset
 ):
