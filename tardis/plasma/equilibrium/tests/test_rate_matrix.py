@@ -14,6 +14,8 @@ from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix, RateMatrix
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
+    RadiativeRatesSolver,
+    ThermalCollisionalRateSolver,
 )
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -22,11 +24,11 @@ from tardis.plasma.radiation_field import (
 
 def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[tuple[object, str]],
+    rate_solvers: tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
-        rate_solver_list, new_chianti_atomic_dataset_si.levels
+        *rate_solvers, new_chianti_atomic_dataset_si.levels
     )
     rad_field = DilutePlanckianRadiationField(
         collisional_simulation_state.t_radiative,
@@ -59,11 +61,11 @@ def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
 
 def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[tuple[object, str]],
+    rate_solvers: tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
-        rate_solver_list, new_chianti_atomic_dataset_si.levels
+        *rate_solvers, new_chianti_atomic_dataset_si.levels
     )
     rad_field = DilutePlanckianRadiationField(
         collisional_simulation_state.t_radiative,
@@ -90,12 +92,12 @@ def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
 
 def test_rate_matrix_solver(
     new_chianti_atomic_dataset_si,
-    rate_solver_list,
+    rate_solvers,
     collisional_simulation_state,
     regression_data,
 ):
     rate_matrix_solver = RateMatrix(
-        rate_solver_list, new_chianti_atomic_dataset_si.levels
+        *rate_solvers, new_chianti_atomic_dataset_si.levels
     )
 
     rad_field = DilutePlanckianRadiationField(

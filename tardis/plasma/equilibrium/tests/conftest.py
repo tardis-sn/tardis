@@ -111,11 +111,11 @@ def collisional_rate_solver(
 
 
 @pytest.fixture
-def rate_solver_list(radiative_rate_solver, collisional_rate_solver):
-    return [
-        (radiative_rate_solver, "radiative"),
-        (collisional_rate_solver, "electron"),
-    ]
+def rate_solvers(
+    radiative_rate_solver: RadiativeRatesSolver,
+    collisional_rate_solver: ThermalCollisionalRateSolver,
+) -> tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver]:
+    return radiative_rate_solver, collisional_rate_solver
 
 
 @pytest.fixture

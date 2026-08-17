@@ -1124,7 +1124,15 @@ def test_standalone_level_populations_equality_with_iip_plasma(
     ]
     standard_rate_matrix = RateMatrix(
         RadiativeRatesSolver(hydrogen_lines),
-        (),
+        ThermalCollisionalRateSolver(
+            atom_data.levels,
+            hydrogen_lines,
+            atom_data.collision_data_temperatures,
+            atom_data.collision_data.loc[
+                (1, 0, slice(None), slice(None)), :
+            ],
+            "chianti",
+        ),
         atom_data.levels,
     )
     radiation_field = DilutePlanckianRadiationField(
