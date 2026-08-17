@@ -61,7 +61,7 @@ class RateMatrix:
         rebuild the matrix at a candidate Sobolev state.
         """
         rates_df_list = [
-            self.radiative_rate_solver.solve_from_mean_intensity(
+            self.radiative_rate_solver.solve(
                 j_blues, beta_sobolev
             )
         ]
