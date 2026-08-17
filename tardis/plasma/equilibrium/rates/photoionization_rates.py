@@ -140,79 +140,95 @@ class AnalyticPhotoionizationRateSolver:
         return photoionization_rate, spontaneous_recombination_rate
 
 
-class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
-    """Solve estimated photoionization and recombination rates."""
+class EstimatedPhotoionizationRateSolver:
+    """Solve fixed-estimator photoionization and recombination rates."""
 
     def __init__(
-        self, photoionization_cross_sections, level2continuum_edge_idx
+        self,
+        photoionization_cross_sections,
+        level2continuum_edge_idx,
+        estimators_continuum=None,
+        time_simulation=None,
+        volume=None,
     ):
-        super().__init__(
-            photoionization_cross_sections,
+        self.photoionization_cross_sections = photoionization_cross_sections
+        self.spontaneous_recombination_rate_coeff_solver = (
+            SpontaneousRecombinationCoeffSolver(
+                self.photoionization_cross_sections
+            )
         )
         self.level2continuum_edge_idx = level2continuum_edge_idx
+        self.estimators_continuum = estimators_continuum
+        self.time_simulation = time_simulation
+        self.volume = volume
 
     def solve(
         self,
         electron_energy_distribution: ThermalElectronEnergyDistribution,
-        estimators_continuum: object,
-        time_simulation: object,
-        volume: object,
         level_population: pd.DataFrame,
+        ion_population: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """Solve estimated photoionization and recombination rates.
+        """Solve rates using fixed Monte Carlo estimators.
 
-        This case uses a radiation field estimated by Monte Carlo processes.
-
-        Parameters
-        ----------
-        electron_energy_distribution : ThermalElectronEnergyDistribution
-            Electron properties.
-        estimators_continuum : EstimatorsContinuum
-            Estimators of the continuum radiation field properties.
-        time_simulation : u.Quantity
-            Time of simulation.
-        volume : u.Quantity
-            Volume per cell.
-        level_population : pd.DataFrame
-            Electron energy level number density. Columns are cells.
-
-        Returns
-        -------
-        pd.DataFrame
-            Photoionization rate. Columns are cells.
-        pd.DataFrame
-            Spontaneous recombination rate. Columns are cells.
+        The estimator supplies the photoionization and
+        stimulated-recombination coefficients; stimulated recombination is
+        subtracted from photoionization and spontaneous recombination is
+        returned as the separate reverse rate.
         """
-        photoionization_rate_coeff_solver = EstimatedPhotoionizationCoeffSolver(
+        if (
+            self.estimators_continuum is None
+            or self.time_simulation is None
+            or self.volume is None
+        ):
+            raise ValueError(
+                "EstimatedPhotoionizationRateSolver requires fixed estimators, "
+                "simulation time, and cell volume."
+            )
+
+        coefficient_solver = EstimatedPhotoionizationCoeffSolver(
             self.level2continuum_edge_idx
         )
-
-        photoionization_rate_coeff = photoionization_rate_coeff_solver.solve(
-            estimators_continuum,
-            time_simulation,
-            volume,
+        photoionization_coeff, stimulated_recombination_coeff = (
+            coefficient_solver.solve(
+                self.estimators_continuum,
+                self.time_simulation,
+                self.volume,
+            )
         )
+        photoionization_coeff.columns = level_population.columns
+        stimulated_recombination_coeff.columns = level_population.columns
 
-        spontaneous_recombination_rate_coeff = (
+        spontaneous_recombination_coeff = (
             self.spontaneous_recombination_rate_coeff_solver.solve(
                 electron_energy_distribution.temperature
             )
         )
+        next_ion_population = align_ion_population_to_level_population(
+            ion_population,
+            level_population,
+        )
+        electron_density = electron_energy_distribution.number_density.to_value(
+            "cm^-3"
+        )
 
-        photoionization_rate = photoionization_rate_coeff * level_population
-
+        photoionization_rate = photoionization_coeff * level_population
+        stimulated_recombination_rate = (
+            stimulated_recombination_coeff
+            * next_ion_population
+            * electron_density
+        )
+        photoionization_rate -= stimulated_recombination_rate
         recombination_rate = (
-            spontaneous_recombination_rate_coeff
-            * level_population
-            * electron_energy_distribution.number_density
+            spontaneous_recombination_coeff
+            * next_ion_population
+            * electron_density
         )
 
-        photoionization_rate = reindex_ionization_rate_dataframe(
-            photoionization_rate, recombination=False
+        return (
+            reindex_ionization_rate_dataframe(
+                photoionization_rate, recombination=False
+            ),
+            reindex_ionization_rate_dataframe(
+                recombination_rate, recombination=True
+            ),
         )
-
-        recombination_rate = reindex_ionization_rate_dataframe(
-            recombination_rate, recombination=True
-        )
-
-        return photoionization_rate, recombination_rate
