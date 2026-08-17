@@ -10,6 +10,8 @@ from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
     EstimatedPhotoionizationRateSolver,
+    RadiativeRatesSolver,
+    ThermalCollisionalRateSolver,
 )
 from tardis.plasma.equilibrium.rates.util import (
     reindex_ion_population_to_level_population,
@@ -25,51 +27,50 @@ class RateMatrix:
 
     def __init__(
         self,
-        rate_solvers: list,
+        radiative_rate_solver: RadiativeRatesSolver,
+        electron_rate_solver: ThermalCollisionalRateSolver,
         levels: pd.DataFrame,
     ) -> None:
-        """Construct a rate matrix from an arbitrary number of rate solvers.
+        """Construct a rate matrix from explicit bound-bound rate owners.
 
         Parameters
         ----------
-        rate_solvers : list
-            List of rate solver pairs.
+        radiative_rate_solver : RadiativeRatesSolver
+            Solver for radiative transition rates.
+        electron_rate_solver : ThermalCollisionalRateSolver
+            Solver for electron-dependent transition rates.
         levels : pd.DataFrame
             DataFrame of energy levels.
         """
-        self.rate_solvers = rate_solvers
+        self.radiative_rate_solver = radiative_rate_solver
+        self.electron_rate_solver = electron_rate_solver
         self.levels = levels
 
-    def solve(
+    def assemble_matrices(
         self,
-        radiation_field: DilutePlanckianRadiationField
-        | PlanckianRadiationField,
+        j_blues: pd.DataFrame,
         thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+        beta_sobolev: pd.DataFrame | None = None,
     ) -> pd.DataFrame:
-        """Construct the compiled rate matrix dataframe.
+        """Assemble column-conserving bound-bound rate matrices.
 
-        Parameters
-        ----------
-        radiation_field : RadiationField
-            Radiation field containing radiative temperature.
-        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
-            Distribution of electrons in the plasma, containing electron energies,
-            temperatures and number densities.
-
-        Returns
-        -------
-        pd.DataFrame
-            A DataFrame of rate matrices indexed by atomic number and ion number,
-            with each column being a cell.
+        The returned matrices contain the rate equations, including
+        their column-conserving diagonals, but do not contain the normalization
+        row used by :meth:`solve`.  ``j_blues`` and ``beta_sobolev`` are used
+        together for radiative transitions, so a residual evaluation can
+        rebuild the matrix at a candidate Sobolev state.
         """
-        required_arg = {
-            "radiative": radiation_field,
-            "electron": thermal_electron_energy_distribution.temperature,
-        }
-
         rates_df_list = [
-            solver.solve(required_arg[arg]) for solver, arg in self.rate_solvers
+            self.radiative_rate_solver.solve_from_mean_intensity(
+                j_blues, beta_sobolev
+            )
         ]
+        rates_df_list.append(
+            self.electron_rate_solver.solve(
+                thermal_electron_energy_distribution.temperature
+            )
+        )
+
         # Extract all indexes
         all_indexes = set()
         for df in rates_df_list:
@@ -86,11 +87,9 @@ class RateMatrix:
         # Multiply rates by electron number density where appropriate
         rates_df_list = [
             rates_df * thermal_electron_energy_distribution.number_density.value
-            if solver_arg_tuple[1] == "electron"
+            if idx > 0
             else rates_df
-            for solver_arg_tuple, rates_df in zip(
-                self.rate_solvers, rates_df_list, strict=True
-            )
+            for idx, rates_df in enumerate(rates_df_list)
         ]
 
         rates_df = sum(rates_df_list)
@@ -121,7 +120,6 @@ class RateMatrix:
                 )
                 matrix_array = matrix.toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
-                matrix_array[0, :] = 1
                 matrices[shell] = matrix_array
             rate_matrices[species_id] = matrices
 
@@ -136,8 +134,46 @@ class RateMatrix:
             index=pd.MultiIndex.from_tuples(
                 rate_matrices, names=["atomic_number", "ion_number"]
             ),
-            columns=rates_df.columns,
+            columns=pd.Index(rates_df.columns, dtype=object),
         )
+
+    def solve(
+        self,
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+    ) -> pd.DataFrame:
+        """Construct the compiled rate matrix dataframe.
+
+        Parameters
+        ----------
+        radiation_field : RadiationField
+            Radiation field containing radiative temperature.
+        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
+            Distribution of electrons in the plasma, containing electron energies,
+            temperatures and number densities.
+
+        Returns
+        -------
+        pd.DataFrame
+            A DataFrame of rate matrices indexed by atomic number and ion number,
+            with each column being a cell.
+        """
+        j_blues = pd.DataFrame(
+            radiation_field.calculate_mean_intensity(
+                self.radiative_rate_solver.einstein_coefficients.nu.to_numpy()
+            ),
+            index=self.radiative_rate_solver.einstein_coefficients.index,
+        )
+        rate_matrices = self.assemble_matrices(
+            j_blues,
+            thermal_electron_energy_distribution,
+        )
+        normalized_matrices = rate_matrices.copy(deep=True)
+        for species_id in normalized_matrices.index:
+            for shell in normalized_matrices.columns:
+                normalized_matrices.at[species_id, shell][0, :] = 1.0
+        return normalized_matrices
 
 
 class IonRateMatrix:
