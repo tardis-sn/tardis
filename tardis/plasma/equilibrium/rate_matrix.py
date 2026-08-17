@@ -301,19 +301,31 @@ class IonRateMatrix:
             Rate matrices indexed by atomic number, with each column being a
             shell.
         """
-        photoion_rates_df, recomb_rates_df = (
-            self.radiative_ionization_rate_solver.solve(
-                radiation_field,
-                thermal_electron_energy_distribution,
-                lte_level_population,
-                level_population,
-                lte_ion_population,
-                ion_population,
-                partition_function,
-                boltzmann_factor,
-                level_to_continuum_saha_factor,
+        if isinstance(
+            self.radiative_ionization_rate_solver,
+            EstimatedPhotoionizationRateSolver,
+        ):
+            photoion_rates_df, recomb_rates_df = (
+                self.radiative_ionization_rate_solver.solve(
+                    thermal_electron_energy_distribution,
+                    level_population,
+                    ion_population,
+                )
             )
-        )
+        else:
+            photoion_rates_df, recomb_rates_df = (
+                self.radiative_ionization_rate_solver.solve(
+                    radiation_field,
+                    thermal_electron_energy_distribution,
+                    lte_level_population,
+                    level_population,
+                    lte_ion_population,
+                    ion_population,
+                    partition_function,
+                    boltzmann_factor,
+                    level_to_continuum_saha_factor,
+                )
+            )
 
         if level_to_continuum_saha_factor is None:
             lte_ion_population = reindex_ion_population_to_level_population(
