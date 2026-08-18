@@ -10,6 +10,7 @@ import pytest
 from astropy import units as u
 from scipy.optimize import root
 
+from tardis import constants as const
 from tardis.conftest import assert_regression_dataframe
 from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
 from tardis.iip_plasma.properties.ion_population import NLTEIonNumberDensity
@@ -18,15 +19,28 @@ from tardis.iip_plasma.properties.partition_function import (
 )
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.configuration.config_reader import Configuration
+from tardis.opacities.tau_sobolev import SOBOLEV_COEFFICIENT
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
+from tardis.plasma.equilibrium.evaluator import PlasmaEquilibriumEvaluator
+from tardis.plasma.equilibrium.inputs import (
+    NumberDensityPerShell,
+    SobolevInputs,
+)
+from tardis.plasma.equilibrium.ion_populations import (
+    IonPopulationSolver,
+)
 from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
-from tardis.plasma.equilibrium.rate_matrix import RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    EstimatedIonRateMatrix,
+    RateMatrix,
+)
 from tardis.plasma.equilibrium.rates import (
     AnalyticCorrectedPhotoionizationCoeffSolver,
+    CollisionalIonizationRateSolver,
     CollisionalIonizationSeaton,
+    EstimatedPhotoionizationRateSolver,
     SpontaneousRecombinationCoeffSolver,
     ThermalCollisionalRateSolver,
 )
@@ -39,6 +53,7 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
 from tardis.plasma.equilibrium.thermal_balance import ThermalBalanceSolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.transport.montecarlo.estimators import init_estimators_continuum
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
 
@@ -478,7 +493,6 @@ def test_charge_conserving_solver_matches_iip_with_full_atomic_data(
         plasma.ion_number_density,
         plasma.partition_function,
         plasma.level_boltzmann_factor,
-        charge_conservation=True,
         level_to_continuum_saha_factor=plasma.phi_lucy,
     )
 
@@ -535,7 +549,6 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
         estimated_ion_population,
         plasma.partition_function,
         plasma.level_boltzmann_factor,
-        charge_conservation=True,
         level_to_continuum_saha_factor=plasma.phi_lucy,
     )
 
@@ -1374,16 +1387,12 @@ def test_iip_augmented_and_reduced_level_equations_match(
     )
 
     for candidate in candidates.values():
-        candidate_electron_density = (
-            candidate[::2] * maximum_electron_density
-        )
+        candidate_electron_density = candidate[::2] * maximum_electron_density
         candidate_electron_temperature = (
             np.asarray(plasma.t_rad) * candidate[1::2]
         )
         for shell_idx in shell_indices:
-            electron_density = np.array(
-                [candidate_electron_density[shell_idx]]
-            )
+            electron_density = np.array([candidate_electron_density[shell_idx]])
             electron_temperature = np.array(
                 [candidate_electron_temperature[shell_idx]]
             )
@@ -1563,9 +1572,7 @@ def test_iip_augmented_and_reduced_level_equations_match(
             assert (
                 np.max(np.abs(augmented_solution.fun)) / residual_scale < 1e-10
             )
-            assert (
-                np.max(np.abs(reduced_solution.fun)) / residual_scale < 1e-10
-            )
+            assert np.max(np.abs(reduced_solution.fun)) / residual_scale < 1e-10
             solved_fractions = augmented_solution.x[:-1]
             reduced_fractions = reduced_solution.x
             assert np.isfinite(solved_fractions).all()
@@ -1591,6 +1598,359 @@ def test_iip_augmented_and_reduced_level_equations_match(
             assert np.isfinite(initial_fractions).all()
             assert np.all(initial_fractions >= 0.0)
             np.testing.assert_allclose(initial_fractions.sum(), 1.0)
+
+
+def test_evaluator_matches_iip_five_shell_path(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+    type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """Compare the real evaluator composition with accepted IIP shells."""
+    type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
+    type_iip_workflow.solve_thermal_balance()
+    plasma = type_iip_workflow.plasma_solver
+    _, maximum_electron_density = thermal_balance_guess(plasma)
+
+    shell_indices = pd.Index([0, 2, 3, 8, 23])
+    time_simulation = 2.0e5 * u.s
+    volume = 3.0e30 * u.cm**3
+    estimator_scale = (
+        time_simulation.to_value(u.s)
+        * volume.to_value(u.cm**3)
+        * const.h.cgs.value
+    )
+    estimators = init_estimators_continuum(
+        plasma.photo_ion_estimator.shape, len(plasma.number_density.columns)
+    )
+    estimators.photo_ion_estimator[:] = (
+        np.asarray(plasma.photo_ion_estimator) * estimator_scale
+    )
+    estimators.stim_recomb_estimator[:] = (
+        np.asarray(plasma.stim_recomb_estimator) * estimator_scale
+    )
+    estimators.bf_heating_estimator[:] = np.asarray(plasma.bf_heating_coeff)
+    estimators.stim_recomb_cooling_estimator[:] = np.asarray(
+        plasma.stim_recomb_cooling_coeff
+    )
+    estimators.ff_heating_estimator[:] = np.asarray(plasma.ff_heating_estimator)
+
+    continuum_index = plasma.atomic_data.continuum_data.multi_index_nu_sorted
+    equilibrium_levels = plasma.atomic_data.levels.loc[
+        plasma.level_number_density.index
+    ]
+    level2continuum_edge_idx = pd.Series(
+        np.arange(len(continuum_index), dtype=np.int64),
+        index=continuum_index,
+        name="continuum_idx",
+    )
+    photoionization_data = (
+        plasma.atomic_data.continuum_data.photoionization_data
+    )
+    level_index = plasma.level_number_density.index
+    hydrogen_level_positions = np.flatnonzero(
+        (
+            level_index.get_level_values("atomic_number")
+            == plasma.nlte_species[0][0]
+        )
+        & (
+            level_index.get_level_values("ion_number")
+            == plasma.nlte_species[0][1]
+        )
+    )
+    population_geometries = tuple(
+        NumberDensityPerShell(
+            plasma.number_density.loc[1, shell],
+            plasma.level_number_density[shell].to_numpy(dtype=np.float64),
+            hydrogen_level_positions,
+        )
+        for shell in plasma.number_density.columns
+    )
+
+    line_index = plasma.lines.index
+    line_species_index = line_index.droplevel(
+        ["level_number_lower", "level_number_upper"]
+    )
+    nlte_lines_mask = np.asarray(
+        line_species_index.isin(plasma.nlte_species), dtype=bool
+    )
+    time_explosion_seconds = plasma.time_explosion
+    if isinstance(time_explosion_seconds, u.Quantity):
+        time_explosion_seconds = time_explosion_seconds.to_value("s")
+    tau_coefficient = (
+        plasma.lines.wavelength_cm.to_numpy()
+        * plasma.lines.f_lu.to_numpy()
+        * SOBOLEV_COEFFICIENT
+        * time_explosion_seconds
+    )
+    sobolev_input = SobolevInputs(
+        plasma.lines_lower_level_index,
+        plasma.lines_upper_level_index,
+        plasma.g.iloc[plasma.lines_lower_level_index].to_numpy(),
+        plasma.g.iloc[plasma.lines_upper_level_index].to_numpy(),
+        plasma.metastability.iloc[plasma.lines_upper_level_index].to_numpy(),
+        nlte_lines_mask,
+        tau_coefficient,
+        np.arange(len(line_index), dtype=np.int64),
+        line_index,
+    )
+
+    evaluator = PlasmaEquilibriumEvaluator(
+        photoionization_data,
+        level2continuum_edge_idx,
+        estimators,
+        time_simulation,
+        volume,
+        equilibrium_levels,
+        plasma.ionization_data,
+        RateMatrix(
+            RadiativeRatesSolver(plasma.lines),
+            ThermalCollisionalRateSolver(
+                equilibrium_levels,
+                plasma.lines,
+                plasma.atomic_data.collision_data_temperatures,
+                plasma.atomic_data.yg_data,
+                collision_strengths_type="cmfgen",
+            ),
+            equilibrium_levels,
+        ),
+        pd.DataFrame(
+            plasma.j_blues,
+            index=plasma.lines.index,
+            columns=plasma.number_density.columns,
+        ),
+        population_geometries,
+        tuple(sobolev_input for _ in plasma.number_density.columns),
+        plasma.level_number_density.index,
+        plasma.nlte_species[0],
+        plasma.number_density,
+        maximum_electron_density,
+        ion_population_solver=IonPopulationSolver(
+            EstimatedIonRateMatrix(
+                EstimatedPhotoionizationRateSolver(
+                    photoionization_data,
+                    level2continuum_edge_idx,
+                    estimators,
+                    time_simulation,
+                    volume,
+                ),
+                CollisionalIonizationRateSolver(photoionization_data),
+                plasma.phi,
+            )
+        ),
+        ion_population_arguments={
+            "radiation_field": None,
+            "elemental_number_density": plasma.number_density,
+            "lte_level_population": plasma.lte_level_number_density,
+            "lte_ion_population": plasma.lte_ion_number_density,
+            "estimated_ion_population": plasma.ion_number_density,
+            "partition_function": plasma.partition_function,
+            "boltzmann_factor": plasma.level_boltzmann_factor,
+            "level_to_continuum_saha_factor": plasma.phi_lucy,
+        },
+        thermal_balance_solver=ThermalBalanceSolver(
+            BoundFreeThermalRates(photoionization_data),
+            FreeFreeThermalRates(),
+            CollisionalIonizationThermalRates(photoionization_data),
+            CollisionalBoundThermalRates(
+                pd.DataFrame({"nu": np.asarray(plasma.nu_lines_coll)})
+            ),
+        ),
+        thermal_balance_arguments={
+            "collisional_ionization_rate_coefficient": plasma.coll_ion_coeff,
+            "collisional_deexcitation_rate_coefficient": plasma.coll_deexc_coeff,
+            "collisional_excitation_rate_coefficient": plasma.coll_exc_coeff,
+            "free_free_heating_estimator": plasma.ff_heating_estimator,
+            "level_population_ratio": plasma.phi_lucy,
+            "bound_free_heating_estimator": plasma.bf_heating_coeff,
+            "stimulated_recombination_estimator": plasma.stim_recomb_cooling_coeff,
+        },
+        reference_electron_temperature=plasma.t_electrons * u.K,
+    )
+    expected_normalized_levels = plasma.level_number_density.loc[
+        plasma.nlte_species[0]
+    ].divide(plasma.ion_number_density.loc[plasma.nlte_species[0]], axis=1)
+
+    def calculate_iip_total_heating(
+        state: LegacyPlasmaArray,
+    ) -> npt.NDArray[np.float64]:
+        thermal_balance = state.outputs_dict["fractional_heating"]
+        photoionization_data = (
+            state.atomic_data.continuum_data.photoionization_data
+        )
+        return np.array(
+            [
+                thermal_balance.heating_function(
+                    state.t_electrons[shell],
+                    state.ff_heating_estimator,
+                    state.bf_heating_coeff,
+                    state.stim_recomb_cooling_coeff,
+                    None,
+                    state.electron_densities,
+                    state.ion_number_density,
+                    state.level_number_density,
+                    state.excitation_energy,
+                    state.g,
+                    state.levels,
+                    state.ionization_data,
+                    photoionization_data,
+                    state.lines,
+                    shell,
+                    state.t_rad,
+                    state.w,
+                    state.time_explosion,
+                    state.b,
+                    state.previous_t_electrons,
+                    state.coll_exc_cooling,
+                    state.coll_deexc_heating,
+                    phi_lucy=state.phi_lucy[shell],
+                )[0]
+                for shell in shell_indices
+            ]
+        )
+
+    result = evaluator.evaluate(
+        plasma.electron_densities.to_numpy(),
+        plasma.t_electrons,
+        expected_normalized_levels,
+    )
+
+    np.testing.assert_allclose(
+        result.normalized_population.loc[:, shell_indices].to_numpy(),
+        expected_normalized_levels.loc[:, shell_indices].to_numpy(),
+        rtol=3e-7,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        result.diagnostic_ion_ratio.loc[shell_indices].to_numpy(),
+        plasma.ion_ratio[shell_indices],
+        rtol=3e-7,
+        atol=0.0,
+    )
+    pd.testing.assert_frame_equal(
+        result.ion_population.loc[:, shell_indices],
+        plasma.ion_number_density.loc[:, shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    pd.testing.assert_series_equal(
+        result.charge_solved_electron_density.loc[shell_indices],
+        plasma.electron_densities.loc[shell_indices],
+        rtol=2e-8,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    pd.testing.assert_frame_equal(
+        result.absolute_level_population.loc[:, shell_indices],
+        plasma.level_number_density.loc[:, shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    np.testing.assert_allclose(
+        result.tau_sobolev.loc[:, shell_indices].to_numpy(),
+        plasma.tau_sobolevs.loc[:, shell_indices].to_numpy(),
+        rtol=1e-5,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        result.beta_sobolev.loc[:, shell_indices].to_numpy(),
+        plasma.beta_sobolev.loc[:, shell_indices].to_numpy(),
+        rtol=1e-5,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        result.fractional_heating.loc[shell_indices].to_numpy(),
+        plasma.fractional_heating[shell_indices],
+        rtol=0.0,
+        atol=2e-7,
+    )
+    np.testing.assert_allclose(
+        result.total_heating.loc[shell_indices].to_numpy(),
+        calculate_iip_total_heating(plasma),
+        rtol=0.0,
+        atol=5e-13,
+    )
+    np.testing.assert_allclose(
+        result.charge_residual.loc[shell_indices].to_numpy(),
+        np.zeros(len(shell_indices)),
+        atol=1e-10,
+    )
+    np.testing.assert_allclose(
+        result.electron_residual.loc[shell_indices].to_numpy(),
+        np.zeros(len(shell_indices)),
+        atol=2e-8,
+    )
+    np.testing.assert_allclose(
+        result.fractional_heating.loc[shell_indices].to_numpy(),
+        np.zeros(len(shell_indices)),
+        atol=2e-7,
+    )
+
+    off_root_candidate, off_root_maximum_density = thermal_balance_guess(
+        iip_plasma_after_mc
+    )
+    type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
+    expected_outer_residual = type_iip_workflow.thermal_balance_iteration(
+        off_root_candidate, off_root_maximum_density
+    )
+    off_root_plasma = type_iip_workflow.plasma_solver
+    off_root_trial_density = off_root_candidate[::2] * off_root_maximum_density
+    off_root_temperature = (
+        np.asarray(iip_plasma_after_mc.t_rad) * off_root_candidate[1::2]
+    )
+    off_root_level_seed = off_root_plasma.level_number_density.loc[
+        off_root_plasma.nlte_species[0]
+    ].divide(
+        off_root_plasma.ion_number_density.loc[off_root_plasma.nlte_species[0]],
+        axis=1,
+    )
+    off_root_result = evaluator.evaluate(
+        off_root_trial_density,
+        off_root_temperature,
+        off_root_level_seed,
+    )
+    pd.testing.assert_frame_equal(
+        off_root_result.ion_population.loc[:, shell_indices],
+        off_root_plasma.ion_number_density.loc[:, shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    pd.testing.assert_series_equal(
+        off_root_result.charge_solved_electron_density.loc[shell_indices],
+        off_root_plasma.electron_densities.loc[shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    np.testing.assert_allclose(
+        off_root_result.charge_residual.loc[shell_indices].to_numpy(),
+        np.zeros(len(shell_indices)),
+        atol=1e-10,
+    )
+    np.testing.assert_allclose(
+        off_root_result.electron_residual.loc[shell_indices].to_numpy(),
+        expected_outer_residual[::2][shell_indices],
+        rtol=1e-5,
+        atol=1e-10,
+    )
+    np.testing.assert_allclose(
+        off_root_result.fractional_heating.loc[shell_indices].to_numpy(),
+        expected_outer_residual[1::2][shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        off_root_result.total_heating.loc[shell_indices].to_numpy(),
+        calculate_iip_total_heating(off_root_plasma),
+        rtol=1e-5,
+        atol=0.0,
+    )
 
 
 def test_standard_thermal_rates_match_iip_plasma_after_mc(
