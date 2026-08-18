@@ -40,11 +40,12 @@ properties:
       start:
         type: quantity
         default: 1 angstrom
+        description: Lower wavelength limit for R-packets that may spawn virtual packets.
       end:
         type: quantity
         default: inf angstrom
-    description: Limits of virtual packet spawn spectrum (giving maximum and minimum packet
-      frequency)
+        description: Upper wavelength limit for R-packets that may spawn virtual packets.
+    description: Wavelength limits for R-packet frequencies that may spawn virtual packets. This range is independent of the spectrum histogram range.
   convergence_strategy:
     oneOf:
     - $ref: 'montecarlo_definitions.yml#/definitions/convergence_strategy/damped'

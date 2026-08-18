@@ -66,16 +66,12 @@ def configuration_initialize(config, transport, number_of_vpackets):
     config.TEMPORARY_V_PACKET_BINS = number_of_vpackets
     config.ENABLE_FULL_RELATIVITY = transport.enable_full_relativity
     config.MONTECARLO_SEED = transport.packet_source.base_seed
-    config.VPACKET_SPAWN_START_FREQUENCY = (
-        transport.virtual_spectrum_spawn_range.end.to(
-            u.Hz, equivalencies=u.spectral()
-        ).value
-    )
-    config.VPACKET_SPAWN_END_FREQUENCY = (
-        transport.virtual_spectrum_spawn_range.start.to(
-            u.Hz, equivalencies=u.spectral()
-        ).value
-    )
+    config.VPACKET_SPAWN_START_FREQUENCY = transport.vpacket_spawn_range.end.to(
+        u.Hz, equivalencies=u.spectral()
+    ).value
+    config.VPACKET_SPAWN_END_FREQUENCY = transport.vpacket_spawn_range.start.to(
+        u.Hz, equivalencies=u.spectral()
+    ).value
     config.ENABLE_VPACKET_TRACKING = transport.enable_vpacket_tracking
     montecarlo_globals.ENABLE_RPACKET_TRACKING = (
         transport.enable_rpacket_tracking

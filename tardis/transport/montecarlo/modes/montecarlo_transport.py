@@ -135,7 +135,8 @@ def create_vpacket_collections(
     no_of_packets : int
         Number of real packets.
     spectrum_frequency_grid : numpy.ndarray
-        Frequency grid for virtual packet spectra.
+        Frequency-bin edges for the real- and virtual-packet histograms.
+        n + 1 edges for n bins, with uniform spacing.
     montecarlo_configuration : MonteCarloConfiguration
         Monte Carlo transport configuration.
     number_of_vpackets : int
@@ -178,7 +179,7 @@ def add_vpacket_collection_to_histogram(
     vpacket_collection : VPacketCollection
         Finalized virtual packet collection.
     spectrum_frequency_grid : numpy.ndarray
-        Frequency grid for the histogram.
+        Frequency-bin edges for the virtual-packet histogram.
     delta_nu : float
         Frequency bin width.
     """
@@ -208,7 +209,7 @@ def get_vpacket_tracker(
     vpacket_collections : numba.typed.List
         Per-packet virtual packet collections.
     spectrum_frequency_grid : numpy.ndarray
-        Frequency grid for virtual packet spectra.
+        Frequency-bin edges for the virtual-packet histogram.
     montecarlo_configuration : MonteCarloConfiguration
         Monte Carlo transport configuration.
 
@@ -269,7 +270,7 @@ def montecarlo_transport_with_vpackets(
     montecarlo_configuration : MonteCarloConfiguration
         Monte Carlo transport configuration.
     spectrum_frequency_grid : numpy.ndarray
-        Frequency grid for virtual packet spectra.
+        Frequency-bin edges for the real- and virtual-packet histograms.
     trackers
         Per-packet trackers.
     number_of_vpackets : int

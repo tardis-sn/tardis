@@ -3,10 +3,10 @@ type: object
 properties:
   start:
     type: quantity
-    description: The lower limit of the spectrum to be generated. Values below this point will not be generated.
+    description: The lower wavelength limit of the frequency-bin grid used for the real- and virtual-packet histograms.
   stop:
     type: quantity
-    description: The upper limit of the spectrum to be generated. Values above this point will not be generated. 
+    description: The upper wavelength limit of the frequency-bin grid used for the real- and virtual-packet histograms.
   num:
     type: number
     description: Number of bins used to build the spectrum
