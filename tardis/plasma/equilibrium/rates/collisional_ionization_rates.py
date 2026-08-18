@@ -1,3 +1,4 @@
+import astropy.units as u
 import pandas as pd
 
 from tardis.plasma.electron_energy_distribution import (
@@ -32,6 +33,8 @@ class CollisionalIonizationRateSolver:
         level_to_ion_population_factor: pd.DataFrame,
         partition_function: pd.DataFrame,
         level_boltzmann_factor: pd.DataFrame,
+        level_population: pd.DataFrame | None = None,
+        ion_population: pd.DataFrame | None = None,
         approximation: str = "seaton",
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Solve the collisional ionization and recombination rates.
@@ -47,6 +50,10 @@ class CollisionalIonizationRateSolver:
             Partition function for each ion and cell.
         level_boltzmann_factor : pd.DataFrame
             Boltzmann factor for each level and cell.
+        level_population : pandas.DataFrame, optional
+            Estimated level populations used instead of LTE fractions.
+        ion_population : pandas.DataFrame, optional
+            Estimated ion populations used to normalize level populations.
         approximation : str, optional
             The rate approximation to use, by default ``"seaton"``.
 
@@ -60,15 +67,8 @@ class CollisionalIonizationRateSolver:
         ValueError
             If an unsupported approximation is requested.
         """
-        if approximation == "seaton":
-            strength_solver = CollisionalIonizationSeaton(
-                self.photoionization_cross_sections
-            )
-        else:
-            raise ValueError(f"approximation {approximation} not supported")
-
-        collision_ionization_rates = strength_solver.solve(
-            electron_distribution.temperature
+        collision_ionization_rates = self.solve_coefficients(
+            electron_distribution.temperature, approximation
         )
         collision_ionization_rates.columns = (
             level_to_ion_population_factor.columns
@@ -103,3 +103,13 @@ class CollisionalIonizationRateSolver:
         ) * electron_distribution.number_density**2
 
         return collision_ionization_rates, collision_recombination_rates
+
+    def solve_coefficients(
+        self, electron_temperature: u.Quantity, approximation: str = "seaton"
+    ) -> pd.DataFrame:
+        """Solve raw collisional-ionization rate coefficients."""
+        if approximation != "seaton":
+            raise ValueError(f"approximation {approximation} not supported")
+        return CollisionalIonizationSeaton(
+            self.photoionization_cross_sections
+        ).solve(electron_temperature)

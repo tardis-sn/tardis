@@ -114,3 +114,40 @@ def test_collisional_ionization_rate_solver_invalid_approximation(
             mock_boltzmann_factor,
             approximation="invalid_approx",
         )
+
+
+def test_collisional_ionization_uses_estimated_level_fractions(
+    mock_photoionization_cross_sections: pd.DataFrame,
+    mock_electron_distribution: MockElectronDistribution,
+    mock_level_to_ion_population_factor: pd.DataFrame,
+    mock_boltzmann_factor: pd.DataFrame,
+) -> None:
+    """Weight estimated collisional ionization by current level fractions."""
+    solver = CollisionalIonizationRateSolver(
+        mock_photoionization_cross_sections
+    )
+    ion_index = pd.MultiIndex.from_tuples(
+        [(1, 0), (1, 1)], names=["atomic_number", "ion_number"]
+    )
+    ion_population = pd.DataFrame([[4.0, 4.0], [6.0, 6.0]], index=ion_index)
+    level_population = pd.DataFrame(
+        [[1.0, 3.0], [3.0, 1.0]], index=mock_boltzmann_factor.index
+    )
+
+    estimated_ionization, estimated_recombination = solver.solve(
+        mock_electron_distribution,
+        mock_level_to_ion_population_factor,
+        1.0,
+        mock_boltzmann_factor,
+        level_population,
+        ion_population,
+    )
+    lte_ionization, lte_recombination = solver.solve(
+        mock_electron_distribution,
+        mock_level_to_ion_population_factor,
+        1.0,
+        mock_boltzmann_factor,
+    )
+
+    assert not estimated_ionization.equals(lte_ionization)
+    pdt.assert_frame_equal(estimated_recombination, lte_recombination)

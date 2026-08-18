@@ -1,3 +1,5 @@
+import astropy.units as u
+import numpy as np
 import pandas as pd
 from astropy import units as u
 
@@ -164,19 +166,10 @@ class EstimatedPhotoionizationRateSolver:
         self.time_simulation = time_simulation
         self.volume = volume
 
-    def solve(
-        self,
-        electron_energy_distribution: ThermalElectronEnergyDistribution,
-        level_population: pd.DataFrame,
-        ion_population: pd.DataFrame,
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """Solve rates using fixed Monte Carlo estimators.
-
-        The estimator supplies the photoionization and
-        stimulated-recombination coefficients; stimulated recombination is
-        subtracted from photoionization and spontaneous recombination is
-        returned as the separate reverse rate.
-        """
+    def solve_coefficients(
+        self, electron_temperature: u.Quantity
+    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        """Solve fixed-estimator photoionization coefficients."""
         if (
             self.estimators_continuum is None
             or self.time_simulation is None
@@ -187,43 +180,102 @@ class EstimatedPhotoionizationRateSolver:
                 "simulation time, and cell volume."
             )
 
-        coefficient_solver = EstimatedPhotoionizationCoeffSolver(
-            self.level2continuum_edge_idx
-        )
         photoionization_coeff, stimulated_recombination_coeff = (
-            coefficient_solver.solve(
-                self.estimators_continuum,
-                self.time_simulation,
-                self.volume,
-            )
+            EstimatedPhotoionizationCoeffSolver(
+                self.level2continuum_edge_idx
+            ).solve(self.estimators_continuum, self.time_simulation, self.volume)
         )
-        photoionization_coeff.columns = level_population.columns
-        stimulated_recombination_coeff.columns = level_population.columns
-
         spontaneous_recombination_coeff = (
             self.spontaneous_recombination_rate_coeff_solver.solve(
-                electron_energy_distribution.temperature
+                electron_temperature
             )
         )
-        next_ion_population = align_ion_population_to_level_population(
-            ion_population,
-            level_population,
+        return (
+            photoionization_coeff,
+            stimulated_recombination_coeff,
+            spontaneous_recombination_coeff,
         )
+
+    def solve(
+        self,
+        electron_energy_distribution: ThermalElectronEnergyDistribution,
+        level_population: pd.DataFrame,
+        ion_population: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Solve rates using fixed Monte Carlo estimators.
+
+        The estimator supplies the photoionization and stimulated-
+        recombination factors. The returned rates are the coefficients used
+        by the ionization rate matrix, following Lucy (2003), Eqs. 44--45.
+
+        Parameters
+        ----------
+        electron_energy_distribution : ThermalElectronEnergyDistribution
+            Electron properties.
+        level_population : pd.DataFrame
+            Estimated bound-level number densities. Columns are cells.
+        ion_population : pd.DataFrame
+            Estimated ion number densities. Columns are cells.
+        level_to_continuum_saha_factor : pd.DataFrame
+            Density-independent Lucy level-to-continuum Saha factors.
+
+        Returns
+        -------
+        tuple[pd.DataFrame, pd.DataFrame]
+            Photoionization and recombination rates used by the ionization
+            rate matrix.
+        """
+        (
+            photoionization_coeff,
+            stimulated_recombination_coeff,
+            spontaneous_recombination_coeff,
+        ) = (
+            self.solve_coefficients(electron_energy_distribution.temperature)
+        )
+        # The ionization matrix stores numerical cgs rates. The estimator
+        # normalization and the atomic-data constants can otherwise leave
+        # Astropy units attached to only one of the two raw factors.
+        photoionization_coeff = pd.DataFrame(
+            np.asarray(photoionization_coeff),
+            index=photoionization_coeff.index,
+            columns=photoionization_coeff.columns,
+        )
+        stimulated_recombination_coeff = pd.DataFrame(
+            np.asarray(stimulated_recombination_coeff),
+            index=stimulated_recombination_coeff.index,
+            columns=stimulated_recombination_coeff.columns,
+        )
+        if (1, 0, 0) in photoionization_coeff.index:
+            photoionization_coeff.loc[(1, 0, 0)] = 0.0
+        if (1, 0, 0) in stimulated_recombination_coeff.index:
+            stimulated_recombination_coeff.loc[(1, 0, 0)] = 0.0
+        spontaneous_recombination_coeff = pd.DataFrame(
+            np.asarray(spontaneous_recombination_coeff),
+            index=spontaneous_recombination_coeff.index,
+            columns=level_population.columns,
+        )
+
+        level_population_fraction = level_population / (
+            align_ion_population_to_level_population(
+                ion_population, level_population, next_higher=False
+            )
+        )
+        photoionization_rate = photoionization_coeff * (
+            level_population_fraction.loc[photoionization_coeff.index]
+        )
+
+        recombination_rate = (
+            spontaneous_recombination_coeff
+            + stimulated_recombination_coeff
+        ) * level_to_continuum_saha_factor.loc[
+            spontaneous_recombination_coeff.index
+        ]
         electron_density = electron_energy_distribution.number_density.to_value(
             "cm^-3"
         )
-
-        photoionization_rate = photoionization_coeff * level_population
-        stimulated_recombination_rate = (
-            stimulated_recombination_coeff
-            * next_ion_population
-            * electron_density
-        )
-        photoionization_rate -= stimulated_recombination_rate
-        recombination_rate = (
-            spontaneous_recombination_coeff
-            * next_ion_population
-            * electron_density
+        recombination_rate = recombination_rate.multiply(
+            electron_density, axis="columns"
         )
 
         return (

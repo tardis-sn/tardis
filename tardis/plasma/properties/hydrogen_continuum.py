@@ -5,8 +5,10 @@ import astropy.units as u
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
-from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix
+from tardis.plasma.equilibrium.ion_populations import (
+    FixedElectronDensityIonPopulationSolver,
+)
+from tardis.plasma.equilibrium.rate_matrix import AnalyticIonRateMatrix
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
@@ -119,11 +121,11 @@ class HydrogenContinuumProperties(ProcessingPlasmaProperty):
             self.photoionization_data
         )
 
-        ion_rate_matrix_solver = IonRateMatrix(
+        ion_rate_matrix_solver = AnalyticIonRateMatrix(
             photoionization_rate_solver, collisional_rate_solver
         )
 
-        solver = IonPopulationSolver(ion_rate_matrix_solver)
+        solver = FixedElectronDensityIonPopulationSolver(ion_rate_matrix_solver)
 
         fractional_ion_population, fractional_electron_density = solver.solve(
             dilute_planckian_radiation_field,
@@ -135,7 +137,6 @@ class HydrogenContinuumProperties(ProcessingPlasmaProperty):
             ion_number_density,
             partition_function,
             boltzmann_factor,
-            charge_conservation=False,
         )
 
         ion_number_density = fractional_ion_population * number_density
