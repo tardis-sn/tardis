@@ -1,10 +1,14 @@
+from types import SimpleNamespace
+
 import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal, assert_series_equal
 from scipy.integrate import trapezoid
 
+from tardis import constants as const
 from tardis.iip_plasma.continuum.base import ContinuumProcess
 from tardis.iip_plasma.properties.continuum import (
+    IIpWorkflowContinuumConnectors,
     integrate_array_by_level_groups,
 )
 
@@ -111,3 +115,98 @@ def test_integrate_array_by_level_groups_matches_series_groupby_apply():
     )
 
     assert_series_equal(actual, expected)
+
+
+def test_iip_bound_free_opacity_remains_finite_after_lte_population_cutoff() -> None:
+    """Calculate finite opacity after outer-shell LTE populations are clipped."""
+    level_names = ["atomic_number", "ion_number", "level_number"]
+    level_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1), (1, 1, 0)], names=level_names
+    )
+    photoionization_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 1), (1, 0, 1)], names=level_names
+    )
+    photoionization_data = pd.DataFrame(
+        {
+            "nu": [1.0e15, 2.0e15],
+            "x_sect": [1.0e-18, 2.0e-18],
+        },
+        index=photoionization_index,
+    )
+    atomic_data = SimpleNamespace(
+        photoionization_data=photoionization_data,
+        macro_atom_references=pd.DataFrame(
+            {"references_idx": [0, 1, 2]}, index=level_index
+        ),
+        levels=pd.DataFrame({"energy": [0.0, 1.0, 2.0]}, index=level_index),
+    )
+    continuum_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 1)], names=level_names
+    )
+    ion_index = pd.MultiIndex.from_tuples(
+        [(1, 0), (1, 1)], names=["atomic_number", "ion_number"]
+    )
+    transition_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0, 1)],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "level_number_lower",
+            "level_number_upper",
+        ],
+    )
+    electron_densities = np.ones(2)
+    ion_number_density = pd.DataFrame(
+        [[1.0, 1.0], [1.0, 0.0]], index=ion_index
+    )
+    t_electrons = np.full(2, 1.0e10)
+    level_number_density = pd.DataFrame(
+        [[1.0, 1.0], [2.0, 0.5], [1.0, 1.0]], index=level_index
+    )
+    phi_lucy = pd.DataFrame([[0.5, 0.25]], index=continuum_index)
+    plasma_inputs = {
+        "atomic_data": atomic_data,
+        "alpha_sp": pd.DataFrame([[1.0, 1.0]], index=continuum_index),
+        "electron_densities": electron_densities,
+        "ion_number_density": ion_number_density,
+        "lte_ion_number_density": pd.DataFrame(
+            [[1.0, 0.0], [1.0, 0.0]], index=ion_index
+        ),
+        "t_electrons": t_electrons,
+        "level_number_density": level_number_density,
+        "lte_level_number_density": pd.DataFrame(
+            [[1.0, 0.0], [0.5, 0.0], [1.0, 0.0]], index=level_index
+        ),
+        "phi_lucy": phi_lucy,
+        "gamma": None,
+        "coll_deexc_coeff": pd.DataFrame(
+            [[1.0, 1.0]], index=transition_index
+        ),
+    }
+    continuum_connectors = IIpWorkflowContinuumConnectors(
+        SimpleNamespace(get_value=plasma_inputs.__getitem__)
+    )
+
+    continuum_connectors.update()
+
+    boltzmann_factor = np.exp(
+        -photoionization_data["nu"].values[:, np.newaxis]
+        / t_electrons
+        * (const.h.cgs.value / const.k_B.cgs.value)
+    )
+    expected = (
+        level_number_density.loc[photoionization_index].values
+        - phi_lucy.loc[photoionization_index].values
+        * ion_number_density.loc[[(1, 1), (1, 1)]].values
+        * electron_densities
+        * boltzmann_factor
+    )
+    expected *= photoionization_data["x_sect"].values[:, np.newaxis]
+
+    np.testing.assert_allclose(continuum_connectors.chi_bf.values, expected)
+    assert np.isfinite(continuum_connectors.chi_bf.values).all()
+    assert np.isfinite(continuum_connectors.p_fb_deactivation.values).all()
+    np.testing.assert_array_equal(
+        continuum_connectors.p_fb_deactivation.iloc[:, 1].values,
+        np.zeros(1),
+    )

@@ -42,3 +42,4 @@ def test_cumulative_integrate_array_by_blocks_matches_python_reference() -> (
             expected[block_start + 1 : block_stop, shell] /= cumulative_integral
 
     np.testing.assert_allclose(actual, expected, rtol=1e-15, atol=0.0)
+
