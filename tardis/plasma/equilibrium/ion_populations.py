@@ -249,17 +249,14 @@ class IonPopulationSolver:
             lte_level_population.index.get_level_values("ion_number")
             < lte_level_population.index.get_level_values("atomic_number")
         )
-        continuum_ion_index = (
-            lte_ion_population.index.get_level_values("ion_number") > 0
-        )
         return self._solve_charge_conserving(
             radiation_field,
             thermal_electron_energy_distribution,
             elemental_number_density,
             lte_level_population.loc[bound_level_index],
             estimated_level_population.loc[bound_level_index],
-            lte_ion_population.loc[continuum_ion_index],
-            estimated_ion_population.loc[continuum_ion_index],
+            lte_ion_population,
+            estimated_ion_population,
             partition_function,
             boltzmann_factor.loc[bound_level_index],
             level_to_continuum_saha_factor.loc[
@@ -682,17 +679,14 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
             lte_level_population.index.get_level_values("ion_number")
             < lte_level_population.index.get_level_values("atomic_number")
         )
-        continuum_ion_index = (
-            lte_ion_population.index.get_level_values("ion_number") > 0
-        )
         return self._solve_fixed_electron_density(
             radiation_field,
             thermal_electron_energy_distribution,
             elemental_number_density,
             lte_level_population.loc[bound_level_index],
             estimated_level_population.loc[bound_level_index],
-            lte_ion_population.loc[continuum_ion_index],
-            estimated_ion_population.loc[continuum_ion_index],
+            lte_ion_population,
+            estimated_ion_population,
             partition_function,
             boltzmann_factor.loc[bound_level_index],
             tolerance,

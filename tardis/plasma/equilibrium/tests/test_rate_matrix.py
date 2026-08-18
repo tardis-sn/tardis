@@ -10,7 +10,10 @@ from tardis.model.base import SimulationState
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.rate_matrix import AnalyticIonRateMatrix, RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    AnalyticIonRateMatrix,
+    RateMatrix,
+)
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
@@ -249,7 +252,7 @@ def test_ion_rate_matrix_solver(
         dilution_factor=np.zeros_like(collisional_simulation_state.t_radiative),
     )
     electron_dist = ThermalElectronEnergyDistribution(
-        0, collisional_simulation_state.t_radiative, 1e6 * u.g / u.cm**3
+        0, collisional_simulation_state.t_radiative, 1e6 / u.cm**3
     )
 
     lte_level_population = pd.DataFrame(
