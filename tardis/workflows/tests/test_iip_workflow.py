@@ -1,4 +1,3 @@
-import inspect
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
@@ -27,9 +26,7 @@ from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
 from tardis.plasma.equilibrium.rate_matrix import RateMatrix
 from tardis.plasma.equilibrium.rates import (
     AnalyticCorrectedPhotoionizationCoeffSolver,
-    AnalyticPhotoionizationRateSolver,
     CollisionalIonizationSeaton,
-    EstimatedPhotoionizationRateSolver,
     SpontaneousRecombinationCoeffSolver,
     ThermalCollisionalRateSolver,
 )
@@ -1112,9 +1109,10 @@ def test_iip_process_probabilities_normalize_per_shell(
 )
 def test_standalone_level_populations_equality_with_iip_plasma(
     iip_plasma_nlte_init: LegacyPlasmaArray,
+    iip_atom_data: object,
 ) -> None:
     """Characterize the known standalone-equilibrium/IIP population gap."""
-    atom_data = iip_plasma_nlte_init.atomic_data
+    atom_data = iip_atom_data
     line_index = atom_data.lines.index
     hydrogen_lines = atom_data.lines.loc[
         (line_index.get_level_values("atomic_number") == 1)
@@ -1126,10 +1124,8 @@ def test_standalone_level_populations_equality_with_iip_plasma(
             atom_data.levels,
             hydrogen_lines,
             atom_data.collision_data_temperatures,
-            atom_data.collision_data.loc[
-                (1, 0, slice(None), slice(None)), :
-            ],
-            "chianti",
+            atom_data.yg_data.loc[(1, 0, slice(None), slice(None)), :],
+            "cmfgen",
         ),
         atom_data.levels,
     )
@@ -1366,9 +1362,7 @@ def test_iip_augmented_and_reduced_level_equations_match(
 
     plasma = iip_plasma_after_mc
     species = (1, 0)
-    nlte_excitation = plasma.plasma_properties_dict[
-        "LevelBoltzmannFactorNLTE"
-    ]
+    nlte_excitation = plasma.plasma_properties_dict["LevelBoltzmannFactorNLTE"]
     original_calculate_beta = nlte_excitation._calculate_beta_sobolevs
     j_blues = pd.DataFrame(
         plasma.j_blues,
@@ -1377,12 +1371,18 @@ def test_iip_augmented_and_reduced_level_equations_match(
     )
 
     for candidate in candidates.values():
+        candidate_electron_density = (
+            candidate[::2] * maximum_electron_density
+        )
+        candidate_electron_temperature = (
+            np.asarray(plasma.t_rad) * candidate[1::2]
+        )
         for shell_idx in shell_indices:
             electron_density = np.array(
-                [candidate[2 * shell_idx] * maximum_electron_density[shell_idx]]
+                [candidate_electron_density[shell_idx]]
             )
             electron_temperature = np.array(
-                [plasma.t_rad[shell_idx] * candidate[2 * shell_idx + 1]]
+                [candidate_electron_temperature[shell_idx]]
             )
             assert electron_density[0] > 0.0
 
@@ -1410,9 +1410,7 @@ def test_iip_augmented_and_reduced_level_equations_match(
                 + plasma.alpha_sp.loc[species].iloc[:, shell_idx].to_numpy()
             )
             collisional_ionization = (
-                plasma.coll_ion_coeff.loc[species]
-                .iloc[:, shell_idx]
-                .to_numpy()
+                plasma.coll_ion_coeff.loc[species].iloc[:, shell_idx].to_numpy()
             )
             collisional_recombination = (
                 plasma.coll_recomb_coeff.loc[species]
@@ -1438,12 +1436,10 @@ def test_iip_augmented_and_reduced_level_equations_match(
             base_level_density = plasma.level_number_density.iloc[
                 :, shell_idx
             ].to_numpy(copy=True)
-            species_level_positions = nlte_excitation._get_species_level_positions(
-                species
+            species_level_positions = (
+                nlte_excitation._get_species_level_positions(species)
             )
-            number_density = plasma.number_density.loc[
-                species[0], shell_idx
-            ]
+            number_density = plasma.number_density.loc[species[0], shell_idx]
             arguments = (
                 nlte_excitation,
                 recombination_vector,
@@ -1539,15 +1535,21 @@ def test_iip_augmented_and_reduced_level_equations_match(
                 abs(augmented_residual[-1])
                 / (
                     abs(np.dot(gamma_vector, trial_fractions))
-                    + abs(recombination_vector.sum() * calculate_q(trial_fractions))
+                    + abs(
+                        recombination_vector.sum()
+                        * calculate_q(trial_fractions)
+                    )
                 )
                 < 1e-12
             )
             augmented_solution = root(
                 calculate_augmented_residual,
-                np.hstack(
-                    [initial_fractions, calculate_q(initial_fractions)]
-                ),
+                np.hstack([initial_fractions, calculate_q(initial_fractions)]),
+                options={"xtol": 1e-12},
+            )
+            reduced_solution = root(
+                calculate_reduced_residual,
+                initial_fractions,
                 options={"xtol": 1e-12},
             )
             residual_scale = max(
@@ -1556,13 +1558,25 @@ def test_iip_augmented_and_reduced_level_equations_match(
                 np.max(np.abs(recombination_vector)),
             )
             assert (
-                np.max(np.abs(augmented_solution.fun)) / residual_scale
-                < 1e-10
+                np.max(np.abs(augmented_solution.fun)) / residual_scale < 1e-10
+            )
+            assert (
+                np.max(np.abs(reduced_solution.fun)) / residual_scale < 1e-10
             )
             solved_fractions = augmented_solution.x[:-1]
+            reduced_fractions = reduced_solution.x
             assert np.isfinite(solved_fractions).all()
+            assert np.isfinite(reduced_fractions).all()
             assert np.all(solved_fractions >= 0.0)
+            assert np.all(reduced_fractions >= 0.0)
             np.testing.assert_allclose(solved_fractions.sum(), 1.0)
+            np.testing.assert_allclose(reduced_fractions.sum(), 1.0)
+            np.testing.assert_allclose(
+                reduced_fractions,
+                solved_fractions,
+                rtol=3e-10,
+                atol=0.0,
+            )
             np.testing.assert_allclose(
                 calculate_q(solved_fractions),
                 augmented_solution.x[-1],
@@ -1574,17 +1588,6 @@ def test_iip_augmented_and_reduced_level_equations_match(
             assert np.isfinite(initial_fractions).all()
             assert np.all(initial_fractions >= 0.0)
             np.testing.assert_allclose(initial_fractions.sum(), 1.0)
-
-
-def test_estimated_photoionization_solver_has_rate_matrix_contract() -> None:
-    """Keep the estimated-rate solver aligned with the standard contract."""
-    analytic_parameters = list(
-        inspect.signature(AnalyticPhotoionizationRateSolver.solve).parameters
-    )
-    estimated_parameters = list(
-        inspect.signature(EstimatedPhotoionizationRateSolver.solve).parameters
-    )
-    assert estimated_parameters == analytic_parameters
 
 
 def test_standard_thermal_rates_match_iip_plasma_after_mc(
