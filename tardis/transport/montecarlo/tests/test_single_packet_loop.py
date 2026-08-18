@@ -4,6 +4,10 @@ import pytest
 
 import tardis.transport.montecarlo.modes.iip.packet_propagation as iip_propagation
 from tardis.conftest import sync_ndarray_assert_allclose
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.modes.classic import (
     packet_propagation as classic_propagation,
@@ -101,10 +105,10 @@ def patch_common_classic_hooks(monkeypatch):
     ],
 )
 def test_classic_packet_propagation_dispatch_numba_disabled(
-    python_numba_disabled,
+    python_numba_disabled: None,
     patch_common_classic_hooks,
     parametrized_packet: RPacket,
-    radial_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     classic_opacity_state,
     bulk_estimators,
     line_estimators,
@@ -125,7 +129,7 @@ def test_classic_packet_propagation_dispatch_numba_disabled(
 
     classic_propagation.packet_propagation(
         parametrized_packet,
-        radial_geometry,
+        homologous_radial_1d_geometry,
         5.2e7,
         classic_opacity_state,
         bulk_estimators,
@@ -166,10 +170,10 @@ def test_classic_packet_propagation_dispatch_numba_disabled(
 )
 def test_iip_packet_propagation_dispatch_numba_disabled(
     python_numba_disabled,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
     patch_common_classic_hooks,
     parametrized_packet: RPacket,
-    radial_geometry,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     iip_opacity_state,
     bulk_estimators,
     line_estimators,
@@ -208,7 +212,7 @@ def test_iip_packet_propagation_dispatch_numba_disabled(
 
     iip_propagation.packet_propagation(
         parametrized_packet,
-        radial_geometry,
+        homologous_radial_1d_geometry,
         5.2e7,
         iip_opacity_state,
         bulk_estimators,
@@ -249,10 +253,10 @@ def test_iip_packet_propagation_dispatch_numba_disabled(
     ],
 )
 def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
-    python_numba_disabled,
+    python_numba_disabled: None,
     patch_common_classic_hooks,
     parametrized_packet: RPacket,
-    nonhomologous_geometry,
+    radial_1d_geometry: NumbaRadial1DGeometry,
     classic_opacity_state,
     bulk_estimators,
     line_estimators,
@@ -272,7 +276,7 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
 
     nonhomologous_propagation.packet_propagation(
         parametrized_packet,
-        nonhomologous_geometry,
+        radial_1d_geometry,
         0.0,
         classic_opacity_state,
         bulk_estimators,
@@ -308,7 +312,7 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
 )
 # TODO: Update test to provide all required parameters for packet_propagation
 def test_verysimple_single_packet_loop(
-    verysimple_numba_radial_1d_geometry,
+    verysimple_numba_homologous_radial_1d_geometry,
     verysimple_time_explosion,
     verysimple_opacity_state,
     verysimple_estimators,
@@ -316,7 +320,7 @@ def test_verysimple_single_packet_loop(
     verysimple_packet_collection,
 ):
     pytest.skip("Test needs to be updated for new mode architecture")
-    numba_radial_1d_geometry = verysimple_numba_radial_1d_geometry
+    numba_radial_1d_geometry = verysimple_numba_homologous_radial_1d_geometry
     packet_collection = verysimple_packet_collection
     vpacket_collection = verysimple_vpacket_collection
     time_explosion = verysimple_time_explosion

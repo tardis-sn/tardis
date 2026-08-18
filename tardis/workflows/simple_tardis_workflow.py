@@ -91,6 +91,7 @@ class SimpleTARDISWorkflow:
         )
 
         line_interaction_type = configuration.plasma.line_interaction_type
+
         self.opacity_solver = OpacitySolver(
             line_interaction_type,
             configuration.plasma.disable_line_scattering,
@@ -192,8 +193,8 @@ class SimpleTARDISWorkflow:
                 self.transport_state.estimators_line,
                 self.transport_state.time_explosion,
                 self.transport_state.time_of_simulation,
-                self.transport_state.geometry_state.volume,
-                self.transport_state.opacity_state.line_list_nu,
+                self.transport_state.geometry_state_numba.volume,
+                self.transport_state.opacity_state_numba.line_list_nu,
             )
         )
 

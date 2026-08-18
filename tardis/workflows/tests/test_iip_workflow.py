@@ -1470,3 +1470,49 @@ def test_solve_montecarlo(type_iip_workflow, regression_data):
         atol=0,
         rtol=1e-12,
     )
+
+
+def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
+    tardis_regression_path: Path,
+) -> None:
+    config = Configuration.from_yaml(
+        "tardis/workflows/tests/data/iip_population_cutoff.yml"
+    )
+    config.atom_data = (
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+    workflow = TypeIIPWorkflow(config)
+    workflow.show_progress_bars = False
+
+    plasma_solver = workflow.plasma_solver
+    # The reported outer shells hit the 1500 K thermal-balance floor before
+    # their second opacity solve. Force that state directly so this regression
+    # does not need the slow least-squares thermal solve.
+    forced_t_electrons = np.full(
+        workflow.simulation_state.geometry.no_of_shells_active, 1500.0
+    )
+    plasma_solver.update(
+        previous_ion_number_density=plasma_solver.ion_number_density.copy(),
+        previous_electron_densities=plasma_solver.electron_densities.values,
+        previous_beta_sobolev=plasma_solver.beta_sobolev.copy(),
+        link_t_rad_t_electron=forced_t_electrons / plasma_solver.t_rad,
+        previous_b=plasma_solver.b,
+        previous_t_electrons=forced_t_electrons,
+    )
+    assert plasma_solver.lte_ion_number_density.loc[(1, 1)].iloc[-1] == 0.0
+
+    workflow.completed_iterations = 1
+    second_iteration_opacity_states = workflow.solve_opacity()
+
+    continuum_state = second_iteration_opacity_states[
+        "opacity_state"
+    ].continuum_state
+    assert np.isfinite(continuum_state.chi_bf.values).all()
+    assert np.isfinite(continuum_state.p_fb_deactivation.values).all()
+    assert np.isfinite(continuum_state.emissivities.values).all()
+    workflow.solve_montecarlo(second_iteration_opacity_states, 10)
+    assert (
+        len(workflow.transport_state.packet_collection.output_energies) == 10
+    )

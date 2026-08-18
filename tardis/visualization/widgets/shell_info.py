@@ -309,6 +309,40 @@ class ShellInfoWidget(param.Parameterized):
         self.element_count_table.selection = [0]
         self.ion_count_table.selection = [0]
 
+    @classmethod
+    def from_simulation(cls, sim_model):
+        """Create shell info widget from a TARDIS simulation object
+
+        Parameters
+        ----------
+        sim_model : tardis.simulation.Simulation
+            TARDIS Simulation object produced by running a simulation
+
+        Returns
+        -------
+        ShellInfoWidget
+        """
+        shell_info_data = SimulationShellInfo(sim_model)
+        return cls(shell_info_data)
+
+    @classmethod
+    def from_hdf(cls, hdf_fpath):
+        """Create shell info widget from a simulation HDF file
+
+        Parameters
+        ----------
+        hdf_fpath : str
+            A valid path to a simulation HDF file (HDF file must be created
+            from a TARDIS Simulation object using :code:`to_hdf` method with
+            default arguments)
+
+        Returns
+        -------
+        ShellInfoWidget
+        """
+        shell_info_data = HDFShellInfo(hdf_fpath)
+        return cls(shell_info_data)
+
     @param.depends("shell_idx", watch=True)
     def update_element_count_table(self):
         """Event listener to update the data in element count table widget based
@@ -379,37 +413,3 @@ class ShellInfoWidget(param.Parameterized):
             # Put text vertically before shell info container
             shell_info_widget = pn.Column(text, shell_info_tables_container)
             return shell_info_widget
-
-
-def shell_info_from_simulation(sim_model):
-    """Create shell info widget from a TARDIS simulation object
-
-    Parameters
-    ----------
-    sim_model : tardis.simulation.Simulation
-        TARDIS Simulation object produced by running a simulation
-
-    Returns
-    -------
-    ShellInfoWidget
-    """
-    shell_info_data = SimulationShellInfo(sim_model)
-    return ShellInfoWidget(shell_info_data)
-
-
-def shell_info_from_hdf(hdf_fpath):
-    """Create shell info widget from a simulation HDF file
-
-    Parameters
-    ----------
-    hdf_fpath : str
-        A valid path to a simulation HDF file (HDF file must be created
-        from a TARDIS Simulation object using :code:`to_hdf` method with
-        default arguments)
-
-    Returns
-    -------
-    ShellInfoWidget
-    """
-    shell_info_data = HDFShellInfo(hdf_fpath)
-    return ShellInfoWidget(shell_info_data)
