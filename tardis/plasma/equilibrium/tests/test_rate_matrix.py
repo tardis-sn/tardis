@@ -10,7 +10,7 @@ from tardis.model.base import SimulationState
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix, RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import AnalyticIonRateMatrix, RateMatrix
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
@@ -128,7 +128,7 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
             ),
         ]
     ).sort_values(["atomic_number", "ion_number", "level_number", "nu"])
-    rate_matrix_solver = IonRateMatrix(
+    rate_matrix_solver = AnalyticIonRateMatrix(
         AnalyticPhotoionizationRateSolver(photoionization_cross_sections),
         CollisionalIonizationRateSolver(photoionization_cross_sections),
     )
@@ -145,7 +145,14 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
         temperatures,
         electron_densities * u.cm**-3,
     )
-
+    helium_ionization_factor = pd.DataFrame(
+        [3.0e9, 5.0e9],
+        index=pd.MultiIndex.from_tuples(
+            [(2, 0), (2, 1)],
+            names=["atomic_number", "ion_number"],
+        ),
+        columns=[columns[0]],
+    ).reindex(columns=columns, method="ffill")
     level_index = mock_photoionization_cross_sections.index
     lte_level_population = pd.DataFrame(
         1.0e5, index=level_index, columns=columns
@@ -178,6 +185,7 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
         1.0,
         boltzmann_factor,
         level_to_continuum_saha_factor=level_to_continuum_saha_factor,
+        lte_ionization_factor=helium_ionization_factor,
     )
     matrices = np.stack(rate_matrices.loc[1].to_numpy())
 
@@ -206,6 +214,22 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
     )
     assert radiative_recombination_at_one_step > 0.0
 
+    right_hand_side = np.array([0.0, 1.0, 0.0])
+    for shell_idx in range(1, len(columns)):
+        helium_population = np.linalg.solve(
+            rate_matrices.loc[2, columns[shell_idx]], right_hand_side
+        )
+        npt.assert_allclose(
+            helium_population[1] / helium_population[0],
+            helium_ionization_factor.loc[(2, 0), columns[shell_idx]]
+            / electron_densities[shell_idx],
+        )
+        npt.assert_allclose(
+            helium_population[2] / helium_population[1],
+            helium_ionization_factor.loc[(2, 1), columns[shell_idx]]
+            / electron_densities[shell_idx],
+        )
+
 
 @pytest.mark.parametrize("charge_conservation", [True, False])
 def test_ion_rate_matrix_solver(
@@ -216,7 +240,7 @@ def test_ion_rate_matrix_solver(
     charge_conservation,
     regression_data,
 ):
-    rate_matrix_solver = IonRateMatrix(
+    rate_matrix_solver = AnalyticIonRateMatrix(
         photoionization_rate_solver, collisional_ionization_rate_solver
     )
 
