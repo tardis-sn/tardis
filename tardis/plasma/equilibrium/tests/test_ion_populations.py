@@ -16,8 +16,11 @@ from tardis.io.atom_data import AtomData
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
-from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix
+from tardis.plasma.equilibrium.ion_populations import (
+    FixedElectronDensityIonPopulationSolver,
+    IonPopulationSolver,
+)
+from tardis.plasma.equilibrium.rate_matrix import AnalyticIonRateMatrix
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
@@ -93,12 +96,25 @@ def hydrogen_population_inputs() -> dict:
 
 
 def solve_population(
-    rate_matrix_solver: IonRateMatrix,
+    rate_matrix_solver: AnalyticIonRateMatrix,
     inputs: dict,
     charge_conservation: bool,
-) -> tuple[pd.DataFrame, pd.Series, IonPopulationSolver]:
+) -> tuple[pd.DataFrame, pd.Series, object]:
     """Solve ion populations and return the solver for matrix inspection."""
-    ion_population_solver = IonPopulationSolver(rate_matrix_solver)
+    ion_population_solver = (
+        IonPopulationSolver(rate_matrix_solver)
+        if charge_conservation
+        else FixedElectronDensityIonPopulationSolver(rate_matrix_solver)
+    )
+    solve_kwargs = (
+        {
+            "level_to_continuum_saha_factor": inputs[
+                "level_to_continuum_saha_factor"
+            ]
+        }
+        if charge_conservation
+        else {}
+    )
     ion_population, electron_density = ion_population_solver.solve(
         inputs["radiation_field"],
         inputs["thermal_electron_energy_distribution"],
@@ -109,12 +125,7 @@ def solve_population(
         inputs["estimated_ion_population"],
         inputs["partition_function"],
         inputs["boltzmann_factor"],
-        charge_conservation=charge_conservation,
-        level_to_continuum_saha_factor=(
-            inputs["level_to_continuum_saha_factor"]
-            if charge_conservation
-            else None
-        ),
+        **solve_kwargs,
     )
     return ion_population, electron_density, ion_population_solver
 
@@ -137,7 +148,7 @@ def assert_charge_conservation(
 
 
 def assert_hydrogen_matrix_balance(
-    ion_population_solver: IonPopulationSolver,
+    ion_population_solver: object,
     ion_population: pd.DataFrame,
     elemental_number_density: pd.DataFrame,
 ) -> None:
@@ -153,9 +164,7 @@ def assert_hydrogen_matrix_balance(
 
 
 def test_solve(
-    rate_matrix_solver: IonRateMatrix,
-    regression_data: RegressionData,
-    hydrogen_population_inputs: dict,
+    rate_matrix_solver: AnalyticIonRateMatrix, regression_data: RegressionData
 ) -> None:
     actual_ion_population, actual_electron_density, ion_population_solver = (
         solve_population(
@@ -193,8 +202,7 @@ def test_solve(
 
 
 def test_charge_conserving_hydrogen_matches_analytic_root(
-    rate_matrix_solver: IonRateMatrix,
-    hydrogen_population_inputs: dict,
+    rate_matrix_solver: AnalyticIonRateMatrix,
 ) -> None:
 
     ion_population, electron_density, ion_population_solver = solve_population(
@@ -228,8 +236,7 @@ def test_charge_conserving_hydrogen_matches_analytic_root(
 
 
 def test_charge_conserving_hydrogen_is_seed_independent_from_near_neutral_density(
-    rate_matrix_solver: IonRateMatrix,
-    hydrogen_population_inputs: dict,
+    rate_matrix_solver: AnalyticIonRateMatrix,
 ) -> None:
     low_seed_inputs = hydrogen_population_inputs.copy()
     high_seed_inputs = hydrogen_population_inputs.copy()
@@ -322,7 +329,7 @@ def h_non_h_population_inputs(
         ),
         "level_to_continuum_saha_factor": level_to_continuum_saha_factor,
         "elemental_number_density": elemental_number_density,
-        "rate_matrix_solver": IonRateMatrix(
+        "rate_matrix_solver": AnalyticIonRateMatrix(
             AnalyticPhotoionizationRateSolver(photoionization_cross_sections),
             CollisionalIonizationRateSolver(photoionization_cross_sections),
         ),
@@ -343,7 +350,7 @@ def rate_dataframe_to_level_dataframe(
 
 
 def calculate_iip_rate_coefficients(
-    rate_matrix_solver: IonRateMatrix,
+    rate_matrix_solver: AnalyticIonRateMatrix,
     thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
     radiation_field: DilutePlanckianRadiationField,
     lte_level_population: pd.DataFrame,
@@ -526,8 +533,7 @@ def test_charge_conserving_multi_element_solution_uses_real_atomic_data(
 
 
 def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
-    rate_matrix_solver: IonRateMatrix,
-    hydrogen_population_inputs: dict,
+    rate_matrix_solver: AnalyticIonRateMatrix,
 ) -> None:
     ion_population, electron_density, _ = solve_population(
         rate_matrix_solver, hydrogen_population_inputs, charge_conservation=True

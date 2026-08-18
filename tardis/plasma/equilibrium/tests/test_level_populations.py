@@ -1,5 +1,6 @@
 import astropy.units as u
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
 import pandas.testing as pdt
 import pytest
@@ -8,9 +9,21 @@ from tardis.io.atom_data import AtomData
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
-from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
-from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix, RateMatrix
+from tardis.plasma.equilibrium.evaluator import (
+    calculate_nlte_level_population_residual,
+)
+from tardis.plasma.equilibrium.inputs import (
+    LevelEquationRates,
+    NumberDensityPerShell,
+    SobolevInputs,
+)
+from tardis.plasma.equilibrium.ion_populations import (
+    FixedElectronDensityIonPopulationSolver,
+)
+from tardis.plasma.equilibrium.level_populations import (
+    LevelPopulationSolver,
+)
+from tardis.plasma.equilibrium.rate_matrix import AnalyticIonRateMatrix, RateMatrix
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
@@ -30,16 +43,39 @@ from tardis.plasma.radiation_field import (
 )
 
 
+class ZeroElectronRateSolver:
+    """Return no bound-bound electron rates for focused residual tests."""
+
+    def solve(self, temperatures_electron: u.Quantity) -> pd.DataFrame:
+        """Return an empty transition-rate frame."""
+        transition_index = pd.MultiIndex.from_tuples(
+            [],
+            names=[
+                "atomic_number",
+                "ion_number",
+                "ion_number_source",
+                "ion_number_destination",
+                "level_number_source",
+                "level_number_destination",
+            ],
+        )
+        return pd.DataFrame(
+            index=transition_index,
+            columns=pd.RangeIndex(len(temperatures_electron)),
+            dtype=np.float64,
+        )
+
+
 class TestLevelPopulationSolver:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        rate_solver_list,
+        rate_solvers,
         new_chianti_atomic_dataset_si,
         collisional_simulation_state,
     ):
         rate_matrix_solver = RateMatrix(
-            rate_solver_list, new_chianti_atomic_dataset_si.levels
+            *rate_solvers, new_chianti_atomic_dataset_si.levels
         )
 
         rad_field = DilutePlanckianRadiationField(
@@ -105,6 +141,87 @@ class TestLevelPopulationSolver:
                 )
                 assert np.all(population >= 0.0)
                 assert np.isfinite(np.linalg.cond(matrix))
+
+
+def test_reduced_nlte_residual_recomputes_q_and_beta() -> None:
+    """The reduced equation eliminates q at each candidate fraction."""
+    level_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    line_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0, 1)],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "level_number_lower",
+            "level_number_upper",
+        ],
+    )
+    level_fractions = np.array([0.5, 0.5])
+    gamma_vector = np.array([2.0, 0.0])
+    recombination_vector = np.array([0.0, 4.0])
+    remaining_rates = np.zeros((2, 2))
+    level_rates = LevelEquationRates(
+        gamma_vector, recombination_vector, remaining_rates
+    )
+    rate_matrix_solver = RateMatrix(
+        RadiativeRatesSolver(
+            pd.DataFrame(
+                {"A_ul": [2.0], "B_ul": [0.0], "B_lu": [1.0], "nu": [1.0]},
+                index=line_index,
+            )
+        ),
+        ZeroElectronRateSolver(),
+        pd.DataFrame({"energy": [0.0, 1.0], "g": [2.0, 4.0]}, index=level_index),
+    )
+    j_blues = pd.DataFrame([1.0], index=line_index)
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0.0 * u.erg,
+        np.array([1.0e4]) * u.K,
+        np.array([1.0e9]) / u.cm**3,
+    )
+    population = NumberDensityPerShell(
+        1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
+    )
+    sobolev = SobolevInputs(
+        np.array([0]),
+        np.array([1]),
+        np.array([2.0]),
+        np.array([4.0]),
+        np.array([False]),
+        np.array([True]),
+        np.array([1.0e-20]),
+        np.array([0]),
+        line_index,
+    )
+
+    residual, beta_sobolev, q_ratio = calculate_nlte_level_population_residual(
+        level_fractions,
+        level_rates,
+        rate_matrix_solver,
+        j_blues,
+        electron_distribution,
+        (1, 0),
+        population,
+        sobolev,
+    )
+
+    npt.assert_allclose(q_ratio, 0.25)
+    npt.assert_allclose(residual, np.array([0.0, 0.5]))
+    npt.assert_allclose(beta_sobolev, np.array([1.0]))
+
+    _, _, perturbed_q_ratio = calculate_nlte_level_population_residual(
+        np.array([0.25, 0.75]),
+        level_rates,
+        rate_matrix_solver,
+        j_blues,
+        electron_distribution,
+        (1, 0),
+        population,
+        sobolev,
+    )
+    npt.assert_allclose(perturbed_q_ratio, 0.125)
 
 
 def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
@@ -186,19 +303,14 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         :,
     ]
     level_rate_matrix = RateMatrix(
-        [
-            (RadiativeRatesSolver(radiative_transitions), "radiative"),
-            (
-                ThermalCollisionalRateSolver(
-                    atomic_data.levels,
-                    radiative_transitions,
-                    atomic_data.collision_data_temperatures,
-                    collision_strengths,
-                    collision_strengths_type="cmfgen",
-                ),
-                "electron",
-            ),
-        ],
+        RadiativeRatesSolver(radiative_transitions),
+        ThermalCollisionalRateSolver(
+            atomic_data.levels,
+            radiative_transitions,
+            atomic_data.collision_data_temperatures,
+            collision_strengths,
+            collision_strengths_type="cmfgen",
+        ),
         atomic_data.levels,
     )
     electron_distribution = ThermalElectronEnergyDistribution(
@@ -243,11 +355,11 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         (species[0], species[1], slice(None)),
         :,
     ].sort_values("nu")
-    ion_rate_matrix = IonRateMatrix(
+    ion_rate_matrix = AnalyticIonRateMatrix(
         AnalyticPhotoionizationRateSolver(photoionization_data),
         CollisionalIonizationRateSolver(photoionization_data),
     )
-    nlte_ion_populations, nlte_electron_densities = IonPopulationSolver(
+    nlte_ion_populations, nlte_electron_densities = FixedElectronDensityIonPopulationSolver(
         ion_rate_matrix
     ).solve(
         radiation_field,
