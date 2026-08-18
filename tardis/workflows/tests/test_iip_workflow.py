@@ -551,7 +551,7 @@ def continuum_comparison_state(
     tardis_regression_path: Path,
 ) -> ContinuumComparisonState:
     comparison_config = Configuration.from_yaml(
-        "tardis/workflows/tests/data/ctardis_compare.yml"
+        Path(__file__).parent / "data" / "ctardis_compare.yml"
     )
     comparison_config.atom_data = (
         tardis_regression_path
@@ -860,16 +860,20 @@ def test_cooling_channel_probabilities_match_iip_continuum(
     equilibrium_cooling_channels: npt.NDArray[np.float64],
 ) -> None:
     cooling_rates = continuum_comparison_state.continuum.cooling_rates
+    actual = equilibrium_cooling_channels / equilibrium_cooling_channels.sum(
+        axis=0
+    )
+    expected = np.vstack(
+        [
+            cooling_rates.collisional_excitation_probability,
+            cooling_rates.collisional_ionization_probability,
+            cooling_rates.radiative_recombination_probability,
+            cooling_rates.free_free_probability,
+        ]
+    )
     np.testing.assert_allclose(
-        equilibrium_cooling_channels / equilibrium_cooling_channels.sum(axis=0),
-        np.vstack(
-            [
-                cooling_rates.collisional_excitation_probability,
-                cooling_rates.collisional_ionization_probability,
-                cooling_rates.radiative_recombination_probability,
-                cooling_rates.free_free_probability,
-            ]
-        ),
+        actual,
+        expected,
         rtol=3e-4,
         atol=0.0,
     )
@@ -910,7 +914,7 @@ def test_iip_process_probabilities_normalize_per_shell(
         "escape probabilities."
     ),
 )
-def test_standalone_level_populations_do_not_claim_iip_coupled_parity(
+def test_standalone_level_populations_equality_with_iip_plasma(
     iip_plasma_nlte_init: LegacyPlasmaArray,
 ) -> None:
     """Characterize the known standalone-equilibrium/IIP population gap."""
