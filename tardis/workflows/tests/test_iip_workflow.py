@@ -1,6 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import numpy.typing as npt
@@ -10,11 +11,16 @@ from astropy import units as u
 
 from tardis.conftest import assert_regression_dataframe
 from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
+from tardis.iip_plasma.properties.ion_population import NLTEIonNumberDensity
+from tardis.iip_plasma.properties.partition_function import (
+    PartitionFunction as IIPPartitionFunction,
+)
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.configuration.config_reader import Configuration
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
+from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
 from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
 from tardis.plasma.equilibrium.rate_matrix import RateMatrix
 from tardis.plasma.equilibrium.rates import (
@@ -113,7 +119,7 @@ def ctardis_compare_config(
 
     config.plasma.nlte.species = [
         (1, 0)
-    ]  # Hack to force config necessary for ctardis plasma
+    ]  # Force the configuration required by the ctardis plasma.
     return config
 
 
@@ -348,6 +354,195 @@ def iip_plasma_after_mc(
     )
 
     return iip_plasma_nlte_init
+
+
+@pytest.fixture
+def iip_charge_conserving_rate_matrix(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+) -> SimpleNamespace:
+    """Adapt full-dataset IIP rate tables to the new solver interface."""
+    plasma = iip_plasma_after_mc
+    legacy_solver = NLTEIonNumberDensity(plasma)
+    partition_function = IIPPartitionFunction.calculate(
+        plasma.level_boltzmann_factor
+    )
+    level_population_fraction = legacy_solver._calculate_level_pop_fractions(
+        plasma.level_boltzmann_factor,
+        partition_function,
+    )
+    ion_index = partition_function.index
+    radiative_recombination = legacy_solver._calculate_alpha_tot(
+        plasma.alpha_stim,
+        plasma.alpha_sp,
+        ion_index,
+    ).loc[(1, 0)]
+    radiative_ionization = legacy_solver._calculate_tot_ion_rate(
+        plasma.gamma,
+        level_population_fraction,
+        ion_index,
+    ).loc[(1, 0)]
+    collisional_ionization = legacy_solver._calculate_tot_ion_rate(
+        plasma.coll_ion_coeff,
+        level_population_fraction,
+        ion_index,
+    ).loc[(1, 0)]
+    collisional_recombination = legacy_solver._calculate_coll_recomb_tot(
+        plasma.coll_recomb_coeff,
+        ion_index,
+    ).loc[(1, 0)]
+    radiative_ionization_values = radiative_ionization.to_numpy()
+    radiative_recombination_values = radiative_recombination.to_numpy()
+    collisional_ionization_values = collisional_ionization.to_numpy()
+    collisional_recombination_values = collisional_recombination.to_numpy()
+
+    def solve(
+        radiation_field: object,
+        electron_distribution: ThermalElectronEnergyDistribution,
+        lte_level_population: pd.DataFrame,
+        estimated_level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        estimated_ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Build the IIP two-stage hydrogen matrices at trial densities."""
+        electron_number_density = electron_distribution.number_density.value
+        ionization_rate = (
+            radiative_ionization_values
+            + collisional_ionization_values * electron_number_density
+        )
+        recombination_rate = (
+            radiative_recombination_values * electron_number_density
+            + collisional_recombination_values
+            * electron_number_density**2
+        )
+        rate_matrices = np.empty((len(electron_number_density), 2, 2))
+        rate_matrices[:, 0, 0] = -ionization_rate
+        rate_matrices[:, 0, 1] = recombination_rate
+        rate_matrices[:, 1, :] = 1.0
+        rate_matrix_array = np.empty((1, len(rate_matrices)), dtype=object)
+        rate_matrix_array[0] = list(rate_matrices)
+        return pd.DataFrame(
+            rate_matrix_array,
+            index=pd.Index([1], name="atomic_number"),
+            columns=radiative_recombination.index,
+        )
+
+    return SimpleNamespace(
+        ion_population_index=pd.MultiIndex.from_tuples(
+            [(1, 0), (1, 1)],
+            names=["atomic_number", "ion_number"],
+        ),
+        solve=solve,
+    )
+
+
+def test_charge_conserving_solver_matches_iip_with_full_atomic_data(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+    iip_charge_conserving_rate_matrix: SimpleNamespace,
+) -> None:
+    """Match IIP NLTE populations with identical post-Monte-Carlo rates."""
+    plasma = iip_plasma_after_mc
+    legacy_parent = SimpleNamespace(
+        nlte_species=plasma.nlte_species,
+        previous_ion_number_density=None,
+        previous_electron_densities=None,
+    )
+    expected_ion_population, expected_electron_density = NLTEIonNumberDensity(
+        legacy_parent
+    ).calculate(
+        plasma.phi,
+        plasma.alpha_stim,
+        plasma.alpha_sp,
+        plasma.gamma,
+        plasma.coll_ion_coeff,
+        plasma.coll_recomb_coeff,
+        plasma.number_density,
+        plasma.level_boltzmann_factor,
+    )
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        plasma.t_electrons * u.K,
+        plasma.electron_densities.to_numpy() / u.cm**3,
+    )
+    actual_ion_population, actual_electron_density = IonPopulationSolver(
+        iip_charge_conserving_rate_matrix
+    ).solve(
+        None,
+        electron_distribution,
+        plasma.number_density,
+        plasma.lte_level_number_density,
+        plasma.level_number_density,
+        plasma.lte_ion_number_density,
+        plasma.ion_number_density,
+        plasma.partition_function,
+        plasma.level_boltzmann_factor,
+        charge_conservation=True,
+        level_to_continuum_saha_factor=plasma.phi_lucy,
+    )
+
+    pd.testing.assert_frame_equal(
+        actual_ion_population,
+        expected_ion_population,
+        check_dtype=False,
+        check_names=False,
+        rtol=3e-10,
+        atol=0.0,
+    )
+    pd.testing.assert_series_equal(
+        actual_electron_density,
+        expected_electron_density,
+        check_dtype=False,
+        check_names=False,
+        rtol=3e-10,
+        atol=0.0,
+    )
+
+
+def test_charge_conserving_solver_only_resolves_unconverged_shells(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+    iip_charge_conserving_rate_matrix: SimpleNamespace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep converged shell charge roots fixed during lagged iterations."""
+    plasma = iip_plasma_after_mc
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        plasma.t_electrons * u.K,
+        plasma.electron_densities.to_numpy() / u.cm**3,
+    )
+    estimated_ion_population = plasma.ion_number_density.copy()
+    estimated_ion_population.iloc[:, 0] = 0.0
+    solver = IonPopulationSolver(iip_charge_conserving_rate_matrix)
+    solve_shell_charge = solver.solve_shell_charge
+    solved_shell_indices = []
+
+    def record_solve_shell_charge(
+        shell_idx: int, *args: object, **kwargs: object
+    ) -> float:
+        solved_shell_indices.append(shell_idx)
+        return solve_shell_charge(shell_idx, *args, **kwargs)
+
+    monkeypatch.setattr(solver, "solve_shell_charge", record_solve_shell_charge)
+    solver.solve(
+        None,
+        electron_distribution,
+        plasma.number_density,
+        plasma.lte_level_number_density,
+        plasma.level_number_density,
+        plasma.lte_ion_number_density,
+        estimated_ion_population,
+        plasma.partition_function,
+        plasma.level_boltzmann_factor,
+        charge_conservation=True,
+        level_to_continuum_saha_factor=plasma.phi_lucy,
+    )
+
+    assert [
+        solved_shell_indices.count(shell_idx)
+        for shell_idx in range(len(plasma.number_density.columns))
+    ] == [2] + [1] * (len(plasma.number_density.columns) - 1)
 
 
 def test_type_iip_workflow_initial_plasma_regression(
