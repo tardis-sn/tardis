@@ -462,6 +462,7 @@ def iip_charge_conserving_rate_matrix(
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame,
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -> pd.DataFrame:
         """Build the IIP two-stage hydrogen matrices at trial densities."""
         electron_number_density = electron_distribution.number_density.value
@@ -2392,11 +2393,25 @@ def test_thermal_balance_solver(
         initial_guess,
         max_electron_number_density,
     )
-    assert_regression_dataframe(
-        regression_data,
-        "thermal_balance_iteration_initial_residual",
+    expected_initial_residual = regression_data.sync_dataframe(
         pd.DataFrame({"value": initial_residual}),
+        key="thermal_balance_iteration_initial_residual",
+    )["value"].to_numpy()
+    np.testing.assert_allclose(
+        initial_residual[::2],
+        expected_initial_residual[::2],
+        rtol=0.0,
+        # Re-solving a legacy fixed point with the standard charge owner shifts
+        # its normalized electron density by 7.17e-8. Bound this measured
+        # rebuild effect directly; final electron closure remains 2e-8 below.
+        atol=1e-7,
+    )
+    np.testing.assert_allclose(
+        initial_residual[1::2],
+        expected_initial_residual[1::2],
         rtol=1e-5,
+        # The charge-owner rebuild also perturbs the thermal state. Retain the
+        # relative parity and the established final heating closure floor.
         atol=2e-7,
     )
 
@@ -2544,10 +2559,19 @@ def test_thermal_balance_solver(
         final_guess,
         max_electron_number_density,
     )
-    assert_regression_dataframe(
-        regression_data,
-        "thermal_balance_iteration_residual",
-        pd.DataFrame({"value": residual}),
+    residual_frame = pd.DataFrame({"value": residual})
+    expected_residual = regression_data.sync_dataframe(
+        residual_frame, key="thermal_balance_iteration_residual"
+    )["value"].to_numpy()
+    np.testing.assert_allclose(
+        residual[::2],
+        expected_residual[::2],
+        rtol=1e-5,
+        atol=2e-8,
+    )
+    np.testing.assert_allclose(
+        residual[1::2],
+        expected_residual[1::2],
         rtol=1e-5,
         atol=2e-7,  # Legacy-published and standard roots differ slightly.
     )
