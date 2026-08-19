@@ -179,6 +179,12 @@ def basic_thermodynamic_state(
 
     return {
         "atomic_data": new_chianti_atomic_dataset,
+        "selected_atoms": atomic_numbers,
+        "abundance": abundance,
+        "density": density,
+        "t_rad": t_rad,
+        "dilution_factor": dilution_factor,
+        "link_t_rad_t_electron": link_t_rad_t_electron,
         "radiation_field": DilutePlanckianRadiationField(
             t_rad.to_numpy() * u.K, dilution_factor.to_numpy()
         ),
