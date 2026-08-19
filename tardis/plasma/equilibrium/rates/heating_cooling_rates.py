@@ -1,5 +1,6 @@
 import astropy.units as u
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from tardis import constants as const
@@ -76,8 +77,6 @@ class BoundFreeThermalRates:
             level=[0, 1, 2]
         ).first()
         nu_is = nu_i.loc[self.photoionization_cross_sections.index].to_numpy()
-        n_cells = level_population.columns
-
         ### HEATING
         # Lucy 03 eq 58
 
@@ -118,10 +117,28 @@ class BoundFreeThermalRates:
             * level_population.loc[integrated_heating_coefficient.index]
         ).sum()
 
-        ### COOLING
-        # Lucy 03 eq 59
+        cooling_rate = self.calculate_cooling_rate(
+            ion_population,
+            thermal_electron_distribution,
+            level_population_ratio,
+            stimulated_recombination_estimator,
+        ).sum()
 
-        # Calculate Boltzmann factor
+        return heating_rate, cooling_rate
+
+    def calculate_cooling_rate(
+        self,
+        ion_population: pd.DataFrame,
+        thermal_electron_distribution: ThermalElectronEnergyDistribution,
+        level_population_ratio: pd.DataFrame,
+        stimulated_recombination_estimator: pd.DataFrame | None = None,
+    ) -> pd.DataFrame:
+        """Calculate free-bound cooling rates for each recombining level."""
+        nu_i = self.photoionization_cross_sections.nu.groupby(
+            level=[0, 1, 2]
+        ).first()
+        nu_is = nu_i.loc[self.photoionization_cross_sections.index].to_numpy()
+
         boltzmann_factor = np.exp(
             -self.nu[:, np.newaxis]
             * u.Hz
@@ -153,18 +170,39 @@ class BoundFreeThermalRates:
             index=self.photoionization_index,
         )
 
-        # Lymann continuum handling
-        integrated_cooling_coefficient.loc[(1, 0, 0)] = 0.0
+        ground_state_mask = (
+            integrated_cooling_coefficient.index.get_level_values("ion_number")
+            == 0
+        ) & (
+            integrated_cooling_coefficient.index.get_level_values(
+                "level_number"
+            )
+            == 0
+        )
+        integrated_cooling_coefficient.loc[ground_state_mask] = 0.0
+
+        upper_ion_index = pd.MultiIndex.from_arrays(
+            [
+                integrated_cooling_coefficient.index.get_level_values(
+                    "atomic_number"
+                ),
+                integrated_cooling_coefficient.index.get_level_values(
+                    "ion_number"
+                )
+                + 1,
+            ],
+            names=["atomic_number", "ion_number"],
+        )
 
         ion_cooling_factor = (
             thermal_electron_distribution.number_density.value
-            * ion_population.loc[(1, 1)]
-        )  # Hydrogen ion population
+            * ion_population.loc[upper_ion_index].to_numpy()
+        )
 
         spontaneous_recombination_cooling_rate = (
             integrated_cooling_coefficient
             * level_population_ratio.loc[integrated_cooling_coefficient.index]
-            * ion_cooling_factor  # Hydrogen ion population
+            * ion_cooling_factor
         )
 
         if stimulated_recombination_estimator is not None:
@@ -176,20 +214,12 @@ class BoundFreeThermalRates:
                 * ion_cooling_factor
             )
         else:
-            stimulated_recombination_cooling_rate = pd.DataFrame(
-                np.zeros(
-                    (len(spontaneous_recombination_cooling_rate), len(n_cells))
-                ),
-                index=spontaneous_recombination_cooling_rate.index,
-                columns=n_cells,
-            )
+            stimulated_recombination_cooling_rate = 0.0
 
-        cooling_rate = (
+        return (
             spontaneous_recombination_cooling_rate
             + stimulated_recombination_cooling_rate
-        ).sum()
-
-        return heating_rate, cooling_rate
+        )
 
 
 class FreeFreeThermalRates:
@@ -225,6 +255,18 @@ class FreeFreeThermalRates:
             * ion_population.multiply(ionic_charge_squared, axis=0).sum()
         )
         return heating_factor
+
+    def cooling_rate(
+        self,
+        electron_temperature: npt.ArrayLike,
+        heating_factor: pd.Series,
+    ) -> pd.Series:
+        """Calculate the free-free cooling rate in each shell."""
+        return (
+            self.cooling_constant
+            * np.sqrt(electron_temperature)
+            * heating_factor
+        )
 
     def solve(
         self,
@@ -265,10 +307,9 @@ class FreeFreeThermalRates:
         ### COOLING
         # Lucy 03 Eq 32
 
-        cooling_rate = (
-            self.cooling_constant
-            * np.sqrt(thermal_electron_distribution.temperature.cgs.value)
-            * heating_factor
+        cooling_rate = self.cooling_rate(
+            thermal_electron_distribution.temperature.cgs.value,
+            heating_factor,
         )
 
         return heating_rate, cooling_rate

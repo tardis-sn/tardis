@@ -5,7 +5,7 @@ import numpy.typing as npt
 import pandas as pd
 from numba import float64, int64
 
-from tardis.opacities.continuum.continuum_state import ContinuumState
+from tardis.opacities.continuum.continuum_state import ContinuumOpacityState
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
@@ -53,7 +53,7 @@ class OpacityState:
         line_list_nu: pd.Series,
         tau_sobolev: pd.DataFrame,
         beta_sobolev: pd.DataFrame | None,
-        continuum_state: ContinuumState | None,
+        continuum_state: ContinuumOpacityState | None,
     ) -> None:
         """
         Initialize the Python-native opacity state.
@@ -67,7 +67,7 @@ class OpacityState:
         tau_sobolev : pd.DataFrame
         beta_sobolev : pd.DataFrame or None
             Sobolev escape probabilities for each line and shell.
-        continuum_state : tardis.opacities.continuum.continuum_state.ContinuumState or None
+        continuum_state : tardis.opacities.continuum.continuum_state.ContinuumOpacityState or None
             Continuum quantities needed when continuum interactions are enabled.
         """
         self.electron_density = electron_density
@@ -103,7 +103,7 @@ class OpacityState:
             Python-native opacity state.
         """
         if hasattr(plasma, "photo_ion_cross_sections"):
-            continuum_state = ContinuumState.from_legacy_plasma(plasma)
+            continuum_state = ContinuumOpacityState.from_legacy_plasma(plasma)
         else:
             continuum_state = None
 
@@ -122,6 +122,7 @@ class OpacityState:
         plasma: BasePlasma,
         tau_sobolev: pd.DataFrame,
         beta_sobolev: pd.DataFrame | None,
+        continuum_state: ContinuumOpacityState | None = None,
     ) -> Self:
         """
         Construct an opacity state from a plasma object.
@@ -140,9 +141,11 @@ class OpacityState:
         OpacityState
             Python-native opacity state.
         """
-        if hasattr(plasma, "photo_ion_cross_sections"):
-            continuum_state = ContinuumState.from_legacy_plasma(plasma)
-        else:
+        if continuum_state is None and hasattr(
+            plasma, "photo_ion_cross_sections"
+        ):
+            continuum_state = ContinuumOpacityState.from_legacy_plasma(plasma)
+        elif continuum_state is None:
             continuum_state = None
 
         return cls(
@@ -256,12 +259,18 @@ class OpacityState:
                 self.continuum_state.ff_cooling_factor / np.sqrt(t_electrons)
             ).astype(np.float64)
             emissivities = self.continuum_state.emissivities.values
-            photo_ion_activation_idx = (
-                macro_atom_state.photo_ion_block_idx
-                * np.ones(
-                    30, dtype=np.int64
-                )  # TODO: Fix this more with flexible input. This will only work for Hydrogen
-            )
+            if macro_atom_state.photo_ion_block_idx < 0:
+                photo_ion_activation_idx = (
+                    self.continuum_state.photo_ion_activation_idx.to_numpy(
+                        dtype=np.int64
+                    )
+                )
+            else:
+                photo_ion_activation_idx = np.full(
+                    len(self.continuum_state.level2continuum_idx),
+                    macro_atom_state.photo_ion_block_idx,
+                    dtype=np.int64,
+                )
             k_packet_idx = np.int64(macro_atom_state.k_packet_idx)
             absorbing_markov_probabilities = (
                 macro_atom_state.absorbing_probability_matrix
