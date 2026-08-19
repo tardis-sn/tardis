@@ -131,11 +131,11 @@ def test_evaluator_uses_temperature_dependent_continuum_coefficients(
 ) -> None:
     """Keep fixed estimator coefficients while rebuilding thermal factors."""
     evaluator = toy_evaluator
-    (rates,), _, _, _ = evaluator._calculate_continuum_rate_coefficients(
+    (rates,), _, _, _, *_ = evaluator._calculate_continuum_rate_coefficients(
         np.array([1.0e4])
     )
-    (hot_rates,), _, _, _ = evaluator._calculate_continuum_rate_coefficients(
-        np.array([2.0e4])
+    (hot_rates,), _, _, _, *_ = (
+        evaluator._calculate_continuum_rate_coefficients(np.array([2.0e4]))
     )
     npt.assert_allclose(hot_rates.photoionization, rates.photoionization)
     assert not np.array_equal(
@@ -296,9 +296,9 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         2.0e9,  # Final electron density (cm⁻³).
         1.0e4,  # Shell electron temperature (K).
         first_result.normalized_population[0].to_numpy(),
-        evaluator._calculate_continuum_rate_coefficients(
-            np.array([1.0e4])
-        )[0][0],
+        evaluator._calculate_continuum_rate_coefficients(np.array([1.0e4]))[0][
+            0
+        ],
         evaluator.population_geometries[0],
         evaluator.sobolev_inputs[0],
         first_result.absolute_level_population.iloc[:, 0].to_numpy(),

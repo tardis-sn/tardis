@@ -200,10 +200,11 @@ class IonPopulationSolver:
                 axis=1
             )
             minimum_population = normalized_population.min(axis=1)
-            if np.any(nonfinite_populations) or np.any(
+            invalid_populations = nonfinite_populations | (
                 minimum_population < -1e-12
-            ):
-                shell_idx = np.flatnonzero(nonfinite_populations)[0]
+            )
+            if np.any(invalid_populations):
+                shell_idx = np.flatnonzero(invalid_populations)[0]
                 raise PlasmaIonizationError(
                     "Nonfinite or negative ion population for atomic number "
                     f"{atomic_number}, shell {rate_matrices.columns[shell_idx]}."
@@ -245,10 +246,9 @@ class IonPopulationSolver:
                 "level_to_continuum_saha_factor is required when charge "
                 "conservation is enabled."
             )
-        bound_level_index = (
-            lte_level_population.index.get_level_values("ion_number")
-            < lte_level_population.index.get_level_values("atomic_number")
-        )
+        bound_level_index = lte_level_population.index.get_level_values(
+            "ion_number"
+        ) < lte_level_population.index.get_level_values("atomic_number")
         return self._solve_charge_conserving(
             radiation_field,
             thermal_electron_energy_distribution,
@@ -319,21 +319,19 @@ class IonPopulationSolver:
             Absolute ion populations and normalized charge residuals for each
             shell.
         """
-        ion_population = (
-            self.solve_element_populations_at_electron_density(
-                electron_density,
-                radiation_field,
-                thermal_electron_energy_distribution,
-                lte_level_population,
-                estimated_level_population,
-                lte_ion_population,
-                estimated_ion_population,
-                partition_function,
-                boltzmann_factor,
-                level_to_continuum_saha_factor,
-                elemental_number_density,
-                lte_ionization_factor=lte_ionization_factor,
-            )
+        ion_population = self.solve_element_populations_at_electron_density(
+            electron_density,
+            radiation_field,
+            thermal_electron_energy_distribution,
+            lte_level_population,
+            estimated_level_population,
+            lte_ion_population,
+            estimated_ion_population,
+            partition_function,
+            boltzmann_factor,
+            level_to_continuum_saha_factor,
+            elemental_number_density,
+            lte_ionization_factor=lte_ionization_factor,
         )
         charge_density = (
             ion_population
@@ -449,9 +447,7 @@ class IonPopulationSolver:
                 maxiter=self.max_solver_iterations,
             )
         except ValueError as exc:
-            lower_residual = charge_residual(
-                MINIMUM_ELECTRON_DENSITY_FRACTION
-            )
+            lower_residual = charge_residual(MINIMUM_ELECTRON_DENSITY_FRACTION)
             upper_residual = charge_residual(1.0)
             raise PlasmaIonizationError(
                 f"Charge residual does not bracket shell {shell_idx}: "
@@ -656,6 +652,7 @@ class IonPopulationSolver:
             f"{self.max_solver_iterations} iterations."
         )
 
+
 class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
     """Solve ion populations for a fixed electron density."""
 
@@ -675,10 +672,9 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
         lte_ionization_factor: pd.DataFrame | None = None,
     ) -> tuple[pd.DataFrame, pd.Series]:
         """Solve ion populations without imposing charge conservation."""
-        bound_level_index = (
-            lte_level_population.index.get_level_values("ion_number")
-            < lte_level_population.index.get_level_values("atomic_number")
-        )
+        bound_level_index = lte_level_population.index.get_level_values(
+            "ion_number"
+        ) < lte_level_population.index.get_level_values("atomic_number")
         return self._solve_fixed_electron_density(
             radiation_field,
             thermal_electron_energy_distribution,
