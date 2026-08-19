@@ -24,14 +24,6 @@ def map_species_from_string(species: list[object]) -> list[tuple[int, int]]:
     ]
 
 
-def convert_species_to_multi_index(species_strs: list[object]) -> pd.MultiIndex:
-    """Convert configured species to the standard species index."""
-    return pd.MultiIndex.from_tuples(
-        map_species_from_string(species_strs),
-        names=["atomic_number", "ion_number"],
-    )
-
-
 class PlasmaSolverFactory:
     """Assemble a plasma property graph from configuration and atomic data."""
 
@@ -81,8 +73,9 @@ class PlasmaSolverFactory:
     @property
     def continuum_interaction_species_multi_index(self) -> pd.MultiIndex:
         """Return configured continuum species as a MultiIndex."""
-        return convert_species_to_multi_index(
-            self.continuum_interaction_species
+        return pd.MultiIndex.from_tuples(
+            map_species_from_string(self.continuum_interaction_species),
+            names=["atomic_number", "ion_number"],
         )
 
     def parse_plasma_config(self, plasma_config: object) -> None:
