@@ -6,6 +6,8 @@ import pandas as pd
 import pandas.testing as pdt
 import pytest
 from astropy import units as u
+from numpy.typing import NDArray
+from scipy.optimize import least_squares
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -320,6 +322,85 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         first_result.level_residual, second_result.level_residual
     )
     pdt.assert_frame_equal(level_seed, original_seed)
+
+
+def test_evaluator_closes_synthetic_one_shell_thermal_root(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+) -> None:
+    """Close electron and thermal residuals at a known one-shell root."""
+    target_electron_density = 2.0e9
+    target_electron_temperature = 8.0e3
+    maximum_electron_density = 1.0e10
+    radiation_temperature = 1.0e4
+
+    class ChargeSolver:
+        def solve(self, **kwargs: object) -> tuple[pd.DataFrame, pd.Series]:
+            del kwargs
+            ion_index = pd.MultiIndex.from_tuples(
+                [(1, 0), (1, 1)], names=["atomic_number", "ion_number"]
+            )
+            return (
+                pd.DataFrame(
+                    [[8.0e9], [target_electron_density]],
+                    index=ion_index,
+                    columns=[0],
+                ),
+                pd.Series([target_electron_density], index=[0]),
+            )
+
+    class ThermalSolver:
+        def solve(
+            self,
+            thermal_electron_distribution: ThermalElectronEnergyDistribution,
+            **kwargs: object,
+        ) -> tuple[pd.Series, pd.Series]:
+            del kwargs
+            fractional_heating = pd.Series(
+                thermal_electron_distribution.temperature.to_value(u.K)
+                / target_electron_temperature
+                - 1.0,
+                index=[0],
+            )
+            return fractional_heating, fractional_heating
+
+    toy_evaluator.ion_population_solver = ChargeSolver()
+    toy_evaluator.thermal_balance_solver = ThermalSolver()
+    level_seed = pd.DataFrame(
+        [[0.5], [0.5]],
+        index=toy_evaluator.level_population_index,
+        columns=[0],
+    )
+
+    def calculate_outer_residual(
+        candidate: NDArray[np.float64],
+    ) -> NDArray[np.float64]:
+        evaluation = toy_evaluator.evaluate(
+            [candidate[0] * maximum_electron_density],
+            [candidate[1] * radiation_temperature],
+            level_seed,
+        )
+        return np.array(
+            [
+                evaluation.electron_residual.iloc[0],
+                evaluation.fractional_heating.iloc[0],
+            ]
+        )
+
+    solution = least_squares(
+        calculate_outer_residual,
+        np.array([0.5, 1.1]),
+        bounds=([0.01, 0.2], [1.0, 1.5]),
+    )
+    final_evaluation = toy_evaluator.evaluate(
+        [solution.x[0] * maximum_electron_density],
+        [solution.x[1] * radiation_temperature],
+        level_seed,
+    )
+
+    npt.assert_allclose(solution.x, [0.2, 0.8], rtol=1e-10)
+    npt.assert_allclose(final_evaluation.electron_residual, [0.0], atol=1e-10)
+    npt.assert_allclose(final_evaluation.fractional_heating, [0.0], atol=1e-10)
+    npt.assert_allclose(final_evaluation.charge_residual, [0.0], atol=1e-10)
 
 
 def test_evaluator_aligns_collisional_temperature_scaling_by_transition(

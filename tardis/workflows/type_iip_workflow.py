@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from astropy import units as u
 from scipy.interpolate import interp1d
@@ -17,6 +18,30 @@ from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.tau_sobolev import SOBOLEV_COEFFICIENT
+from tardis.plasma.equilibrium.evaluator import PlasmaEquilibriumEvaluator
+from tardis.plasma.equilibrium.inputs import (
+    NumberDensityPerShell,
+    SobolevInputs,
+)
+from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
+from tardis.plasma.equilibrium.rate_matrix import (
+    EstimatedIonRateMatrix,
+    RateMatrix,
+)
+from tardis.plasma.equilibrium.rates import (
+    CollisionalIonizationRateSolver,
+    EstimatedPhotoionizationRateSolver,
+    ThermalCollisionalRateSolver,
+)
+from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
+    BoundFreeThermalRates,
+    CollisionalBoundThermalRates,
+    CollisionalIonizationThermalRates,
+    FreeFreeThermalRates,
+)
+from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
+from tardis.plasma.equilibrium.thermal_balance import ThermalBalanceSolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
@@ -27,6 +52,7 @@ from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.estimators import init_estimators_continuum
 from tardis.transport.montecarlo.modes.iip.solver import (
     MCTransportSolverIIP,
 )
@@ -529,10 +555,211 @@ class TypeIIPWorkflow:
             **continuum_estimators,
         )
 
+    def _build_thermal_balance_evaluator(
+        self,
+        maximum_electron_density: npt.NDArray[np.float64],
+    ) -> PlasmaEquilibriumEvaluator:
+        """Build the fixed evaluator snapshot for one outer thermal solve."""
+        plasma = self.plasma_solver
+
+        # Legacy iip_plasma stores already-normalized continuum coefficients.
+        # Unit time and volume encode them in the standard estimator container
+        # without changing their numerical values when it normalizes them.
+        time_simulation = 1.0 * u.s
+        volume = 1.0 * u.cm**3
+        estimator_scale = const.h.cgs.value
+        estimators = init_estimators_continuum(
+            plasma.photo_ion_estimator.shape,
+            len(plasma.number_density.columns),
+        )
+        estimators.photo_ion_estimator[:] = (
+            np.asarray(plasma.photo_ion_estimator) * estimator_scale
+        )
+        estimators.stim_recomb_estimator[:] = (
+            np.asarray(plasma.stim_recomb_estimator) * estimator_scale
+        )
+        estimators.bf_heating_estimator[:] = np.asarray(
+            plasma.bf_heating_coeff
+        )
+        estimators.stim_recomb_cooling_estimator[:] = np.asarray(
+            plasma.stim_recomb_cooling_coeff
+        )
+        estimators.ff_heating_estimator[:] = np.asarray(
+            plasma.ff_heating_estimator
+        )
+
+        continuum_index = (
+            plasma.atomic_data.continuum_data.multi_index_nu_sorted
+        )
+        level2continuum_edge_idx = pd.Series(
+            np.arange(len(continuum_index), dtype=np.int64),
+            index=continuum_index,
+            name="continuum_idx",
+        )
+        photoionization_data = (
+            plasma.atomic_data.continuum_data.photoionization_data
+        )
+        equilibrium_levels = plasma.atomic_data.levels.loc[
+            plasma.level_number_density.index
+        ]
+        level_index = plasma.level_number_density.index
+        hydrogen_species = plasma.nlte_species[0]
+        hydrogen_level_positions = np.flatnonzero(
+            (
+                level_index.get_level_values("atomic_number")
+                == hydrogen_species[0]
+            )
+            & (
+                level_index.get_level_values("ion_number")
+                == hydrogen_species[1]
+            )
+        )
+        population_geometries = tuple(
+            NumberDensityPerShell(
+                plasma.number_density.loc[1, shell],
+                plasma.level_number_density[shell].to_numpy(
+                    dtype=np.float64
+                ),
+                hydrogen_level_positions,
+            )
+            for shell in plasma.number_density.columns
+        )
+
+        line_index = plasma.lines.index
+        line_species_index = line_index.droplevel(
+            ["level_number_lower", "level_number_upper"]
+        )
+        nlte_lines_mask = np.asarray(
+            line_species_index.isin(plasma.nlte_species), dtype=bool
+        )
+        time_explosion_seconds = plasma.time_explosion
+        if isinstance(time_explosion_seconds, u.Quantity):
+            time_explosion_seconds = time_explosion_seconds.to_value("s")
+        sobolev_input = SobolevInputs(
+            plasma.lines_lower_level_index,
+            plasma.lines_upper_level_index,
+            plasma.g.iloc[plasma.lines_lower_level_index].to_numpy(),
+            plasma.g.iloc[plasma.lines_upper_level_index].to_numpy(),
+            plasma.metastability.iloc[
+                plasma.lines_upper_level_index
+            ].to_numpy(),
+            nlte_lines_mask,
+            (
+                plasma.lines.wavelength_cm.to_numpy()
+                * plasma.lines.f_lu.to_numpy()
+                * SOBOLEV_COEFFICIENT
+                * time_explosion_seconds
+            ),
+            np.arange(len(line_index), dtype=np.int64),
+            line_index,
+        )
+        rate_matrix_solver = RateMatrix(
+            RadiativeRatesSolver(plasma.lines),
+            ThermalCollisionalRateSolver(
+                equilibrium_levels,
+                plasma.lines,
+                plasma.atomic_data.collision_data_temperatures,
+                plasma.atomic_data.yg_data,
+                collision_strengths_type="cmfgen",
+            ),
+            equilibrium_levels,
+        )
+        ion_population_solver = IonPopulationSolver(
+            EstimatedIonRateMatrix(
+                EstimatedPhotoionizationRateSolver(
+                    photoionization_data,
+                    level2continuum_edge_idx,
+                    estimators,
+                    time_simulation,
+                    volume,
+                ),
+                CollisionalIonizationRateSolver(photoionization_data),
+                plasma.phi,
+            )
+        )
+        thermal_balance_solver = ThermalBalanceSolver(
+            BoundFreeThermalRates(photoionization_data),
+            FreeFreeThermalRates(),
+            CollisionalIonizationThermalRates(photoionization_data),
+            CollisionalBoundThermalRates(
+                pd.DataFrame({"nu": np.asarray(plasma.nu_lines_coll)})
+            ),
+        )
+        return PlasmaEquilibriumEvaluator(
+            photoionization_data,
+            level2continuum_edge_idx,
+            estimators,
+            time_simulation,
+            volume,
+            equilibrium_levels,
+            plasma.ionization_data,
+            rate_matrix_solver,
+            pd.DataFrame(
+                plasma.j_blues,
+                index=line_index,
+                columns=plasma.number_density.columns,
+            ),
+            population_geometries,
+            tuple(sobolev_input for _ in plasma.number_density.columns),
+            level_index,
+            hydrogen_species,
+            plasma.number_density,
+            maximum_electron_density,
+            ion_population_solver=ion_population_solver,
+            ion_population_arguments={
+                "radiation_field": None,
+                "elemental_number_density": plasma.number_density,
+                "lte_level_population": plasma.lte_level_number_density,
+                "lte_ion_population": plasma.lte_ion_number_density,
+                "estimated_ion_population": plasma.ion_number_density,
+                "partition_function": plasma.partition_function,
+                "boltzmann_factor": plasma.level_boltzmann_factor,
+                "level_to_continuum_saha_factor": plasma.phi_lucy,
+            },
+            thermal_balance_solver=thermal_balance_solver,
+            thermal_balance_arguments={
+                "collisional_ionization_rate_coefficient": (
+                    plasma.coll_ion_coeff
+                ),
+                "collisional_deexcitation_rate_coefficient": (
+                    plasma.coll_deexc_coeff
+                ),
+                "collisional_excitation_rate_coefficient": (
+                    plasma.coll_exc_coeff
+                ),
+                "free_free_heating_estimator": plasma.ff_heating_estimator,
+                "level_population_ratio": plasma.phi_lucy,
+                "bound_free_heating_estimator": plasma.bf_heating_coeff,
+                "stimulated_recombination_estimator": (
+                    plasma.stim_recomb_cooling_coeff
+                ),
+            },
+            reference_electron_temperature=plasma.t_electrons * u.K,
+        )
+
+    def _initialize_thermal_balance_evaluator(
+        self,
+        maximum_electron_density: npt.NDArray[np.float64],
+    ) -> None:
+        """Freeze the evaluator and level seed for one outer solve."""
+        plasma = self.plasma_solver
+        hydrogen_species = plasma.nlte_species[0]
+        self._thermal_balance_evaluator = self._build_thermal_balance_evaluator(
+            maximum_electron_density
+        )
+        self._thermal_balance_radiation_temperature = np.asarray(
+            plasma.t_rad, dtype=np.float64
+        ).copy()
+        self._thermal_balance_level_seed = plasma.level_number_density.loc[
+            hydrogen_species
+        ].divide(plasma.ion_number_density.loc[hydrogen_species], axis=1)
+
     def thermal_balance_iteration(
-        self, initial_guess, max_electron_number_density
-    ):
-        """Compute the thermal balance of the plasma
+        self,
+        initial_guess: npt.NDArray[np.float64],
+        max_electron_number_density: npt.NDArray[np.float64],
+    ) -> npt.NDArray[np.float64]:
+        """Compute the fixed-candidate thermal-balance residual.
 
         Parameters
         ----------
@@ -546,72 +773,65 @@ class TypeIIPWorkflow:
         Returns
         -------
         np.ndarray
-            Final guess for the electron number density fraction and
-            link_t_rad_t_electron for each shell, in the form
-            [n_e_frac_1, link_1, n_e_frac_2, link_2,...]
+            Interleaved normalized electron and fractional-heating residuals.
         """
         electron_density_fraction = initial_guess[::2]
         link_t_rad_t_electron = initial_guess[1::2]
 
         logger.info("Link: %s", link_t_rad_t_electron)
 
-        pl = self.plasma_solver
-
         electron_densities = (
             max_electron_number_density * electron_density_fraction
         )
-
-        self.plasma_solver.update(
-            previous_ion_number_density=pl.ion_number_density.copy(),
-            previous_electron_densities=electron_densities,
-            previous_beta_sobolev=pl.beta_sobolev.copy(),
-            link_t_rad_t_electron=link_t_rad_t_electron,
-            previous_b=pl.b,
-            previous_t_electrons=pl.t_rad * link_t_rad_t_electron,
+        evaluation = self._thermal_balance_evaluator.evaluate(
+            electron_densities,
+            self._thermal_balance_radiation_temperature
+            * link_t_rad_t_electron,
+            self._thermal_balance_level_seed,
         )
 
-        solution = np.zeros(2 * len(self.plasma_solver.fractional_heating))
-        normalized_electron_fraction_change = (
-            pl.electron_densities - electron_densities
-        ) / electron_densities
-        electron_density_fraction_new = (
-            1 - pl.electron_densities / max_electron_number_density
-        )
-        electron_density_fraction_change = (
-            electron_density_fraction_new - (1.0 - electron_density_fraction)
-        ) / (1.0 - electron_density_fraction)
-
-        if (
-            np.logical_not(
-                np.isfinite(self.plasma_solver.fractional_heating)
-            ).sum()
-            > 0
-        ):
+        electron_residual = evaluation.electron_residual.to_numpy()
+        fractional_heating = evaluation.fractional_heating.to_numpy()
+        solution = np.zeros_like(initial_guess)
+        if not np.isfinite(fractional_heating).all():
             logger.warning("Heating not finite\n")
-        if (
-            np.logical_not(
-                np.isfinite(normalized_electron_fraction_change)
-            ).sum()
-            > 0
-        ):
+        if not np.isfinite(electron_residual).all():
             logger.warning("Fractional electron change not finite\n")
 
-        solution[::2] = normalized_electron_fraction_change
-        solution[1::2] = self.plasma_solver.fractional_heating
+        solution[::2] = electron_residual
+        solution[1::2] = fractional_heating
         logger.info(
             "Normalized electron fraction change: %s",
-            normalized_electron_fraction_change,
+            electron_residual,
         )
-        logger.info(
-            "Electron density fraction change: %s",
-            electron_density_fraction_change,
-        )
-        logger.info("Heating: %s", self.plasma_solver.fractional_heating)
+        logger.info("Heating: %s", fractional_heating)
         return solution
 
-    def solve_thermal_balance(self):
-        """Solve the heating and cooling balance of the plasma iteratively,
-        setting the electron number density and link_t_rad_t_electron
+    def _publish_legacy_thermal_balance_state(
+        self,
+        candidate: npt.NDArray[np.float64],
+        maximum_electron_density: npt.NDArray[np.float64],
+    ) -> None:
+        """Publish the accepted candidate until Phase 5 replaces ownership."""
+        plasma = self.plasma_solver
+        link_t_rad_t_electron = candidate[1::2]
+        plasma.update(
+            previous_ion_number_density=plasma.ion_number_density.copy(),
+            previous_electron_densities=(
+                maximum_electron_density * candidate[::2]
+            ),
+            previous_beta_sobolev=plasma.beta_sobolev.copy(),
+            link_t_rad_t_electron=link_t_rad_t_electron,
+            previous_b=plasma.b,
+            previous_t_electrons=(
+                np.asarray(plasma.t_rad) * link_t_rad_t_electron
+            ),
+        )
+
+    def solve_thermal_balance(self) -> None:
+        """Solve the plasma heating and cooling balance.
+
+        Set the electron number density and link_t_rad_t_electron
         to values that satisfy thermal balance
         """
         link_t_rad_t_electron_start = self.plasma_solver.link_t_rad_t_electron
@@ -646,6 +866,9 @@ class TypeIIPWorkflow:
         initial_guess = np.zeros(2 * len(link_t_rad_t_electron_start))
         initial_guess[::2] = initial_electron_fraction
         initial_guess[1::2] = link_t_rad_t_electron_start
+        self._initialize_thermal_balance_evaluator(
+            max_electron_number_density
+        )
         no_shells = self.simulation_state.geometry.no_of_shells_active
 
         jac_sparsity = block_diag([np.ones((2, 2))] * no_shells)
@@ -702,9 +925,19 @@ class TypeIIPWorkflow:
             args=(max_electron_number_density,),
         )
         self.plasma_solver.plasma_converged = True
-        # final thermal_balance_iteration to set values in plasma
-        self.thermal_balance_iteration(
-            thermal_lsq_result.x, max_electron_number_density
+        # Evaluate the accepted point once more before temporary legacy
+        # publication. Phase 5 will replace this duplicate state ownership.
+        accepted_candidate = thermal_lsq_result.x
+        self._thermal_balance_evaluation = (
+            self._thermal_balance_evaluator.evaluate(
+                max_electron_number_density * accepted_candidate[::2],
+                self._thermal_balance_radiation_temperature
+                * accepted_candidate[1::2],
+                self._thermal_balance_level_seed,
+            )
+        )
+        self._publish_legacy_thermal_balance_state(
+            accepted_candidate, max_electron_number_density
         )
 
         ion_ratio = (
