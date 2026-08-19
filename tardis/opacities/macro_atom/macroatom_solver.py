@@ -3,6 +3,9 @@ import pandas as pd
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.io.atom_data import AtomData
+from tardis.opacities.continuum.macro_atom_state import (
+    ContinuumMacroAtomState,
+)
 from tardis.opacities.macro_atom import util
 from tardis.opacities.macro_atom.absorbing_markov_chain import (
     create_absorbing_probs,
@@ -54,6 +57,8 @@ from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 
 class LegacyMacroAtomSolver:
+    """Build macro-atom state from the legacy plasma representation."""
+
     initialize: bool = True
     normalize: bool = True
 
@@ -208,6 +213,8 @@ class LegacyMacroAtomSolver:
 
 
 class BoundBoundMacroAtomSolver:
+    """Solve bound-bound macro-atom transition probabilities."""
+
     levels: pd.DataFrame
     lines: pd.DataFrame
 
@@ -591,8 +598,8 @@ class BoundBoundMacroAtomSolver:
         self,
         macro_atom_transition_metadata: pd.DataFrame,
     ) -> None:
-        """
-        Create numerical indices for source and destination levels
+        """Create numerical indices for source and destination levels.
+
         by mapping unique source levels to sequential integers. The destination
         indices use -99 for destinations that are not sources (emission-only levels).
 
@@ -791,6 +798,8 @@ class BoundBoundMacroAtomSolver:
 
 
 class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
+    """Solve macro-atom probabilities including continuum transitions."""
+
     levels: pd.DataFrame
     lines: pd.DataFrame
     line_interaction_type: str
@@ -841,9 +850,13 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
 
         if selected_continuum_transitions.size > 0:
+            selected_continuum_transition_tuples = [
+                tuple(transition)
+                for transition in selected_continuum_transitions.tolist()
+            ]
             included_species = photoionization_data.index.droplevel(
                 "level_number"
-            ).isin(selected_continuum_transitions)
+            ).isin(selected_continuum_transition_tuples)
             self.photoionization_data = photoionization_data[included_species]
         else:
             self.photoionization_data = photoionization_data
@@ -863,22 +876,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         mean_intensities_blue_wing: pd.DataFrame,
         beta_sobolevs: pd.DataFrame,
         stimulated_emission_factors: np.ndarray,
-        stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
-        spontaneous_recombination_coeff: pd.DataFrame,
-        coll_deexc_coeff: pd.DataFrame,
-        coll_exc_coeff: pd.DataFrame,
-        coll_ion_coeff: pd.DataFrame,
-        coll_recomb_coeff: pd.DataFrame,
+        continuum_macro_atom_state: ContinuumMacroAtomState,
         electron_densities: pd.Series,
-        delta_E_yg: pd.Series,
-        coll_exc_cool_rate: pd.Series,
-        coll_exc_cool_arr: np.ndarray,
-        coll_exc_cool_destinations: np.ndarray,
-        coll_ion_cool_rate: pd.Series,
-        coll_ion_cool_arr: np.ndarray,
-        fb_cool_rate: pd.Series,
-        fb_cool_probs_arr: np.ndarray,
-        ff_cool_rate: pd.Series,
     ) -> MacroAtomState:
         """
         Solve the Macro Atom State including continuum transitions.
@@ -896,44 +895,47 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Escape probabilities for the Sobolev approximation.
         stimulated_emission_factors
             Stimulated emission factors for the lines.
-        stim_recomb_corrected_photoionization_rate_coeff
-            Corrected photoionization rate coefficients for continuum transitions.
-        spontaneous_recombination_coeff
-            Spontaneous recombination coefficients for continuum transitions.
-        coll_deexc_coeff
-            Collisional de-excitation coefficients.
-        coll_exc_coeff
-            Collisional excitation coefficients.
-        coll_ion_coeff
-            Collisional ionization coefficients.
-        coll_recomb_coeff
-            Collisional recombination coefficients.
+        continuum_macro_atom_state
+            Structured continuum rates and cooling metadata.
         electron_densities
             Electron number densities for each cell.
-        delta_E_yg
-            Energy differences for transitions.
-        coll_exc_cool_rate
-            Collisional excitation cooling rates per cell.
-        coll_exc_cool_arr
-            Array of collisional excitation cooling rates by transition.
-        coll_exc_cool_destinations
-            Multi-index object describing destinations for the cooling transitions.
-        coll_ion_cool_rate
-            Collisional ionization cooling rates per cell.
-        coll_ion_cool_arr
-            Array of collisional ionization cooling rates by transition.
-        fb_cool_rate
-            Free-bound cooling rates per cell.
-        fb_cool_probs_arr
-            Array of free-bound cooling probabilities by bound level.
-        ff_cool_rate
-            Free-free (bremsstrahlung) cooling rates per cell.
 
         Returns
         -------
         MacroAtomState
             State of the macro atom including continuum transitions, ready to be placed into the OpacityState.
         """
+        stim_recomb_corrected_photoionization_rate_coeff = (
+            continuum_macro_atom_state.radiative_ionization_rate
+        )
+        spontaneous_recombination_coeff = (
+            continuum_macro_atom_state.radiative_recombination_rate
+        )
+        coll_deexc_coeff = (
+            continuum_macro_atom_state.collisional_deexcitation_rate
+        )
+        coll_exc_coeff = continuum_macro_atom_state.collisional_excitation_rate
+        coll_ion_coeff = continuum_macro_atom_state.collisional_ionization_rate
+        coll_recomb_coeff = (
+            continuum_macro_atom_state.collisional_recombination_rate
+        )
+        delta_E_yg = continuum_macro_atom_state.delta_E_yg
+        coll_exc_cool_rate = continuum_macro_atom_state.collisional_excitation_cooling_probability
+        coll_exc_cool_arr = (
+            continuum_macro_atom_state.collisional_excitation_cooling_array
+        )
+        coll_exc_cool_destinations = (
+            continuum_macro_atom_state.collisional_excitation_references
+        )
+        coll_ion_cool_rate = continuum_macro_atom_state.collisional_ionization_cooling_probability
+        coll_ion_cool_arr = (
+            continuum_macro_atom_state.collisional_ionization_cooling_array
+        )
+        fb_cool_rate = continuum_macro_atom_state.radiative_recombination_cooling_probability
+        fb_cool_probs_arr = (
+            continuum_macro_atom_state.radiative_recombination_cooling_array
+        )
+        ff_cool_rate = continuum_macro_atom_state.free_free_cooling_probability
         is_first_iteration = not hasattr(self, "computed_metadata")
 
         if is_first_iteration:
@@ -1435,12 +1437,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             group sums to 1.0. The structure matches the first iteration output but
             with updated probability values.
         """
-        (
-            macro_atom_transition_metadata,
-            line2macro_level_upper,
-            macro_block_edge_index,
-            reference_index,
-        ) = self.computed_metadata
+        macro_atom_transition_metadata, *_ = self.computed_metadata
         line_trans_internal_up_ids = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.INTERNAL_UP
@@ -1672,8 +1669,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         probabilities: pd.DataFrame,
         macro_atom_transition_metadata: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Adapted for continuum macroatom, where continuum transitions do not have the same dataframe indices.
+        """Reindex continuum macro-atom probabilities and metadata.
+
+        Continuum transitions do not have the same DataFrame indices.
         Reindex and sort macro atom transition probabilities and metadata. Also creates the unique metadata ID.
 
         Parameters
