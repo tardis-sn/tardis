@@ -21,6 +21,16 @@ class ContinuumRateCoefficients:
 
 
 @dataclass(frozen=True)
+class ContinuumCoefficientState:
+    """Candidate-temperature continuum coefficients for all active levels."""
+
+    photoionization: pd.DataFrame
+    stimulated_recombination: pd.DataFrame
+    spontaneous_recombination: pd.DataFrame
+    collisional_ionization: pd.DataFrame
+
+
+@dataclass(frozen=True)
 class LevelEquationRates:
     """Density-specific rates used by one reduced level residual."""
 
