@@ -188,6 +188,53 @@ def test_evaluator_solves_reduced_levels_and_rebuilds_sobolev_state(
     )
 
 
+def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Match legacy acceptance of a physical, non-closing root iterate."""
+    evaluator = toy_evaluator
+    continuum_rates = evaluator._calculate_continuum_rate_coefficients(
+        np.array([1.0e4])
+    )[0][0]
+    arguments = (
+        0,
+        1.0e9,
+        1.0e4,
+        np.array([0.5, 0.5]),
+        continuum_rates,
+        evaluator.population_geometries[0],
+        evaluator.sobolev_inputs[0],
+    )
+    stalled_fractions = np.array([0.4, 0.6])
+    expected_residual, expected_beta, expected_ion_ratio = (
+        evaluator._calculate_level_state(
+            0,
+            1.0e9,
+            1.0e4,
+            stalled_fractions,
+            continuum_rates,
+            evaluator.population_geometries[0],
+            evaluator.sobolev_inputs[0],
+        )
+    )
+    assert np.max(np.abs(expected_residual)) > 1e-10
+
+    def stalled_root(*args: object, **kwargs: object) -> SimpleNamespace:
+        del args, kwargs
+        return SimpleNamespace(success=False, x=stalled_fractions)
+
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.root", stalled_root
+    )
+    actual = evaluator._calculate_level_solution(*arguments)
+
+    npt.assert_allclose(actual[0], stalled_fractions)
+    npt.assert_allclose(actual[1], expected_ion_ratio)
+    npt.assert_allclose(actual[2], expected_beta)
+    npt.assert_allclose(actual[3], expected_residual)
+
+
 def test_evaluator_rebuilds_final_residual_and_is_deterministic(
     toy_evaluator: PlasmaEquilibriumEvaluator,
 ) -> None:
