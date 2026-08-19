@@ -147,11 +147,7 @@ class IonPopulationSolver:
             partition_function,
             boltzmann_factor,
             level_to_continuum_saha_factor,
-            **(
-                {"lte_ionization_factor": lte_ionization_factor}
-                if lte_ionization_factor is not None
-                else {}
-            ),
+            lte_ionization_factor=lte_ionization_factor,
         )
 
         ion_population_index = self.rate_matrix_solver.ion_population_index
@@ -748,11 +744,7 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
                 estimated_ion_population,
                 partition_function,
                 boltzmann_factor,
-                **(
-                    {"lte_ionization_factor": lte_ionization_factor}
-                    if lte_ionization_factor is not None
-                    else {}
-                ),
+                lte_ionization_factor=lte_ionization_factor,
             )
             solved_matrices = pd.DataFrame(
                 index=self.rates_matrices.index,

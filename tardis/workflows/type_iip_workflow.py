@@ -1081,24 +1081,13 @@ class TypeIIPWorkflow:
         )
         if np.any(out_of_bounds):
             offending_indices = np.flatnonzero(out_of_bounds)
-            offending_values = [
-                {
-                    "shell": index // 2,
-                    "source": (
-                        "initial_electron_fraction"
-                        if index % 2 == 0
-                        else "link_t_rad_t_electron_start"
-                    ),
-                    "value": initial_guess[index],
-                    "lower_bound": lower_bound[index],
-                    "upper_bound": upper_bound[index],
-                }
-                for index in offending_indices
-            ]
             logger.warning(
                 "Out-of-bounds thermal balance initial guess values; "
-                "clipping to bounds: %s",
-                offending_values,
+                "clipping indices=%s values=%s lower=%s upper=%s",
+                offending_indices,
+                initial_guess[out_of_bounds],
+                lower_bound[out_of_bounds],
+                upper_bound[out_of_bounds],
             )
             initial_guess = np.clip(initial_guess, lower_bound, upper_bound)
 
