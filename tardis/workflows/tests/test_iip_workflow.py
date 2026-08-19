@@ -1478,16 +1478,14 @@ def test_nlte_beta_sobolev_calculation_matches_plasma_property(
     )
 
 
-def test_evaluator_matches_iip_five_shell_path(
-    iip_plasma_after_mc: LegacyPlasmaArray,
+@pytest.fixture
+def iip_equilibrium_evaluator(
     iip_plasma_after_thermal_balance: LegacyPlasmaArray,
-    type_iip_workflow: TypeIIPWorkflow,
-) -> None:
-    """Compare the real evaluator composition with accepted IIP shells."""
+) -> PlasmaEquilibriumEvaluator:
+    """Build the evaluator used by IIP workflow parity tests."""
     plasma = iip_plasma_after_thermal_balance
     _, maximum_electron_density = thermal_balance_guess(plasma)
 
-    shell_indices = pd.Index([0, 2, 3, 8, 23])
     time_simulation = 2.0e5 * u.s
     volume = 3.0e30 * u.cm**3
     estimator_scale = (
@@ -1568,65 +1566,7 @@ def test_evaluator_matches_iip_five_shell_path(
         line_index,
     )
 
-    collision_rate_solver = ThermalCollisionalRateSolver(
-        equilibrium_levels,
-        plasma.lines,
-        plasma.atomic_data.collision_data_temperatures,
-        plasma.atomic_data.yg_data,
-        collision_strengths_type="cmfgen",
-    )
-
-    rate_matrix = RateMatrix(
-        RadiativeRatesSolver(plasma.lines),
-        collision_rate_solver,
-        equilibrium_levels,
-    )
-
-    jblues_df = pd.DataFrame(
-        plasma.j_blues,
-        index=plasma.lines.index,
-        columns=plasma.number_density.columns,
-    )
-
-    sobolev_inputs_per_shell = tuple(
-        sobolev_input for _ in plasma.number_density.columns
-    )
-
-    estimated_photoion_rate_solver = EstimatedPhotoionizationRateSolver(
-        photoionization_data,
-        level2continuum_edge_idx,
-        estimators,
-        time_simulation,
-        volume,
-    )
-
-    coll_ion_rate_solver = CollisionalIonizationRateSolver(photoionization_data)
-
-    estimated_ion_rate_matrix = EstimatedIonRateMatrix(
-        estimated_photoion_rate_solver,
-        coll_ion_rate_solver,
-        plasma.phi,
-    )
-
-    ion_pop_solver = IonPopulationSolver(estimated_ion_rate_matrix)
-
-    bf_thermal_rates = BoundFreeThermalRates(photoionization_data)
-    ff_thermal_rates = FreeFreeThermalRates()
-    coll_ion_thermal_rates = CollisionalIonizationThermalRates(
-        photoionization_data
-    )
-    coll_bound_thermal_rates = CollisionalBoundThermalRates(
-        lines=pd.DataFrame({"nu": np.asarray(plasma.nu_lines_coll)})
-    )
-
-    thermal_balance_solver = ThermalBalanceSolver(
-        bf_thermal_rates,
-        ff_thermal_rates,
-        coll_ion_thermal_rates,
-        coll_bound_thermal_rates,
-    )
-
-    evaluator = PlasmaEquilibriumEvaluator(
+    return PlasmaEquilibriumEvaluator(
         photoionization_data,
         level2continuum_edge_idx,
         estimators,
@@ -1665,6 +1605,18 @@ def test_evaluator_matches_iip_five_shell_path(
         },
         reference_electron_temperature=plasma.t_electrons * u.K,
     )
+
+
+def test_evaluator_matches_iip_five_shell_path(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+    iip_plasma_after_thermal_balance: LegacyPlasmaArray,
+    type_iip_workflow: TypeIIPWorkflow,
+    iip_equilibrium_evaluator: PlasmaEquilibriumEvaluator,
+) -> None:
+    """Compare the real evaluator composition with accepted IIP shells."""
+    plasma = iip_plasma_after_thermal_balance
+    shell_indices = pd.Index([0, 2, 3, 8, 23])
+    evaluator = iip_equilibrium_evaluator
     expected_normalized_levels = plasma.level_number_density.loc[
         plasma.nlte_species[0]
     ].divide(plasma.ion_number_density.loc[plasma.nlte_species[0]], axis=1)
@@ -2047,25 +1999,11 @@ def test_thermal_balance_solver(
         initial_guess,
         max_electron_number_density,
     )
-    expected_initial_residual = regression_data.sync_dataframe(
+    assert_regression_dataframe(
+        regression_data,
+        "thermal_balance_iteration_initial_residual",
         pd.DataFrame({"value": initial_residual}),
-        key="thermal_balance_iteration_initial_residual",
-    )["value"].to_numpy()
-    np.testing.assert_allclose(
-        initial_residual[::2],
-        expected_initial_residual[::2],
-        rtol=0.0,
-        # Re-solving a legacy fixed point with the standard charge owner shifts
-        # its normalized electron density by 7.17e-8. Bound this measured
-        # rebuild effect directly; final electron closure remains 2e-8 below.
-        atol=1e-7,
-    )
-    np.testing.assert_allclose(
-        initial_residual[1::2],
-        expected_initial_residual[1::2],
         rtol=1e-5,
-        # The charge-owner rebuild also perturbs the thermal state. Retain the
-        # relative parity and the established final heating closure floor.
         atol=2e-7,
     )
 
@@ -2213,19 +2151,10 @@ def test_thermal_balance_solver(
         final_guess,
         max_electron_number_density,
     )
-    residual_frame = pd.DataFrame({"value": residual})
-    expected_residual = regression_data.sync_dataframe(
-        residual_frame, key="thermal_balance_iteration_residual"
-    )["value"].to_numpy()
-    np.testing.assert_allclose(
-        residual[::2],
-        expected_residual[::2],
-        rtol=1e-5,
-        atol=2e-8,
-    )
-    np.testing.assert_allclose(
-        residual[1::2],
-        expected_residual[1::2],
+    assert_regression_dataframe(
+        regression_data,
+        "thermal_balance_iteration_residual",
+        pd.DataFrame({"value": residual}),
         rtol=1e-5,
         atol=2e-7,  # Legacy-published and standard roots differ slightly.
     )
