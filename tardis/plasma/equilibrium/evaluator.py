@@ -369,19 +369,8 @@ class PlasmaEquilibriumEvaluator:
         )
         self.reference_electron_temperature = reference_electron_temperature
 
-        shell_count = len(self.elemental_number_density.columns)
-        if not all(
-            len(inputs) == shell_count
-            for inputs in (population_geometries, sobolev_inputs)
-        ):
-            raise ValueError(
-                "Each level input tuple must contain one entry per shell."
-            )
-        if len(self.j_blues.columns) != shell_count:
-            raise ValueError("j_blues must contain one column per shell.")
-
-    def _calculate_continuum_rate_coefficients(
-        self, electron_temperature: npt.NDArray[np.float64]
+    def calculate_continuum_coefficients(
+        self, electron_temperature: npt.ArrayLike
     ) -> tuple[
         tuple[ContinuumRateCoefficients, ...],
         pd.DataFrame,
@@ -391,7 +380,16 @@ class PlasmaEquilibriumEvaluator:
         pd.DataFrame,
         pd.DataFrame,
     ]:
-        """Calculate candidate-temperature continuum coefficients."""
+        """Calculate candidate-temperature continuum coefficients.
+
+        Parameters
+        ----------
+        electron_temperature : array-like
+            Electron temperatures in each plasma shell [K].
+        """
+        electron_temperature = np.asarray(
+            electron_temperature, dtype=np.float64
+        )
         if self.estimated_photoionization_rate_solver is not None:
             (
                 photoionization,
@@ -443,10 +441,6 @@ class PlasmaEquilibriumEvaluator:
         ]
         shell_index = self.elemental_number_density.columns
         species_index = species_saha_factor.index
-        if len(species_saha_factor.columns) != len(shell_index):
-            raise ValueError(
-                "Level-to-continuum Saha factors must contain one column per shell."
-            )
         species_saha_factor.columns = shell_index
         level_to_continuum_saha_factor.columns = shell_index
         collisional_ionization_rate_coefficient = collisional_ionization.copy()
@@ -511,20 +505,6 @@ class PlasmaEquilibriumEvaluator:
             partition_function,
             level_boltzmann_factor,
         )
-
-    def calculate_continuum_coefficients(
-        self, electron_temperature: npt.ArrayLike
-    ) -> tuple[
-        ContinuumCoefficientState,
-        pd.DataFrame,
-        pd.DataFrame,
-        pd.DataFrame,
-    ]:
-        """Return thermodynamic continuum inputs without solving populations."""
-        calculated = self._calculate_continuum_rate_coefficients(
-            np.asarray(electron_temperature, dtype=np.float64)
-        )
-        return calculated[4], calculated[1], calculated[5], calculated[6]
 
     def _calculate_level_state(
         self,
@@ -882,12 +862,8 @@ class PlasmaEquilibriumEvaluator:
                 (level_atomic_numbers == atomic_number)
                 & (level_ion_numbers == ion_number)
             )
-            if positions.size == 0:
-                continue
             base_ion_density = state.full_population.iloc[positions].sum()
             nonzero_density = base_ion_density != 0.0
-            if not nonzero_density.any():
-                continue
             base_values = base_ion_density.to_numpy()
             safe_base_values = np.where(
                 nonzero_density.to_numpy(), base_values, 1.0
@@ -1003,54 +979,39 @@ class PlasmaEquilibriumEvaluator:
             final_electron_distribution.temperature
         )
         transition_count = len(collisional_rates) // 2
-        if transition_count:
-            transition_index = (
-                electron_rate_solver.all_collisional_strengths_index
+        transition_index = electron_rate_solver.all_collisional_strengths_index
+        collisional_excitation = collisional_rates.iloc[:transition_count].copy()
+        collisional_deexcitation = collisional_rates.iloc[transition_count:].copy()
+        collisional_excitation.index = transition_index
+        collisional_deexcitation.index = transition_index
+        collisional_excitation.columns = absolute_levels.columns
+        collisional_deexcitation.columns = absolute_levels.columns
+        if self.reference_electron_temperature is not None:
+            reference_rates = electron_rate_solver.solve(
+                self.reference_electron_temperature
             )
-            collisional_excitation = collisional_rates.iloc[
-                :transition_count
-            ].copy()
-            collisional_deexcitation = collisional_rates.iloc[
-                transition_count:
-            ].copy()
-            collisional_excitation.index = transition_index
-            collisional_deexcitation.index = transition_index
-            collisional_excitation.columns = absolute_levels.columns
-            collisional_deexcitation.columns = absolute_levels.columns
-            if self.reference_electron_temperature is not None:
-                reference_rates = electron_rate_solver.solve(
-                    self.reference_electron_temperature
-                )
-                reference_excitation = reference_rates.iloc[
-                    :transition_count
-                ].copy()
-                reference_deexcitation = reference_rates.iloc[
-                    transition_count:
-                ].copy()
-                reference_excitation.index = transition_index
-                reference_deexcitation.index = transition_index
-                reference_excitation.columns = absolute_levels.columns
-                reference_deexcitation.columns = absolute_levels.columns
-                fixed_excitation = self.thermal_balance_arguments[
-                    "collisional_excitation_rate_coefficient"
-                ]
-                fixed_deexcitation = self.thermal_balance_arguments[
-                    "collisional_deexcitation_rate_coefficient"
-                ]
-                collisional_excitation = fixed_excitation.multiply(
-                    collisional_excitation / reference_excitation
-                ).reindex(fixed_excitation.index)
-                collisional_deexcitation = fixed_deexcitation.multiply(
-                    collisional_deexcitation / reference_deexcitation
-                ).reindex(fixed_deexcitation.index)
-            solver_arguments.update(
-                collisional_excitation_rate_coefficient=(
-                    collisional_excitation
-                ),
-                collisional_deexcitation_rate_coefficient=(
-                    collisional_deexcitation
-                ),
-            )
+            reference_excitation = reference_rates.iloc[:transition_count].copy()
+            reference_deexcitation = reference_rates.iloc[transition_count:].copy()
+            reference_excitation.index = transition_index
+            reference_deexcitation.index = transition_index
+            reference_excitation.columns = absolute_levels.columns
+            reference_deexcitation.columns = absolute_levels.columns
+            fixed_excitation = self.thermal_balance_arguments[
+                "collisional_excitation_rate_coefficient"
+            ]
+            fixed_deexcitation = self.thermal_balance_arguments[
+                "collisional_deexcitation_rate_coefficient"
+            ]
+            collisional_excitation = fixed_excitation.multiply(
+                collisional_excitation / reference_excitation
+            ).reindex(fixed_excitation.index)
+            collisional_deexcitation = fixed_deexcitation.multiply(
+                collisional_deexcitation / reference_deexcitation
+            ).reindex(fixed_deexcitation.index)
+        solver_arguments.update(
+            collisional_excitation_rate_coefficient=collisional_excitation,
+            collisional_deexcitation_rate_coefficient=collisional_deexcitation,
+        )
         solver_arguments.update(
             thermal_electron_distribution=final_electron_distribution,
             level_population=absolute_levels,
@@ -1065,25 +1026,30 @@ class PlasmaEquilibriumEvaluator:
 
     def evaluate(
         self,
-        trial_electron_density: npt.ArrayLike,
-        electron_temperature: u.Quantity | npt.ArrayLike,
+        trial_electron_density: npt.NDArray[np.float64],
+        electron_temperature: npt.NDArray[np.float64],
         level_seed: pd.DataFrame,
     ) -> PlasmaEquilibriumEvaluation:
-        """Evaluate levels and the existing optional charge/thermal stages."""
+        """Evaluate levels and the existing optional charge/thermal stages.
+
+        Parameters
+        ----------
+        trial_electron_density : numpy.ndarray
+            Trial electron densities in each plasma shell [cm^-3].
+        electron_temperature : numpy.ndarray
+            Electron temperatures in each plasma shell [K]. The array must
+            use the plasma's shell ordering and contain unitless float values.
+        level_seed : pandas.DataFrame
+            Initial normalized level populations.
+        """
         trial_density = pd.Series(
             np.asarray(trial_electron_density, dtype=np.float64),
             index=self.elemental_number_density.columns,
         )
         if np.any(trial_density <= 0.0):
             raise ValueError("Trial electron densities must be positive.")
-        if isinstance(electron_temperature, u.Quantity):
-            temperatures = np.asarray(
-                electron_temperature.to_value("K"), dtype=float
-            )
-        else:
-            temperatures = np.asarray(electron_temperature, dtype=float)
-        if temperatures.size != len(trial_density):
-            raise ValueError("One electron temperature is required per shell.")
+        temperatures = electron_temperature
+
         trial_electron_distribution = ThermalElectronEnergyDistribution(
             0.0 * u.erg,
             temperatures * u.K,
@@ -1097,7 +1063,7 @@ class PlasmaEquilibriumEvaluator:
             continuum_coefficients,
             thermal_partition_function,
             thermal_level_boltzmann_factor,
-        ) = self._calculate_continuum_rate_coefficients(temperatures)
+        ) = self.calculate_continuum_coefficients(temperatures)
         level_state = self._solve_levels(
             trial_density,
             temperatures,
@@ -1148,11 +1114,10 @@ class PlasmaEquilibriumEvaluator:
                 "ion_number"
             ).to_numpy()
             charge_density = ion_population.multiply(charges, axis=0).sum()
-            charge_residual = (charge_density - solved_density) / np.where(
-                self.maximum_electron_density == 0.0,
-                1.0,
-                self.maximum_electron_density,
-            )
+            charge_residual = (
+                charge_density - solved_density
+            ) / self.maximum_electron_density
+
             electron_residual = (solved_density - trial_density) / trial_density
         final_tau, final_escape_probabilities = self._calculate_final_opacities(
             absolute_levels, level_state

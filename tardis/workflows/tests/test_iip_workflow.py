@@ -875,9 +875,12 @@ def continuum_comparison_state(
     evaluator = workflow._build_thermal_balance_evaluator(
         maximum_electron_density, analytic=True
     )
-    _, level_to_ion_population_factor, partition_function, boltzmann_factor = (
-        evaluator.calculate_continuum_coefficients(plasma.t_electrons)
+    calculated_continuum_coefficients = evaluator.calculate_continuum_coefficients(
+        plasma.t_electrons
     )
+    level_to_ion_population_factor = calculated_continuum_coefficients[1]
+    partition_function = calculated_continuum_coefficients[5]
+    boltzmann_factor = calculated_continuum_coefficients[6]
     level_to_ion_population_factor = level_to_ion_population_factor.loc[
         photoionization_index
     ]
@@ -1937,7 +1940,7 @@ def test_evaluator_matches_iip_five_shell_path(
 
     result = evaluator.evaluate(
         plasma.electron_densities.to_numpy(),
-        plasma.t_electrons,
+        np.asarray(plasma.t_electrons, dtype=np.float64),
         expected_normalized_levels,
     )
 
@@ -2641,12 +2644,13 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     evaluator = workflow._build_thermal_balance_evaluator(
         maximum_electron_density, analytic=True
     )
-    (
-        continuum_coefficients,
-        level_to_continuum_saha_factor,
-        partition_function,
-        level_boltzmann_factor,
-    ) = evaluator.calculate_continuum_coefficients(forced_t_electrons)
+    calculated_continuum_coefficients = evaluator.calculate_continuum_coefficients(
+        forced_t_electrons
+    )
+    continuum_coefficients = calculated_continuum_coefficients[4]
+    level_to_continuum_saha_factor = calculated_continuum_coefficients[1]
+    partition_function = calculated_continuum_coefficients[5]
+    level_boltzmann_factor = calculated_continuum_coefficients[6]
     lte_ion_population, _ = calculate_lte_populations(
         plasma_solver.thermal_phi_lte,
         partition_function,
