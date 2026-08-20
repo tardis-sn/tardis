@@ -2,8 +2,10 @@ import numpy as np
 from numba import njit
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
+from tardis.opacities.continuum.continuum_state_numba import (
+    ContinuumOpacityStateNumba,
+)
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
-from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
@@ -12,7 +14,6 @@ from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.interaction_events import (
     LineInteractionType,
     adiabatic_cooling,
-    bf_cooling,
     bound_free_emission,
     determine_bf_macro_activation_idx,
     free_free_emission,
@@ -32,8 +33,9 @@ def macro_atom_event(
     destination_level_idx: int,
     r_packet: RPacket,
     time_explosion: float,
-    opacity_state: OpacityStateNumba | OpacityStateNumbaIIP,
+    opacity_state: OpacityStateNumba,
     enable_full_relativity: bool,
+    continuum_state: ContinuumOpacityStateNumba | None = None,
 ):
     """
     Macroatom event handler - run the macroatom and handle the result
@@ -47,7 +49,10 @@ def macro_atom_event(
     """
     if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         transition_id, transition_type = macro_atom_interaction_iip(
-            destination_level_idx, r_packet.current_shell_id, opacity_state
+            destination_level_idx,
+            r_packet.current_shell_id,
+            opacity_state,
+            continuum_state,
         )
     else:
         transition_id, transition_type = macro_atom_interaction(
@@ -70,6 +75,7 @@ def macro_atom_event(
             r_packet,
             time_explosion,
             opacity_state,
+            continuum_state,
             transition_id,
             enable_full_relativity,
         )
@@ -93,7 +99,13 @@ def macro_atom_event(
 
 @njit(**njit_dict_no_parallel)
 def determine_continuum_macro_activation_idx(
-    opacity_state, nu, chi_bf, chi_ff, chi_bf_contributions, active_continua
+    opacity_state,
+    continuum_state,
+    nu,
+    chi_bf,
+    chi_ff,
+    chi_bf_contributions,
+    active_continua,
 ):
     """
     Determine the macro atom activation level after a continuum absorption.
@@ -122,10 +134,10 @@ def determine_continuum_macro_activation_idx(
     # scattering event happens and need one less RNG call.
     if np.random.random() < fraction_bf:  # Bound-free absorption
         destination_level_idx = determine_bf_macro_activation_idx(
-            opacity_state, nu, chi_bf_contributions, active_continua
+            continuum_state, nu, chi_bf_contributions, active_continua
         )
     else:  # Free-free absorption (i.e. k-packet creation)
-        destination_level_idx = opacity_state.k_packet_idx
+        destination_level_idx = continuum_state.k_packet_idx
     return destination_level_idx
 
 
@@ -134,6 +146,7 @@ def continuum_event(
     r_packet,
     time_explosion,
     opacity_state,
+    continuum_state,
     chi_bf_tot,
     chi_ff,
     chi_bf_contributions,
@@ -141,7 +154,7 @@ def continuum_event(
     enable_full_relativity,
 ):
     """
-    continuum event handler - activate the macroatom and run the handler
+    Continuum event handler - activate the macroatom and run the handler
 
     Parameters
     ----------
@@ -167,6 +180,7 @@ def continuum_event(
 
     destination_level_idx = determine_continuum_macro_activation_idx(
         opacity_state,
+        continuum_state,
         comov_nu,
         chi_bf_tot,
         chi_ff,
@@ -180,6 +194,7 @@ def continuum_event(
         time_explosion,
         opacity_state,
         enable_full_relativity,
+        continuum_state,
     )
 
 
@@ -190,6 +205,7 @@ def line_scatter_event(
     line_interaction_type,
     opacity_state,
     enable_full_relativity,
+    continuum_state=None,
 ):
     """
     Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
@@ -236,4 +252,5 @@ def line_scatter_event(
             time_explosion,
             opacity_state,
             enable_full_relativity,
+            continuum_state,
         )
