@@ -328,7 +328,6 @@ class PlasmaSolverFactory:
         dilute_planckian_radiation_field,
         time_explosion,
         electron_densities=None,
-        equilibrium_state=None,
         **kwargs,
     ):
         """
@@ -376,8 +375,6 @@ class PlasmaSolverFactory:
 
         self.setup_electron_densities(electron_densities)
         plasma_assemble_kwargs["helium_treatment"] = self.helium_treatment
-        if equilibrium_state is not None:
-            plasma_assemble_kwargs.update(equilibrium_state)
         plasma_assemble_kwargs.update(kwargs)
         return BasePlasma(
             plasma_properties=self.plasma_modules,
