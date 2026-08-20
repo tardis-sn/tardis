@@ -58,7 +58,10 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
 )
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
 from tardis.plasma.equilibrium.thermal_balance import ThermalBalanceSolver
-from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.plasma.radiation_field import (
+    DilutePlanckianRadiationField,
+    PlanckianRadiationField,
+)
 from tardis.transport.montecarlo.estimators import init_estimators_continuum
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
@@ -465,14 +468,19 @@ def iip_charge_conserving_rate_matrix(
         lte_ionization_factor: pd.DataFrame | None = None,
     ) -> pd.DataFrame:
         """Build the IIP two-stage hydrogen matrices at trial densities."""
+        columns = lte_level_population.columns
+        shell_indices = radiative_recombination.index.get_indexer(columns)
         electron_number_density = electron_distribution.number_density.value
         ionization_rate = (
-            radiative_ionization_values
-            + collisional_ionization_values * electron_number_density
+            radiative_ionization_values[shell_indices]
+            + collisional_ionization_values[shell_indices]
+            * electron_number_density
         )
         recombination_rate = (
-            radiative_recombination_values * electron_number_density
-            + collisional_recombination_values * electron_number_density**2
+            radiative_recombination_values[shell_indices]
+            * electron_number_density
+            + collisional_recombination_values[shell_indices]
+            * electron_number_density**2
         )
         rate_matrices = np.empty((len(electron_number_density), 2, 2))
         rate_matrices[:, 0, 0] = -ionization_rate
@@ -483,7 +491,7 @@ def iip_charge_conserving_rate_matrix(
         return pd.DataFrame(
             rate_matrix_array,
             index=pd.Index([1], name="atomic_number"),
-            columns=radiative_recombination.index,
+            columns=columns,
         )
 
     return SimpleNamespace(
@@ -526,7 +534,7 @@ def test_charge_conserving_solver_matches_iip_with_full_atomic_data(
     actual_ion_population, actual_electron_density = IonPopulationSolver(
         iip_charge_conserving_rate_matrix
     ).solve(
-        None,
+        PlanckianRadiationField(plasma.t_electrons * u.K),
         electron_distribution,
         plasma.number_density,
         plasma.lte_level_number_density,
@@ -582,7 +590,7 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
 
     monkeypatch.setattr(solver, "solve_shell_charge", record_solve_shell_charge)
     solver.solve(
-        None,
+        PlanckianRadiationField(plasma.t_electrons * u.K),
         electron_distribution,
         plasma.number_density,
         plasma.lte_level_number_density,
