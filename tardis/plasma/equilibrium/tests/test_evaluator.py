@@ -25,21 +25,22 @@ from tardis.transport.montecarlo.estimators import init_estimators_continuum
 class ZeroElectronRateSolver:
     """Return no bound-bound electron rates for focused evaluator tests."""
 
+    all_collisional_strengths_index = pd.MultiIndex.from_tuples(
+        [],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "ion_number_source",
+            "ion_number_destination",
+            "level_number_source",
+            "level_number_destination",
+        ],
+    )
+
     def solve(self, temperatures_electron: u.Quantity) -> pd.DataFrame:
         """Return an empty transition-rate frame."""
-        transition_index = pd.MultiIndex.from_tuples(
-            [],
-            names=[
-                "atomic_number",
-                "ion_number",
-                "ion_number_source",
-                "ion_number_destination",
-                "level_number_source",
-                "level_number_destination",
-            ],
-        )
         return pd.DataFrame(
-            index=transition_index,
+            index=self.all_collisional_strengths_index,
             columns=pd.RangeIndex(len(temperatures_electron)),
             dtype=np.float64,
         )
@@ -129,11 +130,11 @@ def test_evaluator_uses_temperature_dependent_continuum_coefficients(
 ) -> None:
     """Keep fixed estimator coefficients while rebuilding thermal factors."""
     evaluator = toy_evaluator
-    (rates,), *_ = evaluator._calculate_continuum_rate_coefficients(
+    (rates,), *_ = evaluator.calculate_continuum_coefficients(
         np.array([1.0e4])
     )
-    (hot_rates,), *_ = evaluator._calculate_continuum_rate_coefficients(
-        np.array([2.0e4])
+    (hot_rates,), *_ = (
+        evaluator.calculate_continuum_coefficients(np.array([2.0e4]))
     )
     npt.assert_allclose(hot_rates.photoionization, rates.photoionization)
     assert not np.array_equal(
@@ -253,7 +254,7 @@ def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
     reported convergence.
     """
     evaluator = toy_evaluator
-    continuum_rates = evaluator._calculate_continuum_rate_coefficients(
+    continuum_rates = evaluator.calculate_continuum_coefficients(
         np.array([1.0e4])
     )[0][0]
     arguments = (
@@ -343,7 +344,7 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         level_initial_guess,
     )
 
-    continuum_rate_coeff = evaluator._calculate_continuum_rate_coefficients(
+    continuum_rate_coeff = evaluator.calculate_continuum_rate_coefficients(
         np.array([1.0e4])
     )[0][0]
 
