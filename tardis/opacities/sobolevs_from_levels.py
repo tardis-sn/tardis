@@ -1,22 +1,7 @@
 import numpy as np
-from numba import njit, prange
+from numba import njit
 
-from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
-
-
-@njit(**njit_dict)
-def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
-    """Fill an array with Sobolev escape probabilities in place."""
-    for i in prange(len(tau_sobolevs)):
-        if tau_sobolevs[i] > 1e3:
-            beta_sobolevs[i] = tau_sobolevs[i] ** -1
-        elif tau_sobolevs[i] < 1e-4:
-            beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
-        else:
-            beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
-                tau_sobolevs[i]
-            )
-    return beta_sobolevs
+from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 @njit(**njit_dict_no_parallel)
@@ -62,6 +47,7 @@ def calculate_sobolev_opacities_from_level_densities(
         Sobolev optical depths and escape probabilities for the selected lines.
     """
     tau_sobolevs = np.empty(line_indices.shape[0], dtype=np.float64)
+    beta_sobolevs = np.empty_like(tau_sobolevs)
     for i in range(line_indices.shape[0]):
         line_index = line_indices[i]
         n_lower = level_density_values[lines_lower_level_index[line_index]]
@@ -71,13 +57,14 @@ def calculate_sobolev_opacities_from_level_densities(
             n_lower - (g_lower[line_index] / g_upper[line_index]) * n_upper
         )
 
-        if (
-            meta_stable_upper[line_index] or nlte_lines_mask[line_index]
-        ) and population_difference < 0.0:
-            population_difference = 0.0
+        tau_sobolevs[i] = (
+            tau_coefficient[line_index] * n_lower * stimulated_emission_factor
+        )
+        if tau_sobolevs[i] > 1e3:
+            beta_sobolevs[i] = tau_sobolevs[i] ** -1
+        elif tau_sobolevs[i] < 1e-4:
+            beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
+        else:
+            beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / tau_sobolevs[i]
 
-        tau_sobolevs[i] = tau_coefficient[line_index] * population_difference
-
-    return tau_sobolevs, numba_calculate_beta_sobolev(
-        tau_sobolevs, np.zeros_like(tau_sobolevs)
-    )
+    return tau_sobolevs, beta_sobolevs
