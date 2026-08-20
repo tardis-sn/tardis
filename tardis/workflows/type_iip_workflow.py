@@ -1,6 +1,5 @@
 import logging
 from collections.abc import Mapping
-from copy import deepcopy
 
 import numpy as np
 import numpy.typing as npt
@@ -141,28 +140,6 @@ class TypeIIPWorkflow:
 
         self.simulation_state.radiation_field_state = radiation_field
 
-        # create an initial LTE plasma
-        bootstrap_factory = PlasmaSolverFactory(
-            deepcopy(self.atom_data), configuration
-        )
-        bootstrap_factory.continuum_interaction_species = []
-        bootstrap_factory.legacy_nlte_species = []
-
-        # Type IIP historically uses the hydrogen evaluator with all other
-        # species on the ordinary LTE path, including helium.
-        bootstrap_factory.helium_treatment = "none"
-        bootstrap_factory.prepare_factory(
-            self.simulation_state.abundance.index,
-            "tardis.plasma.properties.property_collections",
-            configuration,
-        )
-        bootstrap_plasma = bootstrap_factory.assemble(
-            elemental_number_density,
-            radiation_field,
-            configuration.supernova.time_explosion.to("s"),
-        )
-
-        # use the LTE plasma to create an NLTE plasma
         factory = PlasmaSolverFactory(self.atom_data, configuration)
         factory.helium_treatment = "none"
         factory.legacy_nlte_species = list(
@@ -170,7 +147,7 @@ class TypeIIPWorkflow:
         )
         factory.prepare_factory(
             self.simulation_state.abundance.index,
-            "tardis.plasma.properties.iip_property_collections",
+            "tardis.plasma.properties.property_collections",
             configuration,
             allow_continuum=True,
         )
@@ -183,17 +160,16 @@ class TypeIIPWorkflow:
             elemental_number_density,
             radiation_field,
             configuration.supernova.time_explosion.to("s"),
-            equilibrium_state={
-                "electron_densities": bootstrap_plasma.electron_densities,
-                "ion_number_density": bootstrap_plasma.ion_number_density,
-                "level_number_density": bootstrap_plasma.level_number_density,
-            },
             link_t_rad_t_electron=(
                 configuration.plasma.link_t_rad_t_electron
                 * np.ones(self.simulation_state.geometry.no_of_shells_active)
             ),
         )
-
+        self.plasma_solver.freeze(
+            "electron_densities",
+            "ion_number_density",
+            "level_number_density",
+        )
         self._continuum_estimators = None
         self._tau_sobolev = calculate_sobolev_line_opacity(
             self.atom_data.lines,
