@@ -4,11 +4,14 @@ from tardis import constants as const
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
+from tardis.opacities.continuum.continuum_state_numba import (
+    ContinuumOpacityStateNumba,
+)
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
 )
-from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
@@ -56,7 +59,8 @@ def packet_propagation(
     r_packet: RPacket,
     geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumbaIIP,
+    opacity_state: OpacityStateNumba,
+    continuum_state: ContinuumOpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     estimators_continuum: EstimatorsContinuum,
@@ -125,7 +129,7 @@ def packet_propagation(
 
         comov_nu = r_packet.nu * doppler_factor
         chi_e = chi_electron_calculator(
-            opacity_state, comov_nu, r_packet.current_shell_id
+            continuum_state, comov_nu, r_packet.current_shell_id
         )
         # IIP mode: continuum processes always enabled
         (
@@ -135,7 +139,10 @@ def packet_propagation(
             x_sect_bfs,
             chi_ff,
         ) = chi_continuum_calculator(
-            opacity_state, comov_nu, r_packet.current_shell_id
+            continuum_state,
+            opacity_state,
+            comov_nu,
+            r_packet.current_shell_id,
         )
         chi_continuum = chi_e + chi_bf_tot + chi_ff
 
@@ -163,7 +170,7 @@ def packet_propagation(
             opacity_state.t_electrons[r_packet.current_shell_id],
             x_sect_bfs,
             current_continua,
-            opacity_state.bf_threshold_list_nu,
+            continuum_state.bf_threshold_list_nu,
             chi_ff * doppler_factor,
         )
 
@@ -205,6 +212,7 @@ def packet_propagation(
                 line_interaction_type,
                 opacity_state,
                 enable_full_relativity=True,
+                continuum_state=continuum_state,
             )
             rpacket_tracker.track_line_interaction_after(r_packet)
 

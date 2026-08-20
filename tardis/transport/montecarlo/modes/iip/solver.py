@@ -7,6 +7,7 @@ import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.logger import montecarlo_tracking as mc_tracker
+from tardis.opacities.continuum.continuum_state import ContinuumOpacityState
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -101,19 +102,16 @@ class MCTransportSolverIIP(HDFWriterMixin):
         simulation_state: object,
         opacity_state: object,
         macro_atom_state: object | None,
+        continuum_state: ContinuumOpacityState,
         no_of_packets: int,
         no_of_virtual_packets: int = 0,
         iteration: int = 0,
     ) -> MonteCarloTransportState:
         """Initialize transport state from explicit opacity inputs."""
-        continuum_state = opacity_state.continuum_state
-        if continuum_state is None:
-            n_levels_bf_species_by_n_cells_tuple = (0, 0)
-        else:
-            n_levels_bf_species_by_n_cells_tuple = (
-                len(continuum_state.level2continuum_idx),
-                len(opacity_state.electron_density),
-            )
+        n_levels_bf_species_by_n_cells_tuple = (
+            len(continuum_state.level2continuum_idx),
+            len(opacity_state.electron_density),
+        )
 
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
@@ -126,6 +124,10 @@ class MCTransportSolverIIP(HDFWriterMixin):
         opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,
             self.line_interaction_type,
+            continuum_processes_enabled=True,
+        )
+        continuum_state_numba = continuum_state.to_numba(
+            opacity_state.t_electrons, macro_atom_state
         )
         # opacity_state_numba = opacity_state_numba[
         #     simulation_state.geometry.v_inner_boundary_idx : simulation_state.geometry.v_outer_boundary_idx
@@ -138,6 +140,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
             time_explosion=simulation_state.time_explosion,
             n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
+        transport_state.continuum_state_numba = continuum_state_numba
 
         # IIP mode: full relativity always enabled
         transport_state.enable_full_relativity = True
@@ -199,6 +202,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
             transport_state.geometry_state_numba,
             transport_state.time_explosion.cgs.value,
             transport_state.opacity_state_numba,
+            transport_state.continuum_state_numba,
             self.montecarlo_configuration,
             transport_state.n_levels_bf_species_by_n_cells_tuple,
             trackers_list,

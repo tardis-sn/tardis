@@ -3,11 +3,11 @@ from enum import IntEnum
 import numpy as np
 from numba import njit
 
+from tardis.opacities.continuum.continuum_state_numba import (
+    ContinuumOpacityStateNumba,
+)
 from tardis.opacities.opacity_state_numba import (
     OpacityStateNumba,
-)
-from tardis.opacities.opacity_state_numba_iip import (
-    OpacityStateNumbaIIP,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
@@ -108,7 +108,8 @@ def macro_atom_interaction(
 def macro_atom_interaction_iip(
     activation_level_idx: int,
     current_shell_id: int,
-    opacity_state: OpacityStateNumbaIIP,
+    opacity_state: OpacityStateNumba,
+    continuum_state: ContinuumOpacityStateNumba,
 ):
     """
     Parameters
@@ -130,7 +131,7 @@ def macro_atom_interaction_iip(
     probability_event = np.random.random()
 
     for to_state_index, state_probability in enumerate(
-        opacity_state.absorbing_markov_probabilities[
+        continuum_state.absorbing_markov_probabilities[
             current_shell_id, activation_level_idx
         ]
     ):

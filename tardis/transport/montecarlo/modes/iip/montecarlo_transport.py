@@ -6,6 +6,9 @@ from numba.typed import List
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
+from tardis.opacities.continuum.continuum_state_numba import (
+    ContinuumOpacityStateNumba,
+)
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import njit_dict
 from tardis.transport.montecarlo.configuration.base import (
@@ -42,6 +45,7 @@ def montecarlo_transport(
     geometry_state_numba: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state_numba: OpacityStateNumba,
+    continuum_state_numba: ContinuumOpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
     n_levels_bf_species_by_n_cells_tuple: tuple,
     trackers: List,
@@ -149,6 +153,7 @@ def montecarlo_transport(
             geometry_state_numba,
             time_explosion,
             opacity_state_numba,
+            continuum_state_numba,
             estimators_bulk_thread,
             estimators_line_thread,
             estimators_continuum_thread,

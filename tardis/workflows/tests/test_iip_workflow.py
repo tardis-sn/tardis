@@ -2670,9 +2670,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     workflow.completed_iterations = 1
     second_iteration_opacity_states = workflow.solve_opacity()
 
-    continuum_state = second_iteration_opacity_states[
-        "opacity_state"
-    ].continuum_state
+    continuum_state = type_iip_workflow.continuum_opacity_state
     assert np.isfinite(continuum_state.chi_bf.values).all()
     cross_sections = plasma_solver.photo_ion_cross_sections
     upper_ion_index = pd.MultiIndex.from_arrays(

@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from tardis.opacities.continuum.continuum_state import ContinuumOpacityState
 from tardis.opacities.opacity_state import (
     OpacityState,
 )
@@ -71,7 +70,6 @@ class OpacitySolver:
     def solve(
         self,
         plasma: object,
-        continuum_state: ContinuumOpacityState | None = None,
         tau_sobolev: pd.DataFrame | None = None,
         beta_sobolev: pd.DataFrame | None = None,
     ) -> OpacityState:
@@ -115,7 +113,7 @@ class OpacitySolver:
             beta_sobolev = calculate_beta_sobolev(tau_sobolev)
 
         opacity_state = OpacityState.from_plasma(
-            plasma, tau_sobolev, beta_sobolev, continuum_state
+            plasma, tau_sobolev, beta_sobolev
         )
 
         return opacity_state

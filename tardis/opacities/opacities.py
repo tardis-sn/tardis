@@ -86,7 +86,7 @@ def calculate_tau_electron(electron_density, distance):
 
 
 @njit(**njit_dict_no_parallel)
-def get_current_bound_free_continua(opacity_state, nu):
+def get_current_bound_free_continua(continuum_state, nu):
     """
     Determine bound-free continua for which absorption is possible.
 
@@ -101,14 +101,14 @@ def get_current_bound_free_continua(opacity_state, nu):
     numpy.ndarray, dtype int
         Continuum ids for which absorption is possible for frequency `nu`.
     """
-    nu_mins = opacity_state.photo_ion_nu_threshold_mins
-    nu_maxs = opacity_state.photo_ion_nu_threshold_maxs
+    nu_mins = continuum_state.photo_ion_nu_threshold_mins
+    nu_maxs = continuum_state.photo_ion_nu_threshold_maxs
     current_continua = np.where(np.logical_and(nu >= nu_mins, nu <= nu_maxs))[0]
     return current_continua
 
 
 @njit(**njit_dict_no_parallel)
-def chi_bf_interpolator(opacity_state, nu, shell):
+def chi_bf_interpolator(continuum_state, nu, shell):
     """
     Interpolate the bound-free opacity.
 
@@ -136,23 +136,23 @@ def chi_bf_interpolator(opacity_state, nu, shell):
         Photoionization cross-sections of all bound-free continua for
         which absorption is possible for frequency `nu`.
     """
-    current_continua = get_current_bound_free_continua(opacity_state, nu)
+    current_continua = get_current_bound_free_continua(continuum_state, nu)
     chi_bfs = np.zeros(len(current_continua))
     x_sect_bfs = np.zeros(len(current_continua))
     for i, continuum_id in enumerate(current_continua):
-        start = opacity_state.photo_ion_block_references[continuum_id]
-        end = opacity_state.photo_ion_block_references[continuum_id + 1]
-        phot_nus_continuum = opacity_state.phot_nus[start:end]
+        start = continuum_state.photo_ion_block_references[continuum_id]
+        end = continuum_state.photo_ion_block_references[continuum_id + 1]
+        phot_nus_continuum = continuum_state.phot_nus[start:end]
         nu_idx = np.searchsorted(phot_nus_continuum, nu)
         interval = phot_nus_continuum[nu_idx] - phot_nus_continuum[nu_idx - 1]
         high_weight = nu - phot_nus_continuum[nu_idx - 1]
         low_weight = phot_nus_continuum[nu_idx] - nu
-        chi_bfs_continuum = opacity_state.chi_bf[start:end, shell]
+        chi_bfs_continuum = continuum_state.chi_bf[start:end, shell]
         chi_bfs[i] = (
             chi_bfs_continuum[nu_idx] * high_weight
             + chi_bfs_continuum[nu_idx - 1] * low_weight
         ) / interval
-        x_sect_bfs_continuum = opacity_state.x_sect[start:end]
+        x_sect_bfs_continuum = continuum_state.x_sect[start:end]
         x_sect_bfs[i] = (
             x_sect_bfs_continuum[nu_idx] * high_weight
             + x_sect_bfs_continuum[nu_idx - 1] * low_weight
@@ -180,7 +180,7 @@ def chi_bf_interpolator(opacity_state, nu, shell):
 
 
 @njit(**njit_dict_no_parallel)
-def chi_ff_calculator(opacity_state, nu, shell):
+def chi_ff_calculator(continuum_state, opacity_state, nu, shell):
     """
     Attributes
     ----------
@@ -197,7 +197,7 @@ def chi_ff_calculator(opacity_state, nu, shell):
     """
     chi_ff = (
         FF_OPAC_CONST
-        * opacity_state.ff_opacity_factor[shell]
+        * continuum_state.ff_opacity_factor[shell]
         / nu**3
         * (1 - np.exp(-H * nu / (K_B * opacity_state.t_electrons[shell])))
     )
@@ -205,7 +205,7 @@ def chi_ff_calculator(opacity_state, nu, shell):
 
 
 @njit(**njit_dict_no_parallel)
-def chi_continuum_calculator(opacity_state, nu, shell):
+def chi_continuum_calculator(continuum_state, opacity_state, nu, shell):
     """
     Attributes
     ----------
@@ -235,8 +235,8 @@ def chi_continuum_calculator(opacity_state, nu, shell):
         chi_bf_contributions,
         current_continua,
         x_sect_bfs,
-    ) = chi_bf_interpolator(opacity_state, nu, shell)
-    chi_ff = chi_ff_calculator(opacity_state, nu, shell)
+    ) = chi_bf_interpolator(continuum_state, nu, shell)
+    chi_ff = chi_ff_calculator(continuum_state, opacity_state, nu, shell)
     return (
         chi_bf_tot,
         chi_bf_contributions,

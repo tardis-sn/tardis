@@ -1264,7 +1264,6 @@ class TypeIIPWorkflow:
         """
         opacity_state = self.opacity_solver.solve(
             self.plasma_solver,
-            self.continuum_opacity_state,
             tau_sobolev=self._tau_sobolev,
             beta_sobolev=self._beta_sobolev,
         )
@@ -1305,6 +1304,7 @@ class TypeIIPWorkflow:
             self.simulation_state,
             opacity_state,
             macro_atom_state,
+            self.continuum_opacity_state,
             no_of_real_packets,
             no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.completed_iterations,
