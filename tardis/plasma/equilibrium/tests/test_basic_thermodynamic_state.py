@@ -32,7 +32,6 @@ from tardis.iip_plasma.properties.general import (
 from tardis.iip_plasma.properties.general import (
     NumberDensity as IIPNumberDensity,
 )
-from tardis.iip_plasma.properties.plasma_input import JBlues as IIPJBlues
 from tardis.plasma.properties.atomic import IonizationData, Levels
 from tardis.plasma.properties.general import (
     BetaElectron,
@@ -40,7 +39,6 @@ from tardis.plasma.properties.general import (
     ElectronTemperature,
     GElectron,
 )
-from tardis.plasma.properties.plasma_input import JBlues as StandardJBlues
 from tardis.util.base import intensity_black_body
 
 

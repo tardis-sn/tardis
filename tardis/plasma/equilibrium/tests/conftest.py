@@ -112,6 +112,7 @@ def rate_solvers(
     radiative_rate_solver: RadiativeRatesSolver,
     collisional_rate_solver: ThermalCollisionalRateSolver,
 ) -> tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver]:
+    """Radiative and collisional rate solvers"""
     return radiative_rate_solver, collisional_rate_solver
 
 

@@ -1,7 +1,7 @@
-from numba import njit, prange
 import numpy as np
 import pandas as pd
 from astropy import units as u
+from numba import njit, prange
 
 from tardis import constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
