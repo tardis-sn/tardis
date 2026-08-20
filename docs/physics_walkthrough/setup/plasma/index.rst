@@ -67,7 +67,8 @@ The next more complex class is `LTEPlasma` which will calculate the ionization b
 
 .. toctree::
     :maxdepth: 2
-
+    
+    plasma_module
     lte_plasma
     nebular_plasma
 
