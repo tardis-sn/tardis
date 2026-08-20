@@ -191,14 +191,14 @@ class TypeIIPWorkflow:
         initial_evaluator = self._build_thermal_balance_evaluator(
             maximum_electron_density, analytic=True
         )
-
-        (
-            initial_continuum_coefficients,
-            initial_level_to_continuum_saha_factor,
-            _,
-            _,
-        ) = initial_evaluator.calculate_continuum_coefficients(
-            self.plasma_solver.t_electrons
+        calculated_continuum_coefficients = (
+            initial_evaluator.calculate_continuum_coefficients(
+                self.plasma_solver.t_electrons
+            )
+        )
+        initial_continuum_coefficients = calculated_continuum_coefficients[4]
+        initial_level_to_continuum_saha_factor = (
+            calculated_continuum_coefficients[1]
         )
 
         self._build_continuum_states(
@@ -1094,8 +1094,11 @@ class TypeIIPWorkflow:
         self._thermal_balance_evaluation = (
             self._thermal_balance_evaluator.evaluate(
                 max_electron_number_density * accepted_candidate[::2],
-                self._thermal_balance_radiation_temperature
-                * accepted_candidate[1::2],
+                np.asarray(
+                    self._thermal_balance_radiation_temperature
+                    * accepted_candidate[1::2],
+                    dtype=np.float64,
+                ),
                 accepted_seed_evaluation.normalized_population,
             )
         )
