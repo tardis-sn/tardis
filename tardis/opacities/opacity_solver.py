@@ -11,7 +11,7 @@ from tardis.opacities.tau_sobolev import (
 
 
 class OpacitySolver:
-    """Build line and optional continuum opacity state."""
+    """Build line opacity state."""
 
     line_interaction_type: str = "scatter"
     disable_line_scattering: bool = False
