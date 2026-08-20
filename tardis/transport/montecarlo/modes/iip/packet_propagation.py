@@ -31,15 +31,15 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bound_free,
 )
-from tardis.transport.montecarlo.interaction_event_callers import (
-    continuum_event,
-    line_scatter_event,
-)
 from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
     trace_packet,
+)
+from tardis.transport.montecarlo.modes.iip.interaction_event_callers import (
+    continuum_event,
+    line_scatter_event,
 )
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
@@ -49,6 +49,12 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
     RPacket,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
+    TrackerLastInteraction,
 )
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
@@ -64,7 +70,7 @@ def packet_propagation(
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     estimators_continuum: EstimatorsContinuum,
-    rpacket_tracker,  # Excluded from type hints as it might be different types
+    rpacket_tracker: TrackerFull | TrackerLastInteraction,
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> None:
     """
@@ -129,7 +135,7 @@ def packet_propagation(
 
         comov_nu = r_packet.nu * doppler_factor
         chi_e = chi_electron_calculator(
-            continuum_state, comov_nu, r_packet.current_shell_id
+            opacity_state, comov_nu, r_packet.current_shell_id
         )
         # IIP mode: continuum processes always enabled
         (
@@ -246,6 +252,7 @@ def packet_propagation(
                 r_packet,
                 time_explosion,
                 opacity_state,
+                continuum_state,
                 chi_bf_tot,
                 chi_ff,
                 chi_bf_contributions,
