@@ -40,6 +40,18 @@ class LevelEquationRates:
 
 
 @dataclass(frozen=True)
+class BoundBoundMatrixRates:
+    """Array inputs for one shell's bound-bound rate matrix."""
+
+    number_of_levels: int
+    source_level_idx: IntArray
+    destination_level_idx: IntArray
+    radiative_rate_coefficient: FloatArray
+    collisional_rate: FloatArray
+    beta_line_idx: IntArray
+
+
+@dataclass(frozen=True)
 class NumberDensityPerShell:
     """Absolute population information fixed for one shell."""
 
