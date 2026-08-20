@@ -1,11 +1,11 @@
+import numpy as np
+import numpy.testing as npt
 import pytest
-from tardis.opacities.opacity_state import OpacityState
-from tardis.opacities.opacity_solver import OpacitySolver
+
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
 )
-import numpy.testing as npt
-import numpy as np
+from tardis.opacities.opacity_solver import OpacitySolver
 
 
 @pytest.mark.parametrize(
