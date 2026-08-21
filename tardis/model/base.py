@@ -198,6 +198,7 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def radius(self) -> u.Quantity:
+        """Return the active shell-boundary radii."""
         return self.r_outer.insert(0, self.r_inner[0])
 
     @property
@@ -222,6 +223,7 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def velocity(self) -> u.Quantity:
+        """Return the active shell-boundary velocities."""
         return self.v_outer.insert(0, self.v_inner[0])
 
     @property

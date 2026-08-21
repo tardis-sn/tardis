@@ -7,10 +7,12 @@ import pandas as pd
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model.geometry.radial1d import Radial1DGeometry
-from tardis.model.geometry.radial1d_homologous import (
-    HomologousRadial1DGeometry,
-)
+
+if TYPE_CHECKING:
+    from tardis.model.geometry.radial1d import Radial1DGeometry
+    from tardis.model.geometry.radial1d_homologous import (
+        HomologousRadial1DGeometry,
+    )
 
 
 @dataclass
