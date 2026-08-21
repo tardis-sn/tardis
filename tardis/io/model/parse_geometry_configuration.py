@@ -85,13 +85,7 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
     HomologousRadial1DGeometry
         The parsed homologous geometry.
     """
-    (
-        density_time,
-        velocity,
-        density,
-        electron_densities,
-        temperature,
-    ) = parse_structure_from_config(config)
+    _, velocity, _, _, _ = parse_structure_from_config(config)
 
     return HomologousRadial1DGeometry(
         velocity[:-1],
@@ -99,6 +93,41 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
         v_inner_boundary=config.model.structure.get("v_inner_boundary", None),
         v_outer_boundary=config.model.structure.get("v_outer_boundary", None),
         time_explosion=time_explosion,
+    )
+
+
+def parse_nonhomologous_geometry_from_config(
+    config: Configuration,
+) -> Radial1DGeometry:
+    """Parse nonhomologous geometry from a TARDIS configuration.
+
+    Parameters
+    ----------
+    config : Configuration
+        Configuration containing explicit velocity and radius boundaries.
+
+    Returns
+    -------
+    Radial1DGeometry
+        Geometry retaining independent radius and velocity boundaries.
+    """
+    _, velocity, _, _, _ = parse_structure_from_config(config)
+    structure_config = config.model.structure
+    radius = quantity_linspace(
+        structure_config.radius.start,
+        structure_config.radius.stop,
+        structure_config.velocity.num + 1,
+    ).cgs
+
+    return Radial1DGeometry(
+        r_inner=radius[:-1],
+        r_outer=radius[1:],
+        v_inner=velocity[:-1],
+        v_outer=velocity[1:],
+        r_inner_boundary=radius[0],
+        r_outer_boundary=radius[-1],
+        v_inner_boundary=structure_config.get("v_inner_boundary", None),
+        v_outer_boundary=structure_config.get("v_outer_boundary", None),
     )
 
 

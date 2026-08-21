@@ -125,8 +125,17 @@ We present an example of the above schema:
                 start: 1000 km/s
                 stop: 2000 km/s
                 num: 15
+            radius:
+                start: 1.0e14 cm
+                stop: 3.0e14 cm
             density:
                 type: branch85_w7 #see density schemas below for all options in the density section
+
+The ``radius`` section is optional for homologous workflows. For a
+nonhomologous workflow using a specific YAML structure, provide both ``start``
+and ``stop``. TARDIS linearly spaces the radius and velocity grids using the
+number of shells from ``velocity.num``, allowing the two boundary ranges to
+define a nonhomologous velocity field.
 
 
 Density

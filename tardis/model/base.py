@@ -15,6 +15,7 @@ from tardis.io.model.parse_composition_configuration import (
 from tardis.io.model.parse_geometry_configuration import (
     parse_geometry_from_config,
     parse_homologous_geometry_from_csvy,
+    parse_nonhomologous_geometry_from_config,
     parse_nonhomologous_geometry_from_csvy,
 )
 from tardis.io.model.parse_packet_source_configuration import (
@@ -295,7 +296,10 @@ class SimulationState(HDFWriterMixin):
         """
         time_explosion = config.supernova.time_explosion.cgs
 
-        geometry = parse_geometry_from_config(config, time_explosion)
+        if hasattr(config.model.structure, "radius"):
+            geometry = parse_nonhomologous_geometry_from_config(config)
+        else:
+            geometry = parse_geometry_from_config(config, time_explosion)
 
         composition, electron_densities = parse_composition_from_config(
             atom_data, config, time_explosion, geometry

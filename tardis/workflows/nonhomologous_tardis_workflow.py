@@ -57,7 +57,8 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
         Warns
         -----
         UserWarning
-            If the configured model produces homologous geometry.
+            If the configured model does not provide explicit radius
+            boundaries.
 
         Raises
         ------
@@ -76,10 +77,10 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
         geometry = self.simulation_state.geometry
         if isinstance(geometry, HomologousRadial1DGeometry):
             geometry_error = (
-                "NonhomologousTARDISWorkflow requires nonhomologous geometry "
-                "with independent radius and velocity boundaries. Homologous "
-                "geometry is not converted automatically; provide a CSVY model "
-                "containing both radius and velocity columns."
+                "NonhomologousTARDISWorkflow requires explicit radius and "
+                "velocity boundaries. For a specific YAML model, provide "
+                "model.structure.radius start and stop values; for CSVY, "
+                "provide both radius and velocity columns."
             )
             warnings.warn(geometry_error, UserWarning, stacklevel=2)
             raise TypeError(geometry_error)
