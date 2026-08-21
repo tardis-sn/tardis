@@ -4,11 +4,14 @@ from tardis import constants as const
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
+from tardis.opacities.continuum.continuum_state_numba import (
+    ContinuumOpacityStateNumba,
+)
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
 )
-from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
@@ -28,15 +31,15 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bound_free,
 )
-from tardis.transport.montecarlo.interaction_event_callers import (
-    continuum_event,
-    line_scatter_event,
-)
 from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
     trace_packet,
+)
+from tardis.transport.montecarlo.modes.iip.interaction_event_callers import (
+    continuum_event,
+    line_scatter_event,
 )
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
@@ -47,6 +50,12 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
     RPacket,
 )
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
+    TrackerLastInteraction,
+)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -56,11 +65,12 @@ def packet_propagation(
     r_packet: RPacket,
     geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumbaIIP,
+    opacity_state: OpacityStateNumba,
+    continuum_state: ContinuumOpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     estimators_continuum: EstimatorsContinuum,
-    rpacket_tracker,  # Excluded from type hints as it might be different types
+    rpacket_tracker: TrackerFull | TrackerLastInteraction,
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> None:
     """
@@ -135,7 +145,10 @@ def packet_propagation(
             x_sect_bfs,
             chi_ff,
         ) = chi_continuum_calculator(
-            opacity_state, comov_nu, r_packet.current_shell_id
+            continuum_state,
+            opacity_state,
+            comov_nu,
+            r_packet.current_shell_id,
         )
         chi_continuum = chi_e + chi_bf_tot + chi_ff
 
@@ -163,7 +176,7 @@ def packet_propagation(
             opacity_state.t_electrons[r_packet.current_shell_id],
             x_sect_bfs,
             current_continua,
-            opacity_state.bf_threshold_list_nu,
+            continuum_state.bf_threshold_list_nu,
             chi_ff * doppler_factor,
         )
 
@@ -205,6 +218,7 @@ def packet_propagation(
                 line_interaction_type,
                 opacity_state,
                 enable_full_relativity=True,
+                continuum_state=continuum_state,
             )
             rpacket_tracker.track_line_interaction_after(r_packet)
 
@@ -238,6 +252,7 @@ def packet_propagation(
                 r_packet,
                 time_explosion,
                 opacity_state,
+                continuum_state,
                 chi_bf_tot,
                 chi_ff,
                 chi_bf_contributions,

@@ -180,13 +180,23 @@ class BasePlasma(PlasmaWriterMixin):
                 self.get_value(re.sub(r"^previous_", "", p))
             )
 
-    def update(self, **kwargs):
-        for key in kwargs:
+    def update(self, **kwargs: object) -> None:
+        """Update input or frozen calculated properties and their dependents."""
+        for key, value in kwargs.items():
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    f"Trying to update property {key}" f" that is unavailable"
+                    f"Trying to update property {key} that is unavailable"
                 )
-            self.outputs_dict[key].set_value(kwargs[key])
+            plasma_property = self.outputs_dict[key]
+            if isinstance(plasma_property, Input):
+                plasma_property.set_value(value)
+            elif plasma_property.frozen:
+                setattr(plasma_property, key, value)
+            else:
+                raise AttributeError(
+                    f"Calculated plasma property {key} must be frozen before "
+                    "it can be replaced."
+                )
 
         for module_name in self._resolve_update_list(kwargs.keys()):
             self.plasma_properties_dict[module_name].update()

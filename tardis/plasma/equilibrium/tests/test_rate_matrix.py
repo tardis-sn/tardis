@@ -10,10 +10,15 @@ from tardis.model.base import SimulationState
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix, RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    AnalyticIonRateMatrix,
+    RateMatrix,
+)
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
+    RadiativeRatesSolver,
+    ThermalCollisionalRateSolver,
 )
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -22,11 +27,11 @@ from tardis.plasma.radiation_field import (
 
 def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[tuple[object, str]],
+    rate_solvers: tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
-        rate_solver_list, new_chianti_atomic_dataset_si.levels
+        *rate_solvers, new_chianti_atomic_dataset_si.levels
     )
     rad_field = DilutePlanckianRadiationField(
         collisional_simulation_state.t_radiative,
@@ -59,11 +64,11 @@ def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
 
 def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[tuple[object, str]],
+    rate_solvers: tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
-        rate_solver_list, new_chianti_atomic_dataset_si.levels
+        *rate_solvers, new_chianti_atomic_dataset_si.levels
     )
     rad_field = DilutePlanckianRadiationField(
         collisional_simulation_state.t_radiative,
@@ -88,73 +93,14 @@ def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
         assert np.all(population >= 0.0)
 
 
-def test_ion_rate_matrix_has_charge_and_normalization_rows(
-    photoionization_rate_solver: AnalyticPhotoionizationRateSolver,
-    collisional_ionization_rate_solver: CollisionalIonizationRateSolver,
-    collisional_simulation_state: SimulationState,
-    mock_boltzmann_factor: pd.DataFrame,
-) -> None:
-    rate_matrix_solver = IonRateMatrix(
-        photoionization_rate_solver, collisional_ionization_rate_solver
-    )
-    rad_field = DilutePlanckianRadiationField(
-        collisional_simulation_state.t_radiative,
-        dilution_factor=np.zeros_like(collisional_simulation_state.t_radiative),
-    )
-    electron_dist = ThermalElectronEnergyDistribution(
-        0,
-        collisional_simulation_state.t_radiative,
-        1e6 * u.g / u.cm**3,
-    )
-    lte_level_population = pd.DataFrame(
-        data=np.ones((2, 20)) * 1e5,
-        index=pd.MultiIndex.from_tuples(
-            [(1, 0, 0), (1, 0, 1)],
-            names=["atomic_number", "ion_number", "level_number"],
-        ),
-    )
-    lte_ion_population = pd.DataFrame(
-        data=np.ones((2, 20)) * 1e5,
-        index=pd.MultiIndex.from_tuples(
-            [(1, 0), (1, 1)],
-            names=["atomic_number", "ion_number"],
-        ),
-    )
-
-    matrices = rate_matrix_solver.solve(
-        rad_field,
-        electron_dist,
-        lte_level_population,
-        lte_level_population,
-        lte_ion_population,
-        lte_ion_population,
-        1.0,
-        mock_boltzmann_factor,
-        charge_conservation=True,
-    )
-
-    assert matrices.index.names == ["atomic_number"]
-    assert matrices.columns.equals(
-        pd.Index(range(len(collisional_simulation_state.t_radiative)))
-    )
-    for matrix in matrices.to_numpy().flat:
-        ion_states = matrix.shape[1] - 1
-        expected_charge_row = np.hstack((np.arange(ion_states), -1.0))
-        npt.assert_array_equal(matrix[0], expected_charge_row)
-        # The extra column is the electron-density unknown and is zero in the
-        # elemental normalization row.
-        npt.assert_array_equal(matrix[-1], np.hstack((np.ones(ion_states), 0)))
-        assert matrix.shape == (ion_states + 1, ion_states + 1)
-
-
 def test_rate_matrix_solver(
     new_chianti_atomic_dataset_si,
-    rate_solver_list,
+    rate_solvers,
     collisional_simulation_state,
     regression_data,
 ):
     rate_matrix_solver = RateMatrix(
-        rate_solver_list, new_chianti_atomic_dataset_si.levels
+        *rate_solvers, new_chianti_atomic_dataset_si.levels
     )
 
     rad_field = DilutePlanckianRadiationField(
@@ -172,6 +118,122 @@ def test_rate_matrix_solver(
     pdt.assert_frame_equal(actual, expected, atol=0, rtol=1e-15)
 
 
+def test_ion_rate_matrix_preserves_electron_density_rate_powers(
+    mock_photoionization_cross_sections: pd.DataFrame,
+    mock_boltzmann_factor: pd.DataFrame,
+) -> None:
+    """Ion matrix rates retain their physical electron-density powers."""
+    photoionization_cross_sections = pd.concat(
+        [
+            mock_photoionization_cross_sections,
+            mock_photoionization_cross_sections.assign(
+                nu=1.1 * mock_photoionization_cross_sections["nu"]
+            ),
+        ]
+    ).sort_values(["atomic_number", "ion_number", "level_number", "nu"])
+    rate_matrix_solver = AnalyticIonRateMatrix(
+        AnalyticPhotoionizationRateSolver(photoionization_cross_sections),
+        CollisionalIonizationRateSolver(photoionization_cross_sections),
+    )
+
+    electron_density_step = 1.0e9
+    electron_densities = electron_density_step * np.arange(4)
+    columns = pd.RangeIndex(len(electron_densities))
+    temperatures = np.full(len(columns), 1.0e4) * u.K
+    radiation_field = DilutePlanckianRadiationField(
+        temperatures, dilution_factor=np.full(len(columns), 0.5)
+    )
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        temperatures,
+        electron_densities * u.cm**-3,
+    )
+    helium_ionization_factor = pd.DataFrame(
+        [3.0e9, 5.0e9],
+        index=pd.MultiIndex.from_tuples(
+            [(2, 0), (2, 1)],
+            names=["atomic_number", "ion_number"],
+        ),
+        columns=[columns[0]],
+    ).reindex(columns=columns, method="ffill")
+    level_index = mock_photoionization_cross_sections.index
+    lte_level_population = pd.DataFrame(
+        1.0e5, index=level_index, columns=columns
+    )
+    ion_index = pd.MultiIndex.from_tuples(
+        [(1, 0), (1, 1)],
+        names=["atomic_number", "ion_number"],
+    )
+    lte_ion_population = pd.DataFrame(1.0e5, index=ion_index, columns=columns)
+    boltzmann_factor = pd.DataFrame(
+        np.repeat(
+            mock_boltzmann_factor.iloc[:, :1].to_numpy(),
+            len(columns),
+            axis=1,
+        ),
+        index=level_index,
+        columns=columns,
+    )
+    level_to_continuum_saha_factor = pd.DataFrame(
+        1.0e-15, index=level_index, columns=columns
+    )
+
+    rate_matrices = rate_matrix_solver.solve(
+        radiation_field,
+        electron_distribution,
+        lte_level_population,
+        1.4 * lte_level_population,
+        lte_ion_population,
+        3.0 * lte_ion_population,
+        1.0,
+        boltzmann_factor,
+        level_to_continuum_saha_factor=level_to_continuum_saha_factor,
+        lte_ionization_factor=helium_ionization_factor,
+    )
+    matrices = np.stack(rate_matrices.loc[1].to_numpy())
+
+    assert np.all(np.isfinite(matrices))
+
+    ionization_rates = -matrices[:, 0, 0]
+    ionization_steps = np.diff(ionization_rates)
+    assert ionization_rates[0] > 0.0
+    assert ionization_steps[0] > 0.0
+    npt.assert_allclose(
+        ionization_steps, ionization_steps[0], rtol=1.0e-9, atol=0.0
+    )
+
+    recombination_rates = matrices[:, 0, 1]
+    npt.assert_allclose(recombination_rates[0], 0.0, atol=0.0)
+    recombination_second_differences = np.diff(recombination_rates, n=2)
+    npt.assert_allclose(
+        recombination_second_differences,
+        recombination_second_differences[0],
+        rtol=1.0e-9,
+        atol=0.0,
+    )
+    assert recombination_second_differences[0] > 0.0
+    radiative_recombination_at_one_step = (
+        recombination_rates[1] - 0.5 * recombination_second_differences[0]
+    )
+    assert radiative_recombination_at_one_step > 0.0
+
+    right_hand_side = np.array([0.0, 1.0, 0.0])
+    for shell_idx in range(1, len(columns)):
+        helium_population = np.linalg.solve(
+            rate_matrices.loc[2, columns[shell_idx]], right_hand_side
+        )
+        npt.assert_allclose(
+            helium_population[1] / helium_population[0],
+            helium_ionization_factor.loc[(2, 0), columns[shell_idx]]
+            / electron_densities[shell_idx],
+        )
+        npt.assert_allclose(
+            helium_population[2] / helium_population[1],
+            helium_ionization_factor.loc[(2, 1), columns[shell_idx]]
+            / electron_densities[shell_idx],
+        )
+
+
 @pytest.mark.parametrize("charge_conservation", [True, False])
 def test_ion_rate_matrix_solver(
     photoionization_rate_solver,
@@ -181,7 +243,7 @@ def test_ion_rate_matrix_solver(
     charge_conservation,
     regression_data,
 ):
-    rate_matrix_solver = IonRateMatrix(
+    rate_matrix_solver = AnalyticIonRateMatrix(
         photoionization_rate_solver, collisional_ionization_rate_solver
     )
 
@@ -190,7 +252,7 @@ def test_ion_rate_matrix_solver(
         dilution_factor=np.zeros_like(collisional_simulation_state.t_radiative),
     )
     electron_dist = ThermalElectronEnergyDistribution(
-        0, collisional_simulation_state.t_radiative, 1e6 * u.g / u.cm**3
+        0, collisional_simulation_state.t_radiative, 1e6 / u.cm**3
     )
 
     lte_level_population = pd.DataFrame(
@@ -221,8 +283,28 @@ def test_ion_rate_matrix_solver(
         ion_population,
         1.0,
         mock_boltzmann_factor,
-        charge_conservation,
     )
+    if charge_conservation:
+        for matrix in actual.to_numpy().flat:
+            right_hand_side = np.zeros(matrix.shape[0])
+            right_hand_side[1] = 1.0
+            population = np.linalg.solve(matrix, right_hand_side)
+            npt.assert_allclose(
+                matrix @ population,
+                right_hand_side,
+                rtol=1e-12,
+                atol=1e-15,
+            )
+            npt.assert_allclose(population.sum(), 1.0, rtol=1e-12)
+            assert np.all(population >= 0.0)
+        pdt.assert_index_equal(
+            rate_matrix_solver.ion_population_index,
+            pd.MultiIndex.from_tuples(
+                [(1, 0), (1, 1)],
+                names=["atomic_number", "ion_number"],
+            ),
+        )
+        return
 
     expected = regression_data.sync_dataframe(actual)
 

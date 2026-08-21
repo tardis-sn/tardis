@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from numba import jit, prange
+from numba import njit, prange
 
 from tardis import constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
+from tardis.transport.montecarlo import njit_dict
 
 SOBOLEV_COEFFICIENT = (
     (
@@ -25,7 +26,7 @@ def calculate_sobolev_line_opacity(
     stimulated_emission_factor,
 ):
     """
-    Calculates the Sobolev line opacity based on the provided parameters.
+    Calculate the Sobolev line opacity from the provided parameters.
 
     Parameters
     ----------
@@ -73,8 +74,9 @@ def calculate_sobolev_line_opacity(
     )
 
 
-@jit(nopython=True, parallel=True)
+@njit(**njit_dict)
 def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
+    """Fill an array with Sobolev escape probabilities in place."""
     for i in prange(len(tau_sobolevs)):
         if tau_sobolevs[i] > 1e3:
             beta_sobolevs[i] = tau_sobolevs[i] ** -1
@@ -89,10 +91,12 @@ def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
 
 def calculate_beta_sobolev(tau_sobolevs):
     """Calculate the beta Sobolev values based on the provided tau_sobolevs.
+
     Parameters
     ----------
     tau_sobolevs : pd.DataFrame
         Tau Sobolev opacities.
+
     Returns
     -------
     pd.DataFrame
@@ -111,7 +115,8 @@ def calculate_beta_sobolev(tau_sobolevs):
 
 
 class TauSobolev(ProcessingPlasmaProperty):
-    """
+    """Store Sobolev line optical depths.
+
     Attributes
     ----------
     tau_sobolev : Pandas DataFrame, dtype float
@@ -168,7 +173,8 @@ class TauSobolev(ProcessingPlasmaProperty):
 
 
 class BetaSobolev(ProcessingPlasmaProperty):
-    """
+    """Store Sobolev escape probabilities.
+
     Attributes
     ----------
     beta_sobolev : Numpy Array, dtype float
@@ -178,4 +184,5 @@ class BetaSobolev(ProcessingPlasmaProperty):
     latex_name = (r"\beta_{\textrm{sobolev}}",)
 
     def calculate(self, tau_sobolevs):
+        """Calculate escape probabilities from Sobolev optical depths."""
         return calculate_beta_sobolev(tau_sobolevs)

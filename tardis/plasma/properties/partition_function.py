@@ -202,12 +202,11 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 col_strengths,
                 "chianti",
             )
-            rate_solvers = [
-                (radiative_rate_solver, "radiative"),
-                (collisional_rate_solver, "electron"),
-            ]
-
-            rate_matrix_solver = RateMatrix(rate_solvers, atomic_data.levels)
+            rate_matrix_solver = RateMatrix(
+                radiative_rate_solver,
+                collisional_rate_solver,
+                atomic_data.levels,
+            )
 
             # A fake electron distribution. Will eventually be a direct input
             # to the plasma property.

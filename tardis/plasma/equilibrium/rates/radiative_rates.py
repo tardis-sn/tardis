@@ -1,9 +1,12 @@
 import numpy as np
 import pandas as pd
+
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class RadiativeRatesSolver:
+    """Calculate bound-bound Einstein transition rates."""
+
     einstein_coefficients: pd.DataFrame
 
     def __init__(self, einstein_coefficients):
@@ -26,24 +29,56 @@ class RadiativeRatesSolver:
             kind=SORTING_ALGORITHM
         )
 
-    def solve(self, radiation_field):
-        mean_intensity = radiation_field.calculate_mean_intensity(
-            self.einstein_coefficients.nu.values
-        )
-        mean_intensity_df = pd.DataFrame(
-            data=mean_intensity, index=self.einstein_coefficients.index
-        )
+    def solve(
+        self,
+        mean_intensity: pd.DataFrame,
+        beta_sobolev: pd.DataFrame | None = None,
+    ) -> pd.DataFrame:
+        """Calculate line rates from fixed intensities and escape probabilities.
+
+        Parameters
+        ----------
+        mean_intensity : pandas.DataFrame
+            Mean intensity blueward of each line. Rows follow the Einstein-line
+            index and columns are shells.
+        beta_sobolev : pandas.DataFrame, optional
+            Candidate Sobolev escape probabilities aligned with
+            ``mean_intensity``. When omitted, all escape probabilities are one.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Upward and downward rates in source--destination index convention.
+        """
+        mean_intensity_df = mean_intensity.loc[self.einstein_coefficients.index]
+
+        if beta_sobolev is None:
+            beta_sobolev_array = np.ones(mean_intensity_df.shape)
+        else:
+            beta_sobolev_array = beta_sobolev.loc[
+                self.einstein_coefficients.index, mean_intensity_df.columns
+            ].to_numpy()
+
+        if (
+            not np.isfinite(mean_intensity_df.to_numpy()).all()
+            or not np.isfinite(beta_sobolev_array).all()
+        ):
+            raise ValueError(
+                "Mean intensities and Sobolev escape probabilities must be finite."
+            )
 
         # r_lu = B_lu * J_nu
         r_lu = mean_intensity_df.multiply(
             self.einstein_coefficients.B_lu, axis=0
         )
+        r_lu *= beta_sobolev_array
 
         # r_ul = B_ul * J_nu + A_ul
         r_ul = mean_intensity_df.multiply(
             self.einstein_coefficients["B_ul"], axis=0
         )
         r_ul = r_ul.add(self.einstein_coefficients["A_ul"], axis=0)
+        r_ul *= beta_sobolev_array
 
         # swapping as source is upper and destination is lower
         r_ul.index = r_ul.index.swaplevel(
@@ -74,5 +109,6 @@ class RadiativeRatesSolver:
                 "level_number_destination",
             ]
         )
+        rates_df.columns = mean_intensity_df.columns.copy()
 
         return rates_df

@@ -1,6 +1,5 @@
 import logging
 
-import pandas as pd
 from astropy import units as u
 from numba import cuda, set_num_threads
 
@@ -8,6 +7,7 @@ import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.logger import montecarlo_tracking as mc_tracker
+from tardis.opacities.continuum.continuum_state import ContinuumOpacityState
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -45,9 +45,9 @@ logger = logging.getLogger(__name__)
 
 # TODO: refactor this into more parts
 class MCTransportSolverIIP(HDFWriterMixin):
-    """
-    This class modifies the MonteCarloTransportState to solve the radiative
-    transfer problem.
+    """Solve Type IIP Monte Carlo radiative transfer.
+
+    Build and evolve the continuum-enabled transport state.
     """
 
     hdf_properties = ["transport_state"]
@@ -99,30 +99,19 @@ class MCTransportSolverIIP(HDFWriterMixin):
 
     def initialize_transport_state(
         self,
-        simulation_state,
-        opacity_state,
-        macro_atom_state,
-        plasma,
-        no_of_packets,
-        no_of_virtual_packets=0,
-        iteration=0,
-    ):
-        if not plasma.continuum_interaction_species.empty:
-            # Combine phi_lucy data for all nlte_species to get total shape
-            if plasma.nlte_species:
-                all_species_phi_lucy = pd.concat(
-                    [
-                        plasma.phi_lucy.loc[species]
-                        for species in plasma.nlte_species
-                    ],
-                    axis=0,
-                )
-                n_levels_bf_species_by_n_cells_tuple = (
-                    all_species_phi_lucy.shape
-                )
-
-        else:
-            n_levels_bf_species_by_n_cells_tuple = (0, 0)
+        simulation_state: object,
+        opacity_state: object,
+        macro_atom_state: object | None,
+        continuum_state: ContinuumOpacityState,
+        no_of_packets: int,
+        no_of_virtual_packets: int = 0,
+        iteration: int = 0,
+    ) -> MonteCarloTransportState:
+        """Initialize transport state from explicit opacity inputs."""
+        n_levels_bf_species_by_n_cells_tuple = (
+            len(continuum_state.level2continuum_idx),
+            len(opacity_state.electron_density),
+        )
 
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
@@ -135,6 +124,10 @@ class MCTransportSolverIIP(HDFWriterMixin):
         opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,
             self.line_interaction_type,
+            continuum_processes_enabled=True,
+        )
+        continuum_state_numba = continuum_state.to_numba(
+            opacity_state.t_electrons, macro_atom_state
         )
         # opacity_state_numba = opacity_state_numba[
         #     simulation_state.geometry.v_inner_boundary_idx : simulation_state.geometry.v_outer_boundary_idx
@@ -147,6 +140,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
             time_explosion=simulation_state.time_explosion,
             n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
+        transport_state.continuum_state_numba = continuum_state_numba
 
         # IIP mode: full relativity always enabled
         transport_state.enable_full_relativity = True
@@ -208,6 +202,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
             transport_state.geometry_state_numba,
             transport_state.time_explosion.cgs.value,
             transport_state.opacity_state_numba,
+            transport_state.continuum_state_numba,
             self.montecarlo_configuration,
             transport_state.n_levels_bf_species_by_n_cells_tuple,
             trackers_list,

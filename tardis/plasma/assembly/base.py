@@ -16,18 +16,17 @@ from tardis.plasma.properties import (
 from tardis.util.base import species_string_to_tuple
 
 
-def map_species_from_string(species):
-    return [species_string_to_tuple(spec) for spec in species]
-
-
-def convert_species_to_multi_index(species_strs):
-    return pd.MultiIndex.from_tuples(
-        map_species_from_string(species_strs),
-        names=["atomic_number", "ion_number"],
-    )
+def map_species_from_string(species: list[object]) -> list[tuple[int, int]]:
+    """Convert configured species while accepting already-parsed tuples."""
+    return [
+        spec if isinstance(spec, tuple) else species_string_to_tuple(spec)
+        for spec in species
+    ]
 
 
 class PlasmaSolverFactory:
+    """Assemble a plasma property graph from configuration and atomic data."""
+
     ## Analytical Approximations
     excitation_analytical_approximation: str = "lte"
     ionization_analytical_approximation: str = "lte"
@@ -62,20 +61,24 @@ class PlasmaSolverFactory:
 
     def __init__(
         self,
-        atom_data,
-        config=None,
+        atom_data: object,
+        config: object | None = None,
     ) -> None:
+        self.plasma_modules = []
+        self.property_kwargs = {}
         if config is not None:
             self.parse_plasma_config(config.plasma)
         self.atom_data = atom_data
 
     @property
-    def continuum_interaction_species_multi_index(self):
-        return convert_species_to_multi_index(
-            self.continuum_interaction_species
+    def continuum_interaction_species_multi_index(self) -> pd.MultiIndex:
+        """Return configured continuum species as a MultiIndex."""
+        return pd.MultiIndex.from_tuples(
+            map_species_from_string(self.continuum_interaction_species),
+            names=["atomic_number", "ion_number"],
         )
 
-    def parse_plasma_config(self, plasma_config):
+    def parse_plasma_config(self, plasma_config: object) -> None:
         """
         Parse the plasma configuration.
 
@@ -104,10 +107,13 @@ class PlasmaSolverFactory:
 
         self.radiative_rates_type = plasma_config.radiative_rates_type
 
-
     def prepare_factory(
-        self, selected_atomic_numbers, property_collections, config=None
-    ):
+        self,
+        selected_atomic_numbers: object,
+        property_collections: str,
+        config: object | None = None,
+        allow_continuum: bool = False,
+    ) -> None:
         """
         Set up the plasma factory.
 
@@ -122,7 +128,7 @@ class PlasmaSolverFactory:
         """
         self.plasma_collection = importlib.import_module(property_collections)
 
-        if self.continuum_interaction_species:
+        if self.continuum_interaction_species and not allow_continuum:
             raise PlasmaConfigError(
                 "Continuum interactions are supported only by the IIP workflow."
             )
@@ -143,7 +149,13 @@ class PlasmaSolverFactory:
         self.property_kwargs[RadiationFieldCorrection] = dict(
             delta_treatment=self.delta_treatment
         )
-        if (config is not None) and len(self.legacy_nlte_species) > 0:
+        if allow_continuum:
+            self.plasma_modules += self.plasma_collection.non_nlte_properties
+            self.plasma_modules += self.plasma_collection.continuum_properties
+            self.property_kwargs[StimulatedEmissionFactor] = dict(
+                nlte_species=set(self.legacy_nlte_species)
+            )
+        elif (config is not None) and len(self.legacy_nlte_species) > 0:
             self.setup_legacy_nlte(config.plasma.nlte)
         else:
             self.plasma_modules += self.plasma_collection.non_nlte_properties
@@ -200,9 +212,9 @@ class PlasmaSolverFactory:
             nlte_species=self.legacy_nlte_species
         )
 
-    def setup_analytical_approximations(self):
+    def setup_analytical_approximations(self) -> None:
         """
-        Setup the analytical approximations for excitation and ionization.
+        Set up the analytical approximations for excitation and ionization.
 
         Returns
         -------
@@ -283,9 +295,9 @@ class PlasmaSolverFactory:
 
         return j_blues
 
-    def set_nlte_species_from_string(self, nlte_species):
+    def set_nlte_species_from_string(self, nlte_species: list[object]) -> None:
         """
-        Sets the non-LTE species from a string representation.
+        Set the non-LTE species from a string representation.
 
         Parameters
         ----------
@@ -299,7 +311,8 @@ class PlasmaSolverFactory:
         """
         self.legacy_nlte_species = map_species_from_string(nlte_species)
 
-    def setup_electron_densities(self, electron_densities):
+    def setup_electron_densities(self, electron_densities: object) -> None:
+        """Configure the electron-density input for the helium treatment."""
         if self.helium_treatment == "numerical-nlte":
             self.property_kwargs[IonNumberDensityHeNLTE] = dict(
                 electron_densities=electron_densities
