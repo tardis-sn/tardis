@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 import numpy as np
 import numpy.typing as npt
@@ -6,10 +7,12 @@ import pandas as pd
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model.geometry.radial1d import Radial1DGeometry
-from tardis.model.geometry.radial1d_homologous import (
-    HomologousRadial1DGeometry,
-)
+
+if TYPE_CHECKING:
+    from tardis.model.geometry.radial1d import Radial1DGeometry
+    from tardis.model.geometry.radial1d_homologous import (
+        HomologousRadial1DGeometry,
+    )
 
 
 @dataclass
@@ -58,6 +61,10 @@ class CSVYData:
         tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry
             The geometry object constructed from the CSVY data.
         """
+        from tardis.model.geometry.radial1d_homologous import (  # noqa: PLC0415
+            HomologousRadial1DGeometry,
+        )
+
         if time_explosion is None:
             # Try to extract time_explosion from model_config
             if hasattr(self.model_config, "time_explosion"):
@@ -92,6 +99,10 @@ class CSVYData:
         tardis.model.geometry.radial1d.Radial1DGeometry
             The geometry object constructed from the CSVY data.
         """
+        from tardis.model.geometry.radial1d import (  # noqa: PLC0415
+            Radial1DGeometry,
+        )
+
         if time_explosion is None:
             # Try to extract time_explosion from model_config
             if hasattr(self.model_config, "time_explosion"):
