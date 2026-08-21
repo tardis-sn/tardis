@@ -198,8 +198,7 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def radius(self) -> u.Quantity:
-        radius = self.geometry.r_outer_active.copy()
-        return radius.insert(0, self.geometry.r_inner_active[0])
+        return self.r_outer.insert(0, self.r_inner[0])
 
     @property
     def v_inner_boundary(self):
@@ -222,9 +221,8 @@ class SimulationState(HDFWriterMixin):
         return 0.5 * self.r_inner + 0.5 * self.r_outer
 
     @property
-    def velocity(self):
-        velocity = self.geometry.v_outer_active.copy()
-        return velocity.insert(0, self.geometry.v_inner_active[0])
+    def velocity(self) -> u.Quantity:
+        return self.v_outer.insert(0, self.v_inner[0])
 
     @property
     def v_inner(self):
