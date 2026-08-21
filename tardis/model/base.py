@@ -14,7 +14,8 @@ from tardis.io.model.parse_composition_configuration import (
 )
 from tardis.io.model.parse_geometry_configuration import (
     parse_geometry_from_config,
-    parse_geometry_from_csvy,
+    parse_homologous_geometry_from_csvy,
+    parse_nonhomologous_geometry_from_csvy,
 )
 from tardis.io.model.parse_packet_source_configuration import (
     parse_packet_source_from_config,
@@ -389,12 +390,22 @@ class SimulationState(HDFWriterMixin):
 
         electron_densities = None
 
-        geometry = parse_geometry_from_csvy(
-            config,
-            csvy_data.model_config,
-            csvy_data.raw_csv_data,
-            time_explosion,
-        )
+        if (
+            csvy_data.raw_csv_data is not None
+            and "radius" in csvy_data.raw_csv_data.columns
+        ):
+            geometry = parse_nonhomologous_geometry_from_csvy(
+                config,
+                csvy_data.model_config,
+                csvy_data.raw_csv_data,
+            )
+        else:
+            geometry = parse_homologous_geometry_from_csvy(
+                config,
+                csvy_data.model_config,
+                csvy_data.raw_csv_data,
+                time_explosion,
+            )
 
         composition = parse_composition_from_csvy(
             csvy_data.model_config,

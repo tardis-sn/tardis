@@ -1,8 +1,8 @@
 import logging
+import warnings
 
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model.geometry.radial1d import Radial1DGeometry
 from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
@@ -26,6 +26,8 @@ logger = logging.getLogger(__name__)
 
 
 class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
+    """Run TARDIS using nonhomologous geometry and transport."""
+
     def __init__(
         self,
         configuration: Configuration,
@@ -33,24 +35,34 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
         log_level: str | None = None,
         specific_log_level: bool | None = None,
         show_convergence_plots: bool = False,
-    ):
-        """
-        Inherits from StandardTARDISWorkflow and overrides the components that
-        differ for non-homologous expansion: the geometry, plasma solver,
-        opacity solver, and transport solver.
+    ) -> None:
+        """Initialize a nonhomologous TARDIS workflow.
+
+        This workflow overrides the geometry, plasma solver, opacity solver,
+        and transport solver used for homologous expansion.
 
         Parameters
         ----------
-        configuration
+        configuration : Configuration
             Configuration object for the simulation.
-        csvy
-            Set true if the configuration uses CSVY.
-        log_level
-            Sets the logging Level for the logger
-        specific_log_level
-            Allows for logging on the specified logging levels
-        show_convergence_plots
-            Whether to display convergence plots while iterating
+        csvy : bool
+            Whether the configuration uses CSVY.
+        log_level : str or None
+            Logging level for the workflow.
+        specific_log_level : bool or None
+            Whether to use the specified logging level.
+        show_convergence_plots : bool
+            Whether to display convergence plots while iterating.
+
+        Warns
+        -----
+        UserWarning
+            If the configured model produces homologous geometry.
+
+        Raises
+        ------
+        TypeError
+            If the configured model produces homologous geometry.
         """
         super().__init__(
             configuration,
@@ -63,17 +75,14 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
 
         geometry = self.simulation_state.geometry
         if isinstance(geometry, HomologousRadial1DGeometry):
-            t_exp = self.simulation_state.time_explosion
-            self.simulation_state.geometry = Radial1DGeometry(
-                r_inner=geometry.v_inner * t_exp,
-                r_outer=geometry.v_outer * t_exp,
-                v_inner=geometry.v_inner,
-                v_outer=geometry.v_outer,
-                r_inner_boundary=geometry.v_inner_boundary * t_exp,
-                r_outer_boundary=geometry.v_outer_boundary * t_exp,
-                v_inner_boundary=geometry.v_inner_boundary,
-                v_outer_boundary=geometry.v_outer_boundary,
-        )
+            geometry_error = (
+                "NonhomologousTARDISWorkflow requires nonhomologous geometry "
+                "with independent radius and velocity boundaries. Homologous "
+                "geometry is not converted automatically; provide a CSVY model "
+                "containing both radius and velocity columns."
+            )
+            warnings.warn(geometry_error, UserWarning, stacklevel=2)
+            raise TypeError(geometry_error)
 
         plasma_solver_factory = PlasmaSolverFactory(
             atom_data,
