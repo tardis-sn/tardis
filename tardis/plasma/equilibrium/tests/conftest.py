@@ -7,7 +7,7 @@ from astropy import units as u
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.base import SimulationState
-from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix
+from tardis.plasma.equilibrium.rate_matrix import AnalyticIonRateMatrix
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
@@ -108,11 +108,11 @@ def collisional_rate_solver(
 
 
 @pytest.fixture
-def rate_solver_list(radiative_rate_solver, collisional_rate_solver):
-    return [
-        (radiative_rate_solver, "radiative"),
-        (collisional_rate_solver, "electron"),
-    ]
+def rate_solvers(
+    radiative_rate_solver: RadiativeRatesSolver,
+    collisional_rate_solver: ThermalCollisionalRateSolver,
+) -> tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver]:
+    return radiative_rate_solver, collisional_rate_solver
 
 
 @pytest.fixture
@@ -145,7 +145,7 @@ def collisional_ionization_rate_solver(mock_photoionization_cross_sections):
 def rate_matrix_solver(
     photoionization_rate_solver, collisional_ionization_rate_solver
 ):
-    return IonRateMatrix(
+    return AnalyticIonRateMatrix(
         photoionization_rate_solver, collisional_ionization_rate_solver
     )
 
