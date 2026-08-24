@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from astropy import units as u
 
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
@@ -13,7 +14,9 @@ from tardis.io.model.parse_composition_configuration import (
 )
 from tardis.io.model.parse_geometry_configuration import (
     parse_geometry_from_config,
-    parse_geometry_from_csvy,
+    parse_homologous_geometry_from_csvy,
+    parse_nonhomologous_geometry_from_config,
+    parse_nonhomologous_geometry_from_csvy,
 )
 from tardis.io.model.parse_packet_source_configuration import (
     parse_packet_source_from_config,
@@ -195,8 +198,9 @@ class SimulationState(HDFWriterMixin):
         return isotopic_number_density
 
     @property
-    def radius(self):
-        return self.time_explosion * self.velocity
+    def radius(self) -> u.Quantity:
+        """Return the active shell-boundary radii."""
+        return self.r_outer.insert(0, self.r_inner[0])
 
     @property
     def v_inner_boundary(self):
@@ -219,9 +223,9 @@ class SimulationState(HDFWriterMixin):
         return 0.5 * self.r_inner + 0.5 * self.r_outer
 
     @property
-    def velocity(self):
-        velocity = self.geometry.v_outer_active.copy()
-        return velocity.insert(0, self.geometry.v_inner_active[0])
+    def velocity(self) -> u.Quantity:
+        """Return the active shell-boundary velocities."""
+        return self.v_outer.insert(0, self.v_inner[0])
 
     @property
     def v_inner(self):
@@ -292,7 +296,10 @@ class SimulationState(HDFWriterMixin):
         """
         time_explosion = config.supernova.time_explosion.cgs
 
-        geometry = parse_geometry_from_config(config, time_explosion)
+        if hasattr(config.model.structure, "radius"):
+            geometry = parse_nonhomologous_geometry_from_config(config)
+        else:
+            geometry = parse_geometry_from_config(config, time_explosion)
 
         composition, electron_densities = parse_composition_from_config(
             atom_data, config, time_explosion, geometry
@@ -344,6 +351,7 @@ class SimulationState(HDFWriterMixin):
             "density",
             "t_rad",
             "dilution_factor",
+            "radius",
         }
 
         if Path(config.csvy_model).is_absolute():
@@ -386,12 +394,22 @@ class SimulationState(HDFWriterMixin):
 
         electron_densities = None
 
-        geometry = parse_geometry_from_csvy(
-            config,
-            csvy_data.model_config,
-            csvy_data.raw_csv_data,
-            time_explosion,
-        )
+        if (
+            csvy_data.raw_csv_data is not None
+            and "radius" in csvy_data.raw_csv_data.columns
+        ):
+            geometry = parse_nonhomologous_geometry_from_csvy(
+                config,
+                csvy_data.model_config,
+                csvy_data.raw_csv_data,
+            )
+        else:
+            geometry = parse_homologous_geometry_from_csvy(
+                config,
+                csvy_data.model_config,
+                csvy_data.raw_csv_data,
+                time_explosion,
+            )
 
         composition = parse_composition_from_csvy(
             csvy_data.model_config,
