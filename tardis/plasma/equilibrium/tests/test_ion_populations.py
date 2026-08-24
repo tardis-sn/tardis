@@ -6,6 +6,7 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pandas.testing as pdt
+import pytest
 from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis.iip_plasma.properties.ion_population import (
@@ -29,6 +30,7 @@ from tardis.plasma.radiation_field import (
 )
 
 
+@pytest.fixture
 def hydrogen_population_inputs() -> dict[str, object]:
     """Return small Hydrogen inputs for ion-population solver tests."""
     radiation_field = DilutePlanckianRadiationField(
@@ -151,11 +153,12 @@ def assert_hydrogen_matrix_balance(
 
 
 def test_solve(
-    rate_matrix_solver: IonRateMatrix, regression_data: RegressionData
+    rate_matrix_solver: IonRateMatrix,
+    regression_data: RegressionData,
+    hydrogen_population_inputs: dict[str, object],
 ) -> None:
-    inputs = hydrogen_population_inputs()
     actual_ion_population, actual_electron_density, ion_population_solver = (
-        solve_population(rate_matrix_solver, inputs, charge_conservation=False)
+        solve_population(rate_matrix_solver, hydrogen_population_inputs, charge_conservation=False)
     )
 
     expected_ion_population = regression_data.sync_dataframe(
@@ -174,31 +177,31 @@ def test_solve(
     assert np.all(actual_ion_population.to_numpy() >= 0.0)
     npt.assert_allclose(
         actual_ion_population.groupby(level="atomic_number").sum().to_numpy(),
-        inputs["elemental_number_density"].to_numpy(),
+        hydrogen_population_inputs["elemental_number_density"].to_numpy(),
         rtol=1e-12,
     )
     assert_charge_conservation(actual_ion_population, actual_electron_density)
     assert_hydrogen_matrix_balance(
         ion_population_solver,
         actual_ion_population,
-        inputs["elemental_number_density"],
+        hydrogen_population_inputs["elemental_number_density"],
     )
 
 
 def test_charge_conserving_hydrogen_matches_analytic_root(
     rate_matrix_solver: IonRateMatrix,
+    hydrogen_population_inputs: dict[str, object],
 ) -> None:
-    inputs = hydrogen_population_inputs()
 
     ion_population, electron_density, ion_population_solver = solve_population(
-        rate_matrix_solver, inputs, charge_conservation=True
+        rate_matrix_solver, hydrogen_population_inputs, charge_conservation=True
     )
 
     for shell in ion_population.columns:
         matrix = ion_population_solver.rates_matrices.loc[1, shell]
         ionization_rate = -matrix[0, 0]
         recombination_rate = matrix[0, 1]
-        hydrogen_density = inputs["elemental_number_density"].loc[1, shell]
+        hydrogen_density = hydrogen_population_inputs["elemental_number_density"].loc[1, shell]
         expected_electron_density = (
             hydrogen_density
             * ionization_rate
@@ -220,9 +223,10 @@ def test_charge_conserving_hydrogen_matches_analytic_root(
 
 def test_charge_conserving_hydrogen_is_seed_independent_from_near_neutral_density(
     rate_matrix_solver: IonRateMatrix,
+    hydrogen_population_inputs: dict[str, object],
 ) -> None:
-    low_seed_inputs = hydrogen_population_inputs()
-    high_seed_inputs = hydrogen_population_inputs()
+    low_seed_inputs = hydrogen_population_inputs.copy()
+    high_seed_inputs = hydrogen_population_inputs.copy()
     low_seed_inputs[
         "thermal_electron_energy_distribution"
     ] = ThermalElectronEnergyDistribution(
@@ -513,30 +517,30 @@ def test_charge_conserving_multi_element_solution_uses_real_atomic_data(
 
 def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
     rate_matrix_solver: IonRateMatrix,
+    hydrogen_population_inputs: dict[str, object],
 ) -> None:
-    inputs = hydrogen_population_inputs()
     ion_population, electron_density, _ = solve_population(
-        rate_matrix_solver, inputs, charge_conservation=True
+        rate_matrix_solver, hydrogen_population_inputs, charge_conservation=True
     )
     shell = ion_population.columns[0]
     phi_index = pd.MultiIndex.from_tuples(
         [(1, 1)], names=["atomic_number", "ion_number"]
     )
     columns = pd.Index([0])
-    hydrogen_density = inputs["elemental_number_density"][[shell]].copy()
+    hydrogen_density = hydrogen_population_inputs["elemental_number_density"][[shell]].copy()
     hydrogen_density.columns = columns
     gamma, alpha_sp, coll_ion_coeff, coll_recomb_coeff = (
         calculate_iip_rate_coefficients(
             rate_matrix_solver,
-            inputs["thermal_electron_energy_distribution"],
-            inputs["radiation_field"],
-            inputs["lte_level_population"],
-            inputs["lte_ion_population"],
-            inputs["estimated_level_population"],
-            inputs["estimated_ion_population"],
-            inputs["partition_function"],
-            inputs["boltzmann_factor"],
-            inputs["level_to_continuum_saha_factor"],
+            hydrogen_population_inputs["thermal_electron_energy_distribution"],
+            hydrogen_population_inputs["radiation_field"],
+            hydrogen_population_inputs["lte_level_population"],
+            hydrogen_population_inputs["lte_ion_population"],
+            hydrogen_population_inputs["estimated_level_population"],
+            hydrogen_population_inputs["estimated_ion_population"],
+            hydrogen_population_inputs["partition_function"],
+            hydrogen_population_inputs["boltzmann_factor"],
+            hydrogen_population_inputs["level_to_continuum_saha_factor"],
             electron_density,
         )
     )
@@ -561,7 +565,7 @@ def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
         coll_ion_coeff,
         coll_recomb_coeff,
         hydrogen_density,
-        inputs["boltzmann_factor"][[shell]].set_axis(columns, axis="columns"),
+        hydrogen_population_inputs["boltzmann_factor"][[shell]].set_axis(columns, axis="columns"),
     )
 
     actual_ion_population = ion_population[[shell]].copy()

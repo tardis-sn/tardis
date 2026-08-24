@@ -361,33 +361,32 @@ def iip_charge_conserving_rate_matrix(
     iip_plasma_after_mc: LegacyPlasmaArray,
 ) -> SimpleNamespace:
     """Adapt full-dataset IIP rate tables to the new solver interface."""
-    plasma = iip_plasma_after_mc
-    legacy_solver = NLTEIonNumberDensity(plasma)
+    legacy_solver = NLTEIonNumberDensity(iip_plasma_after_mc)
     partition_function = IIPPartitionFunction.calculate(
-        plasma.level_boltzmann_factor
+        iip_plasma_after_mc.level_boltzmann_factor
     )
     level_population_fraction = legacy_solver._calculate_level_pop_fractions(
-        plasma.level_boltzmann_factor,
+        iip_plasma_after_mc.level_boltzmann_factor,
         partition_function,
     )
     ion_index = partition_function.index
     radiative_recombination = legacy_solver._calculate_alpha_tot(
-        plasma.alpha_stim,
-        plasma.alpha_sp,
+        iip_plasma_after_mc.alpha_stim,
+        iip_plasma_after_mc.alpha_sp,
         ion_index,
     ).loc[(1, 0)]
     radiative_ionization = legacy_solver._calculate_tot_ion_rate(
-        plasma.gamma,
+        iip_plasma_after_mc.gamma,
         level_population_fraction,
         ion_index,
     ).loc[(1, 0)]
     collisional_ionization = legacy_solver._calculate_tot_ion_rate(
-        plasma.coll_ion_coeff,
+        iip_plasma_after_mc.coll_ion_coeff,
         level_population_fraction,
         ion_index,
     ).loc[(1, 0)]
     collisional_recombination = legacy_solver._calculate_coll_recomb_tot(
-        plasma.coll_recomb_coeff,
+        iip_plasma_after_mc.coll_recomb_coeff,
         ion_index,
     ).loc[(1, 0)]
     radiative_ionization_values = radiative_ionization.to_numpy()
@@ -443,43 +442,42 @@ def test_charge_conserving_solver_matches_iip_with_full_atomic_data(
     iip_charge_conserving_rate_matrix: SimpleNamespace,
 ) -> None:
     """Match IIP NLTE populations with identical post-Monte-Carlo rates."""
-    plasma = iip_plasma_after_mc
     legacy_parent = SimpleNamespace(
-        nlte_species=plasma.nlte_species,
+        nlte_species=iip_plasma_after_mc.nlte_species,
         previous_ion_number_density=None,
         previous_electron_densities=None,
     )
     expected_ion_population, expected_electron_density = NLTEIonNumberDensity(
         legacy_parent
     ).calculate(
-        plasma.phi,
-        plasma.alpha_stim,
-        plasma.alpha_sp,
-        plasma.gamma,
-        plasma.coll_ion_coeff,
-        plasma.coll_recomb_coeff,
-        plasma.number_density,
-        plasma.level_boltzmann_factor,
+        iip_plasma_after_mc.phi,
+        iip_plasma_after_mc.alpha_stim,
+        iip_plasma_after_mc.alpha_sp,
+        iip_plasma_after_mc.gamma,
+        iip_plasma_after_mc.coll_ion_coeff,
+        iip_plasma_after_mc.coll_recomb_coeff,
+        iip_plasma_after_mc.number_density,
+        iip_plasma_after_mc.level_boltzmann_factor,
     )
     electron_distribution = ThermalElectronEnergyDistribution(
         0 * u.erg,
-        plasma.t_electrons * u.K,
-        plasma.electron_densities.to_numpy() / u.cm**3,
+        iip_plasma_after_mc.t_electrons * u.K,
+        iip_plasma_after_mc.electron_densities.to_numpy() / u.cm**3,
     )
     actual_ion_population, actual_electron_density = IonPopulationSolver(
         iip_charge_conserving_rate_matrix
     ).solve(
         None,
         electron_distribution,
-        plasma.number_density,
-        plasma.lte_level_number_density,
-        plasma.level_number_density,
-        plasma.lte_ion_number_density,
-        plasma.ion_number_density,
-        plasma.partition_function,
-        plasma.level_boltzmann_factor,
+        iip_plasma_after_mc.number_density,
+        iip_plasma_after_mc.lte_level_number_density,
+        iip_plasma_after_mc.level_number_density,
+        iip_plasma_after_mc.lte_ion_number_density,
+        iip_plasma_after_mc.ion_number_density,
+        iip_plasma_after_mc.partition_function,
+        iip_plasma_after_mc.level_boltzmann_factor,
         charge_conservation=True,
-        level_to_continuum_saha_factor=plasma.phi_lucy,
+        level_to_continuum_saha_factor=iip_plasma_after_mc.phi_lucy,
     )
 
     pd.testing.assert_frame_equal(
@@ -506,13 +504,12 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Keep converged shell charge roots fixed during lagged iterations."""
-    plasma = iip_plasma_after_mc
     electron_distribution = ThermalElectronEnergyDistribution(
         0 * u.erg,
-        plasma.t_electrons * u.K,
-        plasma.electron_densities.to_numpy() / u.cm**3,
+        iip_plasma_after_mc.t_electrons * u.K,
+        iip_plasma_after_mc.electron_densities.to_numpy() / u.cm**3,
     )
-    estimated_ion_population = plasma.ion_number_density.copy()
+    estimated_ion_population = iip_plasma_after_mc.ion_number_density.copy()
     estimated_ion_population.iloc[:, 0] = 0.0
     solver = IonPopulationSolver(iip_charge_conserving_rate_matrix)
     solve_shell_charge = solver.solve_shell_charge
@@ -528,21 +525,21 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
     solver.solve(
         None,
         electron_distribution,
-        plasma.number_density,
-        plasma.lte_level_number_density,
-        plasma.level_number_density,
-        plasma.lte_ion_number_density,
+        iip_plasma_after_mc.number_density,
+        iip_plasma_after_mc.lte_level_number_density,
+        iip_plasma_after_mc.level_number_density,
+        iip_plasma_after_mc.lte_ion_number_density,
         estimated_ion_population,
-        plasma.partition_function,
-        plasma.level_boltzmann_factor,
+        iip_plasma_after_mc.partition_function,
+        iip_plasma_after_mc.level_boltzmann_factor,
         charge_conservation=True,
-        level_to_continuum_saha_factor=plasma.phi_lucy,
+        level_to_continuum_saha_factor=iip_plasma_after_mc.phi_lucy,
     )
 
     assert [
         solved_shell_indices.count(shell_idx)
-        for shell_idx in range(len(plasma.number_density.columns))
-    ] == [2] + [1] * (len(plasma.number_density.columns) - 1)
+        for shell_idx in range(len(iip_plasma_after_mc.number_density.columns))
+    ] == [2] + [1] * (len(iip_plasma_after_mc.number_density.columns) - 1)
 
 
 def test_type_iip_workflow_initial_plasma_regression(
@@ -1326,14 +1323,13 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
     iip_plasma_after_mc: LegacyPlasmaArray,
 ) -> None:
     """Compare each standard thermal rate with the IIP plasma value."""
-    plasma = iip_plasma_after_mc
     photoionization_data = (
-        plasma.atomic_data.continuum_data.photoionization_data
+        iip_plasma_after_mc.atomic_data.continuum_data.photoionization_data
     )
     electron_distribution = ThermalElectronEnergyDistribution(
         0 * u.erg,
-        plasma.t_electrons * u.K,
-        plasma.electron_densities.to_numpy() * u.cm**-3,
+        iip_plasma_after_mc.t_electrons * u.K,
+        iip_plasma_after_mc.electron_densities.to_numpy() * u.cm**-3,
     )
     bound_free_solver = BoundFreeThermalRates(photoionization_data)
     free_free_solver = FreeFreeThermalRates()
@@ -1341,61 +1337,61 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
         photoionization_data
     )
     collisional_bound_solver = CollisionalBoundThermalRates(
-        pd.DataFrame({"nu": np.asarray(plasma.nu_lines_coll)})
+        pd.DataFrame({"nu": np.asarray(iip_plasma_after_mc.nu_lines_coll)})
     )
 
     standard_rates = {
         "bound_free": bound_free_solver.solve(
-            plasma.level_number_density,
-            plasma.ion_number_density,
+            iip_plasma_after_mc.level_number_density,
+            iip_plasma_after_mc.ion_number_density,
             electron_distribution,
-            plasma.phi_lucy,
-            bound_free_heating_estimator=plasma.bf_heating_coeff,
+            iip_plasma_after_mc.phi_lucy,
+            bound_free_heating_estimator=iip_plasma_after_mc.bf_heating_coeff,
             stimulated_recombination_estimator=(
-                plasma.stim_recomb_cooling_coeff
+                iip_plasma_after_mc.stim_recomb_cooling_coeff
             ),
         ),
         "free_free": free_free_solver.solve(
-            plasma.ff_heating_estimator,
+            iip_plasma_after_mc.ff_heating_estimator,
             electron_distribution,
-            plasma.ion_number_density,
+            iip_plasma_after_mc.ion_number_density,
         ),
         "collisional_ionization": collisional_ionization_solver.solve(
             electron_distribution.number_density,
-            plasma.ion_number_density,
-            plasma.level_number_density,
-            plasma.coll_ion_coeff,
-            plasma.phi_lucy,
+            iip_plasma_after_mc.ion_number_density,
+            iip_plasma_after_mc.level_number_density,
+            iip_plasma_after_mc.coll_ion_coeff,
+            iip_plasma_after_mc.phi_lucy,
         ),
         "collisional_bound": collisional_bound_solver.solve(
             electron_distribution.number_density,
-            plasma.coll_deexc_coeff,
-            plasma.coll_exc_coeff,
-            plasma.level_number_density,
+            iip_plasma_after_mc.coll_deexc_coeff,
+            iip_plasma_after_mc.coll_exc_coeff,
+            iip_plasma_after_mc.level_number_density,
         ),
     }
 
-    thermal_balance = plasma.outputs_dict["fractional_heating"]
+    thermal_balance = iip_plasma_after_mc.outputs_dict["fractional_heating"]
     legacy_rates = {
-        name: np.empty((2, len(plasma.t_electrons))) for name in standard_rates
+        name: np.empty((2, len(iip_plasma_after_mc.t_electrons))) for name in standard_rates
     }
-    for shell, temperature in enumerate(plasma.t_electrons):
+    for shell, temperature in enumerate(iip_plasma_after_mc.t_electrons):
         legacy_rates["bound_free"][:, shell] = (
             thermal_balance._calculate_bf_heating_rate(
-                plasma.bf_heating_coeff,
-                plasma.level_number_density,
+                iip_plasma_after_mc.bf_heating_coeff,
+                iip_plasma_after_mc.level_number_density,
                 shell,
                 temperature,
                 photoionization_data,
-                plasma.b,
-                plasma.previous_t_electrons,
+                iip_plasma_after_mc.b,
+                iip_plasma_after_mc.previous_t_electrons,
             ),
             thermal_balance._calculate_fb_cooling_rate(
                 temperature,
-                plasma.stim_recomb_cooling_coeff,
-                plasma.phi_lucy[shell],
-                plasma.electron_densities,
-                plasma.ion_number_density,
+                iip_plasma_after_mc.stim_recomb_cooling_coeff,
+                iip_plasma_after_mc.phi_lucy[shell],
+                iip_plasma_after_mc.electron_densities,
+                iip_plasma_after_mc.ion_number_density,
                 photoionization_data,
                 shell,
             )[0],
@@ -1403,9 +1399,9 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
         legacy_rates["free_free"][:, shell] = (
             thermal_balance._calculate_ff_heating_balance(
                 temperature,
-                plasma.ff_heating_estimator,
-                plasma.electron_densities,
-                plasma.ion_number_density,
+                iip_plasma_after_mc.ff_heating_estimator,
+                iip_plasma_after_mc.electron_densities,
+                iip_plasma_after_mc.ion_number_density,
                 shell,
             )
         )
@@ -1413,16 +1409,16 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
             thermal_balance._calculate_coll_ion_heating_balance(
                 temperature,
                 photoionization_data,
-                plasma.phi_lucy[shell],
-                plasma.electron_densities,
-                plasma.level_number_density,
-                plasma.ion_number_density,
+                iip_plasma_after_mc.phi_lucy[shell],
+                iip_plasma_after_mc.electron_densities,
+                iip_plasma_after_mc.level_number_density,
+                iip_plasma_after_mc.ion_number_density,
                 shell,
             )
         )
         legacy_rates["collisional_bound"][:, shell] = (
-            plasma.coll_deexc_heating[shell],
-            plasma.coll_exc_cooling[shell],
+            iip_plasma_after_mc.coll_deexc_heating[shell],
+            iip_plasma_after_mc.coll_exc_cooling[shell],
         )
 
     for process, (heating, cooling) in standard_rates.items():
@@ -1446,15 +1442,15 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
         collisional_bound_solver,
     ).solve(
         electron_distribution,
-        plasma.level_number_density,
-        plasma.ion_number_density,
-        plasma.coll_ion_coeff,
-        plasma.coll_deexc_coeff,
-        plasma.coll_exc_coeff,
-        plasma.ff_heating_estimator,
-        plasma.phi_lucy,
-        bound_free_heating_estimator=plasma.bf_heating_coeff,
-        stimulated_recombination_estimator=(plasma.stim_recomb_cooling_coeff),
+        iip_plasma_after_mc.level_number_density,
+        iip_plasma_after_mc.ion_number_density,
+        iip_plasma_after_mc.coll_ion_coeff,
+        iip_plasma_after_mc.coll_deexc_coeff,
+        iip_plasma_after_mc.coll_exc_coeff,
+        iip_plasma_after_mc.ff_heating_estimator,
+        iip_plasma_after_mc.phi_lucy,
+        bound_free_heating_estimator=iip_plasma_after_mc.bf_heating_coeff,
+        stimulated_recombination_estimator=(iip_plasma_after_mc.stim_recomb_cooling_coeff),
     )
     legacy_heating = sum(rates[0] for rates in legacy_rates.values())
     legacy_cooling = sum(rates[1] for rates in legacy_rates.values())
@@ -1463,7 +1459,7 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
         np.vstack(
             [
                 legacy_heating - legacy_cooling,
-                plasma.fractional_heating,
+                iip_plasma_after_mc.fractional_heating,
             ]
         ),
         rtol=3e-6,
