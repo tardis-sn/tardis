@@ -65,31 +65,36 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_distance_line(
-    r_packet,
-    comov_nu,
-    is_last_line,
-    nu_line,
-    time_explosion,
-    enable_full_relativity,
-):
+def calculate_distance_line_homologous(
+    r_packet: RPacket,
+    comov_nu: float,
+    is_last_line: bool,
+    nu_line: float,
+    time_explosion: float,
+    enable_full_relativity: bool,
+) -> float:
     """
-    Calculate distance until RPacket is in resonance with the next line
+    Calculate the homologous-flow distance to the next line resonance.
 
     Parameters
     ----------
-    r_packet : tardis.transport.montecarlo.r_packet.RPacket
+    r_packet : tardis.transport.montecarlo.packets.radiative_packet.RPacket
+        Radiative packet being propagated.
     comov_nu : float
-        comoving frequency at the CURRENT position of the RPacket
+        Comoving frequency at the current packet position.
     is_last_line : bool
-        return MISS_DISTANCE if at the end of the line list
+        Whether the packet has reached the end of the line list.
     nu_line : float
-        line to check the distance to
+        Rest frequency of the target line.
     time_explosion : float
-        time since explosion in seconds
+        Time since explosion in seconds.
+    enable_full_relativity : bool
+        Whether to use the full-relativity distance calculation.
 
     Returns
     -------
+    float
+        Distance to the line resonance in centimeters.
     """
     nu = r_packet.nu
 
@@ -115,7 +120,7 @@ def calculate_distance_line(
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_distance_line_nonhomologous(
+def calculate_distance_line(
     rpacket: RPacket,
     geometry: NumbaRadial1DGeometry,
     nu_line: float,
@@ -123,14 +128,28 @@ def calculate_distance_line_nonhomologous(
     maximum_distance: float = MISS_DISTANCE,
 ) -> float:
     """
-    Calculate distance until RPacket is in resonance with the next line
+    Calculate the distance to a line resonance in a radial velocity field.
 
     Candidate roots must lie after ``minimum_distance`` and no farther than
     ``maximum_distance`` along the current packet trajectory.
 
+    Parameters
+    ----------
+    rpacket : tardis.transport.montecarlo.packets.radiative_packet.RPacket
+        Radiative packet being propagated.
+    geometry : tardis.model.geometry.radial1d.NumbaRadial1DGeometry
+        Radial geometry containing the piecewise-linear velocity field.
+    nu_line : float
+        Rest frequency of the target line.
+    minimum_distance : float, optional
+        Exclusive lower bound for candidate resonance distances.
+    maximum_distance : float, optional
+        Inclusive upper bound for candidate resonance distances.
+
     Returns
     -------
-    distance (cm)
+    float
+        Distance to the line resonance in centimeters.
     """
     #TODO: unit check / handling here?
     r_inner = geometry.r_inner[rpacket.current_shell_id]
