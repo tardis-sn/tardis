@@ -350,8 +350,6 @@ class IonPopulationSolver:
             If the charge residual is not bracketed over the allowed electron
             density interval.
         """
-        if maximum_electron_density == 0.0:
-            return 0.0
 
         def charge_residual(
             electron_density_fraction: float,
@@ -470,6 +468,7 @@ class IonPopulationSolver:
         solution_population_indices: npt.NDArray[np.intp] | None = None
 
         for iteration in range(self.max_solver_iterations):
+            logger.info("Ion solver iteration %d", iteration + 1)
             for shell_idx in np.flatnonzero(~converged_shells):
                 electron_density[shell_idx] = self.solve_shell_charge(
                     shell_idx,
