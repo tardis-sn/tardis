@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=8be56e44"></script>
+      <script src="../../../../../_static/documentation_options.js?v=65f64027"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4718,6 +4718,9 @@
   <h1>Source code for tardis.plasma.equilibrium.rates.collisional_ionization_rates</h1><div class="highlight"><pre>
 <span></span>import pandas as pd
 
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
 from tardis.plasma.equilibrium.rates.collisional_ionization_strengths import (
     CollisionalIonizationSeaton,
 )
@@ -4732,13 +4735,16 @@ from tardis.plasma.equilibrium.rates.util import (
 class CollisionalIonizationRateSolver:
     &quot;&quot;&quot;Solver for collisional ionization and recombination rates.&quot;&quot;&quot;
 
-    def __init__(self, photoionization_cross_sections):
+    def __init__(
+        self, photoionization_cross_sections: pd.DataFrame
+    ) -&gt; None:
         &quot;&quot;&quot;Initialize the collisional ionization rate solver.
 
         Parameters
         ----------
         photoionization_cross_sections : pd.DataFrame
-            Photoionization cross sections.
+            Photoionization cross sections indexed by atomic number, ion
+            number, and level number.
         &quot;&quot;&quot;
         self.photoionization_cross_sections = photoionization_cross_sections
 
@@ -4746,30 +4752,32 @@ class CollisionalIonizationRateSolver:
 <a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.collisional_ionization_rates.html#tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver.solve">[docs]</a>
     def solve(
         self,
-        electron_distribution,
-        level_to_ion_population_factor,
-        partition_function,
-        level_boltzmann_factor,
-        approximation=&quot;seaton&quot;,
-    ):
+        electron_distribution: ThermalElectronEnergyDistribution,
+        level_to_ion_population_factor: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        level_boltzmann_factor: pd.DataFrame,
+        approximation: str = &quot;seaton&quot;,
+    ) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
         &quot;&quot;&quot;Solve the collisional ionization and recombination rates.
 
         Parameters
         ----------
         electron_distribution : ThermalElectronEnergyDistribution
-            Electron distribution per cell
-        level_to_ion_population_factor : pandas.DataFrame, dtype float
+            Electron energy distribution per cell.
+        level_to_ion_population_factor : pd.DataFrame
             The level to ion population factor for each cell, Lucy 2003 Eq 14.
             Indexed by atom number, ion number, level number.
+        partition_function : pd.DataFrame
+            Partition function for each ion and cell.
+        level_boltzmann_factor : pd.DataFrame
+            Boltzmann factor for each level and cell.
         approximation : str, optional
-            The rate approximation to use, by default &quot;seaton&quot;
+            The rate approximation to use, by default ``&quot;seaton&quot;``.
 
         Returns
         -------
-        pd.DataFrame
-            Collisional ionization rates
-        pd.DataFrame
-            Collisional recombination rates
+        tuple[pd.DataFrame, pd.DataFrame]
+            Collisional ionization rates and collisional recombination rates.
 
         Raises
         ------
@@ -4795,12 +4803,11 @@ class CollisionalIonizationRateSolver:
             level_to_ion_population_factor
         )
 
-        if isinstance(partition_function, pd.DataFrame):
-            partition_function = align_ion_population_to_level_population(
-                partition_function,
-                level_boltzmann_factor,
-                next_higher=False,
-            )
+        partition_function = align_ion_population_to_level_population(
+            partition_function,
+            level_boltzmann_factor,
+            next_higher=False,
+        )
         level_population_fraction = level_boltzmann_factor / partition_function
 
         # used to scale the photoionization rate because we keep the level population
