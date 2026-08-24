@@ -8,6 +8,7 @@ from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 
+# We explicitly need a type-checking block here to avoid a circular import
 if TYPE_CHECKING:
     from tardis.model.geometry.radial1d import Radial1DGeometry
     from tardis.model.geometry.radial1d_homologous import (
@@ -61,6 +62,8 @@ class CSVYData:
         tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry
             The geometry object constructed from the CSVY data.
         """
+        # Ignore "import should be at top of file" warning - otherwise this
+        # would be a circular import
         from tardis.model.geometry.radial1d_homologous import (  # noqa: PLC0415
             HomologousRadial1DGeometry,
         )
@@ -99,6 +102,8 @@ class CSVYData:
         tardis.model.geometry.radial1d.Radial1DGeometry
             The geometry object constructed from the CSVY data.
         """
+        # Ignore "import should be at top of file" warning - otherwise this
+        # would be a circular import
         from tardis.model.geometry.radial1d import (  # noqa: PLC0415
             Radial1DGeometry,
         )

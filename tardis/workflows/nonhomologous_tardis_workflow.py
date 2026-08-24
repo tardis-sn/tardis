@@ -1,5 +1,4 @@
 import logging
-import warnings
 
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.io.configuration.config_reader import Configuration
@@ -82,7 +81,6 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
                 "model.structure.radius start and stop values; for CSVY, "
                 "provide both radius and velocity columns."
             )
-            warnings.warn(geometry_error, UserWarning, stacklevel=2)
             raise TypeError(geometry_error)
 
         plasma_solver_factory = PlasmaSolverFactory(
