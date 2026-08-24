@@ -8,6 +8,7 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
+from tardis.model.geometry.radial1d import Radial1DGeometry
 from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
@@ -56,6 +57,32 @@ def test_isotopic_number_density_uses_shell_shaped_isotope_masses(
     assert list(isotopic_number_density.columns) == [0, 1]
     assert_array_almost_equal(
         isotopic_number_density.loc[(28, 56)], expected_number_density
+    )
+
+
+def test_radius_uses_nonhomologous_geometry_boundaries() -> None:
+    radius = np.array([1.0, 3.0, 9.0]) * 1e14 * u.cm
+    velocity = np.array([9.0, 10.5, 12.0]) * 1e3 * u.km / u.s
+    geometry = Radial1DGeometry(
+        r_inner=radius[:-1],
+        r_outer=radius[1:],
+        v_inner=velocity[:-1],
+        v_outer=velocity[1:],
+        r_inner_boundary=radius[0],
+        r_outer_boundary=radius[-1],
+        v_inner_boundary=velocity[0],
+        v_outer_boundary=velocity[-1],
+    )
+    simulation_state = SimulationState(
+        geometry=geometry,
+        composition=None,
+        radiation_field_state=None,
+        time_explosion=16 * u.day,
+        packet_source=None,
+    )
+
+    assert_array_almost_equal(
+        simulation_state.radius.to_value(u.cm), radius.to_value(u.cm)
     )
 
 

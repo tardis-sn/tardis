@@ -151,6 +151,17 @@ definitions:
               type: number
               multipleOf: 1.0
           description: description of the boundaries of the shells
+        radius:
+          type: object
+          properties:
+            start:
+              type: quantity
+            stop:
+              type: quantity
+          required:
+          - start
+          - stop
+          description: radial boundaries using the shell count from velocity
         density:
           oneOf:
           - $ref: 'model_definitions.yml#/definitions/density/branch85_w7'
@@ -212,4 +223,3 @@ definitions:
       required:
       - model_isotope_time_0
       
-
