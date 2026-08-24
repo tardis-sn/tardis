@@ -414,7 +414,7 @@ class IonPopulationSolver:
         estimated_level_population: pd.DataFrame,
         lte_ion_population: pd.DataFrame,
         estimated_ion_population: pd.DataFrame,
-        partition_function: pd.DataFrame | float,
+        partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame,
         tolerance: float,
@@ -438,7 +438,7 @@ class IonPopulationSolver:
             LTE ion populations used by the rate-matrix solver.
         estimated_ion_population : pd.DataFrame
             Estimated ion populations used for lagged rate corrections.
-        partition_function : pd.DataFrame | float
+        partition_function : pd.DataFrame
             Partition functions used by the rate-matrix solver.
         boltzmann_factor : pd.DataFrame
             Boltzmann factors used by the rate-matrix solver.

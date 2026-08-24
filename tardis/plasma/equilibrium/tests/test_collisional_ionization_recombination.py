@@ -157,7 +157,11 @@ def test_collisional_rates_scale_with_electron_density(
     electron_temperatures: u.Quantity,
     level_to_ion_factor: pd.DataFrame,
 ) -> None:
-    partition_function = 1.0
+    partition_function = pd.DataFrame(
+        1.0,
+        index=level_to_ion_factor.index,
+        columns=level_to_ion_factor.columns,
+    )
     level_boltzmann_factor = pd.DataFrame(
         np.ones_like(level_to_ion_factor),
         index=level_to_ion_factor.index,

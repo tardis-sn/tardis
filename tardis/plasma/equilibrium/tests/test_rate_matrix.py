@@ -165,6 +165,9 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
     level_to_continuum_saha_factor = pd.DataFrame(
         1.0e-15, index=level_index, columns=columns
     )
+    partition_function = pd.DataFrame(
+        1.0, index=ion_index, columns=columns
+    )
 
     rate_matrices = rate_matrix_solver.solve(
         radiation_field,
@@ -173,7 +176,7 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
         1.4 * lte_level_population,
         lte_ion_population,
         3.0 * lte_ion_population,
-        1.0,
+        partition_function,
         boltzmann_factor,
         level_to_continuum_saha_factor=level_to_continuum_saha_factor,
     )
@@ -244,6 +247,11 @@ def test_ion_rate_matrix_solver(
 
     level_population = lte_level_population.copy() * 1.4
     ion_population = lte_ion_population.copy() * 3.0
+    partition_function = pd.DataFrame(
+        1.0,
+        index=mock_boltzmann_factor.index,
+        columns=mock_boltzmann_factor.columns,
+    )
 
     actual = rate_matrix_solver.solve(
         rad_field,
@@ -252,7 +260,7 @@ def test_ion_rate_matrix_solver(
         level_population,
         lte_ion_population,
         ion_population,
-        1.0,
+        partition_function,
         mock_boltzmann_factor,
     )
     if charge_conservation:

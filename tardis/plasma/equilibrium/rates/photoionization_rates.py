@@ -39,7 +39,7 @@ class AnalyticPhotoionizationRateSolver:
         level_population: pd.DataFrame,
         lte_ion_population: pd.DataFrame,
         ion_population: pd.DataFrame,
-        partition_function: pd.DataFrame | float,
+        partition_function: pd.DataFrame,
         level_boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame | None = None,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -96,12 +96,11 @@ class AnalyticPhotoionizationRateSolver:
             lte_level_population.columns
         )
 
-        if isinstance(partition_function, pd.DataFrame):
-            partition_function = align_ion_population_to_level_population(
-                partition_function,
-                level_boltzmann_factor,
-                next_higher=False,
-            )
+        partition_function = align_ion_population_to_level_population(
+            partition_function,
+            level_boltzmann_factor,
+            next_higher=False,
+        )
 
         fractional_level_population = (
             level_boltzmann_factor / partition_function
