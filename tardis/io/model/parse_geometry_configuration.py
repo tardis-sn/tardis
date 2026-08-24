@@ -154,7 +154,7 @@ def parse_velocity_from_csvy(
             csvy_model_config.velocity.start,
             csvy_model_config.velocity.stop,
             csvy_model_config.velocity.num + 1,
-        ).to("cm")
+        ).to("cm/s")
 
     velocity_field_idx = [
         field["name"] for field in csvy_model_config.datatype.fields
