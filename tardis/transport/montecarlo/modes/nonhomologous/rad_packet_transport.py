@@ -1,6 +1,7 @@
 """Non-homologous mode rad packet transport - line-only without continuum processes."""
 
 import numpy as np
+import numpy.typing as npt
 from numba import njit
 
 from tardis.model.geometry.radial1d import (
@@ -10,7 +11,7 @@ from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.geometry.calculate_distances import (
     calculate_comoving_frequency_nonhomologous,
     calculate_distance_boundary,
-    calculate_distance_line_nonhomologous,
+    calculate_distance_line,
     calculate_projected_gradient_zero_distances,
     get_line_id_range_nonhomologous,
 )
@@ -24,6 +25,30 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     RPacket,
 )
 from tardis.transport.montecarlo.utils import MonteCarloException
+
+
+@njit(**njit_dict_no_parallel)
+def update_line_ids(
+    r_packet: RPacket,
+    line_list_nu: npt.NDArray[np.float64],
+    comov_nu: float,
+) -> None:
+    """Update the line IDs bracketing a packet's comoving frequency.
+
+    Parameters
+    ----------
+    r_packet : RPacket
+        Radiative packet whose line IDs are updated.
+    line_list_nu : numpy.ndarray
+        Line frequencies in descending order.
+    comov_nu : float
+        Packet frequency in the comoving frame.
+    """
+    next_line_id = len(line_list_nu) - np.searchsorted(
+        line_list_nu[::-1], comov_nu
+    )
+    r_packet.next_line_id = next_line_id
+    r_packet.prev_line_id = next_line_id - 1
 
 
 @njit(**njit_dict_no_parallel)
@@ -116,7 +141,7 @@ def trace_packet(
         for cur_line_id in range(
             start_line_id, stop_line_id, line_id_step
         ):
-            distance_trace = calculate_distance_line_nonhomologous(
+            distance_trace = calculate_distance_line(
                 r_packet,
                 numba_radial_1d_geometry,
                 opacity_state.line_list_nu[cur_line_id],
@@ -127,12 +152,27 @@ def trace_packet(
                 continue
 
             if distance_electron < distance_trace:
+                comov_nu_event = calculate_comoving_frequency_nonhomologous(
+                    r_packet,
+                    numba_radial_1d_geometry,
+                    distance_electron,
+                )
+                update_line_ids(
+                    r_packet,
+                    opacity_state.line_list_nu,
+                    comov_nu_event,
+                )
                 return (
                     distance_electron,
                     InteractionType.ESCATTERING,
                     delta_shell,
                 )
             if distance_boundary <= distance_trace:
+                update_line_ids(
+                    r_packet,
+                    opacity_state.line_list_nu,
+                    comov_nu_end,
+                )
                 return (
                     distance_boundary,
                     InteractionType.BOUNDARY,
@@ -204,6 +244,16 @@ def trace_packet(
             ) / opacity_electron
 
         if distance_electron < interval_end:
+            comov_nu_event = calculate_comoving_frequency_nonhomologous(
+                r_packet,
+                numba_radial_1d_geometry,
+                distance_electron,
+            )
+            update_line_ids(
+                r_packet,
+                opacity_state.line_list_nu,
+                comov_nu_event,
+            )
             return (
                 distance_electron,
                 InteractionType.ESCATTERING,
@@ -211,4 +261,9 @@ def trace_packet(
             )
         interval_start = interval_end
 
+    update_line_ids(
+        r_packet,
+        opacity_state.line_list_nu,
+        comov_nu_end,
+    )
     return distance_boundary, InteractionType.BOUNDARY, delta_shell

@@ -121,7 +121,7 @@ def test_calculate_distance_line(
     d_line = 0
     obtained_tardis_error = None
     try:
-        d_line = calculate_distances.calculate_distance_line(
+        d_line = calculate_distances.calculate_distance_line_homologous(
             static_packet,
             comov_nu,
             is_last_line,
