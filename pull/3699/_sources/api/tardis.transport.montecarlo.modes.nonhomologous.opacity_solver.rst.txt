@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.modes.nonhomologous.opacity\_solver module
+======================================================================
+
+.. automodule:: tardis.transport.montecarlo.modes.nonhomologous.opacity_solver
+   :members:
+   :show-inheritance:
+   :undoc-members:

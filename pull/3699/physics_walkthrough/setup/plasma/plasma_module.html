@@ -1,0 +1,590 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TARDIS Plasma Module &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=02213d7a"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="LTE Plasma" href="lte_plasma.html" />
+    <link rel="prev" title="Plasma" href="index.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Setting Up the Simulation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../setup_example.html">Setup Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Plasma</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="index.html#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#the-plasma-graph">The Plasma Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#updating-the-plasma">Updating the Plasma</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#plasma-calculations">Plasma Calculations</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">TARDIS Plasma Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lte_plasma.html">LTE Plasma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nebular_plasma.html">Nebular Plasma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nlte.html">NLTE treatment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="helium_nlte.html">Helium NLTE</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#sobolev-optical-depth">Sobolev optical depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#macro-atom-line-interaction-treatment">Macro Atom Line Interaction Treatment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Setting Up the Simulation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Plasma</a></li>
+      <li class="breadcrumb-item active">TARDIS Plasma Module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/physics_walkthrough/setup/plasma/plasma_module.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tardis-plasma-module">
+<span id="plasma-module"></span><h1>TARDIS Plasma Module<a class="headerlink" href="#tardis-plasma-module" title="Link to this heading"></a></h1>
+<section id="plasma-structure">
+<h2>Plasma Structure<a class="headerlink" href="#plasma-structure" title="Link to this heading"></a></h2>
+<section id="networkx-plasma-graphs">
+<h3>NetworkX - Plasma Graphs<a class="headerlink" href="#networkx-plasma-graphs" title="Link to this heading"></a></h3>
+<p>The plasma is structured as a network of calculations. Each quantity
+(temperature, ionization, optical depth, etc.) is a “property.” Properties
+depend on one another, and TARDIS connects them into a graph so that when
+one value changes, only the downstream values get recalculated in the
+correct order.</p>
+<p>The plasma lives in the class <code class="docutils literal notranslate"><span class="pre">BasePlasma</span></code>, defined in <code class="docutils literal notranslate"><span class="pre">plasma/base.py</span></code>.</p>
+<p>There are two types of properties:</p>
+<ul class="simple">
+<li><p><strong>Input properties</strong> — values fed in from the model or config. They have
+outputs but no inputs, so they are the starting points of the graph.</p></li>
+<li><p><strong>Processing properties</strong> — values that get calculated. TARDIS reads the
+argument names of their <code class="docutils literal notranslate"><span class="pre">calculate</span></code> function to learn what inputs
+they need.</p></li>
+</ul>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">PhiSahaLTE</span></code> (defined in
+<code class="docutils literal notranslate"><span class="pre">plasma/properties/ion_population.py</span></code>) has the function:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>calculate(g_electron, beta_rad, partition_function, ionization_data)
+</pre></div>
+</div>
+<p>Its inputs are those four names and its output is <code class="docutils literal notranslate"><span class="pre">phi</span></code>. Connections are
+made by matching names — an output called <code class="docutils literal notranslate"><span class="pre">phi</span></code> automatically links to
+any calculation that has an argument called <code class="docutils literal notranslate"><span class="pre">phi</span></code>.</p>
+<section id="building-the-graph">
+<h4>Building the Graph<a class="headerlink" href="#building-the-graph" title="Link to this heading"></a></h4>
+<p>TARDIS builds the graph inside <code class="docutils literal notranslate"><span class="pre">_build_graph</span></code> in three steps:</p>
+<ol class="arabic simple">
+<li><p>Add one node for every property.</p></li>
+<li><p>Mark the input properties as starting points (they have no inputs).</p></li>
+<li><p>For each calculated property, find what it needs, locate the property
+that produces each name, and draw an arrow from producer to consumer.
+If a property needs something that nothing produces, TARDIS raises an
+error immediately, catching broken or incomplete setups.</p></li>
+</ol>
+<p>When an input changes (for example, the temperature), TARDIS finds
+everything downstream of that change and recalculates in topological
+order, so each property is updated only after the values it depends
+on are fresh.</p>
+<p>For a guide on how to display a plasma graph, see
+<a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html"><span class="doc">How to Generate the Plasma Graph</span></a>.</p>
+</section>
+</section>
+<section id="plasma-solver-factory">
+<h3>Plasma Solver Factory<a class="headerlink" href="#plasma-solver-factory" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory</span></code> class, defined in <code class="docutils literal notranslate"><span class="pre">plasma/assembly/base.py</span></code>,
+initializes, configures, and assembles the plasma used in TARDIS runs. It
+has two key methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">prepare_factory</span></code> — accepts specific property collections, which are
+collections of classes that define plasma properties.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">assemble</span></code> — returns an instance of the <code class="docutils literal notranslate"><span class="pre">BasePlasma</span></code> class.</p></li>
+</ul>
+<p>There is also an <code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> function defined in two locations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">plasma/assembly/legacy_assembly.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plasma/standard_plasmas.py</span></code></p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> function used by the simulation class is the one
+defined in <code class="docutils literal notranslate"><span class="pre">plasma/assembly</span></code>. It returns an assembled plasma by:</p>
+<ol class="arabic simple">
+<li><p>Defining a <code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory</span></code> instance.</p></li>
+<li><p>Calling the <code class="docutils literal notranslate"><span class="pre">prepare_factory</span></code> method.</p></li>
+<li><p>Calling the <code class="docutils literal notranslate"><span class="pre">assemble</span></code> method.</p></li>
+</ol>
+</section>
+<section id="plasma-properties">
+<h3>Plasma Properties<a class="headerlink" href="#plasma-properties" title="Link to this heading"></a></h3>
+<p>The plasma properties used throughout the plasma module are defined in
+<code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code>. There is also a
+<code class="docutils literal notranslate"><span class="pre">property_collections.py</span></code> file which contains fewer classes. The plasma
+built throughout the TARDIS codebase imports from
+<code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code>. The <code class="docutils literal notranslate"><span class="pre">property_collections.py</span></code> file
+is not referenced elsewhere in the TARDIS codebase for plasma that gets
+built during actual runs.</p>
+<section id="property-categories">
+<h4>Property Categories<a class="headerlink" href="#property-categories" title="Link to this heading"></a></h4>
+<p>The following describes the property categories defined in
+<code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code> and whether each class is built or
+referenced outside its definition:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p><strong>Green</strong> — Covered in integration tests, with unit tests written
+where deemed useful.</p></li>
+<li><p><strong>Yellow</strong> — Referenced in the TARDIS codebase but never run in
+integration tests. These classes are not usually built during
+real TARDIS runs.</p></li>
+<li><p><strong>Red</strong> — Never referenced outside their class definition.</p></li>
+<li><p><strong>Unhighlighted</strong> — See inline notes for explanation.</p></li>
+</ul>
+</div>
+<section id="adiabatic-cooling-properties">
+<h5>Adiabatic Cooling Properties<a class="headerlink" href="#adiabatic-cooling-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AdiabaticCoolingRate</span></code></p></li>
+</ul>
+</section>
+<section id="basic-inputs">
+<h5>Basic Inputs<a class="headerlink" href="#basic-inputs" title="Link to this heading"></a></h5>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For Basic Inputs, green indicates the input is used for classes built
+by plasma that TARDIS users actually use. Red indicates the input is
+usually never used. No unit tests are needed for Inputs.</p>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DilutePlanckianRadField</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NumberDensity</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TimeExplosion</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AtomicData</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JBlues</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LinkTRadTElectron</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HeliumTreatment</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionSpecies</span></code> — Never used as an input in any
+integration test. Many associated properties seem to be part of an
+unfinished refactor attempt.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NLTEIonizationSpecies</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NLTEExcitationSpecies</span></code></p></li>
+</ul>
+</section>
+<section id="basic-properties">
+<h5>Basic Properties<a class="headerlink" href="#basic-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BetaRadiation</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DilutionFactor</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ElectronTemperature</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GElectron</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IonizationData</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Levels</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Lines</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LinesLowerLevelIndex</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LinesUpperLevelIndex</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PartitionFunction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SelectedAtoms</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StimulatedEmission</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TRadiative</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TauSobolev</span></code></p></li>
+</ul>
+</section>
+<section id="continuum-interaction-inputs">
+<h5>Continuum Interaction Inputs<a class="headerlink" href="#continuum-interaction-inputs" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PhotoIonRateCoeff</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StimRecombRateFactor</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BfHeatingRateCoeffEstimator</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StimRecombCoolingRateCoeffEstimator</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">YgData</span></code> — Referenced in
+<code class="docutils literal notranslate"><span class="pre">plasma/equilibrium/tests/test_collisional_transitions.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">plasma/tests/test_plasma_continuum.py</span></code> but not referenced in the
+plasma solver factory.</p></li>
+</ul>
+</section>
+<section id="continuum-interaction-properties">
+<h5>Continuum Interaction Properties<a class="headerlink" href="#continuum-interaction-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BoundFreeOpacity</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CollDeexcRateCoeff</span></code> — Imported into <code class="docutils literal notranslate"><span class="pre">collision_strengths.py</span></code>.
+Defined in two files: <code class="docutils literal notranslate"><span class="pre">plasma/equilibrium/rates/collision_strengths.py</span></code>
+and <code class="docutils literal notranslate"><span class="pre">plasma/properties/continuum_processes/rates.py</span></code>. The class
+defined in <code class="docutils literal notranslate"><span class="pre">collision_strengths.py</span></code> is fully uncovered.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CollExcRateCoeff</span></code> — Same as above.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CollIonRateCoeffSeaton</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CollRecombRateCoeff</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionHandler</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CorrPhotoIonRateCoeff</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FreeBoundCoolingRate</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FreeBoundEmissionCDF</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FreeFreeCoolingRate</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LevelIdxs2LineIdx</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LevelIdxs2TransitionIdx</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LevelNumberDensityLTE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MarkovChainIndex</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MarkovChainTransProbs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MarkovChainTransProbsCollector</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MonteCarloTransProbs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NonContinuumTransProbsMask</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NonMarkovChainTransitionProbabilities</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PhotoIonBoltzmannFactor</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PhotoIonizationData</span></code> — Referenced in the main plasma solver factory
+but never run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RawCollIonTransProbs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RawCollisionTransProbs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RawPhotoIonTransProbs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RawRadBoundBoundTransProbs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RawRecombTransProbs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SahaFactor</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SpontRecombCoolingRateCoeff</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff</span></code> — Only defined in the class and put into
+property collections but never referenced in the main plasma solver
+factory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StimRecombRateCoeff</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ThermalGElectron</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ThermalLTEPartitionFunction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ThermalLevelBoltzmannFactorLTE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ThermalPhiSahaLTE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">YgInterpolator</span></code></p></li>
+</ul>
+</section>
+<section id="dilute-lte-excitation-properties">
+<h5>Dilute LTE Excitation Properties<a class="headerlink" href="#dilute-lte-excitation-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorDiluteLTE</span></code></p></li>
+</ul>
+</section>
+<section id="helium-lte-properties">
+<h5>Helium LTE Properties<a class="headerlink" href="#helium-lte-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LevelNumberDensity</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IonNumberDensity</span></code></p></li>
+</ul>
+</section>
+<section id="helium-nlte-properties">
+<h5>Helium NLTE Properties<a class="headerlink" href="#helium-nlte-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HeliumNLTE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RadiationFieldCorrection</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ZetaData</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BetaElectron</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LevelNumberDensityHeNLTE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IonNumberDensityHeNLTE</span></code></p></li>
+</ul>
+</section>
+<section id="helium-numerical-nlte-properties">
+<h5>Helium Numerical NLTE Properties<a class="headerlink" href="#helium-numerical-nlte-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HeliumNumericalNLTE</span></code> — Requires a specific numerical NLTE solver and
+a specific atomic dataset, neither of which are distributed with TARDIS.</p></li>
+</ul>
+</section>
+<section id="lte-excitation-properties">
+<h5>LTE Excitation Properties<a class="headerlink" href="#lte-excitation-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorLTE</span></code></p></li>
+</ul>
+</section>
+<section id="lte-ionization-properties">
+<h5>LTE Ionization Properties<a class="headerlink" href="#lte-ionization-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PhiSahaLTE</span></code></p></li>
+</ul>
+</section>
+<section id="nebular-ionization-properties">
+<h5>Nebular Ionization Properties<a class="headerlink" href="#nebular-ionization-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PhiSahaNebular</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ZetaData</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BetaElectron</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RadiationFieldCorrection</span></code></p></li>
+</ul>
+</section>
+<section id="nlte-lu-solver-properties">
+<h5>NLTE LU Solver Properties<a class="headerlink" href="#nlte-lu-solver-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU</span></code> — Referenced in <code class="docutils literal notranslate"><span class="pre">test_nlte_solver</span></code> but
+never run in a full integration test.</p></li>
+</ul>
+</section>
+<section id="nlte-properties">
+<h5>NLTE Properties<a class="headerlink" href="#nlte-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorNLTE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NLTEData</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PreviousElectronDensities</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PreviousBetaSobolev</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BetaSobolev</span></code></p></li>
+</ul>
+</section>
+<section id="nlte-root-solver-properties">
+<h5>NLTE Root Solver Properties<a class="headerlink" href="#nlte-root-solver-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverRoot</span></code> — Referenced in <code class="docutils literal notranslate"><span class="pre">test_nlte_solver</span></code> but
+never run in a full integration test.</p></li>
+</ul>
+</section>
+<section id="non-nlte-properties">
+<h5>Non NLTE Properties<a class="headerlink" href="#non-nlte-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorNoNLTE</span></code></p></li>
+</ul>
+</section>
+<section id="two-photon-properties">
+<h5>Two Photon Properties<a class="headerlink" href="#two-photon-properties" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RawTwoPhotonTransProbs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TwoPhotonData</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TwoPhotonFrequencySampler</span></code></p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="equilibrium">
+<h3>Equilibrium<a class="headerlink" href="#equilibrium" title="Link to this heading"></a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">tardis/plasma/equilibrium</span></code> there are files under a <code class="docutils literal notranslate"><span class="pre">rates/</span></code> folder
+that represent another attempt at a plasma module refactor using
+<code class="docutils literal notranslate"><span class="pre">RateSolver</span></code> classes. These are not used in the actual implemented plasma
+module but do have direct tests.</p>
+</section>
+</section>
+<section id="uncovered-plasma-module-files">
+<h2>Uncovered Plasma Module Files<a class="headerlink" href="#uncovered-plasma-module-files" title="Link to this heading"></a></h2>
+<p>The following files in the plasma module are either fully uncovered or have
+very little coverage, beyond what was already noted in the property
+sections above.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/standard_plasmas.py</span></code></dt><dd><p>Zero percent coverage. Appears to be an attempt at refactoring how
+<code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> is used by <code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory</span></code>. Referenced
+only in <code class="docutils literal notranslate"><span class="pre">grotarian_mockup.ipynb</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/property_collections.py</span></code></dt><dd><p>Property collection for a plasma module refactor that was never
+completed. Appears to be imported into
+<code class="docutils literal notranslate"><span class="pre">tardis/plasma/standard_plasmas.py</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/nlte_excitation_data.py</span></code></dt><dd><p>Defines <code class="docutils literal notranslate"><span class="pre">NLTEExcitationData</span></code>, which is not used anywhere else in
+the codebase.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/hydrogen_continuum.py</span></code></dt><dd><p>Zero percent coverage by plasma tests.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/continuum_processes/fast_array_util.py</span></code></dt><dd><p>Defines two numba functions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">numba_cumulative_trapezoid</span></code> — Used in the uncovered class
+<code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF</span></code> in
+<code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/continuum_processes/rates.py</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cumulative_integrate_array_by_blocks</span></code> — Same as above.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="tools-to-understand-the-plasma-module">
+<h2>Tools to Understand the Plasma Module<a class="headerlink" href="#tools-to-understand-the-plasma-module" title="Link to this heading"></a></h2>
+<section id="test-coverage-reports">
+<h3>Test Coverage Reports<a class="headerlink" href="#test-coverage-reports" title="Link to this heading"></a></h3>
+<p>Generating coverage reports of the plasma module test cases is a useful
+way to understand what parts of the plasma module are actually used by
+researchers running TARDIS. Running exclusively the tests in the plasma
+module and examining coverage results can reveal, for example:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">plasma/standard_plasmas.py</span></code> is fully uncovered. The
+<code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> function defined there is never used in the actual
+TARDIS simulation. The <code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> that TARDIS actually uses is
+in <code class="docutils literal notranslate"><span class="pre">plasma/assembly/legacy_assembly.py</span></code>.</p></li>
+<li><p>The continuum interactions setup in <code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory</span></code>
+(<code class="docutils literal notranslate"><span class="pre">plasma/assembly/base.py</span></code>) is never triggered because none of the
+tested plasma configs set up continuum interactions.</p></li>
+</ul>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hydrogen_continuum.py</span></code> is not used anywhere and has zero percent
+coverage.</p></li>
+</ul>
+<p>The best way to find which classes are actually being called is to go
+through <code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code>, click on each class, and
+check whether the code inside the <code class="docutils literal notranslate"><span class="pre">calculate</span></code> function is covered.</p>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">LinesLowerLevelIndex</span></code> is in legacy properties and has
+full coverage, meaning it is actually being calculated when
+<code class="docutils literal notranslate"><span class="pre">test_full_plasmas</span></code> builds its plasma configurations.</p>
+<p>On the other hand, <code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff</span></code> is in
+<code class="docutils literal notranslate"><span class="pre">continuum_interactions_properties</span></code> and its <code class="docutils literal notranslate"><span class="pre">calculate</span></code> method is
+never run by any config in <code class="docutils literal notranslate"><span class="pre">test_complete_plasmas</span></code>.</p>
+<p>Going through coverage results for <code class="docutils literal notranslate"><span class="pre">test_complete_plasma</span></code> is a good
+way to:</p>
+<ul class="simple">
+<li><p>Guide what is worth writing unit tests for.</p></li>
+<li><p>Identify features unused by the plasma module that should be migrated
+to Type II plasma exclusively.</p></li>
+<li><p>Find features that should be removed completely.</p></li>
+<li><p>Find features that need to be fleshed out further.</p></li>
+</ul>
+</section>
+<section id="plasma-graph-generation">
+<h3>Plasma Graph Generation<a class="headerlink" href="#plasma-graph-generation" title="Link to this heading"></a></h3>
+<p>As described in the <a class="reference internal" href="#plasma-module"><span class="std std-ref">NetworkX - Plasma Graphs</span></a>
+section above, TARDIS can generate diagrams showing how plasma graph
+properties connect to one another. Generating diagrams across multiple
+configs is a good way to understand which plasma properties are relevant
+to general TARDIS users.</p>
+<p>Useful resources:</p>
+<ul class="simple">
+<li><p>TARDIS configs repository:
+<a class="reference external" href="https://github.com/tardis-sn/tardis-configs">tardis-sn/tardis-configs</a></p></li>
+<li><p>How to draw plasma graphs:
+<a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html"><span class="doc">How to Generate the Plasma Graph</span></a></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Plasma" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lte_plasma.html" class="btn btn-neutral float-right" title="LTE Plasma" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 24 Aug 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
