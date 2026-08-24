@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=5a762d4b"></script>
+      <script src="../../../../../_static/documentation_options.js?v=8df72028"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4717,6 +4717,7 @@
              
   <h1>Source code for tardis.plasma.equilibrium.rates.photoionization_rates</h1><div class="highlight"><pre>
 <span></span>import pandas as pd
+from astropy import units as u
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -4734,6 +4735,7 @@ from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
     PlanckianRadiationField,
 )
+from tardis.transport.montecarlo.estimators import EstimatorsContinuum
 
 
 <div class="viewcode-block" id="AnalyticPhotoionizationRateSolver">
@@ -4881,9 +4883,9 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
     def solve(
         self,
         electron_energy_distribution: ThermalElectronEnergyDistribution,
-        estimators_continuum: object,
-        time_simulation: object,
-        volume: object,
+        estimators_continuum: EstimatorsContinuum,
+        time_simulation: u.Quantity,
+        volume: u.Quantity,
         level_population: pd.DataFrame,
     ) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
         &quot;&quot;&quot;Solve estimated photoionization and recombination rates.

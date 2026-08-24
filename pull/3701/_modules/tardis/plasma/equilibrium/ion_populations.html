@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5a762d4b"></script>
+      <script src="../../../../_static/documentation_options.js?v=8df72028"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4849,15 +4849,9 @@ class IonPopulationSolver:
             Absolute ion populations ordered like ``ion_population_index`` and
             the elemental-density columns.
         &quot;&quot;&quot;
-        trial_electron_distribution = ThermalElectronEnergyDistribution(
-            thermal_electron_energy_distribution.energy,
-            thermal_electron_energy_distribution.temperature,
-            electron_density * u.cm**-3,
-        )
-
         rate_matrices = self.rate_matrix_solver.solve(
             radiation_field,
-            trial_electron_distribution,
+            thermal_electron_energy_distribution,
             lte_level_population,
             estimated_level_population,
             lte_ion_population,
@@ -5084,8 +5078,6 @@ class IonPopulationSolver:
             If the charge residual is not bracketed over the allowed electron
             density interval.
         &quot;&quot;&quot;
-        if maximum_electron_density == 0.0:
-            return 0.0
 
         def charge_residual(
             electron_density_fraction: float,
@@ -5120,9 +5112,7 @@ class IonPopulationSolver:
                 maxiter=self.max_solver_iterations,
             )
         except ValueError as exc:
-            lower_residual = charge_residual(
-                MINIMUM_ELECTRON_DENSITY_FRACTION
-            )
+            lower_residual = charge_residual(MINIMUM_ELECTRON_DENSITY_FRACTION)
             upper_residual = charge_residual(1.0)
             raise PlasmaIonizationError(
                 f&quot;Charge residual does not bracket shell {shell_idx}: &quot;
@@ -5209,6 +5199,7 @@ class IonPopulationSolver:
         solution_population_indices: npt.NDArray[np.intp] | None = None
 
         for iteration in range(self.max_solver_iterations):
+            logger.info(&quot;Ion solver iteration %d&quot;, iteration + 1)
             for shell_idx in np.flatnonzero(~converged_shells):
                 electron_density[shell_idx] = self.solve_shell_charge(
                     shell_idx,
@@ -5495,10 +5486,9 @@ class IonPopulationSolver:
         pd.Series
             Electron number densities indexed by cell.
         &quot;&quot;&quot;
-        bound_level_index = (
-            lte_level_population.index.get_level_values(&quot;ion_number&quot;)
-            &lt; lte_level_population.index.get_level_values(&quot;atomic_number&quot;)
-        )
+        bound_level_index = lte_level_population.index.get_level_values(
+            &quot;ion_number&quot;
+        ) &lt; lte_level_population.index.get_level_values(&quot;atomic_number&quot;)
         continuum_ion_index = (
             lte_ion_population.index.get_level_values(&quot;ion_number&quot;) &gt; 0
         )
