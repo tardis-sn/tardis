@@ -117,7 +117,7 @@ def parse_nonhomologous_geometry_from_config(
         structure_config.radius.start,
         structure_config.radius.stop,
         structure_config.velocity.num + 1,
-    ).cgs
+    ).to("cm")
 
     return Radial1DGeometry(
         r_inner=radius[:-1],
