@@ -145,7 +145,7 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
         CollisionalIonizationRateSolver(photoionization_cross_sections),
     )
 
-    electron_densities = np.array([1.0e9, 1.0e9, 1.0e9, 1.0e9])
+    electron_densities = np.array([0, 1e9, 2e9, 3e9]) # test a range of density
     columns = pd.RangeIndex(len(electron_densities))
     temperatures = np.full(len(columns), 1.0e4) * u.K
     radiation_field = DilutePlanckianRadiationField(
