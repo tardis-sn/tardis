@@ -395,7 +395,7 @@ def iip_charge_conserving_rate_matrix(
     collisional_recombination_values = collisional_recombination.to_numpy()
 
     def solve(
-        radiation_field: object,
+        radiation_field: None,
         electron_distribution: ThermalElectronEnergyDistribution,
         lte_level_population: pd.DataFrame,
         estimated_level_population: pd.DataFrame,
@@ -413,8 +413,7 @@ def iip_charge_conserving_rate_matrix(
         )
         recombination_rate = (
             radiative_recombination_values * electron_number_density
-            + collisional_recombination_values
-            * electron_number_density**2
+            + collisional_recombination_values * electron_number_density**2
         )
         rate_matrices = np.empty((len(electron_number_density), 2, 2))
         rate_matrices[:, 0, 0] = -ionization_rate
@@ -516,10 +515,38 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
     solved_shell_indices = []
 
     def record_solve_shell_charge(
-        shell_idx: int, *args: object, **kwargs: object
+        shell_idx: int,
+        maximum_electron_density: float,
+        base_electron_density: npt.NDArray[np.float64],
+        radiation_field: None,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+        lte_level_population: pd.DataFrame,
+        estimated_level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        estimated_ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame,
+        elemental_number_density: pd.DataFrame,
+        maximum_electron_densities: npt.NDArray[np.float64],
     ) -> float:
         solved_shell_indices.append(shell_idx)
-        return solve_shell_charge(shell_idx, *args, **kwargs)
+        return solve_shell_charge(
+            shell_idx,
+            maximum_electron_density,
+            base_electron_density,
+            radiation_field,
+            thermal_electron_energy_distribution,
+            lte_level_population,
+            estimated_level_population,
+            lte_ion_population,
+            estimated_ion_population,
+            partition_function,
+            boltzmann_factor,
+            level_to_continuum_saha_factor,
+            elemental_number_density,
+            maximum_electron_densities,
+        )
 
     monkeypatch.setattr(solver, "solve_shell_charge", record_solve_shell_charge)
     solver.solve(
@@ -1373,7 +1400,8 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
 
     thermal_balance = iip_plasma_after_mc.outputs_dict["fractional_heating"]
     legacy_rates = {
-        name: np.empty((2, len(iip_plasma_after_mc.t_electrons))) for name in standard_rates
+        name: np.empty((2, len(iip_plasma_after_mc.t_electrons)))
+        for name in standard_rates
     }
     for shell, temperature in enumerate(iip_plasma_after_mc.t_electrons):
         legacy_rates["bound_free"][:, shell] = (
@@ -1450,7 +1478,9 @@ def test_standard_thermal_rates_match_iip_plasma_after_mc(
         iip_plasma_after_mc.ff_heating_estimator,
         iip_plasma_after_mc.phi_lucy,
         bound_free_heating_estimator=iip_plasma_after_mc.bf_heating_coeff,
-        stimulated_recombination_estimator=(iip_plasma_after_mc.stim_recomb_cooling_coeff),
+        stimulated_recombination_estimator=(
+            iip_plasma_after_mc.stim_recomb_cooling_coeff
+        ),
     )
     legacy_heating = sum(rates[0] for rates in legacy_rates.values())
     legacy_cooling = sum(rates[1] for rates in legacy_rates.values())
@@ -1704,6 +1734,4 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     assert np.isfinite(continuum_state.p_fb_deactivation.values).all()
     assert np.isfinite(continuum_state.emissivities.values).all()
     workflow.solve_montecarlo(second_iteration_opacity_states, 10)
-    assert (
-        len(workflow.transport_state.packet_collection.output_energies) == 10
-    )
+    assert len(workflow.transport_state.packet_collection.output_energies) == 10

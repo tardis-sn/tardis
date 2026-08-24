@@ -1,4 +1,5 @@
 import pandas as pd
+from astropy import units as u
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -16,6 +17,7 @@ from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
     PlanckianRadiationField,
 )
+from tardis.transport.montecarlo.estimators import EstimatorsContinuum
 
 
 class AnalyticPhotoionizationRateSolver:
@@ -153,9 +155,9 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
     def solve(
         self,
         electron_energy_distribution: ThermalElectronEnergyDistribution,
-        estimators_continuum: object,
-        time_simulation: object,
-        volume: object,
+        estimators_continuum: EstimatorsContinuum,
+        time_simulation: u.Quantity,
+        volume: u.Quantity,
         level_population: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Solve estimated photoionization and recombination rates.

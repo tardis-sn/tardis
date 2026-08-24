@@ -1,3 +1,5 @@
+from typing import Literal
+
 import astropy.units as u
 import numpy as np
 import numpy.testing as npt
@@ -14,6 +16,8 @@ from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix, RateMatrix
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
+    RadiativeRatesSolver,
+    ThermalCollisionalRateSolver,
 )
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -22,7 +26,12 @@ from tardis.plasma.radiation_field import (
 
 def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[tuple[object, str]],
+    rate_solver_list: list[
+        tuple[
+            RadiativeRatesSolver | ThermalCollisionalRateSolver,
+            Literal["radiative", "electron"],
+        ]
+    ],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
@@ -59,7 +68,12 @@ def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
 
 def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[tuple[object, str]],
+    rate_solver_list: list[
+        tuple[
+            RadiativeRatesSolver | ThermalCollisionalRateSolver,
+            Literal["radiative", "electron"],
+        ]
+    ],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
@@ -164,9 +178,7 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
     level_to_continuum_saha_factor = pd.DataFrame(
         1.0e-15, index=level_index, columns=columns
     )
-    partition_function = pd.DataFrame(
-        1.0, index=ion_index, columns=columns
-    )
+    partition_function = pd.DataFrame(1.0, index=ion_index, columns=columns)
 
     rate_matrices = rate_matrix_solver.solve(
         radiation_field,

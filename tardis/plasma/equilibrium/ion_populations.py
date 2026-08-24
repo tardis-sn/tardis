@@ -127,15 +127,9 @@ class IonPopulationSolver:
             Absolute ion populations ordered like ``ion_population_index`` and
             the elemental-density columns.
         """
-        trial_electron_distribution = ThermalElectronEnergyDistribution(
-            thermal_electron_energy_distribution.energy,
-            thermal_electron_energy_distribution.temperature,
-            electron_density * u.cm**-3,
-        )
-
         rate_matrices = self.rate_matrix_solver.solve(
             radiation_field,
-            trial_electron_distribution,
+            thermal_electron_energy_distribution,
             lte_level_population,
             estimated_level_population,
             lte_ion_population,
@@ -392,9 +386,7 @@ class IonPopulationSolver:
                 maxiter=self.max_solver_iterations,
             )
         except ValueError as exc:
-            lower_residual = charge_residual(
-                MINIMUM_ELECTRON_DENSITY_FRACTION
-            )
+            lower_residual = charge_residual(MINIMUM_ELECTRON_DENSITY_FRACTION)
             upper_residual = charge_residual(1.0)
             raise PlasmaIonizationError(
                 f"Charge residual does not bracket shell {shell_idx}: "
@@ -758,10 +750,9 @@ class IonPopulationSolver:
         pd.Series
             Electron number densities indexed by cell.
         """
-        bound_level_index = (
-            lte_level_population.index.get_level_values("ion_number")
-            < lte_level_population.index.get_level_values("atomic_number")
-        )
+        bound_level_index = lte_level_population.index.get_level_values(
+            "ion_number"
+        ) < lte_level_population.index.get_level_values("atomic_number")
         continuum_ion_index = (
             lte_ion_population.index.get_level_values("ion_number") > 0
         )
