@@ -127,9 +127,15 @@ class IonPopulationSolver:
             Absolute ion populations ordered like ``ion_population_index`` and
             the elemental-density columns.
         """
+        trial_electron_distribution = ThermalElectronEnergyDistribution(
+            thermal_electron_energy_distribution.energy,
+            thermal_electron_energy_distribution.temperature,
+            electron_density * u.cm**-3,
+        )
+
         rate_matrices = self.rate_matrix_solver.solve(
             radiation_field,
-            thermal_electron_energy_distribution,
+            trial_electron_distribution,
             lte_level_population,
             estimated_level_population,
             lte_ion_population,
