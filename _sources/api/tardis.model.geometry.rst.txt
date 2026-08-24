@@ -8,7 +8,7 @@ Submodules
    :maxdepth: 4
 
    tardis.model.geometry.radial1d
-   tardis.model.geometry.radial1d_nonhomologous
+   tardis.model.geometry.radial1d_homologous
 
 Module contents
 ---------------

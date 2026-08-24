@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=56c98889"></script>
+      <script src="../../../../../_static/documentation_options.js?v=3035c4a9"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1659,6 +1659,7 @@
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density"><code class="docutils literal notranslate"><span class="pre">ArtisData.mean_density</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.time_of_model"><code class="docutils literal notranslate"><span class="pre">ArtisData.time_of_model</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.to_geometry"><code class="docutils literal notranslate"><span class="pre">ArtisData.to_geometry()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.to_nonhomologous_geometry"><code class="docutils literal notranslate"><span class="pre">ArtisData.to_nonhomologous_geometry()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.velocity"><code class="docutils literal notranslate"><span class="pre">ArtisData.velocity</span></code></a></li>
 </ul>
 </li>
@@ -1687,7 +1688,6 @@
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">CSVYData.mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.model_config"><code class="docutils literal notranslate"><span class="pre">CSVYData.model_config</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.raw_csv_data"><code class="docutils literal notranslate"><span class="pre">CSVYData.raw_csv_data</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.to_geometry"><code class="docutils literal notranslate"><span class="pre">CSVYData.to_geometry()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.velocity"><code class="docutils literal notranslate"><span class="pre">CSVYData.velocity</span></code></a></li>
 </ul>
 </li>
@@ -1709,7 +1709,6 @@
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.html#tardis.io.model.csvy.CSVYData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">CSVYData.mass_fractions</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.html#tardis.io.model.csvy.CSVYData.model_config"><code class="docutils literal notranslate"><span class="pre">CSVYData.model_config</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.html#tardis.io.model.csvy.CSVYData.raw_csv_data"><code class="docutils literal notranslate"><span class="pre">CSVYData.raw_csv_data</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.html#tardis.io.model.csvy.CSVYData.to_geometry"><code class="docutils literal notranslate"><span class="pre">CSVYData.to_geometry()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.csvy.html#tardis.io.model.csvy.CSVYData.velocity"><code class="docutils literal notranslate"><span class="pre">CSVYData.velocity</span></code></a></li>
 </ul>
 </li>
@@ -1909,58 +1908,60 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../../../api/tardis.model.geometry.html">tardis.model.geometry package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../../../api/tardis.model.geometry.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html">tardis.model.geometry.radial1d module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.no_of_shells</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.no_of_shells_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_inner"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_inner</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_inner_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_inner_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_middle"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_middle</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_middle_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_middle_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_outer"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_outer</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_outer_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_outer_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.to_numba"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.to_numba()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_inner_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_inner_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_inner_boundary_idx"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_inner_boundary_idx</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_middle"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_middle</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_middle_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_middle_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_outer_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_outer_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_outer_boundary_idx"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_outer_boundary_idx</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.volume"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.volume</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.volume_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.volume_active</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.NumbaRadial1DGeometry"><code class="docutils literal notranslate"><span class="pre">NumbaRadial1DGeometry</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.NumbaRadial1DGeometry.class_type"><code class="docutils literal notranslate"><span class="pre">NumbaRadial1DGeometry.class_type</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.get_velocity"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.get_velocity()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.no_of_shells"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.no_of_shells</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.no_of_shells_active"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.no_of_shells_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.r_inner_active"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.r_inner_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.r_inner_boundary_index"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.r_inner_boundary_index</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.r_middle"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.r_middle</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.r_middle_active"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.r_middle_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.r_outer_active"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.r_outer_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.r_outer_boundary_index"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.r_outer_boundary_index</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.to_numba"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.to_numba()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.v_inner_active"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.v_inner_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.v_inner_boundary"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.v_inner_boundary</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.v_inner_boundary_idx"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.v_inner_boundary_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.v_middle"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.v_middle</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.v_middle_active"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.v_middle_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.v_outer_active"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.v_outer_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.v_outer_boundary"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.v_outer_boundary</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.v_outer_boundary_idx"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.v_outer_boundary_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.velocity_gradient"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.velocity_gradient</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.velocity_gradient_active"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.velocity_gradient_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.volume"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.volume</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.Radial1DGeometry.volume_active"><code class="docutils literal notranslate"><span class="pre">Radial1DGeometry.volume_active</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html">tardis.model.geometry.radial1d_nonhomologous module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.get_velocity"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.get_velocity()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.no_of_shells"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.no_of_shells</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.no_of_shells_active"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.no_of_shells_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.r_inner_active"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.r_inner_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.r_inner_boundary_index"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.r_inner_boundary_index</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.r_middle"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.r_middle</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.r_middle_active"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.r_middle_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.r_outer_active"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.r_outer_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.r_outer_boundary_index"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.r_outer_boundary_index</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.to_numba"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.to_numba()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.v_inner_active"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.v_inner_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.v_inner_boundary_idx"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.v_inner_boundary_idx</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.v_middle"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.v_middle</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.v_middle_active"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.v_middle_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.v_outer_active"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.v_outer_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.v_outer_boundary_idx"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.v_outer_boundary_idx</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.velocity_gradient"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.velocity_gradient</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.velocity_gradient_active"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.velocity_gradient_active</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.volume"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.volume</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.volume_active"><code class="docutils literal notranslate"><span class="pre">NonhomologousRadial1DGeometry.volume_active</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NumbaNonhomologousRadial1DGeometry"><code class="docutils literal notranslate"><span class="pre">NumbaNonhomologousRadial1DGeometry</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NumbaNonhomologousRadial1DGeometry.class_type"><code class="docutils literal notranslate"><span class="pre">NumbaNonhomologousRadial1DGeometry.class_type</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html">tardis.model.geometry.radial1d_homologous module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.no_of_shells"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.no_of_shells</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.no_of_shells_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.no_of_shells_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.r_inner"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_inner</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.r_inner_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_inner_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.r_middle"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_middle</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.r_middle_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_middle_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.r_outer"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_outer</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.r_outer_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.r_outer_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.to_numba"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.to_numba()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.v_inner_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_inner_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.v_inner_boundary_idx"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_inner_boundary_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.v_middle"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_middle</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.v_middle_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_middle_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.v_outer_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_outer_active</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.v_outer_boundary_idx"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.v_outer_boundary_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.volume"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.volume</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.HomologousRadial1DGeometry.volume_active"><code class="docutils literal notranslate"><span class="pre">HomologousRadial1DGeometry.volume_active</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.NumbaHomologousRadial1DGeometry"><code class="docutils literal notranslate"><span class="pre">NumbaHomologousRadial1DGeometry</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.model.geometry.radial1d_homologous.html#tardis.model.geometry.radial1d_homologous.NumbaHomologousRadial1DGeometry.class_type"><code class="docutils literal notranslate"><span class="pre">NumbaHomologousRadial1DGeometry.class_type</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4857,7 +4858,8 @@ def create_vpacket_collections(
     no_of_packets : int
         Number of real packets.
     spectrum_frequency_grid : numpy.ndarray
-        Frequency grid for virtual packet spectra.
+        Frequency-bin edges for the real- and virtual-packet histograms.
+        n + 1 edges for n bins, with uniform spacing.
     montecarlo_configuration : MonteCarloConfiguration
         Monte Carlo transport configuration.
     number_of_vpackets : int
@@ -4903,7 +4905,7 @@ def add_vpacket_collection_to_histogram(
     vpacket_collection : VPacketCollection
         Finalized virtual packet collection.
     spectrum_frequency_grid : numpy.ndarray
-        Frequency grid for the histogram.
+        Frequency-bin edges for the virtual-packet histogram.
     delta_nu : float
         Frequency bin width.
     &quot;&quot;&quot;
@@ -4936,7 +4938,7 @@ def get_vpacket_tracker(
     vpacket_collections : numba.typed.List
         Per-packet virtual packet collections.
     spectrum_frequency_grid : numpy.ndarray
-        Frequency grid for virtual packet spectra.
+        Frequency-bin edges for the virtual-packet histogram.
     montecarlo_configuration : MonteCarloConfiguration
         Monte Carlo transport configuration.
 
@@ -5000,7 +5002,7 @@ def montecarlo_transport_with_vpackets(
     montecarlo_configuration : MonteCarloConfiguration
         Monte Carlo transport configuration.
     spectrum_frequency_grid : numpy.ndarray
-        Frequency grid for virtual packet spectra.
+        Frequency-bin edges for the real- and virtual-packet histograms.
     trackers
         Per-packet trackers.
     number_of_vpackets : int
@@ -5112,7 +5114,7 @@ def montecarlo_transport_with_vpackets(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 12 Aug 2026.
+      <span class="lastupdated">Last updated on 24 Aug 2026.
       </span></p>
   </div>
 

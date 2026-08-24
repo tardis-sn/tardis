@@ -9,7 +9,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 27,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -20,7 +20,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 17,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -43,59 +43,35 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 18,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
-    "config = Configuration.from_yaml(\"../../tardis_example.yml\")\n",
+    "config = Configuration.from_yaml(\"../../nonhomologous_tardis_example.yml\")\n",
+    "homologous_config = Configuration.from_yaml(\"../../tardis_example.yml\")\n",
     "config.montecarlo[\"enable_full_relativity\"] = False\n",
     "config.montecarlo[\"no_of_packets\"] = 1\n",
     "config.montecarlo[\"last_no_of_packets\"] = 1\n",
-    "config.montecarlo[\"iterations\"] = 1"
+    "config.montecarlo[\"iterations\"] = 1\n",
+    "homologous_config.montecarlo[\"enable_full_relativity\"] = False\n",
+    "homologous_config.montecarlo[\"no_of_packets\"] = 1\n",
+    "homologous_config.montecarlo[\"last_no_of_packets\"] = 1\n",
+    "homologous_config.montecarlo[\"iterations\"] = 1"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 19,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "application/vnd.jupyter.widget-view+json": {
-       "model_id": "ebe9bcf0818e4c6f93d22f01d975b5b2",
-       "version_major": 2,
-       "version_minor": 0
-      },
-      "text/plain": [
-       "BokehModel(combine_events=True, render_bundle={'docs_json': {'6ca89c7f-9fd9-4644-b8b3-2f34ad7a0bf6': {'version…"
-      ]
-     },
-     "metadata": {},
-     "output_type": "display_data"
-    },
-    {
-     "data": {
-      "application/vnd.jupyter.widget-view+json": {
-       "model_id": "1ad633e562d14e8291fc3e28ec7bf0b8",
-       "version_major": 2,
-       "version_minor": 0
-      },
-      "text/plain": [
-       "BokehModel(combine_events=True, render_bundle={'docs_json': {'096d5583-2c08-4f54-bb6c-64f5fc434edc': {'version…"
-      ]
-     },
-     "metadata": {},
-     "output_type": "display_data"
-    }
-   ],
+   "outputs": [],
    "source": [
     "workflow = NonhomologousTARDISWorkflow(config)\n",
-    "hom_workflow = SimpleTARDISWorkflow(config)"
+    "hom_workflow = SimpleTARDISWorkflow(homologous_config)"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 20,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -104,7 +80,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 21,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -115,23 +91,7 @@
    "cell_type": "code",
    "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "\n",
-      "Distance (non-homologous) : 1.644493e+14 cm\n",
-      "Distance (homologous)     : 1.644493e+14 cm\n",
-      "JIT Disabled: False\n",
-      "\n",
-      "Timing over 100000 iterations:\n",
-      "  calculate_distance_line              : 0.753 us / call  (total 0.075 s)\n",
-      "  calculate_distance_line_nonhomologous: 0.998 us / call  (total 0.100 s)\n",
-      "  Ratio (non-hom / hom)                : 1.3\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "geometry = workflow.simulation_state.geometry.to_numba()\n",
     "time_explosion = workflow.simulation_state.time_explosion.cgs.value\n",
