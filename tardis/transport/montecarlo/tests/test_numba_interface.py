@@ -82,11 +82,6 @@ def test_opacity_state_to_numba(
         )
 
 
-@pytest.mark.xfail(reason="To be implemented")
-def test_configuration_initialize():
-    raise AssertionError()
-
-
 def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
     assert verysimple_3vpacket_collection.length == 0
 

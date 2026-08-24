@@ -4,8 +4,8 @@ import numpy as np
 import numpy.typing as npt
 from numba import njit
 
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NumbaNonhomologousRadial1DGeometry,
+from tardis.model.geometry.radial1d import (
+    NumbaRadial1DGeometry,
 )
 from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
@@ -117,7 +117,7 @@ def calculate_distance_line(
 @njit(**njit_dict_no_parallel)
 def calculate_distance_line_nonhomologous(
     rpacket: RPacket,
-    geometry: NumbaNonhomologousRadial1DGeometry,
+    geometry: NumbaRadial1DGeometry,
     nu_line: float,
     minimum_distance: float = 0.0,
     maximum_distance: float = MISS_DISTANCE,
@@ -225,7 +225,7 @@ def calculate_distance_line_nonhomologous(
 @njit(**njit_dict_no_parallel)
 def calculate_projected_gradient_zero_distances(
     rpacket: RPacket,
-    geometry: NumbaNonhomologousRadial1DGeometry,
+    geometry: NumbaRadial1DGeometry,
     distance_boundary: float,
 ) -> tuple[float, float, int]:
     """Calculate forward projected-gradient zeros in the current shell.
@@ -295,7 +295,7 @@ def calculate_projected_gradient_zero_distances(
 @njit(**njit_dict_no_parallel)
 def calculate_comoving_frequency_nonhomologous(
     rpacket: RPacket,
-    geometry: NumbaNonhomologousRadial1DGeometry,
+    geometry: NumbaRadial1DGeometry,
     distance: float,
 ) -> float:
     """Calculate packet comoving frequency after a trajectory distance."""

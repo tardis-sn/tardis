@@ -1,39 +1,37 @@
 """Shared homologous-mode radiative packet tracing."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 import numpy as np
 from numba import njit
 
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import get_doppler_factor
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_line,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
+)
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_line,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
+    RPacket,
 )
-
-if TYPE_CHECKING:
-    from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-    from tardis.transport.montecarlo.estimators.estimators_line import (
-        EstimatorsLine,
-    )
-    from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 
 
 @njit(**njit_dict_no_parallel)
 def trace_packet(
     r_packet: RPacket,
-    numba_radial_1d_geometry: NumbaRadial1DGeometry,
+    numba_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
-    opacity_state,
+    opacity_state: OpacityStateNumba | OpacityStateNumbaIIP,
     estimators_line: EstimatorsLine,
     continuous_opacity: float,
     escat_prob: float,
@@ -48,11 +46,11 @@ def trace_packet(
     ----------
     r_packet : RPacket
         Radiative packet being transported.
-    numba_radial_1d_geometry : NumbaRadial1DGeometry
+    numba_radial_1d_geometry : NumbaHomologousRadial1DGeometry
         Radial 1D geometry of the model.
     time_explosion : float
         Time since explosion in seconds.
-    opacity_state
+    opacity_state: OpacityStateNumba | OpacityStateNumbaIIP
         Opacity state containing line frequencies and Sobolev optical depths.
     estimators_line : EstimatorsLine
         Line-level radiation field estimators.
@@ -117,12 +115,8 @@ def trace_packet(
         )
 
         tau_trace_continuous = continuous_opacity * distance_trace
-        tau_trace_combined = (
-            tau_trace_line_combined + tau_trace_continuous
-        )
-        distance = min(
-            distance_trace, distance_boundary, distance_continuous
-        )
+        tau_trace_combined = tau_trace_line_combined + tau_trace_continuous
+        distance = min(distance_trace, distance_boundary, distance_continuous)
 
         if distance_trace != 0:
             if distance == distance_boundary:

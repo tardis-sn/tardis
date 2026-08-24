@@ -4,9 +4,13 @@ import numpy as np
 from astropy import units as u
 from scipy.interpolate import interp1d
 
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    HomologousRadial1DGeometry,
+)
 from tardis.spectrum.base import TARDISSpectrum
-from tardis.spectrum.formal_integral.base import check_formal_integral_requirements
+from tardis.spectrum.formal_integral.base import (
+    check_formal_integral_requirements,
+)
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
@@ -141,12 +145,14 @@ class FormalIntegralSolver:
         r_outer : np.ndarray
             The outer radii of the shells
         """
-        numba_radial_1d_geometry = NumbaRadial1DGeometry(
-            r_inner,
-            r_outer,
-            r_inner / time_explosion.to("s").value,
-            r_outer / time_explosion.to("s").value,
+        homologous_geometry = HomologousRadial1DGeometry(
+            (r_inner * u.cm / time_explosion).to(u.cm / u.s),
+            (r_outer * u.cm / time_explosion).to(u.cm / u.s),
+            None,
+            None,
+            time_explosion,
         )
+        numba_radial_1d_geometry = homologous_geometry.to_numba()
 
         if self.method == "cuda":
             self.integrator = CudaFormalIntegrator(
