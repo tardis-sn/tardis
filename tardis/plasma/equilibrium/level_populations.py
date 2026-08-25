@@ -20,7 +20,7 @@ class LevelPopulationSolver:
         self.rates_matrices = rates_matrices
         self.levels = levels
 
-    def __calculate_level_population(
+    def _calculate_level_population(
         self, rates_matrix: npt.NDArray[np.float64]
     ) -> npt.NDArray[np.float64]:
         """Calculate normalized per-level populations.
@@ -60,7 +60,7 @@ class LevelPopulationSolver:
                 self.rates_matrices.loc[species_id].to_numpy()
             )
             populations = np.array(
-                [self.__calculate_level_population(matrix) for matrix in matrices]
+                [self._calculate_level_population(matrix) for matrix in matrices]
             ).T
             normalized_level_populations[
                 self.levels.index.get_loc(species_id)

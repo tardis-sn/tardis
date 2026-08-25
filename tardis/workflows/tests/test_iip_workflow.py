@@ -446,26 +446,27 @@ def test_charge_conserving_solver_matches_iip_with_full_atomic_data(
         previous_ion_number_density=None,
         previous_electron_densities=None,
     )
-    expected_ion_population, expected_electron_density = NLTEIonNumberDensity(
-        legacy_parent
-    ).calculate(
-        iip_plasma_after_mc.phi,
-        iip_plasma_after_mc.alpha_stim,
-        iip_plasma_after_mc.alpha_sp,
-        iip_plasma_after_mc.gamma,
-        iip_plasma_after_mc.coll_ion_coeff,
-        iip_plasma_after_mc.coll_recomb_coeff,
-        iip_plasma_after_mc.number_density,
-        iip_plasma_after_mc.level_boltzmann_factor,
+    ion_number_density = NLTEIonNumberDensity(legacy_parent)
+
+    expected_ion_population, expected_electron_density = (
+        ion_number_density.calculate(
+            iip_plasma_after_mc.phi,
+            iip_plasma_after_mc.alpha_stim,
+            iip_plasma_after_mc.alpha_sp,
+            iip_plasma_after_mc.gamma,
+            iip_plasma_after_mc.coll_ion_coeff,
+            iip_plasma_after_mc.coll_recomb_coeff,
+            iip_plasma_after_mc.number_density,
+            iip_plasma_after_mc.level_boltzmann_factor,
+        )
     )
     electron_distribution = ThermalElectronEnergyDistribution(
         0 * u.erg,
         iip_plasma_after_mc.t_electrons * u.K,
         iip_plasma_after_mc.electron_densities.to_numpy() / u.cm**3,
     )
-    actual_ion_population, actual_electron_density = IonPopulationSolver(
-        iip_charge_conserving_rate_matrix
-    ).solve(
+    ion_pop_solver = IonPopulationSolver(iip_charge_conserving_rate_matrix)
+    actual_ion_population, actual_electron_density = ion_pop_solver.solve(
         None,
         electron_distribution,
         iip_plasma_after_mc.number_density,
@@ -514,39 +515,9 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
     solve_shell_charge = solver.solve_shell_charge
     solved_shell_indices = []
 
-    def record_solve_shell_charge(
-        shell_idx: int,
-        maximum_electron_density: float,
-        base_electron_density: npt.NDArray[np.float64],
-        radiation_field: None,
-        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
-        lte_level_population: pd.DataFrame,
-        estimated_level_population: pd.DataFrame,
-        lte_ion_population: pd.DataFrame,
-        estimated_ion_population: pd.DataFrame,
-        partition_function: pd.DataFrame,
-        boltzmann_factor: pd.DataFrame,
-        level_to_continuum_saha_factor: pd.DataFrame,
-        elemental_number_density: pd.DataFrame,
-        maximum_electron_densities: npt.NDArray[np.float64],
-    ) -> float:
+    def record_solve_shell_charge(shell_idx: int, *args) -> float:
         solved_shell_indices.append(shell_idx)
-        return solve_shell_charge(
-            shell_idx,
-            maximum_electron_density,
-            base_electron_density,
-            radiation_field,
-            thermal_electron_energy_distribution,
-            lte_level_population,
-            estimated_level_population,
-            lte_ion_population,
-            estimated_ion_population,
-            partition_function,
-            boltzmann_factor,
-            level_to_continuum_saha_factor,
-            elemental_number_density,
-            maximum_electron_densities,
-        )
+        return solve_shell_charge(shell_idx, *args)
 
     monkeypatch.setattr(solver, "solve_shell_charge", record_solve_shell_charge)
     solver.solve(

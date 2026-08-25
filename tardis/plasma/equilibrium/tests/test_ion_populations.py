@@ -476,30 +476,37 @@ def test_charge_conserving_multi_element_solution_uses_real_atomic_data(
         inputs["boltzmann_factor"], ion_index
     ).set_axis(columns, axis="columns")
     zero_level_rate = pd.DataFrame(0.0, index=gamma.index, columns=columns)
-    iip_ion_population, iip_electron_density = IIPNLTEIonNumberDensity(
-        SimpleNamespace(
-            previous_ion_number_density=None,
-            previous_electron_densities=None,
-            nlte_species=[
-                (atomic_number, ion_number)
-                for atomic_number, ion_number in gamma.index.droplevel(
-                    "level_number"
-                ).unique()
-            ],
+    nlte_species = [
+        (atomic_number, ion_number)
+        for atomic_number, ion_number in gamma.index.droplevel(
+            "level_number"
+        ).unique()
+    ]
+    fake_plasma_parent = SimpleNamespace(
+        previous_ion_number_density=None,
+        previous_electron_densities=None,
+        nlte_species=nlte_species,
+    )
+    phi = pd.DataFrame(
+        1.0,
+        index=ion_index[ion_index.get_level_values("ion_number") > 0],
+        columns=columns,
+    )
+    iip_ion_number_density_solver = IIPNLTEIonNumberDensity(fake_plasma_parent)
+
+    iip_ion_population, iip_electron_density = (
+        iip_ion_number_density_solver.calculate(
+            phi,
+            zero_level_rate,
+            alpha_sp.set_axis(columns, axis="columns"),
+            gamma.set_axis(columns, axis="columns"),
+            coll_ion_coeff.set_axis(columns, axis="columns"),
+            coll_recomb_coeff.set_axis(columns, axis="columns"),
+            inputs["elemental_number_density"].set_axis(
+                columns, axis="columns"
+            ),
+            iip_level_boltzmann_factor,
         )
-    ).calculate(
-        pd.DataFrame(
-            1.0,
-            index=ion_index[ion_index.get_level_values("ion_number") > 0],
-            columns=columns,
-        ),
-        zero_level_rate,
-        alpha_sp.set_axis(columns, axis="columns"),
-        gamma.set_axis(columns, axis="columns"),
-        coll_ion_coeff.set_axis(columns, axis="columns"),
-        coll_recomb_coeff.set_axis(columns, axis="columns"),
-        inputs["elemental_number_density"].set_axis(columns, axis="columns"),
-        iip_level_boltzmann_factor,
     )
 
     actual_ion_population = ion_population.set_axis(columns, axis="columns")
@@ -556,14 +563,16 @@ def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
         columns, axis="columns"
     )
     zero_level_rate = pd.DataFrame(0.0, index=gamma.index, columns=columns)
+    fake_plasma_parent = SimpleNamespace(
+        previous_ion_number_density=None,
+        previous_electron_densities=None,
+        nlte_species=[(1, 0)],
+    )
+    phi = pd.DataFrame([[1.0]], index=phi_index, columns=columns)
     iip_ion_population, iip_electron_density = IIPNLTEIonNumberDensity(
-        SimpleNamespace(
-            previous_ion_number_density=None,
-            previous_electron_densities=None,
-            nlte_species=[(1, 0)],
-        )
+        fake_plasma_parent
     ).calculate(
-        pd.DataFrame([[1.0]], index=phi_index, columns=columns),
+        phi,
         zero_level_rate,
         alpha_sp,
         gamma,
