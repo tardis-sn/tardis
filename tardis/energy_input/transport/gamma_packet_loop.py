@@ -1,5 +1,6 @@
 import numpy as np
-from numba import njit
+from numba import njit, prange
+from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numpy.typing import NDArray
 
 from tardis.energy_input.transport.gamma_ray_grid import (
@@ -31,7 +32,7 @@ from tardis.opacities.opacities import (
     pair_creation_opacity_calculation,
     photoabsorption_opacity_calculation,
 )
-from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 
 
 @njit(**njit_dict_no_parallel)
@@ -55,7 +56,7 @@ def make_gx_packet(
     )
 
 
-@njit(**njit_dict_no_parallel)
+@njit(**njit_dict)
 def gamma_packet_loop(
     packet_collection: GXPacketCollection,
     grey_opacity: float,
@@ -145,16 +146,53 @@ def gamma_packet_loop(
     escaped_packets = 0
     scattered_packets = 0
     packet_count = len(packet_collection.energy_rf)
+    n_threads = get_num_threads()
+    energy_out_thread = np.zeros(
+        (n_threads, energy_out.shape[0], energy_out.shape[1])
+    )
+    energy_out_cosi_thread = np.zeros(
+        (n_threads, energy_out_cosi.shape[0], energy_out_cosi.shape[1])
+    )
+    energy_deposited_gamma_thread = np.zeros(
+        (
+            n_threads,
+            energy_deposited_gamma.shape[0],
+            energy_deposited_gamma.shape[1],
+        )
+    )
+    total_energy_thread = np.zeros(
+        (n_threads, total_energy.shape[0], total_energy.shape[1])
+    )
+    escaped_packets_thread = np.zeros(n_threads, dtype=np.int64)
+    scattered_packets_thread = np.zeros(n_threads, dtype=np.int64)
+
+    for packet_idx in range(packet_count):
+        if packet_collection.time_index[packet_idx] < 0:
+            print(
+                packet_collection.time_start[packet_idx],
+                packet_collection.time_index[packet_idx],
+            )
+            raise ValueError("Packet time index less than 0!")
+
+    if grey_opacity < 0:
+        if (
+            photoabsorption_opacity_type != "kasen"
+            and photoabsorption_opacity_type != "tardis"
+        ):
+            raise ValueError("Invalid photoabsorption opacity type!")
+        if (
+            pair_creation_opacity_type != "artis"
+            and pair_creation_opacity_type != "tardis"
+        ):
+            raise ValueError("Invalid pair creation opacity type!")
+
     # Logging does not work with numba. Using print instead.
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
-    for packet_idx in range(packet_count):
+    for packet_idx in prange(packet_count):
+        thread_id = get_thread_id()
         packet = make_gx_packet(packet_collection, packet_idx)
         time_idx = packet.time_idx
-
-        if time_idx < 0:
-            print(packet.time_start, time_idx)
-            raise ValueError("Packet time index less than 0!")
 
         scattered = False
         # Not used now. Useful for the deposition estimator.
@@ -197,8 +235,6 @@ def gamma_packet_loop(
                         mass_density_time[packet.shell, time_idx],
                         iron_group_fraction_per_shell[packet.shell],
                     )
-                else:
-                    raise ValueError("Invalid photoabsorption opacity type!")
 
                 if pair_creation_opacity_type == "artis":
                     pair_creation_opacity = pair_creation_opacity_artis(
@@ -212,8 +248,6 @@ def gamma_packet_loop(
                         mass_density_time[packet.shell, time_idx],
                         iron_group_fraction_per_shell[packet.shell],
                     )
-                else:
-                    raise ValueError("Invalid pair creation opacity type!")
             else:
                 compton_opacity = 0.0
                 pair_creation_opacity = 0.0
@@ -270,9 +304,13 @@ def gamma_packet_loop(
                 packet, ejecta_energy_gained = process_packet_path(packet)
 
                 # Ejecta gains energy from the packets (gamma-rays)
-                energy_deposited_gamma[packet.shell, time_idx] += ejecta_energy_gained
+                energy_deposited_gamma_thread[
+                    thread_id, packet.shell, time_idx
+                ] += ejecta_energy_gained
                 # Ejecta gains energy from both gamma-rays and positrons
-                total_energy[packet.shell, time_idx] += ejecta_energy_gained
+                total_energy_thread[
+                    thread_id, packet.shell, time_idx
+                ] += ejecta_energy_gained
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
@@ -290,19 +328,21 @@ def gamma_packet_loop(
                     freq_bin_width = bin_width / H_CGS_KEV
 
                     # get energy out in ergs per second per keV
-                    energy_out[energy_bin_idx, time_idx] += (
+                    energy_out_thread[thread_id, energy_bin_idx, time_idx] += (
                         packet.energy_rf
                         / dt
                         / freq_bin_width  # Take light crossing time into account
                     )
                     # get energy out in photons per second per keV
-                    energy_out_cosi[energy_bin_idx, time_idx] += 1 / dt / bin_width
+                    energy_out_cosi_thread[
+                        thread_id, energy_bin_idx, time_idx
+                    ] += 1 / dt / bin_width
 
                     luminosity = packet.energy_rf / dt
                     packet.status = GXPacketStatus.ESCAPED
-                    escaped_packets += 1
+                    escaped_packets_thread[thread_id] += 1
                     if scattered:
-                        scattered_packets += 1
+                        scattered_packets_thread[thread_id] += 1
                 elif packet.shell < 0:
                     packet.energy_rf = 0.0
                     packet.energy_cmf = 0.0
@@ -320,6 +360,14 @@ def gamma_packet_loop(
                     packet.shell,
                 ]
             )
+
+    for thread_id in range(n_threads):
+        escaped_packets += escaped_packets_thread[thread_id]
+        scattered_packets += scattered_packets_thread[thread_id]
+        energy_out += energy_out_thread[thread_id]
+        energy_out_cosi += energy_out_cosi_thread[thread_id]
+        energy_deposited_gamma += energy_deposited_gamma_thread[thread_id]
+        total_energy += total_energy_thread[thread_id]
 
     print("Number of escaped packets:", escaped_packets)
     print("Number of scattered packets:", scattered_packets)
