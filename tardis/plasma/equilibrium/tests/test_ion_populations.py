@@ -23,7 +23,7 @@ from tardis.plasma.equilibrium.rates import (
     CollisionalIonizationRateSolver,
 )
 from tardis.plasma.equilibrium.rates.util import (
-    align_ion_population_to_level_population,
+    reindex_ion_population_to_level_population,
 )
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -69,7 +69,7 @@ def hydrogen_population_inputs() -> dict:
         index=pd.Index([1], name="atomic_number"),
     )
     level_to_continuum_saha_factor = lte_level_population / (
-        align_ion_population_to_level_population(
+        reindex_ion_population_to_level_population(
             lte_ion_population, lte_level_population
         ).to_numpy()
         * thermal_electron_energy_distribution.number_density.value
@@ -255,6 +255,7 @@ def test_charge_conserving_hydrogen_is_seed_independent_from_near_neutral_densit
     pdt.assert_series_equal(low_seed_electrons, high_seed_electrons, rtol=1e-10)
 
 
+# TODO: make a fixture if reused elsewhere
 def h_non_h_population_inputs(
     tardis_regression_path: Path,
 ) -> dict:
@@ -294,7 +295,7 @@ def h_non_h_population_inputs(
         np.array([1.0e4, 2.0e4]) * u.cm**-3,
     )
     level_to_continuum_saha_factor = lte_level_population / (
-        align_ion_population_to_level_population(
+        reindex_ion_population_to_level_population(
             lte_ion_population, lte_level_population
         ).to_numpy()
         * thermal_electron_energy_distribution.number_density.value

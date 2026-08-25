@@ -1,12 +1,12 @@
 import pandas as pd
 
 
-def align_ion_population_to_level_population(
+def reindex_ion_population_to_level_population(
     ion_population: pd.DataFrame,
     level_population: pd.DataFrame,
     next_higher: bool = True,
 ) -> pd.DataFrame:
-    """Align ion populations with level populations by ionization stage.
+    """Align ion population indexes with level populations by ionization stage.
 
     Parameters
     ----------

@@ -12,7 +12,7 @@ from tardis.plasma.equilibrium.rates import (
     EstimatedPhotoionizationRateSolver,
 )
 from tardis.plasma.equilibrium.rates.util import (
-    align_ion_population_to_level_population,
+    reindex_ion_population_to_level_population,
 )
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -280,7 +280,7 @@ class IonRateMatrix:
         )
 
         if level_to_continuum_saha_factor is None:
-            lte_ion_population = align_ion_population_to_level_population(
+            lte_ion_population = reindex_ion_population_to_level_population(
                 lte_ion_population, lte_level_population
             )
             level_to_continuum_saha_factor = lte_level_population / (

@@ -4,7 +4,7 @@ import pandas as pd
 
 from tardis import constants as const
 from tardis.plasma.equilibrium.rates.util import (
-    align_ion_population_to_level_population,
+    reindex_ion_population_to_level_population,
 )
 from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
@@ -365,10 +365,10 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
                 photoionization_boltzmann_factor.columns,
                 axis="columns",
             )
-        lte_ion_population = align_ion_population_to_level_population(
+        lte_ion_population = reindex_ion_population_to_level_population(
             lte_ion_population, lte_level_population
         )
-        ion_population = align_ion_population_to_level_population(
+        ion_population = reindex_ion_population_to_level_population(
             ion_population, lte_level_population
         )
         correction_factor = (

@@ -7,7 +7,7 @@ from tardis.plasma.equilibrium.rates.collisional_ionization_strengths import (
     CollisionalIonizationSeaton,
 )
 from tardis.plasma.equilibrium.rates.util import (
-    align_ion_population_to_level_population,
+    reindex_ion_population_to_level_population,
     reindex_ionization_rate_dataframe,
 )
 
@@ -15,9 +15,7 @@ from tardis.plasma.equilibrium.rates.util import (
 class CollisionalIonizationRateSolver:
     """Solver for collisional ionization and recombination rates."""
 
-    def __init__(
-        self, photoionization_cross_sections: pd.DataFrame
-    ) -> None:
+    def __init__(self, photoionization_cross_sections: pd.DataFrame) -> None:
         """Initialize the collisional ionization rate solver.
 
         Parameters
@@ -81,7 +79,7 @@ class CollisionalIonizationRateSolver:
             level_to_ion_population_factor
         )
 
-        partition_function = align_ion_population_to_level_population(
+        partition_function = reindex_ion_population_to_level_population(
             partition_function,
             level_boltzmann_factor,
             next_higher=False,

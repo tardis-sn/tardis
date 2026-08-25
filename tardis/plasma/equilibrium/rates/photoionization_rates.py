@@ -10,7 +10,7 @@ from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     SpontaneousRecombinationCoeffSolver,
 )
 from tardis.plasma.equilibrium.rates.util import (
-    align_ion_population_to_level_population,
+    reindex_ion_population_to_level_population,
     reindex_ionization_rate_dataframe,
 )
 from tardis.plasma.radiation_field import (
@@ -98,7 +98,7 @@ class AnalyticPhotoionizationRateSolver:
             lte_level_population.columns
         )
 
-        partition_function = align_ion_population_to_level_population(
+        partition_function = reindex_ion_population_to_level_population(
             partition_function,
             level_boltzmann_factor,
             next_higher=False,
@@ -109,7 +109,7 @@ class AnalyticPhotoionizationRateSolver:
         )
 
         if level_to_continuum_saha_factor is None:
-            lte_ion_population = align_ion_population_to_level_population(
+            lte_ion_population = reindex_ion_population_to_level_population(
                 lte_ion_population, lte_level_population
             )
             level_to_continuum_saha_factor = lte_level_population.values / (
