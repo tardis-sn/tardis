@@ -148,7 +148,7 @@ def test_export_atom_data_summary_with_custom_journal(tmp_path):
     assert latex.startswith("BEGIN\n")
     assert r"\textbf{Total}" not in latex
 
-# Test 4: Can the original HDF files be read directly, not just the AtomData object?-spli
+# Test 4: Can the original HDF files be read directly, not just the AtomData object?
 def test_export_atom_data_summary_from_hdf(tmp_path):
     # Store a minimal silicon dataset in the expected HDF tables.
     input_path = tmp_path / "atom_data.h5"
