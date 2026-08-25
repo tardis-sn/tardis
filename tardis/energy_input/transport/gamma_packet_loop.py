@@ -33,6 +33,9 @@ from tardis.opacities.opacities import (
     photoabsorption_opacity_calculation,
 )
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
+from tardis.transport.montecarlo.modes.montecarlo_transport import (
+    update_packet_progress,
+)
 
 
 @njit(**njit_dict_no_parallel)
@@ -189,8 +192,18 @@ def gamma_packet_loop(
     # Logging does not work with numba. Using print instead.
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
+    main_thread_id = get_thread_id()
+
     for packet_idx in prange(packet_count):
         thread_id = get_thread_id()
+        update_packet_progress(
+            True,
+            thread_id,
+            main_thread_id,
+            n_threads,
+            packet_count,
+        )
+
         packet = make_gx_packet(packet_collection, packet_idx)
         time_idx = packet.time_idx
 
@@ -216,7 +229,8 @@ def gamma_packet_loop(
                 # artis threshold for Thomson scattering
                 if kappa < 1e-2:
                     compton_opacity = (
-                        SIGMA_T * electron_number_density_time[packet.shell, time_idx]
+                        SIGMA_T
+                        * electron_number_density_time[packet.shell, time_idx]
                     )
                 else:
                     compton_opacity = compton_opacity_calculation(
@@ -230,10 +244,12 @@ def gamma_packet_loop(
                     photoabsorption_opacity = 0
                     # photoabsorption_opacity_calculation_kasen()
                 elif photoabsorption_opacity_type == "tardis":
-                    photoabsorption_opacity = photoabsorption_opacity_calculation(
-                        comoving_energy,
-                        mass_density_time[packet.shell, time_idx],
-                        iron_group_fraction_per_shell[packet.shell],
+                    photoabsorption_opacity = (
+                        photoabsorption_opacity_calculation(
+                            comoving_energy,
+                            mass_density_time[packet.shell, time_idx],
+                            iron_group_fraction_per_shell[packet.shell],
+                        )
                     )
 
                 if pair_creation_opacity_type == "artis":
@@ -257,7 +273,9 @@ def gamma_packet_loop(
 
             # convert opacities to rest frame
             total_opacity = (
-                compton_opacity + photoabsorption_opacity + pair_creation_opacity
+                compton_opacity
+                + photoabsorption_opacity
+                + pair_creation_opacity
             ) * doppler_factor
 
             packet.tau = -np.log(np.random.random())
@@ -276,7 +294,9 @@ def gamma_packet_loop(
                 times[time_idx + 1],
             )
 
-            distance = min(distance_interaction, distance_boundary, distance_time)
+            distance = min(
+                distance_interaction, distance_boundary, distance_time
+            )
 
             packet.time_start += distance / C_CGS
 
@@ -308,9 +328,9 @@ def gamma_packet_loop(
                     thread_id, packet.shell, time_idx
                 ] += ejecta_energy_gained
                 # Ejecta gains energy from both gamma-rays and positrons
-                total_energy_thread[
-                    thread_id, packet.shell, time_idx
-                ] += ejecta_energy_gained
+                total_energy_thread[thread_id, packet.shell, time_idx] += (
+                    ejecta_energy_gained
+                )
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
@@ -324,7 +344,10 @@ def gamma_packet_loop(
                 if packet.shell > len(mass_density_time[:, 0]) - 1:
                     rest_energy = packet.nu_rf * H_CGS_KEV
                     energy_bin_idx = get_index(rest_energy, energy_bins)
-                    bin_width = energy_bins[energy_bin_idx + 1] - energy_bins[energy_bin_idx]
+                    bin_width = (
+                        energy_bins[energy_bin_idx + 1]
+                        - energy_bins[energy_bin_idx]
+                    )
                     freq_bin_width = bin_width / H_CGS_KEV
 
                     # get energy out in ergs per second per keV

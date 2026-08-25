@@ -21,6 +21,10 @@ from tardis.transport.montecarlo.packet_source.high_energy import (
     GammaRayPacketSource,
     legacy_calculate_positron_fraction,
 )
+from tardis.transport.montecarlo.progress_bars import (
+    refresh_packet_pbar,
+    reset_packet_pbar,
+)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -340,6 +344,7 @@ def run_gamma_ray_loop(
     logger.info("Total CMF energy is %s", total_cmf_energy)
     logger.info("Total RF energy is %s", total_rf_energy)
 
+    reset_packet_pbar(number_of_packets)
     (
         energy_out,
         energy_out_cosi,
@@ -366,6 +371,7 @@ def run_gamma_ray_loop(
         energy_deposited,
         packets_info_array,
     )
+    refresh_packet_pbar()
 
     packets_df_escaped = pd.DataFrame(
         data=packets_array,
