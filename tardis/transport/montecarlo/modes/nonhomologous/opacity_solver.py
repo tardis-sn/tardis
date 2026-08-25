@@ -80,9 +80,12 @@ class OpacitySolver:
         if self.disable_line_scattering:
             sobolev_optical_depth_coefficient.iloc[:, :] = 0.0
 
-        opacity_state = OpacityState.from_legacy_plasma(plasma, tau_sobolev)
-        opacity_state.sobolev_optical_depth_coefficient = (
-            sobolev_optical_depth_coefficient
+        opacity_state = OpacityState.from_legacy_plasma(
+            plasma,
+            tau_sobolev,
+            sobolev_optical_depth_coefficient=(
+                sobolev_optical_depth_coefficient
+            ),
         )
         if self.velocity_over_radius is not None:
             opacity_state.beta_sobolev = calculate_beta_sobolev_directional(
@@ -150,10 +153,12 @@ class OpacitySolver:
             )
 
         opacity_state = OpacityState.from_plasma(
-            plasma, tau_sobolev, beta_sobolev
-        )
-        opacity_state.sobolev_optical_depth_coefficient = (
-            sobolev_optical_depth_coefficient
+            plasma,
+            tau_sobolev,
+            beta_sobolev,
+            sobolev_optical_depth_coefficient=(
+                sobolev_optical_depth_coefficient
+            ),
         )
 
         return opacity_state

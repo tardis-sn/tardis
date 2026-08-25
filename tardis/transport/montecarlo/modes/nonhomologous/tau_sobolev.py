@@ -85,7 +85,7 @@ def calculate_sobolev_optical_depth_coefficient(
     level_number_density: pd.DataFrame,
     stimulated_emission_factor: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Calculate the gradient-independent Sobolev optical-depth coefficient.
+    """Calculate the velocity-gradient-independent Sobolev optical-depth coefficient.
 
     Parameters
     ----------
@@ -174,7 +174,7 @@ def calculate_beta_sobolev_directional(
     Parameters
     ----------
     sobolev_optical_depth_coefficient : pandas.DataFrame
-        Gradient-independent Sobolev optical-depth coefficient [s^-1].
+        Velocity-gradient-independent Sobolev optical-depth coefficient [s^-1].
     velocity_gradient : astropy.units.Quantity
         Radial velocity derivative in each shell [s^-1].
     velocity_over_radius : astropy.units.Quantity

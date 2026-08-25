@@ -48,7 +48,7 @@ class OpacityState:
     Attributes
     ----------
     sobolev_optical_depth_coefficient : pandas.DataFrame or None
-        Gradient-independent coefficient for each line and shell [s^-1].
+        Velocity-gradient-independent coefficient for each line and shell [s^-1].
         Dividing this coefficient by the absolute projected velocity gradient
         gives the directional Sobolev optical depth.
     """
@@ -61,6 +61,7 @@ class OpacityState:
         tau_sobolev: pd.DataFrame,
         beta_sobolev: pd.DataFrame | None,
         continuum_state: ContinuumState | None,
+        sobolev_optical_depth_coefficient: pd.DataFrame | None = None,
     ) -> None:
         """
         Initialize the Python-native opacity state.
@@ -76,15 +77,18 @@ class OpacityState:
             Sobolev escape probabilities for each line and shell.
         continuum_state : tardis.opacities.continuum.continuum_state.ContinuumState or None
             Continuum quantities needed when continuum interactions are enabled.
+        sobolev_optical_depth_coefficient : pd.DataFrame or None, optional
+            Velocity-gradient-independent coefficient for each line and shell [s^-1].
         """
         self.electron_density = electron_density
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
 
         self.tau_sobolev = tau_sobolev
-        self.sobolev_optical_depth_coefficient = None
-
         self.beta_sobolev = beta_sobolev
+        self.sobolev_optical_depth_coefficient = (
+            sobolev_optical_depth_coefficient
+        )
 
         # Continuum Opacity Data
         self.continuum_state = continuum_state
@@ -94,6 +98,7 @@ class OpacityState:
         cls,
         plasma: BasePlasma,
         tau_sobolev: pd.DataFrame,
+        sobolev_optical_depth_coefficient: pd.DataFrame | None = None,
     ) -> Self:
         """
         Construct an opacity state from a legacy plasma object.
@@ -104,6 +109,8 @@ class OpacityState:
             Plasma object containing the line and continuum quantities.
         tau_sobolev : pd.DataFrame
             Sobolev optical depths for each line and shell.
+        sobolev_optical_depth_coefficient : pd.DataFrame or None, optional
+            Velocity-gradient-independent coefficient for each line and shell [s^-1].
 
         Returns
         -------
@@ -122,6 +129,9 @@ class OpacityState:
             tau_sobolev,
             plasma.beta_sobolev,
             continuum_state,
+            sobolev_optical_depth_coefficient=(
+                sobolev_optical_depth_coefficient
+            ),
         )
 
     @classmethod
@@ -130,6 +140,7 @@ class OpacityState:
         plasma: BasePlasma,
         tau_sobolev: pd.DataFrame,
         beta_sobolev: pd.DataFrame | None,
+        sobolev_optical_depth_coefficient: pd.DataFrame | None = None,
     ) -> Self:
         """
         Construct an opacity state from a plasma object.
@@ -142,6 +153,8 @@ class OpacityState:
             Sobolev optical depths for each line and shell.
         beta_sobolev : pd.DataFrame or None
             Sobolev escape probabilities for each line and shell.
+        sobolev_optical_depth_coefficient : pd.DataFrame or None, optional
+            Velocity-gradient-independent coefficient for each line and shell [s^-1].
 
         Returns
         -------
@@ -160,6 +173,9 @@ class OpacityState:
             tau_sobolev,
             beta_sobolev,
             continuum_state,
+            sobolev_optical_depth_coefficient=(
+                sobolev_optical_depth_coefficient
+            ),
         )
 
     def to_numba(
