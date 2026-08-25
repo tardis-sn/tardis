@@ -60,7 +60,7 @@ class BaseContinuum:
         self._set_cooling_rates()
         self._set_recombination_transition_probabilities()
         self._set_transition_probabilities()
-        self._diagonalize_ma()
+        # self._diagonalize_ma() # This breaks with non-unique indices due to pandas changes
 
     def _set_physical_processes(self, requested_processes):
         for name, process in BaseContinuum.direct_processes.items():

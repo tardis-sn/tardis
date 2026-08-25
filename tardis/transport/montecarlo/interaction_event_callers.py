@@ -54,11 +54,18 @@ def macro_atom_event(
             destination_level_idx, r_packet.current_shell_id, opacity_state
         )
 
-    if transition_type == MacroAtomTransitionType.FF_EMISSION:
+    if (
+        transition_type == MacroAtomTransitionType.FF_EMISSION
+        or transition_type == MacroAtomTransitionType.FF_COOLING
+    ):
         free_free_emission(
             r_packet, time_explosion, opacity_state, enable_full_relativity
         )
-    elif transition_type == MacroAtomTransitionType.BF_EMISSION:
+    elif (
+        transition_type == MacroAtomTransitionType.BF_EMISSION
+        or transition_type == MacroAtomTransitionType.FB_COOLING
+        or transition_type == MacroAtomTransitionType.PHOTO_RECOMB_EMISSION
+    ):
         bound_free_emission(
             r_packet,
             time_explosion,
@@ -143,13 +150,14 @@ def continuum_event(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     continuum : tardis.transport.montecarlo.numba_interface.Continuum
     """
+    velocity = r_packet.r / time_explosion
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
 
     r_packet.mu = get_random_mu()
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
     comov_energy = r_packet.energy * old_doppler_factor
     comov_nu = (
@@ -193,13 +201,14 @@ def line_scatter_event(
     line_interaction_type : enum
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
+    velocity = r_packet.r / time_explosion
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
     r_packet.mu = get_random_mu()
 
     inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
 
     comov_energy = r_packet.energy * old_doppler_factor

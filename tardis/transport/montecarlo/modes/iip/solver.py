@@ -1,5 +1,6 @@
 import logging
 
+import pandas as pd
 from astropy import units as u
 from numba import cuda, set_num_threads
 
@@ -57,7 +58,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
         self,
         radfield_prop_solver,
         spectrum_frequency_grid,
-        virtual_spectrum_spawn_range,
+        vpacket_spawn_range,
         enable_full_relativity,
         line_interaction_type,
         spectrum_method,
@@ -73,7 +74,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
         self.radfield_prop_solver = radfield_prop_solver
         # inject different packets
         self.spectrum_frequency_grid = spectrum_frequency_grid
-        self.virtual_spectrum_spawn_range = virtual_spectrum_spawn_range
+        self.vpacket_spawn_range = vpacket_spawn_range
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
         self.spectrum_method = spectrum_method
@@ -107,10 +108,19 @@ class MCTransportSolverIIP(HDFWriterMixin):
         iteration=0,
     ):
         if not plasma.continuum_interaction_species.empty:
-            if plasma.gamma is not None:
-                n_levels_bf_species_by_n_cells_tuple = plasma.gamma.shape
-            else:
-                n_levels_bf_species_by_n_cells_tuple = plasma.phi_lucy.shape
+            # Combine phi_lucy data for all nlte_species to get total shape
+            if plasma.nlte_species:
+                all_species_phi_lucy = pd.concat(
+                    [
+                        plasma.phi_lucy.loc[species]
+                        for species in plasma.nlte_species
+                    ],
+                    axis=0,
+                )
+                n_levels_bf_species_by_n_cells_tuple = (
+                    all_species_phi_lucy.shape
+                )
+
         else:
             n_levels_bf_species_by_n_cells_tuple = (0, 0)
 
@@ -126,14 +136,14 @@ class MCTransportSolverIIP(HDFWriterMixin):
             macro_atom_state,
             self.line_interaction_type,
         )
-        opacity_state_numba = opacity_state_numba[
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
-        ]
+        # opacity_state_numba = opacity_state_numba[
+        #     simulation_state.geometry.v_inner_boundary_idx : simulation_state.geometry.v_outer_boundary_idx
+        # ]
 
         transport_state = MonteCarloTransportState(
             packet_collection,
-            geometry_state=geometry_state,
-            opacity_state=opacity_state_numba,
+            geometry_state_numba=geometry_state,
+            opacity_state_numba=opacity_state_numba,
             time_explosion=simulation_state.time_explosion,
             n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
@@ -195,9 +205,9 @@ class MCTransportSolverIIP(HDFWriterMixin):
             estimators_continuum,
         ) = montecarlo_transport(
             transport_state.packet_collection,
-            transport_state.geometry_state,
+            transport_state.geometry_state_numba,
             transport_state.time_explosion.cgs.value,
-            transport_state.opacity_state,
+            transport_state.opacity_state_numba,
             self.montecarlo_configuration,
             transport_state.n_levels_bf_species_by_n_cells_tuple,
             trackers_list,
@@ -310,7 +320,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
         return cls(
             radfield_prop_solver=radfield_prop_solver,
             spectrum_frequency_grid=spectrum_frequency_grid,
-            virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
+            vpacket_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,
             line_interaction_type=config.plasma.line_interaction_type,
             spectrum_method=config.spectrum.method,

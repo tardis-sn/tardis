@@ -46,7 +46,7 @@ def test_xgdata_to_xr_dataset(regression_test_mass_xg_file):
     )
     xarray_data = xg_data.to_xr_dataset()
 
-    assert list(xarray_data.dims.keys()) == ['time', 'cell_id']
+    assert list(xarray_data.sizes.keys()) == ['time', 'cell_id']
     assert 'time' in xarray_data.coords
     assert 'cell_id' in xarray_data.coords
     assert 'enclosed_mass' in xarray_data.coords

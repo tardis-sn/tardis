@@ -236,10 +236,10 @@ def test_build_with_display(monkeypatch):
 
 
 def test_convergence_plot_command_line(
-    config_verysimple, atomic_dataset, monkeysession
+    config_verysimple, atomic_dataset, monkeypatch
 ):
-    monkeysession.setattr(
-        "tardis.util.environment.Environment.is_notebook",
+    monkeypatch.setattr(
+        "tardis.util.environment.Environment.allows_widget_display",
         lambda: False,
     )
     atomic_data = deepcopy(atomic_dataset)

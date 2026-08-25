@@ -33,10 +33,7 @@ plasma:
   radiative_rates_type:  detailed # Doesn't do anything currently but needed for validation
   line_interaction_type: macroatom
   initial_t_inner: 8000 K
-  nlte_ionization_species: [H I]
-  nlte_excitation_species: [H I]
   # nlte_species[(1, 0)]
-  # nlte_solver: root
   continuum_interaction:
       species:
           - H I

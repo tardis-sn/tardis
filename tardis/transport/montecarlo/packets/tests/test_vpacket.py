@@ -27,8 +27,9 @@ def v_packet():
 
 def v_packet_initialize_line_id(v_packet, opacity_state, time_explosion):
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
+    velocity = v_packet.r / time_explosion
     doppler_factor = get_doppler_factor(
-        v_packet.r, v_packet.mu, time_explosion, False
+        velocity, v_packet.mu, False
     )
     comov_nu = v_packet.nu * doppler_factor
     next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
@@ -39,7 +40,7 @@ def v_packet_initialize_line_id(v_packet, opacity_state, time_explosion):
 
 def test_trace_vpacket_within_shell(
     v_packet,
-    verysimple_numba_radial_1d_geometry,
+    verysimple_numba_homologous_radial_1d_geometry,
     verysimple_time_explosion,
     verysimple_opacity_state,
 ):
@@ -54,7 +55,7 @@ def test_trace_vpacket_within_shell(
         delta_shell,
     ) = virtual_packet.trace_vpacket_within_shell(
         v_packet,
-        verysimple_numba_radial_1d_geometry,
+        verysimple_numba_homologous_radial_1d_geometry,
         verysimple_time_explosion,
         verysimple_opacity_state,
         enable_full_relativity=False,
@@ -68,7 +69,7 @@ def test_trace_vpacket_within_shell(
 
 def test_trace_vpacket(
     v_packet,
-    verysimple_numba_radial_1d_geometry,
+    verysimple_numba_homologous_radial_1d_geometry,
     verysimple_time_explosion,
     verysimple_opacity_state,
 ):
@@ -82,7 +83,7 @@ def test_trace_vpacket(
 
     tau_trace_combined = virtual_packet.trace_vpacket(
         v_packet,
-        verysimple_numba_radial_1d_geometry,
+        verysimple_numba_homologous_radial_1d_geometry,
         verysimple_time_explosion,
         verysimple_opacity_state,
         10.0,
@@ -106,7 +107,7 @@ def test_trace_vpacket_volley(
     packet,
     verysimple_packet_collection,
     verysimple_3vpacket_collection,
-    verysimple_numba_radial_1d_geometry,
+    verysimple_numba_homologous_radial_1d_geometry,
     verysimple_time_explosion,
     verysimple_opacity_state,
 ):
@@ -120,7 +121,7 @@ def test_trace_vpacket_volley(
     virtual_packet.trace_vpacket_volley(
         packet,
         verysimple_3vpacket_collection,
-        verysimple_numba_radial_1d_geometry,
+        verysimple_numba_homologous_radial_1d_geometry,
         verysimple_time_explosion,
         verysimple_opacity_state,
         enable_full_relativity=False,
@@ -144,13 +145,13 @@ def broken_packet():
 
 def test_trace_bad_vpacket(
     broken_packet,
-    verysimple_numba_radial_1d_geometry,
+    verysimple_numba_homologous_radial_1d_geometry,
     verysimple_time_explosion,
     verysimple_opacity_state,
 ):
     virtual_packet.trace_vpacket(
         broken_packet,
-        verysimple_numba_radial_1d_geometry,
+        verysimple_numba_homologous_radial_1d_geometry,
         verysimple_time_explosion,
         verysimple_opacity_state,
         10.0,

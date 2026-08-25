@@ -4,9 +4,13 @@ import numpy as np
 from astropy import units as u
 from scipy.interpolate import interp1d
 
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    HomologousRadial1DGeometry,
+)
 from tardis.spectrum.base import TARDISSpectrum
-from tardis.spectrum.formal_integral.base import check_formal_integral_requirements
+from tardis.spectrum.formal_integral.base import (
+    check_formal_integral_requirements,
+)
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
@@ -141,12 +145,14 @@ class FormalIntegralSolver:
         r_outer : np.ndarray
             The outer radii of the shells
         """
-        numba_radial_1d_geometry = NumbaRadial1DGeometry(
-            r_inner,
-            r_outer,
-            r_inner / time_explosion.to("s").value,
-            r_outer / time_explosion.to("s").value,
+        homologous_geometry = HomologousRadial1DGeometry(
+            (r_inner * u.cm / time_explosion).to(u.cm / u.s),
+            (r_outer * u.cm / time_explosion).to(u.cm / u.s),
+            None,
+            None,
+            time_explosion,
         )
+        numba_radial_1d_geometry = homologous_geometry.to_numba()
 
         if self.method == "cuda":
             self.integrator = CudaFormalIntegrator(
@@ -233,16 +239,16 @@ class FormalIntegralSolver:
         mct_state = transport_solver.transport_state
         if interpolate_shells > 0:
             radius_interpolated = np.linspace(
-                mct_state.geometry_state.r_inner[0],
-                mct_state.geometry_state.r_outer[-1],
+                mct_state.geometry_state_numba.r_inner[0],
+                mct_state.geometry_state_numba.r_outer[-1],
                 interpolate_shells,
             )
             r_inner_interpolated = radius_interpolated[:-1]
             r_outer_interpolated = radius_interpolated[1:]
         elif interpolate_shells <= 0:
             # Use original radii values when interpolate_shells < 0
-            r_inner_interpolated = mct_state.geometry_state.r_inner
-            r_outer_interpolated = mct_state.geometry_state.r_outer
+            r_inner_interpolated = mct_state.geometry_state_numba.r_inner
+            r_outer_interpolated = mct_state.geometry_state_numba.r_outer
 
         (
             att_S_ul_interpolated,
@@ -253,8 +259,8 @@ class FormalIntegralSolver:
             tau_sobolevs_interpolated,
             electron_densities_interpolated,
         ) = self.interpolate_integrator_quantities(
-            mct_state.geometry_state.r_inner,
-            mct_state.geometry_state.r_outer,
+            mct_state.geometry_state_numba.r_inner,
+            mct_state.geometry_state_numba.r_outer,
             r_inner_interpolated,
             r_outer_interpolated,
             source_function_state,
@@ -293,7 +299,8 @@ class FormalIntegralSolver:
         ), "Frequency grid must be uniform"
 
         luminosity = (
-            u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
+            u.Quantity(luminosity_densities, u.erg / u.s / u.Hz)
+            * delta_frequency
         )
 
         frequencies = frequencies.to("Hz", u.spectral())
@@ -371,23 +378,23 @@ class FormalIntegralSolver:
         electron_densities_interpolated = interp1d(
             r_middle_original,
             electron_densities.iloc[
-                simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+                simulation_state.geometry.v_inner_boundary_idx : simulation_state.geometry.v_outer_boundary_idx
             ],
             fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",
         )(r_middle_interpolated)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        v_inner_boundary_index = (
-            simulation_state.geometry.v_inner_boundary_index
+        v_inner_boundary_idx = (
+            simulation_state.geometry.v_inner_boundary_idx
         )
-        v_outer_boundary_index = (
-            simulation_state.geometry.v_outer_boundary_index
+        v_outer_boundary_idx = (
+            simulation_state.geometry.v_outer_boundary_idx
         )
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
             opacity_state.tau_sobolev.values[
-                :, v_inner_boundary_index:v_outer_boundary_index
+                :, v_inner_boundary_idx:v_outer_boundary_idx
             ],
             fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",

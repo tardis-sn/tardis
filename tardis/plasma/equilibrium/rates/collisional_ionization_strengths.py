@@ -53,7 +53,7 @@ class CollisionalIonizationSeaton:
         )
 
         ion_number = coll_ion_coeff.index.get_level_values("ion_number").values
-        coll_ion_coeff[ion_number == 0] *= 0.1
-        coll_ion_coeff[ion_number == 1] *= 0.2
-        coll_ion_coeff[ion_number >= 2] *= 0.3
+        coll_ion_coeff.loc[ion_number == 0] *= 0.1
+        coll_ion_coeff.loc[ion_number == 1] *= 0.2
+        coll_ion_coeff.loc[ion_number >= 2] *= 0.3
         return coll_ion_coeff

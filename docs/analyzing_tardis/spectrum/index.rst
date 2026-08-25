@@ -1,4 +1,4 @@
-.. _spectrum:
+.. _analyzing-tardis-spectrum:
 
 Analyzing TARDIS Spectra
 ========================
@@ -6,5 +6,3 @@ Analyzing TARDIS Spectra
     :maxdepth: 2
     
     spectrum-visualization-notebook
-    sdec_notebook
-

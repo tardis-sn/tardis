@@ -5,13 +5,13 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 
-from tardis.io.configuration.config_reader import (
-    Configuration,
-)
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.csvy import parse_csv_mass_fractions
 from tardis.io.model.readers.base import read_mass_fractions_file
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.geometry.radial1d import (
+    Radial1DGeometry,
+)
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def parse_mass_fractions_from_config(
     config: Configuration,
-    geometry: HomologousRadial1DGeometry,
+    geometry: Radial1DGeometry,
     time_explosion: u.Quantity,
 ) -> pd.DataFrame:
     """Parse the mass fraction configuration data.
@@ -66,12 +66,24 @@ def parse_mass_fractions_from_config(
                 Path(config.config_dirname) / mass_fractions_section.filename
             )
 
+        density_fname = None
+        structure_section = config.model.structure
+        if mass_fractions_section.filetype == "artis":
+            if Path(structure_section.filename).is_absolute():
+                density_fname = structure_section.filename
+            else:
+                density_fname = (
+                    Path(config.config_dirname) / structure_section.filename
+                )
+
         (
             index,
             mass_fractions,
             isotope_mass_fractions,
         ) = read_mass_fractions_file(
-            mass_fractions_fname, mass_fractions_section.filetype
+            mass_fractions_fname,
+            mass_fractions_section.filetype,
+            density_filename=density_fname,
         )
 
     mass_fractions = mass_fractions.replace(np.nan, 0.0)
@@ -112,7 +124,7 @@ def parse_mass_fractions_from_config(
 def parse_mass_fractions_from_csvy(
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
-    geometry: HomologousRadial1DGeometry,
+    geometry: Radial1DGeometry,
     time_explosion: u.Quantity,
 ) -> pd.DataFrame:
     """Parse the mass fraction data from a CSVY model.

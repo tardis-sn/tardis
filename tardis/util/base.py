@@ -177,7 +177,7 @@ def calculate_luminosity(
         spec_fname, usecols=(wavelength_column, flux_column), unpack=True
     )
 
-    flux_density = np.trapz(flux, wavelength) * (flux_unit * wavelength_unit)
+    flux_density = np.trapezoid(flux, wavelength) * (flux_unit * wavelength_unit)
     luminosity = (flux_density * 4 * np.pi * distance**2).to("erg/s")
 
     return luminosity.value, wavelength.min(), wavelength.max()

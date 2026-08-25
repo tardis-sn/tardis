@@ -34,7 +34,7 @@ class TestLineInfoWidgetData:
         Checks shape of dataframe and whether all values sum up to 1 in cases
         where dataframe resulting dataframe should not be empty.
         """
-        species_interactions_df = line_info_widget.get_species_interactions(
+        species_interactions_df = line_info_widget.data.get_species_interactions(
             wavelength_range, filter_mode
         )
 
@@ -57,7 +57,7 @@ class TestLineInfoWidgetData:
         self, line_info_widget, wavelength_range, filter_mode
     ):
         arr = np.array([0, 1, 2, 3, 4])
-        res = line_info_widget.get_middle_half_edges(arr)
+        res = line_info_widget.data.get_middle_half_edges(arr)
         expected_res = [
             (arr[-1] - arr[0]) / 4 + arr[1],
             (arr[-1] - arr[0]) * 3 / 4 + arr[1],
@@ -71,7 +71,7 @@ class TestLineInfoWidgetData:
         parameters, it calls get_species_interactions on line_info_widget
         """
         # Find species present within the selected wavelength range
-        species_interactions_df = line_info_widget.get_species_interactions(
+        species_interactions_df = line_info_widget.data.get_species_interactions(
             wavelength_range, filter_mode
         )
         if not species_interactions_df.all(axis=None):
@@ -93,7 +93,7 @@ class TestLineInfoWidgetData:
         being done here by allowed_species fixture.
         """
         if allowed_species is None:
-            last_line_counts_df = line_info_widget.get_last_line_counts(
+            last_line_counts_df = line_info_widget.data.get_last_line_counts(
                 None, filter_mode, group_mode
             )
             # Dataframe contains all falsy values (proxy for empty)
@@ -101,7 +101,7 @@ class TestLineInfoWidgetData:
             return
 
         for selected_species in allowed_species:
-            last_line_counts_df = line_info_widget.get_last_line_counts(
+            last_line_counts_df = line_info_widget.data.get_last_line_counts(
                 selected_species, filter_mode, group_mode
             )
 
@@ -170,16 +170,8 @@ class TestLineInfoWidgetEvents:
         # Since we cannot programmatically make a Box selection on spectrum,
         # we directly set the wavelength range and update the species interactions
         if selection_range:
-            # Set the current wavelength range
-            liw._current_wavelength_range = selection_range
-
-            # Get current filter mode and update species interactions directly
-            filter_mode_index = list(liw.FILTER_MODES_DESC).index(
-                liw.filter_mode_buttons.value
-            )
-            liw._update_species_interactions(
-                selection_range, liw.FILTER_MODES[filter_mode_index]
-            )
+            # Set the current wavelength range, which triggers reactive updates
+            liw.wavelength_range = selection_range
 
         return liw, selection_range
 
@@ -193,35 +185,27 @@ class TestLineInfoWidgetEvents:
 
         line_info_widget, selected_wavelength_range = liw_with_selection
 
-        # Get current filter mode index from the widget value
-        filter_mode_index = list(line_info_widget.FILTER_MODES_DESC).index(
-            line_info_widget.filter_mode_buttons.value
-        )
         expected_species_interactions = (
-            line_info_widget.get_species_interactions(
+            line_info_widget.data.get_species_interactions(
                 wavelength_range=selected_wavelength_range,
-                filter_mode=line_info_widget.FILTER_MODES[filter_mode_index],
+                filter_mode=line_info_widget.filter_mode,
             )
         )
 
         pd.testing.assert_frame_equal(
             expected_species_interactions,
-            line_info_widget.species_interactions_table.df,
+            line_info_widget.species_interactions_table.value,
         )
 
-        # Get current group mode index from the widget value
-        group_mode_index = list(line_info_widget.GROUP_MODES_DESC).index(
-            line_info_widget.group_mode_dropdown.value
-        )
-        expected_last_line_counts = line_info_widget.get_last_line_counts(
+        expected_last_line_counts = line_info_widget.data.get_last_line_counts(
             selected_species=expected_species_interactions.index[0],
-            filter_mode=line_info_widget.FILTER_MODES[filter_mode_index],
-            group_mode=line_info_widget.GROUP_MODES[group_mode_index],
+            filter_mode=line_info_widget.filter_mode,
+            group_mode=line_info_widget.group_mode,
         )
 
         pd.testing.assert_frame_equal(
             expected_last_line_counts,
-            line_info_widget.last_line_counts_table.df,
+            line_info_widget.last_line_counts_table.value,
         )
 
         if selected_wavelength_range in [None, [16200, 16300]]:
@@ -247,36 +231,30 @@ class TestLineInfoWidgetEvents:
 
         # Toggle the filter_mode_buttons
         line_info_widget.filter_mode_buttons.value = (
-            line_info_widget.FILTER_MODES_DESC[selected_filter_mode_idx]
+            line_info_widget.FILTER_MODES[selected_filter_mode_idx]
         )
 
         expected_species_interactions = (
-            line_info_widget.get_species_interactions(
+            line_info_widget.data.get_species_interactions(
                 wavelength_range=selected_wavelength_range,
-                filter_mode=line_info_widget.FILTER_MODES[
-                    selected_filter_mode_idx
-                ],
+                filter_mode=line_info_widget.filter_mode,
             )
         )
 
         pd.testing.assert_frame_equal(
             expected_species_interactions,
-            line_info_widget.species_interactions_table.df,
+            line_info_widget.species_interactions_table.value,
         )
 
-        expected_last_line_counts = line_info_widget.get_last_line_counts(
+        expected_last_line_counts = line_info_widget.data.get_last_line_counts(
             selected_species=expected_species_interactions.index[0],
-            filter_mode=line_info_widget.FILTER_MODES[selected_filter_mode_idx],
-            group_mode=line_info_widget.GROUP_MODES[
-                list(line_info_widget.GROUP_MODES_DESC).index(
-                    line_info_widget.group_mode_dropdown.value
-                )
-            ],
+            filter_mode=line_info_widget.filter_mode,
+            group_mode=line_info_widget.group_mode,
         )
 
         pd.testing.assert_frame_equal(
             expected_last_line_counts,
-            line_info_widget.last_line_counts_table.df,
+            line_info_widget.last_line_counts_table.value,
         )
 
         if selected_wavelength_range in [None, [16200, 16300]]:
@@ -296,36 +274,26 @@ class TestLineInfoWidgetEvents:
         """
         line_info_widget, _ = liw_with_selection
 
-        for (
-            selected_species
-        ) in line_info_widget.species_interactions_table.df.index:
+        for idx, selected_species in enumerate(
+            line_info_widget.species_interactions_table.value.index
+        ):
             # Select row in species_interactions_table
-            line_info_widget.species_interactions_table.change_selection(
-                [selected_species]
-            )
+            line_info_widget.species_interactions_table.selection = [idx]
 
             if bool(selected_species) is False:
                 # When selected_species is a falsy value due to empty
                 # species_interactions_table, use it as None in get_last_line_counts()
                 selected_species = None
 
-            expected_last_line_counts = line_info_widget.get_last_line_counts(
+            expected_last_line_counts = line_info_widget.data.get_last_line_counts(
                 selected_species=selected_species,
-                filter_mode=line_info_widget.FILTER_MODES[
-                    list(line_info_widget.FILTER_MODES_DESC).index(
-                        line_info_widget.filter_mode_buttons.value
-                    )
-                ],
-                group_mode=line_info_widget.GROUP_MODES[
-                    list(line_info_widget.GROUP_MODES_DESC).index(
-                        line_info_widget.group_mode_dropdown.value
-                    )
-                ],
+                filter_mode=line_info_widget.filter_mode,
+                group_mode=line_info_widget.group_mode,
             )
 
             pd.testing.assert_frame_equal(
                 expected_last_line_counts,
-                line_info_widget.last_line_counts_table.df,
+                line_info_widget.last_line_counts_table.value,
             )
 
             if selected_species is None:
@@ -350,34 +318,28 @@ class TestLineInfoWidgetEvents:
 
         # Select the option in group_mode_dropdown
         line_info_widget.group_mode_dropdown.value = (
-            line_info_widget.GROUP_MODES_DESC[selected_group_mode_idx]
+            line_info_widget.GROUP_MODES[selected_group_mode_idx]
         )
 
         # For testing changes in last_line_counts_table data,
         # we're only considering the 1st row (0th index species)
         # in species_interactions_table
-        if not line_info_widget.last_line_counts_table.df.all(axis=None):
+        if not line_info_widget.last_line_counts_table.value.all(axis=None):
             species0 = None
         else:
-            species0 = line_info_widget.species_interactions_table.df.index[0]
+            species0 = line_info_widget.species_interactions_table.value.index[0]
             # Select 1st row in species_interaction_table, if not selected
-            line_info_widget.species_interactions_table.change_selection(
-                [species0]
-            )
+            line_info_widget.species_interactions_table.selection = [0]
 
-        expected_last_line_counts = line_info_widget.get_last_line_counts(
+        expected_last_line_counts = line_info_widget.data.get_last_line_counts(
             selected_species=species0,
-            filter_mode=line_info_widget.FILTER_MODES[
-                list(line_info_widget.FILTER_MODES_DESC).index(
-                    line_info_widget.filter_mode_buttons.value
-                )
-            ],
-            group_mode=line_info_widget.GROUP_MODES[selected_group_mode_idx],
+            filter_mode=line_info_widget.filter_mode,
+            group_mode=line_info_widget.group_mode,
         )
 
         pd.testing.assert_frame_equal(
             expected_last_line_counts,
-            line_info_widget.last_line_counts_table.df,
+            line_info_widget.last_line_counts_table.value,
         )
 
         if species0 is None:

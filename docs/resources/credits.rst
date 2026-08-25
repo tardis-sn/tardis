@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_19646964
+.. |CITATION| replace:: kerzendorf_2026_21856007
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.19646964-blue
-                 :target: https://doi.org/10.5281/zenodo.19646964
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.1856007-blue
+                 :target: https://doi.org/10.5281/zenodo.1856007
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_19646964,
+    @software{kerzendorf_2026_21856007,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -123,92 +123,95 @@ The following BibTeX entries are needed for the references:
                       Gillanders, James and
                       Gupta, Sumit and
                       Marie Lynn, Haille and
-                      Savel, Arjun and
                       Singh, Shreyas and
+                      Savel, Arjun and
                       Eweis, Youssef and
                       Reinecke, Martin and
                       Shah, Swayam and
                       Holas, Alexander and
-                      Visser, Erin and
                       Bylund, Tomas and
-                      Bentil, Laud and
+                      Visser, Erin and
                       Black, William and
-                      Lu, Jing and
+                      Bentil, Laud and
+                      McClellan, Connor and
                       Dutta, Anirban and
+                      Lu, Jing and
                       Groneck, Ryan and
                       Kumar, Asish and
                       Eguren, Jordi and
-                      Bartnik, Matthew and
                       Kumar, Ansh and
+                      Bartnik, Matthew and
                       Srivastava, Sarthak and
                       Alam, Arib and
+                      Saraf, Shreyans and
                       Varma Buddaraju, Rohith and
                       Magee, Mark and
                       Daksh, Ayushi and
-                      Kambham, Satwik and
                       Livneh, Ran and
-                      Bhakar, Jayant and
-                      Mishra, Sashank and
+                      Kambham, Satwik and
                       Powers, Cecelia and
-                      Roldan, Israel and
+                      Mishra, Sashank and
+                      Bhakar, Jayant and
                       Rajagopalan, Srinath and
-                      Reichenbach, John and
+                      Roldan, Israel and
                       Nitish, P and
-                      Jain, Rinkle and
                       Actions, GitHub and
-                      McClellan, Connor and
-                      Chaumal, Aarya and
-                      Gupta, Harshul and
-                      Brar, Antreev and
+                      Reichenbach, John and
+                      Dadu, Aaryan and
+                      Rao, Rishmita and
+                      Jain, Rinkle and
                       Singh, Sourav and
+                      Chaumal, Aarya and
+                      Brar, Antreev and
+                      Gupta, Harshul and
+                      Talegaonkar, Chinmay and
+                      Kowalski, Nathan and
+                      Selsing, Jonatan and
+                      Sofiatti, Caroline and
+                      Gangbhoj, Riddhi and
                       Matsumura, Yuki and
                       Perkins, Haille and
-                      Kowalski, Nathan and
-                      Sofiatti, Caroline and
-                      Dadu, Aaryan and
-                      Selsing, Jonatan and
-                      Talegaonkar, Chinmay and
-                      Gangbhoj, Riddhi and
                       Patidar, Abhishek and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
+                      Singh Rathore, Parikshit and
                       L. Lim, P. and
                       Chen, Nutan and
-                      Patra, Nilesh and
                       Yap, Kevin and
                       Bhandari, Jhalak and
                       Buchner, Johannes and
-                      Sarafina, Nance and
-                      Nagadevi, Kona and
                       Vieira, Nicholas and
-                      Martinez, Laureano and
+                      Nagadevi, Kona and
+                      Patra, Nilesh and
                       Truong, Le and
                       Zingale, Michael and
                       Sandler, Morgan and
                       Zaheer, Musabbiha and
+                      Sarafina, Nance and
                       Gupta, Suyash and
                       Lemoine, Thom and
-                      Watson, Clyde and
-                      PATIDAR, ABHISHEK and
                       Dasgupta, Debajyoti and
-                      Nayak U, Ashwin and
+                      PATIDAR, ABHISHEK and
                       Kumar, Aman and
                       Jaiswal, Abhayraj and
                       Kumar, Atul and
+                      Nayak U, Ashwin and
+                      Watson, Clyde and
+                      Martinez, Laureano and
                       Volodin, Dmitry and
                       Prasad, Shilpi and
                       Diddige, Harshitha and
-                      Singh Rathore, Parikshit and
                       Patel, Pratik and
                       Prasad, Rohit and
                       Gajanan Nalbalwar, Rudraksh and
+                      Kunisetty, Saanvi and
                       Sharma, Sampark and
                       Venkat, Shashank},
-      title        = {tardis-sn/tardis: TARDIS v2026.04.19},
-      month        = apr,
+      title        = {tardis-sn/tardis: TARDIS v2026.08.09},
+      month        = aug,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.04.19},
-      doi          = {10.5281/zenodo.19646964},
-      url          = {https://doi.org/10.5281/zenodo.19646964},
+      version      = {release-2026.08.09},
+      doi          = {10.5281/zenodo.21856007},
+      url          = {https://doi.org/10.5281/zenodo.21856007},
     }

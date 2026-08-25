@@ -89,7 +89,13 @@ def test_read_csv_composition_with_skip_rows(csv_composition_fname):
 
 
 def test_read_cmfgen_isotope_abundances(cmfgen_fname):
-    index, abundances, isotope_abundance = read_cmfgen_composition(cmfgen_fname)
+    with pytest.warns(
+        DeprecationWarning,
+        match="The current CMFGEN model parser is deprecated",
+    ):
+        index, abundances, isotope_abundance = read_cmfgen_composition(
+            cmfgen_fname
+        )
     assert np.isclose(abundances.loc[6, 8], 0.5, atol=1.0e-12)
     assert np.isclose(abundances.loc[12, 5], 0.8, atol=1.0e-12)
     assert np.isclose(abundances.loc[14, 1], 0.3, atol=1.0e-12)
@@ -110,13 +116,17 @@ def test_read_uniform_mass_fractions(isotope_uniform_abundance):
 
 
 def test_simple_read_cmfgen_density(cmfgen_fname):
-    (
-        time_of_model,
-        velocity,
-        mean_density,
-        electron_densities,
-        temperature,
-    ) = read_cmfgen_density(cmfgen_fname)
+    with pytest.warns(
+        DeprecationWarning,
+        match="The current CMFGEN model parser is deprecated",
+    ):
+        (
+            time_of_model,
+            velocity,
+            mean_density,
+            electron_densities,
+            temperature,
+        ) = read_cmfgen_density(cmfgen_fname)
 
     assert np.isclose(0.976 * u.day, time_of_model, atol=1e-7 * u.day)
     assert np.isclose(

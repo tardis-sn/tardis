@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from numba import njit
+from numba.typed import List as TypedList
 from pandas.api.types import CategoricalDtype
 
 from tardis.transport.montecarlo.packets.radiative_packet import (
@@ -23,8 +24,7 @@ def generate_tracker_last_interaction_list(no_of_packets):
     -------
     A list containing RPacketLastInteractionTracker for each RPacket
     """
-    # Create individual trackers - the List will be created externally
-    trackers = []
+    trackers = TypedList()
     for i in range(no_of_packets):
         trackers.append(TrackerLastInteraction())
     return trackers
@@ -69,9 +69,9 @@ def trackers_last_interaction_to_df(tracker_list):
     )
 
     # Extract data from trackers
-    interaction_type_raw = np.array(
-        [tracker.interaction_type for tracker in tracker_list]
-    )
+    interaction_type_raw = np.array([
+        tracker.interaction_type for tracker in tracker_list
+    ])
 
     # Convert enum values to their string names and create categorical
     # Handle NO_INTERACTION (-1) specifically
@@ -91,17 +91,25 @@ def trackers_last_interaction_to_df(tracker_list):
     status_categorical = pd.Categorical(status_labels, dtype=status_dtype)
 
     # Extract interaction data
-    event_id = np.array([tracker.interactions_count for tracker in tracker_list])
+    event_id = np.array([
+        tracker.interactions_count for tracker in tracker_list
+    ])
     radius = np.array([tracker.radius for tracker in tracker_list])
     shell_id = np.array([tracker.shell_id for tracker in tracker_list])
     before_nu = np.array([tracker.before_nu for tracker in tracker_list])
     before_mu = np.array([tracker.before_mu for tracker in tracker_list])
-    before_energy = np.array([tracker.before_energy for tracker in tracker_list])
+    before_energy = np.array([
+        tracker.before_energy for tracker in tracker_list
+    ])
     after_nu = np.array([tracker.after_nu for tracker in tracker_list])
     after_mu = np.array([tracker.after_mu for tracker in tracker_list])
     after_energy = np.array([tracker.after_energy for tracker in tracker_list])
-    line_absorb_id = np.array([tracker.interaction_line_absorb_id for tracker in tracker_list])
-    line_emit_id = np.array([tracker.interaction_line_emit_id for tracker in tracker_list])
+    line_absorb_id = np.array([
+        tracker.interaction_line_absorb_id for tracker in tracker_list
+    ])
+    line_emit_id = np.array([
+        tracker.interaction_line_emit_id for tracker in tracker_list
+    ])
 
     # Create DataFrame with same column order as tracker_full_df2tracker_last_interaction_df
     df = pd.DataFrame(

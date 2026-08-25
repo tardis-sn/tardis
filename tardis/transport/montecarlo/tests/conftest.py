@@ -2,13 +2,31 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
-from numba import njit
+from astropy import units as u
 
-from tardis.opacities.opacity_state_numba import (
-    opacity_state_numba_initialize,
+from tardis.model.geometry.radial1d import (
+    NumbaRadial1DGeometry,
 )
+from tardis.model.geometry.radial1d_homologous import (
+    HomologousRadial1DGeometry,
+    NumbaHomologousRadial1DGeometry,
+)
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+)
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    init_estimators_bulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_continuum import (
+    init_estimators_continuum,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
+)
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
 )
@@ -38,17 +56,33 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 
 
 @pytest.fixture(scope="package")
-def verysimple_opacity_state(nb_simulation_verysimple):
-    return opacity_state_numba_initialize(
-        nb_simulation_verysimple.plasma,
-        line_interaction_type="macroatom",
-        disable_line_scattering=False,
+def verysimple_opacity_state(
+    nb_simulation_verysimple: Simulation,
+) -> OpacityStateNumba:
+    """Numba opacity state from the very simple simulation"""
+    return nb_simulation_verysimple.opacity_state.to_numba(
+        nb_simulation_verysimple.macro_atom_state,
+        "macroatom",
     )
 
 
 @pytest.fixture(scope="package")
-def verysimple_numba_radial_1d_geometry(nb_simulation_verysimple):
-    return nb_simulation_verysimple.simulation_state.geometry.to_numba()
+def verysimple_numba_homologous_radial_1d_geometry(nb_simulation_verysimple):
+    """Return the complete Numba radial 1D geometry."""
+    geometry = nb_simulation_verysimple.simulation_state.geometry
+    return geometry.to_numba()
+
+
+@pytest.fixture(scope="package")
+def verysimple_numba_active_radial_1d_geometry(nb_simulation_verysimple):
+    """Return the active-shell Numba radial 1D geometry."""
+    geometry = nb_simulation_verysimple.simulation_state.geometry
+    return NumbaRadial1DGeometry(
+        geometry.r_inner_active.to("cm").value,
+        geometry.r_outer_active.to("cm").value,
+        geometry.v_inner_active.to("cm/s").value,
+        geometry.v_outer_active.to("cm/s").value,
+    )
 
 
 @pytest.fixture(scope="package")
@@ -117,16 +151,134 @@ def static_packet():
 
 
 @pytest.fixture
-def set_seed_fixture():
-    def set_seed(value):
-        np.random.seed(value)
-
-    return njit(set_seed)
+def opacity_state_args(request) -> tuple:
+    params = getattr(request, "param", {})
+    line_list_nu = np.array(params.get("line_list_nu", [3.999e14, 3.998e14]))
+    tau_sobolev = params.get("tau_sobolev", np.zeros((2, 2)))
+    no_of_lines = len(line_list_nu)
+    no_of_shells = tau_sobolev.shape[1]
+    return (
+        np.ones(no_of_shells) * 1.0e8,
+        np.ones(no_of_shells) * 1.0e4,
+        line_list_nu,
+        tau_sobolev,
+        np.zeros((1, no_of_shells)),
+        np.zeros(no_of_lines, dtype=np.int64),
+        np.zeros(1, dtype=np.int64),
+        np.zeros(1, dtype=np.int64),
+        np.zeros(1, dtype=np.int64),
+        np.zeros(1, dtype=np.int64),
+        np.zeros(1),
+        np.zeros((1, no_of_shells)),
+        np.zeros(1),
+        np.zeros(1),
+        np.zeros(1, dtype=np.int64),
+        np.zeros((1, no_of_shells)),
+        np.zeros(1),
+        np.zeros(1),
+        np.zeros(no_of_shells),
+        np.zeros((1, no_of_shells)),
+        np.zeros(1, dtype=np.int64),
+        0,
+    )
 
 
 @pytest.fixture
-def random_call_fixture():
-    def random_call():
-        np.random.random()
+def montecarlo_configuration() -> MonteCarloConfiguration:
+    config = MonteCarloConfiguration()
+    config.LINE_INTERACTION_TYPE = 0
+    config.SURVIVAL_PROBABILITY = 0.0
+    config.VPACKET_TAU_RUSSIAN = 10.0
+    return config
 
-    return njit(random_call)
+
+@pytest.fixture
+def parametrized_packet(static_packet: RPacket, request) -> RPacket:
+    params = getattr(request, "param", {})
+    static_packet.nu = 4.0e14
+    static_packet.current_shell_id = params.get("current_shell_id", 0)
+    static_packet.next_line_id = params.get("next_line_id", 0)
+    static_packet.prev_line_id = params.get("prev_line_id", 0)
+    return static_packet
+
+
+@pytest.fixture
+def homologous_radial_1d_geometry(
+    request: pytest.FixtureRequest,
+) -> NumbaHomologousRadial1DGeometry:
+    """Return a homologous Numba radial 1D geometry."""
+    r_outer_first_shell = getattr(request, "param", 8.0e14)
+    time_explosion = 5.2e7
+    r_inner = np.array([7.0e14, r_outer_first_shell])
+    r_outer = np.array([r_outer_first_shell, 3.0e16])
+    time_explosion_quantity = time_explosion * u.s
+    geometry = HomologousRadial1DGeometry(
+        (r_inner * u.cm / time_explosion_quantity).to(u.cm / u.s),
+        (r_outer * u.cm / time_explosion_quantity).to(u.cm / u.s),
+        None,
+        None,
+        time_explosion_quantity,
+    )
+    return geometry.to_numba()
+
+
+@pytest.fixture
+def radial_1d_geometry(
+    request: pytest.FixtureRequest,
+) -> NumbaRadial1DGeometry:
+    """Return a parameterized Numba radial 1D geometry."""
+    params = getattr(request, "param", {})
+    if params.get("negative_velocity_gradient", False):
+        v_inner = np.array([1.0e9, 1.5e9])
+        v_outer = np.array([1.5e9, 2.0e9])
+    else:
+        v_inner = np.array([2.0e9, 1.5e9])
+        v_outer = np.array([1.5e9, 1.0e9])
+
+    return NumbaRadial1DGeometry(
+        np.array([7.0e14, 8.0e14]),
+        np.array([params.get("r_outer_first_shell", 8.0e14), 3.0e16]),
+        v_inner,
+        v_outer,
+    )
+
+
+@pytest.fixture
+def classic_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
+    return OpacityStateNumba(*opacity_state_args)
+
+
+@pytest.fixture
+def iip_opacity_state(opacity_state_args: tuple) -> OpacityStateNumbaIIP:
+    no_of_shells = opacity_state_args[3].shape[1]
+    return OpacityStateNumbaIIP(
+        *opacity_state_args,
+        np.ones((no_of_shells, 1, 1)),
+    )
+
+
+@pytest.fixture
+def bulk_estimators():
+    return init_estimators_bulk(2)
+
+
+@pytest.fixture
+def line_estimators() -> EstimatorsLine:
+    return EstimatorsLine(np.zeros((2, 2)), np.zeros((2, 2)))
+
+
+@pytest.fixture
+def continuum_estimators():
+    return init_estimators_continuum((1, 2), 2)
+
+
+@pytest.fixture
+def vpacket_collection() -> VPacketCollection:
+    return VPacketCollection(
+        source_rpacket_index=0,
+        spectrum_frequency_grid=np.array([1.0e14, 2.0e14]),
+        number_of_vpackets=0,
+        v_packet_spawn_start_frequency=0.0,
+        v_packet_spawn_end_frequency=np.inf,
+        temporary_v_packet_bins=0,
+    )

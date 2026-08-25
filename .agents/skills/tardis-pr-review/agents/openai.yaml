@@ -1,0 +1,4 @@
+interface:
+  display_name: "TARDIS Science Review Guide"
+  short_description: "Brief, code-driven science questions"
+  default_prompt: "Use $tardis-pr-review to briefly identify only the science questions directly raised by code changes in TARDIS pull request #123."

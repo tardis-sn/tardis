@@ -80,13 +80,18 @@ def extend_with_default(
 DefaultDraft7Validator = extend_with_default(Draft7Validator)
 
 
-def _create_schema_registry() -> Registry:
+def _create_schema_registry(schema_dir: Path = SCHEMA_DIR) -> Registry:
     """
     Create a registry containing all schema files for reference resolution.
 
     Loads all YAML schema files from the schemas directory and creates a
     referencing Registry that can be used to resolve $ref references between
     schema files during validation.
+
+    Parameters
+    ----------
+    schema_dir : Path
+        Path to the directory containing the schema files
 
     Returns
     -------
@@ -102,7 +107,7 @@ def _create_schema_registry() -> Registry:
     registry = Registry()
 
     # Load all schema files in the schemas directory
-    for schema_file in SCHEMA_DIR.glob("*.yml"):
+    for schema_file in schema_dir.glob("*.yml"):
         with open(schema_file) as f:
             schema_content = yaml.load(f, Loader=YAMLLoader)
 
@@ -138,7 +143,7 @@ def is_quantity(checker: Any, instance: Any) -> bool:
 
 def validate_dict(
     config_dict: dict[str, Any],
-    schemapath: Path = CONFIG_SCHEMA_FNAME,
+    schemapath: str | Path = CONFIG_SCHEMA_FNAME,
     validator: type[Draft7Validator] = DefaultDraft7Validator,
 ) -> dict[str, Any]:
     """
@@ -153,7 +158,7 @@ def validate_dict(
     ----------
     config_dict : dict[str, Any]
         The configuration dictionary to validate.
-    schemapath : Path, optional
+    schemapath : str or Path, optional
         Path to the main schema file. Defaults to CONFIG_SCHEMA_FNAME.
     validator : type[Draft7Validator], optional
         The validator class to use. Defaults to DefaultDraft7Validator.
@@ -176,11 +181,12 @@ def validate_dict(
     This function creates a deep copy of the input dictionary before
     validation to avoid modifying the original data.
     """
+    schemapath = Path(schemapath)
     with open(schemapath) as f:
         schema = yaml.load(f, Loader=YAMLLoader)
 
     # Create registry for schema references
-    registry = _create_schema_registry()
+    registry = _create_schema_registry(schemapath.parent)
 
     validated_dict = deepcopy(config_dict)
     custom_type_checker = validator.TYPE_CHECKER.redefine("quantity", is_quantity)
@@ -194,7 +200,7 @@ def validate_dict(
 
 def validate_yaml(
     configpath: Path,
-    schemapath: Path = CONFIG_SCHEMA_FNAME,
+    schemapath: str | Path = CONFIG_SCHEMA_FNAME,
     validator: type[Draft7Validator] = DefaultDraft7Validator,
 ) -> dict[str, Any]:
     """
@@ -208,7 +214,7 @@ def validate_yaml(
     ----------
     configpath : Path
         Path to the YAML configuration file to validate.
-    schemapath : Path, optional
+    schemapath : str or Path, optional
         Path to the main schema file. Defaults to CONFIG_SCHEMA_FNAME.
     validator : type[Draft7Validator], optional
         The validator class to use. Defaults to DefaultDraft7Validator.

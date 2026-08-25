@@ -1,24 +1,33 @@
-************************************
-Analyzing TARDIS Simulation Outputs
-************************************
+.. _visualization:
 
-This section provides practical solutions for common analysis tasks. These guides assume you have completed simulations and want to extract scientific insights from the results.
+*****************************
+Visualization Tools & Widgets
+*****************************
 
-Quick Reference
-===============
-
-* :doc:`spectrum/index` - Analyzing and visualizing spectra
-* :doc:`visualization/index` - Creating plots and visualizations
-
-Detailed Guides
-================
+TARDIS Visualization Tools
+==========================
+A collection of tools that post-process TARDIS simulations to generate
+diagnostic visualizations.
 
 .. toctree::
     :maxdepth: 2
 
-    spectrum/spectrum-visualization-notebook
-    visualization/index
+    SDEC Plot <visualization/how_to_sdec_plot>
+    LIV Plot <visualization/how_to_liv_plot>
+    Convergence Plot <visualization/tutorial_convergence_plot>
 
-.. note::
-   **Need technical details?** Check the API reference for analysis modules.
-    
+
+TARDIS Widgets (Graphical User Interfaces)
+==========================================
+
+A collection of Jupyter widgets that allow you to interactively explore TARDIS
+simulations. Widgets are simple Graphical User Interfaces (GUIs) that run within
+Jupyter Notebooks, making data exploration much easier.
+
+.. toctree::
+    :maxdepth: 2
+
+    Shell Info Widget <visualization/shell_info_widget>
+    Line Info Widget <visualization/line_info_widget>
+    Custom Abundance Widget <visualization/custom_abundance_widget>
+    Energy Level Diagram Widget <visualization/energy_level_widget>

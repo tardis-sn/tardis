@@ -61,7 +61,7 @@ def test_boundary_interactions(tracker_full_df, regression_data):
         # *every* interaction, not just boundary events
         # (this should return a consecutive range from 1 to len(boundary_event_idx))
         offset = np.cumsum(~boundary_mask)-1
-        boundary_event_idx -= offset[boundary_mask]
+        boundary_event_idx = boundary_event_idx - offset[boundary_mask]
 
         current_shell_id = packet_df[boundary_mask]['before_shell_id'].values
         next_shell_id = packet_df[boundary_mask]['after_shell_id'].values

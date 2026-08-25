@@ -6,7 +6,7 @@ This module contains estimators for cell-level bulk radiation field properties.
 import numba as nb
 import numpy as np
 from numba.experimental import jitclass
-from numba.typed import List
+from numba.typed import List as TypedList
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
@@ -80,7 +80,7 @@ def init_estimators_bulk(n_cells: int) -> EstimatorsBulk:
 @nb.njit(**njit_dict_no_parallel)
 def create_estimators_bulk_list(
     n_cells: int, number: int
-) -> List[EstimatorsBulk]:
+) -> TypedList[EstimatorsBulk]:
     """
     Factory function to create a list of EstimatorsBulk instances.
 
@@ -96,7 +96,7 @@ def create_estimators_bulk_list(
     numba.typed.List[EstimatorsBulk]
         Typed list of EstimatorsBulk instances.
     """
-    estimator_list = List()
+    estimator_list = TypedList()
 
     for _ in range(number):
         estimator_list.append(init_estimators_bulk(n_cells))

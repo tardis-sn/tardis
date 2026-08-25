@@ -105,15 +105,16 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             meta_stable_upper & (stimulated_emission_factor < 0)
         ] = 0.0
         if self.nlte_species:
-            nlte_lines_mask = (
-                lines.reset_index()
-                .apply(
-                    lambda row: (row.atomic_number, row.ion_number)
-                    in self.nlte_species,
-                    axis=1,
+            atomic_numbers = lines.index.get_level_values(
+                "atomic_number"
+            ).to_numpy()
+            ion_numbers = lines.index.get_level_values("ion_number").to_numpy()
+
+            nlte_lines_mask = np.zeros(len(lines), dtype=bool)
+            for atomic_number, ion_number in self.nlte_species:
+                nlte_lines_mask |= (atomic_numbers == atomic_number) & (
+                    ion_numbers == ion_number
                 )
-                .values
-            )
             stimulated_emission_factor[
                 (stimulated_emission_factor < 0)
                 & nlte_lines_mask[np.newaxis, :].T
@@ -276,7 +277,10 @@ class TransitionProbabilities(ConvergedPlasmaProperty):
         self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
     ):
         transition_probabilities = np.empty(
-            (self.transition_probability_coef.shape[0], beta_sobolev.shape[1])
+            (
+                self.transition_probability_coef.shape[0],
+                beta_sobolev.shape[1],
+            )
         )
         # trans_old = self.calculate_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
         transition_type = macro_atom_data.transition_type.values

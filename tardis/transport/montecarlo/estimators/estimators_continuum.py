@@ -6,7 +6,7 @@ This module contains estimators for continuum process tracking.
 import numba as nb
 import numpy as np
 from numba.experimental import jitclass
-from numba.typed import List
+from numba.typed import List as TypedList
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
@@ -145,7 +145,7 @@ def create_estimators_continuum_list(
     n_levels_bf_species_by_n_cells_tuple: tuple[int, int],
     n_cells: int,
     number: int,
-) -> List[EstimatorsContinuum]:
+) -> TypedList[EstimatorsContinuum]:
     """
     Factory function to create a list of EstimatorsContinuum instances.
 
@@ -163,7 +163,7 @@ def create_estimators_continuum_list(
     numba.typed.List[EstimatorsContinuum]
         Typed list of EstimatorsContinuum instances
     """
-    estimator_list = List()
+    estimator_list = TypedList()
 
     for _ in range(number):
         estimator_list.append(

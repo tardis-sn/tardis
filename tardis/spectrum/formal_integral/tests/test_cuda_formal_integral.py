@@ -1,16 +1,19 @@
 import numpy as np
 import numpy.testing as ntest
-from numba import cuda
 import pytest
+from astropy import units as u
+from numba import cuda
 
+import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
+import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 from tardis import constants as c
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
 from tardis.spectrum.formal_integral.base import (
     intensity_black_body,
 )
-from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
-import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
-import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
 
@@ -71,13 +74,14 @@ def formal_integral_geometry(request):
     This gets the Numba model to be used in later tests
     """
     r = request.param["r"]
-    geometry = NumbaRadial1DGeometry(
-        r[:-1],
-        r[1:],
-        r[:-1] * c.c.cgs.value,
-        r[1:] * c.c.cgs.value,
-    )
-    return geometry
+    time_explosion = (1 / c.c.cgs.value) * u.s
+    return HomologousRadial1DGeometry(
+        r[:-1] * u.cm / time_explosion,
+        r[1:] * u.cm / time_explosion,
+        None,
+        None,
+        time_explosion,
+    ).to_numba()
 
 
 @pytest.fixture(scope="function")
@@ -207,7 +211,7 @@ def test_line_search_cuda(nu_insert, simulation_verysimple_opacity_state):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = simulation_verysimple_opacity_state.line_list_nu
+    line_list_nu = simulation_verysimple_opacity_state.line_list_nu.copy()
 
     expected[0] = formal_integral_numba.line_search(
         line_list_nu, nu_insert, len(line_list_nu)
@@ -243,7 +247,7 @@ def test_reverse_binary_search(nu_insert, simulation_verysimple_opacity_state):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = simulation_verysimple_opacity_state.line_list_nu
+    line_list_nu = simulation_verysimple_opacity_state.line_list_nu.copy()
 
     imin = 0
     imax = len(line_list_nu) - 1

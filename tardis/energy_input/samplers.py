@@ -83,9 +83,9 @@ def sample_energy_distribution(energy_sorted, cdf):
     float
         Sampled energy
     """
-    index = np.searchsorted(cdf, np.random.random())
+    energy_idx = np.searchsorted(cdf, np.random.random())
 
-    return energy_sorted[index]
+    return energy_sorted[energy_idx]
 
 
 @njit(**njit_dict_no_parallel)
@@ -152,7 +152,7 @@ class PositroniumSampler:
             Number of grid points for the CDF, by default 1000
         """
         self.x_grid = np.linspace(1e-4, 0.9999, n_grid)
-        self.norm_pdf = self.pdf(self.x_grid) / np.trapz(
+        self.norm_pdf = self.pdf(self.x_grid) / np.trapezoid(
             self.pdf(self.x_grid), self.x_grid
         )
         self.cdf_grid = np.cumsum(self.norm_pdf)

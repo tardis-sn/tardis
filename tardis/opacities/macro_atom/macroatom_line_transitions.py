@@ -6,6 +6,9 @@ from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 CONST_C_CGS: float = const.c.cgs.value
 CONST_H_CGS: float = const.h.cgs.value
+CONST_C_EINSTEIN: float = (
+    4.0 * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)
+).value
 
 
 def line_transition_internal_up(
@@ -84,7 +87,6 @@ def line_transition_internal_up(
         },
         index=p_internal_up.index,
     )
-    p_internal_up["source"] = sources
 
     return p_internal_up, internal_up_metadata
 
@@ -124,12 +126,16 @@ def probability_internal_up(
     pd.DataFrame
         DataFrame containing the calculated internal upward transition probabilities.
     """
-    p_internal_up = beta_sobolevs * (
-        line_f_lus
-        / (CONST_H_CGS * line_nus)
-        * stimulated_emission_factors
-        * mean_intensities_blue_wing
-        * energies_lower
+    p_internal_up = (
+        beta_sobolevs
+        * (
+            line_f_lus
+            / (CONST_H_CGS * line_nus)
+            * stimulated_emission_factors
+            * mean_intensities_blue_wing
+            * energies_lower
+        )
+        * CONST_C_EINSTEIN
     )
     return p_internal_up
 
@@ -200,7 +206,6 @@ def line_transition_internal_down(
         },
         index=p_internal_down.index,
     )
-    p_internal_down["source"] = sources
 
     return p_internal_down, internal_down_metadata
 
@@ -234,8 +239,10 @@ def probability_internal_down(
     pd.DataFrame
         DataFrame containing the calculated internal downward transition probabilities.
     """
-    p_internal_down = beta_sobolevs * (
-        2 * line_nus**2 * line_f_uls / CONST_C_CGS**2 * energies_lower
+    p_internal_down = (
+        beta_sobolevs
+        * (2 * line_nus**2 * line_f_uls / CONST_C_CGS**2 * energies_lower)
+        * CONST_C_EINSTEIN
     )
     return p_internal_down
 
@@ -310,7 +317,6 @@ def line_transition_emission_down(
         },
         index=p_emission_down.index,
     )
-    p_emission_down["source"] = sources
 
     return p_emission_down, emission_down_metadata
 
@@ -347,11 +353,15 @@ def probability_emission_down(
     pd.DataFrame
         DataFrame containing the calculated emission down transition probabilities.
     """
-    p_emission_down = beta_sobolevs * (
-        2
-        * line_nus**2
-        * line_f_uls
-        / CONST_C_CGS**2
-        * (energies_upper - energies_lower)
+    p_emission_down = (
+        beta_sobolevs
+        * (
+            2
+            * line_nus**2
+            * line_f_uls
+            / CONST_C_CGS**2
+            * (energies_upper - energies_lower)
+        )
+        * CONST_C_EINSTEIN
     )
     return p_emission_down

@@ -6,7 +6,7 @@ This module contains estimators for line-specific radiation field properties.
 import numba as nb
 import numpy as np
 from numba.experimental import jitclass
-from numba.typed import List
+from numba.typed import List as TypedList
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
@@ -76,8 +76,12 @@ def init_estimators_line(
     -------
     Initialized estimators with zero-filled arrays.
     """
-    mean_intensity_blueward = np.zeros(n_lines_by_n_cells_tuple, dtype=np.float64)
-    energy_deposition_line_rate = np.zeros(n_lines_by_n_cells_tuple, dtype=np.float64)
+    mean_intensity_blueward = np.zeros(
+        n_lines_by_n_cells_tuple, dtype=np.float64
+    )
+    energy_deposition_line_rate = np.zeros(
+        n_lines_by_n_cells_tuple, dtype=np.float64
+    )
 
     return EstimatorsLine(mean_intensity_blueward, energy_deposition_line_rate)
 
@@ -85,7 +89,7 @@ def init_estimators_line(
 @nb.njit(**njit_dict_no_parallel)
 def create_estimators_line_list(
     n_lines_by_n_cells_tuple: tuple[int, int], number: int
-) -> List[EstimatorsLine]:
+) -> TypedList[EstimatorsLine]:
     """
     Factory function to create a list of EstimatorsLine instances.
 
@@ -100,7 +104,7 @@ def create_estimators_line_list(
     -------
     Typed list of EstimatorsLine instances.
     """
-    estimator_list = List()
+    estimator_list = TypedList()
 
     for _ in range(number):
         estimator_list.append(init_estimators_line(n_lines_by_n_cells_tuple))

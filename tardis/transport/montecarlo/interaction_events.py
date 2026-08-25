@@ -75,8 +75,9 @@ def bound_free_emission(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     continuum_id : int
     """
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
 
     comov_nu = sample_nu_free_bound(
@@ -103,6 +104,9 @@ def bf_cooling(r_packet, time_explosion, opacity_state, enable_full_relativity):
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
+    # Josh: I don't think we need to do this - BF cooling already picks one
+    # The interaction handler already sends you to an individual level, but here we
+    # ignore that and choose the level again.
     fb_cooling_prob = opacity_state.p_fb_deactivation[
         :, r_packet.current_shell_id
     ]
@@ -161,8 +165,9 @@ def free_free_emission(
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
     comov_nu = sample_nu_free_free(opacity_state, r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
@@ -190,14 +195,15 @@ def thomson_scatter(r_packet, time_explosion, enable_full_relativity):
     time_explosion : float
         time since explosion in seconds
     """
+    velocity = r_packet.r / time_explosion
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
 
     r_packet.nu = comov_nu * inverse_new_doppler_factor
@@ -207,7 +213,7 @@ def thomson_scatter(r_packet, time_explosion, enable_full_relativity):
             r_packet, time_explosion, r_packet.mu
         )
     temp_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
 
 
@@ -237,8 +243,9 @@ def line_emission(
     """
     if emission_line_id != r_packet.next_line_id:
         pass
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
     r_packet.nu = (
         opacity_state.line_list_nu[emission_line_id] * inverse_doppler_factor
@@ -274,18 +281,18 @@ def determine_bf_macro_activation_idx(
         Macro atom activation idx.
     """
     # Perform a MC experiment to determine the continuum for absorption
-    index = np.searchsorted(chi_bf_contributions, np.random.random())
-    continuum_id = active_continua[index]
+    sampled_continuum_idx = np.searchsorted(chi_bf_contributions, np.random.random())
+    active_continuum_idx = active_continua[sampled_continuum_idx]
 
     # Perform a MC experiment to determine whether thermal or
     # ionization energy is created
-    nu_threshold = opacity_state.photo_ion_nu_threshold_mins[continuum_id]
+    nu_threshold = opacity_state.photo_ion_nu_threshold_mins[active_continuum_idx]
     fraction_ionization = nu_threshold / nu
     if (
         np.random.random() < fraction_ionization
     ):  # Create ionization energy (i-packet)
         destination_level_idx = opacity_state.photo_ion_activation_idx[
-            continuum_id
+            active_continuum_idx
         ]
     else:  # Create thermal energy (k-packet)
         destination_level_idx = opacity_state.k_packet_idx

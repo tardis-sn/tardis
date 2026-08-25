@@ -2,8 +2,8 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-import tardis.opacities.opacity_state as numba_interface
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+from tardis.simulation import Simulation
+
 
 @pytest.mark.parametrize(
     "input_params,sliced",
@@ -15,15 +15,21 @@ from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
         ("downbranch", True),
     ],
 )
-def test_opacity_state_initialize(
-    nb_simulation_verysimple, input_params, sliced
-):
+def test_opacity_state_to_numba(
+    nb_simulation_verysimple: Simulation,
+    input_params: str,
+    sliced: bool,
+) -> None:
     line_interaction_type = input_params
     plasma = nb_simulation_verysimple.plasma
-    actual = numba_interface.opacity_state_initialize(
-        plasma,
+    macro_atom_state = (
+        None
+        if line_interaction_type == "scatter"
+        else nb_simulation_verysimple.macro_atom_state
+    )
+    actual = nb_simulation_verysimple.opacity_state.to_numba(
+        macro_atom_state,
         line_interaction_type,
-        disable_line_scattering=False,
     )
 
     if sliced:
@@ -45,40 +51,35 @@ def test_opacity_state_initialize(
             actual.transition_probabilities, np.zeros((1, 1), dtype=np.float64)
         )
         npt.assert_allclose(actual.line2macro_level_upper, empty)
-        npt.assert_allclose(actual.macro_block_references, empty)
+        npt.assert_allclose(actual.macro_block_edge_index, empty)
         npt.assert_allclose(actual.transition_type, empty)
         npt.assert_allclose(actual.destination_level_id, empty)
         npt.assert_allclose(actual.transition_line_id, empty)
     else:
         npt.assert_allclose(
             actual.transition_probabilities,
-            plasma.transition_probabilities.values[:, index],
+            macro_atom_state.transition_probabilities.values[:, index],
         )
         npt.assert_allclose(
             actual.line2macro_level_upper,
-            plasma.atomic_data.lines_upper2macro_reference_idx,
+            macro_atom_state.line2macro_level_upper.values,
         )
         npt.assert_allclose(
-            actual.macro_block_references,
-            plasma.atomic_data.macro_atom_references["block_references"].values,
+            actual.macro_block_edge_index,
+            macro_atom_state.macro_block_edge_index,
         )
         npt.assert_allclose(
             actual.transition_type,
-            plasma.atomic_data.macro_atom_data["transition_type"].values,
+            macro_atom_state.transition_metadata.transition_type.values,
         )
         npt.assert_allclose(
             actual.destination_level_id,
-            plasma.atomic_data.macro_atom_data["destination_level_idx"].values,
+            macro_atom_state.transition_metadata.destination_level_idx.values,
         )
         npt.assert_allclose(
             actual.transition_line_id,
-            plasma.atomic_data.macro_atom_data["lines_idx"].values,
+            macro_atom_state.transition_metadata.transition_line_idx.values,
         )
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_configuration_initialize():
-    raise AssertionError()
 
 
 def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):

@@ -42,7 +42,7 @@ If the necessary Python modules (`PyGraphviz <https://pygraphviz.github.io/>`_ a
 .. toctree::
     :maxdepth: 2
 
-    ../../../io/output/how_to_plasma_graph
+    ../../../how_to/output/how_to_plasma_graph
 
 Updating the Plasma
 -------------------
@@ -81,6 +81,8 @@ TARDIS also allows for NLTE treatments of specified species, as well as special 
 
     nlte
     helium_nlte
+    two_photon_archive
+    adiabatic_cooling_archive
     
 
 

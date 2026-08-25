@@ -124,8 +124,8 @@ class StandardTARDISWorkflow(
                 self.transport_state.estimators_line,
                 self.transport_state.time_explosion,
                 self.transport_state.time_of_simulation,
-                self.transport_state.geometry_state.volume,
-                self.transport_state.opacity_state.line_list_nu,
+                self.transport_state.geometry_state_numba.volume,
+                self.transport_state.opacity_state_numba.line_list_nu,
             )
         )
 
@@ -173,7 +173,7 @@ class StandardTARDISWorkflow(
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
 
-        self.log_plasma_state(
+        self.workflow_logger.log_plasma_state(
             self.simulation_state.t_radiative,
             self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,

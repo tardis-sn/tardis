@@ -94,9 +94,6 @@ class BoundFreeThermalRates:
                 4
                 * np.pi
                 * self.photoionization_cross_sections["x_sect"].to_numpy()
-                * self.nu**3
-                * const.h.cgs.value
-                / const.c.cgs.value**2
             ) * (1 - nu_is / self.nu)
 
             heating_coefficient = (

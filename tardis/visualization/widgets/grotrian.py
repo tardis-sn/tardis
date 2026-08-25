@@ -3,13 +3,14 @@ Grotrian Diagram Widget for TARDIS simulation models.
 
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
-import ipywidgets as ipw
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import panel as pn
 import plotly.graph_objects as go
 from astropy import units as u
+from bokeh.models.formatters import PrintfTickFormatter
 from plotly.subplots import make_subplots
 
 from tardis.analysis import LastLineInteraction
@@ -903,7 +904,7 @@ class GrotrianPlot:
         Function to draw the plot and the reference scales (calls other draw methods independently)
         """
         ### Create figure and set metadata
-        self.fig = go.FigureWidget(
+        self.fig = go.Figure(
             make_subplots(
                 rows=1,
                 cols=2,
@@ -985,7 +986,7 @@ class GrotrianPlot:
 
 class GrotrianWidget:
     """
-    A wrapper class for the Grotrian Diagram, containing the Grotrian Plot and the IpyWidgets
+    A wrapper class for the Grotrian Diagram, containing the Grotrian Plot and Panel widgets
 
     Parameters
     ----------
@@ -1019,79 +1020,78 @@ class GrotrianWidget:
         self.num_shells = num_shells
 
         species_list = self._get_species()
-        self.ion_selector = ipw.Dropdown(
+        self.ion_selector = pn.widgets.Select(
+            name="Ion",
             options=species_list,
-            index=0,
-            description="Ion",
+            value=species_list[0],
         )
         self.plot.set_ion(*species_string_to_tuple(self.ion_selector.value))
-        self.ion_selector.observe(
+        self.ion_selector.param.watch(
             self._ion_change_handler,
-            names="value",
-        )
-        self.ion_selector.observe(
-            self._wavelength_resetter,
-            names="value",
+            "value",
         )
 
         shell_list = ["All"] + [str(i) for i in range(1, num_shells + 1)]
-        self.shell_selector = ipw.Dropdown(
+        self.shell_selector = pn.widgets.Select(
+            name="Shell",
             options=shell_list,
-            index=0,
-            description="Shell",
+            value="All",
         )
-        self.shell_selector.observe(
-            lambda change: self._change_handler(
-                "shell", None if change["new"] == "All" else int(change["new"])
+        self.shell_selector.param.watch(
+            lambda event: self._change_handler(
+                "shell", None if event.new == "All" else int(event.new)
             ),
-            names="value",
-        )
-        self.shell_selector.observe(
-            self._wavelength_resetter,
-            names="value",
+            "value",
         )
 
-        self.max_level_selector = ipw.BoundedIntText(
+        self.max_level_selector = pn.widgets.IntInput(
+            name="Max Levels",
             value=plot.max_levels,
-            min=1,
-            max=40,
+            start=1,
+            end=40,
             step=1,
-            description="Max Levels",
         )
-        self.max_level_selector.observe(
-            lambda change: self._change_handler("max_levels", change["new"]),
-            names="value",
-        )
-        self.max_level_selector.observe(
-            self._wavelength_resetter,
-            names="value",
+        self.max_level_selector.param.watch(
+            lambda event: self._change_handler("max_levels", int(event.new)),
+            "value",
         )
 
-        self.y_scale_selector = ipw.ToggleButtons(
-            options=GrotrianPlot.Y_SCALE_OPTION.keys(),
-            index=1,
-            description="Y-Scale",
-            layout=ipw.Layout(width="auto"),
-            style={"button_width": "100px"},
+        self.y_scale_selector = pn.widgets.RadioButtonGroup(
+            name="Y-Scale",
+            options=list(GrotrianPlot.Y_SCALE_OPTION.keys()),
+            value=self.plot.y_scale,
+            width=200,
         )
-        self.y_scale_selector.observe(
-            lambda change: self._change_handler("y_scale", change["new"]),
-            names="value",
+        self.y_scale_selector.param.watch(
+            lambda event: self._change_handler("y_scale", event.new),
+            "value",
         )
 
-        self.wavelength_range_selector = ipw.FloatRangeSlider(
-            value=[self.plot.min_wavelength, self.plot.max_wavelength],
-            min=self.plot.min_wavelength,
-            max=self.plot.max_wavelength,
+        self.wavelength_range_selector = pn.widgets.RangeSlider(
+            name="Wavelength",
+            value=(self.plot.min_wavelength, self.plot.max_wavelength),
+            start=self.plot.min_wavelength,
+            end=self.plot.max_wavelength,
             step=0.1,
-            description="Wavelength",
-            layout=ipw.Layout(width="605px"),
-            readout_format=".1e",
+            format=PrintfTickFormatter(format='%0.1e'),
+            margin=(5, 10, 5, 65),
+            width= 605,
+            stylesheets=[
+                "div.noUi-connect {background-color: #3FB8AF !important;}",
+                "[disabled] div.noUi-connect {background-color: #B8B8B8 !important;}",
+            ]
         )
-        self.wavelength_range_selector.observe(
+        self.wavelength_range_selector.param.watch(
             self._wavelength_change_handler,
-            names="value",
+            "value",
         )
+
+        self.plot_pane = pn.pane.Plotly(
+            self.plot.display(),
+            sizing_mode="stretch_width",
+            height=700,
+        )
+        self._wavelength_resetter()
 
     def _get_species(self):
         """
@@ -1120,13 +1120,9 @@ class GrotrianWidget:
         value :
             The new value of the attribute
         """
-        index = self.fig.children.index(self.plot.fig)
-        setattr(self.plot, attribute, value)  # Set the value of the attribute
-
-        # Set the updated plot in the figure
-        children_list = list(self.fig.children)
-        children_list[index] = self.plot.display()
-        self.fig.children = tuple(children_list)
+        setattr(self.plot, attribute, value)
+        self._wavelength_resetter()
+        self.plot_pane.object = self.plot.display()
 
     def _ion_change_handler(self, change):
         """
@@ -1134,18 +1130,13 @@ class GrotrianWidget:
 
         Parameters
         ----------
-        change : dict
+        change : param.parameterized.Event
             Change information of the event
         """
-        atomic_number, ion_number = species_string_to_tuple(change["new"])
-        index = self.fig.children.index(self.plot.fig)
+        atomic_number, ion_number = species_string_to_tuple(change.new)
         self.plot.set_ion(atomic_number, ion_number)
-
-        # Set the updated plot in the figure
-        children_list = list(self.fig.children)
-        children_list[index] = self.plot.display()
-        self.fig.children = tuple(children_list)
-        # self._wavelength_resetter()
+        self._wavelength_resetter()
+        self.plot_pane.object = self.plot.display()
 
     def _wavelength_change_handler(self, change):
         """
@@ -1153,20 +1144,15 @@ class GrotrianWidget:
 
         Parameters
         ----------
-        change : dict
+        change : param.parameterized.Event
             Change information of the event
         """
-        min_wavelength, max_wavelength = change["new"]
-        index = self.fig.children.index(self.plot.fig)
+        min_wavelength, max_wavelength = change.new
         self.plot.min_wavelength = min_wavelength
         self.plot.max_wavelength = max_wavelength + 1
+        self.plot_pane.object = self.plot.display()
 
-        # Set the updated plot in the figure
-        children_list = list(self.fig.children)
-        children_list[index] = self.plot.display()
-        self.fig.children = tuple(children_list)
-
-    def _wavelength_resetter(self, change):
+    def _wavelength_resetter(self, change=None):
         """
         Resets the range of the wavelength slider whenever the ion, level or shell changes
         """
@@ -1174,42 +1160,44 @@ class GrotrianWidget:
         max_wavelength = self.plot.max_wavelength
 
         if min_wavelength is None or max_wavelength is None:
-            self.wavelength_range_selector.layout.visibility = "hidden"
+            self.wavelength_range_selector.visible = False
+            self.wavelength_range_selector.disabled = True
             return
 
-        elif min_wavelength == max_wavelength:
-            self.wavelength_range_selector.layout.visibility = "visible"
+        # Compare at the same precision used by the slider to display values
+        if f"{min_wavelength:.1e}" == f"{max_wavelength:.1e}":
+            self.wavelength_range_selector.visible = True
             self.wavelength_range_selector.disabled = True
         else:
-            self.wavelength_range_selector.layout.visibility = "visible"
+            self.wavelength_range_selector.visible = True
             self.wavelength_range_selector.disabled = False
 
-        self.wavelength_range_selector.min = 0.0
-        self.wavelength_range_selector.max = max_wavelength
-        self.wavelength_range_selector.min = min_wavelength
-        self.wavelength_range_selector.value = [
-            self.wavelength_range_selector.min,
-            self.wavelength_range_selector.max,
-        ]
+        self.wavelength_range_selector.start = min_wavelength
+        self.wavelength_range_selector.end = max_wavelength
+        self.wavelength_range_selector.value = (
+            min_wavelength,
+            max_wavelength,
+        )
 
     def display(self):
         """
-        Function to render the Grotrian Widget containing the plot and IpyWidgets together
+        Function to render the Grotrian Widget containing the plot and Panel widgets together
         """
-        fig = self.plot.display()
-        self.fig = ipw.VBox(
-            [
-                ipw.HBox(
-                    [
-                        self.ion_selector,
-                        self.shell_selector,
-                        self.max_level_selector,
-                    ]
+        widget = pn.Column(
+            pn.Row(
+                self.ion_selector,
+                self.shell_selector,
+                self.max_level_selector,
+            ),
+            pn.Row(
+                pn.Row(
+                    pn.pane.Markdown("Y-Scale", margin=(0, 0, 0, 10)),
+                    self.y_scale_selector,
+                    align="end",
                 ),
-                ipw.HBox(
-                    [self.y_scale_selector, self.wavelength_range_selector]
-                ),
-                fig,
-            ]
+                self.wavelength_range_selector,
+            ),
+            self.plot_pane,
         )
-        return self.fig
+
+        return widget

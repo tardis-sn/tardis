@@ -214,7 +214,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             electron_distribution = ThermalElectronEnergyDistribution(
                 0 * u.erg,
                 t_electrons * u.K,
-                previous_electron_densities * u.g / u.cm**3,
+                previous_electron_densities.values * u.g / u.cm**3,
             )
 
             rate_matrix = rate_matrix_solver.solve(

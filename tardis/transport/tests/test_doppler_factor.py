@@ -29,14 +29,13 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
     expected : float
         Expected value of the doppler factor.
     """
-    # Set the params from test cases here
-    time_explosion = 1 / inv_t_exp
+    velocity = r * inv_t_exp
 
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
 
     obtained = frame_transformations.get_doppler_factor(
-        r, mu, time_explosion, False
+        velocity, mu, False
     )
 
     # Perform required assertions
@@ -120,14 +119,13 @@ def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
     expected : float
         Expected value of the inverse doppler factor.
     """
-    # Set the params from test cases here
-    time_explosion = 1 / inv_t_exp
+    velocity = r * inv_t_exp
 
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
 
     obtained = frame_transformations.get_inverse_doppler_factor(
-        r, mu, time_explosion, enable_full_relativity=False
+        velocity, mu, enable_full_relativity=False
     )
 
     # Perform required assertions

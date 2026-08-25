@@ -65,7 +65,7 @@ class RateMatrix:
 
         # Multiply rates by electron number density where appropriate
         rates_df_list = [
-            rates_df * thermal_electron_energy_distribution.number_density
+            rates_df * thermal_electron_energy_distribution.number_density.value
             if solver_arg_tuple[1] == "electron"
             else rates_df
             for solver_arg_tuple, rates_df in zip(
