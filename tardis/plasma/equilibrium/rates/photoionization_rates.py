@@ -112,6 +112,7 @@ class AnalyticPhotoionizationRateSolver:
             lte_ion_population = reindex_ion_population_to_level_population(
                 lte_ion_population, lte_level_population
             )
+            # Lucy 2003 Eq 14
             level_to_continuum_saha_factor = lte_level_population.values / (
                 lte_ion_population.values
                 * electron_energy_distribution.number_density
