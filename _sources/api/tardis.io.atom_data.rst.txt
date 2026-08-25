@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    tardis.io.atom_data.atom_web_download
+   tardis.io.atom_data.atomic_data_summary
    tardis.io.atom_data.base
    tardis.io.atom_data.collision_data
    tardis.io.atom_data.macro_atom_data

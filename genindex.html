@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a3572772"></script>
+      <script src="_static/documentation_options.js?v=5bfb3f76"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -133,6 +133,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="how_to/atomic_data_summary.html">Creating an atomic-data summary table</a></li>
 <li class="toctree-l1"><a class="reference internal" href="how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="how_to/code_comparison/toy_models/reading%20blondin%20toymodel.html">Compare Blondin Toy Models</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="how_to/code_comparison/toy_models/reading%20blondin%20toymodel.html#Comparison-of-snia_toy01.dat">Comparison of snia_toy01.dat</a></li>
@@ -1465,6 +1466,11 @@
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.atom_web_download.html#tardis.io.atom_data.atom_web_download.get_atomic_repo_config"><code class="docutils literal notranslate"><span class="pre">get_atomic_repo_config()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l8"><a class="reference internal" href="api/tardis.io.atom_data.atomic_data_summary.html">tardis.io.atom_data.atomic_data_summary module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.atomic_data_summary.html#tardis.io.atom_data.atomic_data_summary.build_atom_data_summary"><code class="docutils literal notranslate"><span class="pre">build_atom_data_summary()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.atomic_data_summary.html#tardis.io.atom_data.atomic_data_summary.export_atom_data_summary"><code class="docutils literal notranslate"><span class="pre">export_atom_data_summary()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.io.atom_data.base.html">tardis.io.atom_data.base module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData"><code class="docutils literal notranslate"><span class="pre">AtomData</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.from_hdf"><code class="docutils literal notranslate"><span class="pre">AtomData.from_hdf()</span></code></a></li>
@@ -1526,7 +1532,23 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l7"><a class="reference internal" href="api/tardis.io.atom_data.html#module-tardis.io.atom_data">Module contents</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/tardis.io.atom_data.html#module-tardis.io.atom_data">Module contents</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData"><code class="docutils literal notranslate"><span class="pre">AtomData</span></code></a><ul>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.from_hdf"><code class="docutils literal notranslate"><span class="pre">AtomData.from_hdf()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.get_attributes_from_store"><code class="docutils literal notranslate"><span class="pre">AtomData.get_attributes_from_store()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.hdf_names"><code class="docutils literal notranslate"><span class="pre">AtomData.hdf_names</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_atom_data"><code class="docutils literal notranslate"><span class="pre">AtomData.prepare_atom_data()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_continuum_interaction_data"><code class="docutils literal notranslate"><span class="pre">AtomData.prepare_continuum_interaction_data()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_line_level_indexes"><code class="docutils literal notranslate"><span class="pre">AtomData.prepare_line_level_indexes()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_lines"><code class="docutils literal notranslate"><span class="pre">AtomData.prepare_lines()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_macro_atom_data"><code class="docutils literal notranslate"><span class="pre">AtomData.prepare_macro_atom_data()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.related_groups"><code class="docutils literal notranslate"><span class="pre">AtomData.related_groups</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l8"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.download_atom_data"><code class="docutils literal notranslate"><span class="pre">download_atom_data()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="api/tardis.io.atom_data.html#tardis.io.atom_data.export_atom_data_summary"><code class="docutils literal notranslate"><span class="pre">export_atom_data_summary()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="api/tardis.io.configuration.html">tardis.io.configuration package</a><ul>
@@ -4837,8 +4859,12 @@
       </ul></li>
       <li><a href="api/tardis.io.util.html#tardis.io.util.assert_equality">assert_equality() (in module tardis.io.util)</a>
 </li>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData">AtomData (class in tardis.io.atom_data.base)</a>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData">AtomData (class in tardis.io.atom_data)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData">(class in tardis.io.atom_data.base)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomDataMissingError">AtomDataMissingError</a>
 </li>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomDataNotPreparedError">AtomDataNotPreparedError</a>
@@ -4947,10 +4973,10 @@
         <li><a href="api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.BetaSobolev">(class in tardis.opacities.tau_sobolev)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.BF_COOLING">BF_COOLING (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.bf_cooling">bf_cooling() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.BF_EMISSION">BF_EMISSION (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
@@ -5012,6 +5038,8 @@
 </li>
       </ul></li>
       <li><a href="api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.build">build() (tardis.visualization.tools.convergence_plot.ConvergencePlots method)</a>
+</li>
+      <li><a href="api/tardis.io.atom_data.atomic_data_summary.html#tardis.io.atom_data.atomic_data_summary.build_atom_data_summary">build_atom_data_summary() (in module tardis.io.atom_data.atomic_data_summary)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -5989,8 +6017,12 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.LineInteractionType.DOWNBRANCH">DOWNBRANCH (tardis.transport.montecarlo.interaction_events.LineInteractionType attribute)</a>
 </li>
-      <li><a href="api/tardis.io.atom_data.atom_web_download.html#tardis.io.atom_data.atom_web_download.download_atom_data">download_atom_data() (in module tardis.io.atom_data.atom_web_download)</a>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.download_atom_data">download_atom_data() (in module tardis.io.atom_data)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.atom_web_download.html#tardis.io.atom_data.atom_web_download.download_atom_data">(in module tardis.io.atom_data.atom_web_download)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.io.util.html#tardis.io.util.download_from_url">download_from_url() (in module tardis.io.util)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.DensityEditor.dpd_dtype_eventhandler">dpd_dtype_eventhandler() (tardis.visualization.widgets.custom_abundance.DensityEditor method)</a>
@@ -6067,10 +6099,10 @@
 </li>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.estimate_t_inner">estimate_t_inner() (tardis.simulation.base.Simulation method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.EstimatedPhotoionizationCoeffSolver">EstimatedPhotoionizationCoeffSolver (class in tardis.plasma.equilibrium.rates.photoionization_strengths)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver">EstimatedPhotoionizationRateSolver (class in tardis.plasma.equilibrium.rates.photoionization_rates)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatedRadiationFieldProperties">EstimatedRadiationFieldProperties (class in tardis.transport.montecarlo.estimators)</a>
@@ -6117,6 +6149,12 @@
       </ul></li>
       <li><a href="api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.expand_species_list">expand_species_list() (in module tardis.visualization.plot_util)</a>
 </li>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.export_atom_data_summary">export_atom_data_summary() (in module tardis.io.atom_data)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.atomic_data_summary.html#tardis.io.atom_data.atomic_data_summary.export_atom_data_summary">(in module tardis.io.atom_data.atomic_data_summary)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.io.model.arepo.utils.html#tardis.io.model.arepo.utils.export_profile_to_csvy">export_profile_to_csvy() (in module tardis.io.model.arepo.utils)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.trackers.array_utils.html#tardis.transport.montecarlo.packets.trackers.array_utils.extend_array">extend_array() (in module tardis.transport.montecarlo.packets.trackers.array_utils)</a>
@@ -6239,9 +6277,11 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.from_hdf">from_hdf() (tardis.io.atom_data.base.AtomData class method)</a>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.from_hdf">from_hdf() (tardis.io.atom_data.AtomData class method)</a>
 
       <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.from_hdf">(tardis.io.atom_data.base.AtomData class method)</a>
+</li>
         <li><a href="api/tardis.visualization.tools.liv_plot.html#tardis.visualization.tools.liv_plot.LIVPlotter.from_hdf">(tardis.visualization.tools.liv_plot.LIVPlotter class method)</a>
 </li>
         <li><a href="api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf">(tardis.visualization.tools.sdec_plot.SDECPlotter class method)</a>
@@ -6387,8 +6427,12 @@
 </li>
       <li><a href="api/tardis.io.atom_data.atom_web_download.html#tardis.io.atom_data.atom_web_download.get_atomic_repo_config">get_atomic_repo_config() (in module tardis.io.atom_data.atom_web_download)</a>
 </li>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.get_attributes_from_store">get_attributes_from_store() (tardis.io.atom_data.base.AtomData method)</a>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.get_attributes_from_store">get_attributes_from_store() (tardis.io.atom_data.AtomData method)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.get_attributes_from_store">(tardis.io.atom_data.base.AtomData method)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.get_average_compton_fraction">get_average_compton_fraction() (in module tardis.energy_input.gamma_ray_estimators)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.nlte_data.html#tardis.io.atom_data.nlte_data.NLTEData.get_collision_matrix">get_collision_matrix() (tardis.io.atom_data.nlte_data.NLTEData method)</a>
@@ -6623,8 +6667,12 @@
         <li><a href="api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodyWeightedSource.hdf_name">(tardis.transport.montecarlo.packet_source.BlackBodyWeightedSource attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.hdf_names">hdf_names (tardis.io.atom_data.base.AtomData attribute)</a>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.hdf_names">hdf_names (tardis.io.atom_data.AtomData attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.hdf_names">(tardis.io.atom_data.base.AtomData attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.hdf_properties">hdf_properties (tardis.model.base.SimulationState attribute)</a>
 
       <ul>
@@ -7701,6 +7749,8 @@
 </li>
         <li><a href="api/tardis.io.atom_data.atom_web_download.html#module-tardis.io.atom_data.atom_web_download">tardis.io.atom_data.atom_web_download</a>
 </li>
+        <li><a href="api/tardis.io.atom_data.atomic_data_summary.html#module-tardis.io.atom_data.atomic_data_summary">tardis.io.atom_data.atomic_data_summary</a>
+</li>
         <li><a href="api/tardis.io.atom_data.base.html#module-tardis.io.atom_data.base">tardis.io.atom_data.base</a>
 </li>
         <li><a href="api/tardis.io.atom_data.collision_data.html#module-tardis.io.atom_data.collision_data">tardis.io.atom_data.collision_data</a>
@@ -8770,8 +8820,6 @@
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_modules">plasma_modules (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.base.html#tardis.iip_plasma.base.BasePlasma.plasma_properties_dict">plasma_properties_dict (tardis.iip_plasma.base.BasePlasma property)</a>
 
       <ul>
@@ -8780,6 +8828,8 @@
       </ul></li>
       <li><a href="api/tardis.iip_plasma.exceptions.html#tardis.iip_plasma.exceptions.PlasmaConfigError">PlasmaConfigError</a>, <a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaConfigError">[1]</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.exceptions.html#tardis.iip_plasma.exceptions.PlasmaException">PlasmaException</a>, <a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaException">[1]</a>
 </li>
       <li><a href="api/tardis.iip_plasma.exceptions.html#tardis.iip_plasma.exceptions.PlasmaIonizationError">PlasmaIonizationError</a>, <a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaIonizationError">[1]</a>
@@ -8830,18 +8880,38 @@
 </li>
       <li><a href="api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.PositroniumSampler">PositroniumSampler (class in tardis.energy_input.samplers)</a>
 </li>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_atom_data">prepare_atom_data() (tardis.io.atom_data.base.AtomData method)</a>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_atom_data">prepare_atom_data() (tardis.io.atom_data.AtomData method)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_atom_data">(tardis.io.atom_data.base.AtomData method)</a>
 </li>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_continuum_interaction_data">prepare_continuum_interaction_data() (tardis.io.atom_data.base.AtomData method)</a>
+      </ul></li>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_continuum_interaction_data">prepare_continuum_interaction_data() (tardis.io.atom_data.AtomData method)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_continuum_interaction_data">(tardis.io.atom_data.base.AtomData method)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.prepare_factory">prepare_factory() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
 </li>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_line_level_indexes">prepare_line_level_indexes() (tardis.io.atom_data.base.AtomData method)</a>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_line_level_indexes">prepare_line_level_indexes() (tardis.io.atom_data.AtomData method)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_line_level_indexes">(tardis.io.atom_data.base.AtomData method)</a>
 </li>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_lines">prepare_lines() (tardis.io.atom_data.base.AtomData method)</a>
+      </ul></li>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_lines">prepare_lines() (tardis.io.atom_data.AtomData method)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_lines">(tardis.io.atom_data.base.AtomData method)</a>
 </li>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_macro_atom_data">prepare_macro_atom_data() (tardis.io.atom_data.base.AtomData method)</a>
+      </ul></li>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.prepare_macro_atom_data">prepare_macro_atom_data() (tardis.io.atom_data.AtomData method)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_macro_atom_data">(tardis.io.atom_data.base.AtomData method)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.prepare_transition_probabilities">prepare_transition_probabilities() (tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities method)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousBetaSobolev">PreviousBetaSobolev (class in tardis.iip_plasma.properties.nlte)</a>
@@ -9062,10 +9132,10 @@
 </li>
       <li><a href="api/tardis.io.model.readers.cmfgen.html#tardis.io.model.readers.cmfgen.read_cmfgen_model">read_cmfgen_model() (in module tardis.io.model.readers.cmfgen)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_csv_composition">read_csv_composition() (in module tardis.io.model.readers.generic_readers)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.util.html#tardis.io.model.readers.util.read_csv_isotope_mass_fractions">read_csv_isotope_mass_fractions() (in module tardis.io.model.readers.util)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.DensityEditor.read_density">read_density() (tardis.visualization.widgets.custom_abundance.DensityEditor method)</a>
@@ -9120,8 +9190,12 @@
         <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata">(tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver method)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.related_groups">related_groups (tardis.io.atom_data.base.AtomData attribute)</a>
+      <li><a href="api/tardis.io.atom_data.html#tardis.io.atom_data.AtomData.related_groups">related_groups (tardis.io.atom_data.AtomData attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.related_groups">(tardis.io.atom_data.base.AtomData attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.remove_callback">remove_callback() (tardis.simulation.base.Simulation method)</a>
 </li>
       <li><a href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions">remove_explicit_isotopes_from_elemental_mass_fractions() (in module tardis.io.model.artis.readers)</a>
@@ -9860,6 +9934,13 @@
 </li>
       </ul></li>
       <li>
+    tardis.io.atom_data.atomic_data_summary
+
+      <ul>
+        <li><a href="api/tardis.io.atom_data.atomic_data_summary.html#module-tardis.io.atom_data.atomic_data_summary">module</a>
+</li>
+      </ul></li>
+      <li>
     tardis.io.atom_data.base
 
       <ul>
@@ -10517,6 +10598,8 @@
         <li><a href="api/tardis.plasma.properties.html#module-tardis.plasma.properties">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.atomic
 
@@ -10524,8 +10607,6 @@
         <li><a href="api/tardis.plasma.properties.atomic.html#module-tardis.plasma.properties.atomic">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.base
 
