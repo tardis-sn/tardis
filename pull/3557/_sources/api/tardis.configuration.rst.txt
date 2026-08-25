@@ -1,0 +1,18 @@
+tardis.configuration package
+============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.configuration.sorting_globals
+
+Module contents
+---------------
+
+.. automodule:: tardis.configuration
+   :members:
+   :show-inheritance:
+   :undoc-members:
