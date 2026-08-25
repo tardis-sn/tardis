@@ -15,10 +15,13 @@ from tardis.energy_input.gamma_ray_channel import (
     create_isotope_dicts,
     time_evolve_cumulative_decay,
 )
-from tardis.transport.montecarlo.packet_source.high_energy import GammaRayPacketSource
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
+from tardis.energy_input.transport.GXPacket import GXPacketCollection
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
+from tardis.transport.montecarlo.packet_source.high_energy import (
+    GammaRayPacketSource,
+)
 
 
 @pytest.fixture(scope="module")
@@ -224,3 +227,15 @@ def test_gamma_ray_packet_properties_cumulative_energy(
     expected_synced_value = regression_data.sync_ndarray(value_to_sync)
 
     assert_allclose(value_to_sync, expected_synced_value, rtol=1e-7)
+
+
+def test_gamma_ray_packet_source_creates_packet_seeds(
+    created_packets_data_legacy: tuple[GXPacketCollection, int],
+) -> None:
+    """Test that gamma-ray packet creation stores one seed per packet."""
+    packets, n_packets = created_packets_data_legacy
+
+    assert len(packets.packet_seeds) == n_packets
+    assert packets.packet_seeds.dtype == np.int64
+    assert np.all(packets.packet_seeds >= 0)
+    assert np.all(packets.packet_seeds < GammaRayPacketSource.MAX_SEED_VAL)

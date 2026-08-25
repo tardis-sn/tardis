@@ -419,6 +419,9 @@ class GammaRayPacketSource(BasePacketSource):
             energy_per_packet = legacy_energy_per_packet
             total_energy_gamma = number_of_packets * legacy_energy_per_packet
 
+        if self.base_seed is None:
+            raise ValueError("base_seed must be set before creating packets")
+
         logger.info("Total energy in gamma-rays is %s", total_energy_gamma)
         logger.info("Energy per packet is %s", energy_per_packet)
 
@@ -430,6 +433,10 @@ class GammaRayPacketSource(BasePacketSource):
         nus_rf = np.zeros(number_of_packets)
         nus_cmf = np.zeros(number_of_packets)
         statuses = np.ones(number_of_packets, dtype=np.int64) * 3
+        self._reseed(self.base_seed + 3)
+        packet_seeds = self.rng.choice(
+            self.MAX_SEED_VAL, number_of_packets, replace=True
+        )
 
         # sample packets from the gamma-ray lines only (include X-rays!)
         sampled_packets_df_gamma = cumulative_decays_df[
@@ -512,6 +519,7 @@ class GammaRayPacketSource(BasePacketSource):
             np.asarray(effective_decay_times, dtype=np.float64),
             np.asarray(decay_time_indices, dtype=np.int64),
             source_isotopes=np.asarray(source_isotopes, dtype="<U16"),
+            packet_seeds=np.asarray(packet_seeds, dtype=np.int64),
         )
 
 

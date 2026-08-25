@@ -98,6 +98,7 @@ class GXPacketCollection:
     time_start: nb.float64[:]  # type: ignore[misc]
     time_index: nb.int64[:]  # type: ignore[misc]
     source_isotopes: nb.types.UnicodeCharSeq(16)[:]  # type: ignore[misc]
+    packet_seeds: nb.int64[:]  # type: ignore[misc]
 
     def __init__(
         self,
@@ -112,6 +113,7 @@ class GXPacketCollection:
         time_start: np.ndarray,
         time_index: np.ndarray,
         source_isotopes: np.ndarray,
+        packet_seeds: np.ndarray,
     ) -> None:
         self.location = location
         self.direction = direction
@@ -124,3 +126,4 @@ class GXPacketCollection:
         self.time_start = time_start
         self.time_index = time_index
         self.source_isotopes = source_isotopes
+        self.packet_seeds = packet_seeds

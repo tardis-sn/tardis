@@ -11,7 +11,6 @@ from tardis.energy_input.gamma_ray_transport import (
     iron_group_fraction_per_shell,
 )
 from tardis.energy_input.transport.gamma_packet_loop import (
-    advance_packet_creation_random_state,
     gamma_packet_loop,
 )
 from tardis.energy_input.transport.GXPacket import GXPacket
@@ -340,8 +339,6 @@ def run_gamma_ray_loop(
 
     logger.info("Total CMF energy is %s", total_cmf_energy)
     logger.info("Total RF energy is %s", total_rf_energy)
-
-    advance_packet_creation_random_state(number_of_packets)
 
     (
         energy_out,

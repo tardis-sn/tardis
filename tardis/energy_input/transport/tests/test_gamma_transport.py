@@ -62,6 +62,7 @@ def gamma_packet_collection(gamma_packet: GXPacket) -> GXPacketCollection:
         np.array([gamma_packet.time_start]),
         np.array([gamma_packet.time_idx], dtype=np.int64),
         np.array(["Ni56"], dtype="<U16"),
+        np.array([1963], dtype=np.int64),
     )
 
 

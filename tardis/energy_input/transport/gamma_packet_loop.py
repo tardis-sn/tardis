@@ -39,6 +39,7 @@ def make_gx_packet(
     packet_collection: GXPacketCollection, packet_idx: int
 ) -> GXPacket:
     """Build a transient gamma-ray packet from a packet collection."""
+    np.random.seed(packet_collection.packet_seeds[packet_idx])
     return GXPacket(
         packet_collection.location[:, packet_idx],
         packet_collection.direction[:, packet_idx],
@@ -52,13 +53,6 @@ def make_gx_packet(
         packet_collection.time_index[packet_idx],
         False,
     )
-
-
-@njit(**njit_dict_no_parallel)
-def advance_packet_creation_random_state(packet_count: int) -> None:
-    """Preserve random draws from the previous packet construction path."""
-    for _ in range(packet_count):
-        np.random.random()
 
 
 @njit(**njit_dict_no_parallel)
