@@ -1,19 +1,14 @@
 from enum import IntEnum
 
+import numba as nb
 import numpy as np
 from numba import float64, int64
 from numba.experimental import jitclass
 
-from tardis.energy_input.samplers import sample_decay_time, sample_energy
-from tardis.energy_input.util import (
-    H_CGS_KEV,
-    doppler_factor_3d,
-    get_index,
-    get_random_unit_vector,
-)
-
 
 class GXPacketStatus(IntEnum):
+    """Status codes for gamma-ray packet transport."""
+
     BETA_DECAY = -1
     COMPTON_SCATTER = 0
     PHOTOABSORPTION = 1
@@ -56,6 +51,7 @@ class GXPacket:
         shell,
         time_start,
         time_idx,
+        initialize_tau=True,
     ):
         self.location = location
         self.direction = direction
@@ -68,7 +64,10 @@ class GXPacket:
         self.time_start = time_start
         self.time_idx = time_idx
         # TODO: rename to tau_event
-        self.tau = -np.log(np.random.random())
+        if initialize_tau:
+            self.tau = -np.log(np.random.random())
+        else:
+            self.tau = 0.0
 
     def get_location_r(self):
         """Calculate radius of the packet
@@ -82,25 +81,38 @@ class GXPacket:
         )
 
 
+@jitclass
 class GXPacketCollection:
     """
     Gamma-ray packet collection
     """
 
+    location: nb.float64[:, :]  # type: ignore[misc]
+    direction: nb.float64[:, :]  # type: ignore[misc]
+    energy_rf: nb.float64[:]  # type: ignore[misc]
+    energy_cmf: nb.float64[:]  # type: ignore[misc]
+    nu_rf: nb.float64[:]  # type: ignore[misc]
+    nu_cmf: nb.float64[:]  # type: ignore[misc]
+    status: nb.int64[:]  # type: ignore[misc]
+    shell: nb.int64[:]  # type: ignore[misc]
+    time_start: nb.float64[:]  # type: ignore[misc]
+    time_index: nb.int64[:]  # type: ignore[misc]
+    source_isotopes: nb.types.UnicodeCharSeq(16)[:]  # type: ignore[misc]
+
     def __init__(
         self,
-        location,
-        direction,
-        energy_rf,
-        energy_cmf,
-        nu_rf,
-        nu_cmf,
-        status,
-        shell,
-        time_start,
-        time_index,
-        source_isotopes,
-    ):
+        location: np.ndarray,
+        direction: np.ndarray,
+        energy_rf: np.ndarray,
+        energy_cmf: np.ndarray,
+        nu_rf: np.ndarray,
+        nu_cmf: np.ndarray,
+        status: np.ndarray,
+        shell: np.ndarray,
+        time_start: np.ndarray,
+        time_index: np.ndarray,
+        source_isotopes: np.ndarray,
+    ) -> None:
         self.location = location
         self.direction = direction
         self.energy_rf = energy_rf
@@ -111,5 +123,4 @@ class GXPacketCollection:
         self.shell = shell
         self.time_start = time_start
         self.time_index = time_index
-        self.tau = -np.log(np.random.random())
         self.source_isotopes = source_isotopes

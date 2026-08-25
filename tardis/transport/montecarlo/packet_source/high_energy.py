@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -24,6 +23,7 @@ PARA_TO_ORTHO_RATIO = 0.25
 
 
 class GammaRayPacketSource(BasePacketSource):
+    """Packet source for gamma-ray transport packets."""
 
     def __init__(
         self,
@@ -34,7 +34,7 @@ class GammaRayPacketSource(BasePacketSource):
         outer_velocities: np.ndarray,
         times: np.ndarray,
         effective_times: np.ndarray,
-        **kwargs,
+        **kwargs: object,
     ) -> None:
         """
         Initialize gamma ray packet source.
@@ -83,7 +83,9 @@ class GammaRayPacketSource(BasePacketSource):
         self.effective_times = effective_times
         super().__init__(**kwargs)
 
-    def create_packet_mus(self, no_of_packets: int, *args: Any, **kwargs: Any):
+    def create_packet_mus(
+        self, no_of_packets: int, *args: object, **kwargs: object
+    ) -> np.ndarray:
         """
         Create packet directional cosines.
 
@@ -206,7 +208,7 @@ class GammaRayPacketSource(BasePacketSource):
         return energy_array
 
     def create_packet_directions(
-        self, no_of_packets: int, seed: "int | None"
+        self, no_of_packets: int, seed: int | None
     ) -> np.ndarray:
         """
         Create random isotropic directions for packets.
@@ -356,7 +358,7 @@ class GammaRayPacketSource(BasePacketSource):
         self,
         cumulative_decays_df: pd.DataFrame,
         number_of_packets: int,
-        legacy_energy_per_packet: "float | None" = None,
+        legacy_energy_per_packet: float | None = None,
     ) -> GXPacketCollection:
         """
         Initialize a collection of gamma ray packets for simulation.
@@ -499,17 +501,17 @@ class GammaRayPacketSource(BasePacketSource):
         nus_rf = nus_cmf / doppler_factors
 
         return GXPacketCollection(
-            locations,
-            directions,
-            packet_energies_rf,
-            packet_energies_cmf,
-            nus_rf,
-            nus_cmf,
-            statuses,
-            shells,
-            effective_decay_times,
-            decay_time_indices,
-            source_isotopes=source_isotopes,
+            np.ascontiguousarray(locations, dtype=np.float64),
+            np.ascontiguousarray(directions, dtype=np.float64),
+            np.asarray(packet_energies_rf, dtype=np.float64),
+            np.asarray(packet_energies_cmf, dtype=np.float64),
+            np.asarray(nus_rf, dtype=np.float64),
+            np.asarray(nus_cmf, dtype=np.float64),
+            np.asarray(statuses, dtype=np.int64),
+            np.asarray(shells, dtype=np.int64),
+            np.asarray(effective_decay_times, dtype=np.float64),
+            np.asarray(decay_time_indices, dtype=np.int64),
+            source_isotopes=np.asarray(source_isotopes, dtype="<U16"),
         )
 
 

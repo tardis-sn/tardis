@@ -1,6 +1,6 @@
 import numpy as np
 from numba import njit
-from numpy.typing import NDArray  # noqa: TC002
+from numpy.typing import NDArray
 
 from tardis.energy_input.transport.gamma_ray_grid import (
     distance_trace,
@@ -12,7 +12,11 @@ from tardis.energy_input.transport.gamma_ray_interactions import (
     pair_creation_packet,
     scatter_type,
 )
-from tardis.energy_input.transport.GXPacket import GXPacket, GXPacketStatus
+from tardis.energy_input.transport.GXPacket import (
+    GXPacket,
+    GXPacketCollection,
+    GXPacketStatus,
+)
 from tardis.energy_input.util import (
     C_CGS,
     H_CGS_KEV,
@@ -31,8 +35,35 @@ from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 @njit(**njit_dict_no_parallel)
+def make_gx_packet(
+    packet_collection: GXPacketCollection, packet_idx: int
+) -> GXPacket:
+    """Build a transient gamma-ray packet from a packet collection."""
+    return GXPacket(
+        packet_collection.location[:, packet_idx],
+        packet_collection.direction[:, packet_idx],
+        packet_collection.energy_rf[packet_idx],
+        packet_collection.energy_cmf[packet_idx],
+        packet_collection.nu_rf[packet_idx],
+        packet_collection.nu_cmf[packet_idx],
+        packet_collection.status[packet_idx],
+        packet_collection.shell[packet_idx],
+        packet_collection.time_start[packet_idx],
+        packet_collection.time_index[packet_idx],
+        False,
+    )
+
+
+@njit(**njit_dict_no_parallel)
+def advance_packet_creation_random_state(packet_count: int) -> None:
+    """Preserve random draws from the previous packet construction path."""
+    for _ in range(packet_count):
+        np.random.random()
+
+
+@njit(**njit_dict_no_parallel)
 def gamma_packet_loop(
-    packets: list[GXPacket],
+    packet_collection: GXPacketCollection,
     grey_opacity: float,
     photoabsorption_opacity_type: str,
     pair_creation_opacity_type: str,
@@ -61,8 +92,8 @@ def gamma_packet_loop(
 
     Parameters
     ----------
-    packets : list of GXPacket
-        Packets to propagate through the ejecta.
+    packet_collection : GXPacketCollection
+        Initial packet arrays to propagate through the ejecta.
     grey_opacity : float
         Grey opacity value in cm^2/g. Negative values trigger detailed opacity
         calculations.
@@ -119,12 +150,12 @@ def gamma_packet_loop(
     """
     escaped_packets = 0
     scattered_packets = 0
-    packet_count = len(packets)
+    packet_count = len(packet_collection.energy_rf)
     # Logging does not work with numba. Using print instead.
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
     for packet_idx in range(packet_count):
-        packet = packets[packet_idx]
+        packet = make_gx_packet(packet_collection, packet_idx)
         time_idx = packet.time_idx
 
         if time_idx < 0:
