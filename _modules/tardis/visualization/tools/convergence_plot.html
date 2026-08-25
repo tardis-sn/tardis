@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=3035c4a9"></script>
+      <script src="../../../../_static/documentation_options.js?v=a3572772"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4719,22 +4719,10 @@ import ipywidgets as widgets
 import numpy as np
 from astropy import units as u
 from IPython.display import HTML, display
-
-# Added the below as a (temporary) workaround to the latex
-# labels on the convergence plots not rendering correctly.
-import plotly
 import plotly.graph_objects as go
 
 import tardis.visualization.plot_util as pu
-
-plotly.offline.init_notebook_mode(connected=True)
-# mathjax needs to be loaded for latex labels to render correctly
-# see https://github.com/tardis-sn/tardis/issues/2446
-display(
-    HTML(
-        &#39;&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG&quot;&gt;&lt;/script&gt;&#39;
-    )
-)
+from tardis.util.environment import Environment
 
 
 <div class="viewcode-block" id="ConvergencePlots">
@@ -5015,6 +5003,14 @@ class ConvergencePlots:
         self.create_t_inner_luminosities_plot()
 
         if display_plot:
+            if Environment.allows_widget_display():
+                # mathjax needs to be loaded for latex labels to render correctly
+                # see https://github.com/tardis-sn/tardis/issues/2446
+                display(
+                    HTML(
+                        &quot;&lt;script src=&#39;https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG&#39;&gt;&lt;/script&gt;&quot;
+                    )
+                )
             self.display_handle = display(
                 widgets.VBox(
                     [self.plasma_plot, self.t_inner_luminosities_plot],
@@ -5180,7 +5176,7 @@ class ConvergencePlots:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 24 Aug 2026.
+      <span class="lastupdated">Last updated on 25 Aug 2026.
       </span></p>
   </div>
 
