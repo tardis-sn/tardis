@@ -22,7 +22,7 @@ class OpacityStateNumba:
     Attributes
     ----------
     sobolev_optical_depth_coefficient : numpy.ndarray
-        Gradient-independent coefficient for each line and shell [s^-1].
+        Velocity-gradient-independent coefficient for each line and shell [s^-1].
         Division by the absolute projected velocity gradient gives the
         directional Sobolev optical depth.
     """
