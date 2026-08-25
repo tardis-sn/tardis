@@ -515,7 +515,8 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
     solve_shell_charge = solver.solve_shell_charge
     solved_shell_indices = []
 
-    def record_solve_shell_charge(shell_idx: int, *args) -> float:
+    # using plain *args to simplify the wrapper
+    def record_solve_shell_charge(shell_idx: int, *args) -> float:  # noqa: ANN002
         solved_shell_indices.append(shell_idx)
         return solve_shell_charge(shell_idx, *args)
 
