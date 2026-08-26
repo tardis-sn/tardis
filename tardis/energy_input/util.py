@@ -1,5 +1,6 @@
 import astropy.units as u
 import numpy as np
+import numpy.typing as npt
 from numba import njit
 
 import tardis.constants as const
@@ -96,7 +97,11 @@ def doppler_factor_3d(direction_vector, position_vector, time):
 
 
 @njit(**njit_dict_no_parallel)
-def doppler_factor_3D_all_packets(direction_vectors, position_vectors, times):
+def doppler_factor_3D_all_packets(
+    direction_vectors: npt.NDArray[np.float64],
+    position_vectors: npt.NDArray[np.float64],
+    times: npt.NDArray[np.float64],
+) -> npt.NDArray[np.float64]:
     """Doppler shift for photons in 3D
 
     Parameters
@@ -110,9 +115,17 @@ def doppler_factor_3D_all_packets(direction_vectors, position_vectors, times):
     array
         Doppler factors
     """
-    velocity_vector = position_vectors / times
-    vel_mul_dir = np.multiply(velocity_vector, direction_vectors)
-    doppler_factors = 1 - (np.sum(vel_mul_dir, axis=0) / C_CGS)
+    no_of_packets = times.shape[0]
+    doppler_factors = np.empty(no_of_packets, dtype=np.float64)
+    for packet_idx in range(no_of_packets):
+        velocity_dot_direction = 0.0
+        for dimension_idx in range(3):
+            velocity_dot_direction += (
+                position_vectors[dimension_idx, packet_idx]
+                / times[packet_idx]
+                * direction_vectors[dimension_idx, packet_idx]
+            )
+        doppler_factors[packet_idx] = 1 - velocity_dot_direction / C_CGS
 
     return doppler_factors
 

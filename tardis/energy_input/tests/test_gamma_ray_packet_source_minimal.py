@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 from astropy import units as u
 from numpy.testing import assert_allclose
@@ -17,6 +18,7 @@ from tardis.energy_input.gamma_ray_channel import (
 )
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
 from tardis.energy_input.transport.GXPacket import GXPacketCollection
+from tardis.energy_input.util import H_CGS_KEV
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 from tardis.transport.montecarlo.packet_source.high_energy import (
@@ -239,3 +241,47 @@ def test_gamma_ray_packet_source_creates_packet_seeds(
     assert packets.packet_seeds.dtype == np.int64
     assert np.all(packets.packet_seeds >= 0)
     assert np.all(packets.packet_seeds < GammaRayPacketSource.MAX_SEED_VAL)
+
+
+def test_gamma_ray_packet_source_preserves_seeded_weighted_sampling() -> None:
+    """Test deterministic weighted selection without regression data."""
+    packet_index = pd.MultiIndex.from_tuples(
+        [
+            ("Ni56", 0, 0),
+            ("Co56", 1, 0),
+            ("Fe52", 1, 1),
+            ("Co56", 0, 1),
+        ],
+        names=["isotope", "shell_number", "time_index"],
+    )
+    cumulative_decays_df = pd.DataFrame(
+        {
+            "radiation": ["g", "g", "g", "bp"],
+            "decay_energy_erg": [1.0, 2.0, 7.0, 100.0],
+            "radiation_energy_keV": [100.0, 200.0, 300.0, 400.0],
+        },
+        index=packet_index,
+    )
+    packet_source = GammaRayPacketSource(
+        cumulative_decays_df=cumulative_decays_df,
+        isotope_decay_df=cumulative_decays_df,
+        positronium_fraction=0.0,
+        inner_velocities=np.array([1.0e8, 2.0e8]),
+        outer_velocities=np.array([2.0e8, 3.0e8]),
+        times=np.array([1.0e5, 2.0e5]),
+        effective_times=np.array([1.5e5, 2.5e5]),
+        base_seed=42,
+    )
+
+    packets = packet_source.create_packets(cumulative_decays_df, 8)
+
+    np.testing.assert_array_equal(
+        packets.source_isotopes,
+        ["Fe52", "Fe52", "Fe52", "Fe52", "Co56", "Co56", "Ni56", "Fe52"],
+    )
+    np.testing.assert_array_equal(packets.shell, [1, 1, 1, 1, 1, 1, 0, 1])
+    np.testing.assert_array_equal(packets.time_index, [1, 1, 1, 1, 0, 0, 0, 1])
+    np.testing.assert_allclose(
+        packets.nu_cmf * H_CGS_KEV,
+        [300.0, 300.0, 300.0, 300.0, 200.0, 200.0, 100.0, 300.0],
+    )
