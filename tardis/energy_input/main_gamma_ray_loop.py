@@ -3,6 +3,7 @@ import logging
 import astropy.units as u
 import numpy as np
 import pandas as pd
+from numba import set_num_threads
 from numpy.typing import NDArray
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
@@ -157,6 +158,7 @@ def run_gamma_ray_loop(
     seed: int,
     positronium_fraction: float,
     spectrum_bins: int,
+    nthreads: int,
     grey_opacity: float,
     photoabsorption_opacity: str = "tardis",
     pair_creation_opacity: str = "tardis",
@@ -193,6 +195,8 @@ def run_gamma_ray_loop(
         Fraction of positrons that form positronium.
     spectrum_bins : int
         Number of logarithmically spaced escaping-spectrum energy bins.
+    nthreads : int
+        Number of Numba threads used for packet transport.
     grey_opacity : float
         Grey opacity in square centimeters per gram. A negative value enables
         the detailed interaction opacities.
@@ -337,6 +341,7 @@ def run_gamma_ray_loop(
     iron_group_fraction = iron_group_fraction_per_shell(simulation_state)
 
     logger.info("Entering the main gamma-ray loop")
+    set_num_threads(nthreads)
 
     total_cmf_energy = packet_collection.energy_cmf.sum()
     total_rf_energy = packet_collection.energy_rf.sum()
