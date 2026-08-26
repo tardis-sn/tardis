@@ -210,6 +210,10 @@ def gamma_packet_loop(
         scattered = False
         # Not used now. Useful for the deposition estimator.
         # initial_energy = packet.energy_cmf
+        luminosity = 0.0
+        photoabsorption_opacity = 0.0
+        pair_creation_opacity = 0.0
+        doppler_factor = 0.0
 
         while packet.status == GXPacketStatus.IN_PROCESS:
             # Get delta-time value for this step
@@ -218,12 +222,6 @@ def gamma_packet_loop(
             comoving_energy = H_CGS_KEV * packet.nu_cmf
 
             if grey_opacity < 0:
-                doppler_factor = doppler_factor_3d(
-                    packet.direction,
-                    packet.location,
-                    times[time_idx],
-                )
-
                 kappa = kappa_calculation(comoving_energy)
 
                 # artis threshold for Thomson scattering
@@ -272,6 +270,12 @@ def gamma_packet_loop(
                 )
 
             # convert opacities to rest frame
+            doppler_factor = doppler_factor_3d(
+                packet.direction,
+                packet.location,
+                times[time_idx],
+            )
+
             total_opacity = (
                 compton_opacity
                 + photoabsorption_opacity
@@ -420,6 +424,8 @@ def process_packet_path(packet: GXPacket) -> tuple[GXPacket, float]:
     ejecta_energy_gained : float
         Energy injected into the ejecta.
     """
+    ejecta_energy_gained = 0.0
+
     if packet.status == GXPacketStatus.COMPTON_SCATTER:
         comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
 
