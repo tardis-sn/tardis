@@ -269,6 +269,12 @@ def gamma_packet_loop(
                     grey_opacity * mass_density_time[packet.shell, time_idx]
                 )
 
+            total_opacity = (
+                compton_opacity
+                + photoabsorption_opacity
+                + pair_creation_opacity
+            )
+
             # convert opacities to rest frame
             doppler_factor = doppler_factor_3d(
                 packet.direction,
@@ -276,11 +282,7 @@ def gamma_packet_loop(
                 times[time_idx],
             )
 
-            total_opacity = (
-                compton_opacity
-                + photoabsorption_opacity
-                + pair_creation_opacity
-            ) * doppler_factor
+            total_opacity_rest_frame = total_opacity * doppler_factor
 
             packet.tau = -np.log(np.random.random())
 
@@ -293,7 +295,7 @@ def gamma_packet_loop(
                 packet,
                 inner_velocities,
                 outer_velocities,
-                total_opacity,
+                total_opacity_rest_frame,
                 effective_time_array[time_idx],
                 times[time_idx + 1],
             )
