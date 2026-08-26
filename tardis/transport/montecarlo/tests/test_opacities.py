@@ -1,9 +1,12 @@
+import numpy as np
 import numpy.testing as npt
 import pytest
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis.opacities.opacities import (
     compton_opacity_calculation,
     kappa_calculation,
+    pair_creation_opacity_artis,
     pair_creation_opacity_calculation,
     photoabsorption_opacity_calculation,
 )
@@ -79,6 +82,14 @@ def test_pair_creation_opacity_calculation(
     )
 
     npt.assert_almost_equal(opacity, expected)
+
+
+def test_pair_creation_opacity_artis(regression_data: RegressionData) -> None:
+    energies = np.array([1022.0, 1200.0, 1500.0, 2000.0])
+    actual = np.array(
+        [pair_creation_opacity_artis(energy, 1e-2, 0.5) for energy in energies]
+    )
+    npt.assert_allclose(actual, regression_data.sync_ndarray(actual))
 
 
 @pytest.mark.parametrize(
