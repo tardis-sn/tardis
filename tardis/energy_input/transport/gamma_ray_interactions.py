@@ -1,7 +1,8 @@
 import numpy as np
+import numpy.typing as npt
 from numba import njit
 
-from tardis.energy_input.transport.GXPacket import GXPacketStatus
+from tardis.energy_input.transport.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.util import (
     ELECTRON_MASS_ENERGY_KEV,
     H_CGS_KEV,
@@ -179,25 +180,26 @@ def get_compton_fraction_urilight(energy):
 
 
 @njit(**njit_dict_no_parallel)
-def compton_scatter(photon, compton_angle):
-    """
-    Changes the direction of the gamma-ray by the Compton scattering angle
+def compton_scatter(
+    packet: GXPacket, compton_angle: float
+) -> npt.NDArray[np.float64]:
+    """Change a packet direction by a Compton-scattering angle.
 
     Parameters
     ----------
-    photon : GXPhoton object
+    packet : GXPacket
+        Gamma-ray packet whose direction is being scattered.
     compton_angle : float
+        Compton-scattering angle in radians.
 
     Returns
     -------
-    float64
-        Photon theta direction
-    float64
-        Photon phi direction
+    numpy.ndarray
+        Scattered packet direction as a three-component unit vector.
     """
     # get comoving frame direction
     comov_direction = angle_aberration_gamma(
-        photon.direction, photon.location, photon.time_start
+        packet.direction, packet.location, packet.time_start
     )
 
     # compute an arbitrary perpendicular vector to the comoving direction
@@ -231,17 +233,19 @@ def compton_scatter(photon, compton_angle):
         final_compton_scattered_vector_contiguous, comov_direction_contiguous
     )
 
-    assert (
-        np.abs(norm_phi - 1) < 1e-8
-    ), "Error, norm of Compton scatter vector is not 1!"
+    assert np.abs(norm_phi - 1) < 1e-8, (
+        "Error, norm of Compton scatter vector is not 1!"
+    )
 
-    assert (
-        np.abs(norm_theta - np.cos(compton_angle)) < 1e-8
-    ), "Error, difference between new vector angle and Compton angle is more than 0!"
+    assert np.abs(norm_theta - np.cos(compton_angle)) < 1e-8, (
+        "Error, difference between new vector angle and Compton angle is more than 0!"
+    )
 
     # Calculate the angle aberration of the final direction
     final_direction = angle_aberration_gamma(
-        final_compton_scattered_vector, photon.location, photon.time_start
+        final_compton_scattered_vector,
+        packet.location,
+        -1 * packet.time_start,
     )
 
     return final_direction
