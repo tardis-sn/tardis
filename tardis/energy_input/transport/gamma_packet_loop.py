@@ -371,8 +371,6 @@ def gamma_packet_loop(
                     if scattered:
                         scattered_packets_thread[thread_id] += 1
                 elif packet.shell < 0:
-                    packet.energy_rf = 0.0
-                    packet.energy_cmf = 0.0
                     packet.status = GXPacketStatus.END
 
             packets_info_array[packet_idx] = np.array(

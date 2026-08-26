@@ -14,6 +14,8 @@ from tardis.energy_input.main_gamma_ray_loop import (
     get_effective_time_array,
     run_gamma_ray_loop,
 )
+from tardis.io.atom_data import AtomData
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.model import SimulationState
 
@@ -22,7 +24,13 @@ logging.basicConfig(level=logging.INFO)
 
 
 class TARDISHEWorkflow:
-    def __init__(self, atom_data, configuration, config_type="yaml"):
+    def __init__(
+        self,
+        atom_data: AtomData,
+        configuration: Configuration,
+        config_type: str = "yaml",
+    ) -> None:
+        self.atom_data = atom_data
 
         if config_type == "csvy":
             self.simulation_state = SimulationState.from_csvy(configuration)
