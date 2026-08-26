@@ -6,7 +6,6 @@ import pandas as pd
 from numba import set_num_threads
 from numpy.typing import NDArray
 
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.energy_input.gamma_ray_transport import (
     calculate_ejecta_velocity_volume,
     iron_group_fraction_per_shell,
@@ -35,8 +34,7 @@ def calculate_electron_number_density(
     simulation_state: SimulationState,
     ejecta_volume: NDArray[np.float64],
     effective_time_array: NDArray[np.float64],
-    legacy: bool = False,
-    legacy_atom_data: AtomData | None = None,
+    atom_data: AtomData,
 ) -> NDArray[np.float64]:
     """Calculate the time-dependent electron number density.
 
@@ -48,12 +46,8 @@ def calculate_electron_number_density(
         Shell volumes in cubic centimeters at the simulation-state time.
     effective_time_array : numpy.ndarray
         Effective times in seconds at which to evaluate the density.
-    legacy : bool, optional
-        If ``True``, calculate the elemental number density through the legacy
-        simulation-state interface.
-    legacy_atom_data : AtomData or None, optional
-        Atomic data supplying elemental masses for the legacy calculation.
-        Required when ``legacy`` is ``True``.
+    atom_data : AtomData
+        Atomic data supplying elemental masses.
 
     Returns
     -------
@@ -61,10 +55,6 @@ def calculate_electron_number_density(
         Electron number density in inverse cubic centimeters, indexed by shell
         and effective time.
 
-    Raises
-    ------
-    ValueError
-        If legacy mode is requested without ``legacy_atom_data``.
     """
     ejecta_velocity_volume = calculate_ejecta_velocity_volume(simulation_state)
 
@@ -72,23 +62,11 @@ def calculate_electron_number_density(
         1.0 / ejecta_velocity_volume[:, np.newaxis]
     ) / effective_time_array**3.0
 
-    # Calculate the elemental number density
-    if not legacy:
-        elemental_number_density = (
-            simulation_state.composition.isotopic_number_density.groupby(
-                "atomic_number"
-            ).sum()
+    elemental_number_density = (
+        simulation_state.calculate_elemental_number_density(
+            atom_data.atom_data.mass
         )
-    else:
-        if legacy_atom_data is None:
-            raise ValueError(
-                "legacy_atom_data must be provided when legacy=True"
-            )
-        elemental_number_density = (
-            simulation_state.calculate_elemental_number_density(
-                legacy_atom_data.atom_data.mass
-            )
-        )
+    )
 
     # Electron number density
     electron_number_density = elemental_number_density.mul(
@@ -160,10 +138,9 @@ def run_gamma_ray_loop(
     spectrum_bins: int,
     nthreads: int,
     grey_opacity: float,
+    atom_data: AtomData,
     photoabsorption_opacity: str = "tardis",
     pair_creation_opacity: str = "tardis",
-    legacy: bool = False,
-    legacy_atom_data: AtomData | None = None,
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
@@ -206,12 +183,8 @@ def run_gamma_ray_loop(
     pair_creation_opacity : {"artis", "tardis"}, optional
         Pair-creation opacity prescription used when ``grey_opacity`` is
         negative.
-    legacy : bool, optional
-        Whether to use the legacy elemental-density and packet-energy
-        calculations.
-    legacy_atom_data : AtomData or None, optional
-        Atomic data used by the legacy elemental-density calculation. Required
-        when ``legacy`` is ``True``.
+    atom_data : AtomData
+        Atomic data supplying elemental masses.
 
     Returns
     -------
@@ -248,8 +221,7 @@ def run_gamma_ray_loop(
         simulation_state,
         ejecta_volume,
         effective_time_array,
-        legacy=legacy,
-        legacy_atom_data=legacy_atom_data,
+        atom_data=atom_data,
     )
 
     # Calculate mass density evolution
@@ -271,32 +243,14 @@ def run_gamma_ray_loop(
     )
 
     logger.info("Creating packets")
-    if legacy:
-        # Calculate energy per packet for legacy mode using legacy_isotope_decacy_df
-        gamma_df = legacy_isotope_decacy_df[
-            legacy_isotope_decacy_df["radiation"] == "g"
-        ]
-        total_energy_gamma = gamma_df["decay_energy_erg"].sum()
-        energy_per_packet = total_energy_gamma / number_of_packets
-        legacy_energy_per_packet = energy_per_packet
-    else:
-        # Let the packet source calculate energy per packet internally
-        legacy_energy_per_packet = None
-        energy_per_packet = None
-
     packet_collection = packet_source.create_packets(
         cumulative_decays_df,
         number_of_packets,
-        legacy_energy_per_packet=legacy_energy_per_packet,
     )
 
-    # For non-legacy mode, get the energy per packet from the packet source calculation
-    if not legacy:
-        gamma_df = cumulative_decays_df[
-            cumulative_decays_df["radiation"] == "g"
-        ]
-        total_energy_gamma = gamma_df["decay_energy_erg"].sum()
-        energy_per_packet = total_energy_gamma / number_of_packets
+    gamma_df = cumulative_decays_df[cumulative_decays_df["radiation"] == "g"]
+    total_energy_gamma = gamma_df["decay_energy_erg"].sum()
+    energy_per_packet = total_energy_gamma / number_of_packets
 
     total_energy = np.zeros((number_of_shells, len(times) - 1))
 

@@ -130,18 +130,16 @@ class TARDISHEWorkflow:
 
     def run(
         self,
-        time_start,
-        time_end,
-        number_of_packets,
-        time_steps,
-        time_space,
-        seed,
-        fp,
-        spectrum_bins,
-        grey_opacity=-1,
-        legacy=False,
-        legacy_atom_data=None,
-    ):
+        time_start: float,
+        time_end: float,
+        number_of_packets: int,
+        time_steps: int,
+        time_space: str,
+        seed: int,
+        fp: float,
+        spectrum_bins: int,
+        grey_opacity: float = -1,
+    ) -> "TARDISHEWorkflowResult":
         """
         Run the gamma-ray transport simulation.
 
@@ -194,8 +192,7 @@ class TARDISHEWorkflow:
             spectrum_bins=spectrum_bins,
             nthreads=self.nthreads,
             grey_opacity=grey_opacity,
-            legacy=legacy,
-            legacy_atom_data=legacy_atom_data,
+            atom_data=self.atom_data,
         )
 
         return TARDISHEWorkflowResult(
