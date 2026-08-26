@@ -382,7 +382,7 @@ def test_gamma_packet_loop_negative_time_index(
         )
 
 
-@pytest.mark.parametrize("grey_opacity", [-1.0, 0.1])
+@pytest.mark.parametrize("grey_opacity", [-1.0, 1e-4])
 def test_gamma_packet_loop_escape_binning(
     gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
