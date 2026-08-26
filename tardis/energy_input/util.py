@@ -97,7 +97,7 @@ def doppler_factor_3d(direction_vector, position_vector, time):
 
 
 @njit(**njit_dict_no_parallel)
-def doppler_factor_3D_all_packets(
+def doppler_factor_3d_all_packets(
     direction_vectors: npt.NDArray[np.float64],
     position_vectors: npt.NDArray[np.float64],
     times: npt.NDArray[np.float64],
@@ -115,17 +115,12 @@ def doppler_factor_3D_all_packets(
     array
         Doppler factors
     """
-    no_of_packets = times.shape[0]
-    doppler_factors = np.empty(no_of_packets, dtype=np.float64)
-    for packet_idx in range(no_of_packets):
-        velocity_dot_direction = 0.0
-        for dimension_idx in range(3):
-            velocity_dot_direction += (
-                position_vectors[dimension_idx, packet_idx]
-                / times[packet_idx]
-                * direction_vectors[dimension_idx, packet_idx]
-            )
-        doppler_factors[packet_idx] = 1 - velocity_dot_direction / C_CGS
+    doppler_factors = position_vectors[0] * direction_vectors[0]
+    doppler_factors += position_vectors[1] * direction_vectors[1]
+    doppler_factors += position_vectors[2] * direction_vectors[2]
+    doppler_factors /= times
+    doppler_factors *= -1.0 / C_CGS
+    doppler_factors += 1.0
 
     return doppler_factors
 
@@ -270,7 +265,8 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
         - (radius / light_distance) ** 2.0
     )
     b = 2.0 * (
-        np.dot(position_contiguous, direction_contiguous) - radius**2.0 / light_distance
+        np.dot(position_contiguous, direction_contiguous)
+        - radius**2.0 / light_distance
     )
     c = np.dot(position_contiguous, position_contiguous) - radius**2.0
     discriminant = b**2.0 - 4.0 * a * c

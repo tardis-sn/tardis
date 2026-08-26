@@ -5,7 +5,7 @@ import pytest
 from tardis.energy_input.util import (
     C_CGS,
     R_ELECTRON_SQUARED,
-    doppler_factor_3D_all_packets,
+    doppler_factor_3d_all_packets,
     get_perpendicular_vector,
     klein_nishina,
     spherical_to_cartesian,
@@ -47,7 +47,7 @@ def test_doppler_factor_3d_all_packets() -> None:
     expected = 1 - np.sum(positions / times * directions, axis=0) / C_CGS
 
     npt.assert_allclose(
-        doppler_factor_3D_all_packets(directions, positions, times), expected
+        doppler_factor_3d_all_packets(directions, positions, times), expected
     )
 
 
