@@ -240,14 +240,6 @@ def run_gamma_ray_loop(
     ejecta_volume = simulation_state.volume.to("cm^3").value
     shell_masses = simulation_state.volume * simulation_state.density
     number_of_shells = len(shell_masses)
-    # TODO: decaying upto times[0]. raw_isotope_abundance is possibly not the best name
-    isotopic_mass_fraction = (
-        simulation_state.composition.isotopic_mass_fraction.sort_values(
-            by=["atomic_number", "mass_number"],
-            ascending=False,
-            kind=SORTING_ALGORITHM,
-        )
-    )
 
     dt_array = np.diff(times)
 
