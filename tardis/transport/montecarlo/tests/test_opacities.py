@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 import pytest
+from numpy.typing import NDArray
 from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis.opacities.opacities import (
@@ -9,6 +10,7 @@ from tardis.opacities.opacities import (
     pair_creation_opacity_artis,
     pair_creation_opacity_calculation,
     photoabsorption_opacity_calculation,
+    photoabsorption_opacity_calculation_kasen,
 )
 
 
@@ -56,6 +58,41 @@ def test_photoabsorption_opacity_calculation(
     )
 
     npt.assert_almost_equal(opacity, expected)
+
+
+@pytest.mark.parametrize(
+    (
+        "energy",
+        "atom_number_densities",
+        "atomic_numbers",
+        "expected",
+    ),
+    [
+        (100.0, np.array([1.0e10]), np.array([14]), 3.462251231280291e-14),
+        (511.0, np.array([2.0e9]), np.array([26]), 5.071564871834004e-16),
+        (
+            1000.0,
+            np.array([1.0e10, 2.0e9]),
+            np.array([14, 26]),
+            5.932294894362468e-17,
+        ),
+    ],
+)
+def test_photoabsorption_opacity_calculation_kasen(
+    energy: float,
+    atom_number_densities: NDArray[np.float64],
+    atomic_numbers: NDArray[np.int64],
+    expected: float,
+) -> None:
+    weighted_number_density = np.sum(
+        atom_number_densities * atomic_numbers**5
+    )
+
+    opacity = photoabsorption_opacity_calculation_kasen(
+        energy, weighted_number_density
+    )
+
+    npt.assert_allclose(opacity, expected, rtol=1.0e-12)
 
 
 @pytest.mark.parametrize(
