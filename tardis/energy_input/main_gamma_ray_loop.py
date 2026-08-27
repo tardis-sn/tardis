@@ -30,13 +30,14 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def calculate_electron_number_density(
+def calculate_scaled_elemental_number_density(
     simulation_state: SimulationState,
     ejecta_volume: NDArray[np.float64],
     effective_time_array: NDArray[np.float64],
     atom_data: AtomData,
+    atomic_number_exponent: int,
 ) -> NDArray[np.float64]:
-    """Calculate the time-dependent electron number density.
+    """Calculate a time-dependent elemental number-density scaled by atomic number.
 
     Parameters
     ----------
@@ -48,11 +49,13 @@ def calculate_electron_number_density(
         Effective times in seconds at which to evaluate the density.
     atom_data : AtomData
         Atomic data supplying elemental masses.
+    atomic_number_exponent : int
+        Exponent applied to each element's atomic number.
 
     Returns
     -------
     numpy.ndarray
-        Electron number density in inverse cubic centimeters, indexed by shell
+        Number-density moment in inverse cubic centimeters, indexed by shell
         and effective time.
 
     """
@@ -68,19 +71,15 @@ def calculate_electron_number_density(
         )
     )
 
-    # Electron number density
-    electron_number_density = elemental_number_density.mul(
-        elemental_number_density.index,
+    scaled_number_density = elemental_number_density.mul(
+        elemental_number_density.index**atomic_number_exponent,
         axis=0,
     ).sum()
-    electron_number = np.array(electron_number_density * ejecta_volume)
+    scaled_number = np.array(scaled_number_density * ejecta_volume)
 
-    # Evolve electron number and mass density with time
-    electron_number_density_time = (
-        electron_number[:, np.newaxis] * inv_volume_time
-    )
+    scaled_number_density_time = scaled_number[:, np.newaxis] * inv_volume_time
 
-    return electron_number_density_time
+    return scaled_number_density_time
 
 
 def get_effective_time_array(
@@ -148,6 +147,7 @@ def run_gamma_ray_loop(
     pd.DataFrame,
     pd.DataFrame,
     pd.DataFrame,
+    pd.DataFrame,
 ]:
     """Propagate gamma-ray packets through homologously expanding ejecta.
 
@@ -199,6 +199,9 @@ def run_gamma_ray_loop(
         shell number.
     gamma_ray_deposited_energy : pandas.DataFrame
         Gamma-ray energy deposited in each shell and time bin, in ergs.
+    gamma_ray_deposition_estimator : pandas.DataFrame
+        Path-estimated gamma-ray deposition rate in each shell and time bin,
+        in ergs per second per cubic centimeter.
     total_deposited_energy : pandas.DataFrame
         Gamma-ray plus positron energy deposition rate in each shell and time
         bin, in ergs per second.
@@ -217,12 +220,27 @@ def run_gamma_ray_loop(
     dt_array = np.diff(times)
 
     # Calculate electron number density evolution
-    electron_number_density_time = calculate_electron_number_density(
+    electron_number_density_time = calculate_scaled_elemental_number_density(
         simulation_state,
         ejecta_volume,
         effective_time_array,
         atom_data=atom_data,
+        atomic_number_exponent=1,
     )
+    if photoabsorption_opacity == "kasen":
+        kasen_photoabsorption_density_time = (
+            calculate_scaled_elemental_number_density(
+                simulation_state,
+                ejecta_volume,
+                effective_time_array,
+                atom_data=atom_data,
+                atomic_number_exponent=5,
+            )
+        )
+    else:
+        kasen_photoabsorption_density_time = np.empty(
+            (0, 0), dtype=np.float64
+        )
 
     # Calculate mass density evolution
     ejecta_velocity_volume = calculate_ejecta_velocity_volume(simulation_state)
@@ -263,9 +281,7 @@ def run_gamma_ray_loop(
     for i in range(number_of_packets):
         total_energy[
             packet_collection.shell[i], packet_collection.time_index[i]
-        ] += (
-            isotope_positron_fraction[i] * energy_per_packet
-        )
+        ] += isotope_positron_fraction[i] * energy_per_packet
 
     logger.info(
         "Total energy deposited by the positrons is %s",
@@ -283,6 +299,7 @@ def run_gamma_ray_loop(
     energy_out = np.zeros((len(energy_bins - 1), len(times) - 1))
     energy_out_cosi = np.zeros((len(energy_bins - 1), len(times) - 1))
     energy_deposited = np.zeros((number_of_shells, len(times) - 1))
+    energy_deposition_estimator = np.zeros((number_of_shells, len(times) - 1))
     packets_info_array = np.zeros((int(number_of_packets), 8))
     iron_group_fraction = iron_group_fraction_per_shell(simulation_state)
 
@@ -302,12 +319,14 @@ def run_gamma_ray_loop(
         packets_array,
         energy_deposited_gamma,
         total_energy,
+        energy_deposition_estimator,
     ) = gamma_packet_loop(
         packet_collection,
         grey_opacity,
         photoabsorption_opacity,
         pair_creation_opacity,
         electron_number_density_time,
+        kasen_photoabsorption_density_time,
         mass_density_time,
         iron_group_fraction.to_numpy(),
         inner_velocities,
@@ -320,6 +339,7 @@ def run_gamma_ray_loop(
         energy_out_cosi,
         total_energy,
         energy_deposited,
+        energy_deposition_estimator,
         packets_info_array,
     )
     refresh_packet_pbar()
@@ -350,6 +370,10 @@ def run_gamma_ray_loop(
     gamma_ray_deposited_energy = pd.DataFrame(
         data=energy_deposited_gamma, columns=times[:-1]
     )
+    gamma_ray_deposition_estimator = pd.DataFrame(
+        data=energy_deposition_estimator * inv_volume_time / dt_array,
+        columns=times[:-1],
+    )
     # deposited energy by positrons and gamma-rays in ergs
     total_energy = pd.DataFrame(data=total_energy, columns=times[:-1])
 
@@ -365,6 +389,7 @@ def run_gamma_ray_loop(
         escape_energy_cosi,
         packets_df_escaped,
         gamma_ray_deposited_energy,
+        gamma_ray_deposition_estimator,
         total_deposited_energy,
         positron_energy_df,
     )

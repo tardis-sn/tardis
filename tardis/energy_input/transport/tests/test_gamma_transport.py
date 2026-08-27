@@ -2,11 +2,13 @@ import os
 
 import numpy as np
 import pytest
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 import tardis.energy_input.transport.gamma_packet_loop as gamma_loop_module
 from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.energy_input.transport.gamma_packet_loop import (
     gamma_packet_loop,
+    get_compton_energy_loss_fraction,
     process_packet_path,
 )
 from tardis.energy_input.transport.gamma_ray_grid import (
@@ -27,7 +29,16 @@ from tardis.energy_input.transport.GXPacket import (
     GXPacketCollection,
     GXPacketStatus,
 )
-from tardis.energy_input.util import ELECTRON_MASS_ENERGY_KEV, H_CGS_KEV
+from tardis.energy_input.util import (
+    ELECTRON_MASS_ENERGY_KEV,
+    H_CGS_KEV,
+    doppler_factor_3d,
+)
+from tardis.opacities.opacities import (
+    compton_opacity_calculation,
+    pair_creation_opacity_artis,
+    photoabsorption_opacity_calculation,
+)
 
 RTOL = 1.0e-12
 
@@ -70,6 +81,7 @@ def gamma_packet_collection(gamma_packet: GXPacket) -> GXPacketCollection:
 def gamma_loop_arrays() -> dict[str, np.ndarray]:
     return {
         "electron_number_density_time": np.ones((1, 2)) * 1.0e8,
+        "kasen_photoabsorption_density_time": np.ones((1, 2)) * 1.0e12,
         "mass_density_time": np.ones((1, 2)) * 1.0e-12,
         "iron_group_fraction_per_shell": np.array([0.5]),
         "inner_velocities": np.array([5.0e8]),
@@ -82,8 +94,22 @@ def gamma_loop_arrays() -> dict[str, np.ndarray]:
         "energy_out_cosi": np.zeros((3, 2)),
         "total_energy": np.zeros((1, 2)),
         "energy_deposited_gamma": np.zeros((1, 2)),
+        "energy_deposition_estimator": np.zeros((1, 2)),
         "packets_info_array": np.zeros((1, 8)),
     }
+
+
+def test_get_compton_energy_loss_fraction(
+    regression_data: RegressionData,
+) -> None:
+    energies = np.array([100.0, 511.0, 1000.0, 6300.0])
+    actual = np.array(
+        [get_compton_energy_loss_fraction(energy) for energy in energies]
+    )
+
+    np.testing.assert_allclose(
+        actual, regression_data.sync_ndarray(actual), rtol=RTOL
+    )
 
 
 def test_gamma_distance_radial(
@@ -423,6 +449,97 @@ def test_gamma_packet_loop_negative_time_index(
         )
 
 
+def test_gamma_packet_loop_estimator_for_noninteracting_segment(
+    gamma_packet: GXPacket,
+    gamma_packet_collection: GXPacketCollection,
+    gamma_loop_arrays: dict[str, np.ndarray],
+) -> None:
+    time_idx = 1
+    gamma_packet_collection.time_index[0] = time_idx
+    gamma_packet_collection.time_start[0] = gamma_loop_arrays["times"][
+        time_idx
+    ]
+    gamma_loop_arrays["electron_number_density_time"][0, time_idx] *= 1.0e-4
+    gamma_loop_arrays["mass_density_time"][0, time_idx] *= 1.0e-4
+
+    comoving_energy = 1000.0
+    compton_opacity = compton_opacity_calculation(
+        comoving_energy,
+        gamma_loop_arrays["electron_number_density_time"][0, time_idx],
+    )
+    photoabsorption_opacity = photoabsorption_opacity_calculation(
+        comoving_energy,
+        gamma_loop_arrays["mass_density_time"][0, time_idx],
+        gamma_loop_arrays["iron_group_fraction_per_shell"][0],
+    )
+    pair_creation_opacity = pair_creation_opacity_artis(
+        comoving_energy,
+        gamma_loop_arrays["mass_density_time"][0, time_idx],
+        gamma_loop_arrays["iron_group_fraction_per_shell"][0],
+    )
+    doppler_factor = doppler_factor_3d(
+        gamma_packet_collection.direction[:, 0],
+        gamma_packet_collection.location[:, 0],
+        gamma_loop_arrays["times"][time_idx],
+    )
+    gamma_packet.time_idx = time_idx
+    gamma_packet.time_start = gamma_packet_collection.time_start[0]
+    gamma_packet.tau = -np.log(
+        np.random.RandomState(
+            gamma_packet_collection.packet_seeds[0]
+        ).random_sample()
+    )
+    distances = distance_trace(
+        gamma_packet,
+        gamma_loop_arrays["inner_velocities"],
+        gamma_loop_arrays["outer_velocities"],
+        (
+            compton_opacity
+            + photoabsorption_opacity
+            + pair_creation_opacity
+        )
+        * doppler_factor,
+        gamma_loop_arrays["effective_time_array"][time_idx],
+        gamma_loop_arrays["times"][time_idx + 1],
+    )
+    distance_interaction, distance_boundary, distance_time, _ = distances
+    assert distance_boundary == min(
+        distance_interaction, distance_boundary, distance_time
+    )
+
+    (
+        _,
+        _,
+        packets_info_array,
+        energy_deposited_gamma,
+        _,
+        energy_deposition_estimator,
+    ) = gamma_packet_loop(
+        gamma_packet_collection,
+        -1.0,
+        "tardis",
+        "artis",
+        **gamma_loop_arrays,
+    )
+
+    expected = (
+        gamma_packet_collection.energy_cmf[0]
+        * (
+            compton_opacity
+            * get_compton_energy_loss_fraction(comoving_energy)
+            + photoabsorption_opacity
+        )
+        * doppler_factor
+        * distance_boundary
+    )
+    assert energy_deposition_estimator[0, 1] == pytest.approx(
+        expected, rel=RTOL
+    )
+    assert energy_deposition_estimator[0, 0] == 0.0
+    assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
+    np.testing.assert_array_equal(energy_deposited_gamma, 0.0)
+
+
 @pytest.mark.parametrize("grey_opacity", [-1.0, 1e-4])
 def test_gamma_packet_loop_escape_binning(
     gamma_packet_collection: GXPacketCollection,
@@ -449,6 +566,7 @@ def test_gamma_packet_loop_escape_binning(
         packets_info_array,
         energy_deposited_gamma,
         total_energy,
+        _,
     ) = gamma_packet_loop(
         gamma_packet_collection,
         grey_opacity,
@@ -477,7 +595,7 @@ def test_gamma_packet_loop_inward_crosses_center(
 ) -> None:
     gamma_packet_collection.direction[:, 0] = np.array([-1.0, 0.0, 0.0])
 
-    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
+    _, _, packets_info_array, energy_deposited_gamma, total_energy, _ = (
         gamma_packet_loop(
             gamma_packet_collection,
             0.0,
@@ -504,6 +622,9 @@ def test_gamma_packet_loop_tardis_opacity(
 ) -> None:
     # Put the packet just inside the outer boundary so the TARDIS opacity path
     # reaches escape binning deterministically.
+    gamma_loop_arrays["kasen_photoabsorption_density_time"] = np.empty(
+        (0, 0), dtype=np.float64
+    )
     gamma_packet_collection.location[:, 0] = np.array([1.9e14, 0.0, 0.0])
     gamma_packet_collection.direction[:, 0] = np.array([1.0, 0.0, 0.0])
     set_seed_fixture(1963)
@@ -514,6 +635,7 @@ def test_gamma_packet_loop_tardis_opacity(
         packets_info_array,
         energy_deposited_gamma,
         total_energy,
+        _,
     ) = gamma_packet_loop(
         gamma_packet_collection,
         -1.0,
@@ -605,7 +727,7 @@ def test_gamma_packet_loop_negative_shell_preserves_energy_numba_disabled(
         lambda *args: (20.0, 1.0, 10.0, -1),
     )
 
-    _, _, packets_info_array, _, _ = gamma_packet_loop(
+    _, _, packets_info_array, _, _, _ = gamma_packet_loop(
         gamma_packet_collection,
         -1.0,
         "kasen",
@@ -645,7 +767,7 @@ def test_gamma_packet_loop_interaction_deposition_numba_disabled(
         lambda *args: GXPacketStatus.PHOTOABSORPTION,
     )
 
-    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
+    _, _, packets_info_array, energy_deposited_gamma, total_energy, _ = (
         gamma_packet_loop(
             gamma_packet_collection,
             -1.0,
