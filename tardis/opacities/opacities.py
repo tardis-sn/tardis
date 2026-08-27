@@ -363,35 +363,27 @@ def photoabsorption_opacity_calculation(
 
 @njit(**njit_dict_no_parallel)
 def photoabsorption_opacity_calculation_kasen(
-    energy, number_density, proton_count
-):
-    """
-    Calculates photoabsorption opacity for a given energy
-    Approximate treatment from Kasen et al. (2006)
+    energy: float, scaled_number_density: float
+) -> float:
+    """Calculate the Kasen et al. (2006) equation A3 photoabsorption opacity.
 
     Parameters
     ----------
     energy : float
-        Photon energy
-    number_density : float
-        The number density of the ejecta for each atom
-    proton_count : float
-        Number of protons for each atom in the ejecta
+        Photon energy in keV.
+    scaled_number_density : float
+        Sum of each element's atom number density multiplied by the fifth
+        power of its atomic number, per cubic centimeter.
 
     Returns
     -------
     float
-        Photoabsorption opacity
+        Photoabsorption opacity in inverse centimeters.
     """
     kappa = kappa_calculation(energy)
 
     opacity = (FINE_STRUCTURE**4.0) * 8.0 * np.sqrt(2) * (kappa**-3.5)
-    # Note- this should actually be atom_number_density * (atom_proton_number ** 5)
-    return (
-        SIGMA_T
-        * opacity
-        * np.sum((number_density / proton_count) * proton_count**5)
-    )
+    return SIGMA_T * opacity * scaled_number_density
 
 
 @njit(**njit_dict_no_parallel)
@@ -442,14 +434,15 @@ def pair_creation_opacity_calculation(
 
 @njit(**njit_dict_no_parallel)
 def pair_creation_opacity_artis(energy, ejecta_density, iron_group_fraction):
-    """Calculates pair creation opacity for a given energy
+    """Calculate pair creation opacity for a given energy
+
     Approximate treatment from Ambwani & Sutherland (1988)
     as implemented in ARTIS
 
     Parameters
     ----------
     energy : float
-        Photon energy
+        Packet energy in keV
     ejecta_density : float
         The density of the ejecta
     iron_group_fraction : float
@@ -462,13 +455,14 @@ def pair_creation_opacity_artis(energy, ejecta_density, iron_group_fraction):
     """
     # Conditions prevent divide by zero
     # Ambwani & Sutherland (1988)
-    if energy > 1022:
-        if energy > 1500:
-            opacity_si = (0.0481 + (0.301 * (energy - 1500))) * 196.0e-27
-            opacity_fe = (0.0481 + (0.301 * (energy - 1500))) * 784.0e-27
+    energy /= 1000  # ARTIS uses MeV
+    if energy > 1.022:
+        if energy > 1.5:
+            opacity_si = (0.0481 + (0.301 * (energy - 1.5))) * 196.0e-27
+            opacity_fe = (0.0481 + (0.301 * (energy - 1.5))) * 784.0e-27
         else:
-            opacity_si = 1.0063 * (energy - 1022) * 196.0e-27
-            opacity_fe = 1.0063 * (energy - 1022) * 784.0e-27
+            opacity_si = 1.0063 * (energy - 1.022) * 196.0e-27
+            opacity_fe = 1.0063 * (energy - 1.022) * 784.0e-27
 
         opacity_si *= ejecta_density / M_P / 28
         opacity_fe *= ejecta_density / M_P / 56

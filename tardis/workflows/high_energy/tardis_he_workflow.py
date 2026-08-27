@@ -14,6 +14,8 @@ from tardis.energy_input.main_gamma_ray_loop import (
     get_effective_time_array,
     run_gamma_ray_loop,
 )
+from tardis.io.atom_data import AtomData
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.model import SimulationState
 
@@ -22,7 +24,13 @@ logging.basicConfig(level=logging.INFO)
 
 
 class TARDISHEWorkflow:
-    def __init__(self, atom_data, configuration, config_type="yaml"):
+    def __init__(
+        self,
+        atom_data: AtomData,
+        configuration: Configuration,
+        config_type: str = "yaml",
+    ) -> None:
+        self.atom_data = atom_data
 
         if config_type == "csvy":
             self.simulation_state = SimulationState.from_csvy(configuration)
@@ -30,6 +38,8 @@ class TARDISHEWorkflow:
             self.simulation_state = SimulationState.from_config(
                 configuration, atom_data
             )
+
+        self.nthreads = configuration.montecarlo.nthreads
 
         self.gamma_ray_lines = atom_data.decay_radiation_data
 
@@ -128,18 +138,16 @@ class TARDISHEWorkflow:
 
     def run(
         self,
-        time_start,
-        time_end,
-        number_of_packets,
-        time_steps,
-        time_space,
-        seed,
-        fp,
-        spectrum_bins,
-        grey_opacity=-1,
-        legacy=False,
-        legacy_atom_data=None,
-    ):
+        time_start: float,
+        time_end: float,
+        number_of_packets: int,
+        time_steps: int,
+        time_space: str,
+        seed: int,
+        fp: float,
+        spectrum_bins: int,
+        grey_opacity: float = -1,
+    ) -> "TARDISHEWorkflowResult":
         """
         Run the gamma-ray transport simulation.
 
@@ -178,6 +186,7 @@ class TARDISHEWorkflow:
             escape_energy_cosi,
             packets_escaped,
             gamma_ray_deposited_energy,
+            gamma_ray_deposition_estimator,
             total_deposited_energy,
             positron_energy,
         ) = run_gamma_ray_loop(
@@ -190,9 +199,9 @@ class TARDISHEWorkflow:
             seed=seed,
             positronium_fraction=fp,
             spectrum_bins=spectrum_bins,
+            nthreads=self.nthreads,
             grey_opacity=grey_opacity,
-            legacy=legacy,
-            legacy_atom_data=legacy_atom_data,
+            atom_data=self.atom_data,
         )
 
         return TARDISHEWorkflowResult(
@@ -201,6 +210,7 @@ class TARDISHEWorkflow:
             escape_energy_cosi=escape_energy_cosi,
             packets_escaped=packets_escaped,
             gamma_ray_deposited_energy=gamma_ray_deposited_energy,
+            gamma_ray_deposition_estimator=gamma_ray_deposition_estimator,
             total_deposited_energy=total_deposited_energy,
             positron_energy=positron_energy,
         )
@@ -215,6 +225,7 @@ class TARDISHEWorkflowResult(HDFWriterMixin):
         "escape_energy_cosi",
         "packets_escaped",
         "gamma_ray_deposited_energy",
+        "gamma_ray_deposition_estimator",
         "total_deposited_energy",
         "positron_energy",
     ]
@@ -224,5 +235,6 @@ class TARDISHEWorkflowResult(HDFWriterMixin):
     escape_energy_cosi: pd.DataFrame
     packets_escaped: pd.DataFrame
     gamma_ray_deposited_energy: pd.DataFrame
+    gamma_ray_deposition_estimator: pd.DataFrame
     total_deposited_energy: pd.DataFrame
     positron_energy: pd.DataFrame
