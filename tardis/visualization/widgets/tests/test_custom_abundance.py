@@ -55,6 +55,10 @@ class TestCustomAbundanceWidgetData:
         symbols = yml_data.get_symbols()
         npt.assert_array_equal(symbols, ["O", "Mg", "Si", "S", "Ar", "Ca"])
 
+    def test_density_length_matches_velocity(self, yml_data):
+        """Tests that density array length matches velocity array length for YAML data."""
+        assert len(yml_data.density) == len(yml_data.velocity)
+
 
 class TestCustomAbundanceWidget:
     def test_to_csvy(self, caw, tmp_path):
