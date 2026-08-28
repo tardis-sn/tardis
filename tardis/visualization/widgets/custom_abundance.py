@@ -215,6 +215,8 @@ class CustomAbundanceWidgetData:
         velocity = simulation_state.velocity
         density_t_0 = simulation_state.time_explosion
         density = simulation_state.density
+        if len(density) == len(velocity) - 1:
+            density = np.insert(density, 0, density[0]) * density.unit
         abundance = simulation_state.abundance
         isotopic_mass_fraction = (
             simulation_state.composition.isotopic_mass_fraction
@@ -293,6 +295,8 @@ class CustomAbundanceWidgetData:
         velocity = sim.simulation_state.velocity
         density_t_0 = sim.simulation_state.time_explosion
         density = sim.simulation_state.density
+        if len(density) == len(velocity) - 1:
+            density = np.insert(density, 0, density[0]) * density.unit
 
         return cls(
             density_t_0=density_t_0,
