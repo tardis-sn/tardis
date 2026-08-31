@@ -1,0 +1,7 @@
+tardis.io.atom\_data.atomic\_data\_summary module
+=================================================
+
+.. automodule:: tardis.io.atom_data.atomic_data_summary
+   :members:
+   :show-inheritance:
+   :undoc-members:
