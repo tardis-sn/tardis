@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5bfb3f76"></script>
+      <script src="../_static/documentation_options.js?v=54856128"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -520,7 +520,10 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacket.class_type"><code class="docutils literal notranslate"><span class="pre">GXPacket.class_type</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l9"><a class="reference internal" href="tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketCollection"><code class="docutils literal notranslate"><span class="pre">GXPacketCollection</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketCollection"><code class="docutils literal notranslate"><span class="pre">GXPacketCollection</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketCollection.class_type"><code class="docutils literal notranslate"><span class="pre">GXPacketCollection.class_type</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketStatus"><code class="docutils literal notranslate"><span class="pre">GXPacketStatus</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketStatus.BETA_DECAY"><code class="docutils literal notranslate"><span class="pre">GXPacketStatus.BETA_DECAY</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketStatus.COMPTON_SCATTER"><code class="docutils literal notranslate"><span class="pre">GXPacketStatus.COMPTON_SCATTER</span></code></a></li>
@@ -535,6 +538,7 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.energy_input.transport.gamma_packet_loop.html">tardis.energy_input.transport.gamma_packet_loop module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.gamma_packet_loop"><code class="docutils literal notranslate"><span class="pre">gamma_packet_loop()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.make_gx_packet"><code class="docutils literal notranslate"><span class="pre">make_gx_packet()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.process_packet_path"><code class="docutils literal notranslate"><span class="pre">process_packet_path()</span></code></a></li>
 </ul>
 </li>
@@ -625,8 +629,8 @@
 <li class="toctree-l7"><a class="reference internal" href="tardis.energy_input.util.html#tardis.energy_input.util.angle_aberration_gamma"><code class="docutils literal notranslate"><span class="pre">angle_aberration_gamma()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="tardis.energy_input.util.html#tardis.energy_input.util.compton_theta_distribution"><code class="docutils literal notranslate"><span class="pre">compton_theta_distribution()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="tardis.energy_input.util.html#tardis.energy_input.util.convert_half_life_to_astropy_units"><code class="docutils literal notranslate"><span class="pre">convert_half_life_to_astropy_units()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="tardis.energy_input.util.html#tardis.energy_input.util.doppler_factor_3D_all_packets"><code class="docutils literal notranslate"><span class="pre">doppler_factor_3D_all_packets()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="tardis.energy_input.util.html#tardis.energy_input.util.doppler_factor_3d"><code class="docutils literal notranslate"><span class="pre">doppler_factor_3d()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="tardis.energy_input.util.html#tardis.energy_input.util.doppler_factor_3d_all_packets"><code class="docutils literal notranslate"><span class="pre">doppler_factor_3d_all_packets()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="tardis.energy_input.util.html#tardis.energy_input.util.euler_rodrigues"><code class="docutils literal notranslate"><span class="pre">euler_rodrigues()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="tardis.energy_input.util.html#tardis.energy_input.util.get_index"><code class="docutils literal notranslate"><span class="pre">get_index()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="tardis.energy_input.util.html#tardis.energy_input.util.get_perpendicular_vector"><code class="docutils literal notranslate"><span class="pre">get_perpendicular_vector()</span></code></a></li>
@@ -4743,11 +4747,11 @@
 <span id="tardis-io-model-readers-stella-module"></span><h1>tardis.io.model.readers.stella module<a class="headerlink" href="#module-tardis.io.model.readers.stella" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.io.model.readers.stella.STELLAModel">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.stella.</span></span><span class="sig-name descname"><span class="pre">STELLAModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1662.g0c49719283)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/stella.html#STELLAModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.stella.STELLAModel" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.stella.</span></span><span class="sig-name descname"><span class="pre">STELLAModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/stella.html#STELLAModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.stella.STELLAModel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.io.model.readers.stella.STELLAModel.data">
-<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1662.g0c49719283)"><span class="pre">DataFrame</span></a></em><a class="headerlink" href="#tardis.io.model.readers.stella.STELLAModel.data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">DataFrame</span></a></em><a class="headerlink" href="#tardis.io.model.readers.stella.STELLAModel.data" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -4789,7 +4793,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Aug 2026.
+      <span class="lastupdated">Last updated on 31 Aug 2026.
       </span></p>
   </div>
 
