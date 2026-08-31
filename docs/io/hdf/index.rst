@@ -15,6 +15,25 @@ What is HDF5?
 In TARDIS, it is used to store the data from simulations and other actions.
 
 
+Configuration output
+--------------------
+
+The ``/simulation/config`` dataset stores the configuration used for a
+simulation as YAML. The stored configuration can be read and validated again:
+
+.. code-block:: python
+
+   import pandas as pd
+   import yaml
+
+   from tardis.io.configuration.config_reader import Configuration
+   from tardis.io.util import YAMLLoader
+
+   serialized_config = pd.read_hdf("simulation.h5", key="/simulation/config")[0]
+   config_dict = yaml.load(serialized_config, Loader=YAMLLoader)
+   config = Configuration.from_config_dict(config_dict)
+
+
 HDF5 structure
 --------------
 

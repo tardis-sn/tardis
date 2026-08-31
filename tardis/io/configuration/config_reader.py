@@ -197,8 +197,17 @@ class ConfigWriterMixin(HDFWriterMixin):
     Overrides HDFWriterMixin to obtain HDF properties from configuration keys
     """
 
-    def get_properties(self):
-        data = yaml.dump(self)
+    def get_properties(self) -> pd.DataFrame:
+        """Return the configuration output stored in simulation HDF files.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A single-row table containing the YAML configuration output.
+        """
+        configuration_output = dict(self)
+        configuration_output.pop("config_dirname", None)
+        data = yaml.dump(configuration_output)
         data = pd.DataFrame(index=[0], data={"config": data})
         return data
 
