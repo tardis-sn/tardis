@@ -3,7 +3,9 @@ import numpy.testing as npt
 import pytest
 
 from tardis.energy_input.util import (
+    C_CGS,
     R_ELECTRON_SQUARED,
+    doppler_factor_3d_all_packets,
     get_perpendicular_vector,
     klein_nishina,
     spherical_to_cartesian,
@@ -30,6 +32,23 @@ def test_spherical_to_cartesian(
     npt.assert_almost_equal(actual_x, expected_x)
     npt.assert_almost_equal(actual_y, expected_y)
     npt.assert_almost_equal(actual_z, expected_z)
+
+
+def test_doppler_factor_3d_all_packets() -> None:
+    """Test Doppler factors for multiple packet vectors."""
+    directions = np.array(
+        [[1.0, 0.0], [0.0, 0.6], [0.0, 0.8]], dtype=np.float64
+    )
+    positions = np.array(
+        [[3.0e13, 1.0e13], [0.0, 4.0e13], [0.0, 3.0e13]], dtype=np.float64
+    )
+    times = np.array([1.0e5, 2.0e5], dtype=np.float64)
+
+    expected = 1 - np.sum(positions / times * directions, axis=0) / C_CGS
+
+    npt.assert_allclose(
+        doppler_factor_3d_all_packets(directions, positions, times), expected
+    )
 
 
 @pytest.mark.xfail(reason="To be removed")

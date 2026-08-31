@@ -31,6 +31,8 @@ class TARDISHEWorkflow:
                 configuration, atom_data
             )
 
+        self.nthreads = configuration.montecarlo.nthreads
+
         self.gamma_ray_lines = atom_data.decay_radiation_data
 
         self.shell_masses = self.simulation_state.volume * self.simulation_state.density
@@ -190,6 +192,7 @@ class TARDISHEWorkflow:
             seed=seed,
             positronium_fraction=fp,
             spectrum_bins=spectrum_bins,
+            nthreads=self.nthreads,
             grey_opacity=grey_opacity,
             legacy=legacy,
             legacy_atom_data=legacy_atom_data,

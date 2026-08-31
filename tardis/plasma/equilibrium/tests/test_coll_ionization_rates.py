@@ -62,11 +62,16 @@ def test_collisional_ionization_rate_solver_solve(
     solver = CollisionalIonizationRateSolver(
         mock_photoionization_cross_sections
     )
+    partition_function = pd.DataFrame(
+        1.0,
+        index=mock_boltzmann_factor.index,
+        columns=mock_boltzmann_factor.columns,
+    )
 
     actual_ionization_rates, actual_recombination_rates = solver.solve(
         mock_electron_distribution,
         mock_level_to_ion_population_factor,
-        1.0,  # Simple partition function for testing
+        partition_function,
         mock_boltzmann_factor,
         approximation="seaton",
     )

@@ -3,15 +3,17 @@ import logging
 import astropy.units as u
 import numpy as np
 import pandas as pd
-from numba.typed import List as TypedList
-from numpy.typing import NDArray  # noqa: TC002
+from numba import set_num_threads
+from numpy.typing import NDArray
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.energy_input.gamma_ray_transport import (
     calculate_ejecta_velocity_volume,
     iron_group_fraction_per_shell,
 )
-from tardis.energy_input.transport.gamma_packet_loop import gamma_packet_loop
+from tardis.energy_input.transport.gamma_packet_loop import (
+    gamma_packet_loop,
+)
 from tardis.energy_input.transport.GXPacket import GXPacket
 from tardis.energy_input.util import get_index
 from tardis.io.atom_data import AtomData
@@ -19,6 +21,10 @@ from tardis.model.base import SimulationState
 from tardis.transport.montecarlo.packet_source.high_energy import (
     GammaRayPacketSource,
     legacy_calculate_positron_fraction,
+)
+from tardis.transport.montecarlo.progress_bars import (
+    refresh_packet_pbar,
+    reset_packet_pbar,
 )
 
 logger = logging.getLogger(__name__)
@@ -152,6 +158,7 @@ def run_gamma_ray_loop(
     seed: int,
     positronium_fraction: float,
     spectrum_bins: int,
+    nthreads: int,
     grey_opacity: float,
     photoabsorption_opacity: str = "tardis",
     pair_creation_opacity: str = "tardis",
@@ -188,6 +195,8 @@ def run_gamma_ray_loop(
         Fraction of positrons that form positronium.
     spectrum_bins : int
         Number of logarithmically spaced escaping-spectrum energy bins.
+    nthreads : int
+        Number of Numba threads used for packet transport.
     grey_opacity : float
         Grey opacity in square centimeters per gram. A negative value enables
         the detailed interaction opacities.
@@ -231,14 +240,6 @@ def run_gamma_ray_loop(
     ejecta_volume = simulation_state.volume.to("cm^3").value
     shell_masses = simulation_state.volume * simulation_state.density
     number_of_shells = len(shell_masses)
-    # TODO: decaying upto times[0]. raw_isotope_abundance is possibly not the best name
-    isotopic_mass_fraction = (
-        simulation_state.composition.isotopic_mass_fraction.sort_values(
-            by=["atomic_number", "mass_number"],
-            ascending=False,
-            kind=SORTING_ALGORITHM,
-        )
-    )
 
     dt_array = np.diff(times)
 
@@ -299,33 +300,16 @@ def run_gamma_ray_loop(
 
     total_energy = np.zeros((number_of_shells, len(times) - 1))
 
-    logger.info("Creating packet list")
-    # This for loop is expensive. Need to rewrite GX packet to handle arrays
-    packets = TypedList()
-    for i in range(number_of_packets):
-        packets.append(
-            GXPacket(
-                packet_collection.location[:, i],
-                packet_collection.direction[:, i],
-                packet_collection.energy_rf[i],
-                packet_collection.energy_cmf[i],
-                packet_collection.nu_rf[i],
-                packet_collection.nu_cmf[i],
-                packet_collection.status[i],
-                packet_collection.shell[i],
-                packet_collection.time_start[i],
-                packet_collection.time_index[i],
-            )
-        )
-
     # Calculate isotope positron fraction separately
     isotope_positron_fraction = legacy_calculate_positron_fraction(
         legacy_isotope_decacy_df,
         packet_collection.source_isotopes,
         number_of_packets,
     )
-    for i, p in enumerate(packets):
-        total_energy[p.shell, p.time_idx] += (
+    for i in range(number_of_packets):
+        total_energy[
+            packet_collection.shell[i], packet_collection.time_index[i]
+        ] += (
             isotope_positron_fraction[i] * energy_per_packet
         )
 
@@ -349,17 +333,15 @@ def run_gamma_ray_loop(
     iron_group_fraction = iron_group_fraction_per_shell(simulation_state)
 
     logger.info("Entering the main gamma-ray loop")
+    set_num_threads(nthreads)
 
-    total_cmf_energy = 0
-    total_rf_energy = 0
-
-    for p in packets:
-        total_cmf_energy += p.energy_cmf
-        total_rf_energy += p.energy_rf
+    total_cmf_energy = packet_collection.energy_cmf.sum()
+    total_rf_energy = packet_collection.energy_rf.sum()
 
     logger.info("Total CMF energy is %s", total_cmf_energy)
     logger.info("Total RF energy is %s", total_rf_energy)
 
+    reset_packet_pbar(number_of_packets)
     (
         energy_out,
         energy_out_cosi,
@@ -367,7 +349,7 @@ def run_gamma_ray_loop(
         energy_deposited_gamma,
         total_energy,
     ) = gamma_packet_loop(
-        packets,
+        packet_collection,
         grey_opacity,
         photoabsorption_opacity,
         pair_creation_opacity,
@@ -386,6 +368,7 @@ def run_gamma_ray_loop(
         energy_deposited,
         packets_info_array,
     )
+    refresh_packet_pbar()
 
     packets_df_escaped = pd.DataFrame(
         data=packets_array,
