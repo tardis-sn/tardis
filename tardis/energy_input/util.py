@@ -115,12 +115,9 @@ def doppler_factor_3d_all_packets(
     array
         Doppler factors
     """
-    doppler_factors = position_vectors[0] * direction_vectors[0]
-    doppler_factors += position_vectors[1] * direction_vectors[1]
-    doppler_factors += position_vectors[2] * direction_vectors[2]
-    doppler_factors /= times
-    doppler_factors *= -1.0 / C_CGS
-    doppler_factors += 1.0
+    velocity_vector = position_vectors / times
+    vel_mul_dir = np.multiply(velocity_vector, direction_vectors)
+    doppler_factors = 1 - (np.sum(vel_mul_dir, axis=0) / C_CGS)
 
     return doppler_factors
 
