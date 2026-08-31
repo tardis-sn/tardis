@@ -1,8 +1,11 @@
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 
 class LevelPopulationSolver:
+    """Solve normalized level populations from bound-bound rate matrices."""
+
     def __init__(self, rates_matrices: pd.DataFrame, levels: pd.DataFrame):
         """Solve the normalized level population values from the rate matrices.
 
@@ -17,8 +20,10 @@ class LevelPopulationSolver:
         self.rates_matrices = rates_matrices
         self.levels = levels
 
-    def __calculate_level_population(self, rates_matrix: np.ndarray):
-        """Helper function to calculate the normalized, per-level boltzmann factor.
+    def _calculate_level_population(
+        self, rates_matrix: npt.NDArray[np.float64]
+    ) -> npt.NDArray[np.float64]:
+        """Calculate normalized per-level populations.
 
         Parameters
         ----------
@@ -37,7 +42,7 @@ class LevelPopulationSolver:
         )
         return normalized_level_population
 
-    def solve(self):
+    def solve(self) -> pd.DataFrame:
         """Solves the normalized level population values from the rate matrices.
 
         Returns
@@ -46,22 +51,23 @@ class LevelPopulationSolver:
             Normalized level population values indexed by atomic number, ion
             number and level number. Columns are cells.
         """
-        normalized_level_populations = pd.DataFrame(
-            index=self.levels.index,
-            columns=self.rates_matrices.columns,
-            dtype=np.float64,
+        normalized_level_populations = np.full(
+            (len(self.levels), len(self.rates_matrices.columns)), np.nan
         )
 
-        # try converting the set of vectors into a single 2D array and then applying index
         for species_id in self.rates_matrices.index:
-            # TODO: resolve the chained assignment here. Maybe an intermediate df
-            # is needed
-
-            solved_matrices = self.rates_matrices.loc[species_id].apply(
-                self.__calculate_level_population
+            matrices = np.stack(
+                self.rates_matrices.loc[species_id].to_numpy()
             )
-            normalized_level_populations.loc[species_id, :] = np.vstack(
-                solved_matrices.values
+            populations = np.array(
+                [self._calculate_level_population(matrix) for matrix in matrices]
             ).T
+            normalized_level_populations[
+                self.levels.index.get_loc(species_id)
+            ] = populations
 
-        return normalized_level_populations
+        return pd.DataFrame(
+            normalized_level_populations,
+            index=self.levels.index,
+            columns=self.rates_matrices.columns,
+        )

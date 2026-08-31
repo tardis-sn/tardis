@@ -96,6 +96,47 @@ with the additional constraint that all the level number populations need to add
     \right)
 
 
+For ion-stage populations at fixed electron temperature and radiation field,
+TARDIS uses the same statistical-equilibrium convention for each element. One
+dependent rate equation is replaced by elemental abundance conservation,
+
+.. math::
+
+    \sum_j y_{i,j} = 1,
+
+where :math:`y_{i,j}` is the fraction of element :math:`i` in ion stage
+:math:`j`. When charge conservation is requested, the elemental matrices remain
+linear in the ion populations at a trial electron density. TARDIS then solves
+one bounded scalar equation for each shell so that all elements share the same
+electron density,
+
+.. math::
+
+    \sum_i N_i \sum_j j y_{i,j}(n_e) - n_e = 0.
+
+Continuum rates are assembled for every bound ion stage. A level in stage
+:math:`j` is paired with its continuum population in stage :math:`j + 1`, so
+multi-electron elements contribute through every supported ionization stage.
+The reverse rates use the level-to-continuum Saha factor from equation 14 of
+:cite:`Lucy2003`,
+
+.. math::
+
+    \Phi_{i\kappa}(T_e) = \frac{n_i^*}{n_\kappa^* n_e}.
+
+At a fixed thermal state, this factor is independent of electron density. It is
+therefore computed once from the thermal Saha, Boltzmann, and partition-function
+inputs and held fixed during the charge solve. Trial electron densities enter
+only through their explicit rate powers: photoionization is proportional to
+:math:`n_e^0`, radiative recombination and collisional ionization to
+:math:`n_e^1`, and three-body recombination to :math:`n_e^2`.
+
+The scalar solve is bounded between a nearly neutral plasma and the fully
+ionized electron density :math:`\sum_i i N_i`. The strictly positive lower
+bound respects the Lyman-continuum on-the-spot approximation, which can
+disconnect a fully neutral hydrogen rate matrix. Thermal balance and radiation
+transport are held fixed during this solve.
+
 
 
 
@@ -184,8 +225,4 @@ Next, we will group the stimulated emission and stimulated absorption terms, as 
                         - n_2 \bigg{(}A_{21} + C_{23} n_e + n_2 B_{23} \bar{J}_{23}
                         \underbrace{\bigg{(}1 - \frac{n_3}{n_2}\frac{B_{32}}{B_{23}}\bigg{)}}_\text{stimulated emission term}\bigg{)}
                         + n_3 (A_{32} + C_{32} n_e)
-
-
-
-
 

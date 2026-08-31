@@ -1,20 +1,39 @@
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy.sparse import coo_matrix
 
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
+from tardis.plasma.equilibrium.rates import (
+    AnalyticPhotoionizationRateSolver,
+    CollisionalIonizationRateSolver,
+    EstimatedPhotoionizationRateSolver,
+)
+from tardis.plasma.equilibrium.rates.util import (
+    reindex_ion_population_to_level_population,
+)
+from tardis.plasma.radiation_field import (
+    DilutePlanckianRadiationField,
+    PlanckianRadiationField,
+)
+
 
 class RateMatrix:
+    """Build bound-bound rate matrices from rate solvers."""
+
     def __init__(
         self,
         rate_solvers: list,
         levels: pd.DataFrame,
-    ):
-        """Constructs the rate matrix from an arbitrary number of rate solvers.
+    ) -> None:
+        """Construct a rate matrix from an arbitrary number of rate solvers.
 
         Parameters
         ----------
         rate_solvers : list
-            List of rate solver objects.
+            List of rate solver pairs.
         levels : pd.DataFrame
             DataFrame of energy levels.
         """
@@ -23,9 +42,10 @@ class RateMatrix:
 
     def solve(
         self,
-        radiation_field,
-        thermal_electron_energy_distribution,
-    ):
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+    ) -> pd.DataFrame:
         """Construct the compiled rate matrix dataframe.
 
         Parameters
@@ -69,7 +89,7 @@ class RateMatrix:
             if solver_arg_tuple[1] == "electron"
             else rates_df
             for solver_arg_tuple, rates_df in zip(
-                self.rate_solvers, rates_df_list
+                self.rate_solvers, rates_df_list, strict=True
             )
         ]
 
@@ -79,12 +99,13 @@ class RateMatrix:
             level=("atomic_number", "ion_number")
         )
 
-        rate_matrices = pd.DataFrame(
-            index=grouped_rates_df.groups.keys(), columns=rates_df.columns
-        )
+        rate_matrices: dict[tuple[int, int], npt.NDArray[np.float64]] = {}
 
         for species_id, rates in grouped_rates_df:
             number_of_levels = self.levels.energy.loc[species_id].count()
+            matrices = np.empty(
+                (len(rates.columns), number_of_levels, number_of_levels)
+            )
             for shell in range(len(rates.columns)):
                 matrix = coo_matrix(
                     (
@@ -101,21 +122,34 @@ class RateMatrix:
                 matrix_array = matrix.toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
                 matrix_array[0, :] = 1
-                rate_matrices.loc[species_id, shell] = matrix_array
+                matrices[shell] = matrix_array
+            rate_matrices[species_id] = matrices
 
-        rate_matrices.index.names = ["atomic_number", "ion_number"]
+        rate_matrix_array = np.empty(
+            (len(rate_matrices), len(rates_df.columns)), dtype=object
+        )
+        for species_idx, matrices in enumerate(rate_matrices.values()):
+            rate_matrix_array[species_idx] = list(matrices)
 
-        return rate_matrices
+        return pd.DataFrame(
+            rate_matrix_array,
+            index=pd.MultiIndex.from_tuples(
+                rate_matrices, names=["atomic_number", "ion_number"]
+            ),
+            columns=rates_df.columns,
+        )
 
 
 class IonRateMatrix:
+    """Build ionization rate matrices from radiative and collisional rates."""
+
     def __init__(
         self,
-        radiative_ionization_rate_solver,
-        collisional_ionization_rate_solver,
-    ):
-        """Constructs the ionization rate matrix from radiative and collisional
-        ionization rate solvers.
+        radiative_ionization_rate_solver: AnalyticPhotoionizationRateSolver
+        | EstimatedPhotoionizationRateSolver,
+        collisional_ionization_rate_solver: CollisionalIonizationRateSolver,
+    ) -> None:
+        """Construct an ionization rate matrix solver.
 
         Parameters
         ----------
@@ -128,10 +162,14 @@ class IonRateMatrix:
         self.collisional_ionization_rate_solver = (
             collisional_ionization_rate_solver
         )
+        self.ion_population_index = pd.MultiIndex.from_tuples(
+            [], names=["atomic_number", "ion_number"]
+        )
 
-    def __calculate_total_grouped_rates(self, rates_df):
-        """Helper function to calculate the total rates from the
-        photoionization and recombination rates.
+    def __calculate_total_grouped_rates(
+        self, rates_df: pd.DataFrame
+    ) -> pd.core.groupby.DataFrameGroupBy:
+        """Calculate grouped total ionization and recombination rates.
 
         Parameters
         ----------
@@ -158,7 +196,9 @@ class IonRateMatrix:
             .groupby(level=("atomic_number"))
         )
 
-    def __construct_rate_matrix(self, rate, cell, ion_states):
+    def __construct_rate_matrix(
+        self, rate: pd.DataFrame, cell: int, ion_states: int
+    ) -> coo_matrix:
         """Construct a sparse rate matrix from the rates.
 
         Parameters
@@ -188,16 +228,17 @@ class IonRateMatrix:
 
     def solve(
         self,
-        radiation_field,
-        thermal_electron_energy_distribution,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
-        partition_function,
-        boltzmann_factor,
-        charge_conservation=False,
-    ):
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+        lte_level_population: pd.DataFrame,
+        level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame | None = None,
+    ) -> pd.DataFrame:
         """Compute the ionization rate matrix.
 
         Parameters
@@ -214,14 +255,15 @@ class IonRateMatrix:
             LTE ion number density. Columns are cells.
         ion_population : pd.DataFrame
             Estimated ion number density. Columns are cells.
-        charge_conservation : bool, optional
-            Whether to include a charge conservation row in the rate matrix.
+        level_to_continuum_saha_factor : pandas.DataFrame, optional
+            Density-independent Lucy level-to-continuum Saha factor. When
+            omitted, retain the existing LTE-population-derived behavior.
 
         Returns
         -------
-        pd.DataFrame
-            A DataFrame of rate matrices indexed by atomic number and ion number,
-            with each column being a cell. Each entry is a numpy array.
+        pandas.DataFrame
+            Rate matrices indexed by atomic number, with each column being a
+            shell.
         """
         photoion_rates_df, recomb_rates_df = (
             self.radiative_ionization_rate_solver.solve(
@@ -233,24 +275,27 @@ class IonRateMatrix:
                 ion_population,
                 partition_function,
                 boltzmann_factor,
+                level_to_continuum_saha_factor,
             )
         )
 
-        # Lucy 2003 Eq 14
-        level_to_ion_population_factor = lte_level_population / (
-            lte_ion_population.values
-            * thermal_electron_energy_distribution.number_density.value
-        )
+        if level_to_continuum_saha_factor is None:
+            lte_ion_population = reindex_ion_population_to_level_population(
+                lte_ion_population, lte_level_population
+            )
+            level_to_continuum_saha_factor = lte_level_population / (
+                lte_ion_population.values
+                * thermal_electron_energy_distribution.number_density.value
+            )
 
         collisional_ionization_rates_df, collision_recombination_rates_df = (
             self.collisional_ionization_rate_solver.solve(
                 thermal_electron_energy_distribution,
-                level_to_ion_population_factor,
+                level_to_continuum_saha_factor,
                 partition_function,
                 boltzmann_factor,
             )
         )
-
         grouped_photoion_rates_df = self.__calculate_total_grouped_rates(
             photoion_rates_df
         )
@@ -269,12 +314,19 @@ class IonRateMatrix:
             )
         )
 
-        rate_matrices = pd.DataFrame(
-            index=grouped_photoion_rates_df.groups.keys(),
-            columns=photoion_rates_df.columns,
+        rate_matrices = {}
+
+        atomic_numbers = list(grouped_photoion_rates_df.groups.keys())
+        self.ion_population_index = pd.MultiIndex.from_tuples(
+            [
+                (atomic_number, ion_number)
+                for atomic_number in atomic_numbers
+                for ion_number in range(atomic_number + 1)
+            ],
+            names=["atomic_number", "ion_number"],
         )
 
-        for atomic_number in grouped_photoion_rates_df.groups.keys():
+        for atomic_number in atomic_numbers:
             photoion_rates = grouped_photoion_rates_df.get_group(atomic_number)
             recomb_rates = grouped_recomb_rates_df.get_group(atomic_number)
             coll_ion_rates = grouped_collisional_ionization_rates_df.get_group(
@@ -286,7 +338,10 @@ class IonRateMatrix:
                 )
             )
             ion_states = atomic_number + 1
-            for shell in range(len(photoion_rates.columns)):
+            matrix_arrays = np.empty(
+                (len(photoion_rates.columns), ion_states, ion_states)
+            )
+            for shell_idx, shell in enumerate(photoion_rates.columns):
                 photoion_matrix = self.__construct_rate_matrix(
                     photoion_rates, shell, ion_states
                 )
@@ -308,16 +363,17 @@ class IonRateMatrix:
                 ).toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
                 matrix_array[1, :] = 1
-                if charge_conservation:
-                    charge_conservation_row = np.hstack(
-                        (np.arange(0, ion_states), -1)
-                    )
-                    matrix_array = np.pad(matrix_array, ((0, 0), (0, 1)))
-                    matrix_array = np.vstack(
-                        (charge_conservation_row, matrix_array)
-                    )
-                rate_matrices.loc[atomic_number, shell] = matrix_array
+                matrix_arrays[shell_idx] = matrix_array
+            rate_matrices[atomic_number] = matrix_arrays
 
-        rate_matrices.index.names = ["atomic_number"]
+        rate_matrix_array = np.empty(
+            (len(rate_matrices), len(photoion_rates_df.columns)), dtype=object
+        )
+        for atomic_number_idx, matrices in enumerate(rate_matrices.values()):
+            rate_matrix_array[atomic_number_idx] = list(matrices)
 
-        return rate_matrices
+        return pd.DataFrame(
+            rate_matrix_array,
+            index=pd.Index(rate_matrices, name="atomic_number"),
+            columns=photoion_rates_df.columns,
+        )

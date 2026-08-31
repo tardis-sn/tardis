@@ -1,17 +1,27 @@
+import pandas as pd
+from astropy import units as u
+
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
 from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticCorrectedPhotoionizationCoeffSolver,
     EstimatedPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
 )
 from tardis.plasma.equilibrium.rates.util import (
+    reindex_ion_population_to_level_population,
     reindex_ionization_rate_dataframe,
 )
+from tardis.plasma.radiation_field import (
+    DilutePlanckianRadiationField,
+    PlanckianRadiationField,
+)
+from tardis.transport.montecarlo.estimators import EstimatorsContinuum
 
 
 class AnalyticPhotoionizationRateSolver:
-    """Solve the photoionization and spontaneous recombination rates in the
-    case where the radiation field is computed analytically.
-    """
+    """Solve analytic photoionization and spontaneous recombination rates."""
 
     def __init__(self, photoionization_cross_sections):
         self.photoionization_cross_sections = photoionization_cross_sections
@@ -24,17 +34,20 @@ class AnalyticPhotoionizationRateSolver:
 
     def solve(
         self,
-        radiation_field,
-        electron_energy_distribution,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
-        partition_function,
-        level_boltzmann_factor,
-    ):
-        """Solve the photoionization and spontaneous recombination rates in the
-        case where the radiation field is not estimated.
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        electron_energy_distribution: ThermalElectronEnergyDistribution,
+        lte_level_population: pd.DataFrame,
+        level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        level_boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame | None = None,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Solve analytic photoionization and recombination rates.
+
+        This case is used when the radiation field is not estimated.
 
         Parameters
         ----------
@@ -50,6 +63,8 @@ class AnalyticPhotoionizationRateSolver:
             LTE ion number density. Columns are cells.
         ion_population : pd.DataFrame
             Estimated ion number density. Columns are cells.
+        level_to_continuum_saha_factor : pd.DataFrame, optional
+            Density-independent Lucy level-to-continuum Saha factor.
 
         Returns
         -------
@@ -72,23 +87,36 @@ class AnalyticPhotoionizationRateSolver:
             lte_ion_population,
             ion_population,
         )
+        photoionization_rate_coeff.columns = lte_level_population.columns
 
         spontaneous_recombination_rate_coeff = (
             self.spontaneous_recombination_rate_coeff_solver.solve(
                 electron_energy_distribution.temperature
             )
         )
+        spontaneous_recombination_rate_coeff.columns = (
+            lte_level_population.columns
+        )
 
-        # TODO: Update for non-Hydrogenic species
+        partition_function = reindex_ion_population_to_level_population(
+            partition_function,
+            level_boltzmann_factor,
+            next_higher=False,
+        )
+
         fractional_level_population = (
             level_boltzmann_factor / partition_function
         )
 
-        # Lucy 2003 Eq 14
-        level_to_ion_population_factor = lte_level_population.values / (
-            lte_ion_population.values
-            * electron_energy_distribution.number_density
-        )
+        if level_to_continuum_saha_factor is None:
+            lte_ion_population = reindex_ion_population_to_level_population(
+                lte_ion_population, lte_level_population
+            )
+            # Lucy 2003 Eq 14
+            level_to_continuum_saha_factor = lte_level_population.values / (
+                lte_ion_population.values
+                * electron_energy_distribution.number_density
+            )
 
         # used to scale the photoionization rate because we keep the level population
         # fixed while we calculated the ion number density
@@ -99,7 +127,7 @@ class AnalyticPhotoionizationRateSolver:
         # Lucy 2003 Eq 20
         spontaneous_recombination_rate = (
             spontaneous_recombination_rate_coeff
-            * level_to_ion_population_factor
+            * level_to_continuum_saha_factor
             * electron_energy_distribution.number_density
         )
 
@@ -115,9 +143,7 @@ class AnalyticPhotoionizationRateSolver:
 
 
 class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
-    """Solve the photoionization and spontaneous recombination rates in the
-    case where the radiation field is estimated by Monte Carlo processes.
-    """
+    """Solve estimated photoionization and recombination rates."""
 
     def __init__(
         self, photoionization_cross_sections, level2continuum_edge_idx
@@ -129,14 +155,15 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
 
     def solve(
         self,
-        electron_energy_distribution,
-        estimators_continuum,
-        time_simulation,
-        volume,
-        level_population,
-    ):
-        """Solve the photoionization and spontaneous recombination rates in the
-        case where the radiation field is estimated by Monte Carlo processes.
+        electron_energy_distribution: ThermalElectronEnergyDistribution,
+        estimators_continuum: EstimatorsContinuum,
+        time_simulation: u.Quantity,
+        volume: u.Quantity,
+        level_population: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Solve estimated photoionization and recombination rates.
+
+        This case uses a radiation field estimated by Monte Carlo processes.
 
         Parameters
         ----------

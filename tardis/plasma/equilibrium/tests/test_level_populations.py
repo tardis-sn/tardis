@@ -61,7 +61,7 @@ class TestLevelPopulationSolver:
         """Test solving a 2-level ion."""
         rates_matrix = np.array([[1, 1], [2, -2]])
         expected_population = np.array([0.5, 0.5])
-        result = self.solver._LevelPopulationSolver__calculate_level_population(
+        result = self.solver._calculate_level_population(
             rates_matrix
         )
         np.testing.assert_array_almost_equal(result, expected_population)
@@ -70,7 +70,7 @@ class TestLevelPopulationSolver:
         """Test empty rate matrix."""
         rates_matrix = np.array([[]])
         with pytest.raises(np.linalg.LinAlgError):
-            self.solver._LevelPopulationSolver__calculate_level_population(
+            self.solver._calculate_level_population(
                 rates_matrix
             )
 
@@ -78,7 +78,7 @@ class TestLevelPopulationSolver:
         """Test zero rate matrix."""
         rates_matrix = np.array([[0, 0], [0, 0]])
         with pytest.raises(np.linalg.LinAlgError):
-            self.solver._LevelPopulationSolver__calculate_level_population(
+            self.solver._calculate_level_population(
                 rates_matrix
             )
 
