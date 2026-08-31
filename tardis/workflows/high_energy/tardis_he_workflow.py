@@ -147,7 +147,7 @@ class TARDISHEWorkflow:
         fp: float,
         spectrum_bins: int,
         grey_opacity: float = -1,
-    ) -> "TARDISHEWorkflowResult":
+    ) -> TARDISHEWorkflowResult:
         """
         Run the gamma-ray transport simulation.
 
