@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=54856128"></script>
+      <script src="../../../_static/documentation_options.js?v=bbf8452d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2517,6 +2517,7 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.rates.util.html">tardis.plasma.equilibrium.rates.util module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ion_population_to_level_population"><code class="docutils literal notranslate"><span class="pre">reindex_ion_population_to_level_population()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe"><code class="docutils literal notranslate"><span class="pre">reindex_ionization_rate_dataframe()</span></code></a></li>
 </ul>
 </li>
@@ -2531,6 +2532,11 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.ion_populations.html">tardis.plasma.equilibrium.ion_populations module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_balance()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_element_populations_at_electron_density"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_element_populations_at_electron_density()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_non_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_non_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_shell_charge"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_shell_charge()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4816,6 +4822,36 @@ N\\
 0\\
 \end{matrix}
 \right)\end{split}\]</div>
+<p>For ion-stage populations at fixed electron temperature and radiation field,
+TARDIS uses the same statistical-equilibrium convention for each element. One
+dependent rate equation is replaced by elemental abundance conservation,</p>
+<div class="math notranslate nohighlight">
+\[\sum_j y_{i,j} = 1,\]</div>
+<p>where <span class="math notranslate nohighlight">\(y_{i,j}\)</span> is the fraction of element <span class="math notranslate nohighlight">\(i\)</span> in ion stage
+<span class="math notranslate nohighlight">\(j\)</span>. When charge conservation is requested, the elemental matrices remain
+linear in the ion populations at a trial electron density. TARDIS then solves
+one bounded scalar equation for each shell so that all elements share the same
+electron density,</p>
+<div class="math notranslate nohighlight">
+\[\sum_i N_i \sum_j j y_{i,j}(n_e) - n_e = 0.\]</div>
+<p>Continuum rates are assembled for every bound ion stage. A level in stage
+<span class="math notranslate nohighlight">\(j\)</span> is paired with its continuum population in stage <span class="math notranslate nohighlight">\(j + 1\)</span>, so
+multi-electron elements contribute through every supported ionization stage.
+The reverse rates use the level-to-continuum Saha factor from equation 14 of
+<span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../../resources/zreferences.html#id9" title="L. B. Lucy. Monte Carlo transition probabilities. II. Astronomy and Astrophysics, 403:261-275, May 2003. arXiv:arXiv:astro-ph/0303202, doi:10.1051/0004-6361:20030357.">Lucy03</a>]</span>,</p>
+<div class="math notranslate nohighlight">
+\[\Phi_{i\kappa}(T_e) = \frac{n_i^*}{n_\kappa^* n_e}.\]</div>
+<p>At a fixed thermal state, this factor is independent of electron density. It is
+therefore computed once from the thermal Saha, Boltzmann, and partition-function
+inputs and held fixed during the charge solve. Trial electron densities enter
+only through their explicit rate powers: photoionization is proportional to
+<span class="math notranslate nohighlight">\(n_e^0\)</span>, radiative recombination and collisional ionization to
+<span class="math notranslate nohighlight">\(n_e^1\)</span>, and three-body recombination to <span class="math notranslate nohighlight">\(n_e^2\)</span>.</p>
+<p>The scalar solve is bounded between a nearly neutral plasma and the fully
+ionized electron density <span class="math notranslate nohighlight">\(\sum_i i N_i\)</span>. The strictly positive lower
+bound respects the Lyman-continuum on-the-spot approximation, which can
+disconnect a fully neutral hydrogen rate matrix. Thermal balance and radiation
+transport are held fixed during this solve.</p>
 <p>For a three-level atom we have:</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}\begin{split}\frac{dn_1}{dt} &amp;= \underbrace{n_2 r_{21} + n_3 r_{31}}_\textrm{incoming rate}

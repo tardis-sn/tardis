@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=54856128"></script>
+      <script src="../../../../../_static/documentation_options.js?v=bbf8452d"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2512,6 +2512,7 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.rates.util.html">tardis.plasma.equilibrium.rates.util module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ion_population_to_level_population"><code class="docutils literal notranslate"><span class="pre">reindex_ion_population_to_level_population()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe"><code class="docutils literal notranslate"><span class="pre">reindex_ionization_rate_dataframe()</span></code></a></li>
 </ul>
 </li>
@@ -2526,6 +2527,11 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.ion_populations.html">tardis.plasma.equilibrium.ion_populations module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_balance()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_element_populations_at_electron_density"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_element_populations_at_electron_density()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_non_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_non_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_shell_charge"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_shell_charge()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4736,22 +4742,32 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.plasma.equilibrium.rates.photoionization_rates</h1><div class="highlight"><pre>
-<span></span>from tardis.plasma.equilibrium.rates.photoionization_strengths import (
+<span></span>import pandas as pd
+from astropy import units as u
+
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
+from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticCorrectedPhotoionizationCoeffSolver,
     EstimatedPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
 )
 from tardis.plasma.equilibrium.rates.util import (
+    reindex_ion_population_to_level_population,
     reindex_ionization_rate_dataframe,
 )
+from tardis.plasma.radiation_field import (
+    DilutePlanckianRadiationField,
+    PlanckianRadiationField,
+)
+from tardis.transport.montecarlo.estimators import EstimatorsContinuum
 
 
 <div class="viewcode-block" id="AnalyticPhotoionizationRateSolver">
 <a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.AnalyticPhotoionizationRateSolver">[docs]</a>
 class AnalyticPhotoionizationRateSolver:
-    &quot;&quot;&quot;Solve the photoionization and spontaneous recombination rates in the
-    case where the radiation field is computed analytically.
-    &quot;&quot;&quot;
+    &quot;&quot;&quot;Solve analytic photoionization and spontaneous recombination rates.&quot;&quot;&quot;
 
     def __init__(self, photoionization_cross_sections):
         self.photoionization_cross_sections = photoionization_cross_sections
@@ -4766,17 +4782,20 @@ class AnalyticPhotoionizationRateSolver:
 <a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.AnalyticPhotoionizationRateSolver.solve">[docs]</a>
     def solve(
         self,
-        radiation_field,
-        electron_energy_distribution,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
-        partition_function,
-        level_boltzmann_factor,
-    ):
-        &quot;&quot;&quot;Solve the photoionization and spontaneous recombination rates in the
-        case where the radiation field is not estimated.
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        electron_energy_distribution: ThermalElectronEnergyDistribution,
+        lte_level_population: pd.DataFrame,
+        level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        level_boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame | None = None,
+    ) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
+        &quot;&quot;&quot;Solve analytic photoionization and recombination rates.
+
+        This case is used when the radiation field is not estimated.
 
         Parameters
         ----------
@@ -4792,6 +4811,8 @@ class AnalyticPhotoionizationRateSolver:
             LTE ion number density. Columns are cells.
         ion_population : pd.DataFrame
             Estimated ion number density. Columns are cells.
+        level_to_continuum_saha_factor : pd.DataFrame, optional
+            Density-independent Lucy level-to-continuum Saha factor.
 
         Returns
         -------
@@ -4814,23 +4835,36 @@ class AnalyticPhotoionizationRateSolver:
             lte_ion_population,
             ion_population,
         )
+        photoionization_rate_coeff.columns = lte_level_population.columns
 
         spontaneous_recombination_rate_coeff = (
             self.spontaneous_recombination_rate_coeff_solver.solve(
                 electron_energy_distribution.temperature
             )
         )
+        spontaneous_recombination_rate_coeff.columns = (
+            lte_level_population.columns
+        )
 
-        # TODO: Update for non-Hydrogenic species
+        partition_function = reindex_ion_population_to_level_population(
+            partition_function,
+            level_boltzmann_factor,
+            next_higher=False,
+        )
+
         fractional_level_population = (
             level_boltzmann_factor / partition_function
         )
 
-        # Lucy 2003 Eq 14
-        level_to_ion_population_factor = lte_level_population.values / (
-            lte_ion_population.values
-            * electron_energy_distribution.number_density
-        )
+        if level_to_continuum_saha_factor is None:
+            lte_ion_population = reindex_ion_population_to_level_population(
+                lte_ion_population, lte_level_population
+            )
+            # Lucy 2003 Eq 14
+            level_to_continuum_saha_factor = lte_level_population.values / (
+                lte_ion_population.values
+                * electron_energy_distribution.number_density
+            )
 
         # used to scale the photoionization rate because we keep the level population
         # fixed while we calculated the ion number density
@@ -4841,7 +4875,7 @@ class AnalyticPhotoionizationRateSolver:
         # Lucy 2003 Eq 20
         spontaneous_recombination_rate = (
             spontaneous_recombination_rate_coeff
-            * level_to_ion_population_factor
+            * level_to_continuum_saha_factor
             * electron_energy_distribution.number_density
         )
 
@@ -4861,9 +4895,7 @@ class AnalyticPhotoionizationRateSolver:
 <div class="viewcode-block" id="EstimatedPhotoionizationRateSolver">
 <a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver">[docs]</a>
 class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
-    &quot;&quot;&quot;Solve the photoionization and spontaneous recombination rates in the
-    case where the radiation field is estimated by Monte Carlo processes.
-    &quot;&quot;&quot;
+    &quot;&quot;&quot;Solve estimated photoionization and recombination rates.&quot;&quot;&quot;
 
     def __init__(
         self, photoionization_cross_sections, level2continuum_edge_idx
@@ -4877,14 +4909,15 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
 <a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve">[docs]</a>
     def solve(
         self,
-        electron_energy_distribution,
-        estimators_continuum,
-        time_simulation,
-        volume,
-        level_population,
-    ):
-        &quot;&quot;&quot;Solve the photoionization and spontaneous recombination rates in the
-        case where the radiation field is estimated by Monte Carlo processes.
+        electron_energy_distribution: ThermalElectronEnergyDistribution,
+        estimators_continuum: EstimatorsContinuum,
+        time_simulation: u.Quantity,
+        volume: u.Quantity,
+        level_population: pd.DataFrame,
+    ) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
+        &quot;&quot;&quot;Solve estimated photoionization and recombination rates.
+
+        This case uses a radiation field estimated by Monte Carlo processes.
 
         Parameters
         ----------

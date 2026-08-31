@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=54856128"></script>
+      <script src="../../../../_static/documentation_options.js?v=bbf8452d"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2512,6 +2512,7 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.util.html">tardis.plasma.equilibrium.rates.util module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ion_population_to_level_population"><code class="docutils literal notranslate"><span class="pre">reindex_ion_population_to_level_population()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe"><code class="docutils literal notranslate"><span class="pre">reindex_ionization_rate_dataframe()</span></code></a></li>
 </ul>
 </li>
@@ -2526,6 +2527,11 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html">tardis.plasma.equilibrium.ion_populations module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_balance()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_element_populations_at_electron_density"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_element_populations_at_electron_density()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_non_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_non_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_shell_charge"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_shell_charge()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4737,12 +4743,15 @@
              
   <h1>Source code for tardis.plasma.equilibrium.level_populations</h1><div class="highlight"><pre>
 <span></span>import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 
 <div class="viewcode-block" id="LevelPopulationSolver">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.level_populations.html#tardis.plasma.equilibrium.level_populations.LevelPopulationSolver">[docs]</a>
 class LevelPopulationSolver:
+    &quot;&quot;&quot;Solve normalized level populations from bound-bound rate matrices.&quot;&quot;&quot;
+
     def __init__(self, rates_matrices: pd.DataFrame, levels: pd.DataFrame):
         &quot;&quot;&quot;Solve the normalized level population values from the rate matrices.
 
@@ -4757,8 +4766,10 @@ class LevelPopulationSolver:
         self.rates_matrices = rates_matrices
         self.levels = levels
 
-    def __calculate_level_population(self, rates_matrix: np.ndarray):
-        &quot;&quot;&quot;Helper function to calculate the normalized, per-level boltzmann factor.
+    def _calculate_level_population(
+        self, rates_matrix: npt.NDArray[np.float64]
+    ) -&gt; npt.NDArray[np.float64]:
+        &quot;&quot;&quot;Calculate normalized per-level populations.
 
         Parameters
         ----------
@@ -4779,7 +4790,7 @@ class LevelPopulationSolver:
 
 <div class="viewcode-block" id="LevelPopulationSolver.solve">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.level_populations.html#tardis.plasma.equilibrium.level_populations.LevelPopulationSolver.solve">[docs]</a>
-    def solve(self):
+    def solve(self) -&gt; pd.DataFrame:
         &quot;&quot;&quot;Solves the normalized level population values from the rate matrices.
 
         Returns
@@ -4788,25 +4799,26 @@ class LevelPopulationSolver:
             Normalized level population values indexed by atomic number, ion
             number and level number. Columns are cells.
         &quot;&quot;&quot;
-        normalized_level_populations = pd.DataFrame(
-            index=self.levels.index,
-            columns=self.rates_matrices.columns,
-            dtype=np.float64,
+        normalized_level_populations = np.full(
+            (len(self.levels), len(self.rates_matrices.columns)), np.nan
         )
 
-        # try converting the set of vectors into a single 2D array and then applying index
         for species_id in self.rates_matrices.index:
-            # TODO: resolve the chained assignment here. Maybe an intermediate df
-            # is needed
-
-            solved_matrices = self.rates_matrices.loc[species_id].apply(
-                self.__calculate_level_population
+            matrices = np.stack(
+                self.rates_matrices.loc[species_id].to_numpy()
             )
-            normalized_level_populations.loc[species_id, :] = np.vstack(
-                solved_matrices.values
+            populations = np.array(
+                [self._calculate_level_population(matrix) for matrix in matrices]
             ).T
+            normalized_level_populations[
+                self.levels.index.get_loc(species_id)
+            ] = populations
 
-        return normalized_level_populations</div>
+        return pd.DataFrame(
+            normalized_level_populations,
+            index=self.levels.index,
+            columns=self.rates_matrices.columns,
+        )</div>
 </div>
 
 </pre></div>

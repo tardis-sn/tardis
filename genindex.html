@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=54856128"></script>
+      <script src="_static/documentation_options.js?v=bbf8452d"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2512,6 +2512,7 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.rates.util.html">tardis.plasma.equilibrium.rates.util module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ion_population_to_level_population"><code class="docutils literal notranslate"><span class="pre">reindex_ion_population_to_level_population()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe"><code class="docutils literal notranslate"><span class="pre">reindex_ionization_rate_dataframe()</span></code></a></li>
 </ul>
 </li>
@@ -2526,6 +2527,11 @@
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.equilibrium.ion_populations.html">tardis.plasma.equilibrium.ion_populations module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_balance()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_element_populations_at_electron_density"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_element_populations_at_electron_density()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_non_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_non_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_shell_charge"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_shell_charge()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -9190,6 +9196,8 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.refresh_packet_pbar">refresh_packet_pbar() (in module tardis.transport.montecarlo.progress_bars)</a>
 </li>
+      <li><a href="api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ion_population_to_level_population">reindex_ion_population_to_level_population() (in module tardis.plasma.equilibrium.rates.util)</a>
+</li>
       <li><a href="api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe">reindex_ionization_rate_dataframe() (in module tardis.plasma.equilibrium.rates.util)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata">reindex_sort_and_clean_probabilities_and_metadata() (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver method)</a>
@@ -9460,11 +9468,21 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance">solve_charge_balance() (tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_conserving">solve_charge_conserving() (tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
+</li>
       <li><a href="api/tardis.plasma.equilibrium.rates.collision_strengths.html#tardis.plasma.equilibrium.rates.collision_strengths.CollisionalCrossSections.solve_collisional_cross_sections">solve_collisional_cross_sections() (tardis.plasma.equilibrium.rates.collision_strengths.CollisionalCrossSections method)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_element_populations_at_electron_density">solve_element_populations_at_electron_density() (tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_non_charge_conserving">solve_non_charge_conserving() (tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.solve_quadratic_equation">solve_quadratic_equation() (in module tardis.energy_input.util)</a>
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.solve_quadratic_equation_expanding">solve_quadratic_equation_expanding() (in module tardis.energy_input.util)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_shell_charge">solve_shell_charge() (tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.solve_transition_probabilities">solve_transition_probabilities() (tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver method)</a>
 </li>

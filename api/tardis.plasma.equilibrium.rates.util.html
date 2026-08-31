@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=54856128"></script>
+      <script src="../_static/documentation_options.js?v=bbf8452d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2515,6 +2515,7 @@
 </ul>
 </li>
 <li class="toctree-l10 current"><a class="current reference internal" href="#">tardis.plasma.equilibrium.rates.util module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="#tardis.plasma.equilibrium.rates.util.reindex_ion_population_to_level_population"><code class="docutils literal notranslate"><span class="pre">reindex_ion_population_to_level_population()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe"><code class="docutils literal notranslate"><span class="pre">reindex_ionization_rate_dataframe()</span></code></a></li>
 </ul>
 </li>
@@ -2529,6 +2530,11 @@
 <li class="toctree-l8"><a class="reference internal" href="tardis.plasma.equilibrium.ion_populations.html">tardis.plasma.equilibrium.ion_populations module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_balance()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_element_populations_at_electron_density"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_element_populations_at_electron_density()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_non_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_non_charge_conserving()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_shell_charge"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_shell_charge()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4745,6 +4751,32 @@
              
   <section id="module-tardis.plasma.equilibrium.rates.util">
 <span id="tardis-plasma-equilibrium-rates-util-module"></span><h1>tardis.plasma.equilibrium.rates.util module<a class="headerlink" href="#module-tardis.plasma.equilibrium.rates.util" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.util.reindex_ion_population_to_level_population">
+<span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.util.</span></span><span class="sig-name descname"><span class="pre">reindex_ion_population_to_level_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion_population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_higher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">DataFrame</span></a></span></span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/util.html#reindex_ion_population_to_level_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.util.reindex_ion_population_to_level_population" title="Link to this definition"></a></dt>
+<dd><p>Align ion population indexes with level populations by ionization stage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ion_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Ion-resolved values indexed by atomic number and ion number.</p>
+</dd>
+<dt><strong>level_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Level-resolved values indexed by atomic number, ion number, and level
+number.</p>
+</dd>
+<dt><strong>next_higher</strong><span class="classifier">bool, optional</span></dt><dd><p>Select the continuum ion for each level when <code class="docutils literal notranslate"><span class="pre">True</span></code>; otherwise select
+the ion containing the level.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>Ion-resolved values with the level-population index and columns.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe">
 <span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.util.</span></span><span class="sig-name descname"><span class="pre">reindex_ionization_rate_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rate_dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">recombination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/util.html#reindex_ionization_rate_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe" title="Link to this definition"></a></dt>
