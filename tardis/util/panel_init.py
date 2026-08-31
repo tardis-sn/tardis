@@ -14,13 +14,13 @@ def ssh_jh():
     """Initialize panel for JupyterHub (colab comms)"""
     pn.extension(comms="ipywidgets")
 
-def notebook():
+def notebook() -> None:
     """Initialize panel for standard Jupyter notebook (default comms)"""
-    pn.extension(comms="ipywidgets")
+    pn.extension()
 
-def vscode():
-    """Initialize panel for VSCode (ipywidgets comms)"""
-    pn.extension(comms="ipywidgets")
+def vscode() -> None:
+    """Initialize panel for VSCode (VS Code comms)"""
+    pn.extension(comms="vscode")
 
 def vscode_noipy():
     """Initialize panel for VSCode without ipywidgets (vscode comms)"""
