@@ -7,8 +7,12 @@ from typing import TYPE_CHECKING
 import numpy as np
 from numba import njit
 
-from tardis.transport.frame_transformations import get_doppler_factor
+from tardis.transport.frame_transformations import (
+    get_doppler_factor,
+    get_inverse_doppler_factor,
+)
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bulk,
 )
@@ -25,6 +29,40 @@ if TYPE_CHECKING:
         EstimatorsBulk,
     )
     from tardis.transport.montecarlo.packets.radiative_packet import RPacket
+
+
+@njit
+def initialize_packet_frame(
+    r_packet: RPacket,
+    geometry: NumbaRadial1DGeometry | NumbaHomologousRadial1DGeometry,
+    enable_full_relativity: bool,
+) -> None:
+    """Transform a source packet from the comoving to the lab frame.
+
+    Parameters
+    ----------
+    r_packet : tardis.transport.montecarlo.packets.radiative_packet.RPacket
+        Packet whose frequency, energy, and possibly direction are updated.
+    geometry : NumbaRadial1DGeometry or NumbaHomologousRadial1DGeometry
+        Geometry supplying the local velocity.
+    enable_full_relativity : bool
+        Whether to include the full Doppler factor and angle aberration.
+    """
+    velocity = geometry.get_velocity(
+        r_packet.r,
+        r_packet.current_shell_id,
+    )
+    inverse_doppler_factor = get_inverse_doppler_factor(
+        velocity,
+        r_packet.mu,
+        enable_full_relativity,
+    )
+    r_packet.nu *= inverse_doppler_factor
+    r_packet.energy *= inverse_doppler_factor
+
+    if enable_full_relativity:
+        beta = velocity / C_SPEED_OF_LIGHT
+        r_packet.mu = (r_packet.mu + beta) / (1.0 + beta * r_packet.mu)
 
 
 @njit(**njit_dict_no_parallel)
