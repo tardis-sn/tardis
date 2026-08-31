@@ -1,4 +1,4 @@
-import os
+from collections.abc import Callable
 
 import numpy as np
 import pytest
@@ -428,17 +428,11 @@ def test_gamma_packet_loop_escape_binning(
     gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
     grey_opacity: float,
-    set_seed_fixture,
-    regression_data,
+    set_seed_fixture: Callable[[int], None],
+    regression_data: object,
 ) -> None:
     # Put the packet just inside the outer boundary so the loop exercises
     # escape binning rather than an interaction branch.
-    if os.environ.get("NUMBA_DISABLE_JIT") == "1" and grey_opacity >= 0.0:
-        pytest.xfail(
-            "Current Python execution path leaves doppler_factor undefined "
-            "for grey opacity."
-        )
-
     gamma_packet_collection.location[:, 0] = np.array([1.9e14, 0.0, 0.0])
     gamma_packet_collection.direction[:, 0] = np.array([1.0, 0.0, 0.0])
     set_seed_fixture(1963)
@@ -558,11 +552,11 @@ def test_gamma_packet_loop_invalid_opacity_type(
 
 
 def test_gamma_packet_loop_time_boundary_end_numba_disabled(
-    monkeypatch,
-    python_numba_disabled,
+    monkeypatch: pytest.MonkeyPatch,
+    python_numba_disabled: None,
     gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
-    regression_data,
+    regression_data: object,
 ) -> None:
     gamma_packet_collection.time_index[0] = 1
 
@@ -573,7 +567,7 @@ def test_gamma_packet_loop_time_boundary_end_numba_disabled(
         lambda *args: (10.0, 20.0, 1.0, 0),
     )
 
-    with pytest.raises(UnboundLocalError):
+    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
         gamma_packet_loop(
             gamma_packet_collection,
             -1.0,
@@ -581,22 +575,26 @@ def test_gamma_packet_loop_time_boundary_end_numba_disabled(
             "artis",
             **gamma_loop_arrays,
         )
+    )
 
     assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS
     assert gamma_packet_collection.shell[0] == 0
+    assert packets_info_array[0, 1] == GXPacketStatus.END
+    assert packets_info_array[0, 7] == 0
     sync_ndarray_assert_allclose(
         regression_data,
-        gamma_loop_arrays["energy_deposited_gamma"],
-        gamma_loop_arrays["total_energy"],
+        energy_deposited_gamma,
+        total_energy,
         rtol=RTOL,
     )
 
 
-def test_gamma_packet_loop_negative_shell_preserves_energy_numba_disabled(
+def test_gamma_packet_loop_inner_boundary_end_numba_disabled(
     monkeypatch: pytest.MonkeyPatch,
     python_numba_disabled: None,
     gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
+    regression_data: object,
 ) -> None:
     # Force the inner-boundary branch without depending on sampled distances.
     monkeypatch.setattr(
@@ -605,12 +603,27 @@ def test_gamma_packet_loop_negative_shell_preserves_energy_numba_disabled(
         lambda *args: (20.0, 1.0, 10.0, -1),
     )
 
-    _, _, packets_info_array, _, _ = gamma_packet_loop(
-        gamma_packet_collection,
-        -1.0,
-        "kasen",
-        "artis",
-        **gamma_loop_arrays,
+    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
+        gamma_packet_loop(
+            gamma_packet_collection,
+            -1.0,
+            "kasen",
+            "artis",
+            **gamma_loop_arrays,
+        )
+    )
+
+    assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS
+    assert gamma_packet_collection.shell[0] == 0
+    assert packets_info_array[0, 1] == GXPacketStatus.END
+    assert packets_info_array[0, 7] == -1
+    sync_ndarray_assert_allclose(
+        regression_data,
+        packets_info_array[0, 6],
+        packets_info_array[0, 4],
+        energy_deposited_gamma,
+        total_energy,
+        rtol=RTOL,
     )
 
     assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS
@@ -626,11 +639,11 @@ def test_gamma_packet_loop_negative_shell_preserves_energy_numba_disabled(
 
 
 def test_gamma_packet_loop_interaction_deposition_numba_disabled(
-    monkeypatch,
-    python_numba_disabled,
+    monkeypatch: pytest.MonkeyPatch,
+    python_numba_disabled: None,
     gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
-    regression_data,
+    regression_data: object,
 ) -> None:
     # Force an immediate photoabsorption interaction to characterize deposition
     # bookkeeping in the loop.
@@ -667,11 +680,11 @@ def test_gamma_packet_loop_interaction_deposition_numba_disabled(
 
 
 def test_gamma_packet_loop_scattered_escape_numba_disabled(
-    monkeypatch,
-    python_numba_disabled,
+    monkeypatch: pytest.MonkeyPatch,
+    python_numba_disabled: None,
     gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
-    regression_data,
+    regression_data: object,
 ) -> None:
     distances_to_return = [
         # First loop step: interaction distance wins.
@@ -710,7 +723,7 @@ def test_gamma_packet_loop_scattered_escape_numba_disabled(
         process_packet_path_as_pair_creation,
     )
 
-    with pytest.raises(UnboundLocalError):
+    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
         gamma_packet_loop(
             gamma_packet_collection,
             -1.0,
@@ -718,11 +731,15 @@ def test_gamma_packet_loop_scattered_escape_numba_disabled(
             "artis",
             **gamma_loop_arrays,
         )
+    )
 
     assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS
+    assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
+    assert packets_info_array[0, 5] > 0.0
+    assert packets_info_array[0, 7] == 1
     sync_ndarray_assert_allclose(
         regression_data,
-        gamma_loop_arrays["energy_deposited_gamma"],
-        gamma_loop_arrays["total_energy"],
+        energy_deposited_gamma,
+        total_energy,
         rtol=RTOL,
     )
