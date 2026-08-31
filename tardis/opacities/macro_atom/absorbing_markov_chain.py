@@ -4,9 +4,12 @@ This module implements the mathematical framework of absorbing Markov chains
 to compute probabilities of photon absorption in each cell and the expected
 number of steps before absorption from each source state.
 
-References:
+References
+----------
     Absorbing Markov chain theory: https://en.wikipedia.org/wiki/Absorbing_Markov_chain
 """
+
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import pandas as pd
@@ -14,7 +17,9 @@ import scipy
 
 
 def create_absorbing_probs(
-    transition_probabilities: pd.DataFrame, metadata: pd.DataFrame
+    transition_probabilities: pd.DataFrame,
+    metadata: pd.DataFrame,
+    max_workers: int = 1,
 ) -> tuple[np.ndarray, pd.DataFrame]:
     """Calculate absorbing Markov chain probabilities and deactivation data.
 
@@ -52,9 +57,12 @@ def create_absorbing_probs(
     """
     num_cells = transition_probabilities.shape[1]
 
-    num_states = len(metadata.source.unique())
     internal_mask = metadata.transition_type >= 0
     internal_jump_probs = transition_probabilities[internal_mask]
+    # This logic fails if any source blocks are dropped. Previous implementation was
+    # num_states = len(metadata.source.unique()). Not needed right now but will be
+    # needed if we want to do Markov chain reduction for only specific species.
+    num_states = int(metadata.source_level_idx.max()) + 1 
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
     # Josh: The expected steps calculation is another linear algebra solve. We don't need
@@ -64,19 +72,30 @@ def create_absorbing_probs(
 
     rows = metadata[internal_mask].source_level_idx.values
     cols = metadata[internal_mask].destination_level_idx.values
-    for cell in range(num_cells):
+    identity_matrix = scipy.sparse.identity(num_states, format="csc")
+
+    def solve_cell(cell: int) -> tuple[int, np.ndarray]:
+        """Solve the absorbing Markov chain system for one cell.
+
+        Parameters
+        ----------
+        cell : int
+            Cell index in the transition probability table.
+
+        Returns
+        -------
+        tuple[int, np.ndarray]
+            Cell index and full state-by-state absorbing probability matrix.
+        """
         # In each cell, solve for absorbing markov chain probability
         # Follows math https://en.wikipedia.org/wiki/Absorbing_Markov_chain
-        vals = internal_jump_probs[cell].values
+        vals = internal_jump_probs.iloc[:, cell].to_numpy()
 
         internal_jump_matrix = scipy.sparse.coo_matrix(
             (vals, (rows, cols)), shape=(num_states, num_states)
         )
 
-        identity_minus_Q = (
-            scipy.sparse.identity(internal_jump_matrix.shape[0])
-            - internal_jump_matrix
-        )
+        identity_minus_Q = identity_matrix - internal_jump_matrix
         csc_N = identity_minus_Q.tocsc()
 
         # expected_steps = np.asarray(
@@ -87,12 +106,24 @@ def create_absorbing_probs(
         deactivation_row = np.asarray(
             internal_jump_matrix.sum(axis=1)
         ).flatten()
-        # Solve (I - Q) * X = diag(1 - deactivation_row) directly
-        # instead of computing inv(I - Q) explicitly
-        rhs = np.diag(1 - deactivation_row)
-        absorbing_probability_matrix[cell] = scipy.sparse.linalg.spsolve(
-            csc_N, rhs
+        solved_matrix = np.asarray(
+            scipy.sparse.linalg.splu(csc_N, permc_spec="MMD_AT_PLUS_A").solve(
+                np.diag(1 - deactivation_row)
+            )
         )
+        return cell, solved_matrix
+
+    if max_workers > 1 and num_cells > 1:
+        with ThreadPoolExecutor(
+            max_workers=min(max_workers, num_cells)
+        ) as executor:
+            cell_solutions = executor.map(solve_cell, range(num_cells))
+            for cell, solved_matrix in cell_solutions:
+                absorbing_probability_matrix[cell] = solved_matrix
+    else:
+        for cell in range(num_cells):
+            _, solved_matrix = solve_cell(cell)
+            absorbing_probability_matrix[cell] = solved_matrix
 
     deactivating_probs = transition_probabilities.copy()
     deactivating_probs[internal_mask] *= 0

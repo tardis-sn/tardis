@@ -15,8 +15,11 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
 )
-from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
-    montecarlo_transport,
+from tardis.transport.montecarlo.modes.classic.packet_propagation import (
+    packet_propagation,
+)
+from tardis.transport.montecarlo.modes.montecarlo_transport import (
+    montecarlo_transport_with_vpackets,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
@@ -57,7 +60,7 @@ class MCTransportSolverClassic(HDFWriterMixin):
         self,
         radfield_prop_solver,
         spectrum_frequency_grid,
-        virtual_spectrum_spawn_range,
+        vpacket_spawn_range,
         enable_full_relativity,
         line_interaction_type,
         spectrum_method,
@@ -73,7 +76,7 @@ class MCTransportSolverClassic(HDFWriterMixin):
         self.radfield_prop_solver = radfield_prop_solver
         # inject different packets
         self.spectrum_frequency_grid = spectrum_frequency_grid
-        self.virtual_spectrum_spawn_range = virtual_spectrum_spawn_range
+        self.vpacket_spawn_range = vpacket_spawn_range
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
         self.spectrum_method = spectrum_method
@@ -127,13 +130,13 @@ class MCTransportSolverClassic(HDFWriterMixin):
             self.line_interaction_type,
         )
         opacity_state_numba = opacity_state_numba[
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+            simulation_state.geometry.v_inner_boundary_idx : simulation_state.geometry.v_outer_boundary_idx
         ]
 
         transport_state = MonteCarloTransportState(
             packet_collection,
-            geometry_state=geometry_state,
-            opacity_state=opacity_state_numba,
+            geometry_state_numba=geometry_state,
+            opacity_state_numba=opacity_state_numba,
             time_explosion=simulation_state.time_explosion,
             n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
@@ -217,16 +220,17 @@ class MCTransportSolverClassic(HDFWriterMixin):
             vpacket_tracker,
             estimators_bulk,
             estimators_line,
-        ) = montecarlo_transport(
+        ) = montecarlo_transport_with_vpackets(
             transport_state.packet_collection,
-            transport_state.geometry_state,
+            transport_state.geometry_state_numba,
             transport_state.time_explosion.cgs.value,
-            transport_state.opacity_state,
+            transport_state.opacity_state_numba,
             self.montecarlo_configuration,
             self.spectrum_frequency_grid.value,
             trackers_list,
             number_of_vpackets,
             show_progress_bars=show_progress_bars,
+            packet_propagation_function=packet_propagation,
         )
 
         # Attach estimators to transport state
@@ -341,7 +345,7 @@ class MCTransportSolverClassic(HDFWriterMixin):
         return cls(
             radfield_prop_solver=radfield_prop_solver,
             spectrum_frequency_grid=spectrum_frequency_grid,
-            virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
+            vpacket_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,
             line_interaction_type=config.plasma.line_interaction_type,
             spectrum_method=config.spectrum.method,

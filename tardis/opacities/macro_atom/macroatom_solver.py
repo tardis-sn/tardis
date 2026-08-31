@@ -47,7 +47,7 @@ from tardis.opacities.macro_atom.macroatom_state import (
     LegacyMacroAtomState,
     MacroAtomState,
 )
-from tardis.plasma.properties.continuum_processes.rates import (
+from tardis.plasma.array_util import (
     get_ground_state_multi_index,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
@@ -192,7 +192,7 @@ class LegacyMacroAtomSolver:
             stimulated_emission_factor,
         )
 
-        macro_block_references = atomic_data.macro_atom_references[
+        macro_block_edge_index = atomic_data.macro_atom_references[
             "block_references"
         ]
         macro_atom_info = atomic_data.macro_atom_data
@@ -202,7 +202,7 @@ class LegacyMacroAtomSolver:
             macro_atom_info["transition_type"],
             macro_atom_info["destination_level_idx"],
             macro_atom_info["lines_idx"],
-            macro_block_references,
+            macro_block_edge_index,
             atomic_data.lines_upper2macro_reference_idx,
         )
 
@@ -310,7 +310,7 @@ class BoundBoundMacroAtomSolver:
                 normalized_probabilities,
                 macro_atom_transition_metadata,
                 line2macro_level_upper,
-                macro_block_references,
+                macro_block_edge_index,
                 references_index,
             ) = self._solve_first_macroatom_iteration(
                 mean_intensities_blue_wing,
@@ -326,7 +326,7 @@ class BoundBoundMacroAtomSolver:
             (
                 macro_atom_transition_metadata,
                 line2macro_level_upper,
-                macro_block_references,
+                macro_block_edge_index,
                 references_index,
             ) = self.computed_metadata
 
@@ -334,7 +334,7 @@ class BoundBoundMacroAtomSolver:
             normalized_probabilities,
             macro_atom_transition_metadata,
             line2macro_level_upper,
-            macro_block_references,
+            macro_block_edge_index,
             references_index,
         )
 
@@ -376,7 +376,7 @@ class BoundBoundMacroAtomSolver:
             destination levels, transition types, and line indices.
         line2macro_level_upper : pd.Series
             Series mapping line transitions to macro atom level indices for upper levels.
-        macro_block_references : pd.Series
+        macro_block_edge_index : pd.Series
             Series with unique source levels as index and their first occurrence
             index in the metadata as values.
         """
@@ -465,14 +465,14 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata
         )
 
-        macro_block_references = self.create_macro_block_references(
+        macro_block_edge_index = self.create_macro_block_edge_index(
             macro_atom_transition_metadata
         )
 
         self.computed_metadata = (
             macro_atom_transition_metadata,
             line2macro_level_upper,
-            macro_block_references,
+            macro_block_edge_index,
             reference_index,
         )
 
@@ -480,7 +480,7 @@ class BoundBoundMacroAtomSolver:
             normalized_probabilities,
             macro_atom_transition_metadata,
             line2macro_level_upper,
-            macro_block_references,
+            macro_block_edge_index,
             reference_index,
         )
 
@@ -522,9 +522,9 @@ class BoundBoundMacroAtomSolver:
         """
         (
             macro_atom_transition_metadata,
-            line2macro_level_upper,
-            macro_block_references,
-            reference_index,
+            _,
+            _,
+            _,
         ) = self.computed_metadata
         line_trans_internal_up_ids = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
@@ -621,7 +621,7 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata.source.map(source_to_index)
         ).astype(np.int64)
 
-    def create_macro_block_references(
+    def create_macro_block_edge_index(
         self, macro_atom_transition_metadata: pd.DataFrame
     ) -> pd.Series:
         """
@@ -661,13 +661,13 @@ class BoundBoundMacroAtomSolver:
             )
         )
 
-        macro_block_references = pd.Series(
+        macro_block_edge_index = pd.Series(
             data=macro_data,
             index=unique_source_multi_index,
-            name="macro_block_references",
+            name="macro_block_edge_index",
         )
 
-        return macro_block_references
+        return macro_block_edge_index
 
     def create_line2macro_level_upper_and_reference_idx(
         self,
@@ -806,6 +806,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ionization_energies: pd.Series,
         selected_continuum_transitions: np.ndarray = np.array([]),
         line_interaction_type: str = "macroatom",
+        nthreads: int = 1,
     ) -> None:
         """
         Initialize the ContinuumMacroAtomSolver.
@@ -825,6 +826,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             If empty, all photoionization transitions are included.
         line_interaction_type
             Type of line interaction to use. Default is "macroatom".
+        nthreads
+            Maximum number of worker threads for shell-independent opacity
+            calculations.
         """
         super().__init__(
             lines=lines,
@@ -852,6 +856,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         #     self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
         # )
         self.ionization_energies = ionization_energies
+        self.nthreads = nthreads
 
     def solve(
         self,
@@ -939,7 +944,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 normalized_probabilities,
                 macro_atom_transition_metadata,
                 line2macro_level_upper,
-                macro_block_references,
+                macro_block_edge_index,
                 references_index,
                 normalized_deactivating_probs,
                 absorbing_probability_matrix,
@@ -991,7 +996,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             (
                 macro_atom_transition_metadata,
                 line2macro_level_upper,
-                macro_block_references,
+                macro_block_edge_index,
                 references_index,
             ) = self.computed_metadata
 
@@ -1006,7 +1011,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             normalized_probabilities,
             macro_atom_transition_metadata,
             line2macro_level_upper,
-            macro_block_references,
+            macro_block_edge_index,
             references_index,
             normalized_deactivating_probs,
             absorbing_probability_matrix,
@@ -1134,7 +1139,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             DataFrame containing metadata for transitions including source and destination levels, transition types, and line indices.
         line2macro_level_upper
             Series mapping line transitions to macro atom level indices for upper levels.
-        macro_block_references
+        macro_block_edge_index
             Series with unique source levels as index and their first occurrence index in the metadata as values.
         references_index
             Series with unique source levels as index and their assigned indices as values.
@@ -1315,7 +1320,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities, macro_atom_transition_metadata
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            max_workers=self.nthreads,
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
@@ -1327,14 +1334,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
         )
 
-        macro_block_references = self.create_macro_block_references(
+        macro_block_edge_index = self.create_macro_block_edge_index(
             macro_atom_transition_metadata
         )
 
         self.computed_metadata = (
             macro_atom_transition_metadata,
             line2macro_level_upper,
-            macro_block_references,
+            macro_block_edge_index,
             references_index,
         )
 
@@ -1342,7 +1349,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             normalized_probabilities,
             macro_atom_transition_metadata,
             line2macro_level_upper,
-            macro_block_references,
+            macro_block_edge_index,
             references_index,
             normalized_deactivating_probs,
             absorbing_probability_matrix,
@@ -1431,7 +1438,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         (
             macro_atom_transition_metadata,
             line2macro_level_upper,
-            macro_block_references,
+            macro_block_edge_index,
             reference_index,
         ) = self.computed_metadata
         line_trans_internal_up_ids = macro_atom_transition_metadata[
@@ -1646,7 +1653,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities, macro_atom_transition_metadata
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            max_workers=self.nthreads,
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata

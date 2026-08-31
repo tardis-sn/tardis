@@ -83,9 +83,9 @@ def sample_energy_distribution(energy_sorted, cdf):
     float
         Sampled energy
     """
-    index = np.searchsorted(cdf, np.random.random())
+    energy_idx = np.searchsorted(cdf, np.random.random())
 
-    return energy_sorted[index]
+    return energy_sorted[energy_idx]
 
 
 @njit(**njit_dict_no_parallel)

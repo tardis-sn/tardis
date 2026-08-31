@@ -33,13 +33,13 @@ class DilutePlanckianRadiationField:
         ):  # check the active shells only (this is used when setting up the radiation_field_state)
             assert np.all(
                 temperature[
-                    geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
+                    geometry.v_inner_boundary_idx : geometry.v_outer_boundary_idx
                 ]
                 > 0 * u.K
             )
             assert np.all(
                 dilution_factor[
-                    geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
+                    geometry.v_inner_boundary_idx : geometry.v_outer_boundary_idx
                 ]
                 > 0
             )
@@ -100,7 +100,7 @@ class PlanckianRadiationField:
         ):  # check the active shells only (this is used when setting up the radiation_field_state)
             assert np.all(
                 temperature[
-                    geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
+                    geometry.v_inner_boundary_idx : geometry.v_outer_boundary_idx
                 ]
                 > 0 * u.K
             )

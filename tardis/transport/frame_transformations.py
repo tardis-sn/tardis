@@ -8,29 +8,25 @@ from tardis.transport.montecarlo import (
 from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
 
 
-# TODO: In a future PR collapse to just one function
-#       get_dopper_factor(v, mu, enable_full_relativity)
-#       and calculate v elsewhere either with v = r / t_explosion
-#       or v, _ = piecewise_linear_dvdr(r, geometry)
 @njit(**njit_dict_no_parallel)
-def get_doppler_factor(r, mu, time_explosion, enable_full_relativity):
+def get_doppler_factor(velocity, mu, enable_full_relativity):
+    """
+    Calculate the Doppler factor for frame transformation.
+
+    Parameters
+    ----------
+    velocity : float
+        Local packet-frame velocity [cm / s].
+    mu : float
+        Directional cosine.
+    enable_full_relativity : bool
+        Whether to use the full relativistic expression.
+    """
     inv_c = 1 / C_SPEED_OF_LIGHT
-    inv_t = 1 / time_explosion
-    beta = r * inv_t * inv_c
+    beta = velocity * inv_c
     if not enable_full_relativity:
         return get_doppler_factor_partial_relativity(mu, beta)
-    else:
-        return get_doppler_factor_full_relativity(mu, beta)
-
-
-@njit(**njit_dict_no_parallel)
-def get_doppler_factor_nonhomologous(v, mu, enable_full_relativity):
-    inv_c = 1 / C_SPEED_OF_LIGHT
-    beta = v * inv_c
-    if not enable_full_relativity:
-        return get_doppler_factor_partial_relativity(mu, beta)
-    else:
-        raise NotImplementedError("Full relativity not implemented for non-homologous mode.")
+    return get_doppler_factor_full_relativity(mu, beta)
 
 
 @njit(**njit_dict_no_parallel)
@@ -44,42 +40,24 @@ def get_doppler_factor_full_relativity(mu, beta):
 
 
 @njit(**njit_dict_no_parallel)
-def get_inverse_doppler_factor(r, mu, time_explosion, enable_full_relativity):
+def get_inverse_doppler_factor(velocity, mu, enable_full_relativity):
     """
-    Calculate doppler factor for frame transformation
+    Calculate inverse Doppler factor for frame transformation.
 
     Parameters
     ----------
-    r : float
+    velocity : float
+        Local packet-frame velocity [cm / s].
     mu : float
-    time_explosion : float
-    """
-    inv_c = 1 / C_SPEED_OF_LIGHT
-    inv_t = 1 / time_explosion
-    beta = r * inv_t * inv_c
-    if not enable_full_relativity:
-        return get_inverse_doppler_factor_partial_relativity(mu, beta)
-    else:
-        return get_inverse_doppler_factor_full_relativity(mu, beta)
-
-
-@njit(**njit_dict_no_parallel)
-def get_inverse_doppler_factor_nonhomologous(v, mu, enable_full_relativity):
-    """
-    Calculate doppler factor for frame transformation
-
-    Parameters
-    ----------
-    v : float
-    mu : float
+        Directional cosine.
     enable_full_relativity : bool
+        Whether to use the full relativistic expression.
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
-    beta = v * inv_c
+    beta = velocity * inv_c
     if not enable_full_relativity:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
-    else:
-        raise NotImplementedError("Full relativity not implemented for non-homologous mode.")
+    return get_inverse_doppler_factor_full_relativity(mu, beta)
 
 
 @njit(**njit_dict_no_parallel)
@@ -104,8 +82,7 @@ def calc_packet_energy(r_packet, distance_trace, time_explosion):
         (distance_trace + r_packet.mu * r_packet.r)
         / (time_explosion * C_SPEED_OF_LIGHT)
     )
-    energy = r_packet.energy * doppler_factor
-    return energy
+    return r_packet.energy * doppler_factor
 
 
 @njit(**njit_dict_no_parallel)

@@ -21,7 +21,7 @@ from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
     SIGMA_THOMSON,
 )
-from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
+from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
@@ -106,10 +106,12 @@ def trace_vpacket_within_shell(
     chi_e = cur_electron_density * SIGMA_THOMSON
 
     # Calculating doppler factor
+    velocity = numba_radial_1d_geometry.get_velocity(
+        v_packet.r, v_packet.current_shell_id
+    )
     doppler_factor = get_doppler_factor(
-        v_packet.r,
+        velocity,
         v_packet.mu,
-        time_explosion,
         enable_full_relativity,
     )
 
@@ -300,10 +302,12 @@ def trace_vpacket_volley(
             beta_inner = numba_radial_1d_geometry.r_inner[0] * inv_t * inv_c
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
+    r_packet_velocity = numba_radial_1d_geometry.get_velocity(
+        r_packet.r, r_packet.current_shell_id
+    )
     r_packet_doppler_factor = get_doppler_factor(
-        r_packet.r,
+        r_packet_velocity,
         r_packet.mu,
-        time_explosion,
         enable_full_relativity,
     )
     for i in range(no_of_vpackets):
@@ -329,9 +333,8 @@ def trace_vpacket_volley(
                 r_packet, time_explosion, v_packet_mu
             )
         v_packet_doppler_factor = get_doppler_factor(
-            r_packet.r,
+            r_packet_velocity,
             v_packet_mu,
-            time_explosion,
             enable_full_relativity,
         )
 

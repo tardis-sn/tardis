@@ -1,6 +1,7 @@
+from enum import IntEnum
+
 import numba as nb
 import numpy as np
-from enum import IntEnum
 from numba import njit, objmode
 from numba.experimental import jitclass
 
@@ -96,8 +97,9 @@ class RPacket:
         self, opacity_state, time_explosion, enable_full_relativity
     ):
         inverse_line_list_nu = opacity_state.line_list_nu[::-1]
+        velocity = self.r / time_explosion
         doppler_factor = get_doppler_factor(
-            self.r, self.mu, time_explosion, enable_full_relativity
+            velocity, self.mu, enable_full_relativity
         )
         comov_nu = self.nu * doppler_factor
         next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(

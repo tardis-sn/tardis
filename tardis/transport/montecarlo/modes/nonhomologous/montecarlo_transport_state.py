@@ -50,8 +50,8 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
     def __init__(
         self,
         packet_collection,
-        geometry_state,
-        opacity_state,
+        geometry_state_numba,
+        opacity_state_numba,
         n_levels_bf_species_by_n_cells_tuple,
         tracker_full_df=None,
         tracker_last_interaction_df=None,
@@ -66,8 +66,8 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
         self.estimators_continuum = None
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
-        self.geometry_state = geometry_state
-        self.opacity_state = opacity_state
+        self.geometry_state_numba = geometry_state_numba
+        self.opacity_state_numba = opacity_state_numba
         self.tracker_full_df = tracker_full_df
         self.tracker_last_interaction_df = tracker_last_interaction_df
         self.vpacket_tracker = vpacket_tracker
@@ -190,7 +190,9 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
     @property
     def virt_packet_initial_mus(self):
         try:
-            return u.Quantity(self.vpacket_tracker.initial_mus, u.dimensionless_angles)
+            return u.Quantity(
+                self.vpacket_tracker.initial_mus, u.dimensionless_angles
+            )
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_initial_mus:"

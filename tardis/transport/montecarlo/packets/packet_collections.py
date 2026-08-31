@@ -99,7 +99,6 @@ def initialize_last_interaction_tracker(no_of_packets):
     )
 
 
-
 @jitclass
 class VPacketCollection:
     source_rpacket_index: nb.int64  # type: ignore[misc]
@@ -137,7 +136,7 @@ class VPacketCollection:
         source_rpacket_index : int
             Index of the source R-packet.
         spectrum_frequency_grid : numpy.ndarray
-            Frequency grid for spectrum calculation [Hz].
+            Frequency-bin edges for the real- and virtual-packet histograms [Hz].
         v_packet_spawn_start_frequency : float
             Start frequency for virtual packet spawning [Hz].
         v_packet_spawn_end_frequency : float
@@ -314,7 +313,7 @@ def consolidate_vpacket_tracker(
     spectrum_frequency_grid: np.ndarray,
     start_frequency: float,
     end_frequency: float,
-) -> "VPacketCollection":
+) -> VPacketCollection:
     """
     Consolidate the vpacket trackers from multiple collections into a single vpacket tracker.
 
@@ -323,7 +322,7 @@ def consolidate_vpacket_tracker(
     vpacket_collections : List[VPacketCollection]
         List of vpacket collections to consolidate.
     spectrum_frequency_grid : ndarray
-        Array of spectrum frequencies.
+        Frequency-bin edges for the real- and virtual-packet histograms.
 
     Returns
     -------

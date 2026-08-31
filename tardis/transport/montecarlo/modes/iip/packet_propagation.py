@@ -1,7 +1,9 @@
 from numba import njit
 
 from tardis import constants as const
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
@@ -33,10 +35,12 @@ from tardis.transport.montecarlo.interaction_event_callers import (
 from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
-from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
+from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
+    trace_packet,
+)
+from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
     move_r_packet,
-    trace_packet,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
@@ -50,7 +54,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 @njit
 def packet_propagation(
     r_packet: RPacket,
-    numba_radial_1d_geometry: NumbaRadial1DGeometry,
+    geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state: OpacityStateNumbaIIP,
     estimators_bulk: EstimatorsBulk,
@@ -71,7 +75,7 @@ def packet_propagation(
     ----------
     r_packet
         The radiative packet to transport through the ejecta.
-    numba_radial_1d_geometry
+    geometry
         The spherically symmetric geometry of the supernova ejecta.
     time_explosion
         Time since explosion in seconds.
@@ -112,10 +116,10 @@ def packet_propagation(
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute continuum quantities
         # trace packet (takes opacities)
+        velocity = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
         doppler_factor = get_doppler_factor(
-            r_packet.r,
+            velocity,
             r_packet.mu,
-            time_explosion,
             enable_full_relativity=True,
         )
 
@@ -140,12 +144,13 @@ def packet_propagation(
         chi_continuum *= doppler_factor
         distance, interaction_type, delta_shell = trace_packet(
             r_packet,
-            numba_radial_1d_geometry,
+            geometry,
             time_explosion,
             opacity_state,
             estimators_line,
             chi_continuum,
             escat_prob,
+            True,
             enable_full_relativity=True,
             disable_line_scattering=montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )
@@ -167,7 +172,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                time_explosion,
+                geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -180,14 +185,14 @@ def packet_propagation(
             move_packet_across_shell_boundary(
                 r_packet,
                 delta_shell,
-                len(numba_radial_1d_geometry.r_inner),
+                len(geometry.r_inner),
             )
 
         elif interaction_type == InteractionType.LINE:
             move_r_packet(
                 r_packet,
                 distance,
-                time_explosion,
+                geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -207,7 +212,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                time_explosion,
+                geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -224,7 +229,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                time_explosion,
+                geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -286,10 +291,10 @@ def set_packet_props_partial_relativity(
     -------
     Modifies r_packet.nu and r_packet.energy in-place.
     """
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r,
+        velocity,
         r_packet.mu,
-        time_explosion,
         enable_full_relativity=False,
     )
     r_packet.nu *= inverse_doppler_factor
@@ -320,10 +325,10 @@ def set_packet_props_full_relativity(
     """
     beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
 
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r,
+        velocity,
         r_packet.mu,
-        time_explosion,
         enable_full_relativity=True,
     )
 

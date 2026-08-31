@@ -1,38 +1,19 @@
 import importlib
-import logging
 
-import numpy as np
 import pandas as pd
-from astropy import units as u
 
 from tardis.plasma import BasePlasma
 from tardis.plasma.base import PlasmaSolverSettings
-from tardis.plasma.equilibrium.rates.photoionization_strengths import (
-    AnalyticPhotoionizationCoeffSolver,
-)
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import (
     HeliumNumericalNLTE,
     IonNumberDensity,
     IonNumberDensityHeNLTE,
     LevelBoltzmannFactorNLTE,
-    MarkovChainTransProbsCollector,
     RadiationFieldCorrection,
     StimulatedEmissionFactor,
 )
-from tardis.plasma.properties.base import TransitionProbabilitiesProperty
-from tardis.plasma.properties.level_population import LevelNumberDensity
-from tardis.plasma.properties.nlte_rate_equation_solver import (
-    NLTEPopulationSolverLU,
-    NLTEPopulationSolverRoot,
-)
-from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
-from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
-    ContinuumProperties,
-)
 from tardis.util.base import species_string_to_tuple
-
-logger = logging.getLogger(__name__)
 
 
 def map_species_from_string(species):
@@ -61,18 +42,12 @@ class PlasmaSolverFactory:
     ## Statistical Balance Solver
     legacy_nlte_species: list = []
 
-    nlte_excitation_species: list = []
-    nlte_ionization_species: list = []
-    nlte_solver: str = "lu"
-
     ## Helium Treatment options
     helium_treatment: str = "none"
     heating_rate_data_file: str = "none"
 
     ## Continuum Interaction
     continuum_interaction_species: list = []
-    enable_adiabatic_cooling: bool = False
-    enable_two_photon_decay: bool = False
 
     ## Opacities
     line_interaction_type: str = "scatter"
@@ -127,19 +102,8 @@ class PlasmaSolverFactory:
         self.helium_treatment = plasma_config.helium_treatment
         self.heating_rate_data_file = plasma_config.heating_rate_data_file
 
-        self.nlte_ionization_species = plasma_config.nlte_ionization_species
-        self.nlte_excitation_species = plasma_config.nlte_excitation_species
-
-        self.nlte_solver = plasma_config.nlte_solver
-
         self.radiative_rates_type = plasma_config.radiative_rates_type
 
-        self.enable_adiabatic_cooling = (
-            plasma_config.continuum_interaction.enable_adiabatic_cooling
-        )
-        self.enable_two_photon_decay = (
-            plasma_config.continuum_interaction.enable_two_photon_decay
-        )
 
     def prepare_factory(
         self, selected_atomic_numbers, property_collections, config=None
@@ -158,14 +122,17 @@ class PlasmaSolverFactory:
         """
         self.plasma_collection = importlib.import_module(property_collections)
 
+        if self.continuum_interaction_species:
+            raise PlasmaConfigError(
+                "Continuum interactions are supported only by the IIP workflow."
+            )
+
         self.atom_data.prepare_atom_data(
             selected_atomic_numbers,
             line_interaction_type=self.line_interaction_type,
             continuum_interaction_species=self.continuum_interaction_species_multi_index,
             nlte_species=self.legacy_nlte_species,
         )
-
-        self.check_continuum_interaction_species()
 
         self.plasma_modules = (
             self.plasma_collection.basic_inputs
@@ -181,15 +148,10 @@ class PlasmaSolverFactory:
         else:
             self.plasma_modules += self.plasma_collection.non_nlte_properties
 
-        if self.line_interaction_type in ("downbranch", "macroatom") and (
-            len(self.continuum_interaction_species) == 0
-        ):
+        if self.line_interaction_type in ("downbranch", "macroatom"):
             self.plasma_modules += self.plasma_collection.macro_atom_properties
 
         self.setup_helium_treatment()
-
-        if len(self.continuum_interaction_species) > 0:
-            self.setup_continuum_interactions()
 
     def setup_helium_treatment(self):
         """
@@ -206,34 +168,7 @@ class PlasmaSolverFactory:
             The path to the heating rate data file. Required when using
             "numerical-nlte" helium treatment.
 
-        Raises
-        ------
-        PlasmaConfigError
-            If the helium NLTE treatment is incompatible with the NLTE ionization
-            and excitation treatment.
-
-            If the heating rate data file is not specified when using
-            "numerical-nlte" helium treatment.
         """
-        if (
-            self.helium_treatment == "recomb-nlte"
-            or self.helium_treatment == "numerical-nlte"
-        ) and (
-            len(self.nlte_ionization_species + self.nlte_excitation_species) > 0
-        ):
-            # Prevent the user from using helium NLTE treatment with
-            # NLTE ionization and excitation treatment. This is because
-            # the helium_nlte_properties could overwrite the NLTE ionization
-            # and excitation ion number and electron densities.
-            # helium_numerical_nlte_properties is also included here because
-            # it is currently in the same if else block, and thus may block
-            # the addition of the components from the else block.
-            raise PlasmaConfigError(
-                "Helium NLTE treatment is incompatible with the NLTE ionization and excitation treatment."
-            )
-
-        # TODO: Disentangle these if else block such that compatible components
-        # can be added independently.
         if self.helium_treatment == "recomb-nlte":
             self.plasma_modules += self.plasma_collection.helium_nlte_properties
         elif self.helium_treatment == "numerical-nlte":
@@ -246,18 +181,7 @@ class PlasmaSolverFactory:
                 heating_rate_data_file=self.heating_rate_data_file
             )
         else:
-            # If nlte ionization species are present, we don't want to add the
-            # IonNumberDensity from helium_lte_properties, since we want
-            # to use the IonNumberDensity provided by the NLTE solver.
-            if (
-                len(self.nlte_ionization_species + self.nlte_excitation_species)
-                > 0
-            ):
-                self.plasma_modules.append(LevelNumberDensity)
-            else:
-                self.plasma_modules += (
-                    self.plasma_collection.helium_lte_properties
-                )
+            self.plasma_modules += self.plasma_collection.helium_lte_properties
 
     def setup_legacy_nlte(self, nlte_config):
         """
@@ -359,51 +283,6 @@ class PlasmaSolverFactory:
 
         return j_blues
 
-    def set_continuum_interaction_species_from_string(
-        self, continuum_interaction_species
-    ):
-        """
-        Set the continuum interaction species from a list of species strings.
-
-        Parameters
-        ----------
-        continuum_interaction_species : list of str
-            List of species strings representing the continuum interaction species.
-
-        Returns
-        -------
-        None
-        """
-        self.continuum_interaction_species = [
-            species_string_to_tuple(species)
-            for species in continuum_interaction_species
-        ]
-
-    def check_continuum_interaction_species(self):
-        """
-        Check if all continuum interaction species belong to atoms that have been specified in the configuration.
-
-        Raises
-        ------
-            PlasmaConfigError: If not all continuum interaction species belong to specified atoms.
-        """
-        continuum_atoms = (
-            self.continuum_interaction_species_multi_index.get_level_values(
-                "atomic_number"
-            )
-        )
-
-        continuum_atoms_in_selected_atoms = np.all(
-            continuum_atoms.isin(self.atom_data.selected_atomic_numbers)
-        )
-
-        if not continuum_atoms_in_selected_atoms:
-            raise PlasmaConfigError(
-                "Not all continuum interaction species "
-                "belong to atoms that have been specified "
-                "in the configuration."
-            )
-
     def set_nlte_species_from_string(self, nlte_species):
         """
         Sets the non-LTE species from a string representation.
@@ -420,134 +299,15 @@ class PlasmaSolverFactory:
         """
         self.legacy_nlte_species = map_species_from_string(nlte_species)
 
-    def setup_continuum_interactions(self):
-        """
-        Set up continuum interactions for the plasma assembly.
-
-        Raises
-        ------
-            PlasmaConfigError: If the line_interaction_type is not "macroatom".
-            PlasmaConfigError: If an NLTE ionization species is not in the continuum species.
-            PlasmaConfigError: If an NLTE excitation species is not in the continuum species.
-            PlasmaConfigError: If the NLTE solver type is unknown.
-        """
-        if self.line_interaction_type != "macroatom":
-            raise PlasmaConfigError(
-                "Continuum interactions require line_interaction_type "
-                f"macroatom (instead of {self.line_interaction_type})."
-            )
-
-        self.plasma_modules += (
-            self.plasma_collection.continuum_interaction_properties
-        )
-        self.plasma_modules += (
-            self.plasma_collection.continuum_interaction_inputs
-        )
-
-        if self.enable_adiabatic_cooling:
-            self.plasma_modules += (
-                self.plasma_collection.adiabatic_cooling_properties
-            )
-
-        if self.enable_two_photon_decay:
-            self.plasma_modules += self.plasma_collection.two_photon_properties
-
-        transition_probabilities_outputs = [
-            plasma_property.transition_probabilities_outputs
-            for plasma_property in self.plasma_modules
-            if issubclass(plasma_property, TransitionProbabilitiesProperty)
-        ]
-        transition_probabilities_outputs = [
-            item
-            for sublist in transition_probabilities_outputs
-            for item in sublist
-        ]
-
-        self.property_kwargs[MarkovChainTransProbsCollector] = {
-            "inputs": transition_probabilities_outputs
-        }
-        if len(self.nlte_ionization_species + self.nlte_excitation_species) > 0:
-            if self.nlte_ionization_species:
-                nlte_ionization_species = self.nlte_ionization_species
-                for species in nlte_ionization_species:
-                    if species not in self.continuum_interaction_species:
-                        raise PlasmaConfigError(
-                            f"NLTE ionization species {species} not in continuum species."
-                        )
-            if self.nlte_excitation_species:
-                nlte_excitation_species = self.nlte_excitation_species
-                for species in nlte_excitation_species:
-                    if species not in self.continuum_interaction_species:
-                        raise PlasmaConfigError(
-                            f"NLTE excitation species {species} not in continuum species."
-                        )
-            self.property_kwargs[NLTEIndexHelper] = {
-                "nlte_ionization_species": self.nlte_ionization_species,
-                "nlte_excitation_species": self.nlte_excitation_species,
-            }
-            if self.nlte_solver == "lu":
-                self.plasma_modules += (
-                    self.plasma_collection.nlte_lu_solver_properties
-                )
-                logger.warning(
-                    "LU solver will be inaccurate for NLTE excitation, proceed with caution."
-                )
-            elif self.nlte_solver == "root":
-                self.plasma_modules += (
-                    self.plasma_collection.nlte_root_solver_properties
-                )
-            else:
-                raise PlasmaConfigError(
-                    f"NLTE solver type unknown - {self.nlte_solver}"
-                )
-
     def setup_electron_densities(self, electron_densities):
         if self.helium_treatment == "numerical-nlte":
             self.property_kwargs[IonNumberDensityHeNLTE] = dict(
-                electron_densities=electron_densities
-            )
-        elif (
-            len(self.nlte_ionization_species + self.nlte_excitation_species) > 0
-        ) and self.nlte_solver == "root":
-            self.property_kwargs[NLTEPopulationSolverRoot] = dict(
-                electron_densities=electron_densities
-            )
-        elif (
-            len(self.nlte_ionization_species + self.nlte_excitation_species) > 0
-        ) and self.nlte_solver == "lu":
-            self.property_kwargs[NLTEPopulationSolverLU] = dict(
                 electron_densities=electron_densities
             )
         else:
             self.property_kwargs[IonNumberDensity] = dict(
                 electron_densities=electron_densities
             )
-
-    def initialize_continuum_properties(self, dilute_planckian_radiation_field):
-        """
-        Initialize the continuum properties of the plasma.
-
-        Parameters
-        ----------
-        dilute_planckian_radiation_field : DilutePlanckianRadiationField
-            The dilute Planckian radiation field.
-
-        Returns
-        -------
-        initial_continuum_properties : `~tardis.plasma.properties.ContinuumProperties`
-            The initial continuum properties of the plasma.
-        """
-        t_electrons = dilute_planckian_radiation_field.temperature.to(u.K)
-
-        initial_continuum_solver = AnalyticPhotoionizationCoeffSolver(
-            self.atom_data.photoionization_data
-        )
-        initial_continuum_properties = ContinuumProperties(
-            *initial_continuum_solver.solve(
-                dilute_planckian_radiation_field, t_electrons
-            )
-        )
-        return initial_continuum_properties
 
     def assemble(
         self,
@@ -596,20 +356,7 @@ class PlasmaSolverFactory:
             atomic_data=self.atom_data,
             j_blues=j_blues,
             continuum_interaction_species=self.continuum_interaction_species_multi_index,
-            nlte_ionization_species=self.nlte_ionization_species,
-            nlte_excitation_species=self.nlte_excitation_species,
         )
-        if len(self.continuum_interaction_species) > 0:
-            initial_continuum_properties = self.initialize_continuum_properties(
-                dilute_planckian_radiation_field
-            )
-            plasma_assemble_kwargs.update(
-                gamma=initial_continuum_properties.photo_ionization_rate_coefficient,
-                bf_heating_coeff_estimator=None,
-                stim_recomb_cooling_coeff_estimator=None,
-                alpha_stim_factor=initial_continuum_properties.stimulated_recombination_rate_factor,
-            )
-
         if electron_densities is not None:
             electron_densities = pd.Series(electron_densities.cgs.value)
 

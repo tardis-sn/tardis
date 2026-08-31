@@ -1,0 +1,18 @@
+{
+  "aa": {
+    "bold_total": true,
+    "template": "\\documentclass{article}\n\\usepackage[margin=1in]{geometry}\n\n\\begin{document}\n\n\\begin{table}[p]\n\\caption{Summary of atomic data by element}\n\\label{tab:atomdata-summary}\n\\centering\n\\small\n\\renewcommand{\\arraystretch}{1.04}\n\\begin{tabular*}{0.9\\textwidth}{@{\\extracolsep{\\fill}}lcrr}\n\\hline\\hline\nElement & Ion stages & Levels & Lines \\\\\n\\hline\n{{TABLE_ROWS}}\n\\hline\n\\end{tabular*}\n\n\\medskip\n\\parbox{0.9\\textwidth}{\\footnotesize Ion stages with level and line data are given in spectroscopic notation.}\n\\end{table}\n\n\\end{document}\n"
+  },
+  "aas": {
+    "bold_total": true,
+    "template": "\\documentclass{article}\n\\usepackage[margin=1in]{geometry}\n\n\\begin{document}\n\n\\begin{table}[p]\n\\centering\n\\caption{Summary of atomic data by element\\label{tab:atomdata-summary}}\n\\small\n\\renewcommand{\\arraystretch}{1.12}\n\\begin{tabular*}{0.9\\textwidth}{@{\\extracolsep{\\fill}}lcrr}\n\\hline\n\\textbf{Element} & \\textbf{Ion Stages} & \\textbf{Levels} & \\textbf{Lines} \\\\\n\\hline\n{{TABLE_ROWS}}\n\\hline\n\\end{tabular*}\n\n\\medskip\n\\parbox{0.9\\textwidth}{\\footnotesize Ion stages with level and line data are given in spectroscopic notation.}\n\\end{table}\n\n\\end{document}\n"
+  },
+  "mnras": {
+    "bold_total": true,
+    "template": "\\documentclass{article}\n\\usepackage[margin=1in]{geometry}\n\\usepackage{booktabs}\n\\usepackage[font=small,labelfont=bf,justification=raggedright,singlelinecheck=false]{caption}\n\n\\begin{document}\n\n\\begin{table}[p]\n\\caption{Summary of atomic data by element.}\n\\label{tab:atomdata-summary}\n\\centering\n\\small\n\\renewcommand{\\arraystretch}{0.96}\n\\begin{tabular*}{0.9\\textwidth}{@{\\extracolsep{\\fill}}lcrr}\n\\toprule\n\\textit{Element} & \\textit{Ion stages} & \\textit{Levels} & \\textit{Lines} \\\\\n\\midrule\n{{TABLE_ROWS}}\n\\bottomrule\n\\end{tabular*}\n\n\\medskip\n\\parbox{0.9\\textwidth}{\\footnotesize Ion stages with level and line data are given in spectroscopic notation.}\n\\end{table}\n\n\\end{document}\n"
+  },
+  "nature": {
+    "bold_total": false,
+    "template": "\\documentclass{article}\n\\usepackage[margin=1in]{geometry}\n\\usepackage{booktabs}\n\\usepackage[scaled=0.92]{helvet}\n\\renewcommand{\\familydefault}{\\sfdefault}\n\n\\begin{document}\n\\thispagestyle{empty}\n\n\\begin{table}[p]\n\\centering\n\\parbox{0.9\\textwidth}{\\raggedright\\textbf{Table 1 | Summary of atomic data by element}}\n\\label{tab:atomdata-summary}\n\\vspace{6pt}\n\\small\n\\renewcommand{\\arraystretch}{1.08}\n\\begin{tabular*}{0.9\\textwidth}{@{\\extracolsep{\\fill}}lcrr}\n\\toprule\n\\textbf{Element} & \\textbf{Ion stages} & \\textbf{Levels} & \\textbf{Lines} \\\\\n\\midrule\n{{TABLE_ROWS}}\n\\bottomrule\n\\end{tabular*}\n\n\\vspace{4pt}\n\\parbox{0.9\\textwidth}{\\footnotesize Ion stages with level and line data are given in spectroscopic notation.}\n\\end{table}\n\n\\end{document}\n"
+  }
+}

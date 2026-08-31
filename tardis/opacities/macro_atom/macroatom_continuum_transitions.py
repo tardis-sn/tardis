@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.properties.continuum_processes.rates import (
-    K_B,
-)
+from tardis import constants as const
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
+
+K_B = const.k_B.cgs.value
 
 
 def probability_recombination_internal(

@@ -1,10 +1,15 @@
 import os
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 
+import numpy as np
+import numpy.testing as npt
+import pandas as pd
 import pytest
 from astropy import units as u
 from astropy.version import version as astropy_version
+from numba import njit
 
 from tardis import run_tardis
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
@@ -160,6 +165,40 @@ def pytest_collection_modifyitems(config, items):
 # -------------------------------------------------------------------------
 
 
+def sync_ndarray_assert_allclose(
+    regression_data: object, *actual_values: object, **kwargs: object
+) -> None:
+    actual_array = np.concatenate(
+        [
+            np.asarray(actual, dtype=np.float64).ravel()
+            for actual in actual_values
+        ]
+    )
+    expected = regression_data.sync_ndarray(actual_array)
+    npt.assert_allclose(actual_array, expected, **kwargs)
+
+
+@njit
+def set_numba_seed(value: int) -> None:
+    np.random.seed(value)
+
+
+@pytest.fixture
+def set_seed_fixture() -> Callable[[int], None]:
+    # Numba maintains RNG state separately from Python's NumPy RNG; seeding
+    # inside njitted code keeps random tests reproducible.
+    return set_numba_seed
+
+
+@pytest.fixture
+def python_numba_disabled() -> None:
+    if os.environ.get("NUMBA_DISABLE_JIT") != "1":
+        pytest.skip(
+            "This path monkeypatches numba-dispatched code "
+            "and only runs with NUMBA_DISABLE_JIT=1."
+        )
+
+
 @pytest.fixture(scope="session")
 def generate_reference(request):
     option = request.config.getoption("--generate-reference")
@@ -203,6 +242,14 @@ def config_verysimple_for_simulation_one_loop(
     return config
 
 
+@pytest.fixture(scope="module")
+def simulation_one_loop(config_verysimple_for_simulation_one_loop):
+    sim = Simulation.from_config(config_verysimple_for_simulation_one_loop)
+    sim.run_convergence()
+    sim.run_final()
+    return sim
+
+
 @pytest.fixture(scope="function")
 def config_verysimple_hydrogen_only(config_verysimple):
     config = deepcopy(config_verysimple)
@@ -212,14 +259,6 @@ def config_verysimple_hydrogen_only(config_verysimple):
         "model_isotope_time_0": 0.0 * u.s,
     }
     return config
-
-
-@pytest.fixture(scope="function")
-def tardis_config_verysimple_nlte():
-    return yaml_load_file(
-        "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml",
-        YAMLLoader,
-    )
 
 
 ###
@@ -270,6 +309,18 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.last_no_of_packets = 4000
+    sim.run_final()
+    return sim
+
+
+@pytest.fixture(scope="module")
+def simulation_tardis_full(atomic_dataset, example_configuration_dir):
+    atomic_data = deepcopy(atomic_dataset)
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )  # the config is mutated in other places
+    sim = Simulation.from_config(config, atom_data=atomic_data)
+    sim.run_convergence()
     sim.run_final()
     return sim
 
@@ -375,3 +426,61 @@ def iip_atom_data(tardis_regression_path):
     atom_data.has_collision_data = False
 
     return atom_data
+
+
+def _as_regression_dataframe(value: pd.DataFrame | pd.Series) -> pd.DataFrame:
+    """Convert a regression_data object to a dataframe
+
+    Parameters
+    ----------
+    value : pd.DataFrame | pd.Series
+        Regression data value
+
+    Returns
+    -------
+    pd.DataFrame
+        Regression data as DataFrame
+    """
+    if isinstance(value, pd.DataFrame):
+        return value
+    if isinstance(value, pd.Series):
+        return value.to_frame("value")
+
+    values = np.asarray(value)
+    if values.ndim == 1:
+        return pd.DataFrame({"value": values})
+    return pd.DataFrame(values)
+
+
+def assert_regression_dataframe(
+    regression_data: pd.DataFrame | pd.Series,
+    key: str,
+    actual: pd.DataFrame | pd.Series,
+    rtol: float = 1e-12,
+    atol: float = 0.0,
+) -> None:
+    """Sync and test a regression object as a DataFrame
+
+    Parameters
+    ----------
+    regression_data : pd.DataFrame | pd.Series
+        Regression data
+    key : str
+        Regression data key
+    actual : pd.DataFrame | pd.Series
+        Test data
+    rtol : float, optional
+        Relative tolerance for comparison, by default 1e-12
+    atol : float, optional
+        Absolute tolerance for comparison, by default 0.0
+    """
+    actual_frame = _as_regression_dataframe(actual)
+    expected_frame = regression_data.sync_dataframe(actual_frame, key=key)
+    pd.testing.assert_frame_equal(
+        actual_frame,
+        expected_frame,
+        rtol=rtol,
+        atol=atol,
+        check_dtype=False,
+        check_names=False,
+    )

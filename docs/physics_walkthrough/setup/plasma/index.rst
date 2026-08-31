@@ -81,6 +81,8 @@ TARDIS also allows for NLTE treatments of specified species, as well as special 
 
     nlte
     helium_nlte
+    two_photon_archive
+    adiabatic_cooling_archive
     
 
 
