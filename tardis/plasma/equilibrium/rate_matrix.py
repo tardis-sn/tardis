@@ -369,6 +369,11 @@ class EstimatedIonRateMatrix:
         lte_ionization_factor: pd.DataFrame | None = None,
     ) -> pd.DataFrame:
         """Compute the ionization rate matrix from fixed estimators."""
+        ion_population = ion_population.combine_first(
+            level_population.groupby(
+                level=["atomic_number", "ion_number"]
+            ).sum()
+        )
         photoion_rates_df, recomb_rates_df = self.radiative_ionization_rate_solver.solve(
             thermal_electron_energy_distribution,
             level_population,

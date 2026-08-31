@@ -530,10 +530,11 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
     solve_shell_charge = solver.solve_shell_charge
     solved_shell_indices = []
 
-    # using plain *args to simplify the wrapper
-    def record_solve_shell_charge(shell_idx: int, *args) -> float:  # noqa: ANN002
+    def record_solve_shell_charge(
+        shell_idx: int, *args: object, **kwargs: object
+    ) -> float:
         solved_shell_indices.append(shell_idx)
-        return solve_shell_charge(shell_idx, *args)
+        return solve_shell_charge(shell_idx, *args, **kwargs)
 
     monkeypatch.setattr(solver, "solve_shell_charge", record_solve_shell_charge)
     solver.solve(

@@ -133,11 +133,14 @@ def test_collisional_ionization_uses_estimated_level_fractions(
     level_population = pd.DataFrame(
         [[1.0, 3.0], [3.0, 1.0]], index=mock_boltzmann_factor.index
     )
+    partition_function = pd.DataFrame(
+        1.0, index=ion_index, columns=mock_boltzmann_factor.columns
+    )
 
     estimated_ionization, estimated_recombination = solver.solve(
         mock_electron_distribution,
         mock_level_to_ion_population_factor,
-        1.0,
+        partition_function,
         mock_boltzmann_factor,
         level_population,
         ion_population,
@@ -145,7 +148,7 @@ def test_collisional_ionization_uses_estimated_level_fractions(
     lte_ionization, lte_recombination = solver.solve(
         mock_electron_distribution,
         mock_level_to_ion_population_factor,
-        1.0,
+        partition_function,
         mock_boltzmann_factor,
     )
 

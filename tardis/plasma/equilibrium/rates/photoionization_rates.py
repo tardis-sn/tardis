@@ -1,7 +1,6 @@
 import astropy.units as u
 import numpy as np
 import pandas as pd
-from astropy import units as u
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -19,7 +18,6 @@ from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
     PlanckianRadiationField,
 )
-from tardis.transport.montecarlo.estimators import EstimatorsContinuum
 
 
 class AnalyticPhotoionizationRateSolver:
@@ -257,7 +255,7 @@ class EstimatedPhotoionizationRateSolver:
         )
 
         level_population_fraction = level_population / (
-            align_ion_population_to_level_population(
+            reindex_ion_population_to_level_population(
                 ion_population, level_population, next_higher=False
             )
         )

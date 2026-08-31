@@ -1,5 +1,3 @@
-from typing import Literal
-
 import astropy.units as u
 import numpy as np
 import numpy.testing as npt
@@ -12,7 +10,10 @@ from tardis.model.base import SimulationState
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.rate_matrix import AnalyticIonRateMatrix, RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    AnalyticIonRateMatrix,
+    RateMatrix,
+)
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
@@ -26,12 +27,7 @@ from tardis.plasma.radiation_field import (
 
 def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[
-        tuple[
-            RadiativeRatesSolver | ThermalCollisionalRateSolver,
-            Literal["radiative", "electron"],
-        ]
-    ],
+    rate_solvers: tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
@@ -44,7 +40,7 @@ def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
     electron_dist = ThermalElectronEnergyDistribution(
         0,
         collisional_simulation_state.t_radiative,
-        1e6 * u.g / u.cm**3,
+        1e6 / u.cm**3,
     )
 
     matrices = rate_matrix_solver.solve(rad_field, electron_dist)
@@ -68,12 +64,7 @@ def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
 
 def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[
-        tuple[
-            RadiativeRatesSolver | ThermalCollisionalRateSolver,
-            Literal["radiative", "electron"],
-        ]
-    ],
+    rate_solvers: tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
@@ -86,7 +77,7 @@ def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
     electron_dist = ThermalElectronEnergyDistribution(
         0,
         collisional_simulation_state.t_radiative,
-        1e6 * u.g / u.cm**3,
+        1e6 / u.cm**3,
     )
     matrices = rate_matrix_solver.solve(rad_field, electron_dist)
 
@@ -117,7 +108,7 @@ def test_rate_matrix_solver(
         dilution_factor=np.zeros_like(collisional_simulation_state.t_radiative),
     )
     electron_dist = ThermalElectronEnergyDistribution(
-        0, collisional_simulation_state.t_radiative, 1e6 * u.g / u.cm**3
+        0, collisional_simulation_state.t_radiative, 1e6 / u.cm**3
     )
 
     actual = rate_matrix_solver.solve(rad_field, electron_dist)
@@ -261,7 +252,7 @@ def test_ion_rate_matrix_solver(
         dilution_factor=np.zeros_like(collisional_simulation_state.t_radiative),
     )
     electron_dist = ThermalElectronEnergyDistribution(
-        0, collisional_simulation_state.t_radiative, 1e6 * u.g / u.cm**3
+        0, collisional_simulation_state.t_radiative, 1e6 / u.cm**3
     )
 
     lte_level_population = pd.DataFrame(

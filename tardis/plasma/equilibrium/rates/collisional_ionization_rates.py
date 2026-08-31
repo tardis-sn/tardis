@@ -79,12 +79,24 @@ class CollisionalIonizationRateSolver:
             level_to_ion_population_factor
         )
 
-        partition_function = reindex_ion_population_to_level_population(
-            partition_function,
-            level_boltzmann_factor,
-            next_higher=False,
-        )
-        level_population_fraction = level_boltzmann_factor / partition_function
+        if level_population is not None and ion_population is not None:
+            level_population_fraction = level_population / (
+                reindex_ion_population_to_level_population(
+                    ion_population, level_population, next_higher=False
+                )
+            )
+            level_population_fraction = level_population_fraction.loc[
+                collision_ionization_rates.index
+            ]
+        else:
+            partition_function = reindex_ion_population_to_level_population(
+                partition_function,
+                level_boltzmann_factor,
+                next_higher=False,
+            )
+            level_population_fraction = (
+                level_boltzmann_factor / partition_function
+            )
 
         # used to scale the photoionization rate because we keep the level population
         # fixed while we calculated the ion number density

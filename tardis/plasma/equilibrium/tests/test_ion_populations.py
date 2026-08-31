@@ -164,7 +164,9 @@ def assert_hydrogen_matrix_balance(
 
 
 def test_solve(
-    rate_matrix_solver: AnalyticIonRateMatrix, regression_data: RegressionData
+    rate_matrix_solver: AnalyticIonRateMatrix,
+    regression_data: RegressionData,
+    hydrogen_population_inputs: dict,
 ) -> None:
     actual_ion_population, actual_electron_density, ion_population_solver = (
         solve_population(
@@ -203,6 +205,7 @@ def test_solve(
 
 def test_charge_conserving_hydrogen_matches_analytic_root(
     rate_matrix_solver: AnalyticIonRateMatrix,
+    hydrogen_population_inputs: dict,
 ) -> None:
 
     ion_population, electron_density, ion_population_solver = solve_population(
@@ -237,6 +240,7 @@ def test_charge_conserving_hydrogen_matches_analytic_root(
 
 def test_charge_conserving_hydrogen_is_seed_independent_from_near_neutral_density(
     rate_matrix_solver: AnalyticIonRateMatrix,
+    hydrogen_population_inputs: dict,
 ) -> None:
     low_seed_inputs = hydrogen_population_inputs.copy()
     high_seed_inputs = hydrogen_population_inputs.copy()
@@ -534,6 +538,7 @@ def test_charge_conserving_multi_element_solution_uses_real_atomic_data(
 
 def test_charge_conserving_hydrogen_matches_iip_nlte_solver(
     rate_matrix_solver: AnalyticIonRateMatrix,
+    hydrogen_population_inputs: dict,
 ) -> None:
     ion_population, electron_density, _ = solve_population(
         rate_matrix_solver, hydrogen_population_inputs, charge_conservation=True
