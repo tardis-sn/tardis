@@ -279,8 +279,8 @@ class PlasmaEquilibriumEvaluator:
                 volume,
             )
         )
-        self.collisional_ionization_rate_solver = CollisionalIonizationRateSolver(
-            photoionization_cross_sections
+        self.collisional_ionization_rate_solver = (
+            CollisionalIonizationRateSolver(photoionization_cross_sections)
         )
         self.levels = levels
         self.ionization_data = ionization_data
@@ -394,25 +394,28 @@ class PlasmaEquilibriumEvaluator:
         spontaneous_recombination *= species_saha_factor
         stimulated_recombination *= species_saha_factor
         collisional_recombination = collisional_ionization * species_saha_factor
+
+        continuum_rate_coefficients_per_shell = tuple(
+            ContinuumRateCoefficients(
+                photoionization.iloc[:, shell_idx].to_numpy(dtype=np.float64),
+                collisional_ionization.iloc[:, shell_idx].to_numpy(
+                    dtype=np.float64
+                ),
+                spontaneous_recombination.iloc[:, shell_idx].to_numpy(
+                    dtype=np.float64
+                ),
+                stimulated_recombination.iloc[:, shell_idx].to_numpy(
+                    dtype=np.float64
+                ),
+                collisional_recombination.iloc[:, shell_idx].to_numpy(
+                    dtype=np.float64
+                ),
+            )
+            for shell_idx in range(len(shell_index))
+        )
+
         return (
-            tuple(
-                ContinuumRateCoefficients(
-                    photoionization.iloc[:, shell_idx].to_numpy(dtype=np.float64),
-                    collisional_ionization.iloc[:, shell_idx].to_numpy(
-                        dtype=np.float64
-                    ),
-                    spontaneous_recombination.iloc[:, shell_idx].to_numpy(
-                        dtype=np.float64
-                    ),
-                    stimulated_recombination.iloc[:, shell_idx].to_numpy(
-                        dtype=np.float64
-                    ),
-                    collisional_recombination.iloc[:, shell_idx].to_numpy(
-                        dtype=np.float64
-                    ),
-                )
-                for shell_idx in range(len(shell_index))
-            ),
+            continuum_rate_coefficients_per_shell,
             level_to_continuum_saha_factor,
             collisional_ionization_rate_coefficient,
             thermal_saha_factor,
