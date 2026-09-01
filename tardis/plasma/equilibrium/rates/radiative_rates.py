@@ -71,6 +71,7 @@ class RadiativeRatesSolver:
         r_lu = mean_intensity_df.multiply(
             self.einstein_coefficients.B_lu, axis=0
         )
+        # scale by beta Sobolev for detailed balance
         r_lu *= beta_sobolev_array
 
         # r_ul = B_ul * J_nu + A_ul
@@ -78,6 +79,7 @@ class RadiativeRatesSolver:
             self.einstein_coefficients["B_ul"], axis=0
         )
         r_ul = r_ul.add(self.einstein_coefficients["A_ul"], axis=0)
+        # scale by beta Sobolev for detailed balance
         r_ul *= beta_sobolev_array
 
         # swapping as source is upper and destination is lower
