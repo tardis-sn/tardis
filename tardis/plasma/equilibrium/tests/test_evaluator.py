@@ -14,7 +14,7 @@ from tardis.plasma.equilibrium.evaluator import (
     PlasmaEquilibriumEvaluator,
 )
 from tardis.plasma.equilibrium.inputs import (
-    NumberDensityPerShell,
+    ShellNumberDensity,
     SobolevInputs,
 )
 from tardis.plasma.equilibrium.rate_matrix import RateMatrix
@@ -91,7 +91,7 @@ def toy_evaluator() -> PlasmaEquilibriumEvaluator:
         ZeroElectronRateSolver(),
         levels,
     )
-    population_geometry = NumberDensityPerShell(
+    population_geometry = ShellNumberDensity(
         1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
     )
     sobolev_inputs = SobolevInputs(
@@ -247,10 +247,10 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         2.0e9,  # Final electron density (cm⁻³).
         1.0e4,  # Shell electron temperature (K).
         first_result.normalized_population[0].to_numpy(),
-        evaluator._calculate_continuum_rate_coefficients(
-            np.array([1.0e4])
-        )[0][0],
-        evaluator.population_geometries[0],
+        evaluator._calculate_continuum_rate_coefficients(np.array([1.0e4]))[0][
+            0
+        ],
+        evaluator.shell_number_densities[0],
         evaluator.sobolev_inputs[0],
         first_result.absolute_level_population.iloc[:, 0].to_numpy(),
     )[0]

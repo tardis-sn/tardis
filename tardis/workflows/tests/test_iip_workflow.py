@@ -25,7 +25,7 @@ from tardis.plasma.electron_energy_distribution import (
 )
 from tardis.plasma.equilibrium.evaluator import PlasmaEquilibriumEvaluator
 from tardis.plasma.equilibrium.inputs import (
-    NumberDensityPerShell,
+    ShellNumberDensity,
     SobolevInputs,
 )
 from tardis.plasma.equilibrium.ion_populations import (
@@ -1403,7 +1403,7 @@ def test_evaluator_matches_iip_five_shell_path(
         )
     )
     population_geometries = tuple(
-        NumberDensityPerShell(
+        ShellNumberDensity(
             plasma.number_density.loc[1, shell],
             plasma.level_number_density[shell].to_numpy(dtype=np.float64),
             hydrogen_level_positions,

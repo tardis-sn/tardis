@@ -17,7 +17,7 @@ from tardis.plasma.electron_energy_distribution import (
 from tardis.plasma.equilibrium.inputs import (
     ContinuumRateCoefficients,
     LevelEquationRates,
-    NumberDensityPerShell,
+    ShellNumberDensity,
     SobolevInputs,
 )
 from tardis.plasma.equilibrium.rate_matrix import RateMatrix
@@ -69,7 +69,7 @@ def calculate_nlte_level_population_residual(
     j_blues: pd.DataFrame,
     thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
     species: tuple[int, int],
-    number_density_per_shell: NumberDensityPerShell,
+    shell_number_density: ShellNumberDensity,
     sobolev: SobolevInputs,
     level_density: npt.NDArray[np.float64] | None = None,
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
@@ -123,9 +123,9 @@ def calculate_nlte_level_population_residual(
     )
 
     if level_density is None:
-        level_density = number_density_per_shell.level_number_density.copy()
-        level_density[number_density_per_shell.species_level_positions] = (
-            number_density_per_shell.hydrogen_number_density
+        level_density = shell_number_density.level_number_density.copy()
+        level_density[shell_number_density.species_level_positions] = (
+            shell_number_density.hydrogen_number_density
             / (1.0 + ionized_to_neutral_ratio)
             * level_fractions
         )
@@ -208,7 +208,7 @@ class PlasmaEquilibriumEvaluator:
         ionization_data: pd.Series,
         rate_matrix_solver: RateMatrix,
         j_blues: pd.DataFrame,
-        population_geometries: tuple[NumberDensityPerShell, ...],
+        shell_number_densities: tuple[ShellNumberDensity, ...],
         sobolev_inputs: tuple[SobolevInputs, ...],
         level_population_index: pd.MultiIndex,
         hydrogen_species: tuple[int, int],
@@ -242,8 +242,8 @@ class PlasmaEquilibriumEvaluator:
             Shared bound-bound matrix owner.
         j_blues : pandas.DataFrame
             Fixed post-Monte-Carlo line mean intensities.
-        population_geometries : tuple[NumberDensityPerShell, ...]
-            Per-shell absolute population geometry.
+        shell_number_densities : tuple[ShellNumberDensity, ...]
+            Per-shell absolute number densities, level number densities and species level positions.
         sobolev_inputs : tuple[SobolevInputs, ...]
             Per-shell Sobolev line inputs.
         level_population_index : pandas.MultiIndex
@@ -286,7 +286,7 @@ class PlasmaEquilibriumEvaluator:
         self.ionization_data = ionization_data
         self.rate_matrix_solver = rate_matrix_solver
         self.j_blues = j_blues.copy(deep=True)
-        self.population_geometries = population_geometries
+        self.shell_number_densities = shell_number_densities
         self.sobolev_inputs = sobolev_inputs
         self.level_population_index = level_population_index
         self.hydrogen_species = hydrogen_species
@@ -305,7 +305,7 @@ class PlasmaEquilibriumEvaluator:
         shell_count = len(self.elemental_number_density.columns)
         if not all(
             len(inputs) == shell_count
-            for inputs in (population_geometries, sobolev_inputs)
+            for inputs in (shell_number_densities, sobolev_inputs)
         ):
             raise ValueError(
                 "Each level input tuple must contain one entry per shell."
@@ -428,7 +428,7 @@ class PlasmaEquilibriumEvaluator:
         electron_temperature: float,
         level_fractions: npt.NDArray[np.float64],
         continuum_rates: ContinuumRateCoefficients,
-        population_geometry: NumberDensityPerShell,
+        population_geometry: ShellNumberDensity,
         sobolev_inputs: SobolevInputs,
         level_density: npt.NDArray[np.float64] | None = None,
     ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
@@ -475,7 +475,7 @@ class PlasmaEquilibriumEvaluator:
         electron_temperature: float,
         level_seed: npt.NDArray[np.float64],
         continuum_rates: ContinuumRateCoefficients,
-        population_geometry: NumberDensityPerShell,
+        population_geometry: ShellNumberDensity,
         sobolev_inputs: SobolevInputs,
     ) -> tuple[
         npt.NDArray[np.float64],
@@ -566,7 +566,7 @@ class PlasmaEquilibriumEvaluator:
             np.column_stack(
                 [
                     geometry.level_number_density
-                    for geometry in self.population_geometries
+                    for geometry in self.shell_number_densities
                 ]
             ),
             index=self.level_population_index,
@@ -579,7 +579,7 @@ class PlasmaEquilibriumEvaluator:
         ) in enumerate(
             zip(
                 continuum_rate_coefficients,
-                self.population_geometries,
+                self.shell_number_densities,
                 self.sobolev_inputs,
                 strict=True,
             )
@@ -642,13 +642,13 @@ class PlasmaEquilibriumEvaluator:
             return None, None
 
         estimated_levels = state.full_population.copy(deep=True)
-        for shell_idx, population_geometry in enumerate(
-            self.population_geometries
+        for shell_idx, shell_number_density in enumerate(
+            self.shell_number_densities
         ):
-            temporary_ion = population_geometry.hydrogen_number_density / (
+            temporary_ion = shell_number_density.hydrogen_number_density / (
                 1.0 + state.ionized_to_neutral_ratios[shell_idx]
             )
-            positions = population_geometry.species_level_positions
+            positions = shell_number_density.species_level_positions
             estimated_levels.iloc[positions, shell_idx] = (
                 temporary_ion * state.fractions[shell_idx]
             )
@@ -674,7 +674,7 @@ class PlasmaEquilibriumEvaluator:
         absolute_levels = state.full_population.copy(deep=True)
         if ion_population is None:
             for shell_idx, population_geometry in enumerate(
-                self.population_geometries
+                self.shell_number_densities
             ):
                 absolute_levels.iloc[
                     population_geometry.species_level_positions, shell_idx
@@ -780,7 +780,7 @@ class PlasmaEquilibriumEvaluator:
         ) in enumerate(
             zip(
                 state.continuum_rate_coefficients,
-                self.population_geometries,
+                self.shell_number_densities,
                 self.sobolev_inputs,
                 strict=True,
             )

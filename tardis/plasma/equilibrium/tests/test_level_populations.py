@@ -14,7 +14,7 @@ from tardis.plasma.equilibrium.evaluator import (
 )
 from tardis.plasma.equilibrium.inputs import (
     LevelEquationRates,
-    NumberDensityPerShell,
+    ShellNumberDensity,
     SobolevInputs,
 )
 from tardis.plasma.equilibrium.ion_populations import (
@@ -23,7 +23,10 @@ from tardis.plasma.equilibrium.ion_populations import (
 from tardis.plasma.equilibrium.level_populations import (
     LevelPopulationSolver,
 )
-from tardis.plasma.equilibrium.rate_matrix import AnalyticIonRateMatrix, RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    AnalyticIonRateMatrix,
+    RateMatrix,
+)
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
@@ -97,26 +100,20 @@ class TestLevelPopulationSolver:
         """Test solving a 2-level ion."""
         rates_matrix = np.array([[1, 1], [2, -2]])
         expected_population = np.array([0.5, 0.5])
-        result = self.solver._calculate_level_population(
-            rates_matrix
-        )
+        result = self.solver._calculate_level_population(rates_matrix)
         np.testing.assert_array_almost_equal(result, expected_population)
 
     def test_calculate_level_population_empty(self):
         """Test empty rate matrix."""
         rates_matrix = np.array([[]])
         with pytest.raises(np.linalg.LinAlgError):
-            self.solver._calculate_level_population(
-                rates_matrix
-            )
+            self.solver._calculate_level_population(rates_matrix)
 
     def test_calculate_level_population_zeros(self):
         """Test zero rate matrix."""
         rates_matrix = np.array([[0, 0], [0, 0]])
         with pytest.raises(np.linalg.LinAlgError):
-            self.solver._calculate_level_population(
-                rates_matrix
-            )
+            self.solver._calculate_level_population(rates_matrix)
 
     def test_solve(self, regression_data):
         """Test the solve method."""
@@ -173,7 +170,9 @@ def test_reduced_nlte_residual_recomputes_q_and_beta() -> None:
             )
         ),
         ZeroElectronRateSolver(),
-        pd.DataFrame({"energy": [0.0, 1.0], "g": [2.0, 4.0]}, index=level_index),
+        pd.DataFrame(
+            {"energy": [0.0, 1.0], "g": [2.0, 4.0]}, index=level_index
+        ),
     )
     j_blues = pd.DataFrame([1.0], index=line_index)
     electron_distribution = ThermalElectronEnergyDistribution(
@@ -181,7 +180,7 @@ def test_reduced_nlte_residual_recomputes_q_and_beta() -> None:
         np.array([1.0e4]) * u.K,
         np.array([1.0e9]) / u.cm**3,
     )
-    population = NumberDensityPerShell(
+    population = ShellNumberDensity(
         1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
     )
     sobolev = SobolevInputs(
@@ -359,18 +358,18 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         AnalyticPhotoionizationRateSolver(photoionization_data),
         CollisionalIonizationRateSolver(photoionization_data),
     )
-    nlte_ion_populations, nlte_electron_densities = FixedElectronDensityIonPopulationSolver(
-        ion_rate_matrix
-    ).solve(
-        radiation_field,
-        electron_distribution,
-        elemental_number_density,
-        lte_level_populations,
-        estimated_level_populations,
-        lte_ion_populations,
-        lte_ion_populations.copy(),
-        lte_partition_function,
-        lte_boltzmann_factors,
+    nlte_ion_populations, nlte_electron_densities = (
+        FixedElectronDensityIonPopulationSolver(ion_rate_matrix).solve(
+            radiation_field,
+            electron_distribution,
+            elemental_number_density,
+            lte_level_populations,
+            estimated_level_populations,
+            lte_ion_populations,
+            lte_ion_populations.copy(),
+            lte_partition_function,
+            lte_boltzmann_factors,
+        )
     )
 
     np.testing.assert_allclose(
