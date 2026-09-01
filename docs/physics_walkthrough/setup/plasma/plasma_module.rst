@@ -93,18 +93,8 @@ Property Categories
 ~~~~~~~~~~~~~~~~~~~
 
 The following describes the property categories defined in
-``legacy_property_collections.py`` and the integration test coverage
-status of each class:
-
-.. note::
-
-   * **Green** — Covered in integration tests, with unit tests written
-     where deemed useful.
-   * **Yellow** — Referenced in the TARDIS codebase but not exercised
-     by integration tests. These classes are not built during standard
-     TARDIS runs.
-   * **Red** — Not referenced outside their class definition.
-   * **Unhighlighted** — See inline notes for explanation.
+``legacy_property_collections.py``. Properties that are inactive,
+uncovered, or not exercised by integration tests are noted inline.
 
 Adiabatic Cooling Properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -113,13 +103,6 @@ Adiabatic Cooling Properties
 
 Basic Inputs
 ^^^^^^^^^^^^
-
-.. note::
-
-   For Basic Inputs, green indicates the input is used by plasma
-   configurations that are active in standard TARDIS runs. Red indicates
-   the input is not activated by any current simulation configuration.
-   Input classes do not require unit tests.
 
 * ``DilutePlanckianRadField``
 * ``NumberDensity``
