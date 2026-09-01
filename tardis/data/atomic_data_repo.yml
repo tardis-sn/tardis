@@ -1,8 +1,8 @@
 default: kurucz_cd23_chianti_H_He_latest
 
 kurucz_cd23_chianti_H_He_latest:
-  url: https://media.githubusercontent.com/media/tardis-sn/tardis-regression-data/main/atom_data/kurucz_cd23_chianti_H_He_latest.h5
+  url: https://raw.githubusercontent.com/tardis-sn/tardis-regression-data/main/atom_data/kurucz_cd23_chianti_H_He_latest.h5
   mirrors:
-    - https://media.githubusercontent.com/media/tardis-sn/tardis-regression-data/main/atom_data/kurucz_cd23_chianti_H_He_latest.h5
+    - https://raw.githubusercontent.com/tardis-sn/tardis-regression-data/main/atom_data/kurucz_cd23_chianti_H_He_latest.h5
   uuid: NA
   md5: 16341df5d104b462be4c3e51b167a893
