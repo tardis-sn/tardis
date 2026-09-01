@@ -92,6 +92,10 @@ def calculate_distance_radial(
 
     if shortest in (inner_1, inner_2):
         shell_change = -1
+    elif shortest in (outer_1, outer_2):
+        shell_change = 1
+    else:
+        raise ValueError("Selected boundary is not a calculated root")
 
     return shortest, shell_change
 

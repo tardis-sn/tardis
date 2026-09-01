@@ -245,7 +245,8 @@ def compton_scatter(
     final_direction = angle_aberration_gamma(
         final_compton_scattered_vector,
         packet.location,
-        -1 * packet.time_start,
+        packet.time_start,
+        inverse=True,
     )
 
     return final_direction
@@ -279,7 +280,7 @@ def pair_creation_packet(packet):
 
     # Calculate aberration of the random angle for the rest frame
     final_direction = angle_aberration_gamma(
-        new_direction, packet.location, -1 * packet.time_start
+        new_direction, packet.location, packet.time_start, inverse=True
     )
 
     packet.direction = final_direction

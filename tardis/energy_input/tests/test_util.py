@@ -5,6 +5,7 @@ import pytest
 from tardis.energy_input.util import (
     C_CGS,
     R_ELECTRON_SQUARED,
+    angle_aberration_gamma,
     doppler_factor_3d_all_packets,
     get_perpendicular_vector,
     klein_nishina,
@@ -49,6 +50,21 @@ def test_doppler_factor_3d_all_packets() -> None:
     npt.assert_allclose(
         doppler_factor_3d_all_packets(directions, positions, times), expected
     )
+
+
+def test_angle_aberration_gamma_inverse_round_trip() -> None:
+    direction = np.array([0.8, 0.6, 0.0])
+    position = np.array([3.0e13, 0.0, 0.0])
+    time = 2.0e5
+
+    comoving_direction = angle_aberration_gamma(direction, position, time)
+    actual = angle_aberration_gamma(
+        comoving_direction, position, time, inverse=True
+    )
+    previous = angle_aberration_gamma(comoving_direction, position, -time)
+
+    npt.assert_allclose(actual, direction)
+    npt.assert_allclose(actual, previous)
 
 
 @pytest.mark.xfail(reason="To be removed")
