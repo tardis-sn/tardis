@@ -7,6 +7,7 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis.io.configuration.config_reader import Configuration
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
+from tardis.workflows.util import get_tau_integ
 from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
 
 
@@ -210,3 +211,30 @@ def test_v_inner_solver_workflow(v_inner_workflow, attr, regression_data):
     attr_data = pd.DataFrame(attr_data)
     ref_data = regression_data.sync_dataframe(attr_data)
     pd.testing.assert_frame_equal(attr_data, ref_data, atol=1e-3, rtol=1e-6)
+
+
+def test_get_tau_integ_uses_active_shell_properties(
+    v_inner_workflow: InnerVelocitySolverWorkflow,
+) -> None:
+    tau_integ = get_tau_integ(
+        v_inner_workflow.plasma_solver,
+        v_inner_workflow.opacity_states["opacity_state"],
+        v_inner_workflow.simulation_state,
+        bin_size=2,
+    )
+
+    no_of_active_shells = v_inner_workflow.simulation_state.no_of_shells
+    assert tau_integ["planck"].shape == (no_of_active_shells,)
+    assert tau_integ["rosseland"].shape == (no_of_active_shells,)
+
+
+def test_estimate_v_inner_uses_active_integrated_tau(
+    v_inner_workflow: InnerVelocitySolverWorkflow,
+) -> None:
+    estimated_v_inner = v_inner_workflow.estimate_v_inner()
+
+    assert estimated_v_inner.unit.is_equivalent(u.km / u.s)
+    assert v_inner_workflow.tau_integ.shape == (
+        v_inner_workflow.simulation_state.no_of_shells,
+    )
+
