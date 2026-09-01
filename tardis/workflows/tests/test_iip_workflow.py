@@ -8,7 +8,6 @@ import numpy.typing as npt
 import pandas as pd
 import pytest
 from astropy import units as u
-from scipy.optimize import root
 
 from tardis import constants as const
 from tardis.conftest import assert_regression_dataframe
