@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=02213d7a"></script>
+      <script src="../../../_static/documentation_options.js?v=b6e0dc97"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -223,8 +223,9 @@ collections of classes that define plasma properties.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">plasma/assembly/legacy_assembly.py</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">plasma/standard_plasmas.py</span></code></p></li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> function used by the simulation class is the one
-defined in <code class="docutils literal notranslate"><span class="pre">plasma/assembly</span></code>. It returns an assembled plasma by:</p>
+<p>The active <code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> function used by the TARDIS simulation
+class is the one defined in <code class="docutils literal notranslate"><span class="pre">plasma/assembly/legacy_assembly.py</span></code>. It
+returns an assembled plasma by:</p>
 <ol class="arabic simple">
 <li><p>Defining a <code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory</span></code> instance.</p></li>
 <li><p>Calling the <code class="docutils literal notranslate"><span class="pre">prepare_factory</span></code> method.</p></li>
@@ -234,29 +235,15 @@ defined in <code class="docutils literal notranslate"><span class="pre">plasma/a
 <section id="plasma-properties">
 <h3>Plasma Properties<a class="headerlink" href="#plasma-properties" title="Link to this heading"></a></h3>
 <p>The plasma properties used throughout the plasma module are defined in
-<code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code>. There is also a
-<code class="docutils literal notranslate"><span class="pre">property_collections.py</span></code> file which contains fewer classes. The plasma
-built throughout the TARDIS codebase imports from
-<code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code>. The <code class="docutils literal notranslate"><span class="pre">property_collections.py</span></code> file
-is not referenced elsewhere in the TARDIS codebase for plasma that gets
-built during actual runs.</p>
+<code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code>. A separate <code class="docutils literal notranslate"><span class="pre">property_collections.py</span></code>
+file exists but is not imported by the main plasma solver factory and is
+therefore not active during standard TARDIS runs. The standard plasma solver
+imports its property collections from <code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code>.</p>
 <section id="property-categories">
 <h4>Property Categories<a class="headerlink" href="#property-categories" title="Link to this heading"></a></h4>
 <p>The following describes the property categories defined in
-<code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code> and whether each class is built or
-referenced outside its definition:</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><p><strong>Green</strong> — Covered in integration tests, with unit tests written
-where deemed useful.</p></li>
-<li><p><strong>Yellow</strong> — Referenced in the TARDIS codebase but never run in
-integration tests. These classes are not usually built during
-real TARDIS runs.</p></li>
-<li><p><strong>Red</strong> — Never referenced outside their class definition.</p></li>
-<li><p><strong>Unhighlighted</strong> — See inline notes for explanation.</p></li>
-</ul>
-</div>
+<code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code>. Properties that are inactive,
+uncovered, or not exercised by integration tests are noted inline.</p>
 <section id="adiabatic-cooling-properties">
 <h5>Adiabatic Cooling Properties<a class="headerlink" href="#adiabatic-cooling-properties" title="Link to this heading"></a></h5>
 <ul class="simple">
@@ -265,12 +252,6 @@ real TARDIS runs.</p></li>
 </section>
 <section id="basic-inputs">
 <h5>Basic Inputs<a class="headerlink" href="#basic-inputs" title="Link to this heading"></a></h5>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For Basic Inputs, green indicates the input is used for classes built
-by plasma that TARDIS users actually use. Red indicates the input is
-usually never used. No unit tests are needed for Inputs.</p>
-</div>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">DilutePlanckianRadField</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">NumberDensity</span></code></p></li>
@@ -279,9 +260,10 @@ usually never used. No unit tests are needed for Inputs.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">JBlues</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LinkTRadTElectron</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">HeliumTreatment</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionSpecies</span></code> — Never used as an input in any
-integration test. Many associated properties seem to be part of an
-unfinished refactor attempt.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionSpecies</span></code> — Not exercised by any current
+integration test. The associated continuum interaction properties
+are scoped to Type II supernova plasmas and are not activated in
+standard Type Ia simulation configs.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">NLTEIonizationSpecies</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">NLTEExcitationSpecies</span></code></p></li>
 </ul>
@@ -312,20 +294,23 @@ unfinished refactor attempt.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">StimRecombRateFactor</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">BfHeatingRateCoeffEstimator</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">StimRecombCoolingRateCoeffEstimator</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">YgData</span></code> — Referenced in
+<li><p><code class="docutils literal notranslate"><span class="pre">YgData</span></code> — Tested directly in
 <code class="docutils literal notranslate"><span class="pre">plasma/equilibrium/tests/test_collisional_transitions.py</span></code> and
-<code class="docutils literal notranslate"><span class="pre">plasma/tests/test_plasma_continuum.py</span></code> but not referenced in the
-plasma solver factory.</p></li>
+<code class="docutils literal notranslate"><span class="pre">plasma/tests/test_plasma_continuum.py</span></code>, but not wired into the
+main plasma solver factory and therefore not built during standard
+TARDIS runs.</p></li>
 </ul>
 </section>
 <section id="continuum-interaction-properties">
 <h5>Continuum Interaction Properties<a class="headerlink" href="#continuum-interaction-properties" title="Link to this heading"></a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">BoundFreeOpacity</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">CollDeexcRateCoeff</span></code> — Imported into <code class="docutils literal notranslate"><span class="pre">collision_strengths.py</span></code>.
-Defined in two files: <code class="docutils literal notranslate"><span class="pre">plasma/equilibrium/rates/collision_strengths.py</span></code>
-and <code class="docutils literal notranslate"><span class="pre">plasma/properties/continuum_processes/rates.py</span></code>. The class
-defined in <code class="docutils literal notranslate"><span class="pre">collision_strengths.py</span></code> is fully uncovered.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CollDeexcRateCoeff</span></code> — Defined in two files:
+<code class="docutils literal notranslate"><span class="pre">plasma/equilibrium/rates/collision_strengths.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">plasma/properties/continuum_processes/rates.py</span></code>. The active class
+is the one imported into the property collection from <code class="docutils literal notranslate"><span class="pre">rates.py</span></code>.
+The class in <code class="docutils literal notranslate"><span class="pre">collision_strengths.py</span></code> is not covered by the test
+suite.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CollExcRateCoeff</span></code> — Same as above.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CollIonRateCoeffSeaton</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CollRecombRateCoeff</span></code></p></li>
@@ -344,8 +329,8 @@ defined in <code class="docutils literal notranslate"><span class="pre">collisio
 <li><p><code class="docutils literal notranslate"><span class="pre">NonContinuumTransProbsMask</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">NonMarkovChainTransitionProbabilities</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">PhotoIonBoltzmannFactor</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">PhotoIonizationData</span></code> — Referenced in the main plasma solver factory
-but never run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PhotoIonizationData</span></code> — Registered in the plasma solver factory
+but not exercised by any current integration test configuration.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RawCollIonTransProbs</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RawCollisionTransProbs</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RawPhotoIonTransProbs</span></code></p></li>
@@ -353,9 +338,10 @@ but never run.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RawRecombTransProbs</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SahaFactor</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SpontRecombCoolingRateCoeff</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff</span></code> — Only defined in the class and put into
-property collections but never referenced in the main plasma solver
-factory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff</span></code> — Defined in the property collection but
+not referenced by the main plasma solver factory. Developers
+extending continuum interaction support should note this class
+requires explicit wiring to become active.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">StimRecombRateCoeff</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ThermalGElectron</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ThermalLTEPartitionFunction</span></code></p></li>
@@ -391,8 +377,9 @@ factory.</p></li>
 <section id="helium-numerical-nlte-properties">
 <h5>Helium Numerical NLTE Properties<a class="headerlink" href="#helium-numerical-nlte-properties" title="Link to this heading"></a></h5>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">HeliumNumericalNLTE</span></code> — Requires a specific numerical NLTE solver and
-a specific atomic dataset, neither of which are distributed with TARDIS.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HeliumNumericalNLTE</span></code> — Requires a specific numerical NLTE solver
+and a specific atomic dataset. Neither are distributed with TARDIS.
+This class is not activated in standard simulation runs.</p></li>
 </ul>
 </section>
 <section id="lte-excitation-properties">
@@ -420,8 +407,9 @@ a specific atomic dataset, neither of which are distributed with TARDIS.</p></li
 <h5>NLTE LU Solver Properties<a class="headerlink" href="#nlte-lu-solver-properties" title="Link to this heading"></a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU</span></code> — Referenced in <code class="docutils literal notranslate"><span class="pre">test_nlte_solver</span></code> but
-never run in a full integration test.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU</span></code> — Tested in <code class="docutils literal notranslate"><span class="pre">test_nlte_solver</span></code> but not
+exercised in full integration tests. This solver is not activated
+in standard simulation configurations.</p></li>
 </ul>
 </section>
 <section id="nlte-properties">
@@ -438,8 +426,9 @@ never run in a full integration test.</p></li>
 <h5>NLTE Root Solver Properties<a class="headerlink" href="#nlte-root-solver-properties" title="Link to this heading"></a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverRoot</span></code> — Referenced in <code class="docutils literal notranslate"><span class="pre">test_nlte_solver</span></code> but
-never run in a full integration test.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverRoot</span></code> — Tested in <code class="docutils literal notranslate"><span class="pre">test_nlte_solver</span></code> but
+not exercised in full integration tests. This solver is not activated
+in standard simulation configurations.</p></li>
 </ul>
 </section>
 <section id="non-nlte-properties">
@@ -461,88 +450,101 @@ never run in a full integration test.</p></li>
 </section>
 <section id="equilibrium">
 <h3>Equilibrium<a class="headerlink" href="#equilibrium" title="Link to this heading"></a></h3>
-<p>In <code class="docutils literal notranslate"><span class="pre">tardis/plasma/equilibrium</span></code> there are files under a <code class="docutils literal notranslate"><span class="pre">rates/</span></code> folder
-that represent another attempt at a plasma module refactor using
-<code class="docutils literal notranslate"><span class="pre">RateSolver</span></code> classes. These are not used in the actual implemented plasma
-module but do have direct tests.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">tardis/plasma/equilibrium/rates/</span></code> folder contains an alternative
+plasma implementation based on <code class="docutils literal notranslate"><span class="pre">RateSolver</span></code> classes. This implementation
+is independent of the NetworkX-based plasma module used in standard TARDIS
+simulations and is not invoked during normal runs. The rate solver classes
+have dedicated unit tests and are retained for future development.</p>
 </section>
 </section>
-<section id="uncovered-plasma-module-files">
-<h2>Uncovered Plasma Module Files<a class="headerlink" href="#uncovered-plasma-module-files" title="Link to this heading"></a></h2>
-<p>The following files in the plasma module are either fully uncovered or have
-very little coverage, beyond what was already noted in the property
-sections above.</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/standard_plasmas.py</span></code></dt><dd><p>Zero percent coverage. Appears to be an attempt at refactoring how
-<code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> is used by <code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory</span></code>. Referenced
-only in <code class="docutils literal notranslate"><span class="pre">grotarian_mockup.ipynb</span></code>.</p>
+<section id="developer-notes-inactive-and-partially-covered-modules">
+<h2>Developer Notes: Inactive and Partially Covered Modules<a class="headerlink" href="#developer-notes-inactive-and-partially-covered-modules" title="Link to this heading"></a></h2>
+<p>The following plasma module files are not invoked during standard TARDIS
+simulation runs. Developers modifying the plasma module should be aware
+of their status.</p>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/standard_plasmas.py</span></code></dt><dd><p>Not covered by the plasma test suite and not called during standard
+TARDIS runs. This module is used exclusively by
+<code class="docutils literal notranslate"><span class="pre">grotrian_mockup.ipynb</span></code>. The active plasma assembly entry point
+is <code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> in <code class="docutils literal notranslate"><span class="pre">plasma/assembly/legacy_assembly.py</span></code>.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/property_collections.py</span></code></dt><dd><p>Property collection for a plasma module refactor that was never
-completed. Appears to be imported into
-<code class="docutils literal notranslate"><span class="pre">tardis/plasma/standard_plasmas.py</span></code>.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/property_collections.py</span></code></dt><dd><p>An alternative property collection used by <code class="docutils literal notranslate"><span class="pre">standard_plasmas.py</span></code>.
+Not imported by the main plasma solver factory and therefore inactive
+during normal simulation runs. Developers should use
+<code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code> as the authoritative reference
+for active plasma properties.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/nlte_excitation_data.py</span></code></dt><dd><p>Defines <code class="docutils literal notranslate"><span class="pre">NLTEExcitationData</span></code>, which is not used anywhere else in
-the codebase.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/nlte_excitation_data.py</span></code></dt><dd><p>Defines <code class="docutils literal notranslate"><span class="pre">NLTEExcitationData</span></code>, which is not referenced elsewhere in
+the active codebase and is the existing implementation relevant to
+future NLTE excitation work.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/hydrogen_continuum.py</span></code></dt><dd><p>Zero percent coverage by plasma tests.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/hydrogen_continuum.py</span></code></dt><dd><p>Not activated by any current simulation configuration and not
+covered by the plasma test suite.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/continuum_processes/fast_array_util.py</span></code></dt><dd><p>Defines two numba functions:</p>
+<dt><code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/continuum_processes/fast_array_util.py</span></code></dt><dd><p>Provides two Numba-accelerated integration utilities:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">numba_cumulative_trapezoid</span></code> — Used in the uncovered class
-<code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF</span></code> in
-<code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/continuum_processes/rates.py</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cumulative_integrate_array_by_blocks</span></code> — Same as above.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numba_cumulative_trapezoid</span></code> — Used by <code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF</span></code>
+in <code class="docutils literal notranslate"><span class="pre">tardis/plasma/properties/continuum_processes/rates.py</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cumulative_integrate_array_by_blocks</span></code> — Used by the same class.</p></li>
 </ul>
+<p>Both functions are not exercised by the plasma test suite, as
+<code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF</span></code> is not activated in standard simulation
+configurations.</p>
 </dd>
 </dl>
 </section>
-<section id="tools-to-understand-the-plasma-module">
-<h2>Tools to Understand the Plasma Module<a class="headerlink" href="#tools-to-understand-the-plasma-module" title="Link to this heading"></a></h2>
-<section id="test-coverage-reports">
-<h3>Test Coverage Reports<a class="headerlink" href="#test-coverage-reports" title="Link to this heading"></a></h3>
-<p>Generating coverage reports of the plasma module test cases is a useful
-way to understand what parts of the plasma module are actually used by
-researchers running TARDIS. Running exclusively the tests in the plasma
-module and examining coverage results can reveal, for example:</p>
+<section id="developer-reference-test-coverage-and-plasma-graphs">
+<h2>Developer Reference: Test Coverage and Plasma Graphs<a class="headerlink" href="#developer-reference-test-coverage-and-plasma-graphs" title="Link to this heading"></a></h2>
+<section id="test-coverage">
+<h3>Test Coverage<a class="headerlink" href="#test-coverage" title="Link to this heading"></a></h3>
+<p>The plasma module test suite provides a practical way to identify which
+properties are exercised by standard plasma configurations.
+Running the plasma module tests with coverage enabled allows developers
+to verify which property <code class="docutils literal notranslate"><span class="pre">calculate</span></code> methods are exercised by the
+current set of simulation configurations.</p>
+<p>Key architectural notes for developers:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">plasma/standard_plasmas.py</span></code> is fully uncovered. The
-<code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> function defined there is never used in the actual
-TARDIS simulation. The <code class="docutils literal notranslate"><span class="pre">assemble_plasma</span></code> that TARDIS actually uses is
-in <code class="docutils literal notranslate"><span class="pre">plasma/assembly/legacy_assembly.py</span></code>.</p></li>
-<li><p>The continuum interactions setup in <code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory</span></code>
-(<code class="docutils literal notranslate"><span class="pre">plasma/assembly/base.py</span></code>) is never triggered because none of the
-tested plasma configs set up continuum interactions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plasma/standard_plasmas.py</span></code> is not covered by the plasma test
+suite. The active assembly entry point is
+<code class="docutils literal notranslate"><span class="pre">plasma/assembly/legacy_assembly.py</span></code>.</p></li>
+<li><p>Continuum interaction properties in <code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory</span></code>
+(<code class="docutils literal notranslate"><span class="pre">plasma/assembly/base.py</span></code>) are not activated by any current
+integration test configuration. Continuum interactions are not
+used in standard Type Ia supernova simulations.</p></li>
 </ul>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">hydrogen_continuum.py</span></code> is not used anywhere and has zero percent
-coverage.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hydrogen_continuum.py</span></code> is not activated by any current simulation
+configuration and is not covered by the plasma test suite.</p></li>
 </ul>
-<p>The best way to find which classes are actually being called is to go
-through <code class="docutils literal notranslate"><span class="pre">legacy_property_collections.py</span></code>, click on each class, and
-check whether the code inside the <code class="docutils literal notranslate"><span class="pre">calculate</span></code> function is covered.</p>
-<p>For example, <code class="docutils literal notranslate"><span class="pre">LinesLowerLevelIndex</span></code> is in legacy properties and has
-full coverage, meaning it is actually being calculated when
-<code class="docutils literal notranslate"><span class="pre">test_full_plasmas</span></code> builds its plasma configurations.</p>
-<p>On the other hand, <code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff</span></code> is in
-<code class="docutils literal notranslate"><span class="pre">continuum_interactions_properties</span></code> and its <code class="docutils literal notranslate"><span class="pre">calculate</span></code> method is
-never run by any config in <code class="docutils literal notranslate"><span class="pre">test_complete_plasmas</span></code>.</p>
-<p>Going through coverage results for <code class="docutils literal notranslate"><span class="pre">test_complete_plasma</span></code> is a good
-way to:</p>
+<p>To determine whether a specific property class is active, inspect its
+<code class="docutils literal notranslate"><span class="pre">calculate</span></code> method under coverage. For example:</p>
 <ul class="simple">
-<li><p>Guide what is worth writing unit tests for.</p></li>
-<li><p>Identify features unused by the plasma module that should be migrated
-to Type II plasma exclusively.</p></li>
-<li><p>Find features that should be removed completely.</p></li>
-<li><p>Find features that need to be fleshed out further.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LinesLowerLevelIndex</span></code> has full coverage, confirming it is
+calculated in every standard plasma configuration built by
+<code class="docutils literal notranslate"><span class="pre">test_complete_plasmas</span></code>.</p></li>
+</ul>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff</span></code>, defined in
+<code class="docutils literal notranslate"><span class="pre">continuum_interactions_properties</span></code>, has no coverage in
+<code class="docutils literal notranslate"><span class="pre">test_complete_plasmas</span></code>, confirming it is not built by any
+current standard simulation configuration.</p></li>
+</ul>
+<p>Coverage analysis of <code class="docutils literal notranslate"><span class="pre">test_complete_plasmas</span></code> can be used to:</p>
+<ul class="simple">
+<li><p>Identify which property classes require additional unit tests.</p></li>
+<li><p>Determine which features are scoped to Type II plasma and should
+not be assumed available in Type Ia runs.</p></li>
+<li><p>Identify property classes that are candidates for removal or
+consolidation.</p></li>
 </ul>
 </section>
 <section id="plasma-graph-generation">
 <h3>Plasma Graph Generation<a class="headerlink" href="#plasma-graph-generation" title="Link to this heading"></a></h3>
-<p>As described in the <a class="reference internal" href="#plasma-module"><span class="std std-ref">NetworkX - Plasma Graphs</span></a>
-section above, TARDIS can generate diagrams showing how plasma graph
-properties connect to one another. Generating diagrams across multiple
-configs is a good way to understand which plasma properties are relevant
-to general TARDIS users.</p>
+<p>TARDIS can generate diagrams of the plasma property graph, showing
+which properties depend on one another. Generating graphs across
+multiple simulation configurations is a practical method for
+identifying which plasma properties are relevant to standard
+simulation runs.</p>
 <p>Useful resources:</p>
 <ul class="simple">
 <li><p>TARDIS configs repository:
@@ -566,7 +568,7 @@ to general TARDIS users.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 24 Aug 2026.
+      <span class="lastupdated">Last updated on 01 Sep 2026.
       </span></p>
   </div>
 

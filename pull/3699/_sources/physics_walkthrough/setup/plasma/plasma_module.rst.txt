@@ -72,8 +72,9 @@ There is also an ``assemble_plasma`` function defined in two locations:
 * ``plasma/assembly/legacy_assembly.py``
 * ``plasma/standard_plasmas.py``
 
-The ``assemble_plasma`` function used by the simulation class is the one
-defined in ``plasma/assembly``. It returns an assembled plasma by:
+The active ``assemble_plasma`` function used by the TARDIS simulation
+class is the one defined in ``plasma/assembly/legacy_assembly.py``. It
+returns an assembled plasma by:
 
 1. Defining a ``PlasmaSolverFactory`` instance.
 2. Calling the ``prepare_factory`` method.
@@ -83,29 +84,17 @@ Plasma Properties
 -----------------
 
 The plasma properties used throughout the plasma module are defined in
-``legacy_property_collections.py``. There is also a
-``property_collections.py`` file which contains fewer classes. The plasma
-built throughout the TARDIS codebase imports from
-``legacy_property_collections.py``. The ``property_collections.py`` file
-is not referenced elsewhere in the TARDIS codebase for plasma that gets
-built during actual runs.
+``legacy_property_collections.py``. A separate ``property_collections.py``
+file exists but is not imported by the main plasma solver factory and is
+therefore not active during standard TARDIS runs. The standard plasma solver
+imports its property collections from ``legacy_property_collections.py``. 
 
 Property Categories
 ~~~~~~~~~~~~~~~~~~~
 
 The following describes the property categories defined in
-``legacy_property_collections.py`` and whether each class is built or
-referenced outside its definition:
-
-.. note::
-
-   * **Green** — Covered in integration tests, with unit tests written
-     where deemed useful.
-   * **Yellow** — Referenced in the TARDIS codebase but never run in
-     integration tests. These classes are not usually built during
-     real TARDIS runs.
-   * **Red** — Never referenced outside their class definition.
-   * **Unhighlighted** — See inline notes for explanation.
+``legacy_property_collections.py``. Properties that are inactive,
+uncovered, or not exercised by integration tests are noted inline.
 
 Adiabatic Cooling Properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -115,12 +104,6 @@ Adiabatic Cooling Properties
 Basic Inputs
 ^^^^^^^^^^^^
 
-.. note::
-
-   For Basic Inputs, green indicates the input is used for classes built
-   by plasma that TARDIS users actually use. Red indicates the input is
-   usually never used. No unit tests are needed for Inputs.
-
 * ``DilutePlanckianRadField``
 * ``NumberDensity``
 * ``TimeExplosion``
@@ -128,9 +111,10 @@ Basic Inputs
 * ``JBlues``
 * ``LinkTRadTElectron``
 * ``HeliumTreatment``
-* ``ContinuumInteractionSpecies`` — Never used as an input in any
-  integration test. Many associated properties seem to be part of an
-  unfinished refactor attempt.
+* ``ContinuumInteractionSpecies`` — Not exercised by any current
+  integration test. The associated continuum interaction properties
+  are scoped to Type II supernova plasmas and are not activated in
+  standard Type Ia simulation configs.
 * ``NLTEIonizationSpecies``
 * ``NLTEExcitationSpecies``
 
@@ -159,19 +143,22 @@ Continuum Interaction Inputs
 * ``StimRecombRateFactor``
 * ``BfHeatingRateCoeffEstimator``
 * ``StimRecombCoolingRateCoeffEstimator``
-* ``YgData`` — Referenced in
+* ``YgData`` — Tested directly in
   ``plasma/equilibrium/tests/test_collisional_transitions.py`` and
-  ``plasma/tests/test_plasma_continuum.py`` but not referenced in the
-  plasma solver factory.
+  ``plasma/tests/test_plasma_continuum.py``, but not wired into the
+  main plasma solver factory and therefore not built during standard
+  TARDIS runs.
 
 Continuum Interaction Properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``BoundFreeOpacity``
-* ``CollDeexcRateCoeff`` — Imported into ``collision_strengths.py``.
-  Defined in two files: ``plasma/equilibrium/rates/collision_strengths.py``
-  and ``plasma/properties/continuum_processes/rates.py``. The class
-  defined in ``collision_strengths.py`` is fully uncovered.
+* ``CollDeexcRateCoeff`` — Defined in two files:
+  ``plasma/equilibrium/rates/collision_strengths.py`` and
+  ``plasma/properties/continuum_processes/rates.py``. The active class
+  is the one imported into the property collection from ``rates.py``.
+  The class in ``collision_strengths.py`` is not covered by the test
+  suite.
 * ``CollExcRateCoeff`` — Same as above.
 * ``CollIonRateCoeffSeaton``
 * ``CollRecombRateCoeff``
@@ -190,8 +177,8 @@ Continuum Interaction Properties
 * ``NonContinuumTransProbsMask``
 * ``NonMarkovChainTransitionProbabilities``
 * ``PhotoIonBoltzmannFactor``
-* ``PhotoIonizationData`` — Referenced in the main plasma solver factory
-  but never run.
+* ``PhotoIonizationData`` — Registered in the plasma solver factory
+  but not exercised by any current integration test configuration.
 * ``RawCollIonTransProbs``
 * ``RawCollisionTransProbs``
 * ``RawPhotoIonTransProbs``
@@ -199,9 +186,10 @@ Continuum Interaction Properties
 * ``RawRecombTransProbs``
 * ``SahaFactor``
 * ``SpontRecombCoolingRateCoeff``
-* ``SpontRecombRateCoeff`` — Only defined in the class and put into
-  property collections but never referenced in the main plasma solver
-  factory.
+* ``SpontRecombRateCoeff`` — Defined in the property collection but
+  not referenced by the main plasma solver factory. Developers
+  extending continuum interaction support should note this class
+  requires explicit wiring to become active.
 * ``StimRecombRateCoeff``
 * ``ThermalGElectron``
 * ``ThermalLTEPartitionFunction``
@@ -233,8 +221,9 @@ Helium NLTE Properties
 Helium Numerical NLTE Properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* ``HeliumNumericalNLTE`` — Requires a specific numerical NLTE solver and
-  a specific atomic dataset, neither of which are distributed with TARDIS.
+* ``HeliumNumericalNLTE`` — Requires a specific numerical NLTE solver
+  and a specific atomic dataset. Neither are distributed with TARDIS.
+  This class is not activated in standard simulation runs.
 
 LTE Excitation Properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -258,8 +247,9 @@ NLTE LU Solver Properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``NLTEIndexHelper``
-* ``NLTEPopulationSolverLU`` — Referenced in ``test_nlte_solver`` but
-  never run in a full integration test.
+* ``NLTEPopulationSolverLU`` — Tested in ``test_nlte_solver`` but not
+  exercised in full integration tests. This solver is not activated
+  in standard simulation configurations.
 
 NLTE Properties
 ^^^^^^^^^^^^^^^^
@@ -274,8 +264,9 @@ NLTE Root Solver Properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``NLTEIndexHelper``
-* ``NLTEPopulationSolverRoot`` — Referenced in ``test_nlte_solver`` but
-  never run in a full integration test.
+* ``NLTEPopulationSolverRoot`` — Tested in ``test_nlte_solver`` but
+  not exercised in full integration tests. This solver is not activated
+  in standard simulation configurations.
 
 Non NLTE Properties
 ^^^^^^^^^^^^^^^^^^^^
@@ -293,100 +284,111 @@ Two Photon Properties
 Equilibrium
 -----------
 
-In ``tardis/plasma/equilibrium`` there are files under a ``rates/`` folder
-that represent another attempt at a plasma module refactor using
-``RateSolver`` classes. These are not used in the actual implemented plasma
-module but do have direct tests.
+The ``tardis/plasma/equilibrium/rates/`` folder contains an alternative
+plasma implementation based on ``RateSolver`` classes. This implementation
+is independent of the NetworkX-based plasma module used in standard TARDIS
+simulations and is not invoked during normal runs. The rate solver classes
+have dedicated unit tests and are retained for future development.
 
-Uncovered Plasma Module Files
-==============================
+Developer Notes: Inactive and Partially Covered Modules
+========================================================
 
-The following files in the plasma module are either fully uncovered or have
-very little coverage, beyond what was already noted in the property
-sections above.
+The following plasma module files are not invoked during standard TARDIS
+simulation runs. Developers modifying the plasma module should be aware
+of their status.
 
 ``tardis/plasma/standard_plasmas.py``
-   Zero percent coverage. Appears to be an attempt at refactoring how
-   ``assemble_plasma`` is used by ``PlasmaSolverFactory``. Referenced
-   only in ``grotarian_mockup.ipynb``.
+   Not covered by the plasma test suite and not called during standard
+   TARDIS runs. This module is used exclusively by
+   ``grotrian_mockup.ipynb``. The active plasma assembly entry point
+   is ``assemble_plasma`` in ``plasma/assembly/legacy_assembly.py``.
 
 ``tardis/plasma/properties/property_collections.py``
-   Property collection for a plasma module refactor that was never
-   completed. Appears to be imported into
-   ``tardis/plasma/standard_plasmas.py``.
+   An alternative property collection used by ``standard_plasmas.py``.
+   Not imported by the main plasma solver factory and therefore inactive
+   during normal simulation runs. Developers should use
+   ``legacy_property_collections.py`` as the authoritative reference
+   for active plasma properties.
 
 ``tardis/plasma/properties/nlte_excitation_data.py``
-   Defines ``NLTEExcitationData``, which is not used anywhere else in
-   the codebase.
+   Defines ``NLTEExcitationData``, which is not referenced elsewhere in 
+   the active codebase and is the existing implementation relevant to 
+   future NLTE excitation work.
 
 ``tardis/plasma/properties/hydrogen_continuum.py``
-   Zero percent coverage by plasma tests.
+   Not activated by any current simulation configuration and not
+   covered by the plasma test suite.
 
 ``tardis/plasma/properties/continuum_processes/fast_array_util.py``
-   Defines two numba functions:
+   Provides two Numba-accelerated integration utilities:
 
-   * ``numba_cumulative_trapezoid`` — Used in the uncovered class
-     ``TwoPhotonEmissionCDF`` in
-     ``tardis/plasma/properties/continuum_processes/rates.py``.
-   * ``cumulative_integrate_array_by_blocks`` — Same as above.
+   * ``numba_cumulative_trapezoid`` — Used by ``TwoPhotonEmissionCDF``
+     in ``tardis/plasma/properties/continuum_processes/rates.py``.
+   * ``cumulative_integrate_array_by_blocks`` — Used by the same class.
 
-Tools to Understand the Plasma Module
-======================================
+   Both functions are not exercised by the plasma test suite, as
+   ``TwoPhotonEmissionCDF`` is not activated in standard simulation
+   configurations.
 
-Test Coverage Reports
----------------------
+Developer Reference: Test Coverage and Plasma Graphs
+=====================================================
 
-Generating coverage reports of the plasma module test cases is a useful
-way to understand what parts of the plasma module are actually used by
-researchers running TARDIS. Running exclusively the tests in the plasma
-module and examining coverage results can reveal, for example:
+Test Coverage
+-------------
 
-* ``plasma/standard_plasmas.py`` is fully uncovered. The
-  ``assemble_plasma`` function defined there is never used in the actual
-  TARDIS simulation. The ``assemble_plasma`` that TARDIS actually uses is
-  in ``plasma/assembly/legacy_assembly.py``.
-* The continuum interactions setup in ``PlasmaSolverFactory``
-  (``plasma/assembly/base.py``) is never triggered because none of the
-  tested plasma configs set up continuum interactions.
+The plasma module test suite provides a practical way to identify which
+properties are exercised by standard plasma configurations.
+Running the plasma module tests with coverage enabled allows developers
+to verify which property ``calculate`` methods are exercised by the
+current set of simulation configurations.
+
+Key architectural notes for developers:
+
+* ``plasma/standard_plasmas.py`` is not covered by the plasma test
+  suite. The active assembly entry point is
+  ``plasma/assembly/legacy_assembly.py``.
+* Continuum interaction properties in ``PlasmaSolverFactory``
+  (``plasma/assembly/base.py``) are not activated by any current
+  integration test configuration. Continuum interactions are not
+  used in standard Type Ia supernova simulations.
 
 .. TODO: Add screenshot of PlasmaSolverFactory continuum interactions code here
 
-* ``hydrogen_continuum.py`` is not used anywhere and has zero percent
-  coverage.
+* ``hydrogen_continuum.py`` is not activated by any current simulation
+  configuration and is not covered by the plasma test suite.
 
-The best way to find which classes are actually being called is to go
-through ``legacy_property_collections.py``, click on each class, and
-check whether the code inside the ``calculate`` function is covered.
+To determine whether a specific property class is active, inspect its
+``calculate`` method under coverage. For example:
 
-For example, ``LinesLowerLevelIndex`` is in legacy properties and has
-full coverage, meaning it is actually being calculated when
-``test_full_plasmas`` builds its plasma configurations.
+* ``LinesLowerLevelIndex`` has full coverage, confirming it is
+  calculated in every standard plasma configuration built by
+  ``test_complete_plasmas``.
 
 .. TODO: Add screenshot of LinesLowerLevelIndex coverage here
 
-On the other hand, ``SpontRecombRateCoeff`` is in
-``continuum_interactions_properties`` and its ``calculate`` method is
-never run by any config in ``test_complete_plasmas``.
+* ``SpontRecombRateCoeff``, defined in
+  ``continuum_interactions_properties``, has no coverage in
+  ``test_complete_plasmas``, confirming it is not built by any
+  current standard simulation configuration.
 
 .. TODO: Add screenshot of SpontRecombRateCoeff coverage here
 
-Going through coverage results for ``test_complete_plasma`` is a good
-way to:
+Coverage analysis of ``test_complete_plasmas`` can be used to:
 
-* Guide what is worth writing unit tests for.
-* Identify features unused by the plasma module that should be migrated
-  to Type II plasma exclusively.
-* Find features that should be removed completely.
-* Find features that need to be fleshed out further.
+* Identify which property classes require additional unit tests.
+* Determine which features are scoped to Type II plasma and should
+  not be assumed available in Type Ia runs.
+* Identify property classes that are candidates for removal or
+  consolidation.
 
 Plasma Graph Generation
 -----------------------
 
-As described in the :ref:`NetworkX - Plasma Graphs <plasma_module>`
-section above, TARDIS can generate diagrams showing how plasma graph
-properties connect to one another. Generating diagrams across multiple
-configs is a good way to understand which plasma properties are relevant
-to general TARDIS users.
+TARDIS can generate diagrams of the plasma property graph, showing
+which properties depend on one another. Generating graphs across
+multiple simulation configurations is a practical method for
+identifying which plasma properties are relevant to standard
+simulation runs.
 
 Useful resources:
 
