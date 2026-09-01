@@ -1350,7 +1350,7 @@ def test_evaluator_matches_iip_five_shell_path(
     iip_plasma_after_mc: LegacyPlasmaArray,
     type_iip_workflow: TypeIIPWorkflow,
 ) -> None:
-    """Compare the real evaluator composition with accepted IIP shells."""
+    """Compare the evaluator composition with shells computed using the iip_plasma."""
     type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
     type_iip_workflow.solve_thermal_balance()
     plasma = type_iip_workflow.plasma_solver
