@@ -242,14 +242,16 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         level_seed,
     )
 
+    continuum_rate_coeff = evaluator._calculate_continuum_rate_coefficients(
+        np.array([1.0e4])
+    )[0][0]
+
     expected_final_residual = evaluator._calculate_level_state(
         0,
         2.0e9,  # Final electron density (cm⁻³).
         1.0e4,  # Shell electron temperature (K).
         first_result.normalized_population[0].to_numpy(),
-        evaluator._calculate_continuum_rate_coefficients(np.array([1.0e4]))[0][
-            0
-        ],
+        continuum_rate_coeff,
         evaluator.shell_number_densities[0],
         evaluator.sobolev_inputs[0],
         first_result.absolute_level_population.iloc[:, 0].to_numpy(),

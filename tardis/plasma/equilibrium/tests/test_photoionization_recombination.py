@@ -289,22 +289,23 @@ def test_estimated_rates_use_lucy_ion_matrix_coefficients(
         np.asarray(photoionization_coefficient),
         index=level_index,
         columns=columns,
-    ) * pd.DataFrame(
-        [0.2, 0.3], index=level_index, columns=columns
-    )
+    ) * pd.DataFrame([0.2, 0.3], index=level_index, columns=columns)
     expected_photoionization.loc[(1, 0, 0)] = 0.0
+    spontaneous_recomb_coeff_df = pd.DataFrame(
+        np.asarray(spontaneous_coefficient),
+        index=level_index,
+        columns=columns,
+    )
+    stimulated_recomb_coeff_df = pd.DataFrame(
+        np.asarray(stimulated_coefficient),
+        index=level_index,
+        columns=columns,
+    )
     expected_recombination = (
-        pd.DataFrame(
-            np.asarray(spontaneous_coefficient),
-            index=level_index,
-            columns=columns,
-        )
-        + pd.DataFrame(
-            np.asarray(stimulated_coefficient),
-            index=level_index,
-            columns=columns,
-        )
-    ) * level_to_continuum_saha_factor * 4.0
+        (spontaneous_recomb_coeff_df + stimulated_recomb_coeff_df)
+        * level_to_continuum_saha_factor
+        * 4.0
+    )
     expected_recombination.loc[(1, 0, 0)] = 0.0
     expected_photoionization = reindex_ionization_rate_dataframe(
         expected_photoionization, recombination=False
