@@ -1,22 +1,23 @@
-import panel as pn
-from tardis.util.environment import Environment
 import logging
-import os
+
+import panel as pn
+
+from tardis.util.environment import Environment
 
 logger = logging.getLogger(__name__)
 
 VALID_MODES = ["ssh_jh", "notebook", "vscode", "vscode_noipy"]
 preferred_mode = None
 
-# note: pn.extension(comms="ipywidgets") and pn.extension("ipywidgets") behave differently! 
+# note: pn.extension(comms="ipywidgets") and pn.extension("ipywidgets") behave differently!
 
 def ssh_jh():
     """Initialize panel for JupyterHub (colab comms)"""
     pn.extension(comms="ipywidgets")
 
-def notebook():
-    """Initialize panel for standard Jupyter notebook (default comms)"""
-    pn.extension(comms="ipywidgets")
+def notebook() -> None:
+    """Initialize Panel for a standard Jupyter notebook."""
+    pn.extension()
 
 def vscode():
     """Initialize panel for VSCode (ipywidgets comms)"""
@@ -40,7 +41,7 @@ def auto():
         modes = {"ssh_jh": ssh_jh, "notebook": notebook, "vscode": vscode, "vscode_noipy": vscode_noipy}
         modes[preferred_mode]()
         return
-    
+
     # Otherwise auto-detect
     if Environment.is_sshjh():
         print("Auto-detected JupyterHub environment")
@@ -57,4 +58,3 @@ def auto():
     else:
         print("Defaulting to default panel comms.")
         pn.extension()
-
