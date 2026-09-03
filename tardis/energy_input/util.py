@@ -123,7 +123,12 @@ def doppler_factor_3d_all_packets(
 
 
 @njit(**njit_dict_no_parallel)
-def angle_aberration_gamma(direction_vector, position_vector, time):
+def angle_aberration_gamma(
+    direction_vector: npt.NDArray[np.float64],
+    position_vector: npt.NDArray[np.float64],
+    time: float,
+    inverse: bool = False,
+) -> npt.NDArray[np.float64]:
     """Angle aberration formula for photons in 3D
 
     Parameters
@@ -131,6 +136,8 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
     direction_vector : array
     position_vector : array
     time : float
+    inverse : bool, optional
+        Apply the inverse transformation from the comoving frame.
 
     Returns
     -------
@@ -138,6 +145,8 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
         New direction after aberration
     """
     velocity_vector = position_vector / time
+    if inverse:
+        velocity_vector = -velocity_vector
     direction_vector_contiguous = np.ascontiguousarray(direction_vector)
     velocity_vector_contiguous = np.ascontiguousarray(velocity_vector)
 
