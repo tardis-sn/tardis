@@ -21,10 +21,16 @@ from tardis.plasma.electron_energy_distribution import (
 from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     BoundFreeThermalRates,
 )
+from tardis.plasma.equilibrium.rates.photoionization_rates import (
+    EstimatedPhotoionizationRateSolver,
+)
 from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticPhotoionizationCoeffSolver,
     EstimatedPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
+)
+from tardis.plasma.equilibrium.rates.util import (
+    reindex_ionization_rate_dataframe,
 )
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.transport.montecarlo.estimators import init_estimators_continuum
@@ -226,6 +232,96 @@ def test_estimator_coefficients_reproduce_regression_inputs(
         stim_recomb_estimator.to_numpy() * normalization,
     )
     assert gamma.index.equals(edge_index)
+
+
+def test_estimated_rates_use_lucy_ion_matrix_coefficients(
+    mock_photoionization_cross_sections: pd.DataFrame,
+) -> None:
+    """Estimated rates use level fractions and Lucy's Saha factor."""
+    level_index = mock_photoionization_cross_sections.index
+    columns = pd.Index([0])
+    level_population = pd.DataFrame(
+        [2.0, 3.0], index=level_index, columns=columns
+    )
+    ion_population = pd.DataFrame(
+        [10.0, 20.0],
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0), (1, 1)], names=["atomic_number", "ion_number"]
+        ),
+        columns=columns,
+    )
+    level_to_continuum_saha_factor = pd.DataFrame(
+        [0.5, 0.25], index=level_index, columns=columns
+    )
+    estimators = init_estimators_continuum(
+        n_levels_bf_species_by_n_cells_tuple=(2, 1), n_cells=1
+    )
+    estimators.photo_ion_estimator[:] = [[2.0], [4.0]]
+    estimators.stim_recomb_estimator[:] = [[0.1], [0.2]]
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg, np.array([1.0e4]) * u.K, np.array([4.0]) / u.cm**3
+    )
+
+    solver = EstimatedPhotoionizationRateSolver(
+        mock_photoionization_cross_sections,
+        pd.Series([0, 1], index=level_index),
+        estimators,
+        1 * u.s,
+        1 * u.cm**3,
+    )
+    actual_photoionization, actual_recombination = solver.solve(
+        electron_distribution,
+        level_population,
+        ion_population,
+        level_to_continuum_saha_factor,
+    )
+
+    coefficient_solver = EstimatedPhotoionizationCoeffSolver(
+        pd.Series([0, 1], index=level_index)
+    )
+    photoionization_coefficient, stimulated_coefficient = (
+        coefficient_solver.solve(estimators, 1 * u.s, 1 * u.cm**3)
+    )
+    spontaneous_coefficient = SpontaneousRecombinationCoeffSolver(
+        mock_photoionization_cross_sections
+    ).solve(electron_distribution.temperature)
+    expected_photoionization = pd.DataFrame(
+        np.asarray(photoionization_coefficient),
+        index=level_index,
+        columns=columns,
+    ) * pd.DataFrame([0.2, 0.3], index=level_index, columns=columns)
+    expected_photoionization.loc[(1, 0, 0)] = 0.0
+    spontaneous_recomb_coeff_df = pd.DataFrame(
+        np.asarray(spontaneous_coefficient),
+        index=level_index,
+        columns=columns,
+    )
+    stimulated_recomb_coeff_df = pd.DataFrame(
+        np.asarray(stimulated_coefficient),
+        index=level_index,
+        columns=columns,
+    )
+    expected_recombination = (
+        (spontaneous_recomb_coeff_df + stimulated_recomb_coeff_df)
+        * level_to_continuum_saha_factor
+        * 4.0
+    )
+    expected_recombination.loc[(1, 0, 0)] = 0.0
+    expected_photoionization = reindex_ionization_rate_dataframe(
+        expected_photoionization, recombination=False
+    )
+    expected_recombination = reindex_ionization_rate_dataframe(
+        expected_recombination, recombination=True
+    )
+
+    assert actual_photoionization.index.equals(expected_photoionization.index)
+    assert actual_recombination.index.equals(expected_recombination.index)
+    npt.assert_allclose(
+        actual_photoionization.to_numpy(), expected_photoionization.to_numpy()
+    )
+    npt.assert_allclose(
+        actual_recombination.to_numpy(), expected_recombination.to_numpy()
+    )
 
 
 def test_bound_free_heating_and_cooling_match_iip_plasma(

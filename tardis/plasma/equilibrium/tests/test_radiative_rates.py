@@ -3,12 +3,10 @@ import pandas as pd
 import pandas.testing as pdt
 import pytest
 
-from tardis.io.atom_data import AtomData
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
 from tardis.plasma.radiation_field.planck_rad_field import (
     PlanckianRadiationField,
 )
-
 
 invalid_index_df = pd.DataFrame(
     {
@@ -18,7 +16,7 @@ invalid_index_df = pd.DataFrame(
         "nu": [3e15],
     },
     index=pd.MultiIndex.from_tuples(
-        [(1, 0, 0, 1)],  
+        [(1, 0, 0, 1)],
         names=[
             "atomic_num",
             "ion_numb",
@@ -35,7 +33,7 @@ invalid_column_df = pd.DataFrame(
         "B_lu": [2e-19],
     },
     index=pd.MultiIndex.from_tuples(
-        [(1, 0, 0, 1)],  
+        [(1, 0, 0, 1)],
         names=[
             "atomic_number",
             "ion_number",
@@ -53,7 +51,7 @@ invalid_lower_higher_df = pd.DataFrame(
         "nu": [3e15],
     },
     index=pd.MultiIndex.from_tuples(
-        [(1, 0, 2, 1)],  
+        [(1, 0, 2, 1)],
         names=[
             "atomic_number",
             "ion_number",
@@ -93,7 +91,16 @@ def test_radiative_rate_solver_init(new_chianti_atomic_dataset,regression_data):
 def test_radiative_rate_solver_solve(new_chianti_atomic_dataset, mock_radiation_field, regression_data):
     einstein_coefficients_df = new_chianti_atomic_dataset.lines.xs((1,0),drop_level=False)
     solver = RadiativeRatesSolver(einstein_coefficients_df)
-    actual_radiative_rates = solver.solve(mock_radiation_field)
+    mean_intensity = mock_radiation_field.calculate_mean_intensity(
+        einstein_coefficients_df.nu.values
+    )
+    actual_radiative_rates = solver.solve(
+        pd.DataFrame(
+            mean_intensity,
+            index=einstein_coefficients_df.index,
+            columns=pd.Index(range(mean_intensity.shape[1]), dtype=object),
+        )
+    )
     expected_radiative_rates = regression_data.sync_dataframe(
         actual_radiative_rates, key="solved_radiative_rates"
     )
@@ -102,4 +109,3 @@ def test_radiative_rate_solver_solve(new_chianti_atomic_dataset, mock_radiation_
 @pytest.mark.xfail(strict=True, raises=AssertionError)
 def test_invalid_coefficients(invalid_coefficients):
     solver = RadiativeRatesSolver(invalid_coefficients)
-    

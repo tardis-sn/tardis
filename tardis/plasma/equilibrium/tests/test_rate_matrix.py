@@ -1,5 +1,3 @@
-from typing import Literal
-
 import astropy.units as u
 import numpy as np
 import numpy.testing as npt
@@ -12,7 +10,10 @@ from tardis.model.base import SimulationState
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix, RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    AnalyticIonRateMatrix,
+    RateMatrix,
+)
 from tardis.plasma.equilibrium.rates import (
     AnalyticPhotoionizationRateSolver,
     CollisionalIonizationRateSolver,
@@ -26,16 +27,11 @@ from tardis.plasma.radiation_field import (
 
 def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[
-        tuple[
-            RadiativeRatesSolver | ThermalCollisionalRateSolver,
-            Literal["radiative", "electron"],
-        ]
-    ],
+    rate_solvers: tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
-        rate_solver_list, new_chianti_atomic_dataset_si.levels
+        *rate_solvers, new_chianti_atomic_dataset_si.levels
     )
     rad_field = DilutePlanckianRadiationField(
         collisional_simulation_state.t_radiative,
@@ -44,7 +40,7 @@ def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
     electron_dist = ThermalElectronEnergyDistribution(
         0,
         collisional_simulation_state.t_radiative,
-        1e6 * u.g / u.cm**3,
+        1e6 / u.cm**3,
     )
 
     matrices = rate_matrix_solver.solve(rad_field, electron_dist)
@@ -68,16 +64,11 @@ def test_bound_bound_rate_matrix_has_conservation_rows_and_physical_rates(
 
 def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
     new_chianti_atomic_dataset_si: AtomData,
-    rate_solver_list: list[
-        tuple[
-            RadiativeRatesSolver | ThermalCollisionalRateSolver,
-            Literal["radiative", "electron"],
-        ]
-    ],
+    rate_solvers: tuple[RadiativeRatesSolver, ThermalCollisionalRateSolver],
     collisional_simulation_state: SimulationState,
 ) -> None:
     rate_matrix_solver = RateMatrix(
-        rate_solver_list, new_chianti_atomic_dataset_si.levels
+        *rate_solvers, new_chianti_atomic_dataset_si.levels
     )
     rad_field = DilutePlanckianRadiationField(
         collisional_simulation_state.t_radiative,
@@ -86,7 +77,7 @@ def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
     electron_dist = ThermalElectronEnergyDistribution(
         0,
         collisional_simulation_state.t_radiative,
-        1e6 * u.g / u.cm**3,
+        1e6 / u.cm**3,
     )
     matrices = rate_matrix_solver.solve(rad_field, electron_dist)
 
@@ -104,12 +95,12 @@ def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
 
 def test_rate_matrix_solver(
     new_chianti_atomic_dataset_si,
-    rate_solver_list,
+    rate_solvers,
     collisional_simulation_state,
     regression_data,
 ):
     rate_matrix_solver = RateMatrix(
-        rate_solver_list, new_chianti_atomic_dataset_si.levels
+        *rate_solvers, new_chianti_atomic_dataset_si.levels
     )
 
     rad_field = DilutePlanckianRadiationField(
@@ -117,7 +108,7 @@ def test_rate_matrix_solver(
         dilution_factor=np.zeros_like(collisional_simulation_state.t_radiative),
     )
     electron_dist = ThermalElectronEnergyDistribution(
-        0, collisional_simulation_state.t_radiative, 1e6 * u.g / u.cm**3
+        0, collisional_simulation_state.t_radiative, 1e6 / u.cm**3
     )
 
     actual = rate_matrix_solver.solve(rad_field, electron_dist)
@@ -140,7 +131,7 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
             ),
         ]
     ).sort_values(["atomic_number", "ion_number", "level_number", "nu"])
-    rate_matrix_solver = IonRateMatrix(
+    rate_matrix_solver = AnalyticIonRateMatrix(
         AnalyticPhotoionizationRateSolver(photoionization_cross_sections),
         CollisionalIonizationRateSolver(photoionization_cross_sections),
     )
@@ -156,7 +147,14 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
         temperatures,
         electron_densities * u.cm**-3,
     )
-
+    helium_ionization_factor = pd.DataFrame(
+        [3.0e9, 5.0e9],
+        index=pd.MultiIndex.from_tuples(
+            [(2, 0), (2, 1)],
+            names=["atomic_number", "ion_number"],
+        ),
+        columns=[columns[0]],
+    ).reindex(columns=columns, method="ffill")
     level_index = mock_photoionization_cross_sections.index
     lte_level_population = pd.DataFrame(
         1.0e5, index=level_index, columns=columns
@@ -190,6 +188,7 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
         partition_function,
         boltzmann_factor,
         level_to_continuum_saha_factor=level_to_continuum_saha_factor,
+        lte_ionization_factor=helium_ionization_factor,
     )
     matrices = np.stack(rate_matrices.loc[1].to_numpy())
 
@@ -218,6 +217,22 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
     )
     assert radiative_recombination_at_one_step > 0.0
 
+    right_hand_side = np.array([0.0, 1.0, 0.0])
+    for shell_idx in range(1, len(columns)):
+        helium_population = np.linalg.solve(
+            rate_matrices.loc[2, columns[shell_idx]], right_hand_side
+        )
+        npt.assert_allclose(
+            helium_population[1] / helium_population[0],
+            helium_ionization_factor.loc[(2, 0), columns[shell_idx]]
+            / electron_densities[shell_idx],
+        )
+        npt.assert_allclose(
+            helium_population[2] / helium_population[1],
+            helium_ionization_factor.loc[(2, 1), columns[shell_idx]]
+            / electron_densities[shell_idx],
+        )
+
 
 @pytest.mark.parametrize("charge_conservation", [True, False])
 def test_ion_rate_matrix_solver(
@@ -228,7 +243,7 @@ def test_ion_rate_matrix_solver(
     charge_conservation,
     regression_data,
 ):
-    rate_matrix_solver = IonRateMatrix(
+    rate_matrix_solver = AnalyticIonRateMatrix(
         photoionization_rate_solver, collisional_ionization_rate_solver
     )
 
@@ -237,7 +252,7 @@ def test_ion_rate_matrix_solver(
         dilution_factor=np.zeros_like(collisional_simulation_state.t_radiative),
     )
     electron_dist = ThermalElectronEnergyDistribution(
-        0, collisional_simulation_state.t_radiative, 1e6 * u.g / u.cm**3
+        0, collisional_simulation_state.t_radiative, 1e6 / u.cm**3
     )
 
     lte_level_population = pd.DataFrame(

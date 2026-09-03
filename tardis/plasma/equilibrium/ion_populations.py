@@ -9,7 +9,10 @@ from scipy.optimize import brentq
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    AnalyticIonRateMatrix,
+    EstimatedIonRateMatrix,
+)
 from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -28,14 +31,14 @@ class IonPopulationSolver:
 
     def __init__(
         self,
-        rate_matrix_solver: IonRateMatrix,
+        rate_matrix_solver: AnalyticIonRateMatrix | EstimatedIonRateMatrix,
         max_solver_iterations: int = 100,
     ) -> None:
         """Solve the normalized ion population values from the rate matrices.
 
         Parameters
         ----------
-        rate_matrix_solver : IonRateMatrix
+        rate_matrix_solver : AnalyticIonRateMatrix | EstimatedIonRateMatrix
             Solver that builds ionization rate matrices.
         max_solver_iterations : int, optional
             Maximum iterations for lagged population-dependent corrections.
@@ -97,6 +100,7 @@ class IonPopulationSolver:
         boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -> npt.NDArray[np.float64]:
         """Solve elemental ion populations at supplied electron densities.
 
@@ -143,6 +147,11 @@ class IonPopulationSolver:
             partition_function,
             boltzmann_factor,
             level_to_continuum_saha_factor,
+            **(
+                {"lte_ionization_factor": lte_ionization_factor}
+                if lte_ionization_factor is not None
+                else {}
+            ),
         )
 
         ion_population_index = self.rate_matrix_solver.ion_population_index
@@ -214,6 +223,52 @@ class IonPopulationSolver:
         self.rates_matrices = rate_matrices
         return ion_population
 
+    def solve(
+        self,
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+        elemental_number_density: pd.DataFrame,
+        lte_level_population: pd.DataFrame,
+        estimated_level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        estimated_ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame | float,
+        boltzmann_factor: pd.DataFrame,
+        tolerance: float = 1e-14,
+        level_to_continuum_saha_factor: pd.DataFrame | None = None,
+        lte_ionization_factor: pd.DataFrame | None = None,
+    ) -> tuple[pd.DataFrame, pd.Series]:
+        """Solve ion populations while enforcing charge conservation."""
+        if level_to_continuum_saha_factor is None:
+            raise ValueError(
+                "level_to_continuum_saha_factor is required when charge "
+                "conservation is enabled."
+            )
+        bound_level_index = (
+            lte_level_population.index.get_level_values("ion_number")
+            < lte_level_population.index.get_level_values("atomic_number")
+        )
+        continuum_ion_index = (
+            lte_ion_population.index.get_level_values("ion_number") > 0
+        )
+        return self._solve_charge_conserving(
+            radiation_field,
+            thermal_electron_energy_distribution,
+            elemental_number_density,
+            lte_level_population.loc[bound_level_index],
+            estimated_level_population.loc[bound_level_index],
+            lte_ion_population.loc[continuum_ion_index],
+            estimated_ion_population.loc[continuum_ion_index],
+            partition_function,
+            boltzmann_factor.loc[bound_level_index],
+            level_to_continuum_saha_factor.loc[
+                lte_level_population.index[bound_level_index]
+            ],
+            tolerance,
+            lte_ionization_factor=lte_ionization_factor,
+        )
+
     def solve_charge_balance(
         self,
         electron_density: npt.NDArray[np.float64],
@@ -229,6 +284,7 @@ class IonPopulationSolver:
         level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
         maximum_electron_density: npt.NDArray[np.float64],
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """Solve ion populations and calculate the normalized charge residual.
 
@@ -266,20 +322,22 @@ class IonPopulationSolver:
             Absolute ion populations and normalized charge residuals for each
             shell.
         """
-        ion_population = self.solve_element_populations_at_electron_density(
-            electron_density,
-            radiation_field,
-            thermal_electron_energy_distribution,
-            lte_level_population,
-            estimated_level_population,
-            lte_ion_population,
-            estimated_ion_population,
-            partition_function,
-            boltzmann_factor,
-            level_to_continuum_saha_factor,
-            elemental_number_density,
+        ion_population = (
+            self.solve_element_populations_at_electron_density(
+                electron_density,
+                radiation_field,
+                thermal_electron_energy_distribution,
+                lte_level_population,
+                estimated_level_population,
+                lte_ion_population,
+                estimated_ion_population,
+                partition_function,
+                boltzmann_factor,
+                level_to_continuum_saha_factor,
+                elemental_number_density,
+                lte_ionization_factor=lte_ionization_factor,
+            )
         )
-
         charge_density = (
             ion_population
             * self.rate_matrix_solver.ion_population_index.get_level_values(
@@ -309,6 +367,7 @@ class IonPopulationSolver:
         level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
         maximum_electron_densities: npt.NDArray[np.float64],
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -> float:
         """Solve the charge balance for one shell.
 
@@ -378,6 +437,7 @@ class IonPopulationSolver:
                 level_to_continuum_saha_factor,
                 elemental_number_density,
                 maximum_electron_densities,
+                lte_ionization_factor=lte_ionization_factor,
             )[1][shell_idx]
 
         try:
@@ -400,7 +460,7 @@ class IonPopulationSolver:
 
         return electron_density_fraction * maximum_electron_density
 
-    def solve_charge_conserving(
+    def _solve_charge_conserving(
         self,
         radiation_field: DilutePlanckianRadiationField
         | PlanckianRadiationField,
@@ -414,6 +474,7 @@ class IonPopulationSolver:
         boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame,
         tolerance: float,
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -> tuple[pd.DataFrame, pd.Series]:
         """Solve ion populations while enforcing charge conservation.
 
@@ -491,6 +552,7 @@ class IonPopulationSolver:
                     level_to_continuum_saha_factor,
                     elemental_number_density,
                     maximum_electron_density_array,
+                    lte_ionization_factor=lte_ionization_factor,
                 )
             ion_population_solution, charge_residual = (
                 self.solve_charge_balance(
@@ -506,6 +568,7 @@ class IonPopulationSolver:
                     level_to_continuum_saha_factor,
                     elemental_number_density,
                     maximum_electron_density_array,
+                    lte_ionization_factor=lte_ionization_factor,
                 )
             )
             if estimated_population_indices is None:
@@ -561,16 +624,31 @@ class IonPopulationSolver:
                 )
 
             if len(estimated_population_indices) != 0:
-                estimated_population_values = estimated_ion_population.to_numpy(
-                    copy=True
-                )
-                estimated_population_values[estimated_population_indices] = (
+                estimated_ion_population = estimated_ion_population.copy()
+                estimated_ion_population.iloc[estimated_population_indices] = (
                     ion_population_solution[solution_population_indices]
                 )
-                estimated_ion_population = pd.DataFrame(
-                    estimated_population_values,
-                    index=estimated_ion_population.index,
-                    columns=estimated_ion_population.columns,
+                level_ion_index = estimated_level_population.index.droplevel(
+                    "level_number"
+                )
+                level_solution_indices = (
+                    self.rate_matrix_solver.ion_population_index.get_indexer(
+                        level_ion_index
+                    )
+                )
+                solved_levels = level_solution_indices >= 0
+                level_totals = estimated_level_population.groupby(
+                    level=["atomic_number", "ion_number"]
+                ).transform("sum")
+                level_fractions = estimated_level_population.divide(
+                    level_totals.where(level_totals != 0.0, 1.0)
+                )
+                estimated_level_population = estimated_level_population.copy()
+                estimated_level_population.iloc[solved_levels] = (
+                    level_fractions.to_numpy()[solved_levels]
+                    * ion_population_solution[
+                        level_solution_indices[solved_levels]
+                    ]
                 )
 
         raise PlasmaIonizationError(
@@ -578,7 +656,47 @@ class IonPopulationSolver:
             f"{self.max_solver_iterations} iterations."
         )
 
-    def solve_non_charge_conserving(
+class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
+    """Solve ion populations for a fixed electron density."""
+
+    def solve(
+        self,
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+        elemental_number_density: pd.DataFrame,
+        lte_level_population: pd.DataFrame,
+        estimated_level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        estimated_ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        boltzmann_factor: pd.DataFrame,
+        tolerance: float = 1e-14,
+        lte_ionization_factor: pd.DataFrame | None = None,
+    ) -> tuple[pd.DataFrame, pd.Series]:
+        """Solve ion populations without imposing charge conservation."""
+        bound_level_index = (
+            lte_level_population.index.get_level_values("ion_number")
+            < lte_level_population.index.get_level_values("atomic_number")
+        )
+        continuum_ion_index = (
+            lte_ion_population.index.get_level_values("ion_number") > 0
+        )
+        return self._solve_fixed_electron_density(
+            radiation_field,
+            thermal_electron_energy_distribution,
+            elemental_number_density,
+            lte_level_population.loc[bound_level_index],
+            estimated_level_population.loc[bound_level_index],
+            lte_ion_population.loc[continuum_ion_index],
+            estimated_ion_population.loc[continuum_ion_index],
+            partition_function,
+            boltzmann_factor.loc[bound_level_index],
+            tolerance,
+            lte_ionization_factor=lte_ionization_factor,
+        )
+
+    def _solve_fixed_electron_density(
         self,
         radiation_field: DilutePlanckianRadiationField
         | PlanckianRadiationField,
@@ -591,6 +709,7 @@ class IonPopulationSolver:
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         tolerance: float,
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -> tuple[pd.DataFrame, pd.Series]:
         """Solve ion populations without imposing charge conservation.
 
@@ -636,6 +755,11 @@ class IonPopulationSolver:
                 estimated_ion_population,
                 partition_function,
                 boltzmann_factor,
+                **(
+                    {"lte_ionization_factor": lte_ionization_factor}
+                    if lte_ionization_factor is not None
+                    else {}
+                ),
             )
             solved_matrices = pd.DataFrame(
                 index=self.rates_matrices.index,
@@ -699,100 +823,3 @@ class IonPopulationSolver:
             )
 
         return ion_population_solution, electron_population_solution
-
-    def solve(
-        self,
-        radiation_field: DilutePlanckianRadiationField
-        | PlanckianRadiationField,
-        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
-        elemental_number_density: pd.DataFrame,
-        lte_level_population: pd.DataFrame,
-        estimated_level_population: pd.DataFrame,
-        lte_ion_population: pd.DataFrame,
-        estimated_ion_population: pd.DataFrame,
-        partition_function: pd.DataFrame,
-        boltzmann_factor: pd.DataFrame,
-        charge_conservation: bool = False,
-        tolerance: float = 1e-14,
-        level_to_continuum_saha_factor: pd.DataFrame | None = None,
-    ) -> tuple[pd.DataFrame, pd.Series]:
-        """Solves the normalized ion population values from the rate matrices.
-
-        Parameters
-        ----------
-        radiation_field : RadiationField
-            A radiation field that can compute its mean intensity.
-        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
-            Electron properties.
-        elemental_number_density : pd.DataFrame
-            Elemental number density. Index is atomic number, columns are cells.
-        lte_level_population : pd.DataFrame
-            LTE level number density. Columns are cells.
-        estimated_level_population : pd.DataFrame
-            Estimated level number density. Columns are cells.
-        lte_ion_population : pd.DataFrame
-            LTE ion number density. Columns are cells.
-        estimated_ion_population : pd.DataFrame
-            Estimated ion number density. Columns are cells.
-        partition_function : pandas.DataFrame or float
-            Partition function values used by the rate solver.
-        boltzmann_factor : pd.DataFrame
-            Boltzmann factors used by the rate solver.
-        charge_conservation : bool, optional
-            Whether to solve one shared charge-conserving electron density per
-            shell.
-        tolerance : float, optional
-            Tolerance for convergence of the ion population solver.
-        level_to_continuum_saha_factor : pd.DataFrame, optional
-            Density-independent Lucy level-to-continuum Saha factor. Required
-            when charge conservation varies the trial electron density.
-
-        Returns
-        -------
-        pd.DataFrame
-            Ion population values indexed by atomic number and ion number.
-            Columns are cells.
-        pd.Series
-            Electron number densities indexed by cell.
-        """
-        bound_level_index = lte_level_population.index.get_level_values(
-            "ion_number"
-        ) < lte_level_population.index.get_level_values("atomic_number")
-        continuum_ion_index = (
-            lte_ion_population.index.get_level_values("ion_number") > 0
-        )
-
-        if charge_conservation:
-            if level_to_continuum_saha_factor is None:
-                raise ValueError(
-                    "level_to_continuum_saha_factor is required when "
-                    "charge_conservation is enabled."
-                )
-            return self.solve_charge_conserving(
-                radiation_field,
-                thermal_electron_energy_distribution,
-                elemental_number_density,
-                lte_level_population.loc[bound_level_index],
-                estimated_level_population.loc[bound_level_index],
-                lte_ion_population.loc[continuum_ion_index],
-                estimated_ion_population.loc[continuum_ion_index],
-                partition_function,
-                boltzmann_factor.loc[bound_level_index],
-                level_to_continuum_saha_factor.loc[
-                    lte_level_population.index[bound_level_index]
-                ],
-                tolerance,
-            )
-
-        return self.solve_non_charge_conserving(
-            radiation_field,
-            thermal_electron_energy_distribution,
-            elemental_number_density,
-            lte_level_population.loc[bound_level_index],
-            estimated_level_population.loc[bound_level_index],
-            lte_ion_population.loc[continuum_ion_index],
-            estimated_ion_population.loc[continuum_ion_index],
-            partition_function,
-            boltzmann_factor.loc[bound_level_index],
-            tolerance,
-        )

@@ -2,19 +2,15 @@ import numpy as np
 import numpy.testing as ntest
 import pytest
 
-
 from tardis.spectrum.formal_integral.base import (
     check_formal_integral_requirements,
     intensity_black_body,
 )
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.spectrum.formal_integral.formal_integral_numba import (
     calculate_impact_parameters as calculate_impact_parameters_numba,
-    intensity_black_body as intensity_black_body_numba,
 )
-from tardis.spectrum.formal_integral.formal_integral_cuda import (
-    calculate_impact_parameters as calculate_impact_parameters_cuda,
-    intensity_black_body_cuda,
+from tardis.spectrum.formal_integral.formal_integral_numba import (
+    intensity_black_body as intensity_black_body_numba,
 )
 
 
@@ -33,7 +29,9 @@ def test_check_formal_integral_requirements(
     assert check_formal_integral_requirements(sim_state, plasma, transport)
 
     # should return false
-    warning_match = "The integrator is missing either model, opacity state or transport"
+    warning_match = (
+        "The integrator is missing either model, opacity state or transport"
+    )
     with pytest.warns(UserWarning, match=warning_match):
         assert not check_formal_integral_requirements(
             None, plasma, transport, raises=False
