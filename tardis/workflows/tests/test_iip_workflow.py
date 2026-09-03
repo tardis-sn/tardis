@@ -24,7 +24,7 @@ from tardis.plasma.electron_energy_distribution import (
 )
 from tardis.plasma.equilibrium.evaluator import PlasmaEquilibriumEvaluator
 from tardis.plasma.equilibrium.inputs import (
-    NumberDensityPerShell,
+    ShellNumberDensity,
     SobolevInputs,
 )
 from tardis.plasma.equilibrium.ion_populations import (
@@ -1338,15 +1338,23 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
     Verification: The expected values follow by direct multiplication and
     hand interleaving of the recorded evaluator result.
     """
+    # Skip full workflow construction because this check needs only the state
+    # read by thermal_balance_iteration, not a configured simulation.
     workflow = TypeIIPWorkflow.__new__(TypeIIPWorkflow)
+    # SimpleNamespace provides the sole plasma value used here: each shell's
+    # radiation temperature.
     workflow.plasma_solver = SimpleNamespace(t_rad=np.array([1.0e4, 2.0e4]))
     level_initial_guess = pd.DataFrame([[0.6, 0.7], [0.4, 0.3]])
     workflow._thermal_balance_level_initial_guess = level_initial_guess
 
+    # Record the physical values received and return fixed balance errors so
+    # this test checks scaling and shell order without running a plasma solve.
     class RecordingEvaluator:
         def __init__(self) -> None:
             self.call_count = 0
             self.arguments: tuple[object, ...] | None = None
+            # SimpleNamespace contains only the two evaluator results consumed
+            # by thermal_balance_iteration.
             self.result = SimpleNamespace(
                 electron_residual=pd.Series([0.1, -0.2]),
                 fractional_heating=pd.Series([0.3, -0.4]),
@@ -1467,7 +1475,7 @@ def test_evaluator_matches_iip_five_shell_path(
         )
     )
     population_geometries = tuple(
-        NumberDensityPerShell(
+        ShellNumberDensity(
             plasma.number_density.loc[1, shell],
             plasma.level_number_density[shell].to_numpy(dtype=np.float64),
             hydrogen_level_positions,

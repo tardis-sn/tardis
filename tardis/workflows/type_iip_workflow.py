@@ -21,7 +21,7 @@ from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.opacities.tau_sobolev import SOBOLEV_COEFFICIENT
 from tardis.plasma.equilibrium.evaluator import PlasmaEquilibriumEvaluator
 from tardis.plasma.equilibrium.inputs import (
-    NumberDensityPerShell,
+    ShellNumberDensity,
     SobolevInputs,
 )
 from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
@@ -578,9 +578,7 @@ class TypeIIPWorkflow:
         estimators.stim_recomb_estimator[:] = (
             np.asarray(plasma.stim_recomb_estimator) * estimator_scale
         )
-        estimators.bf_heating_estimator[:] = np.asarray(
-            plasma.bf_heating_coeff
-        )
+        estimators.bf_heating_estimator[:] = np.asarray(plasma.bf_heating_coeff)
         estimators.stim_recomb_cooling_estimator[:] = np.asarray(
             plasma.stim_recomb_cooling_coeff
         )
@@ -615,11 +613,9 @@ class TypeIIPWorkflow:
             )
         )
         population_geometries = tuple(
-            NumberDensityPerShell(
+            ShellNumberDensity(
                 plasma.number_density.loc[1, shell],
-                plasma.level_number_density[shell].to_numpy(
-                    dtype=np.float64
-                ),
+                plasma.level_number_density[shell].to_numpy(dtype=np.float64),
                 hydrogen_level_positions,
             )
             for shell in plasma.number_density.columns
@@ -787,8 +783,7 @@ class TypeIIPWorkflow:
         )
         evaluation = self._thermal_balance_evaluator.evaluate(
             electron_densities,
-            self._thermal_balance_radiation_temperature
-            * link_t_rad_t_electron,
+            self._thermal_balance_radiation_temperature * link_t_rad_t_electron,
             self._thermal_balance_level_initial_guess,
         )
 
@@ -868,9 +863,7 @@ class TypeIIPWorkflow:
         initial_guess = np.zeros(2 * len(link_t_rad_t_electron_start))
         initial_guess[::2] = initial_electron_fraction
         initial_guess[1::2] = link_t_rad_t_electron_start
-        self._initialize_thermal_balance_evaluator(
-            max_electron_number_density
-        )
+        self._initialize_thermal_balance_evaluator(max_electron_number_density)
         no_shells = self.simulation_state.geometry.no_of_shells_active
 
         jac_sparsity = block_diag([np.ones((2, 2))] * no_shells)
@@ -907,9 +900,7 @@ class TypeIIPWorkflow:
                 "clipping to bounds: %s",
                 offending_values,
             )
-            initial_guess = np.clip(
-                initial_guess, lower_bound, upper_bound
-            )
+            initial_guess = np.clip(initial_guess, lower_bound, upper_bound)
 
         self.plasma_solver.plasma_converged = False
         thermal_lsq_result = lsq(

@@ -30,7 +30,7 @@ class LevelEquationRates:
 
 
 @dataclass(frozen=True)
-class NumberDensityPerShell:
+class ShellNumberDensity:
     """Absolute population information fixed for one shell."""
 
     hydrogen_number_density: float

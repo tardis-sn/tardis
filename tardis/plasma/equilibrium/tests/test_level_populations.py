@@ -14,7 +14,7 @@ from tardis.plasma.equilibrium.evaluator import (
 )
 from tardis.plasma.equilibrium.inputs import (
     LevelEquationRates,
-    NumberDensityPerShell,
+    ShellNumberDensity,
     SobolevInputs,
 )
 from tardis.plasma.equilibrium.ion_populations import (
@@ -180,7 +180,7 @@ def test_reduced_nlte_residual_recomputes_q_and_beta() -> None:
         np.array([1.0e4]) * u.K,
         np.array([1.0e9]) / u.cm**3,
     )
-    population = NumberDensityPerShell(
+    population = ShellNumberDensity(
         1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
     )
     sobolev = SobolevInputs(

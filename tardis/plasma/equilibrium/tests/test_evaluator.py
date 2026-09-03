@@ -14,7 +14,7 @@ from tardis.plasma.equilibrium.evaluator import (
     PlasmaEquilibriumEvaluator,
 )
 from tardis.plasma.equilibrium.inputs import (
-    NumberDensityPerShell,
+    ShellNumberDensity,
     SobolevInputs,
 )
 from tardis.plasma.equilibrium.rate_matrix import RateMatrix
@@ -91,7 +91,7 @@ def toy_evaluator() -> PlasmaEquilibriumEvaluator:
         ZeroElectronRateSolver(),
         levels,
     )
-    population_geometry = NumberDensityPerShell(
+    population_geometry = ShellNumberDensity(
         1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
     )
     sobolev_inputs = SobolevInputs(
@@ -267,10 +267,15 @@ def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
     )
     stalled_fractions = np.array([0.4, 0.6])
 
+    # Replace SciPy's root finder with a controlled stopped result. The
+    # SimpleNamespace supplies only the status and population returned by
+    # SciPy, keeping this check focused on the evaluator's acceptance rule.
     def stalled_root(*args: object, **kwargs: object) -> SimpleNamespace:
         del args, kwargs
         return SimpleNamespace(success=False, x=stalled_fractions)
 
+    # monkeypatch limits the replacement to this test and restores the real
+    # root finder afterward.
     monkeypatch.setattr(
         "tardis.plasma.equilibrium.evaluator.root", stalled_root
     )
@@ -390,6 +395,8 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
     maximum_electron_density = 1.0e10
     radiation_temperature = 1.0e4
 
+    # Prescribe the ion and electron densities at the analytic charge root,
+    # independent of the full ion-population calculation.
     class ChargeSolver:
         def solve(self, **kwargs: object) -> tuple[pd.DataFrame, pd.Series]:
             del kwargs
@@ -405,6 +412,8 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
                 pd.Series([target_electron_density], index=[0]),
             )
 
+    # Use a linear heating relation with an exact zero at 8000 K so the
+    # expected thermal root is known before the evaluator is called.
     class ThermalSolver:
         def solve(
             self,
