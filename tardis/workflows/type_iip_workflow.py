@@ -741,7 +741,7 @@ class TypeIIPWorkflow:
         self,
         maximum_electron_density: npt.NDArray[np.float64],
     ) -> None:
-        """Freeze the evaluator and level seed for one outer solve."""
+        """Freeze the evaluator and level initial guess for one outer solve."""
         plasma = self.plasma_solver
         hydrogen_species = plasma.nlte_species[0]
         self._thermal_balance_evaluator = self._build_thermal_balance_evaluator(
@@ -750,9 +750,11 @@ class TypeIIPWorkflow:
         self._thermal_balance_radiation_temperature = np.asarray(
             plasma.t_rad, dtype=np.float64
         ).copy()
-        self._thermal_balance_level_seed = plasma.level_number_density.loc[
-            hydrogen_species
-        ].divide(plasma.ion_number_density.loc[hydrogen_species], axis=1)
+        self._thermal_balance_level_initial_guess = (
+            plasma.level_number_density.loc[hydrogen_species].divide(
+                plasma.ion_number_density.loc[hydrogen_species], axis=1
+            )
+        )
 
     def thermal_balance_iteration(
         self,
@@ -787,7 +789,7 @@ class TypeIIPWorkflow:
             electron_densities,
             self._thermal_balance_radiation_temperature
             * link_t_rad_t_electron,
-            self._thermal_balance_level_seed,
+            self._thermal_balance_level_initial_guess,
         )
 
         electron_residual = evaluation.electron_residual.to_numpy()
@@ -933,7 +935,7 @@ class TypeIIPWorkflow:
                 max_electron_number_density * accepted_candidate[::2],
                 self._thermal_balance_radiation_temperature
                 * accepted_candidate[1::2],
-                self._thermal_balance_level_seed,
+                self._thermal_balance_level_initial_guess,
             )
         )
         self._publish_legacy_thermal_balance_state(

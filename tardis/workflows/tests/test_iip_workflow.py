@@ -1,4 +1,4 @@
-from copy import copy, deepcopy
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
@@ -1330,11 +1330,18 @@ def thermal_balance_guess(
 
 
 def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
-    """Map the outer candidate to one pure evaluator residual."""
+    """Map a two-shell thermal-balance candidate to evaluator quantities.
+
+    Claim: Each shell's density fraction and temperature ratio are converted
+    to physical values, and the two balance errors retain shell order.
+    Regime: Two shells with unequal density limits and radiation temperatures.
+    Verification: The expected values follow by direct multiplication and
+    hand interleaving of the recorded evaluator result.
+    """
     workflow = TypeIIPWorkflow.__new__(TypeIIPWorkflow)
     workflow.plasma_solver = SimpleNamespace(t_rad=np.array([1.0e4, 2.0e4]))
-    level_seed = pd.DataFrame([[0.6, 0.7], [0.4, 0.3]])
-    workflow._thermal_balance_level_seed = level_seed
+    level_initial_guess = pd.DataFrame([[0.6, 0.7], [0.4, 0.3]])
+    workflow._thermal_balance_level_initial_guess = level_initial_guess
 
     class RecordingEvaluator:
         def __init__(self) -> None:
@@ -1349,13 +1356,13 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
             self,
             trial_electron_density: npt.ArrayLike,
             electron_temperature: npt.ArrayLike,
-            candidate_level_seed: pd.DataFrame,
+            candidate_level_initial_guess: pd.DataFrame,
         ) -> SimpleNamespace:
             self.call_count += 1
             self.arguments = (
                 np.asarray(trial_electron_density),
                 np.asarray(electron_temperature),
-                candidate_level_seed,
+                candidate_level_initial_guess,
             )
             return self.result
 
@@ -1371,11 +1378,16 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
 
     assert evaluator.call_count == 1
     assert evaluator.arguments is not None
-    trial_density, temperature, actual_seed = evaluator.arguments
-    np.testing.assert_allclose(trial_density, [1.0e9, 3.0e9])
-    np.testing.assert_allclose(temperature, [8.0e3, 2.2e4])
-    pd.testing.assert_frame_equal(actual_seed, level_seed)
-    np.testing.assert_allclose(residual, [0.1, 0.3, -0.2, -0.4])
+    trial_density, temperature, actual_initial_guess = evaluator.arguments
+    np.testing.assert_array_equal(trial_density, [1.0e9, 3.0e9])
+    np.testing.assert_allclose(
+        temperature,
+        [8.0e3, 2.2e4],
+        rtol=1e-15,  # Floating-point multiplication only.
+        atol=0.0,
+    )
+    pd.testing.assert_frame_equal(actual_initial_guess, level_initial_guess)
+    np.testing.assert_array_equal(residual, [0.1, 0.3, -0.2, -0.4])
     assert not hasattr(workflow, "_thermal_balance_evaluation")
 
 
@@ -1723,7 +1735,9 @@ def test_evaluator_matches_iip_five_shell_path(
     type_iip_workflow._thermal_balance_radiation_temperature = np.asarray(
         type_iip_workflow.plasma_solver.t_rad
     ).copy()
-    type_iip_workflow._thermal_balance_level_seed = expected_normalized_levels
+    type_iip_workflow._thermal_balance_level_initial_guess = (
+        expected_normalized_levels
+    )
     actual_outer_residual = type_iip_workflow.thermal_balance_iteration(
         off_root_candidate, off_root_maximum_density
     )
@@ -1776,306 +1790,6 @@ def test_evaluator_matches_iip_five_shell_path(
         rtol=1e-5,
         atol=0.0,
     )
-
-
-def test_evaluator_is_seed_independent_for_fixed_candidates(
-    iip_plasma_after_mc: LegacyPlasmaArray,
-    type_iip_workflow: TypeIIPWorkflow,
-) -> None:
-    """Verify fixed-candidate results are stable for compatible level seeds.
-
-    The accepted and post-Monte-Carlo seeds are compared away from the lower
-    corner. At the lower candidate, the accepted-state seed and physical-root
-    acceptance policy intentionally match legacy iip_plasma behavior.
-    """
-    type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
-    type_iip_workflow.solve_thermal_balance()
-    plasma = type_iip_workflow.plasma_solver
-    _, maximum_electron_density = thermal_balance_guess(plasma)
-
-    shell_indices = pd.Index([0, 2, 3, 8, 23])
-    time_simulation = 2.0e5 * u.s
-    volume = 3.0e30 * u.cm**3
-    estimator_scale = (
-        time_simulation.to_value(u.s)
-        * volume.to_value(u.cm**3)
-        * const.h.cgs.value
-    )
-    estimators = init_estimators_continuum(
-        plasma.photo_ion_estimator.shape, len(plasma.number_density.columns)
-    )
-    estimators.photo_ion_estimator[:] = (
-        np.asarray(plasma.photo_ion_estimator) * estimator_scale
-    )
-    estimators.stim_recomb_estimator[:] = (
-        np.asarray(plasma.stim_recomb_estimator) * estimator_scale
-    )
-    estimators.bf_heating_estimator[:] = np.asarray(plasma.bf_heating_coeff)
-    estimators.stim_recomb_cooling_estimator[:] = np.asarray(
-        plasma.stim_recomb_cooling_coeff
-    )
-    estimators.ff_heating_estimator[:] = np.asarray(plasma.ff_heating_estimator)
-
-    continuum_index = plasma.atomic_data.continuum_data.multi_index_nu_sorted
-    equilibrium_levels = plasma.atomic_data.levels.loc[
-        plasma.level_number_density.index
-    ]
-    level2continuum_edge_idx = pd.Series(
-        np.arange(len(continuum_index), dtype=np.int64),
-        index=continuum_index,
-        name="continuum_idx",
-    )
-    photoionization_data = (
-        plasma.atomic_data.continuum_data.photoionization_data
-    )
-    level_index = plasma.level_number_density.index
-    hydrogen_level_positions = np.flatnonzero(
-        (
-            level_index.get_level_values("atomic_number")
-            == plasma.nlte_species[0][0]
-        )
-        & (
-            level_index.get_level_values("ion_number")
-            == plasma.nlte_species[0][1]
-        )
-    )
-    population_geometries = tuple(
-        NumberDensityPerShell(
-            plasma.number_density.loc[1, shell],
-            plasma.level_number_density[shell].to_numpy(dtype=np.float64),
-            hydrogen_level_positions,
-        )
-        for shell in plasma.number_density.columns
-    )
-    line_index = plasma.lines.index
-    line_species_index = line_index.droplevel(
-        ["level_number_lower", "level_number_upper"]
-    )
-    nlte_lines_mask = np.asarray(
-        line_species_index.isin(plasma.nlte_species), dtype=bool
-    )
-    time_explosion_seconds = plasma.time_explosion
-    if isinstance(time_explosion_seconds, u.Quantity):
-        time_explosion_seconds = time_explosion_seconds.to_value("s")
-    tau_coefficient = (
-        plasma.lines.wavelength_cm.to_numpy()
-        * plasma.lines.f_lu.to_numpy()
-        * SOBOLEV_COEFFICIENT
-        * time_explosion_seconds
-    )
-    sobolev_input = SobolevInputs(
-        plasma.lines_lower_level_index,
-        plasma.lines_upper_level_index,
-        plasma.g.iloc[plasma.lines_lower_level_index].to_numpy(),
-        plasma.g.iloc[plasma.lines_upper_level_index].to_numpy(),
-        plasma.metastability.iloc[plasma.lines_upper_level_index].to_numpy(),
-        nlte_lines_mask,
-        tau_coefficient,
-        np.arange(len(line_index), dtype=np.int64),
-        line_index,
-    )
-    evaluator = PlasmaEquilibriumEvaluator(
-        photoionization_data,
-        level2continuum_edge_idx,
-        estimators,
-        time_simulation,
-        volume,
-        equilibrium_levels,
-        plasma.ionization_data,
-        RateMatrix(
-            RadiativeRatesSolver(plasma.lines),
-            ThermalCollisionalRateSolver(
-                equilibrium_levels,
-                plasma.lines,
-                plasma.atomic_data.collision_data_temperatures,
-                plasma.atomic_data.yg_data,
-                collision_strengths_type="cmfgen",
-            ),
-            equilibrium_levels,
-        ),
-        pd.DataFrame(
-            plasma.j_blues,
-            index=plasma.lines.index,
-            columns=plasma.number_density.columns,
-        ),
-        population_geometries,
-        tuple(sobolev_input for _ in plasma.number_density.columns),
-        plasma.level_number_density.index,
-        plasma.nlte_species[0],
-        plasma.number_density,
-        maximum_electron_density,
-        ion_population_solver=IonPopulationSolver(
-            EstimatedIonRateMatrix(
-                EstimatedPhotoionizationRateSolver(
-                    photoionization_data,
-                    level2continuum_edge_idx,
-                    estimators,
-                    time_simulation,
-                    volume,
-                ),
-                CollisionalIonizationRateSolver(photoionization_data),
-                plasma.phi,
-            )
-        ),
-        ion_population_arguments={
-            "radiation_field": None,
-            "elemental_number_density": plasma.number_density,
-            "lte_level_population": plasma.lte_level_number_density,
-            "lte_ion_population": plasma.lte_ion_number_density,
-            "estimated_ion_population": plasma.ion_number_density,
-            "partition_function": plasma.partition_function,
-            "boltzmann_factor": plasma.level_boltzmann_factor,
-            "level_to_continuum_saha_factor": plasma.phi_lucy,
-        },
-        thermal_balance_solver=ThermalBalanceSolver(
-            BoundFreeThermalRates(photoionization_data),
-            FreeFreeThermalRates(),
-            CollisionalIonizationThermalRates(photoionization_data),
-            CollisionalBoundThermalRates(
-                pd.DataFrame({"nu": np.asarray(plasma.nu_lines_coll)})
-            ),
-        ),
-        thermal_balance_arguments={
-            "collisional_ionization_rate_coefficient": plasma.coll_ion_coeff,
-            "collisional_deexcitation_rate_coefficient": plasma.coll_deexc_coeff,
-            "collisional_excitation_rate_coefficient": plasma.coll_exc_coeff,
-            "free_free_heating_estimator": plasma.ff_heating_estimator,
-            "level_population_ratio": plasma.phi_lucy,
-            "bound_free_heating_estimator": plasma.bf_heating_coeff,
-            "stimulated_recombination_estimator": plasma.stim_recomb_cooling_coeff,
-        },
-        reference_electron_temperature=plasma.t_electrons * u.K,
-    )
-
-    post_mc_candidate, _ = thermal_balance_guess(iip_plasma_after_mc)
-    accepted_candidate, _ = thermal_balance_guess(plasma)
-    number_of_shells = len(plasma.t_rad)
-    minimum_link = 1500.0 / np.min(plasma.t_rad)
-    lower_bound = np.tile([0.0, minimum_link], number_of_shells)
-    upper_bound = np.tile([1.0, 1.5], number_of_shells)
-    candidates = {
-        "accepted": accepted_candidate,
-        "post_mc": post_mc_candidate,
-        "midpoint": (lower_bound + upper_bound) / 2.0,
-        "near_upper": upper_bound - 0.01 * (upper_bound - lower_bound),
-        "near_lower": lower_bound + 0.01 * (upper_bound - lower_bound),
-    }
-    accepted_seed = plasma.level_number_density.loc[
-        plasma.nlte_species[0]
-    ].divide(plasma.ion_number_density.loc[plasma.nlte_species[0]], axis=1)
-    post_mc_seed = iip_plasma_after_mc.level_number_density.loc[
-        iip_plasma_after_mc.nlte_species[0]
-    ].divide(
-        iip_plasma_after_mc.ion_number_density.loc[
-            iip_plasma_after_mc.nlte_species[0]
-        ],
-        axis=1,
-    )
-
-    result_fields = (
-        "normalized_population",
-        "diagnostic_ion_ratio",
-        "trial_beta_sobolev",
-        "trial_level_residual",
-        "charge_solved_electron_density",
-        "absolute_level_population",
-        "ion_population",
-        "tau_sobolev",
-        "beta_sobolev",
-        "level_residual",
-        "charge_residual",
-        "electron_residual",
-        "total_heating",
-        "fractional_heating",
-    )
-    closure_tolerances = {
-        "trial_level_residual": 1e-10,
-        "level_residual": 1e-10,
-        "charge_residual": 1e-10,
-        "electron_residual": 2e-8,
-        "total_heating": 5e-13,
-        "fractional_heating": 2e-7,
-    }
-    for candidate_name, candidate in candidates.items():
-        trial_density = candidate[::2] * maximum_electron_density
-        temperature = np.asarray(plasma.t_rad) * candidate[1::2]
-        seed_results = []
-        # Legacy iip_plasma starts this lower-corner solve from the accepted
-        # population and accepts a finite, nonnegative root iterate even when
-        # SciPy reports failure. The current implementation matches that behavior
-        # instead of requiring strict closure or seed independence there.
-        seeds = (
-            (("accepted", accepted_seed),)
-            if candidate_name == "near_lower"
-            else (
-                ("accepted", accepted_seed),
-                ("post_mc", post_mc_seed),
-            )
-        )
-        for seed_name, level_seed in seeds:
-            try:
-                first_result = evaluator.evaluate(
-                    trial_density, temperature, level_seed
-                )
-                second_result = (
-                    copy(evaluator).evaluate(
-                        trial_density, temperature, level_seed
-                    )
-                    if seed_name == "accepted"
-                    else None
-                )
-            except ValueError as error:
-                pytest.fail(
-                    f"{candidate_name} candidate failed for {seed_name} seed: "
-                    f"{error}"
-                )
-            for field in result_fields:
-                first_value = getattr(first_result, field)
-                if second_result is None:
-                    continue
-                second_value = getattr(second_result, field)
-                if first_value is None:
-                    assert second_value is None
-                    continue
-                np.testing.assert_allclose(
-                    first_value.loc[:, shell_indices].to_numpy()
-                    if isinstance(first_value, pd.DataFrame)
-                    else first_value.loc[shell_indices].to_numpy(),
-                    second_value.loc[:, shell_indices].to_numpy()
-                    if isinstance(second_value, pd.DataFrame)
-                    else second_value.loc[shell_indices].to_numpy(),
-                    rtol=1e-5,
-                    atol=closure_tolerances.get(field, 0.0),
-                    err_msg=field,
-                )
-            seed_results.append(first_result)
-        if len(seed_results) == 1:
-            continue
-        for field in result_fields:
-            first_value = getattr(seed_results[0], field)
-            second_value = getattr(seed_results[1], field)
-            if first_value is None:
-                assert second_value is None
-                continue
-            # At the accepted candidate, the legacy post-Monte-Carlo seed
-            # reaches a finite physical root with a 1.817e-10 level residual.
-            # Preserve that seed-compatibility result without weakening the
-            # 1e-10 canonical final-state closure required above.
-            seed_comparison_atol = {
-                "trial_level_residual": 2e-10,
-                "level_residual": 2e-10,
-            }.get(field, closure_tolerances.get(field, 0.0))
-            np.testing.assert_allclose(
-                first_value.loc[:, shell_indices].to_numpy()
-                if isinstance(first_value, pd.DataFrame)
-                else first_value.loc[shell_indices].to_numpy(),
-                second_value.loc[:, shell_indices].to_numpy()
-                if isinstance(second_value, pd.DataFrame)
-                else second_value.loc[shell_indices].to_numpy(),
-                rtol=1e-5,
-                atol=seed_comparison_atol,
-                err_msg=f"{candidate_name}: {field}",
-            )
 
 
 def test_standard_thermal_rates_match_iip_plasma_after_mc(

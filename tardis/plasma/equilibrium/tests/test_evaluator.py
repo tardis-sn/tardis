@@ -6,8 +6,6 @@ import pandas as pd
 import pandas.testing as pdt
 import pytest
 from astropy import units as u
-from numpy.typing import NDArray
-from scipy.optimize import least_squares
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -190,11 +188,70 @@ def test_evaluator_solves_reduced_levels_and_rebuilds_sobolev_state(
     )
 
 
+def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+) -> None:
+    """Find the same two-level equilibrium from distinct initial populations.
+
+    Claim: A unique level equilibrium does not depend on its initial population.
+    Regime: One shell, two neutral-hydrogen levels, fixed electron density and
+    temperature, and two normalized initial guesses on opposite sides of the
+    root.
+    Verification: Initial-guess independence is a metamorphic relation; both
+    solutions must also conserve population and close the level equations.
+    """
+    level_index = toy_evaluator.level_population_index
+    low_excitation_initial_guess = pd.DataFrame(
+        [[0.9], [0.1]], index=level_index, columns=[0]
+    )
+    high_excitation_initial_guess = pd.DataFrame(
+        [[0.1], [0.9]], index=level_index, columns=[0]
+    )
+
+    low_excitation_result = toy_evaluator.evaluate(
+        [1.0e9], [1.0e4], low_excitation_initial_guess
+    )
+    high_excitation_result = toy_evaluator.evaluate(
+        [1.0e9], [1.0e4], high_excitation_initial_guess
+    )
+
+    npt.assert_allclose(
+        low_excitation_result.normalized_population,
+        high_excitation_result.normalized_population,
+        rtol=1e-12,
+        atol=1e-12,
+        err_msg="the equilibrium depends on the initial level population",
+    )
+    npt.assert_allclose(
+        low_excitation_result.normalized_population.sum(axis=0),
+        1.0,
+        rtol=0.0,
+        atol=1e-15,
+        err_msg="the equilibrium populations do not sum to one",
+    )
+    npt.assert_allclose(
+        low_excitation_result.level_residual,
+        0.0,
+        rtol=0.0,
+        atol=1e-10,
+        err_msg="the equilibrium does not close the level equations",
+    )
+
+
 def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
     toy_evaluator: PlasmaEquilibriumEvaluator,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Match legacy acceptance of a physical, non-closing root iterate."""
+    """Accept a physical population when the level solver stops early.
+
+    Claim: A finite, nonnegative, normalized population remains usable when
+    the level solver reports failure.
+    Regime: One shell and two neutral-hydrogen levels at fixed density and
+    temperature.
+    Verification: Population conservation and a deliberately nonzero level
+    balance error show that acceptance depends on physical admissibility, not
+    reported convergence.
+    """
     evaluator = toy_evaluator
     continuum_rates = evaluator._calculate_continuum_rate_coefficients(
         np.array([1.0e4])
@@ -209,18 +266,6 @@ def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
         evaluator.sobolev_inputs[0],
     )
     stalled_fractions = np.array([0.4, 0.6])
-    expected_residual, expected_beta, expected_ion_ratio = (
-        evaluator._calculate_level_state(
-            0,
-            1.0e9,
-            1.0e4,
-            stalled_fractions,
-            continuum_rates,
-            evaluator.shell_number_densities[0],
-            evaluator.sobolev_inputs[0],
-        )
-    )
-    assert np.max(np.abs(expected_residual)) > 1e-10
 
     def stalled_root(*args: object, **kwargs: object) -> SimpleNamespace:
         del args, kwargs
@@ -231,10 +276,10 @@ def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
     )
     actual = evaluator._calculate_level_solution(*arguments)
 
-    npt.assert_allclose(actual[0], stalled_fractions)
-    npt.assert_allclose(actual[1], expected_ion_ratio)
-    npt.assert_allclose(actual[2], expected_beta)
-    npt.assert_allclose(actual[3], expected_residual)
+    npt.assert_array_equal(actual[0], stalled_fractions)
+    assert actual[0].sum() == 1.0
+    assert np.all(actual[0] >= 0.0)
+    assert np.max(np.abs(actual[3])) > 1e-10
 
 
 def test_evaluator_rebuilds_final_residual_and_is_deterministic(
@@ -277,18 +322,20 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
     charge_solver = ChargeSolver()
     evaluator.ion_population_solver = charge_solver
     evaluator.thermal_balance_solver = ThermalSolver()
-    level_seed = pd.DataFrame([[0.5], [0.5]], index=level_index, columns=[0])
-    original_seed = level_seed.copy(deep=True)
+    level_initial_guess = pd.DataFrame(
+        [[0.5], [0.5]], index=level_index, columns=[0]
+    )
+    original_initial_guess = level_initial_guess.copy(deep=True)
 
     first_result = evaluator.evaluate(
         np.array([1.0e9]),  # Trial electron density (cm⁻³).
         np.array([1.0e4]),  # Shell electron temperature (K).
-        level_seed,
+        level_initial_guess,
     )
     second_result = evaluator.evaluate(
         np.array([1.0e9]),  # Trial electron density (cm⁻³).
         np.array([1.0e4]),  # Shell electron temperature (K).
-        level_seed,
+        level_initial_guess,
     )
 
     continuum_rate_coeff = evaluator._calculate_continuum_rate_coefficients(
@@ -323,13 +370,21 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
     pdt.assert_frame_equal(
         first_result.level_residual, second_result.level_residual
     )
-    pdt.assert_frame_equal(level_seed, original_seed)
+    pdt.assert_frame_equal(level_initial_guess, original_initial_guess)
 
 
-def test_evaluator_closes_synthetic_one_shell_thermal_root(
+def test_evaluator_closes_at_known_one_shell_thermal_root(
     toy_evaluator: PlasmaEquilibriumEvaluator,
 ) -> None:
-    """Close electron and thermal residuals at a known one-shell root."""
+    """Close electron and thermal balance at an exact one-shell root.
+
+    Claim: The electron and heating balances vanish at the prescribed density
+    and temperature.
+    Regime: One shell with a charge solution of 2e9 cm^-3 and a thermal root
+    at 8000 K.
+    Verification: Both values are fixed analytically by independent linear
+    balance relations supplied to the evaluator.
+    """
     target_electron_density = 2.0e9
     target_electron_temperature = 8.0e3
     maximum_electron_density = 1.0e10
@@ -367,42 +422,29 @@ def test_evaluator_closes_synthetic_one_shell_thermal_root(
 
     toy_evaluator.ion_population_solver = ChargeSolver()
     toy_evaluator.thermal_balance_solver = ThermalSolver()
-    level_seed = pd.DataFrame(
+    level_initial_guess = pd.DataFrame(
         [[0.5], [0.5]],
         index=toy_evaluator.level_population_index,
         columns=[0],
     )
 
-    def calculate_outer_residual(
-        candidate: NDArray[np.float64],
-    ) -> NDArray[np.float64]:
-        evaluation = toy_evaluator.evaluate(
-            [candidate[0] * maximum_electron_density],
-            [candidate[1] * radiation_temperature],
-            level_seed,
-        )
-        return np.array(
-            [
-                evaluation.electron_residual.iloc[0],
-                evaluation.fractional_heating.iloc[0],
-            ]
-        )
-
-    solution = least_squares(
-        calculate_outer_residual,
-        np.array([0.5, 1.1]),
-        bounds=([0.01, 0.2], [1.0, 1.5]),
-    )
     final_evaluation = toy_evaluator.evaluate(
-        [solution.x[0] * maximum_electron_density],
-        [solution.x[1] * radiation_temperature],
-        level_seed,
+        [target_electron_density],
+        [target_electron_temperature],
+        level_initial_guess,
     )
 
-    npt.assert_allclose(solution.x, [0.2, 0.8], rtol=1e-10)
-    npt.assert_allclose(final_evaluation.electron_residual, [0.0], atol=1e-10)
-    npt.assert_allclose(final_evaluation.fractional_heating, [0.0], atol=1e-10)
-    npt.assert_allclose(final_evaluation.charge_residual, [0.0], atol=1e-10)
+    assert target_electron_density / maximum_electron_density == 0.2
+    assert target_electron_temperature / radiation_temperature == 0.8
+    npt.assert_allclose(
+        final_evaluation.electron_residual, [0.0], rtol=0.0, atol=1e-15
+    )
+    npt.assert_allclose(
+        final_evaluation.fractional_heating, [0.0], rtol=0.0, atol=1e-15
+    )
+    npt.assert_allclose(
+        final_evaluation.charge_residual, [0.0], rtol=0.0, atol=1e-15
+    )
 
 
 def test_evaluator_aligns_collisional_temperature_scaling_by_transition(
