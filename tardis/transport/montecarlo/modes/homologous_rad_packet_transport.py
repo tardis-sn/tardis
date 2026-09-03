@@ -11,7 +11,7 @@ from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import get_doppler_factor
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
-    calculate_distance_line,
+    calculate_distance_line_homologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.estimators.estimators_line import (
@@ -105,7 +105,7 @@ def trace_packet(
         tau_trace_line_combined += tau_trace_line
 
         is_last_line = cur_line_id == last_line_id
-        distance_trace = calculate_distance_line(
+        distance_trace = calculate_distance_line_homologous(
             r_packet,
             comov_nu,
             is_last_line,

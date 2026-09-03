@@ -118,7 +118,6 @@ class MCRadiationFieldPropertiesSolver:
     ) -> np.ndarray:
         j_blues_norm_factor = (
             const.c.cgs
-            / velocity_gradient
             / (4 * np.pi * time_of_simulation * volume)
         )
         j_blues = j_blue_estimator * j_blues_norm_factor.cgs.value
