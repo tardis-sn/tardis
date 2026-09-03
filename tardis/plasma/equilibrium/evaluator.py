@@ -17,7 +17,7 @@ from tardis.plasma.electron_energy_distribution import (
 from tardis.plasma.equilibrium.inputs import (
     ContinuumRateCoefficients,
     LevelEquationRates,
-    ShellNumberDensity,
+    NumberDensityPerShell,
     SobolevInputs,
 )
 from tardis.plasma.equilibrium.rate_matrix import RateMatrix
@@ -69,7 +69,7 @@ def calculate_nlte_level_population_residual(
     j_blues: pd.DataFrame,
     thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
     species: tuple[int, int],
-    shell_number_density: ShellNumberDensity,
+    shell_number_density: NumberDensityPerShell,
     sobolev: SobolevInputs,
     level_density: npt.NDArray[np.float64] | None = None,
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
@@ -208,7 +208,7 @@ class PlasmaEquilibriumEvaluator:
         ionization_data: pd.Series,
         rate_matrix_solver: RateMatrix,
         j_blues: pd.DataFrame,
-        shell_number_densities: tuple[ShellNumberDensity, ...],
+        shell_number_densities: tuple[NumberDensityPerShell, ...],
         sobolev_inputs: tuple[SobolevInputs, ...],
         level_population_index: pd.MultiIndex,
         hydrogen_species: tuple[int, int],
@@ -242,7 +242,7 @@ class PlasmaEquilibriumEvaluator:
             Shared bound-bound matrix owner.
         j_blues : pandas.DataFrame
             Fixed post-Monte-Carlo line mean intensities.
-        shell_number_densities : tuple[ShellNumberDensity, ...]
+        shell_number_densities : tuple[NumberDensityPerShell, ...]
             Per-shell absolute number densities, level number densities and species level positions.
         sobolev_inputs : tuple[SobolevInputs, ...]
             Per-shell Sobolev line inputs.
@@ -428,7 +428,7 @@ class PlasmaEquilibriumEvaluator:
         electron_temperature: float,
         level_fractions: npt.NDArray[np.float64],
         continuum_rates: ContinuumRateCoefficients,
-        population_geometry: ShellNumberDensity,
+        population_geometry: NumberDensityPerShell,
         sobolev_inputs: SobolevInputs,
         level_density: npt.NDArray[np.float64] | None = None,
     ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
@@ -475,7 +475,7 @@ class PlasmaEquilibriumEvaluator:
         electron_temperature: float,
         level_seed: npt.NDArray[np.float64],
         continuum_rates: ContinuumRateCoefficients,
-        population_geometry: ShellNumberDensity,
+        population_geometry: NumberDensityPerShell,
         sobolev_inputs: SobolevInputs,
     ) -> tuple[
         npt.NDArray[np.float64],
@@ -484,6 +484,7 @@ class PlasmaEquilibriumEvaluator:
         npt.NDArray[np.float64],
     ]:
         """Solve one shell's normalized reduced level equations."""
+
         def residual(
             level_fractions: npt.NDArray[np.float64],
         ) -> npt.NDArray[np.float64]:
