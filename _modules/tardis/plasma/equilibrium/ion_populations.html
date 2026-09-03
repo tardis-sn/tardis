@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=8520f710"></script>
+      <script src="../../../../_static/documentation_options.js?v=ff56b056"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2293,6 +2293,11 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../api/tardis.opacities.sobolevs_from_levels.html">tardis.opacities.sobolevs_from_levels module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.sobolevs_from_levels.html#tardis.opacities.sobolevs_from_levels.calculate_sobolev_opacities_from_level_densities"><code class="docutils literal notranslate"><span class="pre">calculate_sobolev_opacities_from_level_densities()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.sobolevs_from_levels.html#tardis.opacities.sobolevs_from_levels.numba_calculate_beta_sobolev"><code class="docutils literal notranslate"><span class="pre">numba_calculate_beta_sobolev()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l6"><a class="reference internal" href="../../../../api/tardis.opacities.tau_sobolev.html">tardis.opacities.tau_sobolev module</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.BetaSobolev"><code class="docutils literal notranslate"><span class="pre">BetaSobolev</span></code></a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.BetaSobolev.calculate"><code class="docutils literal notranslate"><span class="pre">BetaSobolev.calculate()</span></code></a></li>
@@ -2309,7 +2314,6 @@
 </li>
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.calculate_beta_sobolev"><code class="docutils literal notranslate"><span class="pre">calculate_beta_sobolev()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.calculate_sobolev_line_opacity"><code class="docutils literal notranslate"><span class="pre">calculate_sobolev_line_opacity()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.numba_calculate_beta_sobolev"><code class="docutils literal notranslate"><span class="pre">numba_calculate_beta_sobolev()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2423,6 +2427,7 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.collisional_ionization_rates.html">tardis.plasma.equilibrium.rates.collisional_ionization_rates module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.collisional_ionization_rates.html#tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver"><code class="docutils literal notranslate"><span class="pre">CollisionalIonizationRateSolver</span></code></a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.collisional_ionization_rates.html#tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver.solve"><code class="docutils literal notranslate"><span class="pre">CollisionalIonizationRateSolver.solve()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.collisional_ionization_rates.html#tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver.solve_coefficients"><code class="docutils literal notranslate"><span class="pre">CollisionalIonizationRateSolver.solve_coefficients()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2473,6 +2478,7 @@
 </li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver"><code class="docutils literal notranslate"><span class="pre">EstimatedPhotoionizationRateSolver</span></code></a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve"><code class="docutils literal notranslate"><span class="pre">EstimatedPhotoionizationRateSolver.solve()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve_coefficients"><code class="docutils literal notranslate"><span class="pre">EstimatedPhotoionizationRateSolver.solve_coefficients()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2524,13 +2530,76 @@
 </ul>
 </li>
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html">tardis.plasma.equilibrium.evaluator module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.absolute_level_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.absolute_level_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.beta_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.beta_sobolev</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.charge_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.charge_residual</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.charge_solved_electron_density"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.charge_solved_electron_density</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.diagnostic_ion_ratio"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.diagnostic_ion_ratio</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.electron_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.electron_residual</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.fractional_heating"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.fractional_heating</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.ion_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.ion_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.level_residual</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.normalized_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.tau_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.tau_sobolev</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.total_heating"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.total_heating</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.trial_beta_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.trial_beta_sobolev</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.trial_electron_density"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.trial_electron_density</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.trial_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.trial_level_residual</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.evaluate"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.evaluate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_nlte_level_population_residual"><code class="docutils literal notranslate"><span class="pre">calculate_nlte_level_population_residual()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html">tardis.plasma.equilibrium.inputs module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.collisional_ionization"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.collisional_ionization</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.collisional_recombination"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.collisional_recombination</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.photoionization"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.photoionization</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.spontaneous_recombination"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.spontaneous_recombination</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.stimulated_recombination"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.stimulated_recombination</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.LevelEquationRates"><code class="docutils literal notranslate"><span class="pre">LevelEquationRates</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.LevelEquationRates.ionization"><code class="docutils literal notranslate"><span class="pre">LevelEquationRates.ionization</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.LevelEquationRates.ionization_loss_matrix"><code class="docutils literal notranslate"><span class="pre">LevelEquationRates.ionization_loss_matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.LevelEquationRates.recombination"><code class="docutils literal notranslate"><span class="pre">LevelEquationRates.recombination</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ShellNumberDensity"><code class="docutils literal notranslate"><span class="pre">ShellNumberDensity</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ShellNumberDensity.hydrogen_number_density"><code class="docutils literal notranslate"><span class="pre">ShellNumberDensity.hydrogen_number_density</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ShellNumberDensity.level_number_density"><code class="docutils literal notranslate"><span class="pre">ShellNumberDensity.level_number_density</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ShellNumberDensity.species_level_positions"><code class="docutils literal notranslate"><span class="pre">ShellNumberDensity.species_level_positions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs"><code class="docutils literal notranslate"><span class="pre">SobolevInputs</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.g_lower"><code class="docutils literal notranslate"><span class="pre">SobolevInputs.g_lower</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.g_upper"><code class="docutils literal notranslate"><span class="pre">SobolevInputs.g_upper</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.line_index"><code class="docutils literal notranslate"><span class="pre">SobolevInputs.line_index</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.line_indices"><code class="docutils literal notranslate"><span class="pre">SobolevInputs.line_indices</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.lines_lower_level_index"><code class="docutils literal notranslate"><span class="pre">SobolevInputs.lines_lower_level_index</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.lines_upper_level_index"><code class="docutils literal notranslate"><span class="pre">SobolevInputs.lines_upper_level_index</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.metastable_upper"><code class="docutils literal notranslate"><span class="pre">SobolevInputs.metastable_upper</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.nlte_lines_mask"><code class="docutils literal notranslate"><span class="pre">SobolevInputs.nlte_lines_mask</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.tau_coefficient"><code class="docutils literal notranslate"><span class="pre">SobolevInputs.tau_coefficient</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html">tardis.plasma.equilibrium.ion_populations module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.FixedElectronDensityIonPopulationSolver"><code class="docutils literal notranslate"><span class="pre">FixedElectronDensityIonPopulationSolver</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.FixedElectronDensityIonPopulationSolver.solve"><code class="docutils literal notranslate"><span class="pre">FixedElectronDensityIonPopulationSolver.solve()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_balance()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_charge_conserving()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_element_populations_at_electron_density"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_element_populations_at_electron_density()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_non_charge_conserving"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_non_charge_conserving()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_shell_charge"><code class="docutils literal notranslate"><span class="pre">IonPopulationSolver.solve_shell_charge()</span></code></a></li>
 </ul>
 </li>
@@ -2543,15 +2612,28 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.matrix_assembly.html">tardis.plasma.equilibrium.matrix_assembly module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.matrix_assembly.html#tardis.plasma.equilibrium.matrix_assembly.construct_rate_matrices"><code class="docutils literal notranslate"><span class="pre">construct_rate_matrices()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.matrix_assembly.html#tardis.plasma.equilibrium.matrix_assembly.normalize_rate_matrices"><code class="docutils literal notranslate"><span class="pre">normalize_rate_matrices()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.matrix_assembly.html#tardis.plasma.equilibrium.matrix_assembly.sum_duplicate_rates"><code class="docutils literal notranslate"><span class="pre">sum_duplicate_rates()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.matrix_assembly.html#tardis.plasma.equilibrium.matrix_assembly.sum_rate_frames"><code class="docutils literal notranslate"><span class="pre">sum_rate_frames()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html">tardis.plasma.equilibrium.rate_matrix module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.IonRateMatrix"><code class="docutils literal notranslate"><span class="pre">IonRateMatrix</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.IonRateMatrix.solve"><code class="docutils literal notranslate"><span class="pre">IonRateMatrix.solve()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.AnalyticIonRateMatrix"><code class="docutils literal notranslate"><span class="pre">AnalyticIonRateMatrix</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.AnalyticIonRateMatrix.solve"><code class="docutils literal notranslate"><span class="pre">AnalyticIonRateMatrix.solve()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.EstimatedIonRateMatrix"><code class="docutils literal notranslate"><span class="pre">EstimatedIonRateMatrix</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.EstimatedIonRateMatrix.solve"><code class="docutils literal notranslate"><span class="pre">EstimatedIonRateMatrix.solve()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.RateMatrix"><code class="docutils literal notranslate"><span class="pre">RateMatrix</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.RateMatrix.assemble_matrices"><code class="docutils literal notranslate"><span class="pre">RateMatrix.assemble_matrices()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.RateMatrix.solve"><code class="docutils literal notranslate"><span class="pre">RateMatrix.solve()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.assemble_ion_rate_matrices"><code class="docutils literal notranslate"><span class="pre">assemble_ion_rate_matrices()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html">tardis.plasma.equilibrium.thermal_balance module</a><ul>
@@ -4753,7 +4835,10 @@ from scipy.optimize import brentq
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    AnalyticIonRateMatrix,
+    EstimatedIonRateMatrix,
+)
 from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -4774,14 +4859,14 @@ class IonPopulationSolver:
 
     def __init__(
         self,
-        rate_matrix_solver: IonRateMatrix,
+        rate_matrix_solver: AnalyticIonRateMatrix | EstimatedIonRateMatrix,
         max_solver_iterations: int = 100,
     ) -&gt; None:
         &quot;&quot;&quot;Solve the normalized ion population values from the rate matrices.
 
         Parameters
         ----------
-        rate_matrix_solver : IonRateMatrix
+        rate_matrix_solver : AnalyticIonRateMatrix | EstimatedIonRateMatrix
             Solver that builds ionization rate matrices.
         max_solver_iterations : int, optional
             Maximum iterations for lagged population-dependent corrections.
@@ -4845,6 +4930,7 @@ class IonPopulationSolver:
         boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -&gt; npt.NDArray[np.float64]:
         &quot;&quot;&quot;Solve elemental ion populations at supplied electron densities.
 
@@ -4891,6 +4977,11 @@ class IonPopulationSolver:
             partition_function,
             boltzmann_factor,
             level_to_continuum_saha_factor,
+            **(
+                {&quot;lte_ionization_factor&quot;: lte_ionization_factor}
+                if lte_ionization_factor is not None
+                else {}
+            ),
         )
 
         ion_population_index = self.rate_matrix_solver.ion_population_index
@@ -4963,6 +5054,55 @@ class IonPopulationSolver:
         return ion_population</div>
 
 
+<div class="viewcode-block" id="IonPopulationSolver.solve">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve">[docs]</a>
+    def solve(
+        self,
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+        elemental_number_density: pd.DataFrame,
+        lte_level_population: pd.DataFrame,
+        estimated_level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        estimated_ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame | float,
+        boltzmann_factor: pd.DataFrame,
+        tolerance: float = 1e-14,
+        level_to_continuum_saha_factor: pd.DataFrame | None = None,
+        lte_ionization_factor: pd.DataFrame | None = None,
+    ) -&gt; tuple[pd.DataFrame, pd.Series]:
+        &quot;&quot;&quot;Solve ion populations while enforcing charge conservation.&quot;&quot;&quot;
+        if level_to_continuum_saha_factor is None:
+            raise ValueError(
+                &quot;level_to_continuum_saha_factor is required when charge &quot;
+                &quot;conservation is enabled.&quot;
+            )
+        bound_level_index = (
+            lte_level_population.index.get_level_values(&quot;ion_number&quot;)
+            &lt; lte_level_population.index.get_level_values(&quot;atomic_number&quot;)
+        )
+        continuum_ion_index = (
+            lte_ion_population.index.get_level_values(&quot;ion_number&quot;) &gt; 0
+        )
+        return self._solve_charge_conserving(
+            radiation_field,
+            thermal_electron_energy_distribution,
+            elemental_number_density,
+            lte_level_population.loc[bound_level_index],
+            estimated_level_population.loc[bound_level_index],
+            lte_ion_population.loc[continuum_ion_index],
+            estimated_ion_population.loc[continuum_ion_index],
+            partition_function,
+            boltzmann_factor.loc[bound_level_index],
+            level_to_continuum_saha_factor.loc[
+                lte_level_population.index[bound_level_index]
+            ],
+            tolerance,
+            lte_ionization_factor=lte_ionization_factor,
+        )</div>
+
+
 <div class="viewcode-block" id="IonPopulationSolver.solve_charge_balance">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance">[docs]</a>
     def solve_charge_balance(
@@ -4980,6 +5120,7 @@ class IonPopulationSolver:
         level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
         maximum_electron_density: npt.NDArray[np.float64],
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -&gt; tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         &quot;&quot;&quot;Solve ion populations and calculate the normalized charge residual.
 
@@ -5017,20 +5158,22 @@ class IonPopulationSolver:
             Absolute ion populations and normalized charge residuals for each
             shell.
         &quot;&quot;&quot;
-        ion_population = self.solve_element_populations_at_electron_density(
-            electron_density,
-            radiation_field,
-            thermal_electron_energy_distribution,
-            lte_level_population,
-            estimated_level_population,
-            lte_ion_population,
-            estimated_ion_population,
-            partition_function,
-            boltzmann_factor,
-            level_to_continuum_saha_factor,
-            elemental_number_density,
+        ion_population = (
+            self.solve_element_populations_at_electron_density(
+                electron_density,
+                radiation_field,
+                thermal_electron_energy_distribution,
+                lte_level_population,
+                estimated_level_population,
+                lte_ion_population,
+                estimated_ion_population,
+                partition_function,
+                boltzmann_factor,
+                level_to_continuum_saha_factor,
+                elemental_number_density,
+                lte_ionization_factor=lte_ionization_factor,
+            )
         )
-
         charge_density = (
             ion_population
             * self.rate_matrix_solver.ion_population_index.get_level_values(
@@ -5063,6 +5206,7 @@ class IonPopulationSolver:
         level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
         maximum_electron_densities: npt.NDArray[np.float64],
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -&gt; float:
         &quot;&quot;&quot;Solve the charge balance for one shell.
 
@@ -5132,6 +5276,7 @@ class IonPopulationSolver:
                 level_to_continuum_saha_factor,
                 elemental_number_density,
                 maximum_electron_densities,
+                lte_ionization_factor=lte_ionization_factor,
             )[1][shell_idx]
 
         try:
@@ -5155,9 +5300,7 @@ class IonPopulationSolver:
         return electron_density_fraction * maximum_electron_density</div>
 
 
-<div class="viewcode-block" id="IonPopulationSolver.solve_charge_conserving">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_conserving">[docs]</a>
-    def solve_charge_conserving(
+    def _solve_charge_conserving(
         self,
         radiation_field: DilutePlanckianRadiationField
         | PlanckianRadiationField,
@@ -5171,6 +5314,7 @@ class IonPopulationSolver:
         boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame,
         tolerance: float,
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -&gt; tuple[pd.DataFrame, pd.Series]:
         &quot;&quot;&quot;Solve ion populations while enforcing charge conservation.
 
@@ -5248,6 +5392,7 @@ class IonPopulationSolver:
                     level_to_continuum_saha_factor,
                     elemental_number_density,
                     maximum_electron_density_array,
+                    lte_ionization_factor=lte_ionization_factor,
                 )
             ion_population_solution, charge_residual = (
                 self.solve_charge_balance(
@@ -5263,6 +5408,7 @@ class IonPopulationSolver:
                     level_to_continuum_saha_factor,
                     elemental_number_density,
                     maximum_electron_density_array,
+                    lte_ionization_factor=lte_ionization_factor,
                 )
             )
             if estimated_population_indices is None:
@@ -5318,16 +5464,31 @@ class IonPopulationSolver:
                 )
 
             if len(estimated_population_indices) != 0:
-                estimated_population_values = estimated_ion_population.to_numpy(
-                    copy=True
-                )
-                estimated_population_values[estimated_population_indices] = (
+                estimated_ion_population = estimated_ion_population.copy()
+                estimated_ion_population.iloc[estimated_population_indices] = (
                     ion_population_solution[solution_population_indices]
                 )
-                estimated_ion_population = pd.DataFrame(
-                    estimated_population_values,
-                    index=estimated_ion_population.index,
-                    columns=estimated_ion_population.columns,
+                level_ion_index = estimated_level_population.index.droplevel(
+                    &quot;level_number&quot;
+                )
+                level_solution_indices = (
+                    self.rate_matrix_solver.ion_population_index.get_indexer(
+                        level_ion_index
+                    )
+                )
+                solved_levels = level_solution_indices &gt;= 0
+                level_totals = estimated_level_population.groupby(
+                    level=[&quot;atomic_number&quot;, &quot;ion_number&quot;]
+                ).transform(&quot;sum&quot;)
+                level_fractions = estimated_level_population.divide(
+                    level_totals.where(level_totals != 0.0, 1.0)
+                )
+                estimated_level_population = estimated_level_population.copy()
+                estimated_level_population.iloc[solved_levels] = (
+                    level_fractions.to_numpy()[solved_levels]
+                    * ion_population_solution[
+                        level_solution_indices[solved_levels]
+                    ]
                 )
 
         raise PlasmaIonizationError(
@@ -5336,9 +5497,52 @@ class IonPopulationSolver:
         )</div>
 
 
-<div class="viewcode-block" id="IonPopulationSolver.solve_non_charge_conserving">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_non_charge_conserving">[docs]</a>
-    def solve_non_charge_conserving(
+<div class="viewcode-block" id="FixedElectronDensityIonPopulationSolver">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.FixedElectronDensityIonPopulationSolver">[docs]</a>
+class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
+    &quot;&quot;&quot;Solve ion populations for a fixed electron density.&quot;&quot;&quot;
+
+<div class="viewcode-block" id="FixedElectronDensityIonPopulationSolver.solve">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.FixedElectronDensityIonPopulationSolver.solve">[docs]</a>
+    def solve(
+        self,
+        radiation_field: DilutePlanckianRadiationField
+        | PlanckianRadiationField,
+        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+        elemental_number_density: pd.DataFrame,
+        lte_level_population: pd.DataFrame,
+        estimated_level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        estimated_ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        boltzmann_factor: pd.DataFrame,
+        tolerance: float = 1e-14,
+        lte_ionization_factor: pd.DataFrame | None = None,
+    ) -&gt; tuple[pd.DataFrame, pd.Series]:
+        &quot;&quot;&quot;Solve ion populations without imposing charge conservation.&quot;&quot;&quot;
+        bound_level_index = (
+            lte_level_population.index.get_level_values(&quot;ion_number&quot;)
+            &lt; lte_level_population.index.get_level_values(&quot;atomic_number&quot;)
+        )
+        continuum_ion_index = (
+            lte_ion_population.index.get_level_values(&quot;ion_number&quot;) &gt; 0
+        )
+        return self._solve_fixed_electron_density(
+            radiation_field,
+            thermal_electron_energy_distribution,
+            elemental_number_density,
+            lte_level_population.loc[bound_level_index],
+            estimated_level_population.loc[bound_level_index],
+            lte_ion_population.loc[continuum_ion_index],
+            estimated_ion_population.loc[continuum_ion_index],
+            partition_function,
+            boltzmann_factor.loc[bound_level_index],
+            tolerance,
+            lte_ionization_factor=lte_ionization_factor,
+        )</div>
+
+
+    def _solve_fixed_electron_density(
         self,
         radiation_field: DilutePlanckianRadiationField
         | PlanckianRadiationField,
@@ -5351,6 +5555,7 @@ class IonPopulationSolver:
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         tolerance: float,
+        lte_ionization_factor: pd.DataFrame | None = None,
     ) -&gt; tuple[pd.DataFrame, pd.Series]:
         &quot;&quot;&quot;Solve ion populations without imposing charge conservation.
 
@@ -5396,6 +5601,11 @@ class IonPopulationSolver:
                 estimated_ion_population,
                 partition_function,
                 boltzmann_factor,
+                **(
+                    {&quot;lte_ionization_factor&quot;: lte_ionization_factor}
+                    if lte_ionization_factor is not None
+                    else {}
+                ),
             )
             solved_matrices = pd.DataFrame(
                 index=self.rates_matrices.index,
@@ -5460,107 +5670,6 @@ class IonPopulationSolver:
 
         return ion_population_solution, electron_population_solution</div>
 
-
-<div class="viewcode-block" id="IonPopulationSolver.solve">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve">[docs]</a>
-    def solve(
-        self,
-        radiation_field: DilutePlanckianRadiationField
-        | PlanckianRadiationField,
-        thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
-        elemental_number_density: pd.DataFrame,
-        lte_level_population: pd.DataFrame,
-        estimated_level_population: pd.DataFrame,
-        lte_ion_population: pd.DataFrame,
-        estimated_ion_population: pd.DataFrame,
-        partition_function: pd.DataFrame,
-        boltzmann_factor: pd.DataFrame,
-        charge_conservation: bool = False,
-        tolerance: float = 1e-14,
-        level_to_continuum_saha_factor: pd.DataFrame | None = None,
-    ) -&gt; tuple[pd.DataFrame, pd.Series]:
-        &quot;&quot;&quot;Solves the normalized ion population values from the rate matrices.
-
-        Parameters
-        ----------
-        radiation_field : RadiationField
-            A radiation field that can compute its mean intensity.
-        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
-            Electron properties.
-        elemental_number_density : pd.DataFrame
-            Elemental number density. Index is atomic number, columns are cells.
-        lte_level_population : pd.DataFrame
-            LTE level number density. Columns are cells.
-        estimated_level_population : pd.DataFrame
-            Estimated level number density. Columns are cells.
-        lte_ion_population : pd.DataFrame
-            LTE ion number density. Columns are cells.
-        estimated_ion_population : pd.DataFrame
-            Estimated ion number density. Columns are cells.
-        partition_function : pandas.DataFrame or float
-            Partition function values used by the rate solver.
-        boltzmann_factor : pd.DataFrame
-            Boltzmann factors used by the rate solver.
-        charge_conservation : bool, optional
-            Whether to solve one shared charge-conserving electron density per
-            shell.
-        tolerance : float, optional
-            Tolerance for convergence of the ion population solver.
-        level_to_continuum_saha_factor : pd.DataFrame, optional
-            Density-independent Lucy level-to-continuum Saha factor. Required
-            when charge conservation varies the trial electron density.
-
-        Returns
-        -------
-        pd.DataFrame
-            Ion population values indexed by atomic number and ion number.
-            Columns are cells.
-        pd.Series
-            Electron number densities indexed by cell.
-        &quot;&quot;&quot;
-        bound_level_index = lte_level_population.index.get_level_values(
-            &quot;ion_number&quot;
-        ) &lt; lte_level_population.index.get_level_values(&quot;atomic_number&quot;)
-        continuum_ion_index = (
-            lte_ion_population.index.get_level_values(&quot;ion_number&quot;) &gt; 0
-        )
-
-        if charge_conservation:
-            if level_to_continuum_saha_factor is None:
-                raise ValueError(
-                    &quot;level_to_continuum_saha_factor is required when &quot;
-                    &quot;charge_conservation is enabled.&quot;
-                )
-            return self.solve_charge_conserving(
-                radiation_field,
-                thermal_electron_energy_distribution,
-                elemental_number_density,
-                lte_level_population.loc[bound_level_index],
-                estimated_level_population.loc[bound_level_index],
-                lte_ion_population.loc[continuum_ion_index],
-                estimated_ion_population.loc[continuum_ion_index],
-                partition_function,
-                boltzmann_factor.loc[bound_level_index],
-                level_to_continuum_saha_factor.loc[
-                    lte_level_population.index[bound_level_index]
-                ],
-                tolerance,
-            )
-
-        return self.solve_non_charge_conserving(
-            radiation_field,
-            thermal_electron_energy_distribution,
-            elemental_number_density,
-            lte_level_population.loc[bound_level_index],
-            estimated_level_population.loc[bound_level_index],
-            lte_ion_population.loc[continuum_ion_index],
-            estimated_ion_population.loc[continuum_ion_index],
-            partition_function,
-            boltzmann_factor.loc[bound_level_index],
-            tolerance,
-        )</div>
-</div>
-
 </pre></div>
 
            </div>
@@ -5571,7 +5680,7 @@ class IonPopulationSolver:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Sep 2026.
+      <span class="lastupdated">Last updated on 03 Sep 2026.
       </span></p>
   </div>
 
