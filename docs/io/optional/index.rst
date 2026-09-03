@@ -6,6 +6,10 @@ Optional Inputs
 
 TARDIS also allows other inputs that are passed as keyword arguments into the ``run_tardis`` function.
 
+In a standard Jupyter notebook, the TARDIS logger widget uses Panel's default
+communication mode, so running a simulation does not change the communication
+mode used by other Panel widgets in the notebook.
+
 .. toctree::
     :maxdepth: 1
 
