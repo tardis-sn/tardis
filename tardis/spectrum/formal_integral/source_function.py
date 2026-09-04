@@ -130,7 +130,7 @@ class SourceFunctionSolver:
         Jblue_lu = self.calculate_Jblue_lu(
             time_explosion, time_of_simulation, volume, j_blue_estimator
         )
-        Jred_lu = self.calculate_Jred_lu(Jblue_lu, tau_sobolevs, att_S_ul)
+        Jred_lu = self.calculate_Jred_lu(Jblue_lu, tau_sobolev, att_S_ul)
 
         return SourceFunctionState(att_S_ul, Jred_lu, Jblue_lu, e_dot_u)
 
