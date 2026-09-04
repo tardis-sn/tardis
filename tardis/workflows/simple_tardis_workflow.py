@@ -52,7 +52,7 @@ class SimpleTARDISWorkflow:
         self.workflow_logger = WorkflowLogger(
             configuration, self.log_level, self.specific_log_level
         )
-        atom_data = parse_atom_data(configuration)
+        self.atom_data = parse_atom_data(configuration)
 
         # set up states and solvers
         if csvy:
@@ -67,25 +67,28 @@ class SimpleTARDISWorkflow:
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration,
-                atom_data=atom_data,
+                atom_data=self.atom_data,
             )
 
-        plasma_solver_factory = PlasmaSolverFactory(
-            atom_data,
+        self.plasma_solver_factory = PlasmaSolverFactory(
+            self.atom_data,
             configuration,
         )
 
-        plasma_solver_factory.prepare_factory(
+        self.plasma_solver_factory.prepare_factory(
             self.simulation_state.abundance.index,
             "tardis.plasma.properties.property_collections",
             configuration,
         )
 
-        self.plasma_solver = plasma_solver_factory.assemble(
+        self.plasma_solver = self.plasma_solver_factory.assemble(
             self.simulation_state.calculate_elemental_number_density(
-                atom_data.atom_data.mass
+                self.atom_data.atom_data.mass
             ),
-            self.simulation_state.radiation_field_state,
+            DilutePlanckianRadiationField(
+                self.simulation_state.t_radiative,
+                self.simulation_state.dilution_factor,
+            ),
             self.simulation_state.time_explosion,
             self.simulation_state._electron_densities,
         )
@@ -101,8 +104,8 @@ class SimpleTARDISWorkflow:
             self.macro_atom_solver = None
         else:
             self.macro_atom_solver = BoundBoundMacroAtomSolver(
-                atom_data.levels,
-                atom_data.lines,
+                self.atom_data.levels,
+                self.atom_data.lines,
                 line_interaction_type,
             )
         self.transport_state = None
