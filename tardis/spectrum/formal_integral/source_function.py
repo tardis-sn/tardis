@@ -76,8 +76,6 @@ class SourceFunctionSolver:
             transport_state.packet_collection.time_of_simulation * u.s
         )
 
-        tau_sobolevs = tau_sobolev
-
         macroatom_references = macro_atom_state.references_index
         macroatom_transition_metadata = macro_atom_state.transition_metadata
 
@@ -91,7 +89,7 @@ class SourceFunctionSolver:
         e_dot_u = self.calculate_e_dot_u(
             time_of_simulation,
             volume,
-            tau_sobolevs,
+            tau_sobolev,
             e_dot_lu_estimator,
             transition_probabilities,
             upper_level_index,
