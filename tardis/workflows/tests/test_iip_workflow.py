@@ -163,7 +163,7 @@ def iip_plasma(iip_atom_data, elemental_number_density, ctardis_compare_config):
     plasma = LegacyPlasmaArray(
         elemental_number_density,
         iip_atom_data,
-        ctardis_compare_config.supernova.time_explosion.to("s").value,
+        ctardis_compare_config.supernova.time_explosion.to("s"),
         nlte_config=ctardis_compare_config.plasma.nlte,
         delta_treatment=None,
         ionization_mode="nlte",
@@ -1336,7 +1336,7 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
     to physical values, and the two balance errors retain shell order.
     Regime: Two shells with unequal density limits and radiation temperatures.
     Verification: The expected values follow by direct multiplication and
-    hand interleaving of the recorded evaluator result.
+    inserting the recorded evaluator result.
     """
     # Skip full workflow construction because this check needs only the state
     # read by thermal_balance_iteration, not a configured simulation.
@@ -1490,9 +1490,7 @@ def test_evaluator_matches_iip_five_shell_path(
     nlte_lines_mask = np.asarray(
         line_species_index.isin(plasma.nlte_species), dtype=bool
     )
-    time_explosion_seconds = plasma.time_explosion
-    if isinstance(time_explosion_seconds, u.Quantity):
-        time_explosion_seconds = time_explosion_seconds.to_value("s")
+    time_explosion_seconds = plasma.time_explosion.to_value("s")
     tau_coefficient = (
         plasma.lines.wavelength_cm.to_numpy()
         * plasma.lines.f_lu.to_numpy()

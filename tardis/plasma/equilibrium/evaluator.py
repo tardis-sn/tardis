@@ -510,8 +510,8 @@ class PlasmaEquilibriumEvaluator:
                 "Reduced level-population solve returned zero fractions."
             )
 
-        # Legacy iip_plasma accepts a finite, nonnegative HYBR iterate even
-        # when SciPy reports failure or the level equations are not closed.
+        # Legacy iip_plasma accepts a finite, nonnegative root(method='hybr') iterate
+        # even when SciPy reports failure or the level equations are not closed.
         # This code deliberately preserves that behavior; the residual remains
         # part of the returned diagnostics but is not an acceptance criterion.
         fractions = solution.x / solution.x.sum()

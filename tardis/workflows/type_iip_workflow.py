@@ -572,17 +572,17 @@ class TypeIIPWorkflow:
             plasma.photo_ion_estimator.shape,
             len(plasma.number_density.columns),
         )
-        estimators.photo_ion_estimator[:] = (
+        estimators.photo_ion_estimator = (
             np.asarray(plasma.photo_ion_estimator) * estimator_scale
         )
-        estimators.stim_recomb_estimator[:] = (
+        estimators.stim_recomb_estimator = (
             np.asarray(plasma.stim_recomb_estimator) * estimator_scale
         )
-        estimators.bf_heating_estimator[:] = np.asarray(plasma.bf_heating_coeff)
-        estimators.stim_recomb_cooling_estimator[:] = np.asarray(
+        estimators.bf_heating_estimator = np.asarray(plasma.bf_heating_coeff)
+        estimators.stim_recomb_cooling_estimator = np.asarray(
             plasma.stim_recomb_cooling_coeff
         )
-        estimators.ff_heating_estimator[:] = np.asarray(
+        estimators.ff_heating_estimator = np.asarray(
             plasma.ff_heating_estimator
         )
 
@@ -612,7 +612,7 @@ class TypeIIPWorkflow:
                 == hydrogen_species[1]
             )
         )
-        population_geometries = tuple(
+        shell_number_densities = tuple(
             ShellNumberDensity(
                 plasma.number_density.loc[1, shell],
                 plasma.level_number_density[shell].to_numpy(dtype=np.float64),
@@ -628,9 +628,7 @@ class TypeIIPWorkflow:
         nlte_lines_mask = np.asarray(
             line_species_index.isin(plasma.nlte_species), dtype=bool
         )
-        time_explosion_seconds = plasma.time_explosion
-        if isinstance(time_explosion_seconds, u.Quantity):
-            time_explosion_seconds = time_explosion_seconds.to_value("s")
+        time_explosion_seconds = plasma.time_explosion.to_value("s")
         sobolev_input = SobolevInputs(
             plasma.lines_lower_level_index,
             plasma.lines_upper_level_index,
@@ -695,7 +693,7 @@ class TypeIIPWorkflow:
                 index=line_index,
                 columns=plasma.number_density.columns,
             ),
-            population_geometries,
+            shell_number_densities,
             tuple(sobolev_input for _ in plasma.number_density.columns),
             level_index,
             hydrogen_species,
