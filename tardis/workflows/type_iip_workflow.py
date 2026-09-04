@@ -802,12 +802,12 @@ class TypeIIPWorkflow:
         logger.info("Heating: %s", fractional_heating)
         return solution
 
-    def _publish_legacy_thermal_balance_state(
+    def _update_plasma_with_legacy_thermal_balance_state(
         self,
         candidate: npt.NDArray[np.float64],
         maximum_electron_density: npt.NDArray[np.float64],
     ) -> None:
-        """Publish the accepted candidate until Phase 5 replaces ownership."""
+        """Use the iip_plasma output until the evaluator is completed."""
         plasma = self.plasma_solver
         link_t_rad_t_electron = candidate[1::2]
         plasma.update(
@@ -917,7 +917,7 @@ class TypeIIPWorkflow:
         )
         self.plasma_solver.plasma_converged = True
         # Evaluate the accepted point once more before temporary legacy
-        # publication. Phase 5 will replace this duplicate state ownership.
+        # update. Final evaluator will replace this duplicate state ownership.
         accepted_candidate = thermal_lsq_result.x
         self._thermal_balance_evaluation = (
             self._thermal_balance_evaluator.evaluate(
@@ -927,7 +927,7 @@ class TypeIIPWorkflow:
                 self._thermal_balance_level_initial_guess,
             )
         )
-        self._publish_legacy_thermal_balance_state(
+        self._update_plasma_with_legacy_thermal_balance_state(
             accepted_candidate, max_electron_number_density
         )
 

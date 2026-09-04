@@ -1753,7 +1753,7 @@ def test_evaluator_matches_iip_five_shell_path(
         * off_root_candidate[1::2],
         expected_normalized_levels,
     )
-    type_iip_workflow._publish_legacy_thermal_balance_state(
+    type_iip_workflow._update_plasma_with_legacy_thermal_balance - state(
         off_root_candidate, off_root_maximum_density
     )
     off_root_plasma = type_iip_workflow.plasma_solver
