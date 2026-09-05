@@ -1,6 +1,7 @@
 # tests for the config reader module
 import pandas as pd
 import pytest
+import yaml
 from astropy.units import Quantity
 from jsonschema.exceptions import ValidationError
 from numpy.testing import assert_almost_equal
@@ -82,6 +83,18 @@ def test_config_hdf(hdf_file_path, tardis_config_verysimple):
     actual = pd.read_hdf(hdf_file_path, key="/simulation/config")
     expected = expected.get_properties()["config"]
     assert actual[0] == expected[0]
+
+
+def test_config_hdf_output_can_be_read_as_configuration(
+    hdf_file_path, tardis_config_verysimple
+):
+    config = Configuration.from_config_dict(tardis_config_verysimple)
+    config.to_hdf(hdf_file_path, overwrite=True)
+
+    serialized_config = pd.read_hdf(hdf_file_path, key="/simulation/config")[0]
+    output_config = yaml.load(serialized_config, Loader=config_reader.YAMLLoader)
+
+    Configuration.from_config_dict(output_config)
 
 
 def test_model_section_config(tardis_config_verysimple):
