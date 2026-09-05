@@ -6,6 +6,9 @@ Optional Inputs
 
 TARDIS also allows other inputs that are passed as keyword arguments into the ``run_tardis`` function.
 
+When widgets cannot be displayed, TARDIS configures standard stream logging
+without creating a Panel logger widget.
+
 .. toctree::
     :maxdepth: 1
 
