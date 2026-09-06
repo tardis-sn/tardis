@@ -1,0 +1,7 @@
+tardis.visualization.tools.lineid\_plotter module
+=================================================
+
+.. automodule:: tardis.visualization.tools.lineid_plotter
+   :members:
+   :show-inheritance:
+   :undoc-members:

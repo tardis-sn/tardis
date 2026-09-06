@@ -1,0 +1,7 @@
+tardis.model.geometry.radial1d\_homologous module
+=================================================
+
+.. automodule:: tardis.model.geometry.radial1d_homologous
+   :members:
+   :show-inheritance:
+   :undoc-members:
