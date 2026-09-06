@@ -1,0 +1,7 @@
+tardis.plasma.equilibrium.rates.collision\_strengths module
+===========================================================
+
+.. automodule:: tardis.plasma.equilibrium.rates.collision_strengths
+   :members:
+   :show-inheritance:
+   :undoc-members:

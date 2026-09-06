@@ -1,0 +1,7 @@
+tardis.io.model.readers.generic\_readers module
+===============================================
+
+.. automodule:: tardis.io.model.readers.generic_readers
+   :members:
+   :show-inheritance:
+   :undoc-members:
