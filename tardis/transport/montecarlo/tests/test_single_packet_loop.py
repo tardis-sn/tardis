@@ -1,3 +1,5 @@
+from types import ModuleType
+
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -9,11 +11,9 @@ from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
 from tardis.transport.montecarlo import RPacket
+from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
 from tardis.transport.montecarlo.modes.classic import (
     packet_propagation as classic_propagation,
-)
-from tardis.transport.montecarlo.modes.classic.packet_propagation import (
-    packet_propagation,
 )
 from tardis.transport.montecarlo.modes.nonhomologous import (
     packet_propagation as nonhomologous_propagation,
@@ -65,7 +65,11 @@ class _CommonPacketPropagationPatcher:
         assert self.interaction_queue
         return self.interaction_queue.pop(0)
 
-    def __call__(self, module, interactions) -> None:
+    def __call__(
+        self,
+        module: ModuleType,
+        interactions: list[tuple[float, InteractionType, int]],
+    ) -> None:
         self.interaction_queue = list(interactions)
         self.monkeypatch.setattr(module, "trace_packet", self.trace_packet)
         self.monkeypatch.setattr(
@@ -125,18 +129,21 @@ def test_classic_packet_propagation_dispatch_numba_disabled(
     if first_interaction != InteractionType.BOUNDARY:
         interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
     interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
-    patch_common_classic_hooks(classic_propagation, interactions)
+    patch_common_classic_hooks(
+        classic_propagation,
+        interactions,
+    )
 
     classic_propagation.packet_propagation(
         parametrized_packet,
         homologous_radial_1d_geometry,
-        5.2e7,
         classic_opacity_state,
         bulk_estimators,
         line_estimators,
         vpacket_collection,
         recording_tracker,
         montecarlo_configuration,
+        False,
     )
 
     assert parametrized_packet.status == PacketStatus.EMITTED
@@ -158,6 +165,60 @@ def test_classic_packet_propagation_dispatch_numba_disabled(
         line_estimators.energy_deposition_line_rate,
         rtol=RTOL,
     )
+
+
+def test_classic_packet_propagation_full_relativity_numba_disabled(
+    python_numba_disabled: None,
+    patch_common_classic_hooks,
+    parametrized_packet: RPacket,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
+    classic_opacity_state,
+    bulk_estimators,
+    line_estimators,
+    vpacket_collection,
+    recording_tracker: _RecordingTracker,
+    montecarlo_configuration,
+) -> None:
+    patch_common_classic_hooks(
+        classic_propagation,
+        [
+            (0.0, InteractionType.BOUNDARY, 1),
+            (0.0, InteractionType.BOUNDARY, 1),
+        ],
+    )
+    initial_mu = parametrized_packet.mu
+    initial_nu = parametrized_packet.nu
+    initial_energy = parametrized_packet.energy
+    velocity = homologous_radial_1d_geometry.get_velocity(
+        parametrized_packet.r,
+        parametrized_packet.current_shell_id,
+    )
+    beta = velocity / C_SPEED_OF_LIGHT
+    inverse_doppler_factor = (1.0 + initial_mu * beta) / np.sqrt(1.0 - beta**2)
+    expected_mu = (initial_mu + beta) / (1.0 + beta * initial_mu)
+
+    classic_propagation.packet_propagation(
+        parametrized_packet,
+        homologous_radial_1d_geometry,
+        classic_opacity_state,
+        bulk_estimators,
+        line_estimators,
+        vpacket_collection,
+        recording_tracker,
+        montecarlo_configuration,
+        True,
+    )
+
+    assert parametrized_packet.status == PacketStatus.EMITTED
+    npt.assert_allclose(
+        parametrized_packet.nu,
+        initial_nu * inverse_doppler_factor,
+    )
+    npt.assert_allclose(
+        parametrized_packet.energy,
+        initial_energy * inverse_doppler_factor,
+    )
+    npt.assert_allclose(parametrized_packet.mu, expected_mu)
 
 
 @pytest.mark.parametrize(
@@ -189,7 +250,10 @@ def test_iip_packet_propagation_dispatch_numba_disabled(
         (1.0e12, InteractionType.BOUNDARY, 1),
         (1.0e12, InteractionType.BOUNDARY, 1),
     ]
-    patch_common_classic_hooks(iip_propagation, interactions)
+    patch_common_classic_hooks(
+        iip_propagation,
+        interactions,
+    )
     # Continuum handling has extra collaborators; patch them only enough to
     # make the dispatch branch observable.
     monkeypatch.setattr(
@@ -213,13 +277,13 @@ def test_iip_packet_propagation_dispatch_numba_disabled(
     iip_propagation.packet_propagation(
         parametrized_packet,
         homologous_radial_1d_geometry,
-        5.2e7,
         iip_opacity_state,
         bulk_estimators,
         line_estimators,
         continuum_estimators,
         recording_tracker,
         montecarlo_configuration,
+        True,
     )
 
     assert parametrized_packet.status == PacketStatus.EMITTED
@@ -272,18 +336,21 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
     if first_interaction != InteractionType.BOUNDARY:
         interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
     interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
-    patch_common_classic_hooks(nonhomologous_propagation, interactions)
+    patch_common_classic_hooks(
+        nonhomologous_propagation,
+        interactions,
+    )
 
     nonhomologous_propagation.packet_propagation(
         parametrized_packet,
         radial_1d_geometry,
-        0.0,
         classic_opacity_state,
         bulk_estimators,
         line_estimators,
         vpacket_collection,
         recording_tracker,
         montecarlo_configuration,
+        False,
     )
 
     assert parametrized_packet.status == PacketStatus.EMITTED
@@ -305,59 +372,3 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
         line_estimators.energy_deposition_line_rate,
         rtol=RTOL,
     )
-
-
-@pytest.mark.xfail(
-    reason="Need to update for new mode architecture with correct parameters"
-)
-# TODO: Update test to provide all required parameters for packet_propagation
-def test_verysimple_single_packet_loop(
-    verysimple_numba_homologous_radial_1d_geometry,
-    verysimple_time_explosion,
-    verysimple_opacity_state,
-    verysimple_estimators,
-    verysimple_vpacket_collection,
-    verysimple_packet_collection,
-):
-    pytest.skip("Test needs to be updated for new mode architecture")
-    numba_radial_1d_geometry = verysimple_numba_homologous_radial_1d_geometry
-    packet_collection = verysimple_packet_collection
-    vpacket_collection = verysimple_vpacket_collection
-    time_explosion = verysimple_time_explosion
-    opacity_state = verysimple_opacity_state
-    numba_estimators = verysimple_estimators
-
-    i = 0
-    r_packet = RPacket(
-        numba_radial_1d_geometry.r_inner[0],
-        packet_collection.packets_input_mu[i],
-        packet_collection.packets_input_nu[i],
-        packet_collection.packets_input_energy[i],
-        i,
-    )
-    # packet_propagation requires: r_packet, geometry, time_explosion, opacity_state,
-    # estimators_bulk, estimators_line, vpacket_collection, rpacket_tracker,
-    # montecarlo_configuration
-    # This test needs to be updated with all required parameters
-    packet_propagation(
-        r_packet,
-        numba_radial_1d_geometry,
-        time_explosion,
-        opacity_state,
-        numba_estimators,
-        vpacket_collection,
-    )
-
-    npt.assert_almost_equal(r_packet.nu, 1053057938883272.8)
-    npt.assert_almost_equal(r_packet.mu, 0.9611146425440562)
-    npt.assert_almost_equal(r_packet.energy, 0.10327717505563379)
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_set_packet_props_partial_relativity():
-    raise AssertionError()
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_set_packet_props_full_relativity():
-    raise AssertionError()

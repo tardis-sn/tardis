@@ -9,7 +9,6 @@ from tardis.transport.montecarlo.interaction_events import (
 )
 
 numba_config_spec = [
-    ("ENABLE_FULL_RELATIVITY", boolean),
     ("TEMPORARY_V_PACKET_BINS", int64),
     ("NUMBER_OF_VPACKETS", int64),
     ("MONTECARLO_SEED", int64),
@@ -30,7 +29,6 @@ numba_config_spec = [
 @jitclass(numba_config_spec)
 class MonteCarloConfiguration:
     def __init__(self):
-        self.ENABLE_FULL_RELATIVITY = False
         self.TEMPORARY_V_PACKET_BINS = 0
         self.NUMBER_OF_VPACKETS = 0
         self.MONTECARLO_SEED = 0
@@ -64,7 +62,6 @@ def configuration_initialize(config, transport, number_of_vpackets):
         )
     config.NUMBER_OF_VPACKETS = number_of_vpackets
     config.TEMPORARY_V_PACKET_BINS = number_of_vpackets
-    config.ENABLE_FULL_RELATIVITY = transport.enable_full_relativity
     config.MONTECARLO_SEED = transport.packet_source.base_seed
     config.VPACKET_SPAWN_START_FREQUENCY = transport.vpacket_spawn_range.end.to(
         u.Hz, equivalencies=u.spectral()

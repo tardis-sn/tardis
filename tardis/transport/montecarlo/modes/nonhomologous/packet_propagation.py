@@ -3,7 +3,6 @@
 import numpy as np
 from numba import njit
 
-from tardis import constants as const
 from tardis.model.geometry.radial1d import (
     NumbaRadial1DGeometry,
 )
@@ -11,7 +10,6 @@ from tardis.opacities.opacities import chi_electron_calculator
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
-    get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -35,6 +33,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
     trace_vpacket_volley,
 )
 from tardis.transport.montecarlo.packets.movement import (
+    initialize_packet_frame,
     move_packet_across_shell_boundary,
     move_r_packet,
 )
@@ -47,20 +46,18 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     RPacket,
 )
 
-C_SPEED_OF_LIGHT = const.c.to("cm/s").value
-
 
 @njit
 def packet_propagation(
     r_packet: RPacket,
     geometry: NumbaRadial1DGeometry,
-    time_explosion: float,
     opacity_state: OpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     vpacket_collection: VPacketCollection,
-    rpacket_tracker,
+    rpacket_tracker: object,
     montecarlo_configuration: MonteCarloConfiguration,
+    enable_full_relativity: bool,
 ) -> None:
     """
     Execute Monte Carlo transport for a single radiative packet in nonhomologous mode.
@@ -74,9 +71,6 @@ def packet_propagation(
         The radiative packet to transport through the ejecta.
     geometry : NumbaRadial1DGeometry
         The spherically symmetric geometry of the supernova ejecta.
-    time_explosion : float
-        Time since explosion in seconds. Accepted for interface parity with
-        homologous transport; not used by nonhomologous transport.
     opacity_state : OpacityStateNumba
         Current opacity state containing line opacities.
     estimators_bulk : EstimatorsBulk
@@ -89,18 +83,17 @@ def packet_propagation(
         Tracker for recording packet interactions and trajectories.
     montecarlo_configuration : MonteCarloConfiguration
         Configuration parameters for the Monte Carlo simulation.
+    enable_full_relativity : bool
+        Whether to use TARDIS's existing full-relativity branch.
 
-    Returns
-    -------
-    None
-        This function modifies the r_packet object in-place and updates
-        estimators and collections.
     """
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
-    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-        raise NotImplementedError("Full relativity not supported for non-homology.")
-    set_packet_props_partial_relativity(r_packet, geometry)
+    if enable_full_relativity:
+        raise NotImplementedError(
+            "Full relativity not supported for non-homology."
+        )
+    initialize_packet_frame(r_packet, geometry, enable_full_relativity)
     # Manually perform the function of r_packet.initialize_line_id for now until
     # nonhomology is supported
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
@@ -108,7 +101,7 @@ def packet_propagation(
     doppler_factor = get_doppler_factor(
         v,
         r_packet.mu,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+        enable_full_relativity,
     )
     comov_nu = r_packet.nu * doppler_factor
     next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
@@ -124,7 +117,7 @@ def packet_propagation(
         vpacket_collection,
         geometry,
         opacity_state,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+        enable_full_relativity,
         montecarlo_configuration.VPACKET_TAU_RUSSIAN,
         montecarlo_configuration.SURVIVAL_PROBABILITY,
     )
@@ -140,7 +133,7 @@ def packet_propagation(
         doppler_factor = get_doppler_factor(
             v,
             r_packet.mu,
-            montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+            enable_full_relativity,
         )
 
         comov_nu = r_packet.nu * doppler_factor
@@ -148,7 +141,7 @@ def packet_propagation(
             opacity_state, comov_nu, r_packet.current_shell_id
         )
 
-        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+        if enable_full_relativity:
             opacity_electron *= doppler_factor
 
         distance, interaction_type, delta_shell = trace_packet(
@@ -157,7 +150,7 @@ def packet_propagation(
             opacity_state,
             estimators_line,
             opacity_electron,
-            montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+            enable_full_relativity,
             montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )
 
@@ -167,7 +160,7 @@ def packet_propagation(
                 distance,
                 geometry,
                 estimators_bulk,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
             rpacket_tracker.track_boundary_event(
                 r_packet,
@@ -187,7 +180,7 @@ def packet_propagation(
                 distance,
                 geometry,
                 estimators_bulk,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
 
             rpacket_tracker.track_line_interaction_before(r_packet)
@@ -197,7 +190,7 @@ def packet_propagation(
                 geometry,
                 line_interaction_type,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
             rpacket_tracker.track_line_interaction_after(r_packet)
             trace_vpacket_volley(
@@ -205,7 +198,7 @@ def packet_propagation(
                 vpacket_collection,
                 geometry,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
                 montecarlo_configuration.SURVIVAL_PROBABILITY,
             )
@@ -216,13 +209,13 @@ def packet_propagation(
                 distance,
                 geometry,
                 estimators_bulk,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
             rpacket_tracker.track_escattering_interaction_before(r_packet)
             thomson_scatter(
                 r_packet,
                 geometry,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
             rpacket_tracker.track_escattering_interaction_after(r_packet)
 
@@ -231,7 +224,7 @@ def packet_propagation(
                 vpacket_collection,
                 geometry,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
                 montecarlo_configuration.SURVIVAL_PROBABILITY,
             )
@@ -256,54 +249,3 @@ def packet_propagation(
         from_shell_id=r_packet.current_shell_id,
         to_shell_id=r_packet.current_shell_id + 1,
     )
-
-
-@njit
-def set_packet_props_partial_relativity(
-    r_packet: RPacket,
-    geometry: NumbaRadial1DGeometry
-) -> None:
-    """
-    Set packet properties using partial relativistic corrections.
-
-    This function applies inverse Doppler corrections to the packet frequency
-    and energy based on partial relativistic treatment (first-order in v/c).
-
-    Parameters
-    ----------
-    r_packet
-        The radiative packet whose properties will be modified.
-    geometry
-        NumbaRadial1DGeometry object
-
-    Returns
-    -------
-    Modifies r_packet.nu and r_packet.energy in-place.
-    """
-    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor(
-        v, r_packet.mu, False
-    )
-    r_packet.nu *= inverse_doppler_factor
-    r_packet.energy *= inverse_doppler_factor
-
-
-@njit
-def set_packet_props_full_relativity(
-    r_packet: RPacket, time_explosion: float
-) -> None:
-
-    raise NotImplementedError("Full relativity not supported for non-homology.")
-#    beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
-#
-#    inverse_doppler_factor = get_inverse_doppler_factor(
-#        r_packet.r,
-#        r_packet.mu,
-#        time_explosion,
-#        enable_full_relativity=True,
-#    )
-#
-#    r_packet.nu *= inverse_doppler_factor
-#    r_packet.energy *= inverse_doppler_factor
-#    r_packet.mu = (r_packet.mu + beta) / (1 + beta * r_packet.mu)
-#

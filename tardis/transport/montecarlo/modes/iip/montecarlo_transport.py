@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 import numpy as np
 from numba import njit, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
@@ -12,19 +14,19 @@ from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
     create_estimators_bulk_list,
     init_estimators_bulk,
 )
 from tardis.transport.montecarlo.estimators.estimators_continuum import (
+    EstimatorsContinuum,
     create_estimators_continuum_list,
     init_estimators_continuum,
 )
 from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
     create_estimators_line_list,
     init_estimators_line,
-)
-from tardis.transport.montecarlo.modes.iip.packet_propagation import (
-    packet_propagation,
 )
 from tardis.transport.montecarlo.modes.montecarlo_transport import (
     make_r_packet,
@@ -40,15 +42,16 @@ from tardis.transport.montecarlo.packets.packet_collections import (
 def montecarlo_transport(
     packet_collection: PacketCollection,
     geometry_state_numba: NumbaHomologousRadial1DGeometry,
-    time_explosion: float,
     opacity_state_numba: OpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
     n_levels_bf_species_by_n_cells_tuple: tuple,
     trackers: List,
     show_progress_bars: bool,
-):
+    packet_propagation_function: Callable,
+    enable_full_relativity: bool,
+) -> tuple[EstimatorsBulk, EstimatorsLine, EstimatorsContinuum]:
     """
-    Main loop of the Monte Carlo radiative transfer routine for IIP mode.
+    Run the Monte Carlo radiative transfer loop for IIP mode.
 
     This function generates packet objects from the packet collection and
     propagates them through the ejecta, performing interactions with both
@@ -63,8 +66,6 @@ def montecarlo_transport(
     geometry_state_numba : NumbaHomologousRadial1DGeometry
         Numba-compiled simulation geometry containing shell boundaries
         and velocity information.
-    time_explosion : float
-        Time since explosion in seconds, used for relativistic calculations.
     opacity_state_numba : OpacityStateNumba
         Numba-compiled opacity state containing line opacities, continuum
         opacities, and atomic data required for interactions.
@@ -77,6 +78,10 @@ def montecarlo_transport(
         List of packet trackers for detailed packet interaction logging.
     show_progress_bars : bool
         Flag to enable/disable progress bar updates during simulation.
+    packet_propagation_function
+        Compiled packet state machine compatible with the resolved physics.
+    enable_full_relativity : bool
+        Whether to use TARDIS's existing full-relativity branch.
 
     Returns
     -------
@@ -144,16 +149,16 @@ def montecarlo_transport(
         # Get the RPacket tracker for this thread
         tracker = trackers[packet_index]
 
-        packet_propagation(
+        packet_propagation_function(
             r_packet,
             geometry_state_numba,
-            time_explosion,
             opacity_state_numba,
             estimators_bulk_thread,
             estimators_line_thread,
             estimators_continuum_thread,
             tracker,
             montecarlo_configuration,
+            enable_full_relativity,
         )
         set_packet_collection_output(packet_collection, r_packet, i)
 
