@@ -15,6 +15,25 @@ What is HDF5?
 In TARDIS, it is used to store the data from simulations and other actions.
 
 
+Quantity units
+--------------
+
+When TARDIS writes an Astropy quantity to HDF5, it stores the numeric values in
+CGS and writes the matching CGS units to a sibling ``units`` Series. For
+example, a property stored at ``/transport/output_nu`` has its unit at
+``/transport/units`` under the ``output_nu`` index. This lets users recreate a
+quantity without hard-coding a unit:
+
+.. code-block:: python
+
+    import pandas as pd
+    from astropy import units as u
+
+    output_nu = pd.read_hdf("transport_output.hdf", "/transport/output_nu")
+    units = pd.read_hdf("transport_output.hdf", "/transport/units")
+    output_nu = u.Quantity(output_nu.to_numpy(), units["output_nu"])
+
+
 HDF5 structure
 --------------
 

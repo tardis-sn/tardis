@@ -1,11 +1,13 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
 from astropy import units as u
 from numpy.testing import assert_array_almost_equal
 
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis import __version__
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 
 # Test Cases
 
@@ -108,6 +110,24 @@ def test_scalar_quantity_objects_write(tmpdir, attr):
     assert_array_almost_equal(actual.property.cgs.value, expected)
 
 
+@pytest.mark.parametrize(
+    "attr, expected_unit",
+    [
+        (u.Quantity([1.0, 2.0], "km"), u.cm),
+        (u.Quantity(2.0, "solMass"), u.g),
+    ],
+)
+def test_quantity_units_are_written_in_cgs(
+    tmp_path: Path, attr: u.Quantity, expected_unit: u.UnitBase
+) -> None:
+    fname = str(tmp_path / "test.hdf")
+
+    MockHDF(attr).to_hdf(fname, path="test", overwrite=True)
+
+    stored_unit = pd.read_hdf(fname, key="/test/mock_hdf/units")["property"]
+    assert u.Unit(stored_unit) == expected_unit
+
+
 def test_none_write(tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(None)
@@ -167,7 +187,7 @@ def test_tardis_version_metadata(tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(1.5)
     actual.to_hdf(fname, path="test", overwrite=True)
-    
+
     metadata = pd.read_hdf(fname, key="/test/mock_hdf/metadata")
     assert "tardis_version" in metadata
     assert metadata["tardis_version"] == __version__

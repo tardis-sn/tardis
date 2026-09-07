@@ -54,7 +54,8 @@ class HDFWriterMixin:
         1D arrays will be stored under path/property_name as distinct Series.
         2D arrays will be stored under path/property_name as distinct DataFrames.
 
-        Units will be stored as their CGS value.
+        Quantities are stored as CGS values. Their corresponding CGS units are
+        stored in a ``units`` Series alongside the data.
 
         Parameters
         ----------
@@ -94,7 +95,9 @@ class HDFWriterMixin:
 
         try:  # when path_or_buf is a str, the HDFStore should get created
             buf = pd.HDFStore(
-                path_or_buf, complevel=complevel, complib=complib  # type: ignore[arg-type]
+                path_or_buf,
+                complevel=complevel,
+                complib=complib,  # type: ignore[arg-type]
             )
         except TypeError as e:
             if str(e) == "Expected bytes, got HDFStore":
@@ -110,10 +113,12 @@ class HDFWriterMixin:
             buf.open()
 
         scalars = {}
+        units = {}
         for key, value in elements.items():
             if value is None:
                 value = "none"
             if hasattr(value, "cgs"):
+                units[key] = str(value.cgs.unit)
                 value = value.cgs.value
             if np.isscalar(value):
                 scalars[key] = value
@@ -164,6 +169,11 @@ class HDFWriterMixin:
         if scalars:
             pd.Series(scalars, name="value").to_hdf(
                 buf, key=str(Path(path) / "scalars")
+            )
+
+        if units:
+            pd.Series(units, name="unit").to_hdf(
+                buf, key=str(Path(path) / "units")
             )
 
         if buf.is_open:
@@ -244,13 +254,18 @@ class HDFWriterMixin:
             except AttributeError:
                 name = self.convert_to_snake_case(self.__class__.__name__)
                 logger.debug(
-                    "self.hdf_name not present, setting name to %s for HDF", name
+                    "self.hdf_name not present, setting name to %s for HDF",
+                    name,
                 )
 
         data = self.get_properties()
         buff_path = str(Path(path) / (name or ""))
         self.to_hdf_util(
-            file_path_or_buf, buff_path, data, overwrite=overwrite, format=format
+            file_path_or_buf,
+            buff_path,
+            data,
+            overwrite=overwrite,
+            format=format,
         )
 
 
