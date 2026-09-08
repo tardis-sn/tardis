@@ -532,7 +532,7 @@ def test_charge_conserving_solver_matches_iip_with_full_atomic_data(
     )
     ion_pop_solver = IonPopulationSolver(iip_charge_conserving_rate_matrix)
     actual_ion_population, actual_electron_density = ion_pop_solver.solve(
-        PlanckianRadiationField(plasma.t_electrons * u.K),
+        PlanckianRadiationField(iip_plasma_after_mc.t_electrons * u.K),
         electron_distribution,
         iip_plasma_after_mc.number_density,
         iip_plasma_after_mc.lte_level_number_density,
@@ -587,7 +587,7 @@ def test_charge_conserving_solver_only_resolves_unconverged_shells(
 
     monkeypatch.setattr(solver, "solve_shell_charge", record_solve_shell_charge)
     solver.solve(
-        PlanckianRadiationField(plasma.t_electrons * u.K),
+        PlanckianRadiationField(iip_plasma_after_mc.t_electrons * u.K),
         electron_distribution,
         iip_plasma_after_mc.number_density,
         iip_plasma_after_mc.lte_level_number_density,
@@ -1573,6 +1573,64 @@ def iip_equilibrium_evaluator(
         tau_coefficient,
         np.arange(len(line_index), dtype=np.int64),
         line_index,
+    )
+
+    collision_rate_solver = ThermalCollisionalRateSolver(
+        equilibrium_levels,
+        plasma.lines,
+        plasma.atomic_data.collision_data_temperatures,
+        plasma.atomic_data.yg_data,
+        collision_strengths_type="cmfgen",
+    )
+
+    rate_matrix = RateMatrix(
+        RadiativeRatesSolver(plasma.lines),
+        collision_rate_solver,
+        equilibrium_levels,
+    )
+
+    jblues_df = pd.DataFrame(
+        plasma.j_blues,
+        index=plasma.lines.index,
+        columns=plasma.number_density.columns,
+    )
+
+    sobolev_inputs_per_shell = tuple(
+        sobolev_input for _ in plasma.number_density.columns
+    )
+
+    estimated_photoion_rate_solver = EstimatedPhotoionizationRateSolver(
+        photoionization_data,
+        level2continuum_edge_idx,
+        estimators,
+        time_simulation,
+        volume,
+    )
+
+    coll_ion_rate_solver = CollisionalIonizationRateSolver(photoionization_data)
+
+    estimated_ion_rate_matrix = EstimatedIonRateMatrix(
+        estimated_photoion_rate_solver,
+        coll_ion_rate_solver,
+        plasma.phi,
+    )
+
+    ion_pop_solver = IonPopulationSolver(estimated_ion_rate_matrix)
+
+    bf_thermal_rates = BoundFreeThermalRates(photoionization_data)
+    ff_thermal_rates = FreeFreeThermalRates()
+    coll_ion_thermal_rates = CollisionalIonizationThermalRates(
+        photoionization_data
+    )
+    coll_bound_thermal_rates = CollisionalBoundThermalRates(
+        lines=pd.DataFrame({"nu": np.asarray(plasma.nu_lines_coll)})
+    )
+
+    thermal_balance_solver = ThermalBalanceSolver(
+        bf_thermal_rates,
+        ff_thermal_rates,
+        coll_ion_thermal_rates,
+        coll_bound_thermal_rates,
     )
 
     return PlasmaEquilibriumEvaluator(

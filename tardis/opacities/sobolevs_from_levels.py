@@ -53,9 +53,18 @@ def calculate_sobolev_opacities_from_level_densities(
         n_lower = level_density_values[lines_lower_level_index[line_index]]
         n_upper = level_density_values[lines_upper_level_index[line_index]]
 
-        population_difference = (
-            n_lower - (g_lower[line_index] / g_upper[line_index]) * n_upper
+        stimulated_emission_factor = 1 - (
+            g_lower[line_index] * n_upper / (g_upper[line_index] * n_lower)
         )
+        if (
+            n_lower == 0.0
+            or np.isneginf(stimulated_emission_factor)
+            or (
+                meta_stable_upper[line_index] and stimulated_emission_factor < 0
+            )
+            or (nlte_lines_mask[line_index] and stimulated_emission_factor < 0)
+        ):
+            stimulated_emission_factor = 0.0
 
         tau_sobolevs[i] = (
             tau_coefficient[line_index] * n_lower * stimulated_emission_factor
