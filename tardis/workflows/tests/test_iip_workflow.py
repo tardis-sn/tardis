@@ -613,7 +613,14 @@ def test_type_iip_workflow_initial_plasma_regression(
     type_iip_workflow,
     regression_data,
 ):
-    """Compare initial IIP plasma outputs with regression references."""
+    """Compare the standard dilute-LTE bootstrap with legacy IIP outputs.
+
+    Claim: Initial populations, continuum opacity, and Sobolev quantities
+    retain observable legacy parity before the first Monte Carlo estimators.
+    Regime: The five-shell Type IIP comparison configuration.
+    Verification: Stored IIP outputs are independent of the standard plasma
+    graph; ``1e-4`` permits their distinct nonlinear initialization paths.
+    """
     plasma = type_iip_workflow.plasma_solver
     outputs = {
         "ion_number_density": plasma.ion_number_density,
@@ -646,6 +653,12 @@ def test_type_iip_workflow_initial_plasma_regression(
 
 
 def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
+    """Compare initialized IIP plasma and continuum quantities with C-TARDIS.
+
+    Claim: The standard initialization preserves the legacy NLTE plasma state.
+    Regime: The post-NLTE initialization snapshot before Monte Carlo transport.
+    Verification: C-TARDIS HDF references provide an external implementation.
+    """
     tau_sobolevs_ctardis = pd.read_hdf(
         iip_regression_path / "ctardis_tau_sobolevs_init_nlte.h5",
         key="data",
@@ -1019,6 +1032,11 @@ def equilibrium_cooling_channels(
 def test_radiative_ionization_rates_match_iip_continuum(
     continuum_comparison_state: ContinuumComparisonState,
 ) -> None:
+    """Match corrected photoionization rates to the independent IIP solver.
+
+    The ``2e-6`` relative tolerance covers the cgs-constant differences between
+    the standard and legacy rate implementations.
+    """
 
     radiative_ionization_rate = AnalyticCorrectedPhotoionizationCoeffSolver(
         continuum_comparison_state.photoionization_data
@@ -1053,6 +1071,11 @@ def test_radiative_ionization_rates_match_iip_continuum(
 def test_radiative_recombination_rates_match_iip_continuum(
     continuum_comparison_state: ContinuumComparisonState,
 ) -> None:
+    """Match spontaneous recombination rates to the independent IIP solver.
+
+    The ``2e-4`` relative tolerance bounds accumulated continuum-quadrature
+    and cgs-constant differences.
+    """
     radiative_recombination_rate = (
         SpontaneousRecombinationCoeffSolver(
             continuum_comparison_state.photoionization_data
@@ -1075,6 +1098,7 @@ def test_collisional_excitation_rates_match_iip_continuum(
     continuum_comparison_state: ContinuumComparisonState,
     collisional_bound_rates: CollisionalBoundRates,
 ) -> None:
+    """Match collisional excitation rates for the shared transition table."""
     np.testing.assert_allclose(
         collisional_bound_rates.excitation.to_numpy(),
         continuum_comparison_state.continuum.collisional_excitation_rate.loc[
@@ -1091,6 +1115,7 @@ def test_collisional_deexcitation_rates_match_iip_continuum(
     continuum_comparison_state: ContinuumComparisonState,
     collisional_bound_rates: CollisionalBoundRates,
 ) -> None:
+    """Match collisional deexcitation rates for the shared transition table."""
     np.testing.assert_allclose(
         collisional_bound_rates.deexcitation.to_numpy(),
         continuum_comparison_state.continuum.collisional_deexcitation_rate.loc[
@@ -1105,6 +1130,7 @@ def test_collisional_ionization_rates_match_iip_continuum(
     continuum_comparison_state: ContinuumComparisonState,
     collisional_ionization_rate: pd.DataFrame,
 ) -> None:
+    """Match collisional ionization coefficients at identical plasma inputs."""
     pd.testing.assert_frame_equal(
         collisional_ionization_rate,
         continuum_comparison_state.continuum.collisional_ionization_rate.loc[
@@ -1119,6 +1145,7 @@ def test_collisional_recombination_rates_match_iip_continuum(
     continuum_comparison_state: ContinuumComparisonState,
     collisional_ionization_rate: pd.DataFrame,
 ) -> None:
+    """Match collisional recombination after applying the Saha population ratio."""
     collisional_recombination_rate = (
         collisional_ionization_rate
         * continuum_comparison_state.level_to_ion_population_factor
@@ -1137,6 +1164,11 @@ def test_cooling_channel_probabilities_match_iip_continuum(
     continuum_comparison_state: ContinuumComparisonState,
     equilibrium_cooling_channels: npt.NDArray[np.float64],
 ) -> None:
+    """Match the four cooling-channel fractions from independent rate totals.
+
+    The ``3e-4`` tolerance allows the free-bound quadrature and cgs-constant
+    differences that accumulate when normalizing the four channels.
+    """
     actual = equilibrium_cooling_channels / equilibrium_cooling_channels.sum(
         axis=0
     )
@@ -1168,6 +1200,11 @@ def test_iip_process_probabilities_normalize_per_shell(
     continuum_comparison_state: ContinuumComparisonState,
     process_name: str,
 ) -> None:
+    """Conserve unit cooling probability in every active shell and process.
+
+    The ``1e-12`` tolerance is floating-point summation error for normalized
+    probabilities; it detects a missing or duplicated cooling branch.
+    """
     probabilities = getattr(
         continuum_comparison_state.continuum,
         f"{process_name}_cooling_array",
@@ -1680,7 +1717,14 @@ def test_evaluator_matches_iip_five_shell_path(
     type_iip_workflow: TypeIIPWorkflow,
     iip_equilibrium_evaluator: PlasmaEquilibriumEvaluator,
 ) -> None:
-    """Compare the real evaluator composition with accepted IIP shells."""
+    """Compare the real evaluator composition with accepted IIP shells.
+
+    Claim: The standard evaluator closes populations, charge, heating, and
+    Sobolev opacity at the legacy accepted thermal-balance state.
+    Regime: Five representative shells, including an off-root trial state.
+    Verification: Independent IIP thermal-rate calculations and stored state;
+    closure tolerances follow the thermal-balance residual criteria.
+    """
     plasma = iip_plasma_after_thermal_balance
     shell_indices = pd.Index([0, 2, 3, 8, 23])
     evaluator = iip_equilibrium_evaluator
@@ -2032,6 +2076,14 @@ def test_thermal_balance_solver(
     iip_plasma_after_mc,
     regression_data,
 ):
+    """Close the standard thermal-balance state while retaining IIP parity.
+
+    Claim: The solver normalizes populations and closes level, charge, electron,
+    and heating residuals before producing legacy-consistent opacity.
+    Regime: The post-Monte-Carlo five-shell Type IIP state.
+    Verification: Conservation residuals are independent solver invariants;
+    C-TARDIS files and regression data independently check observable parity.
+    """
     plasma = type_iip_workflow.plasma_solver
     continuum_estimators = {
         "photo_ion_estimator": iip_plasma_after_mc.photo_ion_estimator,
@@ -2253,6 +2305,11 @@ def test_thermal_balance_solver(
 
 
 def test_solve_montecarlo(type_iip_workflow, regression_data):
+    """Preserve the Type IIP emergent luminosity after standard initialization.
+
+    The ``1e-5`` relative tolerance is the plan-wide legacy-parity allowance
+    for the non-bitwise-identical standard plasma bootstrap.
+    """
     opacity_states = type_iip_workflow.solve_opacity()
     type_iip_workflow.solve_montecarlo(opacity_states, 1000)
 
@@ -2276,6 +2333,14 @@ def test_solve_montecarlo(type_iip_workflow, regression_data):
 def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     tardis_regression_path: Path,
 ) -> None:
+    """Evaluate finite outer-shell opacity at the 1500 K thermal floor.
+
+    Claim: A zero LTE hydrogen-ion population produces the stimulated-
+    recombination correction in ``chi_bf`` without invalid opacity values.
+    Regime: Second opacity iteration in shells forced to the 1500 K floor.
+    Verification: The expected opacity is evaluated directly from the
+    bound-free population equation, independently of continuum-state assembly.
+    """
     config = Configuration.from_yaml(
         "tardis/workflows/tests/data/iip_population_cutoff.yml"
     )
@@ -2356,6 +2421,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         / forced_t_electrons
         * (const.h.cgs.value / const.k_B.cgs.value)
     )
+    # chi_bf = [n_l - n_e n_(ion+1) Phi_lu exp(-h nu / k_B T_e)] sigma_bf.
     expected_chi_bf = (
         plasma_solver.level_number_density.loc[cross_sections.index]
         - stimulated_recombination_population * boltzmann_factor

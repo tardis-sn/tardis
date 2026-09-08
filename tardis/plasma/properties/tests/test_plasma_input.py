@@ -10,6 +10,8 @@ from tardis.plasma.properties.plasma_input import (
 
 
 class EquilibriumStateObserver(ProcessingPlasmaProperty):
+    """Observe the three equilibrium inputs received by a dependent property."""
+
     outputs = ("equilibrium_state_observation",)
 
     def __init__(self, plasma_parent: BasePlasma) -> None:
@@ -35,6 +37,14 @@ class EquilibriumStateObserver(ProcessingPlasmaProperty):
 
 
 def test_equilibrium_inputs_are_published_before_downstream_update() -> None:
+    """Publish a complete equilibrium state before recomputing dependents.
+
+    Claim: A dependent plasma property receives electron, ion, and level
+    densities from one update, rather than a mixture of old and new states.
+    Regime: One shell with distinct sentinel values for each input.
+    Verification: Object identity distinguishes the three supplied values from
+    any stale values without reproducing the plasma-update implementation.
+    """
     input_properties = (
         ElectronDensitiesInput,
         IonNumberDensityInput,
