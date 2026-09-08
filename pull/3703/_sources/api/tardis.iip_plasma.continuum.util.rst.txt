@@ -1,7 +1,0 @@
-tardis.iip\_plasma.continuum.util module
-========================================
-
-.. automodule:: tardis.iip_plasma.continuum.util
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -1,7 +1,0 @@
-tardis.workflows.util module
-============================
-
-.. automodule:: tardis.workflows.util
-   :members:
-   :show-inheritance:
-   :undoc-members:

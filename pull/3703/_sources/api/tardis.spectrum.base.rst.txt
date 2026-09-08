@@ -1,7 +1,0 @@
-tardis.spectrum.base module
-===========================
-
-.. automodule:: tardis.spectrum.base
-   :members:
-   :show-inheritance:
-   :undoc-members:

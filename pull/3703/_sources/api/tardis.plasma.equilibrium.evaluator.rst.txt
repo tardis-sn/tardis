@@ -1,7 +1,0 @@
-tardis.plasma.equilibrium.evaluator module
-==========================================
-
-.. automodule:: tardis.plasma.equilibrium.evaluator
-   :members:
-   :show-inheritance:
-   :undoc-members:

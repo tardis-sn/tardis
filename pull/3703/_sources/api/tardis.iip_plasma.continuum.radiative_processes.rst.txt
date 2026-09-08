@@ -1,7 +1,0 @@
-tardis.iip\_plasma.continuum.radiative\_processes module
-========================================================
-
-.. automodule:: tardis.iip_plasma.continuum.radiative_processes
-   :members:
-   :show-inheritance:
-   :undoc-members:
