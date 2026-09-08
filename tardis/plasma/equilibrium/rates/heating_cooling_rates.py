@@ -117,6 +117,8 @@ class BoundFreeThermalRates:
             * level_population.loc[integrated_heating_coefficient.index]
         ).sum()
 
+        ### COOLING
+
         cooling_rate = self.calculate_cooling_rate(
             ion_population,
             thermal_electron_distribution,
@@ -134,6 +136,7 @@ class BoundFreeThermalRates:
         stimulated_recombination_estimator: pd.DataFrame | None = None,
     ) -> pd.DataFrame:
         """Calculate free-bound cooling rates for each recombining level."""
+        # Lucy 03 eq 59
         nu_i = self.photoionization_cross_sections.nu.groupby(
             level=[0, 1, 2]
         ).first()
@@ -170,6 +173,7 @@ class BoundFreeThermalRates:
             index=self.photoionization_index,
         )
 
+        # Lymann and generalized ground state handling
         ground_state_mask = (
             integrated_cooling_coefficient.index.get_level_values("ion_number")
             == 0
