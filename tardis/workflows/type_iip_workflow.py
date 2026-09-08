@@ -367,7 +367,7 @@ class TypeIIPWorkflow:
     def initialize_radiation_field(
         geometry_state, number_density, initial_t_inner, dilution_factor
     ):
-        """Set up the radiation field properties for a IIP
+        """Set up the radiation field properties for a IIP.
 
         Parameters
         ----------
@@ -433,7 +433,7 @@ class TypeIIPWorkflow:
         return t_rads, dilution_factor
 
     def get_convergence_estimates(self):
-        """Compute convergence estimates from the transport state
+        """Compute convergence estimates from the transport state.
 
         Returns
         -------
@@ -493,7 +493,7 @@ class TypeIIPWorkflow:
         self,
         estimated_values,
     ):
-        """Check convergence status for a dict of estimated values
+        """Check convergence status for a dict of estimated values.
 
         Parameters
         ----------
@@ -563,7 +563,7 @@ class TypeIIPWorkflow:
         return next_values
 
     def update_estimators(self):
-        """Update the estimators for the radiation field
+        """Update the estimators for the radiation field.
 
         Returns
         -------
@@ -624,7 +624,7 @@ class TypeIIPWorkflow:
         continuum_estimators: Mapping[str, object],
         j_blues_df: pd.DataFrame,
     ) -> None:
-        """Update the plasma solution with the new radiation field estimates
+        """Update the plasma solution with the new radiation field estimates.
 
         Parameters
         ----------
@@ -1202,7 +1202,7 @@ class TypeIIPWorkflow:
         return continuum_estimators, j_blues
 
     def get_radiation_field_damping_factor(self, j_estimators):
-        """Compute the radiation field damping factor
+        """Compute the radiation field damping factor.
 
         Parameters
         ----------
@@ -1233,7 +1233,7 @@ class TypeIIPWorkflow:
     def get_ff_heating_norm_factor(
         ion_number_density, electron_densities, t_electrons
     ):
-        """Compute the free-free heating normalization factor
+        """Compute the free-free heating normalization factor.
 
         Parameters
         ----------
@@ -1262,7 +1262,7 @@ class TypeIIPWorkflow:
         return norm_factor
 
     def solve_opacity(self):
-        """Solves the opacity state and any associated objects
+        """Solve the opacity state and any associated objects.
 
         Returns
         -------
@@ -1296,7 +1296,7 @@ class TypeIIPWorkflow:
     def solve_montecarlo(
         self, opacity_states, no_of_real_packets, no_of_virtual_packets=0
     ):
-        """Solve the MonteCarlo process
+        """Solve the Monte Carlo process.
 
         Parameters
         ----------
@@ -1332,12 +1332,12 @@ class TypeIIPWorkflow:
     def initialize_spectrum_solver(
         self,
     ):
-        """Set up the spectrum solver"""
+        """Set up the spectrum solver."""
         # probably needs to expand again in the future to handle formal integral
         self.spectrum_solver.transport_state = self.transport_state
 
     def run(self):
-        """Run the TARDIS simulation until convergence is reached"""
+        """Run the TARDIS simulation until convergence is reached."""
         # Initialize iterations progress bar if showing progress bars
         if self.show_progress_bars:
             initialize_iterations_pbar(self.total_iterations)

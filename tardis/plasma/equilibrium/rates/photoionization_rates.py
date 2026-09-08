@@ -24,6 +24,13 @@ class AnalyticPhotoionizationRateSolver:
     """Solve analytic photoionization and spontaneous recombination rates."""
 
     def __init__(self, photoionization_cross_sections):
+        """Initialize an analytic photoionization rate solver.
+
+        Parameters
+        ----------
+        photoionization_cross_sections : pandas.DataFrame
+            Photoionization cross sections indexed by atomic level.
+        """
         self.photoionization_cross_sections = photoionization_cross_sections
 
         self.spontaneous_recombination_rate_coeff_solver = (
@@ -65,6 +72,10 @@ class AnalyticPhotoionizationRateSolver:
             Estimated ion number density. Columns are cells.
         level_to_continuum_saha_factor : pd.DataFrame, optional
             Density-independent Lucy level-to-continuum Saha factor.
+        partition_function : pandas.DataFrame
+            Partition functions by ion and shell.
+        level_boltzmann_factor : pandas.DataFrame
+            Level Boltzmann factors by shell.
 
         Returns
         -------
@@ -153,6 +164,21 @@ class EstimatedPhotoionizationRateSolver:
         time_simulation=None,
         volume=None,
     ):
+        """Initialize a fixed-estimator photoionization rate solver.
+
+        Parameters
+        ----------
+        photoionization_cross_sections : pandas.DataFrame
+            Photoionization cross sections indexed by atomic level.
+        level2continuum_edge_idx : pandas.Series
+            Mapping from levels to continuum edge indices.
+        estimators_continuum : object, optional
+            Monte Carlo continuum estimators.
+        time_simulation : astropy.units.Quantity, optional
+            Simulation time used to normalize estimators.
+        volume : astropy.units.Quantity, optional
+            Cell volume used to normalize estimators.
+        """
         self.photoionization_cross_sections = photoionization_cross_sections
         self.spontaneous_recombination_rate_coeff_solver = (
             SpontaneousRecombinationCoeffSolver(

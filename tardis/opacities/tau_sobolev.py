@@ -1,7 +1,7 @@
-from numba import njit, prange
 import numpy as np
 import pandas as pd
 from astropy import units as u
+from numba import njit, prange
 
 from tardis import constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
@@ -76,7 +76,20 @@ def calculate_sobolev_line_opacity(
 
 @njit(**njit_dict)
 def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
-    """Fill an array with Sobolev escape probabilities in place."""
+    """Fill an array with Sobolev escape probabilities in place.
+
+    Parameters
+    ----------
+    tau_sobolevs : numpy.ndarray
+        Sobolev optical depths.
+    beta_sobolevs : numpy.ndarray
+        Output array updated with escape probabilities.
+
+    Returns
+    -------
+    numpy.ndarray
+        The updated ``beta_sobolevs`` array.
+    """
     for i in prange(len(tau_sobolevs)):
         if tau_sobolevs[i] > 1e3:
             beta_sobolevs[i] = tau_sobolevs[i] ** -1

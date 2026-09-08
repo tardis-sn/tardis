@@ -223,22 +223,22 @@ class ContinuumOpacityState:
     @property
     def bf_threshold_list_nu(self) -> pd.Series:
         """
-        List of Bound-Free Threshold Frequencies
+        List of bound-free threshold frequencies.
 
         Returns
         -------
-        pd.DataFrame
+        pandas.Series
         """
         return self.nu_i.loc[self.level2continuum_idx.index]
 
     @property
     def phot_nus(self) -> pd.Series:
         """
-        Frequencies corresponding to Photoionization Cross Sections
+        Frequencies corresponding to photoionization cross sections.
 
         Returns
         -------
-        pd.DataFrame
+        pandas.Series
         """
         return self.photo_ion_cross_sections.nu.loc[
             self.level2continuum_idx.index
@@ -246,11 +246,11 @@ class ContinuumOpacityState:
 
     @property
     def photo_ion_block_references(self) -> npt.NDArray[np.int64]:
-        """Photoionization Block References
+        """Return the boundaries of photoionization frequency blocks.
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
         """
         return np.pad(
             self.phot_nus.groupby(level=[0, 1, 2], sort=False)
@@ -262,33 +262,33 @@ class ContinuumOpacityState:
     @property
     def photo_ion_nu_threshold_mins(self) -> pd.Series:
         """
-        Minimum Edges of the photoionization threshold frequencies
+        Minimum edges of the photoionization threshold frequencies.
 
         Returns
         -------
-        pd.DataFrame
+        pandas.Series
         """
         return self.phot_nus.groupby(level=[0, 1, 2], sort=False).first()
 
     @property
     def photo_ion_nu_threshold_maxs(self) -> pd.Series:
         """
-        Maximum Edges of the photoionization threshold frequencies
+        Maximum edges of the photoionization threshold frequencies.
 
         Returns
         -------
-        pd.DataFrame
+        pandas.Series
         """
         return self.phot_nus.groupby(level=[0, 1, 2], sort=False).last()
 
     @property
     def x_sect(self) -> pd.Series:
         """
-        Photoionization Cross Sections mapped to the continuum indices
+        Photoionization cross sections mapped to the continuum indices.
 
         Returns
         -------
-        pd.DataFrame
+        pandas.Series
         """
         return self.photo_ion_cross_sections.x_sect.loc[
             self.level2continuum_idx.index
@@ -297,7 +297,7 @@ class ContinuumOpacityState:
     @property
     def chi_bf(self) -> pd.DataFrame:
         """
-        Bound-Free Opacities indices corresponding to the continuum levels
+        Bound-free opacities corresponding to the continuum levels.
 
         Returns
         -------
@@ -308,7 +308,7 @@ class ContinuumOpacityState:
     @property
     def emissivities(self) -> pd.DataFrame:
         """
-        Free-bound Emissivities corresponding to the continuum levels
+        Free-bound emissivities corresponding to the continuum levels.
 
         Returns
         -------
@@ -319,7 +319,7 @@ class ContinuumOpacityState:
     @property
     def photo_ion_activation_idx(self) -> pd.Series:
         """
-        Index corresponding to photoionization activation
+        Index corresponding to photoionization activation.
 
         Returns
         -------

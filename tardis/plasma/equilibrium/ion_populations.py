@@ -123,8 +123,14 @@ class IonPopulationSolver:
             Previous estimated ion number density. Columns are cells.
         level_to_continuum_saha_factor : pandas.DataFrame
             Density-independent Lucy level-to-continuum Saha factor.
+        partition_function : pandas.DataFrame
+            Partition functions used by the rate-matrix solver.
+        boltzmann_factor : pandas.DataFrame
+            Boltzmann factors used by the rate-matrix solver.
         elemental_number_density : pandas.DataFrame
             Elemental number density. Index is atomic number, columns are cells.
+        lte_ionization_factor : pandas.DataFrame, optional
+            LTE ionization factors used to normalize ionization rates.
 
         Returns
         -------
@@ -323,6 +329,8 @@ class IonPopulationSolver:
         maximum_electron_density : npt.NDArray[np.float64]
             Maximum possible electron number density for each shell, used to
             normalize the charge residual.
+        lte_ionization_factor : pandas.DataFrame, optional
+            LTE ionization factors used to normalize charge rates.
 
         Returns
         -------
@@ -403,6 +411,8 @@ class IonPopulationSolver:
             Density-independent Lucy level-to-continuum Saha factor.
         elemental_number_density : pd.DataFrame
             Elemental number densities indexed by atomic number and shell.
+        lte_ionization_factor : pandas.DataFrame, optional
+            LTE ionization factors used to normalize charge rates.
 
         Returns
         -------
@@ -415,7 +425,6 @@ class IonPopulationSolver:
             If the charge residual is not bracketed over the allowed electron
             density interval.
         """
-
         shell_columns = [elemental_number_density.columns[shell_idx]]
         if radiation_field is None:
             shell_radiation_field = None
@@ -543,6 +552,8 @@ class IonPopulationSolver:
             Density-independent Lucy level-to-continuum Saha factor.
         tolerance : float
             Relative convergence tolerance for the ion populations.
+        lte_ionization_factor : pandas.DataFrame, optional
+            LTE ionization factors used to normalize charge rates.
 
         Returns
         -------
@@ -785,6 +796,8 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
             Level Boltzmann factors.
         tolerance : float
             Relative convergence tolerance for ion and electron populations.
+        lte_ionization_factor : pandas.DataFrame, optional
+            LTE ionization factors used to normalize ionization rates.
 
         Returns
         -------

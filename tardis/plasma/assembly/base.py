@@ -64,6 +64,15 @@ class PlasmaSolverFactory:
         atom_data: object,
         config: object | None = None,
     ) -> None:
+        """Initialize a plasma solver factory.
+
+        Parameters
+        ----------
+        atom_data : object
+            Atomic data used to prepare plasma properties.
+        config : object, optional
+            Simulation configuration containing plasma settings.
+        """
         self.plasma_modules = []
         self.property_kwargs = {}
         if config is not None:
@@ -125,6 +134,8 @@ class PlasmaSolverFactory:
             The property collection module to be used in the plasma assembly.
         config : object, optional
             Configuration object containing plasma settings (default: None).
+        allow_continuum : bool, optional
+            Whether continuum interactions are allowed for this plasma.
         """
         self.plasma_collection = importlib.import_module(property_collections)
 
@@ -344,6 +355,10 @@ class PlasmaSolverFactory:
             The time of explosion.
         electron_densities : array-like, optional
             Optional electron densities.
+        equilibrium_state : object, optional
+            Accepted equilibrium state used by the IIP workflow.
+        kwargs : object
+            Additional property inputs passed to the plasma graph.
 
         Returns
         -------

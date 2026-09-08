@@ -55,7 +55,36 @@ class ContinuumMacroAtomState:
         t_electrons: npt.ArrayLike,
         stimulated_recombination_cooling_estimator: pd.DataFrame | None = None,
     ) -> ContinuumMacroAtomState:
-        """Format accepted equilibrium rates for continuum macro atoms."""
+        """Format accepted equilibrium rates for continuum macro atoms.
+
+        Parameters
+        ----------
+        atomic_data : object
+            Atomic levels and collision data used for collisional rates.
+        lines : pandas.DataFrame
+            Bound-bound transitions associated with the continuum species.
+        photo_ion_cross_sections : pandas.DataFrame
+            Photoionization thresholds and cross sections.
+        continuum_coefficients : ContinuumCoefficientState
+            Equilibrium continuum rate coefficients.
+        level_to_continuum_saha_factor : pandas.DataFrame
+            Saha factors relating bound levels to their continua.
+        ion_number_density : pandas.DataFrame
+            Ion populations for each shell.
+        level_number_density : pandas.DataFrame
+            Level populations for each shell.
+        electron_densities : pandas.Series
+            Electron number densities for each shell.
+        t_electrons : numpy.typing.ArrayLike
+            Electron temperatures for each shell.
+        stimulated_recombination_cooling_estimator : pandas.DataFrame, optional
+            Estimated stimulated-recombination cooling, if available.
+
+        Returns
+        -------
+        ContinuumMacroAtomState
+            Continuum rates and cooling branches for transport.
+        """
         columns = level_number_density.columns
         photo_ion_index = photo_ion_cross_sections.index.unique()
         upper_ion_index = pd.MultiIndex.from_arrays(
@@ -267,7 +296,20 @@ class ContinuumMacroAtomState:
 def _normalize_cooling_rates(
     rates: pd.DataFrame,
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
-    """Return shell totals and shell-by-transition branch probabilities."""
+    """Return shell totals and shell-by-transition branch probabilities.
+
+    Parameters
+    ----------
+    rates : pandas.DataFrame
+        Cooling rates indexed by transition and arranged by shell in columns.
+
+    Returns
+    -------
+    totals : numpy.ndarray
+        Total cooling rate in each shell.
+    probabilities : numpy.ndarray
+        Transition probabilities for each shell.
+    """
     totals = rates.sum(axis=0).to_numpy(dtype=np.float64)
     safe_totals = np.where(totals == 0.0, 1.0, totals)
     probabilities = rates.to_numpy(dtype=np.float64).T / safe_totals[:, None]
@@ -277,7 +319,20 @@ def _normalize_cooling_rates(
 def _macro_atom_collisional_index(
     index: pd.MultiIndex, *, reverse: bool = False
 ) -> pd.MultiIndex:
-    """Use the transition index names expected by macro-atom kernels."""
+    """Use the transition index names expected by macro-atom kernels.
+
+    Parameters
+    ----------
+    index : pandas.MultiIndex
+        Transition index containing source and destination levels.
+    reverse : bool, default=False
+        Whether to reverse the source and destination levels.
+
+    Returns
+    -------
+    pandas.MultiIndex
+        Index with the level names expected by macro-atom kernels.
+    """
     if reverse:
         index = index.swaplevel(
             "level_number_source", "level_number_destination"

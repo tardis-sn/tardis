@@ -61,13 +61,16 @@ class OpacityState:
         Parameters
         ----------
         electron_density : pd.DataFrame
+            Electron number densities by shell.
         t_electrons : numpy.ndarray
             Electron temperatures in each shell [K].
-        line_list_nu : pd.DataFrame
+        line_list_nu : pd.Series
+            Rest-frame line frequencies.
         tau_sobolev : pd.DataFrame
+            Sobolev optical depths for each line and shell.
         beta_sobolev : pd.DataFrame or None
             Sobolev escape probabilities for each line and shell.
-        continuum_state : tardis.opacities.continuum.continuum_state.ContinuumOpacityState or None
+        continuum_state : ContinuumOpacityState or None
             Continuum quantities needed when continuum interactions are enabled.
         """
         self.electron_density = electron_density
@@ -135,6 +138,8 @@ class OpacityState:
             Sobolev optical depths for each line and shell.
         beta_sobolev : pd.DataFrame or None
             Sobolev escape probabilities for each line and shell.
+        continuum_state : ContinuumOpacityState or None
+            Continuum state to use instead of constructing one from ``plasma``.
 
         Returns
         -------
