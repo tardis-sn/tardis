@@ -1437,7 +1437,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             group sums to 1.0. The structure matches the first iteration output but
             with updated probability values.
         """
-        macro_atom_transition_metadata, *_ = self.computed_metadata
+        macro_atom_transition_metadata, _, _, _ = self.computed_metadata
         line_trans_internal_up_ids = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.INTERNAL_UP

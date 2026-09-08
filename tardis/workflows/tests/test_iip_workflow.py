@@ -1830,7 +1830,9 @@ def test_evaluator_matches_iip_five_shell_path(
         expected_normalized_levels,
     )
     type_iip_workflow._thermal_balance_evaluation = off_root_result
-    type_iip_workflow._publish_thermal_balance_state(off_root_candidate)
+    type_iip_workflow._update_plasma_with_thermal_balance_state(
+        off_root_candidate
+    )
     off_root_plasma = type_iip_workflow.plasma_solver
     pd.testing.assert_frame_equal(
         off_root_result.ion_population.loc[:, shell_indices],

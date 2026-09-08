@@ -129,11 +129,11 @@ def test_evaluator_uses_temperature_dependent_continuum_coefficients(
 ) -> None:
     """Keep fixed estimator coefficients while rebuilding thermal factors."""
     evaluator = toy_evaluator
-    (rates,), _, _, _, *_ = evaluator._calculate_continuum_rate_coefficients(
+    (rates,), *_ = evaluator._calculate_continuum_rate_coefficients(
         np.array([1.0e4])
     )
-    (hot_rates,), _, _, _, *_ = (
-        evaluator._calculate_continuum_rate_coefficients(np.array([2.0e4]))
+    (hot_rates,), *_ = evaluator._calculate_continuum_rate_coefficients(
+        np.array([2.0e4])
     )
     npt.assert_allclose(hot_rates.photoionization, rates.photoionization)
     assert not np.array_equal(
