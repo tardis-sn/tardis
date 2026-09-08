@@ -31,6 +31,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get regression data commit
+        uses: actions/checkout@v6
+        with:
+          repository: tardis-sn/tardis-regression-data
+          path: tardis-regression-data
+          fetch-depth: 1
+
+      - name: Record regression data commit
+        run: echo "REGRESSION_DATA_COMMIT=$(git -C tardis-regression-data rev-parse HEAD)" >> $GITHUB_ENV
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -100,6 +110,8 @@ jobs:
             This release has been created automatically by the TARDIS continuous delivery pipeline.
             ${{ env.doi_badge }}
             ${{ steps.git-cliff.outputs.content }}
+
+            Regression data: [${{ env.REGRESSION_DATA_COMMIT }}](https://github.com/tardis-sn/tardis-regression-data/commit/${{ env.REGRESSION_DATA_COMMIT }})
 
             A complete list of changes for this release is available at [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).
           files: |
