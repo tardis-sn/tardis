@@ -1,0 +1,7 @@
+tardis.opacities.continuum.macro\_atom\_state module
+====================================================
+
+.. automodule:: tardis.opacities.continuum.macro_atom_state
+   :members:
+   :show-inheritance:
+   :undoc-members:

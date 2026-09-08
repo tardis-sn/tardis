@@ -1,0 +1,7 @@
+tardis.energy\_input.transport.gamma\_ray\_grid module
+======================================================
+
+.. automodule:: tardis.energy_input.transport.gamma_ray_grid
+   :members:
+   :show-inheritance:
+   :undoc-members:

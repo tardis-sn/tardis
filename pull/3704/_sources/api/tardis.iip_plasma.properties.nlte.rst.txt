@@ -1,0 +1,7 @@
+tardis.iip\_plasma.properties.nlte module
+=========================================
+
+.. automodule:: tardis.iip_plasma.properties.nlte
+   :members:
+   :show-inheritance:
+   :undoc-members:

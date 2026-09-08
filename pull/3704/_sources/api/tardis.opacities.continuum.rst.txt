@@ -1,0 +1,20 @@
+tardis.opacities.continuum package
+==================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.opacities.continuum.bound_free
+   tardis.opacities.continuum.continuum_state
+   tardis.opacities.continuum.macro_atom_state
+
+Module contents
+---------------
+
+.. automodule:: tardis.opacities.continuum
+   :members:
+   :show-inheritance:
+   :undoc-members:
