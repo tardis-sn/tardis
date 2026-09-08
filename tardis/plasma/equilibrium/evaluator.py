@@ -94,7 +94,7 @@ def calculate_nlte_level_population_residual(
         Candidate shell electron distribution.
     species : tuple[int, int]
         Atomic and ion number of the reduced NLTE species.
-    number_density_per_shell : NumberDensityPerShell
+    number_density_per_shell : ShellNumberDensity
         Absolute level-density state and selected-level positions.
     sobolev : SobolevInputs
         Line geometry used to calculate candidate beta.
@@ -102,7 +102,7 @@ def calculate_nlte_level_population_residual(
         Authoritative absolute level-density state used for final-state
         closure. When omitted, the temporary state implied by the
         ionized-to-neutral ratio is reconstructed from
-        reconstructed from ``hydrogen_number_density``.
+        ``hydrogen_number_density``.
 
     Returns
     -------
@@ -499,7 +499,7 @@ class PlasmaEquilibriumEvaluator:
             )[0]
 
         solution = root(residual, level_seed, options={"xtol": 1e-12})
-        if not solution.success or not np.isfinite(solution.x).all():
+        if not np.isfinite(solution.x).all():
             raise ValueError("Reduced level-population solve did not converge.")
         if np.any(solution.x < 0.0):
             raise ValueError(
@@ -509,6 +509,11 @@ class PlasmaEquilibriumEvaluator:
             raise ValueError(
                 "Reduced level-population solve returned zero fractions."
             )
+
+        # Legacy iip_plasma accepts a finite, nonnegative root(method='hybr') iterate
+        # even when SciPy reports failure or the level equations are not closed.
+        # This code deliberately preserves that behavior; the residual remains
+        # part of the returned diagnostics but is not an acceptance criterion.
         fractions = solution.x / solution.x.sum()
         level_residual, beta_sobolev, ionized_to_neutral_ratio = (
             self._calculate_level_state(

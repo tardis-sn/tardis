@@ -44,7 +44,7 @@ def w(number_of_cells):
 
 @pytest.fixture
 def time_explosion():
-    return (19 * u.day).to(u.s).value
+    return (19 * u.day).to(u.s)
 
 
 @pytest.fixture
