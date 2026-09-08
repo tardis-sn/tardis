@@ -113,7 +113,8 @@ class RateMatrix:
         )
         beta_line_idx[np.all(radiative_rate_coefficients == 0.0, axis=1)] = -1
         number_of_levels = self.levels.energy.loc[species].count()
-        return tuple(
+
+        rate_matrices_per_shell = tuple(
             BoundBoundMatrixRates(
                 number_of_levels,
                 source_level_idx,
@@ -124,6 +125,8 @@ class RateMatrix:
             )
             for shell_idx in range(len(j_blues.columns))
         )
+
+        return rate_matrices_per_shell
 
     def assemble_matrices(
         self,

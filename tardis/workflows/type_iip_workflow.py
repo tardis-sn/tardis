@@ -120,16 +120,6 @@ class TypeIIPWorkflow:
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
 
         continuum_interactions = configuration.plasma.continuum_interaction
-        configured_continuum_species = {
-            tuple(species) if isinstance(species, tuple) else species
-            for species in continuum_interactions.species
-        }
-        if not {"H I", (1, 0)} & configured_continuum_species:
-            raise ValueError(
-                "Continuum interactions for 'H I' must be included for the "
-                "IIP workflow. Check plasma.continuum_interaction.species in "
-                "the configuration."
-            )
 
         elemental_number_density = (
             self.simulation_state.calculate_elemental_number_density(
@@ -151,11 +141,13 @@ class TypeIIPWorkflow:
 
         self.simulation_state.radiation_field_state = radiation_field
 
+        # create an initial LTE plasma
         bootstrap_factory = PlasmaSolverFactory(
             deepcopy(self.atom_data), configuration
         )
         bootstrap_factory.continuum_interaction_species = []
         bootstrap_factory.legacy_nlte_species = []
+
         # Type IIP historically uses the hydrogen evaluator with all other
         # species on the ordinary LTE path, including helium.
         bootstrap_factory.helium_treatment = "none"
@@ -170,6 +162,7 @@ class TypeIIPWorkflow:
             configuration.supernova.time_explosion.to("s"),
         )
 
+        # use the LTE plasma to create an NLTE plasma
         factory = PlasmaSolverFactory(self.atom_data, configuration)
         factory.helium_treatment = "none"
         factory.legacy_nlte_species = list(
@@ -181,8 +174,11 @@ class TypeIIPWorkflow:
             configuration,
             allow_continuum=True,
         )
+
+        # force hydrogen Lymann photoion x-sect to 0.0
         if (1, 0, 0) in self.atom_data.photoionization_data.index:
             self.atom_data.photoionization_data.loc[(1, 0, 0), "x_sect"] = 0.0
+
         self.plasma_solver = factory.assemble(
             elemental_number_density,
             radiation_field,
@@ -197,6 +193,7 @@ class TypeIIPWorkflow:
                 * np.ones(self.simulation_state.geometry.no_of_shells_active)
             ),
         )
+
         self._continuum_estimators = None
         self._tau_sobolev = calculate_sobolev_line_opacity(
             self.atom_data.lines,
@@ -204,7 +201,9 @@ class TypeIIPWorkflow:
             self.plasma_solver.time_explosion,
             self.plasma_solver.stimulated_emission_factor,
         )
+
         self._beta_sobolev = calculate_beta_sobolev(self._tau_sobolev)
+
         maximum_electron_density = (
             self.plasma_solver.number_density.multiply(
                 self.plasma_solver.number_density.index.values, axis=0
@@ -212,9 +211,11 @@ class TypeIIPWorkflow:
             .sum()
             .to_numpy()
         )
+
         initial_evaluator = self._build_thermal_balance_evaluator(
             maximum_electron_density, analytic=True
         )
+
         (
             initial_continuum_coefficients,
             initial_level_to_continuum_saha_factor,
@@ -223,6 +224,7 @@ class TypeIIPWorkflow:
         ) = initial_evaluator.calculate_continuum_coefficients(
             self.plasma_solver.t_electrons
         )
+
         self._build_continuum_states(
             initial_continuum_coefficients,
             initial_level_to_continuum_saha_factor,
@@ -645,7 +647,6 @@ class TypeIIPWorkflow:
     def _build_thermal_balance_evaluator(
         self,
         maximum_electron_density: npt.NDArray[np.float64],
-        *,
         analytic: bool = False,
         fixed_estimators: object | None = None,
     ) -> PlasmaEquilibriumEvaluator:
@@ -943,11 +944,11 @@ class TypeIIPWorkflow:
         logger.info("Heating: %s", fractional_heating)
         return solution
 
-    def _publish_thermal_balance_state(
+    def _update_plasma_with_thermal_balance_state(
         self,
         candidate: npt.NDArray[np.float64],
     ) -> None:
-        """Publish one accepted evaluator result to the plasma graph."""
+        """Update the plasma graph with one accepted evaluator result."""
         evaluation = self._thermal_balance_evaluation
         self.plasma_solver.update(
             electron_densities=evaluation.charge_solved_electron_density,
@@ -1106,7 +1107,7 @@ class TypeIIPWorkflow:
             args=(max_electron_number_density,),
         )
         # Preserve the frozen seed used by the optimizer for the first rebuild,
-        # then use that accepted population as the canonical final-state seed.
+        # then use that accepted population as the final-state seed.
         accepted_candidate = thermal_lsq_result.x
         accepted_seed_evaluation = self._thermal_balance_evaluator.evaluate(
             max_electron_number_density * accepted_candidate[::2],
@@ -1125,7 +1126,7 @@ class TypeIIPWorkflow:
         self._validate_thermal_balance_evaluation(
             self._thermal_balance_evaluation
         )
-        self._publish_thermal_balance_state(accepted_candidate)
+        self._update_plasma_with_thermal_balance_state(accepted_candidate)
 
     def solve_continuum_state(
         self, continuum_estimators: Mapping[str, object]

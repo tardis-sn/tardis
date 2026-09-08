@@ -630,9 +630,10 @@ class PlasmaEquilibriumEvaluator:
         if not np.isfinite(level_solution).all():
             raise ValueError("Reduced level-population solve did not converge.")
         if np.any(level_solution < 0.0):
-            # Match iip_plasma's general fallback: HYBR is retained whenever
-            # its iterate is physical, while a negative iterate is rebuilt by
-            # the slower bounded solver instead of clipped or accepted.
+            # Match iip_plasma's general fallback: scipy root HYBR result is
+            # retained whenever its iterate is physical, while a negative
+            # iterate is rebuilt by the slower bounded solver instead of clipped
+            # or accepted.
             level_solution = least_squares(
                 residual,
                 level_seed,
