@@ -28,7 +28,8 @@ class OpacitySolver:
         ----------
         line_interaction_type: str
             "scatter", "downbranch", or "macroatom"
-        disable_line_scattering: bool
+        disable_line_scattering : bool
+            Whether to replace line optical depths with zero.
         """
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
@@ -81,6 +82,12 @@ class OpacitySolver:
         ----------
         plasma : tardis.plasma.BasePlasma
             legacy base plasma
+        continuum_state : ContinuumOpacityState, optional
+            Continuum state to include in the opacity state.
+        tau_sobolev : pandas.DataFrame, optional
+            Precomputed Sobolev optical depths.
+        beta_sobolev : pandas.DataFrame, optional
+            Precomputed Sobolev escape probabilities.
 
         Returns
         -------

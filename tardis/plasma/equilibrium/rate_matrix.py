@@ -332,6 +332,15 @@ class AnalyticIonRateMatrix:
         radiative_ionization_rate_solver: AnalyticPhotoionizationRateSolver,
         collisional_ionization_rate_solver: CollisionalIonizationRateSolver,
     ) -> None:
+        """Initialize an analytic ionization rate matrix.
+
+        Parameters
+        ----------
+        radiative_ionization_rate_solver : AnalyticPhotoionizationRateSolver
+            Solver for radiative ionization and recombination rates.
+        collisional_ionization_rate_solver : CollisionalIonizationRateSolver
+            Solver for collisional ionization and recombination rates.
+        """
         self.radiative_ionization_rate_solver = radiative_ionization_rate_solver
         self.collisional_ionization_rate_solver = (
             collisional_ionization_rate_solver
@@ -373,6 +382,12 @@ class AnalyticIonRateMatrix:
         level_to_continuum_saha_factor : pandas.DataFrame, optional
             Density-independent Lucy level-to-continuum Saha factor. When
             omitted, retain the existing LTE-population-derived behavior.
+        partition_function : pandas.DataFrame
+            Partition functions by ion and shell.
+        boltzmann_factor : pandas.DataFrame
+            Level Boltzmann factors by shell.
+        lte_ionization_factor : pandas.DataFrame, optional
+            LTE ionization factors used to normalize rates.
 
         Returns
         -------
@@ -432,6 +447,17 @@ class EstimatedIonRateMatrix:
         collisional_ionization_rate_solver: CollisionalIonizationRateSolver,
         lte_ionization_factor: pd.DataFrame | None = None,
     ) -> None:
+        """Initialize an estimator-based ionization rate matrix.
+
+        Parameters
+        ----------
+        radiative_ionization_rate_solver : EstimatedPhotoionizationRateSolver
+            Solver for estimator-based radiative rates.
+        collisional_ionization_rate_solver : CollisionalIonizationRateSolver
+            Solver for collisional ionization and recombination rates.
+        lte_ionization_factor : pandas.DataFrame, optional
+            LTE ionization factors used for rate normalization.
+        """
         self.radiative_ionization_rate_solver = radiative_ionization_rate_solver
         self.collisional_ionization_rate_solver = (
             collisional_ionization_rate_solver

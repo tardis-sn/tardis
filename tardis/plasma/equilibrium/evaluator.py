@@ -86,7 +86,30 @@ def calculate_lte_populations(
     thermal_level_boltzmann_factor: pd.DataFrame,
     levels: pd.DataFrame | pd.MultiIndex,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Calculate LTE ion and level populations at an explicit density."""
+    """Calculate LTE ion and level populations at an explicit density.
+
+    Parameters
+    ----------
+    thermal_saha_factor : pandas.DataFrame
+        Thermal Saha factors for adjacent ion stages.
+    thermal_partition_function : pandas.DataFrame
+        Partition functions at electron temperature for each ion.
+    elemental_number_density : pandas.DataFrame
+        Elemental number densities by shell.
+    electron_density : pandas.Series
+        Electron number density by shell.
+    thermal_level_boltzmann_factor : pandas.DataFrame
+        Boltzmann factors at electron temperature for atomic levels.
+    levels : pandas.DataFrame or pandas.MultiIndex
+        Atomic levels to populate.
+
+    Returns
+    -------
+    ion_population : pandas.DataFrame
+        LTE ion populations by shell.
+    level_population : pandas.DataFrame
+        LTE level populations by shell.
+    """
     ion_population, _ = IonNumberDensity.calculate_with_n_electron(
         thermal_saha_factor,
         thermal_partition_function,
@@ -140,7 +163,7 @@ def calculate_nlte_level_population_residual(
         Candidate shell electron distribution.
     species : tuple[int, int]
         Atomic and ion number of the reduced NLTE species.
-    number_density_per_shell : ShellNumberDensity
+    shell_number_density : ShellNumberDensity
         Absolute level-density state and selected-level positions.
     sobolev : SobolevInputs
         Line geometry used to calculate candidate beta.
@@ -149,6 +172,8 @@ def calculate_nlte_level_population_residual(
         closure. When omitted, the temporary state implied by the
         ionized-to-neutral ratio is reconstructed from
         ``hydrogen_number_density``.
+    bound_bound_rates : BoundBoundMatrixRates, optional
+        Prepared bound-bound rates for the selected shell.
 
     Returns
     -------
@@ -310,6 +335,8 @@ class PlasmaEquilibriumEvaluator:
             Fixed keyword arguments for ``thermal_balance_solver.solve``.
         reference_electron_temperature : astropy.units.Quantity, optional
             Temperature at which fixed thermal rate coefficients were built.
+        radiation_field : DilutePlanckianRadiationField, optional
+            Radiation field used by optional thermal-balance calculations.
         """
         self.photoionization_cross_sections = photoionization_cross_sections
         self.level2continuum_edge_idx = level2continuum_edge_idx
