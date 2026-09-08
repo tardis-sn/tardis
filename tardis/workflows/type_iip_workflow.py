@@ -1112,7 +1112,7 @@ class TypeIIPWorkflow:
             max_electron_number_density * accepted_candidate[::2],
             self._thermal_balance_radiation_temperature
             * accepted_candidate[1::2],
-            self._thermal_balance_level_seed,
+            self._thermal_balance_level_initial_guess,
         )
         self._thermal_balance_evaluation = (
             self._thermal_balance_evaluator.evaluate(
