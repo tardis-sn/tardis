@@ -478,9 +478,9 @@ def test_iip_trace_packet_no_line_fallthrough(
             1.0e-20,
             NONHOMOLOGOUS_LINE_OPACITY,
             {"next_line_id": 0, "prev_line_id": 0},
-            InteractionType.BOUNDARY, # end of line list
-            1,
+            InteractionType.LINE,
             0,
+            -1,
         ),
         (
             {"negative_velocity_gradient": True},
