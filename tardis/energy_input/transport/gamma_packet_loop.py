@@ -373,18 +373,23 @@ def gamma_packet_loop(
                 elif packet.shell < 0:
                     packet.status = GXPacketStatus.END
 
-            packets_info_array[packet_idx] = np.array(
-                [
-                    packet_idx,
-                    packet.status,
-                    packet.nu_cmf,
-                    packet.nu_rf,
-                    packet.energy_cmf,
-                    luminosity,
-                    packet.energy_rf,
-                    packet.shell,
-                ]
-            )
+            if not (
+                packet.status == GXPacketStatus.PHOTOABSORPTION
+                and packets_info_array[packet_idx, 1]
+                == 3.0 # IN_PROCESS state, numba can't cast the IntEnum
+            ):
+                packets_info_array[packet_idx] = np.array(
+                    [
+                        packet_idx,
+                        packet.status,
+                        packet.nu_cmf,
+                        packet.nu_rf,
+                        packet.energy_cmf,
+                        luminosity,
+                        packet.energy_rf,
+                        packet.shell,
+                    ]
+                )
 
     for thread_id in range(n_threads):
         escaped_packets += escaped_packets_thread[thread_id]

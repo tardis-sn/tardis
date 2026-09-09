@@ -13,7 +13,7 @@ from tardis.energy_input.gamma_ray_transport import (
 from tardis.energy_input.transport.gamma_packet_loop import (
     gamma_packet_loop,
 )
-from tardis.energy_input.transport.GXPacket import GXPacket
+from tardis.energy_input.transport.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.util import get_index
 from tardis.io.atom_data import AtomData
 from tardis.model.base import SimulationState
@@ -323,6 +323,7 @@ def run_gamma_ray_loop(
         packets_info_array,
     )
     refresh_packet_pbar()
+    packets_array[packets_array[:, 1] == GXPacketStatus.PHOTOABSORPTION] = 0.0
 
     packets_df_escaped = pd.DataFrame(
         data=packets_array,
