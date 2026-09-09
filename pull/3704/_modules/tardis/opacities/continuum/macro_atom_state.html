@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=515d16da"></script>
+      <script src="../../../../_static/documentation_options.js?v=6215935f"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4903,6 +4903,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
+from tardis.io.atom_data import AtomData
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
@@ -4920,7 +4921,7 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
 <a class="viewcode-back" href="../../../../api/tardis.opacities.continuum.macro_atom_state.html#tardis.opacities.continuum.macro_atom_state.ContinuumMacroAtomState">[docs]</a>
 @dataclass(frozen=True)
 class ContinuumMacroAtomState:
-    &quot;&quot;&quot;Continuum rates and cooling branches consumed by macro atoms.&quot;&quot;&quot;
+    &quot;&quot;&quot;Continuum rates and cooling branches used by the macro atom.&quot;&quot;&quot;
 
     radiative_ionization_rate: pd.DataFrame
     radiative_recombination_rate: pd.DataFrame
@@ -4943,7 +4944,7 @@ class ContinuumMacroAtomState:
     @classmethod
     def from_equilibrium(
         cls,
-        atomic_data: object,
+        atomic_data: AtomData,
         lines: pd.DataFrame,
         photo_ion_cross_sections: pd.DataFrame,
         continuum_coefficients: ContinuumCoefficientState,
@@ -5139,7 +5140,7 @@ class ContinuumMacroAtomState:
             collisional_excitation_rate.index
         )
         collisional_deexcitation_rate.index = _macro_atom_collisional_index(
-            collisional_deexcitation_rate.index, reverse=True
+            collisional_deexcitation_rate.index, swap_src_dest_levels=True
         )
         deexcitation_index = collisional_deexcitation_rate.index
         deexcitation_lower_index = pd.MultiIndex.from_arrays(
@@ -5218,7 +5219,7 @@ def _normalize_cooling_rates(
 
 
 def _macro_atom_collisional_index(
-    index: pd.MultiIndex, *, reverse: bool = False
+    index: pd.MultiIndex, *, swap_src_dest_levels: bool = False
 ) -&gt; pd.MultiIndex:
     &quot;&quot;&quot;Use the transition index names expected by macro-atom kernels.
 
@@ -5226,7 +5227,7 @@ def _macro_atom_collisional_index(
     ----------
     index : pandas.MultiIndex
         Transition index containing source and destination levels.
-    reverse : bool, default=False
+    swap_src_dest_levels : bool, default=False
         Whether to reverse the source and destination levels.
 
     Returns
@@ -5234,7 +5235,7 @@ def _macro_atom_collisional_index(
     pandas.MultiIndex
         Index with the level names expected by macro-atom kernels.
     &quot;&quot;&quot;
-    if reverse:
+    if swap_src_dest_levels:
         index = index.swaplevel(
             &quot;level_number_source&quot;, &quot;level_number_destination&quot;
         )
@@ -5251,10 +5252,10 @@ def _macro_atom_collisional_index(
     return index.rename(
         {
             &quot;level_number_source&quot;: (
-                &quot;level_number_upper&quot; if reverse else &quot;level_number_lower&quot;
+                &quot;level_number_upper&quot; if swap_src_dest_levels else &quot;level_number_lower&quot;
             ),
             &quot;level_number_destination&quot;: (
-                &quot;level_number_lower&quot; if reverse else &quot;level_number_upper&quot;
+                &quot;level_number_lower&quot; if swap_src_dest_levels else &quot;level_number_upper&quot;
             ),
         }
     )
@@ -5268,7 +5269,7 @@ def _macro_atom_collisional_index(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Sep 2026.
+      <span class="lastupdated">Last updated on 09 Sep 2026.
       </span></p>
   </div>
 

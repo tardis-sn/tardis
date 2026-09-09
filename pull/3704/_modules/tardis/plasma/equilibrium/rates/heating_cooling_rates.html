@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=515d16da"></script>
+      <script src="../../../../../_static/documentation_options.js?v=6215935f"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -5075,18 +5075,15 @@ class BoundFreeThermalRates:
             index=self.photoionization_index,
         )
 
+        # optically thick Lymann ground state handling, see Lucy 2003
+        integrated_cooling_coefficient.loc[(1, 0, 0)] = 0.0
+
         atomic_numbers = integrated_cooling_coefficient.index.get_level_values(
             &quot;atomic_number&quot;
         )
         ion_numbers = integrated_cooling_coefficient.index.get_level_values(
             &quot;ion_number&quot;
         )
-        level_numbers = integrated_cooling_coefficient.index.get_level_values(
-            &quot;level_number&quot;
-        )
-        # Lymann and generalized ground state handling
-        ground_state_mask = (ion_numbers == 0) &amp; (level_numbers == 0)
-        integrated_cooling_coefficient.loc[ground_state_mask] = 0.0
 
         upper_ion_index = pd.MultiIndex.from_arrays(
             [
@@ -5446,7 +5443,7 @@ class AdiabaticThermalRates:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Sep 2026.
+      <span class="lastupdated">Last updated on 09 Sep 2026.
       </span></p>
   </div>
 
