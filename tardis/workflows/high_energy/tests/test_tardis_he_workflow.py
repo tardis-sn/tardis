@@ -14,7 +14,7 @@ def he_workflow_instance_session(atomic_dataset, he_test_configs):
     return TARDISHEWorkflow(atomic_dataset, he_test_configs, config_type="csvy")
 
 @pytest.fixture(scope="session")
-def he_workflow_minimal_run_params(atomic_dataset):
+def he_workflow_minimal_run_params():
     """Minimal parameters for HE workflow run."""
     return {
         "time_start": 2.0,
@@ -26,8 +26,6 @@ def he_workflow_minimal_run_params(atomic_dataset):
         "fp": 1.0,
         "spectrum_bins": 1000,
         "grey_opacity": -1,
-        "legacy": True,
-        "legacy_atom_data": atomic_dataset,
     }
 
 
