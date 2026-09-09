@@ -6,7 +6,7 @@ import astropy.units as u
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
-from scipy.optimize import root
+from scipy.optimize import least_squares, root
 
 from tardis.opacities.sobolevs_from_levels import (
     calculate_sobolev_opacities_from_level_densities,
@@ -15,10 +15,15 @@ from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
 from tardis.plasma.equilibrium.inputs import (
+    BoundBoundMatrixRates,
+    ContinuumCoefficientState,
     ContinuumRateCoefficients,
     LevelEquationRates,
     ShellNumberDensity,
     SobolevInputs,
+)
+from tardis.plasma.equilibrium.matrix_assembly import (
+    assemble_bound_bound_rate_matrix,
 )
 from tardis.plasma.equilibrium.rate_matrix import RateMatrix
 from tardis.plasma.equilibrium.rates.collisional_ionization_rates import (
@@ -27,15 +32,22 @@ from tardis.plasma.equilibrium.rates.collisional_ionization_rates import (
 from tardis.plasma.equilibrium.rates.photoionization_rates import (
     EstimatedPhotoionizationRateSolver,
 )
+from tardis.plasma.equilibrium.rates.photoionization_strengths import (
+    AnalyticPhotoionizationCoeffSolver,
+    SpontaneousRecombinationCoeffSolver,
+)
 from tardis.plasma.properties.general import BetaElectron, ThermalGElectron
 from tardis.plasma.properties.ion_population import (
+    IonNumberDensity,
     SahaFactor,
     ThermalPhiSahaLTE,
 )
+from tardis.plasma.properties.level_population import LevelNumberDensity
 from tardis.plasma.properties.partition_function import (
     ThermalLevelBoltzmannFactorLTE,
     ThermalLTEPartitionFunction,
 )
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.transport.montecarlo.estimators.estimators_continuum import (
     EstimatorsContinuum,
 )
@@ -60,18 +72,75 @@ class PlasmaEquilibriumEvaluation:
     electron_residual: pd.Series | None
     total_heating: pd.Series | None
     fractional_heating: pd.Series | None
+    continuum_coefficients: ContinuumCoefficientState
+    level_to_continuum_saha_factor: pd.DataFrame
+    lte_ion_population: pd.DataFrame
+    lte_level_population: pd.DataFrame
+
+
+def calculate_lte_populations(
+    thermal_saha_factor: pd.DataFrame,
+    thermal_partition_function: pd.DataFrame,
+    elemental_number_density: pd.DataFrame,
+    electron_density: pd.Series,
+    thermal_level_boltzmann_factor: pd.DataFrame,
+    levels: pd.DataFrame | pd.MultiIndex,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Calculate LTE ion and level populations at an explicit density.
+
+    Parameters
+    ----------
+    thermal_saha_factor : pandas.DataFrame
+        Thermal Saha factors for adjacent ion stages.
+    thermal_partition_function : pandas.DataFrame
+        Partition functions at electron temperature for each ion.
+    elemental_number_density : pandas.DataFrame
+        Elemental number densities by shell.
+    electron_density : pandas.Series
+        Electron number density by shell.
+    thermal_level_boltzmann_factor : pandas.DataFrame
+        Boltzmann factors at electron temperature for atomic levels.
+    levels : pandas.DataFrame or pandas.MultiIndex
+        Atomic levels to populate.
+
+    Returns
+    -------
+    ion_population : pandas.DataFrame
+        LTE ion populations by shell.
+    level_population : pandas.DataFrame
+        LTE level populations by shell.
+    """
+    ion_population, _ = IonNumberDensity.calculate_with_n_electron(
+        thermal_saha_factor,
+        thermal_partition_function,
+        elemental_number_density,
+        electron_density,
+        None,
+        1e-20,
+    )
+    level_index = levels.index if isinstance(levels, pd.DataFrame) else levels
+    level_population = LevelNumberDensity(None).calculate(
+        thermal_level_boltzmann_factor,
+        ion_population,
+        level_index,
+        thermal_partition_function,
+    )
+    level_population.columns = elemental_number_density.columns
+    return ion_population, level_population
 
 
 def calculate_nlte_level_population_residual(
     level_fractions: npt.NDArray[np.float64],
     level_rates: LevelEquationRates,
     rate_matrix_solver: RateMatrix,
-    j_blues: pd.DataFrame,
-    thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
+    j_blues: pd.DataFrame | None,
+    thermal_electron_energy_distribution: ThermalElectronEnergyDistribution
+    | None,
     species: tuple[int, int],
     shell_number_density: ShellNumberDensity,
     sobolev: SobolevInputs,
     level_density: npt.NDArray[np.float64] | None = None,
+    bound_bound_rates: BoundBoundMatrixRates | None = None,
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
     """Calculate the reduced fixed-density NLTE level residual.
 
@@ -94,7 +163,7 @@ def calculate_nlte_level_population_residual(
         Candidate shell electron distribution.
     species : tuple[int, int]
         Atomic and ion number of the reduced NLTE species.
-    number_density_per_shell : ShellNumberDensity
+    shell_number_density : ShellNumberDensity
         Absolute level-density state and selected-level positions.
     sobolev : SobolevInputs
         Line geometry used to calculate candidate beta.
@@ -103,6 +172,8 @@ def calculate_nlte_level_population_residual(
         closure. When omitted, the temporary state implied by the
         ionized-to-neutral ratio is reconstructed from
         ``hydrogen_number_density``.
+    bound_bound_rates : BoundBoundMatrixRates, optional
+        Prepared bound-bound rates for the selected shell.
 
     Returns
     -------
@@ -111,17 +182,12 @@ def calculate_nlte_level_population_residual(
         the reduced ionized-to-neutral ratio.
     """
     level_fractions = np.asarray(level_fractions, dtype=np.float64)
-    total_ionization_rates = level_rates.ionization
-
     total_recombination_rates = level_rates.recombination.copy()
     total_recombination_rates[0] = 0.0
-    total_recombination_rate = total_recombination_rates.sum()
-
     ionized_to_neutral_ratio = float(
-        np.dot(total_ionization_rates, level_fractions)
-        / total_recombination_rate
+        np.dot(level_rates.ionization, level_fractions)
+        / total_recombination_rates.sum()
     )
-
     if level_density is None:
         level_density = shell_number_density.level_number_density.copy()
         level_density[shell_number_density.species_level_positions] = (
@@ -131,7 +197,6 @@ def calculate_nlte_level_population_residual(
         )
     else:
         level_density = np.asarray(level_density, dtype=np.float64).copy()
-
     _, beta_sobolev = calculate_sobolev_opacities_from_level_densities(
         level_density,
         sobolev.line_indices,
@@ -143,33 +208,34 @@ def calculate_nlte_level_population_residual(
         sobolev.nlte_lines_mask,
         sobolev.tau_coefficient,
     )
-
-    sobolev_escape_probability_frame = pd.DataFrame(
-        beta_sobolev[:, None],
-        index=sobolev.line_index,
-        columns=j_blues.columns,
-    )
-    level_rate_matrix = (
-        rate_matrix_solver.assemble_matrices(
+    if bound_bound_rates is None:
+        if j_blues is None or thermal_electron_energy_distribution is None:
+            raise ValueError(
+                "Radiation and electron inputs are required when bound-bound "
+                "rates are not prepared."
+            )
+        bound_bound_rates = rate_matrix_solver.prepare_species_rates(
             j_blues,
             thermal_electron_energy_distribution,
-            sobolev_escape_probability_frame,
-        )
-        .loc[species]
-        .iloc[0]
-        .copy()
+            species,
+            sobolev.line_index,
+        )[0]
+    level_rate_matrix = assemble_bound_bound_rate_matrix(
+        bound_bound_rates.number_of_levels,
+        bound_bound_rates.source_level_idx,
+        bound_bound_rates.destination_level_idx,
+        bound_bound_rates.radiative_rate_coefficient,
+        bound_bound_rates.collisional_rate,
+        bound_bound_rates.beta_line_idx,
+        beta_sobolev,
     )
     level_rate_matrix += level_rates.ionization_loss_matrix
     level_rate_matrix[0, :] = 1.0
-
-    recombination_rates_column = total_recombination_rates.copy()
-    normalization_vector = np.zeros(level_fractions.size, dtype=np.float64)
-    normalization_vector[0] = 1.0
     level_residual = (
         level_rate_matrix @ level_fractions
-        + recombination_rates_column * ionized_to_neutral_ratio
-        - normalization_vector
+        + total_recombination_rates * ionized_to_neutral_ratio
     )
+    level_residual[0] -= 1.0
     return level_residual, beta_sobolev, ionized_to_neutral_ratio
 
 
@@ -181,6 +247,9 @@ class _LevelSolveState:
     level_to_continuum_saha_factor: pd.DataFrame
     collisional_ionization_rate_coefficient: pd.DataFrame
     lte_ionization_factor: pd.DataFrame
+    continuum_coefficients: ContinuumCoefficientState
+    thermal_partition_function: pd.DataFrame
+    thermal_level_boltzmann_factor: pd.DataFrame
     fractions: tuple[npt.NDArray[np.float64], ...]
     ionized_to_neutral_ratios: tuple[float, ...]
     full_population: pd.DataFrame
@@ -188,6 +257,7 @@ class _LevelSolveState:
     trial_escape_probability: pd.DataFrame
     trial_level_residual: pd.DataFrame
     hydrogen_index: pd.MultiIndex
+    bound_bound_rates: tuple[BoundBoundMatrixRates, ...]
 
 
 class PlasmaEquilibriumEvaluator:
@@ -201,9 +271,9 @@ class PlasmaEquilibriumEvaluator:
         self,
         photoionization_cross_sections: pd.DataFrame,
         level2continuum_edge_idx: pd.Series,
-        estimators_continuum: EstimatorsContinuum,
-        time_simulation: u.Quantity,
-        volume: u.Quantity,
+        estimators_continuum: EstimatorsContinuum | None,
+        time_simulation: u.Quantity | None,
+        volume: u.Quantity | None,
         levels: pd.DataFrame,
         ionization_data: pd.Series,
         rate_matrix_solver: RateMatrix,
@@ -219,6 +289,7 @@ class PlasmaEquilibriumEvaluator:
         thermal_balance_solver: object | None = None,
         thermal_balance_arguments: Mapping[str, object] | None = None,
         reference_electron_temperature: u.Quantity | None = None,
+        radiation_field: DilutePlanckianRadiationField | None = None,
     ) -> None:
         """Construct an evaluator from fixed scientific inputs.
 
@@ -264,21 +335,44 @@ class PlasmaEquilibriumEvaluator:
             Fixed keyword arguments for ``thermal_balance_solver.solve``.
         reference_electron_temperature : astropy.units.Quantity, optional
             Temperature at which fixed thermal rate coefficients were built.
+        radiation_field : DilutePlanckianRadiationField, optional
+            Radiation field used by optional thermal-balance calculations.
         """
         self.photoionization_cross_sections = photoionization_cross_sections
         self.level2continuum_edge_idx = level2continuum_edge_idx
         self.estimators_continuum = estimators_continuum
         self.time_simulation = time_simulation
         self.volume = volume
-        self.estimated_photoionization_rate_solver = (
-            EstimatedPhotoionizationRateSolver(
-                photoionization_cross_sections,
-                level2continuum_edge_idx,
-                estimators_continuum,
-                time_simulation,
-                volume,
+        self.estimated_photoionization_rate_solver = None
+        self.analytic_photoionization_rate_solver = None
+        self.spontaneous_recombination_rate_solver = None
+        if estimators_continuum is not None:
+            self.estimated_photoionization_rate_solver = (
+                EstimatedPhotoionizationRateSolver(
+                    photoionization_cross_sections,
+                    level2continuum_edge_idx,
+                    estimators_continuum,
+                    time_simulation,
+                    volume,
+                )
             )
-        )
+        elif radiation_field is not None:
+            self.analytic_photoionization_rate_solver = (
+                AnalyticPhotoionizationCoeffSolver(
+                    photoionization_cross_sections
+                )
+            )
+            self.spontaneous_recombination_rate_solver = (
+                SpontaneousRecombinationCoeffSolver(
+                    photoionization_cross_sections
+                )
+            )
+        else:
+            raise ValueError(
+                "Either fixed continuum estimators or a radiation field is "
+                "required."
+            )
+        self.radiation_field = radiation_field
         self.collisional_ionization_rate_solver = (
             CollisionalIonizationRateSolver(photoionization_cross_sections)
         )
@@ -320,15 +414,31 @@ class PlasmaEquilibriumEvaluator:
         pd.DataFrame,
         pd.DataFrame,
         pd.DataFrame,
+        ContinuumCoefficientState,
+        pd.DataFrame,
+        pd.DataFrame,
     ]:
         """Calculate candidate-temperature continuum coefficients."""
-        (
-            photoionization,
-            stimulated_recombination,
-            spontaneous_recombination,
-        ) = self.estimated_photoionization_rate_solver.solve_coefficients(
-            electron_temperature * u.K
-        )
+        if self.estimated_photoionization_rate_solver is not None:
+            (
+                photoionization,
+                stimulated_recombination,
+                spontaneous_recombination,
+            ) = self.estimated_photoionization_rate_solver.solve_coefficients(
+                electron_temperature * u.K
+            )
+        else:
+            photoionization, stimulated_recombination = (
+                self.analytic_photoionization_rate_solver.solve(
+                    self.radiation_field,
+                    electron_temperature * u.K,
+                )
+            )
+            spontaneous_recombination = (
+                self.spontaneous_recombination_rate_solver.solve(
+                    electron_temperature * u.K
+                )
+            )
         collisional_ionization = (
             self.collisional_ionization_rate_solver.solve_coefficients(
                 electron_temperature * u.K
@@ -369,6 +479,12 @@ class PlasmaEquilibriumEvaluator:
         collisional_ionization_rate_coefficient = collisional_ionization.copy()
         collisional_ionization_rate_coefficient.columns = shell_index
         thermal_saha_factor.columns = shell_index
+        coefficient_state = ContinuumCoefficientState(
+            photoionization.copy(deep=True),
+            stimulated_recombination.copy(deep=True),
+            spontaneous_recombination.copy(deep=True),
+            collisional_ionization.copy(deep=True),
+        )
         rate_frames = []
         for frame in (
             photoionization,
@@ -419,7 +535,24 @@ class PlasmaEquilibriumEvaluator:
             level_to_continuum_saha_factor,
             collisional_ionization_rate_coefficient,
             thermal_saha_factor,
+            coefficient_state,
+            partition_function,
+            level_boltzmann_factor,
         )
+
+    def calculate_continuum_coefficients(
+        self, electron_temperature: npt.ArrayLike
+    ) -> tuple[
+        ContinuumCoefficientState,
+        pd.DataFrame,
+        pd.DataFrame,
+        pd.DataFrame,
+    ]:
+        """Return thermodynamic continuum inputs without solving populations."""
+        calculated = self._calculate_continuum_rate_coefficients(
+            np.asarray(electron_temperature, dtype=np.float64)
+        )
+        return calculated[4], calculated[1], calculated[5], calculated[6]
 
     def _calculate_level_state(
         self,
@@ -431,6 +564,7 @@ class PlasmaEquilibriumEvaluator:
         population_geometry: ShellNumberDensity,
         sobolev_inputs: SobolevInputs,
         level_density: npt.NDArray[np.float64] | None = None,
+        bound_bound_rates: BoundBoundMatrixRates | None = None,
     ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
         """Evaluate one level residual at an explicit electron density."""
         total_ionization_rates = continuum_rates.photoionization + (
@@ -446,13 +580,16 @@ class PlasmaEquilibriumEvaluator:
             total_recombination_rates,
             -np.diag(total_ionization_rates),
         )
-        shell_j_blues = self.j_blues.iloc[:, [shell_idx]].copy()
-        shell_j_blues.columns = pd.RangeIndex(1)
-        electron_distribution = ThermalElectronEnergyDistribution(
-            0.0 * u.erg,
-            np.array([electron_temperature]) * u.K,
-            np.array([electron_density]) / u.cm**3,
-        )
+        shell_j_blues = None
+        electron_distribution = None
+        if bound_bound_rates is None:
+            shell_j_blues = self.j_blues.iloc[:, [shell_idx]].copy()
+            shell_j_blues.columns = pd.RangeIndex(1)
+            electron_distribution = ThermalElectronEnergyDistribution(
+                0.0 * u.erg,
+                np.array([electron_temperature]) * u.K,
+                np.array([electron_density]) / u.cm**3,
+            )
         residual, beta_sobolev, ionized_to_neutral_ratio = (
             calculate_nlte_level_population_residual(
                 level_fractions,
@@ -464,6 +601,7 @@ class PlasmaEquilibriumEvaluator:
                 population_geometry,
                 sobolev_inputs,
                 level_density,
+                bound_bound_rates,
             )
         )
         return residual, beta_sobolev, ionized_to_neutral_ratio
@@ -477,6 +615,7 @@ class PlasmaEquilibriumEvaluator:
         continuum_rates: ContinuumRateCoefficients,
         population_geometry: ShellNumberDensity,
         sobolev_inputs: SobolevInputs,
+        bound_bound_rates: BoundBoundMatrixRates | None = None,
     ) -> tuple[
         npt.NDArray[np.float64],
         float,
@@ -484,6 +623,20 @@ class PlasmaEquilibriumEvaluator:
         npt.NDArray[np.float64],
     ]:
         """Solve one shell's normalized reduced level equations."""
+        if bound_bound_rates is None:
+            shell_j_blues = self.j_blues.iloc[:, [shell_idx]].copy()
+            shell_j_blues.columns = pd.RangeIndex(1)
+            electron_distribution = ThermalElectronEnergyDistribution(
+                0.0 * u.erg,
+                np.array([electron_temperature]) * u.K,
+                np.array([electron_density]) / u.cm**3,
+            )
+            bound_bound_rates = self.rate_matrix_solver.prepare_species_rates(
+                shell_j_blues,
+                electron_distribution,
+                self.hydrogen_species,
+                sobolev_inputs.line_index,
+            )[0]
 
         def residual(
             level_fractions: npt.NDArray[np.float64],
@@ -496,16 +649,32 @@ class PlasmaEquilibriumEvaluator:
                 continuum_rates,
                 population_geometry,
                 sobolev_inputs,
+                bound_bound_rates=bound_bound_rates,
             )[0]
 
         solution = root(residual, level_seed, options={"xtol": 1e-12})
-        if not np.isfinite(solution.x).all():
+        level_solution = solution.x
+        if not np.isfinite(level_solution).all():
             raise ValueError("Reduced level-population solve did not converge.")
-        if np.any(solution.x < 0.0):
+        if np.any(level_solution < 0.0):
+            # Match iip_plasma's general fallback: scipy root HYBR result is
+            # retained whenever its iterate is physical, while a negative
+            # iterate is rebuilt by the slower bounded solver instead of clipped
+            # or accepted.
+            level_solution = least_squares(
+                residual,
+                level_seed,
+                bounds=(0.0, 1.0),
+            ).x
+        if not np.isfinite(level_solution).all():
+            raise ValueError(
+                "Reduced level-population solve returned nonfinite fractions."
+            )
+        if np.any(level_solution < 0.0):
             raise ValueError(
                 "Reduced level-population solve returned negative fractions."
             )
-        if solution.x.sum() <= 0.0:
+        if level_solution.sum() <= 0.0:
             raise ValueError(
                 "Reduced level-population solve returned zero fractions."
             )
@@ -514,7 +683,7 @@ class PlasmaEquilibriumEvaluator:
         # even when SciPy reports failure or the level equations are not closed.
         # This code deliberately preserves that behavior; the residual remains
         # part of the returned diagnostics but is not an acceptance criterion.
-        fractions = solution.x / solution.x.sum()
+        fractions = level_solution / level_solution.sum()
         level_residual, beta_sobolev, ionized_to_neutral_ratio = (
             self._calculate_level_state(
                 shell_idx,
@@ -524,6 +693,7 @@ class PlasmaEquilibriumEvaluator:
                 continuum_rates,
                 population_geometry,
                 sobolev_inputs,
+                bound_bound_rates=bound_bound_rates,
             )
         )
         if ionized_to_neutral_ratio < 0.0:
@@ -561,6 +731,9 @@ class PlasmaEquilibriumEvaluator:
         level_to_continuum_saha_factor: pd.DataFrame,
         collisional_ionization_rate_coefficient: pd.DataFrame,
         lte_ionization_factor: pd.DataFrame,
+        continuum_coefficients: ContinuumCoefficientState,
+        thermal_partition_function: pd.DataFrame,
+        thermal_level_boltzmann_factor: pd.DataFrame,
     ) -> _LevelSolveState:
         """Solve all shell-local reduced level equations."""
         fractions: list[npt.NDArray[np.float64]] = []
@@ -576,6 +749,19 @@ class PlasmaEquilibriumEvaluator:
             ),
             index=self.level_population_index,
             columns=self.elemental_number_density.columns,
+        )
+        electron_distribution = ThermalElectronEnergyDistribution(
+            0.0 * u.erg,
+            electron_temperature * u.K,
+            trial_density.to_numpy() / u.cm**3,
+        )
+        prepared_bound_bound_rates = (
+            self.rate_matrix_solver.prepare_species_rates(
+                self.j_blues,
+                electron_distribution,
+                self.hydrogen_species,
+                self.sobolev_inputs[0].line_index,
+            )
         )
         for shell_idx, (
             continuum_rates,
@@ -604,6 +790,7 @@ class PlasmaEquilibriumEvaluator:
                 continuum_rates,
                 population_geometry,
                 sobolev_inputs,
+                prepared_bound_bound_rates[shell_idx],
             )
             fractions.append(shell_result[0])
             ionized_to_neutral_ratios.append(shell_result[1])
@@ -617,6 +804,9 @@ class PlasmaEquilibriumEvaluator:
             level_to_continuum_saha_factor,
             collisional_ionization_rate_coefficient,
             lte_ionization_factor,
+            continuum_coefficients,
+            thermal_partition_function,
+            thermal_level_boltzmann_factor,
             tuple(fractions),
             tuple(ionized_to_neutral_ratios),
             full_population,
@@ -634,6 +824,7 @@ class PlasmaEquilibriumEvaluator:
                 columns=columns,
             ),
             hydrogen_index,
+            prepared_bound_bound_rates,
         )
 
     def _solve_charge_population(
@@ -657,10 +848,26 @@ class PlasmaEquilibriumEvaluator:
             estimated_levels.iloc[positions, shell_idx] = (
                 temporary_ion * state.fractions[shell_idx]
             )
+        trial_density = pd.Series(
+            trial_electron_distribution.number_density.to_value("cm^-3"),
+            index=self.elemental_number_density.columns,
+        )
+        lte_ion_population, lte_level_population = calculate_lte_populations(
+            state.lte_ionization_factor,
+            state.thermal_partition_function,
+            self.elemental_number_density,
+            trial_density,
+            state.thermal_level_boltzmann_factor,
+            self.levels,
+        )
         solver_arguments = deepcopy(ion_population_arguments)
         solver_arguments.update(
             thermal_electron_energy_distribution=trial_electron_distribution,
             estimated_level_population=estimated_levels,
+            lte_level_population=lte_level_population,
+            lte_ion_population=lte_ion_population,
+            partition_function=state.thermal_partition_function,
+            boltzmann_factor=state.thermal_level_boltzmann_factor,
             level_to_continuum_saha_factor=(
                 state.level_to_continuum_saha_factor
             ),
@@ -800,6 +1007,7 @@ class PlasmaEquilibriumEvaluator:
                     population_geometry,
                     sobolev_inputs,
                     absolute_levels.iloc[:, shell_idx].to_numpy(dtype=float),
+                    state.bound_bound_rates[shell_idx],
                 )[0]
             )
         return pd.DataFrame(
@@ -915,6 +1123,9 @@ class PlasmaEquilibriumEvaluator:
             level_to_continuum_saha_factor,
             collisional_ionization_rate_coefficient,
             lte_ionization_factor,
+            continuum_coefficients,
+            thermal_partition_function,
+            thermal_level_boltzmann_factor,
         ) = self._calculate_continuum_rate_coefficients(temperatures)
         level_state = self._solve_levels(
             trial_density,
@@ -924,6 +1135,9 @@ class PlasmaEquilibriumEvaluator:
             level_to_continuum_saha_factor,
             collisional_ionization_rate_coefficient,
             lte_ionization_factor,
+            continuum_coefficients,
+            thermal_partition_function,
+            thermal_level_boltzmann_factor,
         )
         ion_population, solved_density = self._solve_charge_population(
             level_state,
@@ -946,6 +1160,14 @@ class PlasmaEquilibriumEvaluator:
         )
         absolute_levels = self._build_absolute_levels(
             level_state, ion_population
+        )
+        lte_ion_population, lte_level_population = calculate_lte_populations(
+            level_state.lte_ionization_factor,
+            level_state.thermal_partition_function,
+            self.elemental_number_density,
+            final_density,
+            level_state.thermal_level_boltzmann_factor,
+            self.levels,
         )
 
         charge_residual = None
@@ -993,4 +1215,8 @@ class PlasmaEquilibriumEvaluator:
             electron_residual,
             total_heating,
             fractional_heating,
+            level_state.continuum_coefficients,
+            level_state.level_to_continuum_saha_factor,
+            lte_ion_population,
+            lte_level_population,
         )
