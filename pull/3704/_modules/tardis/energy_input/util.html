@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6215935f"></script>
+      <script src="../../../_static/documentation_options.js?v=9a804a0f"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -5035,7 +5035,12 @@ def doppler_factor_3d_all_packets(
 <div class="viewcode-block" id="angle_aberration_gamma">
 <a class="viewcode-back" href="../../../api/tardis.energy_input.util.html#tardis.energy_input.util.angle_aberration_gamma">[docs]</a>
 @njit(**njit_dict_no_parallel)
-def angle_aberration_gamma(direction_vector, position_vector, time):
+def angle_aberration_gamma(
+    direction_vector: npt.NDArray[np.float64],
+    position_vector: npt.NDArray[np.float64],
+    time: float,
+    inverse: bool = False,
+) -&gt; npt.NDArray[np.float64]:
     &quot;&quot;&quot;Angle aberration formula for photons in 3D
 
     Parameters
@@ -5043,6 +5048,8 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
     direction_vector : array
     position_vector : array
     time : float
+    inverse : bool, optional
+        Apply the inverse transformation from the comoving frame.
 
     Returns
     -------
@@ -5050,6 +5057,8 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
         New direction after aberration
     &quot;&quot;&quot;
     velocity_vector = position_vector / time
+    if inverse:
+        velocity_vector = -velocity_vector
     direction_vector_contiguous = np.ascontiguousarray(direction_vector)
     velocity_vector_contiguous = np.ascontiguousarray(velocity_vector)
 
