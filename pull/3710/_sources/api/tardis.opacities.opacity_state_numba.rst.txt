@@ -1,0 +1,7 @@
+tardis.opacities.opacity\_state\_numba module
+=============================================
+
+.. automodule:: tardis.opacities.opacity_state_numba
+   :members:
+   :show-inheritance:
+   :undoc-members:
