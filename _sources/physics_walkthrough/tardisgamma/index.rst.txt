@@ -7,6 +7,12 @@ Thermonuclear supernovae are powered by the radioactive decay of :sup:`56` Ni an
 
 The code can also be used to study the :math:`\gamma`-ray spectra and energy deposited by radioactive isotopes in radioactively powered transients.
 
+For high-energy transport, the innermost radial shell is treated as a central
+cell extending to the origin. An inward packet remains in that cell while it
+passes through the origin in Cartesian coordinates, then crosses the shell's
+outer surface on the opposite side. The origin is not treated as a boundary,
+and packets are neither absorbed nor assigned a new shell there.
+
 
 
 

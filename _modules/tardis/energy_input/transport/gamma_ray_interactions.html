@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=afdb80ef"></script>
+      <script src="../../../../_static/documentation_options.js?v=8b29d5f4"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4825,9 +4825,10 @@
              
   <h1>Source code for tardis.energy_input.transport.gamma_ray_interactions</h1><div class="highlight"><pre>
 <span></span>import numpy as np
+import numpy.typing as npt
 from numba import njit
 
-from tardis.energy_input.transport.GXPacket import GXPacketStatus
+from tardis.energy_input.transport.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.util import (
     ELECTRON_MASS_ENERGY_KEV,
     H_CGS_KEV,
@@ -5019,25 +5020,26 @@ def get_compton_fraction_urilight(energy):
 <div class="viewcode-block" id="compton_scatter">
 <a class="viewcode-back" href="../../../../api/tardis.energy_input.transport.gamma_ray_interactions.html#tardis.energy_input.transport.gamma_ray_interactions.compton_scatter">[docs]</a>
 @njit(**njit_dict_no_parallel)
-def compton_scatter(photon, compton_angle):
-    &quot;&quot;&quot;
-    Changes the direction of the gamma-ray by the Compton scattering angle
+def compton_scatter(
+    packet: GXPacket, compton_angle: float
+) -&gt; npt.NDArray[np.float64]:
+    &quot;&quot;&quot;Change a packet direction by a Compton-scattering angle.
 
     Parameters
     ----------
-    photon : GXPhoton object
+    packet : GXPacket
+        Gamma-ray packet whose direction is being scattered.
     compton_angle : float
+        Compton-scattering angle in radians.
 
     Returns
     -------
-    float64
-        Photon theta direction
-    float64
-        Photon phi direction
+    numpy.ndarray
+        Scattered packet direction as a three-component unit vector.
     &quot;&quot;&quot;
     # get comoving frame direction
     comov_direction = angle_aberration_gamma(
-        photon.direction, photon.location, photon.time_start
+        packet.direction, packet.location, packet.time_start
     )
 
     # compute an arbitrary perpendicular vector to the comoving direction
@@ -5071,17 +5073,20 @@ def compton_scatter(photon, compton_angle):
         final_compton_scattered_vector_contiguous, comov_direction_contiguous
     )
 
-    assert (
-        np.abs(norm_phi - 1) &lt; 1e-8
-    ), &quot;Error, norm of Compton scatter vector is not 1!&quot;
+    assert np.abs(norm_phi - 1) &lt; 1e-8, (
+        &quot;Error, norm of Compton scatter vector is not 1!&quot;
+    )
 
-    assert (
-        np.abs(norm_theta - np.cos(compton_angle)) &lt; 1e-8
-    ), &quot;Error, difference between new vector angle and Compton angle is more than 0!&quot;
+    assert np.abs(norm_theta - np.cos(compton_angle)) &lt; 1e-8, (
+        &quot;Error, difference between new vector angle and Compton angle is more than 0!&quot;
+    )
 
     # Calculate the angle aberration of the final direction
     final_direction = angle_aberration_gamma(
-        final_compton_scattered_vector, photon.location, photon.time_start
+        final_compton_scattered_vector,
+        packet.location,
+        packet.time_start,
+        inverse=True,
     )
 
     return final_direction</div>
@@ -5118,7 +5123,7 @@ def pair_creation_packet(packet):
 
     # Calculate aberration of the random angle for the rest frame
     final_direction = angle_aberration_gamma(
-        new_direction, packet.location, -1 * packet.time_start
+        new_direction, packet.location, packet.time_start, inverse=True
     )
 
     packet.direction = final_direction

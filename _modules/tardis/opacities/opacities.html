@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=afdb80ef"></script>
+      <script src="../../../_static/documentation_options.js?v=8b29d5f4"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -5306,14 +5306,15 @@ def pair_creation_opacity_calculation(
 <a class="viewcode-back" href="../../../api/tardis.opacities.opacities.html#tardis.opacities.opacities.pair_creation_opacity_artis">[docs]</a>
 @njit(**njit_dict_no_parallel)
 def pair_creation_opacity_artis(energy, ejecta_density, iron_group_fraction):
-    &quot;&quot;&quot;Calculates pair creation opacity for a given energy
+    &quot;&quot;&quot;Calculate pair creation opacity for a given energy
+
     Approximate treatment from Ambwani &amp; Sutherland (1988)
     as implemented in ARTIS
 
     Parameters
     ----------
     energy : float
-        Photon energy
+        Packet energy in keV
     ejecta_density : float
         The density of the ejecta
     iron_group_fraction : float
@@ -5326,13 +5327,14 @@ def pair_creation_opacity_artis(energy, ejecta_density, iron_group_fraction):
     &quot;&quot;&quot;
     # Conditions prevent divide by zero
     # Ambwani &amp; Sutherland (1988)
-    if energy &gt; 1022:
-        if energy &gt; 1500:
-            opacity_si = (0.0481 + (0.301 * (energy - 1500))) * 196.0e-27
-            opacity_fe = (0.0481 + (0.301 * (energy - 1500))) * 784.0e-27
+    energy /= 1000 # ARTIS uses MeV
+    if energy &gt; 1.022:
+        if energy &gt; 1.5:
+            opacity_si = (0.0481 + (0.301 * (energy - 1.5))) * 196.0e-27
+            opacity_fe = (0.0481 + (0.301 * (energy - 1.5))) * 784.0e-27
         else:
-            opacity_si = 1.0063 * (energy - 1022) * 196.0e-27
-            opacity_fe = 1.0063 * (energy - 1022) * 784.0e-27
+            opacity_si = 1.0063 * (energy - 1.022) * 196.0e-27
+            opacity_fe = 1.0063 * (energy - 1.022) * 784.0e-27
 
         opacity_si *= ejecta_density / M_P / 28
         opacity_fe *= ejecta_density / M_P / 56

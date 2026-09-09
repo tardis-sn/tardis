@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=afdb80ef"></script>
+      <script src="../../../_static/documentation_options.js?v=8b29d5f4"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4825,10 +4825,10 @@
              
   <h1>Source code for tardis.energy_input.samplers</h1><div class="highlight"><pre>
 <span></span>import astropy.constants as const
-from scipy.interpolate import interp1d
 import astropy.units as u
 import numpy as np
 from numba import njit
+from scipy.interpolate import interp1d
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
@@ -4987,17 +4987,19 @@ def sample_decay_time(
 <div class="viewcode-block" id="PositroniumSampler">
 <a class="viewcode-back" href="../../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.PositroniumSampler">[docs]</a>
 class PositroniumSampler:
-    def __init__(self, n_grid=10000):
-        &quot;&quot;&quot;
+    &quot;&quot;&quot;Sample equal-energy packets from the ortho-positronium continuum.&quot;&quot;&quot;
+
+    def __init__(self, n_grid: int = 10000) -&gt; None:
+        &quot;&quot;&quot;Initialize the energy-weighted sampling grid.
+
         Parameters
         ----------
         n_grid : int, optional
-            Number of grid points for the CDF, by default 1000
+            Number of grid points for the CDF, by default 10000
         &quot;&quot;&quot;
         self.x_grid = np.linspace(1e-4, 0.9999, n_grid)
-        self.norm_pdf = self.pdf(self.x_grid) / np.trapezoid(
-            self.pdf(self.x_grid), self.x_grid
-        )
+        energy_pdf = self.x_grid * self.pdf(self.x_grid)
+        self.norm_pdf = energy_pdf / np.trapezoid(energy_pdf, self.x_grid)
         self.cdf_grid = np.cumsum(self.norm_pdf)
         self.cdf_grid /= self.cdf_grid[-1]
 
