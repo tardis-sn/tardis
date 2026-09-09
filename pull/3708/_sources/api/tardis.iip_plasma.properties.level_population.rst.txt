@@ -1,7 +1,0 @@
-tardis.iip\_plasma.properties.level\_population module
-======================================================
-
-.. automodule:: tardis.iip_plasma.properties.level_population
-   :members:
-   :show-inheritance:
-   :undoc-members:
