@@ -173,18 +173,15 @@ class BoundFreeThermalRates:
             index=self.photoionization_index,
         )
 
+        # optically thick Lymann ground state handling, see Lucy 2003
+        integrated_cooling_coefficient.loc[(1, 0, 0)] = 0.0
+
         atomic_numbers = integrated_cooling_coefficient.index.get_level_values(
             "atomic_number"
         )
         ion_numbers = integrated_cooling_coefficient.index.get_level_values(
             "ion_number"
         )
-        level_numbers = integrated_cooling_coefficient.index.get_level_values(
-            "level_number"
-        )
-        # Lymann and generalized ground state handling
-        ground_state_mask = (ion_numbers == 0) & (level_numbers == 0)
-        integrated_cooling_coefficient.loc[ground_state_mask] = 0.0
 
         upper_ion_index = pd.MultiIndex.from_arrays(
             [

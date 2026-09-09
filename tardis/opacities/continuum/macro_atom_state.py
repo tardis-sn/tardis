@@ -8,6 +8,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
+from tardis.io.atom_data import AtomData
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
@@ -23,7 +24,7 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
 
 @dataclass(frozen=True)
 class ContinuumMacroAtomState:
-    """Continuum rates and cooling branches consumed by macro atoms."""
+    """Continuum rates and cooling branches used by the macro atom."""
 
     radiative_ionization_rate: pd.DataFrame
     radiative_recombination_rate: pd.DataFrame
@@ -44,7 +45,7 @@ class ContinuumMacroAtomState:
     @classmethod
     def from_equilibrium(
         cls,
-        atomic_data: object,
+        atomic_data: AtomData,
         lines: pd.DataFrame,
         photo_ion_cross_sections: pd.DataFrame,
         continuum_coefficients: ContinuumCoefficientState,
@@ -240,7 +241,7 @@ class ContinuumMacroAtomState:
             collisional_excitation_rate.index
         )
         collisional_deexcitation_rate.index = _macro_atom_collisional_index(
-            collisional_deexcitation_rate.index, reverse=True
+            collisional_deexcitation_rate.index, swap_src_dest_levels=True
         )
         deexcitation_index = collisional_deexcitation_rate.index
         deexcitation_lower_index = pd.MultiIndex.from_arrays(
@@ -317,7 +318,7 @@ def _normalize_cooling_rates(
 
 
 def _macro_atom_collisional_index(
-    index: pd.MultiIndex, *, reverse: bool = False
+    index: pd.MultiIndex, *, swap_src_dest_levels: bool = False
 ) -> pd.MultiIndex:
     """Use the transition index names expected by macro-atom kernels.
 
@@ -325,7 +326,7 @@ def _macro_atom_collisional_index(
     ----------
     index : pandas.MultiIndex
         Transition index containing source and destination levels.
-    reverse : bool, default=False
+    swap_src_dest_levels : bool, default=False
         Whether to reverse the source and destination levels.
 
     Returns
@@ -333,7 +334,7 @@ def _macro_atom_collisional_index(
     pandas.MultiIndex
         Index with the level names expected by macro-atom kernels.
     """
-    if reverse:
+    if swap_src_dest_levels:
         index = index.swaplevel(
             "level_number_source", "level_number_destination"
         )
@@ -350,10 +351,10 @@ def _macro_atom_collisional_index(
     return index.rename(
         {
             "level_number_source": (
-                "level_number_upper" if reverse else "level_number_lower"
+                "level_number_upper" if swap_src_dest_levels else "level_number_lower"
             ),
             "level_number_destination": (
-                "level_number_lower" if reverse else "level_number_upper"
+                "level_number_lower" if swap_src_dest_levels else "level_number_upper"
             ),
         }
     )
