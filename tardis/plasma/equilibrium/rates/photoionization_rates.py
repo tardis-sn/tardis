@@ -24,6 +24,13 @@ class AnalyticPhotoionizationRateSolver:
     """Solve analytic photoionization and spontaneous recombination rates."""
 
     def __init__(self, photoionization_cross_sections):
+        """Initialize an analytic photoionization rate solver.
+
+        Parameters
+        ----------
+        photoionization_cross_sections : pandas.DataFrame
+            Photoionization cross sections indexed by atomic level.
+        """
         self.photoionization_cross_sections = photoionization_cross_sections
 
         self.spontaneous_recombination_rate_coeff_solver = (
@@ -65,6 +72,10 @@ class AnalyticPhotoionizationRateSolver:
             Estimated ion number density. Columns are cells.
         level_to_continuum_saha_factor : pd.DataFrame, optional
             Density-independent Lucy level-to-continuum Saha factor.
+        partition_function : pandas.DataFrame
+            Partition functions by ion and shell.
+        level_boltzmann_factor : pandas.DataFrame
+            Level Boltzmann factors by shell.
 
         Returns
         -------
@@ -153,6 +164,21 @@ class EstimatedPhotoionizationRateSolver:
         time_simulation=None,
         volume=None,
     ):
+        """Initialize a fixed-estimator photoionization rate solver.
+
+        Parameters
+        ----------
+        photoionization_cross_sections : pandas.DataFrame
+            Photoionization cross sections indexed by atomic level.
+        level2continuum_edge_idx : pandas.Series
+            Mapping from levels to continuum edge indices.
+        estimators_continuum : object, optional
+            Monte Carlo continuum estimators.
+        time_simulation : astropy.units.Quantity, optional
+            Simulation time used to normalize estimators.
+        volume : astropy.units.Quantity, optional
+            Cell volume used to normalize estimators.
+        """
         self.photoionization_cross_sections = photoionization_cross_sections
         self.spontaneous_recombination_rate_coeff_solver = (
             SpontaneousRecombinationCoeffSolver(
@@ -231,18 +257,23 @@ class EstimatedPhotoionizationRateSolver:
         ) = (
             self.solve_coefficients(electron_energy_distribution.temperature)
         )
+        columns = level_population.columns
+        photoionization_coeff = photoionization_coeff.loc[:, columns]
+        stimulated_recombination_coeff = stimulated_recombination_coeff.loc[
+            :, columns
+        ]
         # The ionization matrix stores numerical cgs rates. The estimator
         # normalization and the atomic-data constants can otherwise leave
         # Astropy units attached to only one of the two raw factors.
         photoionization_coeff = pd.DataFrame(
             np.asarray(photoionization_coeff),
             index=photoionization_coeff.index,
-            columns=photoionization_coeff.columns,
+            columns=columns,
         )
         stimulated_recombination_coeff = pd.DataFrame(
             np.asarray(stimulated_recombination_coeff),
             index=stimulated_recombination_coeff.index,
-            columns=stimulated_recombination_coeff.columns,
+            columns=columns,
         )
         if (1, 0, 0) in photoionization_coeff.index:
             photoionization_coeff.loc[(1, 0, 0)] = 0.0
@@ -251,7 +282,7 @@ class EstimatedPhotoionizationRateSolver:
         spontaneous_recombination_coeff = pd.DataFrame(
             np.asarray(spontaneous_recombination_coeff),
             index=spontaneous_recombination_coeff.index,
-            columns=level_population.columns,
+            columns=columns,
         )
 
         level_population_fraction = level_population / (

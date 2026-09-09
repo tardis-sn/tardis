@@ -50,6 +50,7 @@ dilute_lte_excitation_properties = PlasmaPropertyCollection(
     [LevelBoltzmannFactorDiluteLTE]
 )
 non_nlte_properties = PlasmaPropertyCollection([LevelBoltzmannFactorNoNLTE])
+continuum_properties = PlasmaPropertyCollection([PhotoIonizationData])
 nlte_properties = PlasmaPropertyCollection(
     [
         LevelBoltzmannFactorNLTE,
