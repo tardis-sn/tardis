@@ -338,11 +338,9 @@ def gamma_packet_loop(
                     ejecta_energy_gained
                 )
 
-                if packet.status == GXPacketStatus.PHOTOABSORPTION:
-                    # Packet destroyed, go to the next packet
-                    break
-                packet.status = GXPacketStatus.IN_PROCESS
-                scattered = True
+                if packet.status != GXPacketStatus.PHOTOABSORPTION:
+                    packet.status = GXPacketStatus.IN_PROCESS
+                    scattered = True
 
             else:
                 packet.shell += shell_change
