@@ -12,7 +12,7 @@ Current Public Atomic Data Table
       - zeta
       - synpp references
       - database version
-    * - `kurucz_cd23_chianti_H_He_latest.h5 <https://github.com/tardis-sn/tardis-refdata/raw/master/atom_data/kurucz_cd23_chianti_H_He_latest.h5>`_
+    * - `kurucz_cd23_chianti_H_He_latest.h5 <https://github.com/tardis-sn/tardis-regression-data/raw/main/atom_data/kurucz_cd23_chianti_H_He_latest.h5>`_
       - 6f7b09e887a311e7a06b246e96350010
       - | **kurucz:**
         | Li I-II, Be I-IV, C I-IV, N I-VI
