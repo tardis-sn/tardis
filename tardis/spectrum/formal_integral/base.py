@@ -22,7 +22,7 @@ class IntegrationError(Exception):
     pass
 
 
-def check(simulation_state, plasma, transport, raises=True):
+def check_formal_integral_requirements(simulation_state, opacity_state, transport, raises=True):
     """
     A method that determines if the formal integral can be performed with
     the current configuration settings
@@ -30,6 +30,22 @@ def check(simulation_state, plasma, transport, raises=True):
     The function returns False if the configuration conflicts with the
     required settings. If raises evaluates to True, then a
     IntegrationError is raised instead
+
+    Parameters
+    ----------
+    simulation_state : tardis.model.SimulationState
+        State which holds information about each shell
+    transport_solver : tardis.transport.montecarlo.MonteCarloTransportSolver
+        The transport solver
+    opacity_state : tardis.opacities.opacity_state.OpacityState
+        Regular (non-numba) opacity state; will be converted to numba via `setup`
+    raises : bool, optional
+        flag to either raise an error or return False and issue a warning
+
+    Returns
+    -------
+    bool
+        True if the configuration is correct, False (or errors) otherwise
     """
 
     def raise_or_return(message):
@@ -39,10 +55,10 @@ def check(simulation_state, plasma, transport, raises=True):
             warnings.warn(message)
             return False
 
-    for obj in (simulation_state, plasma, transport):
+    for obj in (simulation_state, opacity_state, transport):
         if obj is None:
             return raise_or_return(
-                "The integrator is missing either model, plasma or "
+                "The integrator is missing either model, opacity state or "
                 "transport. Please make sure these are provided to the "
                 "FormalIntegrator."
             )
@@ -66,130 +82,39 @@ def check(simulation_state, plasma, transport, raises=True):
     return True
 
 
-def calculate_p_values(R_max, N):
+def calculate_impact_parameters(radius_max, n_impact_parameters):
     """
-    Calculates the p values of N
+    Calculate n_impact_parameters impact parameters between 0 and radius_max
 
     Parameters
     ----------
-    R_max : float64
-    N : int64
+    radius_max : float64
+        maximum radius
+    n_impact_parameters : int64
+        number of impact parameters
 
     Returns
     -------
     float64
     """
-    return np.arange(N).astype(np.float64) * R_max / (N - 1)
+    return np.arange(n_impact_parameters).astype(np.float64) * radius_max / (n_impact_parameters - 1)
 
 
-def intensity_black_body(nu, temperature):
+def intensity_black_body(frequency, temperature):
     """
     Calculate the blackbody intensity.
 
     Parameters
     ----------
-    nu : float64
-        frequency
+    frequency : float64
     temperature : float64
-        Temperature
 
     Returns
     -------
     float64
     """
-    if nu == 0:
+    if frequency == 0:
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
-
-
-def interpolate_integrator_quantities(
-    source_function_state,
-    interpolate_shells,
-    simulation_state,
-    transport,
-    opacity_state,
-    electron_densities,
-):
-    """Interpolate the integrator quantities to interpolate_shells.
-
-    Parameters
-    ----------
-    source_function_state: SourceFunctionState
-        Data class to hold the computed source function values
-    interpolate_shells : int
-        number of shells to interpolate to
-    simulation_state : tardis.model.SimulationState
-    transport : tardis.transport.montecarlo.MonteCarloTransportSolver
-    opacity_state : OpacityStateNumba
-    electron_densities : pd.DataFrame
-
-    Returns
-    -------
-    tuple
-        Interpolated values of att_S_ul, Jred_lu, Jbluelu, and e_dot_u
-    """
-
-    mct_state = transport.transport_state
-
-    att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
-            source_function_state.att_S_ul,
-            source_function_state.Jred_lu,
-            source_function_state.Jblue_lu,
-            source_function_state.e_dot_u,
-        )
-
-    nshells = interpolate_shells
-    r_middle = (
-        mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
-    ) / 2.0
-
-    r_integ = np.linspace(
-        mct_state.geometry_state.r_inner[0],
-        mct_state.geometry_state.r_outer[-1],
-        nshells,
-    )
-    transport.r_inner_i = r_integ[:-1]
-    transport.r_outer_i = r_integ[1:]
-
-    r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
-
-    transport.electron_densities_integ = interp1d(
-        r_middle,
-        electron_densities.iloc[
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
-        ],
-        fill_value="extrapolate",
-        kind="nearest",
-    )(r_middle_integ)
-    # Assume tau_sobolevs to be constant within a shell
-    # (as in the MC simulation)
-    transport.tau_sobolevs_integ = interp1d(
-        r_middle,
-        opacity_state.tau_sobolev[
-            :,
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index,
-        ],
-        fill_value="extrapolate",
-        kind="nearest",
-    )(r_middle_integ)
-    att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
-        r_middle_integ
-    )
-    Jred_lu = interp1d(r_middle, Jred_lu, fill_value="extrapolate")(
-        r_middle_integ
-    )
-    Jblue_lu = interp1d(r_middle, Jblue_lu, fill_value="extrapolate")(
-        r_middle_integ
-    )
-    e_dot_u = interp1d(r_middle, e_dot_u, fill_value="extrapolate")(
-        r_middle_integ
-    )
-
-    # Set negative values from the extrapolation to zero
-    att_S_ul = att_S_ul.clip(0.0)
-    Jblue_lu = Jblue_lu.clip(0.0)
-    Jred_lu = Jred_lu.clip(0.0)
-    e_dot_u = e_dot_u.clip(0.0)
-    return att_S_ul, Jred_lu, Jblue_lu, e_dot_u
+    return coefficient * frequency * frequency * frequency / (np.exp(H_CGS * frequency * beta_rad) - 1)

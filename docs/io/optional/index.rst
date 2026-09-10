@@ -9,7 +9,6 @@ TARDIS also allows other inputs that are passed as keyword arguments into the ``
 .. toctree::
     :maxdepth: 1
 
-    how_to_custom_source
     tutorial_callback_example
     tutorial_logging_configuration
 

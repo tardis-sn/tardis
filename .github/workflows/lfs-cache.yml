@@ -13,11 +13,6 @@ on:
         required: false
         default: "tardis-sn/tardis-regression-data"
         type: string
-      allow_lfs_pull:
-        description: "If true, allows LFS pull operations"
-        required: false
-        default: false
-        type: boolean
   workflow_call:
     inputs:
       atom-data-sparse:
@@ -30,11 +25,6 @@ on:
         required: false
         default: "tardis-sn/tardis-regression-data"
         type: string
-      allow_lfs_pull:
-        description: "If true, allows LFS pull operations"
-        required: false
-        default: false
-        type: boolean
 
 defaults:
   run:
@@ -52,12 +42,12 @@ jobs:
     if: github.repository_owner == 'tardis-sn'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.regression-data-repo }}
           path: tardis-regression-data
           sparse-checkout: ${{ inputs.atom-data-sparse == true && 'atom_data/kurucz_cd23_chianti_H_He_latest.h5' || '' }}
-    
+
       - name: Create LFS file list
         run: |
           if [ "${{ inputs.atom-data-sparse }}" == "true" ]; then
@@ -70,28 +60,20 @@ jobs:
         working-directory: tardis-regression-data
 
       - name: Test cache availability
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         id: test-lfs-cache-regression-data
         with:
           path: tardis-regression-data/.git/lfs
           key: tardis-regression-${{ inputs.atom-data-sparse == true && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
           lookup-only: true
-  
-      - name: Fail if LFS pull is needed but not allowed
-        if: |
-          steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && 
-          inputs.allow_lfs_pull != true
-        run: |
-          echo "Error: LFS pull is required but not allowed (allow_lfs_pull is false)"
-          exit 1
       
       - name: Git LFS Pull Atom Data
-        if: ${{ inputs.atom-data-sparse && steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && inputs.allow_lfs_pull }}
+        if: ${{ inputs.atom-data-sparse && steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' }}
         run: git lfs pull --include=atom_data/kurucz_cd23_chianti_H_He_latest.h5
         working-directory: tardis-regression-data
       
       - name: Git LFS Pull Full Data
-        if: ${{ !inputs.atom-data-sparse && steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && inputs.allow_lfs_pull }}
+        if: ${{ !inputs.atom-data-sparse && steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' }}
         run: git lfs pull
         working-directory: tardis-regression-data
       
@@ -106,26 +88,9 @@ jobs:
         working-directory: tardis-regression-data
   
       - name: Save LFS cache if not found
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: ${{ steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && !contains(github.ref, 'merge') }}
         with:
           path: tardis-regression-data/.git/lfs
           key: tardis-regression-${{ inputs.atom-data-sparse == true && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
 
-      - name: Remove label
-        if: ${{ inputs.allow_lfs_pull }}
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            try {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                name: 'git-lfs-pull'
-              });
-              console.log('Successfully removed git-lfs-pull label');
-            } catch (error) {
-              console.log(`Unable to remove git-lfs-pull label: ${error.message}`);
-            }

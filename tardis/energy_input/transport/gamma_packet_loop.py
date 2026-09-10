@@ -1,5 +1,7 @@
 import numpy as np
-from numba import njit
+from numba import njit, prange
+from numba.np.ufunc.parallel import get_num_threads, get_thread_id
+from numpy.typing import NDArray
 
 from tardis.energy_input.transport.gamma_ray_grid import (
     distance_trace,
@@ -11,7 +13,11 @@ from tardis.energy_input.transport.gamma_ray_interactions import (
     pair_creation_packet,
     scatter_type,
 )
-from tardis.energy_input.transport.GXPacket import GXPacketStatus
+from tardis.energy_input.transport.GXPacket import (
+    GXPacket,
+    GXPacketCollection,
+    GXPacketStatus,
+)
 from tardis.energy_input.util import (
     C_CGS,
     H_CGS_KEV,
@@ -26,73 +32,114 @@ from tardis.opacities.opacities import (
     pair_creation_opacity_calculation,
     photoabsorption_opacity_calculation,
 )
-from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
+from tardis.transport.montecarlo.modes.montecarlo_transport import (
+    update_packet_progress,
+)
 
 
 @njit(**njit_dict_no_parallel)
+def make_gx_packet(
+    packet_collection: GXPacketCollection, packet_idx: int
+) -> GXPacket:
+    """Build a transient gamma-ray packet from a packet collection."""
+    np.random.seed(packet_collection.packet_seeds[packet_idx])
+    return GXPacket(
+        packet_collection.location[:, packet_idx],
+        packet_collection.direction[:, packet_idx],
+        packet_collection.energy_rf[packet_idx],
+        packet_collection.energy_cmf[packet_idx],
+        packet_collection.nu_rf[packet_idx],
+        packet_collection.nu_cmf[packet_idx],
+        packet_collection.status[packet_idx],
+        packet_collection.shell[packet_idx],
+        packet_collection.time_start[packet_idx],
+        packet_collection.time_index[packet_idx],
+        False,
+    )
+
+
+@njit(**njit_dict)
 def gamma_packet_loop(
-    packets,
-    grey_opacity,
-    photoabsorption_opacity_type,
-    pair_creation_opacity_type,
-    electron_number_density_time,
-    mass_density_time,
-    iron_group_fraction_per_shell,
-    inner_velocities,
-    outer_velocities,
-    dt_array,
-    times,
-    effective_time_array,
-    energy_bins,
-    energy_out,
-    energy_out_cosi,
-    total_energy,
-    energy_deposited_gamma,
-    packets_info_array,
-):
-    """Propagates packets through the simulation
+    packet_collection: GXPacketCollection,
+    grey_opacity: float,
+    photoabsorption_opacity_type: str,
+    pair_creation_opacity_type: str,
+    electron_number_density_time: NDArray[np.float64],
+    mass_density_time: NDArray[np.float64],
+    iron_group_fraction_per_shell: NDArray[np.float64],
+    inner_velocities: NDArray[np.float64],
+    outer_velocities: NDArray[np.float64],
+    dt_array: NDArray[np.float64],
+    times: NDArray[np.float64],
+    effective_time_array: NDArray[np.float64],
+    energy_bins: NDArray[np.float64],
+    energy_out: NDArray[np.float64],
+    energy_out_cosi: NDArray[np.float64],
+    total_energy: NDArray[np.float64],
+    energy_deposited_gamma: NDArray[np.float64],
+    packets_info_array: NDArray[np.float64],
+) -> tuple[
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+]:
+    """Propagate gamma-ray packets through the simulation.
 
     Parameters
     ----------
-    packets : list
-        List of GXPacket objects
+    packet_collection : GXPacketCollection
+        Initial packet arrays to propagate through the ejecta.
     grey_opacity : float
-        Grey opacity value in cm^2/g
+        Grey opacity value in cm^2/g. Negative values trigger detailed opacity
+        calculations.
+    photoabsorption_opacity_type : str
+        Method used to calculate photoabsorption opacity.
+    pair_creation_opacity_type : str
+        Method used to calculate pair creation opacity.
     electron_number_density_time : array float64
-        Electron number densities with time
+        Electron number densities indexed by shell and time.
     mass_density_time : array float64
-        Mass densities with time
-    inv_volume_time : array float64
-        Inverse volumes with time
+        Mass densities indexed by shell and time.
     iron_group_fraction_per_shell : array float64
-        Iron group fraction per shell
+        Iron-group mass fraction for each shell.
     inner_velocities : array float64
-        Inner velocities of the shells
+        Inner shell velocities.
     outer_velocities : array float64
-        Inner velocities of the shells
-    times : array float64
-        Simulation time steps
+        Outer shell velocities.
     dt_array : array float64
-        Simulation delta-time steps
+        Simulation delta-time steps.
+    times : array float64
+        Simulation time-step boundaries.
     effective_time_array : array float64
-        Simulation middle time steps
+        Effective simulation times for opacity and geometry calculations.
     energy_bins : array float64
-        Bins for escaping gamma-rays
-    energy_df_rows : array float64
-        Energy output
-    energy_plot_df_rows : array float64
-        Energy output for plotting
+        Energy bins for escaping gamma-rays.
     energy_out : array float64
-        Escaped energy array
+        Escaped energy array updated in-place.
+    energy_out_cosi : array float64
+        Escaped photon count-rate array updated in-place.
+    total_energy : array float64
+        Total deposited energy array updated in-place.
+    energy_deposited_gamma : array float64
+        Gamma-ray deposited energy array updated in-place.
+    packets_info_array : array float64
+        Packet diagnostic output array updated in-place.
 
     Returns
     -------
-    array float64
-        Energy output
-    array float64
-        Energy output for plotting
-    array float64
-        Escaped energy array
+    energy_out : array float64
+        Escaped energy array.
+    energy_out_cosi : array float64
+        Escaped photon count-rate array.
+    packets_info_array : array float64
+        Packet diagnostic output array.
+    energy_deposited_gamma : array float64
+        Gamma-ray deposited energy array.
+    total_energy : array float64
+        Total deposited energy array.
 
     Raises
     ------
@@ -101,46 +148,92 @@ def gamma_packet_loop(
     """
     escaped_packets = 0
     scattered_packets = 0
-    packet_count = len(packets)
+    packet_count = len(packet_collection.energy_rf)
+    n_threads = get_num_threads()
+    energy_out_thread = np.zeros(
+        (n_threads, energy_out.shape[0], energy_out.shape[1])
+    )
+    energy_out_cosi_thread = np.zeros(
+        (n_threads, energy_out_cosi.shape[0], energy_out_cosi.shape[1])
+    )
+    energy_deposited_gamma_thread = np.zeros(
+        (
+            n_threads,
+            energy_deposited_gamma.shape[0],
+            energy_deposited_gamma.shape[1],
+        )
+    )
+    total_energy_thread = np.zeros(
+        (n_threads, total_energy.shape[0], total_energy.shape[1])
+    )
+    escaped_packets_thread = np.zeros(n_threads, dtype=np.int64)
+    scattered_packets_thread = np.zeros(n_threads, dtype=np.int64)
+
+    for packet_idx in range(packet_count):
+        if packet_collection.time_index[packet_idx] < 0:
+            print(
+                packet_collection.time_start[packet_idx],
+                packet_collection.time_index[packet_idx],
+            )
+            raise ValueError("Packet time index less than 0!")
+
+    if grey_opacity < 0:
+        if (
+            photoabsorption_opacity_type != "kasen"
+            and photoabsorption_opacity_type != "tardis"
+        ):
+            raise ValueError("Invalid photoabsorption opacity type!")
+        if (
+            pair_creation_opacity_type != "artis"
+            and pair_creation_opacity_type != "tardis"
+        ):
+            raise ValueError("Invalid pair creation opacity type!")
+
     # Logging does not work with numba. Using print instead.
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
-    for i in range(packet_count):
-        packet = packets[i]
-        time_index = packet.time_index
+    main_thread_id = get_thread_id()
 
-        if time_index < 0:
-            print(packet.time_start, time_index)
-            raise ValueError("Packet time index less than 0!")
+    for packet_idx in prange(packet_count):
+        thread_id = get_thread_id()
+        update_packet_progress(
+            True,
+            thread_id,
+            main_thread_id,
+            n_threads,
+            packet_count,
+        )
+
+        packet = make_gx_packet(packet_collection, packet_idx)
+        time_idx = packet.time_idx
 
         scattered = False
         # Not used now. Useful for the deposition estimator.
         # initial_energy = packet.energy_cmf
+        luminosity = 0.0
+        photoabsorption_opacity = 0.0
+        pair_creation_opacity = 0.0
+        doppler_factor = 0.0
 
         while packet.status == GXPacketStatus.IN_PROCESS:
             # Get delta-time value for this step
-            dt = dt_array[time_index]
+            dt = dt_array[time_idx]
             # Calculate packet comoving energy for opacities
             comoving_energy = H_CGS_KEV * packet.nu_cmf
 
             if grey_opacity < 0:
-                doppler_factor = doppler_factor_3d(
-                    packet.direction,
-                    packet.location,
-                    times[time_index],
-                )
-
                 kappa = kappa_calculation(comoving_energy)
 
                 # artis threshold for Thomson scattering
                 if kappa < 1e-2:
                     compton_opacity = (
-                        SIGMA_T * electron_number_density_time[packet.shell, time_index]
+                        SIGMA_T
+                        * electron_number_density_time[packet.shell, time_idx]
                     )
                 else:
                     compton_opacity = compton_opacity_calculation(
                         comoving_energy,
-                        electron_number_density_time[packet.shell, time_index],
+                        electron_number_density_time[packet.shell, time_idx],
                     )
 
                 if photoabsorption_opacity_type == "kasen":
@@ -149,39 +242,47 @@ def gamma_packet_loop(
                     photoabsorption_opacity = 0
                     # photoabsorption_opacity_calculation_kasen()
                 elif photoabsorption_opacity_type == "tardis":
-                    photoabsorption_opacity = photoabsorption_opacity_calculation(
-                        comoving_energy,
-                        mass_density_time[packet.shell, time_index],
-                        iron_group_fraction_per_shell[packet.shell],
+                    photoabsorption_opacity = (
+                        photoabsorption_opacity_calculation(
+                            comoving_energy,
+                            mass_density_time[packet.shell, time_idx],
+                            iron_group_fraction_per_shell[packet.shell],
+                        )
                     )
-                else:
-                    raise ValueError("Invalid photoabsorption opacity type!")
 
                 if pair_creation_opacity_type == "artis":
                     pair_creation_opacity = pair_creation_opacity_artis(
                         comoving_energy,
-                        mass_density_time[packet.shell, time_index],
+                        mass_density_time[packet.shell, time_idx],
                         iron_group_fraction_per_shell[packet.shell],
                     )
                 elif pair_creation_opacity_type == "tardis":
                     pair_creation_opacity = pair_creation_opacity_calculation(
                         comoving_energy,
-                        mass_density_time[packet.shell, time_index],
+                        mass_density_time[packet.shell, time_idx],
                         iron_group_fraction_per_shell[packet.shell],
                     )
-                else:
-                    raise ValueError("Invalid pair creation opacity type!")
             else:
                 compton_opacity = 0.0
                 pair_creation_opacity = 0.0
                 photoabsorption_opacity = (
-                    grey_opacity * mass_density_time[packet.shell, time_index]
+                    grey_opacity * mass_density_time[packet.shell, time_idx]
                 )
 
-            # convert opacities to rest frame
             total_opacity = (
-                compton_opacity + photoabsorption_opacity + pair_creation_opacity
-            ) * doppler_factor
+                compton_opacity
+                + photoabsorption_opacity
+                + pair_creation_opacity
+            )
+
+            # convert opacities to rest frame
+            doppler_factor = doppler_factor_3d(
+                packet.direction,
+                packet.location,
+                times[time_idx],
+            )
+
+            total_opacity_rest_frame = total_opacity * doppler_factor
 
             packet.tau = -np.log(np.random.random())
 
@@ -194,27 +295,29 @@ def gamma_packet_loop(
                 packet,
                 inner_velocities,
                 outer_velocities,
-                total_opacity,
-                effective_time_array[time_index],
-                times[time_index + 1],
+                total_opacity_rest_frame,
+                effective_time_array[time_idx],
+                times[time_idx + 1],
             )
 
-            distance = min(distance_interaction, distance_boundary, distance_time)
+            distance = min(
+                distance_interaction, distance_boundary, distance_time
+            )
 
             packet.time_start += distance / C_CGS
 
             packet = move_packet(packet, distance)
 
             if distance == distance_time:
-                time_index += 1
+                time_idx += 1
 
-                if time_index > len(effective_time_array) - 1:
+                if time_idx > len(effective_time_array) - 1:
                     # Packet ran out of time
                     packet.status = GXPacketStatus.END
                 else:
                     packet.shell = get_index(
                         packet.get_location_r(),
-                        inner_velocities * times[time_index],
+                        inner_velocities * times[time_idx],
                     )
 
             elif distance == distance_interaction:
@@ -227,56 +330,74 @@ def gamma_packet_loop(
                 packet, ejecta_energy_gained = process_packet_path(packet)
 
                 # Ejecta gains energy from the packets (gamma-rays)
-                energy_deposited_gamma[packet.shell, time_index] += ejecta_energy_gained
+                energy_deposited_gamma_thread[
+                    thread_id, packet.shell, time_idx
+                ] += ejecta_energy_gained
                 # Ejecta gains energy from both gamma-rays and positrons
-                total_energy[packet.shell, time_index] += ejecta_energy_gained
+                total_energy_thread[thread_id, packet.shell, time_idx] += (
+                    ejecta_energy_gained
+                )
 
-                if packet.status == GXPacketStatus.PHOTOABSORPTION:
-                    # Packet destroyed, go to the next packet
-                    break
-                packet.status = GXPacketStatus.IN_PROCESS
-                scattered = True
+                if packet.status != GXPacketStatus.PHOTOABSORPTION:
+                    packet.status = GXPacketStatus.IN_PROCESS
+                    scattered = True
 
             else:
                 packet.shell += shell_change
 
                 if packet.shell > len(mass_density_time[:, 0]) - 1:
                     rest_energy = packet.nu_rf * H_CGS_KEV
-                    bin_index = get_index(rest_energy, energy_bins)
-                    bin_width = energy_bins[bin_index + 1] - energy_bins[bin_index]
+                    energy_bin_idx = get_index(rest_energy, energy_bins)
+                    bin_width = (
+                        energy_bins[energy_bin_idx + 1]
+                        - energy_bins[energy_bin_idx]
+                    )
                     freq_bin_width = bin_width / H_CGS_KEV
 
                     # get energy out in ergs per second per keV
-                    energy_out[bin_index, time_index] += (
+                    energy_out_thread[thread_id, energy_bin_idx, time_idx] += (
                         packet.energy_rf
                         / dt
                         / freq_bin_width  # Take light crossing time into account
                     )
                     # get energy out in photons per second per keV
-                    energy_out_cosi[bin_index, time_index] += 1 / dt / bin_width
+                    energy_out_cosi_thread[
+                        thread_id, energy_bin_idx, time_idx
+                    ] += 1 / dt / bin_width
 
                     luminosity = packet.energy_rf / dt
                     packet.status = GXPacketStatus.ESCAPED
-                    escaped_packets += 1
+                    escaped_packets_thread[thread_id] += 1
                     if scattered:
-                        scattered_packets += 1
+                        scattered_packets_thread[thread_id] += 1
                 elif packet.shell < 0:
-                    packet.energy_rf = 0.0
-                    packet.energy_cmf = 0.0
                     packet.status = GXPacketStatus.END
 
-            packets_info_array[i] = np.array(
-                [
-                    i,
-                    packet.status,
-                    packet.nu_cmf,
-                    packet.nu_rf,
-                    packet.energy_cmf,
-                    luminosity,
-                    packet.energy_rf,
-                    packet.shell,
-                ]
-            )
+            if not (
+                packet.status == GXPacketStatus.PHOTOABSORPTION
+                and packets_info_array[packet_idx, 1]
+                == 3.0 # IN_PROCESS state, numba can't cast the IntEnum
+            ):
+                packets_info_array[packet_idx] = np.array(
+                    [
+                        packet_idx,
+                        packet.status,
+                        packet.nu_cmf,
+                        packet.nu_rf,
+                        packet.energy_cmf,
+                        luminosity,
+                        packet.energy_rf,
+                        packet.shell,
+                    ]
+                )
+
+    for thread_id in range(n_threads):
+        escaped_packets += escaped_packets_thread[thread_id]
+        scattered_packets += scattered_packets_thread[thread_id]
+        energy_out += energy_out_thread[thread_id]
+        energy_out_cosi += energy_out_cosi_thread[thread_id]
+        energy_deposited_gamma += energy_deposited_gamma_thread[thread_id]
+        total_energy += total_energy_thread[thread_id]
 
     print("Number of escaped packets:", escaped_packets)
     print("Number of scattered packets:", scattered_packets)
@@ -291,21 +412,23 @@ def gamma_packet_loop(
 
 
 @njit(**njit_dict_no_parallel)
-def process_packet_path(packet):
-    """Move the packet through interactions
+def process_packet_path(packet: GXPacket) -> tuple[GXPacket, float]:
+    """Move a packet through interactions.
 
     Parameters
     ----------
     packet : GXPacket
-        Packet for processing
+        Packet to process.
 
     Returns
     -------
-    GXPacket
-        Packet after processing
-    float
-        Energy injected into the ejecta
+    packet : GXPacket
+        Packet after processing.
+    ejecta_energy_gained : float
+        Energy injected into the ejecta.
     """
+    ejecta_energy_gained = 0.0
+
     if packet.status == GXPacketStatus.COMPTON_SCATTER:
         comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
 

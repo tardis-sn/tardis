@@ -21,8 +21,8 @@ stars (*supernovae*).
 .. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/tardis-sn/tardis
 
-.. image:: https://github.com/tardis-sn/tardis/actions/workflows/docstr-cov.yml/badge.svg
-    :target: https://github.com/tardis-sn/tardis/actions/workflows/docstr-cov.yml
+.. image:: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml/badge.svg
+    :target: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml
 
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml/badge.svg
     :target: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml
@@ -30,12 +30,13 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
-.. image:: https://img.shields.io/badge/benchmarks-passing-green
-    :target: https://github.com/tardis-sn/tardis/actions/workflows/benchmarks.yml
+.. image:: https://github.com/tardis-sn/tardis/actions/workflows/benchmarks.yml/badge.svg
+    :target: https://tardis-sn.github.io/tardis-benchmarks/
 
 .. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/_static/ruff_badge.json
     :target: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml
 |
+
 
 .. _tardiscredits:
 
@@ -62,10 +63,10 @@ following paragraph to the Acknowledgement section:
     synthesis in supernovae \\citep{2014MNRAS.440..387K, |CITATION|}. The
     development of \\textsc{tardis} received support from GitHub, the Google Summer of Code
     initiative, and from ESA's Summer of Code in Space program. \\textsc{tardis} is a fiscally
-    sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and radioactivedecay.
+    sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy.
 
 If you use any of the full relativity treatments or use TARDIS for modelling
-Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_
+Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_ 
 to the Acknowledgement.
 
 .. parsed-literal::
@@ -113,14 +114,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2025_16730222
+.. |CITATION| replace:: kerzendorf_2026_22436000
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.16730222-blue
-                 :target: https://doi.org/10.5281/zenodo.16730222
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.436000-blue
+                 :target: https://doi.org/10.5281/zenodo.436000
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2025_16730222,
+    @software{kerzendorf_2026_22436000,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -144,98 +145,119 @@ The following BibTeX entries are needed for the references:
                       Heringer, Epson and
                       Barna, Barnabás and
                       Gautam, Gaurav and
-                      Fullard, Andrew and
                       Arya, Atharva and
                       Smith, Isaac and
+                      Shields, Joshua and
                       Cawley, Kevin and
                       Singhal, Jaladh and
-                      Shields, Joshua and
-                      O'Brien, Jack and
+                      Fullard, Andrew and
                       Barbosa, Talytha and
-                      Sondhi, Dhruv and
                       Yu, Jenny and
-                      Patel, Maryam and
+                      O'Brien, Jack and
+                      Sondhi, Dhruv and
                       Shields, Josh and
+                      Patel, Maryam and
                       Varanasi, Kaushik and
                       Rathi, Shikha and
-                      Chitchyan, Sona and
                       Gillanders, James and
-                      Singh, Shreyas and
+                      Chitchyan, Sona and
+                      Marie Lynn, Haille and
                       Savel, Arjun and
                       Gupta, Sumit and
-                      Reinecke, Martin and
-                      Holas, Alexander and
+                      Singh, Shreyas and
                       Eweis, Youssef and
+                      Reinecke, Martin and
+                      Shah, Swayam and
+                      Holas, Alexander and
+                      Visser, Erin and
+                      McClellan, Connor and
                       Bylund, Tomas and
                       Black, William and
                       Bentil, Laud and
                       Kumar, Asish and
+                      Dutta, Anirban and
+                      Lu, Jing and
+                      Groneck, Ryan and
+                      Saraf, Shreyans and
                       Eguren, Jordi and
-                      Kumar, Ansh and
+                      Srivastava, Sarthak and
                       Bartnik, Matthew and
+                      Kumar, Ansh and
                       Alam, Arib and
                       Magee, Mark and
-                      Dutta, Anirban and
-                      Srivastava, Sarthak and
                       Varma Buddaraju, Rohith and
-                      Visser, Erin and
-                      Daksh, Ayushi and
-                      Lu, Jing and
-                      Livneh, Ran and
                       Kambham, Satwik and
-                      Roldan, Israel and
+                      Livneh, Ran and
+                      Daksh, Ayushi and
+                      Powers, Cecelia and
                       Bhakar, Jayant and
-                      Mishra, Sashank and
+                      Dadu, Aaryan and
                       Rajagopalan, Srinath and
+                      Mishra, Sashank and
+                      Roldan, Israel and
                       Reichenbach, John and
-                      Jain, Rinkle and
                       Actions, GitHub and
-                      Floers, Andreas and
+                      Rao, Rishmita and
+                      Jain, Rinkle and
+                      Nitish, P and
                       Gupta, Harshul and
-                      Chaumal, Aarya and
-                      Brar, Antreev and
                       Singh, Sourav and
-                      Kowalski, Nathan and
+                      Brar, Antreev and
+                      Chaumal, Aarya and
                       Patidar, Abhishek and
-                      Matsumura, Yuki and
-                      Selsing, Jonatan and
+                      Kunisetty, Saanvi and
+                      Gangbhoj, Riddhi and
                       Sofiatti, Caroline and
+                      Matsumura, Yuki and
+                      Kowalski, Nathan and
+                      Selsing, Jonatan and
+                      Perkins, Haille and
                       Talegaonkar, Chinmay and
-                      Kumar, Aman and
-                      Sharma, Sampark and
+                      Aggarwal, Yash and
+                      L. Lim, P. and
+                      Patra, Nilesh and
+                      Volodin, Dmitry and
                       Buchner, Johannes and
+                      Vieira, Nicholas and
+                      Diddige, Harshitha and
+                      Bhandari, Jhalak and
+                      Sarafina, Nance and
                       Yap, Kevin and
+                      Nagadevi, Kona and
                       Martinez, Laureano and
                       Truong, Le and
                       Zingale, Michael and
                       Sandler, Morgan and
                       Zaheer, Musabbiha and
-                      Sarafina, Nance and
-                      Dasgupta, Debajyoti and
-                      Patra, Nilesh and
-                      Singh Rathore, Parikshit and
-                      Patel, Pratik and
-                      Volodin, Dmitry and
-                      Venkat, Shashank and
-                      Prasad, Shilpi and
-                      Gupta, Suyash and
                       Lemoine, Thom and
                       Wahi, Ujjwal and
-                      Aggarwal, Yash and
-                      Chen, Nutan and
-                      Kolliboyina, Chaitanya and
+                      Watson, Clyde and
+                      Gupta, Suyash and
                       PATIDAR, ABHISHEK and
+                      Jaiswal, Abhayraj and
+                      Dasgupta, Debajyoti and
+                      Kumar, Aman and
                       Nayak U, Ashwin and
                       Kumar, Atul and
-                      Kharkar, Atharwa},
-      title        = {tardis-sn/tardis: TARDIS v2025.08.03},
-      month        = aug,
-      year         = 2025,
+                      Gupta, Angel and
+                      Chen, Nutan and
+                      Singh Rathore, Parikshit and
+                      Patel, Pratik and
+                      Prasad, Rohit and
+                      Gajanan Nalbalwar, Rudraksh and
+                      Sharma, Sampark and
+                      Venkat, Shashank and
+                      Prasad, Shilpi},
+      title        = {tardis-sn/tardis: TARDIS v2026.09.06},
+      month        = sep,
+      year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2025.08.03},
-      doi          = {10.5281/zenodo.16730222},
-      url          = {https://doi.org/10.5281/zenodo.16730222},
+      version      = {release-2026.09.06},
+      doi          = {10.5281/zenodo.22436000},
+      url          = {https://doi.org/10.5281/zenodo.22436000},
     }
+
+
 
 *******
 License
@@ -253,4 +275,3 @@ the terms of the BSD 3-Clause license. This package is based upon
 the `Astropy package template <https://github.com/astropy/package-template>`_
 which is licensed under the BSD 3-clause license. See the licenses folder for
 more information.
-

@@ -60,8 +60,8 @@ def intensity_ratio(nuclear_data, source_1, source_2):
     float
         Number of decay products per decay
     """
-    intensity_1 = nuclear_data.query("type==" + source_1)["intensity"].values
-    intensity_2 = nuclear_data.query("type==" + source_2)["intensity"].values
+    intensity_1 = nuclear_data.query("type==" + source_1)["intensity"].to_numpy()
+    intensity_2 = nuclear_data.query("type==" + source_2)["intensity"].to_numpy()
     total_intensity = np.sum(intensity_1) + np.sum(intensity_2)
     # Factor of 100 is because intensities are in percent
     scale_factor = total_intensity / 100
@@ -189,7 +189,7 @@ def get_tau(meta, isotope_string):
     isotope_meta = meta.loc[isotope_string]
     half_life = isotope_meta.loc[isotope_meta["key"] == "Parent T1/2 value"][
         "value"
-    ].values[0]
+    ].to_numpy()[0]
     half_life = convert_half_life_to_astropy_units(half_life)
     return half_life / np.log(2)
 

@@ -6,6 +6,7 @@ import pandas as pd
 from astropy.units import Quantity
 
 from tardis import constants as const
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.io.atom_data.collision_data import (
     ChiantiCollisionData,
     CMFGENCollisionData,
@@ -13,7 +14,7 @@ from tardis.io.atom_data.collision_data import (
 from tardis.io.atom_data.macro_atom_data import MacroAtomData
 from tardis.io.atom_data.nlte_data import NLTEData
 from tardis.io.atom_data.util import resolve_atom_data_fname
-from tardis.plasma.properties.continuum_processes.rates import (
+from tardis.plasma.array_util import (
     get_ground_state_multi_index,
 )
 
@@ -205,13 +206,12 @@ class AtomData:
                 # Checks for various collisional data from Carsus files
                 if "collisions_data" in store:
                     try:
-                        if carsus_version == (1, 0):
-                            dataframes["collision_data_temperatures"] = store[
-                                "collisions_metadata"
-                            ].temperatures
                         if "cmfgen" in store["collisions_metadata"].dataset:
                             dataframes["yg_data"] = store["collisions_data"]
                             dataframes["collision_data"] = "dummy value"
+                            dataframes["collision_data_temperatures"] = store[
+                                "collisions_metadata"
+                            ].temperatures
                         elif "chianti" in store["collisions_metadata"].dataset:
                             dataframes["collision_data"] = store[
                                 "collisions_data"
@@ -453,7 +453,7 @@ class AtomData:
         # this is important especially after numpy v2 release
         # https://numpy.org/doc/stable/release/2.0.0-notes.html#minor-changes-in-behavior-of-sorting-functions
         self.lines = self.lines.sort_values(
-            by=["wavelength", "line_id"], kind="stable"
+            by=["wavelength", "line_id"], kind=SORTING_ALGORITHM
         )
 
     def prepare_line_level_indexes(self):
@@ -524,7 +524,9 @@ class AtomData:
 
         self.level2continuum_edge_idx = pd.Series(
             np.arange(len(nu_ion_threshold)),
-            nu_ion_threshold.sort_values(ascending=False).index,
+            nu_ion_threshold.sort_values(
+                ascending=False, kind=SORTING_ALGORITHM
+            ).index,
             name="continuum_idx",
         )
 

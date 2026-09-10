@@ -3,6 +3,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.plasma.equilibrium.rates.collision_strengths import (
     UpsilonChiantiSolver,
     UpsilonCMFGENSolver,
@@ -64,11 +65,11 @@ class ThermalCollisionalRateSolver:
             ].energy.values
         ) * u.erg
 
-        self.g_l = self.levels.loc[
+        self.g_upper = self.levels.loc[
             self.all_collisional_strengths_index.droplevel("level_number_lower")
         ].g.values
 
-        self.g_u = self.levels.loc[
+        self.g_lower = self.levels.loc[
             self.all_collisional_strengths_index.droplevel("level_number_upper")
         ].g.values
 
@@ -100,7 +101,7 @@ class ThermalCollisionalRateSolver:
         )  # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
 
         collision_rates_coeff_ul = (
-            (self.g_u / self.g_l)[np.newaxis].T
+            (self.g_lower / self.g_upper)[np.newaxis].T
             / boltzmann_factor
             * collision_rates_coeff_lu
         )
@@ -180,4 +181,4 @@ class ThermalCollisionalRateSolver:
                 thermal_collision_strengths,
                 thermal_collision_strength_approximated,
             ]
-        ).sort_index()
+        ).sort_index(kind=SORTING_ALGORITHM)

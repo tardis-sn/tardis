@@ -1,18 +1,28 @@
 import os
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 
+import numpy as np
+import numpy.testing as npt
+import pandas as pd
 import pytest
+from astropy import units as u
 from astropy.version import version as astropy_version
+from numba import njit
 
 from tardis import run_tardis
+from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
-
-from tardis.util.base import packet_pbar, iterations_pbar
 from tardis.tests.test_util import monkeysession
+from tardis.transport.montecarlo.progress_bars import (
+    iterations_pbar,
+    packet_pbar,
+)
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 try:
     import tardisbase
@@ -155,6 +165,40 @@ def pytest_collection_modifyitems(config, items):
 # -------------------------------------------------------------------------
 
 
+def sync_ndarray_assert_allclose(
+    regression_data: object, *actual_values: object, **kwargs: object
+) -> None:
+    actual_array = np.concatenate(
+        [
+            np.asarray(actual, dtype=np.float64).ravel()
+            for actual in actual_values
+        ]
+    )
+    expected = regression_data.sync_ndarray(actual_array)
+    npt.assert_allclose(actual_array, expected, **kwargs)
+
+
+@njit
+def set_numba_seed(value: int) -> None:
+    np.random.seed(value)
+
+
+@pytest.fixture
+def set_seed_fixture() -> Callable[[int], None]:
+    # Numba maintains RNG state separately from Python's NumPy RNG; seeding
+    # inside njitted code keeps random tests reproducible.
+    return set_numba_seed
+
+
+@pytest.fixture
+def python_numba_disabled() -> None:
+    if os.environ.get("NUMBA_DISABLE_JIT") != "1":
+        pytest.skip(
+            "This path monkeypatches numba-dispatched code "
+            "and only runs with NUMBA_DISABLE_JIT=1."
+        )
+
+
 @pytest.fixture(scope="session")
 def generate_reference(request):
     option = request.config.getoption("--generate-reference")
@@ -171,7 +215,11 @@ def tardis_regression_path(request):
     if tardis_regression_path is None:
         pytest.skip("--tardis-regression-data was not specified")
     else:
-        return Path(os.path.expandvars(tardis_regression_path)).expanduser().resolve()
+        return (
+            Path(os.path.expandvars(tardis_regression_path))
+            .expanduser()
+            .resolve()
+        )
 
 
 @pytest.fixture(scope="function")
@@ -180,6 +228,7 @@ def tardis_config_verysimple():
         "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml",
         YAMLLoader,
     )
+
 
 @pytest.fixture(scope="session")
 def config_verysimple_for_simulation_one_loop(
@@ -193,12 +242,23 @@ def config_verysimple_for_simulation_one_loop(
     return config
 
 
+@pytest.fixture(scope="module")
+def simulation_one_loop(config_verysimple_for_simulation_one_loop):
+    sim = Simulation.from_config(config_verysimple_for_simulation_one_loop)
+    sim.run_convergence()
+    sim.run_final()
+    return sim
+
+
 @pytest.fixture(scope="function")
-def tardis_config_verysimple_nlte():
-    return yaml_load_file(
-        "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml",
-        YAMLLoader,
-    )
+def config_verysimple_hydrogen_only(config_verysimple):
+    config = deepcopy(config_verysimple)
+    config.model.abundances = {
+        "type": "uniform",
+        "H": 1.0,
+        "model_isotope_time_0": 0.0 * u.s,
+    }
+    return config
 
 
 ###
@@ -253,6 +313,18 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     return sim
 
 
+@pytest.fixture(scope="module")
+def simulation_tardis_full(atomic_dataset, example_configuration_dir):
+    atomic_data = deepcopy(atomic_dataset)
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )  # the config is mutated in other places
+    sim = Simulation.from_config(config, atom_data=atomic_data)
+    sim.run_convergence()
+    sim.run_final()
+    return sim
+
+
 @pytest.fixture(scope="session")
 def simulation_verysimple_default(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
@@ -300,6 +372,114 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset, atomic_
     return sim
 
 
+@pytest.fixture(scope="class")
+def workflow_simple(config_verysimple, atomic_data_fname):
+    config = deepcopy(config_verysimple)
+    config.atom_data = atomic_data_fname
+    config.montecarlo.iterations = 3
+    config.montecarlo.no_of_packets = 4000
+    config.montecarlo.last_no_of_packets = -1
+    config.spectrum.virtual.virtual_packet_logging = True
+    config.montecarlo.no_of_virtual_packets = 1
+    config.spectrum.num = 2000
+
+    workflow = StandardTARDISWorkflow(
+        config, enable_virtual_packet_logging=True
+    )
+    workflow.run()
+    return workflow
+
+
 def pytest_sessionfinish(session, exitstatus):
-    packet_pbar.close()
-    iterations_pbar.close()
+    if packet_pbar is not None:
+        packet_pbar.close()
+    if iterations_pbar is not None:
+        iterations_pbar.close()
+
+
+@pytest.fixture
+def iip_atom_data(tardis_regression_path):
+    # identical atomic data to that used by C Vogl
+    atom_data = AtomData.from_hdf(
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+
+    # need to set up macroatom and continuum data for ctardis plasma
+    atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
+
+    atom_data.continuum_data = ContinuumData(
+        atom_data, selected_continuum_species=[(1, 0)]
+    )
+
+    # matching prep in workflow
+    atom_data.continuum_data.photoionization_data.loc[(1, 0, 0), "x_sect"] *= (
+        0.0
+    )
+
+    atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
+
+    atom_data.nlte_data._init_indices()
+
+    atom_data.has_collision_data = False
+
+    return atom_data
+
+
+def _as_regression_dataframe(value: pd.DataFrame | pd.Series) -> pd.DataFrame:
+    """Convert a regression_data object to a dataframe
+
+    Parameters
+    ----------
+    value : pd.DataFrame | pd.Series
+        Regression data value
+
+    Returns
+    -------
+    pd.DataFrame
+        Regression data as DataFrame
+    """
+    if isinstance(value, pd.DataFrame):
+        return value
+    if isinstance(value, pd.Series):
+        return value.to_frame("value")
+
+    values = np.asarray(value)
+    if values.ndim == 1:
+        return pd.DataFrame({"value": values})
+    return pd.DataFrame(values)
+
+
+def assert_regression_dataframe(
+    regression_data: pd.DataFrame | pd.Series,
+    key: str,
+    actual: pd.DataFrame | pd.Series,
+    rtol: float = 1e-12,
+    atol: float = 0.0,
+) -> None:
+    """Sync and test a regression object as a DataFrame
+
+    Parameters
+    ----------
+    regression_data : pd.DataFrame | pd.Series
+        Regression data
+    key : str
+        Regression data key
+    actual : pd.DataFrame | pd.Series
+        Test data
+    rtol : float, optional
+        Relative tolerance for comparison, by default 1e-12
+    atol : float, optional
+        Absolute tolerance for comparison, by default 0.0
+    """
+    actual_frame = _as_regression_dataframe(actual)
+    expected_frame = regression_data.sync_dataframe(actual_frame, key=key)
+    pd.testing.assert_frame_equal(
+        actual_frame,
+        expected_frame,
+        rtol=rtol,
+        atol=atol,
+        check_dtype=False,
+        check_names=False,
+    )

@@ -82,7 +82,7 @@ class StandardTARDISWorkflow(
         TypeError
             Raised if export_convergence_plots is not a bool
         """
-        if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
+        if not Environment.allows_widget_display():
             raise RuntimeError(
                 "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                 "to False."
@@ -120,11 +120,12 @@ class StandardTARDISWorkflow(
         """
         estimated_radfield_properties = (
             self.transport_solver.radfield_prop_solver.solve(
-                self.transport_state.radfield_mc_estimators,
+                self.transport_state.estimators_bulk,
+                self.transport_state.estimators_line,
                 self.transport_state.time_explosion,
                 self.transport_state.time_of_simulation,
-                self.transport_state.geometry_state.volume,
-                self.transport_state.opacity_state.line_list_nu,
+                self.transport_state.geometry_state_numba.volume,
+                self.transport_state.opacity_state_numba.line_list_nu,
             )
         )
 
@@ -172,7 +173,7 @@ class StandardTARDISWorkflow(
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
 
-        self.log_plasma_state(
+        self.workflow_logger.log_plasma_state(
             self.simulation_state.t_radiative,
             self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,

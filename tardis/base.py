@@ -72,12 +72,10 @@ def run_tardis(
     -----
     Please see the `logging tutorial <https://tardis-sn.github.io/tardis/io/optional/logging_configuration.html>`_ to know more about `log_level` and `specific` options.
     """
+    from tardis.io.atom_data import AtomData
     from tardis.io.configuration.config_reader import Configuration
     from tardis.io.logger.logger import logging_state
     from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
-    from tardis.io.atom_data.util import resolve_atom_data_fname
-    from tardis.io.atom_data import download_atom_data
-    from tardis.io.atom_data import AtomData
 
     if simulation_callbacks is None:
         simulation_callbacks = []
@@ -91,6 +89,13 @@ def run_tardis(
                 "TARDIS Config not available via YAML. Reading through TARDIS Config Dictionary"
             )
             tardis_config = Configuration.from_config_dict(config)
+    if not isinstance(show_convergence_plots, bool):
+        raise TypeError("Expected bool in show_convergence_plots argument")
+
+    logger_widget, tardislogger = logging_state(
+        log_level, tardis_config, specific_log_level, display_logging_widget
+    )
+
     if atom_data is not None:
         try:
             atom_data = AtomData.from_hdf(atom_data)
@@ -98,12 +103,6 @@ def run_tardis(
             logger.debug(
                 "Atom Data Cannot be Read from HDF. Setting to Default Atom Data"
             )
-            atom_data = atom_data
-            
-    if not isinstance(show_convergence_plots, bool):
-        raise TypeError("Expected bool in show_convergence_plots argument")
-
-    logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
 
     convergence_plots_config_options = [
         "plasma_plot_config",

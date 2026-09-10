@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from numba import njit, prange
 
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.transport.montecarlo import njit_dict
 
 
@@ -31,7 +32,7 @@ def bound_free_estimator_array2frame(
     """
     bf_estimator_frame = pd.DataFrame(
         bound_free_estimator_array, index=level2continuum_idx.index
-    ).sort_index()
+    ).sort_index(kind=SORTING_ALGORITHM)
     bf_estimator_frame.columns.name = "Shell No."
     return bf_estimator_frame
 
@@ -63,5 +64,5 @@ def integrate_array_by_blocks(f, x, block_references):
         for j in prange(len(integrated)):  # rows
             start = block_references[j]
             stop = block_references[j + 1]
-            integrated[j, i] = np.trapz(f[start:stop, i], x[start:stop])
+            integrated[j, i] = np.trapezoid(f[start:stop, i], x[start:stop])
     return integrated

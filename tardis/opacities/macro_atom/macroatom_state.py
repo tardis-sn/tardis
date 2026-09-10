@@ -1,6 +1,10 @@
+from typing import Self
+
+import numpy as np
+import pandas as pd
+
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.transport.montecarlo.configuration import montecarlo_globals
-import pandas as pd
 
 
 class LegacyMacroAtomState(HDFWriterMixin):
@@ -11,57 +15,58 @@ class LegacyMacroAtomState(HDFWriterMixin):
         "transition_type",
         "destination_level_id",
         "transition_line_id",
-        "macro_block_references",
+        "macro_block_edge_index",
         "line2macro_level_upper",
     ]
 
     def __init__(
         self,
-        transition_probabilities,
-        transition_type,
-        destination_level_id,
-        transition_line_id,
-        macro_block_references,
+        transition_probabilities: pd.DataFrame,
+        transition_type: pd.Series,
+        destination_level_id: pd.Series,
+        transition_line_id: pd.Series,
+        macro_block_edge_index: pd.DataFrame | pd.Series,
         line2macro_level_upper,
-    ):
+    ) -> None:
         """
-        Current State of the MacroAtom
+        Initialize a LegacyMacroAtomState object.
 
         Parameters
         ----------
         transition_probabilities : pd.DataFrame
-            Macro Atom Transition probabilities between levels
-        transition_type : pd.DataFrame)
-            Macro Atom transition types
-        destination_level_id : pd.DataFrame
-            ID of destination levels of the Macro Atom
-        transition_line_id : pd.DataFrame
-            ID of lines corresponding to Macro Atom transitions
-        macro_block_references : pd.DataFrame or np.ndarray
-            Index references to the Macro Atom blocks
-        line2macro_level_upper : pd.DataFrame
-            Mapping from lines to Macro Atom upper levels
+            Macro Atom transition probabilities between levels.
+        transition_type : pd.Series
+            Macro Atom transition types.
+        destination_level_id : pd.Series
+            ID of destination levels of the Macro Atom.
+        transition_line_id : pd.Series
+            ID of lines corresponding to Macro Atom transitions.
+        macro_block_edge_index : pd.DataFrame | pd.Series
+            Index references to the Macro Atom blocks.
+        line2macro_level_upper
+            Mapping from lines to Macro Atom upper levels.
         """
         self.transition_probabilities = transition_probabilities
         self.transition_type = transition_type
         self.destination_level_id = destination_level_id
         self.transition_line_id = transition_line_id  # THESE ARE NOT TRANSITION LINE IDS. In the macro atom they were "lines_idx" and are the index locations of the lines in the lines dataframe.
-        self.macro_block_references = macro_block_references
+        self.macro_block_edge_index = macro_block_edge_index
         self.line2macro_level_upper = line2macro_level_upper
 
     @classmethod
-    def from_legacy_plasma(cls, plasma):
+    def from_legacy_plasma(cls, plasma) -> Self:
         """
-        Generates a MacroAtomState object from a tardis BasePlasma
+        Generate a LegacyMacroAtomState object from a tardis BasePlasma.
 
         Parameters
         ----------
         plasma : tardis.plasma.BasePlasma
-            legacy base plasma
+            Legacy base plasma object.
 
         Returns
         -------
-        MacroAtomState
+        LegacyMacroAtomState
+            A LegacyMacroAtomState object created from the plasma data.
         """
         transition_probabilities = plasma.transition_probabilities
         transition_type = plasma.macro_atom_data["transition_type"]
@@ -74,9 +79,9 @@ class LegacyMacroAtomState(HDFWriterMixin):
         if (
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         ):  # TODO: Unify this in the plasma solver
-            macro_block_references = plasma.macro_block_references
+            macro_block_edge_index = plasma.macro_block_edge_index
         else:
-            macro_block_references = plasma.atomic_data.macro_atom_references[
+            macro_block_edge_index = plasma.atomic_data.macro_atom_references[
                 "block_references"
             ]
 
@@ -85,7 +90,7 @@ class LegacyMacroAtomState(HDFWriterMixin):
             transition_type,
             destination_level_id,
             transition_line_id,
-            macro_block_references,
+            macro_block_edge_index,
             line2macro_level_upper,
         )
 
@@ -104,53 +109,63 @@ class MacroAtomState:
         transition_probabilities: pd.DataFrame,
         transition_metadata: pd.DataFrame,
         line2macro_level_upper: pd.Series,
-    ):
+        macro_block_edge_index: pd.Series | None = None,
+        references_index: pd.Series | None = None,
+        normalized_deactivating_probs: pd.DataFrame | None = None,
+        absorbing_probability_matrix: np.ndarray | None = None,
+        photo_ion_block_idx: int = -99,
+        k_packet_idx: int = -99,
+    ) -> None:
         """
-        Current State of the MacroAtom
+        Initialize a MacroAtomState object.
 
         Parameters
         ----------
-        transition_probabilities : pd.DataFrame
+        transition_probabilities
             Transition probabilities for the macro atom, indexed by source and destination levels.
-        transition_metadata : pd.DataFrame
-            Metadata for the macro atom, including atomic number, ion number, level numbers for the transition, desination, and source.
-        line2macro_level_upper : pd.Series
+        transition_metadata
+            Metadata for the macro atom, including atomic number, ion number, level numbers for the transition, destination, and source.
+        line2macro_level_upper
             Mapping from lines to the upper levels of the macro atom transitions.
+        macro_block_edge_index
+            Index references to the Macro Atom blocks. Default is None.
+        normalized_deactivating_probs
+            Dataframe containing emission probabilities from a chosen absorbing state
+        absorbing_probability_matrix
+            Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
+        k_packet_idx:
+            Int describing the index location of the k_packet block
         """
         self.transition_probabilities = transition_probabilities
         self.transition_metadata = transition_metadata
         self.line2macro_level_upper = line2macro_level_upper
+        self.macro_block_edge_index = macro_block_edge_index
+        self.references_index = references_index
+        self.normalized_deactivating_probs = normalized_deactivating_probs
+        self.absorbing_probability_matrix = absorbing_probability_matrix
+        self.photo_ion_block_idx = photo_ion_block_idx
+        self.k_packet_idx = k_packet_idx
 
-    def to_legacy_format(self):
+    def to_legacy_format(self) -> LegacyMacroAtomState:
         """
         Convert the current state of the MacroAtom to legacy format.
+
+        This method transforms the modern MacroAtomState structure into the
+        legacy LegacyMacroAtomState format for backward compatibility. It extracts
+        individual components from the consolidated transition_metadata DataFrame
+        and converts them to the separate arrays/DataFrames expected by the
+        legacy format.
+
         Returns
         -------
-
-
+        LegacyMacroAtomState
+            The MacroAtomState converted to legacy format.
         """
         transition_probabilities = self.transition_probabilities
         transition_type = self.transition_metadata.transition_type
-        destination_level_id = pd.Series(
-            data=[level[2] for level in self.transition_metadata.destination],
-            index=self.transition_metadata.index,
-            name="destination_level_idx",
-        )
+        destination_level_id = self.transition_metadata.destination_level_idx
         transition_line_id = self.transition_metadata.transition_line_idx
-        unique_source_multi_index = pd.MultiIndex.from_tuples(
-            self.transition_metadata.source.unique(),
-            names=["atomic_number", "ion_number", "level_number"],
-        )
-        macro_data = (
-            self.transition_metadata.reset_index()
-            .groupby("source")
-            .apply(lambda x: x.index[0])
-        )
-        macro_block_references = pd.Series(
-            data=macro_data.values,
-            index=unique_source_multi_index,
-            name="macro_block_references",
-        )
+        macro_block_edge_index = self.macro_block_edge_index
         line2macro_level_upper = self.line2macro_level_upper.values
 
         return LegacyMacroAtomState(
@@ -158,29 +173,28 @@ class MacroAtomState:
             transition_type,
             destination_level_id,
             transition_line_id,
-            macro_block_references,
+            macro_block_edge_index,
             line2macro_level_upper,
         )
 
     def sort_to_legacy(
         self, legacy_state: LegacyMacroAtomState, lines: pd.DataFrame
-    ) -> "MacroAtomState":
+    ):
         """
-        Sort the current MacroAtomState to match the legacy MacroAtomState.
+        Sort the current MacroAtomState to match the legacy MacroAtomState order.
 
         Parameters
         ----------
         legacy_state : LegacyMacroAtomState
-            The legacy state to sort to.
+            The legacy state to match the ordering of.
         lines : pd.DataFrame
             DataFrame containing line information.
 
         Returns
         -------
         MacroAtomState
-            A new MacroAtomState sorted to match the legacy state.
+            A new MacroAtomState with transitions sorted to match the legacy state order.
         """
-
         legacy_sorting_frame = pd.DataFrame(legacy_state.transition_type)
         legacy_sorting_frame["transition_line_id"] = lines.iloc[
             legacy_state.transition_line_id
@@ -210,30 +224,35 @@ class MacroAtomState:
             transition_probabilities=resorted_transition_probabilities,
             transition_metadata=resorted_metadata,
             line2macro_level_upper=self.line2macro_level_upper,
+            macro_block_edge_index=self.macro_block_edge_index,
         )
 
     def recreate_legacy_macro_atom_state(
         self, legacy_state: LegacyMacroAtomState, lines: pd.DataFrame
     ) -> LegacyMacroAtomState:
         """
-        Recreate the legacy MacroAtomState with new transition probabilities and new unique transition ids.
+        Recreate the legacy MacroAtomState with new transition probabilities and unique transition IDs.
 
         Parameters
         ----------
+        legacy_state : LegacyMacroAtomState
+            The original legacy state to recreate from.
         lines : pd.DataFrame
             DataFrame containing line information.
 
         Returns
         -------
         LegacyMacroAtomState
-            The recreated legacy MacroAtomState.
+            The recreated legacy MacroAtomState with updated transition data.
         """
         legacy_sorted = self.sort_to_legacy(legacy_state, lines)
         legacy_macro_atom = legacy_sorted.to_legacy_format()
-        legacy_macro_atom.macro_block_references = legacy_state.macro_block_references  # The old block references contained empty blocks. I can't recreate them from the new state so we just copy them over.
+        legacy_macro_atom.macro_block_edge_index = legacy_state.macro_block_edge_index  # The old block references contained empty blocks. I can't recreate them from the new state so we just copy them over.
         legacy_macro_atom.line2macro_level_upper = (
             legacy_state.line2macro_level_upper
         )
-        legacy_macro_atom.destination_level_id = legacy_state.destination_level_id  # I'm also not sure how to recreate this because it doesn't quite make sense to me.
+        legacy_macro_atom.destination_level_id = (
+            legacy_state.destination_level_id
+        )
 
         return legacy_macro_atom

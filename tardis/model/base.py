@@ -4,15 +4,19 @@ from pathlib import Path
 import numpy as np
 from astropy import units as u
 
+from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.io.model.csvy import load_csvy
 from tardis.io.model.parse_composition_configuration import (
     parse_composition_from_config,
     parse_composition_from_csvy,
 )
 from tardis.io.model.parse_geometry_configuration import (
     parse_geometry_from_config,
-    parse_geometry_from_csvy,
+    parse_homologous_geometry_from_csvy,
+    parse_nonhomologous_geometry_from_config,
+    parse_nonhomologous_geometry_from_csvy,
 )
 from tardis.io.model.parse_packet_source_configuration import (
     parse_packet_source_from_config,
@@ -21,10 +25,6 @@ from tardis.io.model.parse_radiation_field_configuration import (
     parse_radiation_field_state_from_config,
     parse_radiation_field_state_from_csvy,
 )
-from tardis.io.model.readers.csvy import (
-    load_csvy,
-)
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
@@ -129,32 +129,31 @@ class SimulationState(HDFWriterMixin):
     @property
     def dilution_factor(self):
         return self.radiation_field_state.dilution_factor[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
         ]
 
     @dilution_factor.setter
     def dilution_factor(self, new_dilution_factor):
         if len(new_dilution_factor) == self.no_of_shells:
             self.radiation_field_state.dilution_factor[
-                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+                self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
             ] = new_dilution_factor
         else:
             raise ValueError(
-                "Trying to set dilution_factor for unmatching number"
-                "of shells."
+                "Trying to set dilution_factor for unmatching numberof shells."
             )
 
     @property
     def t_radiative(self):
         return self.radiation_field_state.temperature[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
         ]
 
     @t_radiative.setter
     def t_radiative(self, new_t_radiative):
         if len(new_t_radiative) == self.no_of_shells:
             self.radiation_field_state.temperature[
-                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+                self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
             ] = new_t_radiative
         else:
             raise ValueError(
@@ -163,13 +162,16 @@ class SimulationState(HDFWriterMixin):
 
     def calculate_elemental_number_density(self, element_masses):
         elemental_number_density = (
-            (self.composition.elemental_mass_fraction * self.composition.density)
+            (
+                self.composition.elemental_mass_fraction
+                * self.composition.density
+            )
             .divide(element_masses, axis=0)
             .dropna()
         )
         elemental_number_density = elemental_number_density.iloc[
             :,
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx,
         ]
         elemental_number_density.columns = range(
             len(elemental_number_density.columns)
@@ -183,13 +185,12 @@ class SimulationState(HDFWriterMixin):
         ).divide(
             self.composition.isotope_masses.loc[
                 self.composition.isotopic_mass_fraction.index
-            ]
-            * u.u.to(u.g),
+            ],
             axis=0,
         )
         isotopic_number_density = isotopic_number_density.iloc[
             :,
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx,
         ]
         isotopic_number_density.columns = range(
             len(isotopic_number_density.columns)
@@ -197,8 +198,9 @@ class SimulationState(HDFWriterMixin):
         return isotopic_number_density
 
     @property
-    def radius(self):
-        return self.time_explosion * self.velocity
+    def radius(self) -> u.Quantity:
+        """Return the active shell-boundary radii."""
+        return self.r_outer.insert(0, self.r_inner[0])
 
     @property
     def v_inner_boundary(self):
@@ -221,9 +223,9 @@ class SimulationState(HDFWriterMixin):
         return 0.5 * self.r_inner + 0.5 * self.r_outer
 
     @property
-    def velocity(self):
-        velocity = self.geometry.v_outer_active.copy()
-        return velocity.insert(0, self.geometry.v_inner_active[0])
+    def velocity(self) -> u.Quantity:
+        """Return the active shell-boundary velocities."""
+        return self.v_outer.insert(0, self.v_inner[0])
 
     @property
     def v_inner(self):
@@ -240,7 +242,7 @@ class SimulationState(HDFWriterMixin):
     @property
     def density(self):
         return self.composition.density[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
         ]
 
     @property
@@ -250,7 +252,7 @@ class SimulationState(HDFWriterMixin):
         )
         elemental_mass_fraction = elemental_mass_fraction.iloc[
             :,
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx,
         ]
         elemental_mass_fraction.columns = range(
             len(elemental_mass_fraction.columns)
@@ -270,22 +272,34 @@ class SimulationState(HDFWriterMixin):
         return self.geometry.no_of_shells
 
     @classmethod
-    def from_config(cls, config, atom_data, legacy_mode_enabled=False):
-        """
-        Create a new SimulationState instance from a Configuration object.
+    def from_config(
+        cls,
+        config: Configuration,
+        atom_data: AtomData,
+        legacy_mode_enabled: bool = False,
+    ) -> SimulationState:
+        """Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
-        config : tardis.io.config_reader.Configuration
-        atom_data : tardis.io.AtomData
+        config
+            Configuration object.
+        atom_data
+            Atom data.
+        legacy_mode_enabled
+            Flag indicating if legacy mode is enabled.
 
         Returns
         -------
-        SimulationState
+        simulation_state
+            The initialized simulation state.
         """
         time_explosion = config.supernova.time_explosion.cgs
 
-        geometry = parse_geometry_from_config(config, time_explosion)
+        if hasattr(config.model.structure, "radius"):
+            geometry = parse_nonhomologous_geometry_from_config(config)
+        else:
+            geometry = parse_geometry_from_config(config, time_explosion)
 
         composition, electron_densities = parse_composition_from_config(
             atom_data, config, time_explosion, geometry
@@ -312,76 +326,94 @@ class SimulationState(HDFWriterMixin):
         )
 
     @classmethod
-    def from_csvy(cls, config, atom_data=None, legacy_mode_enabled=False):
+    def from_csvy(
+        cls,
+        config: Configuration,
+        legacy_mode_enabled: bool = False,
+    ) -> SimulationState:
         """
         Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
-        atom_data : tardis.io.AtomData
+            Configuration object containing CSVY model path.
+        legacy_mode_enabled : bool, optional
+            Flag indicating if legacy mode is enabled, default is False.
 
         Returns
         -------
         SimulationState
+            The initialized simulation state.
         """
         CSVY_SUPPORTED_COLUMNS = {
             "velocity",
             "density",
             "t_rad",
             "dilution_factor",
+            "radius",
         }
 
         if Path(config.csvy_model).is_absolute():
             csvy_model_fname = config.csvy_model
         else:
             csvy_model_fname = Path(config.config_dirname) / config.csvy_model
-        csvy_model_config, csvy_model_data = load_csvy(csvy_model_fname)
-        csvy_schema_fname = SCHEMA_DIR / "csvy_model.yml"
-        csvy_model_config = Configuration(
-            validate_dict(csvy_model_config, schemapath=csvy_schema_fname)
-        )
+        csvy_data = load_csvy(csvy_model_fname)
 
-        if hasattr(csvy_model_data, "columns"):
+        if hasattr(csvy_data.raw_csv_data, "columns"):
             abund_names = {
                 name
-                for name in csvy_model_data.columns
+                for name in csvy_data.raw_csv_data.columns
                 if is_valid_nuclide_or_elem(name)
             }
             unsupported_columns = (
-                set(csvy_model_data.columns)
+                set(csvy_data.raw_csv_data.columns)
                 - abund_names
                 - CSVY_SUPPORTED_COLUMNS
             )
 
             field_names = {
-                field["name"] for field in csvy_model_config.datatype.fields
+                field["name"]
+                for field in csvy_data.model_config.datatype.fields
             }
-            assert (
-                set(csvy_model_data.columns) - field_names == set()
-            ), "CSVY columns exist without field descriptions"
-            assert (
-                field_names - set(csvy_model_data.columns) == set()
-            ), "CSVY field descriptions exist without corresponding csv data"
+            assert set(csvy_data.raw_csv_data.columns) - field_names == set(), (
+                "CSVY columns exist without field descriptions"
+            )
+            assert field_names - set(csvy_data.raw_csv_data.columns) == set(), (
+                "CSVY field descriptions exist without corresponding csv data"
+            )
             if unsupported_columns != set():
                 logger.warning(
                     "The following columns are "
                     "specified in the csvy model file,"
-                    f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
+                    " but are IGNORED by TARDIS: %s",
+                    unsupported_columns,
                 )
 
         time_explosion = config.supernova.time_explosion.cgs
 
         electron_densities = None
 
-        geometry = parse_geometry_from_csvy(
-            config, csvy_model_config, csvy_model_data, time_explosion
-        )
+        if (
+            csvy_data.raw_csv_data is not None
+            and "radius" in csvy_data.raw_csv_data.columns
+        ):
+            geometry = parse_nonhomologous_geometry_from_csvy(
+                config,
+                csvy_data.model_config,
+                csvy_data.raw_csv_data,
+            )
+        else:
+            geometry = parse_homologous_geometry_from_csvy(
+                config,
+                csvy_data.model_config,
+                csvy_data.raw_csv_data,
+                time_explosion,
+            )
 
         composition = parse_composition_from_csvy(
-            atom_data,
-            csvy_model_config,
-            csvy_model_data,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
             time_explosion,
             geometry,
         )
@@ -391,7 +423,11 @@ class SimulationState(HDFWriterMixin):
         )
 
         radiation_field_state = parse_radiation_field_state_from_csvy(
-            config, csvy_model_config, csvy_model_data, geometry, packet_source
+            config,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
+            geometry,
+            packet_source,
         )
 
         return cls(

@@ -24,7 +24,7 @@ on:
         default: false
 
 env:
-  CACHE_NUMBER: 0  # increase to reset cache manually
+  CACHE_NUMBER: 0 # increase to reset cache manually
   PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -42,10 +42,9 @@ jobs:
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
+    name: tests ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -53,7 +52,6 @@ jobs:
       fail-fast: false
       matrix:
         label: [osx-arm64, linux-64]
-        continuum: ['not', '']
         pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
         include:
           - label: osx-arm64
@@ -64,7 +62,63 @@ jobs:
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
-      - uses: actions/checkout@v4          
+      - uses: actions/checkout@v6
+
+      - name: Free Disk Space (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
+          # other packages
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+
+      - name: Free up disk space on macOS
+        if: matrix.os == 'macos-latest'
+        continue-on-error: True
+        run: |
+          echo "Initial disk usage:"
+          df -h
+
+          # Remove unnecessary Xcode versions (if any)
+          if ls /Applications/Xcode_*.app 1> /dev/null 2>&1; then
+            echo "Removing old Xcode versions..."
+            sudo rm -rf /Applications/Xcode_*.app
+          else
+            echo "No additional Xcode versions found"
+          fi
+
+          # Clean Homebrew cache
+          echo "Cleaning Homebrew cache..."
+          brew cleanup --prune=all || true
+
+          # Remove iOS simulators (only if simctl is available)
+          if command -v xcrun simctl &> /dev/null; then
+            echo "Cleaning iOS simulators..."
+            xcrun simctl delete unavailable || true
+          else
+            echo "simctl not available, skipping iOS simulator cleanup"
+          fi
+
+          # Clear system caches (be more selective)
+          echo "Clearing system caches..."
+          rm -rf ~/Library/Caches/* 2>/dev/null || true
+
+          # Remove other large files
+          sudo rm -rf /usr/local/lib/android 2>/dev/null || true
+          sudo rm -rf /usr/local/share/dotnet 2>/dev/null || true
+          sudo rm -rf /usr/share/dotnet 2>/dev/null || true
+          sudo rm -rf /opt/ghc 2>/dev/null || true
+          sudo rm -rf "/usr/local/share/boost" 2>/dev/null || true
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
+          echo "Final disk usage:"
+          df -h
 
       - name: Setup LFS
         uses: tardis-sn/tardis-actions/setup-lfs@main
@@ -73,33 +127,39 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
+          lockfile-path: ./conda-${{ matrix.label }}.lock
 
       - name: Install tardis editable
         if: ${{ !matrix.pip_git }}
         run: |
-          pip install -e ".[tardisbase]" 
+          pip install -e ".[tardisbase]"
 
       - name: Install tardis git
         if: ${{ matrix.pip_git }}
         run: |
           pip install "tardis[tardisbase] @ git+https://github.com/tardis-sn/tardis.git@master"
 
-      - name: Install qgridnext and lineid_plot
+      - name: Install lineid_plot
         run: |
-          pip install --no-deps qgridnext lineid_plot
+          pip install --no-deps lineid_plot
 
       - name: Run tests
-        run: pytest tardis/transport/montecarlo/tests/test_rpacket_tracker.py    -x ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}
+
+      - name: Run JIT-disabled tests
+        env:
+          NUMBA_DISABLE_JIT: "1"
+        run: pytest tardis/transport/montecarlo/tests/test_single_packet_loop.py tardis/energy_input/transport/tests/test_gamma_transport.py -k numba_disabled ${{ env.PYTEST_FLAGS }}
 
       - name: Regression Data Generation tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
 
       - run: mv .coverage .coverage.${{ strategy.job-index }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}
+          name: coverage-${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}
           include-hidden-files: true
           path: |
             .coverage*
@@ -110,15 +170,16 @@ jobs:
     if: github.repository_owner == 'tardis-sn'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup environment
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: linux-64
+          lockfile-path: ./conda-linux-64.lock
 
       # will download all artifacts(in this case all are coverage reports)
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: .
           merge-multiple: true
@@ -132,7 +193,7 @@ jobs:
       - name: Print report
         run: coverage report
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v6
         if: always()
         with:
           fail_ci_if_error: true

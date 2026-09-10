@@ -5,66 +5,49 @@
 name: release
 
 on:
-  schedule:
-    - cron: "0 0 * * 0"
   workflow_dispatch: # manual trigger
+  workflow_call: # called by pre-release when no PR is created
+    inputs:
+      called-from-pre-release:
+        type: boolean
+        default: true
+  pull_request_target:
+    branches: [master]
+    types: [closed]
 
 defaults:
   run:
     shell: bash -l {0}
 
-
 jobs:
-  pip_tests:
-    uses: ./.github/workflows/tests.yml
-    secrets: inherit
-    with:
-      pip_git: true
-  zenodo:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: tardis-sn/tardis_zenodo
-          token: ${{ secrets.BOT_TOKEN }}
-
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
-        with:
-          os-label: "linux-64"
-
-      - name: Dump Secret Key
-        run: echo "$KEY_SECRET_JSON" > key_secret.json
-        env:
-          KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
-
-      - name: Run Notebook
-        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
-
-      - name: Run Notebook (allow errors)
-        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
-        if: failure()
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: zenodo_json
-          path: .zenodo.json
-
   create:
-    needs: [pip_tests, zenodo]
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      inputs.called-from-pre-release == true ||
+      (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
+      - name: Get regression data commit
+        uses: actions/checkout@v6
+        with:
+          repository: tardis-sn/tardis-regression-data
+          path: tardis-regression-data
+          fetch-depth: 1
+
+      - name: Record regression data commit
+        run: echo "REGRESSION_DATA_COMMIT=$(git -C tardis-regression-data rev-parse HEAD)" >> $GITHUB_ENV
+
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.x"
 
       - name: Install setuptools_scm
-        run: pip install "setuptools_scm<7" git-cliff==2.6.1
+        run: pip install "setuptools_scm<7"
 
       - name: Show current version
         run: python .ci-helpers/get_current_version.py
@@ -75,7 +58,7 @@ jobs:
           echo "NEW_TAG=$(python .ci-helpers/get_next_version.py)" >> $GITHUB_ENV
 
       - name: Initialize release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           name: TARDIS v${{ env.NEW_TAG }}
           tag_name: release-${{ env.NEW_TAG }}
@@ -109,21 +92,26 @@ jobs:
             echo "doi_url=${url}" >> $GITHUB_ENV
         
       - name: Generate and process changelog
-        run: |
-          CHANGELOG=$(git cliff --config pyproject.toml --unreleased --tag ${{ env.NEW_TAG }}| sed -n '/^## Changelog/,$p' | grep -vE '^(ERROR|WARN)')
-          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          echo "$CHANGELOG" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+        id: git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: pyproject.toml
+          args: --verbose --unreleased --tag ${{ env.NEW_TAG }}
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
 
       - name: Update release with changelog and DOI
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: release-${{ env.NEW_TAG }}
           token: ${{ secrets.BOT_TOKEN }}
           body: |
             This release has been created automatically by the TARDIS continuous delivery pipeline.
             ${{ env.doi_badge }}
-            ${{ env.CHANGELOG }}
+            ${{ steps.git-cliff.outputs.content }}
+
+            Regression data: [${{ env.REGRESSION_DATA_COMMIT }}](https://github.com/tardis-sn/tardis-regression-data/commit/${{ env.REGRESSION_DATA_COMMIT }})
 
             A complete list of changes for this release is available at [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).
           files: |

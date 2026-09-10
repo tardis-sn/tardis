@@ -23,6 +23,8 @@ omit =
     *_astropy_init*
     *version*
     *tests*
+    *test_*
+    */tests/*
     *conftest*
     *setup_package*
 

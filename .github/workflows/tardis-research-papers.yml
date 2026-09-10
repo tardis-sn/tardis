@@ -16,10 +16,10 @@ jobs:
     research-using-tardis:
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v6
 
         - name: Setup micromamba
-          uses: mamba-org/setup-micromamba@v2
+          uses: mamba-org/setup-micromamba@v3
           with:
             environment-name: fetch-env
             create-args: >-
@@ -31,7 +31,7 @@ jobs:
             jupyter nbconvert --to python  docs/resources/research_done_using_TARDIS/ads.ipynb
             python3 docs/resources/research_done_using_TARDIS/ads.py
         
-        - uses: actions/upload-artifact@v4
+        - uses: actions/upload-artifact@v7
           with:
             name: research_papers
             path: |
@@ -41,9 +41,9 @@ jobs:
       needs: [research-using-tardis]
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v6
 
-        - uses: actions/download-artifact@v4
+        - uses: actions/download-artifact@v8
           with:
             path: /tmp
 
@@ -55,7 +55,7 @@ jobs:
         - name: Get current date
           run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
   
-        - uses: peter-evans/create-pull-request@v4
+        - uses: peter-evans/create-pull-request@v8
           with:
             token: ${{ secrets.BOT_TOKEN }}
             committer: TARDIS Bot <tardis.sn.bot@gmail.com>
@@ -93,7 +93,7 @@ jobs:
             if: steps.create-pr.outputs.pull-request-operation == 'created'
 
         - name: Enable automerge
-          uses: peter-evans/enable-pull-request-automerge@v2
+          uses: peter-evans/enable-pull-request-automerge@v3
           with:
             token: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
             pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
@@ -107,10 +107,8 @@ jobs:
       if: github.repository_owner == 'tardis-sn'
       steps:
         - name: Dispatch to Tardis-org-data
-          run: |
-                curl -X POST \
-                -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
-                -H "Accept: application/vnd.github+json" \
-                -H "Content-Type: application/json" \
-                -d '{ "event_type": "fetch-papers" }' \
-                https://api.github.com/repos/tardis-sn/tardis-org-data/dispatches
+          uses: peter-evans/repository-dispatch@v3
+          with:
+            token: ${{ secrets.BOT_TOKEN }}
+            repository: tardis-sn/tardis-org-data
+            event-type: fetch-papers

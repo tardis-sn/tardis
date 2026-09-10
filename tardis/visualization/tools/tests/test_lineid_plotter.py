@@ -7,20 +7,20 @@ lineid_plot = pytest.importorskip("lineid_plot", reason="lineid_plot is not inst
 from tardis.visualization.tools.lineid_plotter import lineid_plotter
 
 @pytest.fixture(scope="module")
-def plotter(simulation_simple):
+def plotter(simulation_simple_tracked):
     """
     Create a SDECPlotter object.
 
     Parameters
     ----------
-    simulation_simple : tardis.simulation.base.Simulation
+    simulation_simple_tracked : tardis.simulation.base.Simulation
         Simulation object.
 
     Returns
     -------
     tardis.visualization.tools.sdec_plot.SDECPlotter
     """
-    return SDECPlotter.from_simulation(simulation_simple)
+    return SDECPlotter.from_simulation(simulation_simple_tracked)
 
 
 @pytest.mark.parametrize(

@@ -9,6 +9,8 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.visualization.plot_util import extract_and_process_packet_data
 
 INVALID_ION_ERROR_MSG = "Atomic number, ion_number pair not present in model"
 
@@ -17,15 +19,24 @@ class LastLineInteraction:
     @classmethod
     def from_simulation(cls, simulation, packet_filter_mode="packet_out_nu"):
         transport_state = simulation.transport.transport_state
+
+        if transport_state.tracker_full_df is None:
+            raise ValueError("No tracking data available. Enable tracking by setting config.montecarlo.tracking.track_rpacket = True")
+
+
+        packet_data = extract_and_process_packet_data(simulation, "real", include_shell_id=True)
+        packets_df = packet_data["packets_df"]
+
         return cls(
-            transport_state.last_line_interaction_in_id,
-            transport_state.last_line_interaction_out_id,
-            transport_state.last_line_interaction_shell_id,
-            transport_state.packet_collection.output_nus,
-            transport_state.last_interaction_in_nu,
+            packets_df["last_line_interaction_in_id"].values,
+            packets_df["last_line_interaction_out_id"].values,
+            packets_df["last_line_interaction_shell_id"].values,
+            packet_data["nus"].to("Hz").value,
+            packets_df["last_line_interaction_in_nu"].values,
             simulation.plasma.atomic_data.lines,
             packet_filter_mode,
         )
+
 
     def __init__(
         self,
@@ -207,7 +218,7 @@ class LastLineInteraction:
         ]
         self.last_line_in_table["count"] = last_line_in_count
         self.last_line_in_table = self.last_line_in_table.sort_values(
-            by="count", ascending=False
+            by="count", ascending=False, kind=SORTING_ALGORITHM
         )
         self.last_line_out_table = self.last_line_out.reset_index()[
             [
@@ -220,7 +231,7 @@ class LastLineInteraction:
         ]
         self.last_line_out_table["count"] = last_line_out_count
         self.last_line_out_table = self.last_line_out_table.sort_values(
-            by="count", ascending=False
+            by="count", ascending=False, kind=SORTING_ALGORITHM
         )
 
     def plot_wave_in_out(self, fig, do_clf=True, plot_resonance=True):
@@ -278,7 +289,7 @@ class TARDISHistory:
                     int(re.match(r"model(\d+)", key.split("/")[1]).groups()[0])
                 )
 
-            self.iterations = np.sort(np.unique(iterations))
+            self.iterations = np.sort(np.unique(iterations), kind=SORTING_ALGORITHM)
             hdf_store.close()
         else:
             self.iterations = iterations

@@ -1,0 +1,4 @@
+interface:
+  display_name: "TARDIS Regression Validation"
+  short_description: "Validate TARDIS regression-backed changes"
+  default_prompt: "Use $tardis-regression-validation to run the regression-backed validation for this change."

@@ -19,6 +19,7 @@ from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticPhotoionizationCoeffSolver,
     EstimatedPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
+    AnalyticCorrectedPhotoionizationCoeffSolver,
 )
 from tardis.plasma.equilibrium.rates.radiative_rates import (
     RadiativeRatesSolver,

@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from numba import jit, prange
 
 from tardis import constants as const
+from tardis.opacities.sobolevs_from_levels import numba_calculate_beta_sobolev
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 SOBOLEV_COEFFICIENT = (
@@ -25,7 +25,7 @@ def calculate_sobolev_line_opacity(
     stimulated_emission_factor,
 ):
     """
-    Calculates the Sobolev line opacity based on the provided parameters.
+    Calculate the Sobolev line opacity from the provided parameters.
 
     Parameters
     ----------
@@ -75,7 +75,6 @@ def calculate_sobolev_line_opacity(
 
 def calculate_beta_sobolev(tau_sobolevs):
     """Calculate the beta Sobolev values based on the provided tau_sobolevs.
-    Values from the previous iteration can be provided.
 
     Parameters
     ----------
@@ -87,33 +86,21 @@ def calculate_beta_sobolev(tau_sobolevs):
     pd.DataFrame
         The latest Beta Sobolev opacities.
     """
+    tau_values_1d = tau_sobolevs.to_numpy().ravel()
+    beta_values_1d = np.zeros(tau_values_1d.shape[0], dtype=np.float64)
 
-    @jit(nopython=True, parallel=True)
-    def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
-        for i in prange(len(tau_sobolevs)):
-            if tau_sobolevs[i] > 1e3:
-                beta_sobolevs[i] = tau_sobolevs[i] ** -1
-            elif tau_sobolevs[i] < 1e-4:
-                beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
-            else:
-                beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
-                    tau_sobolevs[i]
-                )
-        return beta_sobolevs
+    numba_calculate_beta_sobolev(tau_values_1d, beta_values_1d)
 
-    beta_sobolev = pd.DataFrame(
-        0.0, index=tau_sobolevs.index, columns=tau_sobolevs.columns
+    return pd.DataFrame(
+        beta_values_1d.reshape(tau_sobolevs.shape),
+        index=tau_sobolevs.index,
+        columns=tau_sobolevs.columns,
     )
-
-    numba_calculate_beta_sobolev(
-        tau_sobolevs.values.ravel(), beta_sobolev.values.ravel()
-    )
-
-    return beta_sobolev
 
 
 class TauSobolev(ProcessingPlasmaProperty):
-    """
+    """Store Sobolev line optical depths.
+
     Attributes
     ----------
     tau_sobolev : Pandas DataFrame, dtype float
@@ -170,7 +157,8 @@ class TauSobolev(ProcessingPlasmaProperty):
 
 
 class BetaSobolev(ProcessingPlasmaProperty):
-    """
+    """Store Sobolev escape probabilities.
+
     Attributes
     ----------
     beta_sobolev : Numpy Array, dtype float
@@ -180,4 +168,5 @@ class BetaSobolev(ProcessingPlasmaProperty):
     latex_name = (r"\beta_{\textrm{sobolev}}",)
 
     def calculate(self, tau_sobolevs):
+        """Calculate escape probabilities from Sobolev optical depths."""
         return calculate_beta_sobolev(tau_sobolevs)

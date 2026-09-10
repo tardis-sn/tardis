@@ -1,5 +1,6 @@
 import astropy.units as u
 import numpy as np
+import numpy.typing as npt
 from numba import njit
 
 import tardis.constants as const
@@ -96,7 +97,11 @@ def doppler_factor_3d(direction_vector, position_vector, time):
 
 
 @njit(**njit_dict_no_parallel)
-def doppler_factor_3D_all_packets(direction_vectors, position_vectors, times):
+def doppler_factor_3d_all_packets(
+    direction_vectors: npt.NDArray[np.float64],
+    position_vectors: npt.NDArray[np.float64],
+    times: npt.NDArray[np.float64],
+) -> npt.NDArray[np.float64]:
     """Doppler shift for photons in 3D
 
     Parameters
@@ -118,7 +123,12 @@ def doppler_factor_3D_all_packets(direction_vectors, position_vectors, times):
 
 
 @njit(**njit_dict_no_parallel)
-def angle_aberration_gamma(direction_vector, position_vector, time):
+def angle_aberration_gamma(
+    direction_vector: npt.NDArray[np.float64],
+    position_vector: npt.NDArray[np.float64],
+    time: float,
+    inverse: bool = False,
+) -> npt.NDArray[np.float64]:
     """Angle aberration formula for photons in 3D
 
     Parameters
@@ -126,6 +136,8 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
     direction_vector : array
     position_vector : array
     time : float
+    inverse : bool, optional
+        Apply the inverse transformation from the comoving frame.
 
     Returns
     -------
@@ -133,6 +145,8 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
         New direction after aberration
     """
     velocity_vector = position_vector / time
+    if inverse:
+        velocity_vector = -velocity_vector
     direction_vector_contiguous = np.ascontiguousarray(direction_vector)
     velocity_vector_contiguous = np.ascontiguousarray(velocity_vector)
 
@@ -257,7 +271,8 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
         - (radius / light_distance) ** 2.0
     )
     b = 2.0 * (
-        np.dot(position_contiguous, direction_contiguous) - radius**2.0 / light_distance
+        np.dot(position_contiguous, direction_contiguous)
+        - radius**2.0 / light_distance
     )
     c = np.dot(position_contiguous, position_contiguous) - radius**2.0
     discriminant = b**2.0 - 4.0 * a * c

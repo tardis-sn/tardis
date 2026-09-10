@@ -9,7 +9,6 @@ from astropy import units as u
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.configuration import config_validator
-from tardis.io.model.readers.csvy import load_yaml_from_csvy
 from tardis.io.util import YAMLLoader, yaml_load_file
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -86,6 +85,8 @@ class ConfigurationNameSpace(dict):
                 "Cannot specify both model and csvy_model in main config file."
             )
         if hasattr(self, "csvy_model"):
+            from tardis.io.model.csvy import load_yaml_from_csvy
+
             model = {}
             csvy_model_path = Path(self.config_dirname) / self.csvy_model
             csvy_yml = load_yaml_from_csvy(csvy_model_path)
@@ -406,7 +407,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         ----------
         montecarlo_section : dict
         """
-        if montecarlo_section["convergence_strategy"]["type"] == "damped":
+        if montecarlo_section["convergence_strategy"]["type"] in ["damped", "adaptive_damped"]:
             montecarlo_section[
                 "convergence_strategy"
             ] = Configuration.parse_convergence_section(
@@ -418,7 +419,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 "you need to implement your specific convergence treatment"
             )
         else:
-            raise ValueError('convergence_strategy is not "damped" or "custom"')
+            raise ValueError('convergence_strategy is not "damped", "adaptive_damped" or "custom"')
 
     @staticmethod
     def parse_convergence_section(convergence_section_dict):

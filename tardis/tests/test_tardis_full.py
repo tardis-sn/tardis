@@ -5,12 +5,12 @@ import pandas as pd
 import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
-from tardis.simulation.base import Simulation
-from tardisbase.testing.regression_data.regression_data import RegressionData
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
+
 
 def test_run_tardis_from_config_obj(
     atomic_data_fname, example_configuration_dir: Path
@@ -25,7 +25,7 @@ def test_run_tardis_from_config_obj(
     config["atom_data"] = atomic_data_fname
 
     try:
-        sim = run_tardis(config)
+        run_tardis(config)
     except Exception as e:
         pytest.fail(str(e.args[0]))
 
@@ -47,6 +47,7 @@ def test_run_tardis_simulation_callbacks_none(
     except Exception as e:
         pytest.fail(f"run_tardis failed with simulation_callbacks=None: {e}")
 
+
 class TestTransportSimple:
     """
     Very simple run
@@ -56,23 +57,13 @@ class TestTransportSimple:
     def simulation(
         self,
         request,
-        atomic_data_fname,
         generate_reference,
-        example_configuration_dir: Path,
+        simulation_tardis_full,
     ):
-        config = Configuration.from_yaml(
-            str(example_configuration_dir / "tardis_configv1_verysimple.yml")
-        )
-        config["atom_data"] = atomic_data_fname
-
-        simulation = Simulation.from_config(config)
-        simulation.run_convergence()
-        simulation.run_final()
-
         request.cls.regression_data = RegressionData(request)
-        data = request.cls.regression_data.sync_hdf_store(simulation)
+        data = request.cls.regression_data.sync_hdf_store(simulation_tardis_full)
 
-        yield simulation
+        yield simulation_tardis_full
         data.close()
 
     def get_expected_data(self, key: str):
@@ -83,7 +74,7 @@ class TestTransportSimple:
         expected = self.get_expected_data(key)
 
         npt.assert_allclose(
-            simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator,
+            simulation.transport.transport_state.estimators_line.mean_intensity_blueward,
             expected.values,
         )
 

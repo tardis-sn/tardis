@@ -1,0 +1,2236 @@
+from copy import deepcopy
+from dataclasses import dataclass
+from pathlib import Path
+from types import SimpleNamespace
+
+import numpy as np
+import numpy.typing as npt
+import pandas as pd
+import pytest
+from astropy import units as u
+
+from tardis import constants as const
+from tardis.conftest import assert_regression_dataframe
+from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
+from tardis.iip_plasma.properties.ion_population import NLTEIonNumberDensity
+from tardis.iip_plasma.properties.partition_function import (
+    PartitionFunction as IIPPartitionFunction,
+)
+from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
+from tardis.io.configuration.config_reader import Configuration
+from tardis.opacities.tau_sobolev import SOBOLEV_COEFFICIENT
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
+from tardis.plasma.equilibrium.evaluator import PlasmaEquilibriumEvaluator
+from tardis.plasma.equilibrium.inputs import (
+    ShellNumberDensity,
+    SobolevInputs,
+)
+from tardis.plasma.equilibrium.ion_populations import (
+    IonPopulationSolver,
+)
+from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
+from tardis.plasma.equilibrium.rate_matrix import (
+    EstimatedIonRateMatrix,
+    RateMatrix,
+)
+from tardis.plasma.equilibrium.rates import (
+    AnalyticCorrectedPhotoionizationCoeffSolver,
+    CollisionalIonizationRateSolver,
+    CollisionalIonizationSeaton,
+    EstimatedPhotoionizationRateSolver,
+    SpontaneousRecombinationCoeffSolver,
+    ThermalCollisionalRateSolver,
+)
+from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
+    BoundFreeThermalRates,
+    CollisionalBoundThermalRates,
+    CollisionalIonizationThermalRates,
+    FreeFreeThermalRates,
+)
+from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
+from tardis.plasma.equilibrium.thermal_balance import ThermalBalanceSolver
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.transport.montecarlo.estimators import init_estimators_continuum
+from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
+
+
+@dataclass(frozen=True)
+class ContinuumComparisonState:
+    plasma: LegacyPlasmaArray
+    continuum: BaseContinuum
+    photoionization_data: pd.DataFrame
+    photoionization_index: pd.MultiIndex
+    upper_ion_index: pd.MultiIndex
+    radiation_field: DilutePlanckianRadiationField
+    electron_temperature: u.Quantity
+    electron_distribution: ThermalElectronEnergyDistribution
+    level_to_ion_population_factor: pd.DataFrame
+
+
+@dataclass(frozen=True)
+class CollisionalBoundRates:
+    excitation: pd.DataFrame
+    deexcitation: pd.DataFrame
+    excitation_index: pd.MultiIndex
+    deexcitation_index: pd.MultiIndex
+
+
+def _max_rel_diff(actual, expected):
+    """Helper function to print relative diffs for checking broken tests"""
+    actual_vals = actual.values
+    expected_vals = expected.values
+
+    relative_difference = np.abs(actual_vals - expected_vals) / np.abs(
+        expected_vals
+    )
+
+    return float(np.nanmax(relative_difference))
+
+
+PLASMA_SOLVER_REGRESSION_OUTPUTS = (
+    "electron_densities",
+    "t_electrons",
+    "link_t_rad_t_electron",
+    "p_fb_deactivation",
+    "chi_bf",
+    "sp_fb_cooling_rates",
+    "stimulated_emission_factor",
+    "b",
+    "ion_ratio",
+    "j_blues",
+)
+
+
+INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS = (
+    "transition_probabilities",
+    "ion_number_density",
+    "tau_sobolevs",
+    "beta_sobolev",
+    "level_number_density",
+    *PLASMA_SOLVER_REGRESSION_OUTPUTS,
+)
+
+
+@pytest.fixture
+def iip_regression_path(tardis_regression_path):
+    return tardis_regression_path / "tardis" / "workflows" / "tests"
+
+
+@pytest.fixture
+def ctardis_compare_config(
+    tardis_regression_path: Path,
+) -> Configuration:
+    config = Configuration.from_yaml(
+        "tardis/workflows/tests/data/ctardis_compare.yml"
+    )
+
+    config.atom_data = (
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+
+    config.plasma.nlte.species = [
+        (1, 0)
+    ]  # Configure the hydrogen NLTE state used by the ctardis comparison.
+    return config
+
+
+@pytest.fixture
+def type_iip_workflow(ctardis_compare_config):
+    workflow = TypeIIPWorkflow(ctardis_compare_config)
+    return workflow
+
+
+# identical to ctardis values
+@pytest.fixture
+def elemental_number_density(iip_regression_path):
+    elemental_number_density = pd.read_hdf(
+        iip_regression_path / "ctardis_elemental_number_density.h5",
+        key="data",
+    )
+    elemental_number_density.columns = elemental_number_density.columns.astype(
+        int
+    )
+    return elemental_number_density
+
+
+# initial plasma setup matching ctardis
+@pytest.fixture
+def iip_plasma(iip_atom_data, elemental_number_density, ctardis_compare_config):
+    plasma = LegacyPlasmaArray(
+        elemental_number_density,
+        iip_atom_data,
+        ctardis_compare_config.supernova.time_explosion.to("s"),
+        nlte_config=ctardis_compare_config.plasma.nlte,
+        delta_treatment=None,
+        ionization_mode="nlte",
+        excitation_mode="dilute-lte",
+        line_interaction_type=ctardis_compare_config.plasma.line_interaction_type,
+        link_t_rad_t_electron=1.0 * np.ones(24),
+        # link_t_rad_t_electron=self.ws**0.25,
+        helium_treatment="none",
+        heating_rate_data_file=None,
+        v_inner=None,
+        v_outer=None,
+        continuum_treatment=True,
+    )
+
+    return plasma
+
+
+# "NLTE init" is the first call to update_radiationfield to set up the plasma
+@pytest.fixture
+def iip_plasma_nlte_init(
+    iip_regression_path, iip_plasma, ctardis_compare_config
+):
+    j_blues_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_j_blues_ctardis_init_nlte.h5",
+        key="data",
+    )
+
+    # ctardis starts with a constant rad temperature in all cells
+    radiation_temp = 9984.96131287 * np.ones(24)
+    dilution_factor = np.array(
+        [
+            0.18635244,
+            0.15938095,
+            0.11736085,
+            0.34665656,
+            0.32265696,
+            0.30224056,
+            0.28436446,
+            0.26841929,
+            0.2540108,
+            0.24086562,
+            0.22878441,
+            0.21761613,
+            0.20724285,
+            0.1975702,
+            0.18852112,
+            0.18003167,
+            0.17204798,
+            0.16452412,
+            0.15742053,
+            0.15070279,
+            0.14434073,
+            0.13830767,
+            0.13257993,
+            0.12856901,
+        ]
+    )
+
+    iip_plasma.update_radiationfield(
+        radiation_temp,
+        dilution_factor,
+        j_blues_ctardis,
+        ctardis_compare_config.plasma.nlte,
+        initialize_nlte=True,
+        n_e_convergence_threshold=0.05,
+    )
+    return iip_plasma
+
+
+@pytest.fixture
+def iip_plasma_after_mc(
+    iip_regression_path, iip_plasma_nlte_init, ctardis_compare_config
+):
+    j_blues_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_j_blues_ctardis_after_mc.h5",
+        key="data",
+    )
+
+    radiation_temp = np.array(
+        [
+            9992.27229695,
+            9992.59224105,
+            9983.78000964,
+            9980.58614386,
+            9979.83477025,
+            9968.05132981,
+            9957.88724805,
+            9949.36369847,
+            9946.8743961,
+            9937.71425418,
+            9934.85610192,
+            9928.23880919,
+            9926.40535242,
+            9916.93223133,
+            9912.22246589,
+            9911.051763,
+            9910.26097021,
+            9901.72775668,
+            9895.9432972,
+            9891.58754489,
+            9886.70685954,
+            9880.93185734,
+            9876.00858684,
+            9872.59842944,
+        ]
+    )
+
+    dilution_factor = np.array(
+        [
+            0.3571996,
+            0.31756545,
+            0.27019532,
+            0.36604569,
+            0.33787167,
+            0.31579601,
+            0.29590609,
+            0.27936991,
+            0.2634541,
+            0.24940025,
+            0.23579985,
+            0.22373621,
+            0.21241799,
+            0.20254584,
+            0.19309261,
+            0.18394483,
+            0.1755579,
+            0.16798016,
+            0.16076174,
+            0.15381029,
+            0.14730572,
+            0.14119434,
+            0.13532174,
+            0.13124624,
+        ]
+    )
+
+    photo_ion_estimator = pd.read_hdf(
+        iip_regression_path / "ctardis_photo_ion_estimator_after_mc.h5",
+        key="data",
+    )
+
+    stim_recomb_estimator = pd.read_hdf(
+        iip_regression_path / "ctardis_stim_recomb_estimator_after_mc.h5",
+        key="data",
+    )
+
+    bf_heating_estimator = pd.read_hdf(
+        iip_regression_path / "ctardis_bf_heating_estimator_after_mc.h5",
+        key="data",
+    )
+
+    stim_recomb_cooling_estimator = pd.read_hdf(
+        iip_regression_path
+        / "ctardis_stim_recomb_cooling_estimator_after_mc.h5",
+        key="data",
+    )
+
+    ff_heating_estimator = [
+        4.89135279e-24,
+        4.37696370e-24,
+        3.75869301e-24,
+        4.97847160e-24,
+        4.52158002e-24,
+        4.21024499e-24,
+        3.94991540e-24,
+        3.72915649e-24,
+        3.58902110e-24,
+        3.40170224e-24,
+        3.20848519e-24,
+        3.03540032e-24,
+        2.87314722e-24,
+        2.74328938e-24,
+        2.61063140e-24,
+        2.50640248e-24,
+        2.38164559e-24,
+        2.26967531e-24,
+        2.24509826e-24,
+        2.12378192e-24,
+        2.02063266e-24,
+        1.92509873e-24,
+        1.83070678e-24,
+        1.77346374e-24,
+    ]
+
+    continuum_estimators = {}
+
+    continuum_estimators["photo_ion_estimator"] = photo_ion_estimator
+    continuum_estimators["stim_recomb_estimator"] = stim_recomb_estimator
+    continuum_estimators["bf_heating_estimator"] = bf_heating_estimator
+    continuum_estimators["stim_recomb_cooling_estimator"] = (
+        stim_recomb_cooling_estimator
+    )
+    continuum_estimators["ff_heating_estimator"] = ff_heating_estimator
+
+    iip_plasma_nlte_init.update_radiationfield(
+        radiation_temp,
+        dilution_factor,
+        j_blues_ctardis,
+        ctardis_compare_config.plasma.nlte,
+        initialize_nlte=False,
+        n_e_convergence_threshold=0.05,
+        **continuum_estimators,
+    )
+
+    return iip_plasma_nlte_init
+
+
+@pytest.fixture
+def iip_charge_conserving_rate_matrix(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+) -> SimpleNamespace:
+    """Adapt full-dataset IIP rate tables to the new solver interface."""
+    legacy_solver = NLTEIonNumberDensity(iip_plasma_after_mc)
+    partition_function = IIPPartitionFunction.calculate(
+        iip_plasma_after_mc.level_boltzmann_factor
+    )
+    level_population_fraction = legacy_solver._calculate_level_pop_fractions(
+        iip_plasma_after_mc.level_boltzmann_factor,
+        partition_function,
+    )
+    ion_index = partition_function.index
+    radiative_recombination = legacy_solver._calculate_alpha_tot(
+        iip_plasma_after_mc.alpha_stim,
+        iip_plasma_after_mc.alpha_sp,
+        ion_index,
+    ).loc[(1, 0)]
+    radiative_ionization = legacy_solver._calculate_tot_ion_rate(
+        iip_plasma_after_mc.gamma,
+        level_population_fraction,
+        ion_index,
+    ).loc[(1, 0)]
+    collisional_ionization = legacy_solver._calculate_tot_ion_rate(
+        iip_plasma_after_mc.coll_ion_coeff,
+        level_population_fraction,
+        ion_index,
+    ).loc[(1, 0)]
+    collisional_recombination = legacy_solver._calculate_coll_recomb_tot(
+        iip_plasma_after_mc.coll_recomb_coeff,
+        ion_index,
+    ).loc[(1, 0)]
+    radiative_ionization_values = radiative_ionization.to_numpy()
+    radiative_recombination_values = radiative_recombination.to_numpy()
+    collisional_ionization_values = collisional_ionization.to_numpy()
+    collisional_recombination_values = collisional_recombination.to_numpy()
+
+    def solve(
+        radiation_field: None,
+        electron_distribution: ThermalElectronEnergyDistribution,
+        lte_level_population: pd.DataFrame,
+        estimated_level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        estimated_ion_population: pd.DataFrame,
+        partition_function: pd.DataFrame,
+        boltzmann_factor: pd.DataFrame,
+        level_to_continuum_saha_factor: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Build the IIP two-stage hydrogen matrices at trial densities."""
+        electron_number_density = electron_distribution.number_density.value
+        ionization_rate = (
+            radiative_ionization_values
+            + collisional_ionization_values * electron_number_density
+        )
+        recombination_rate = (
+            radiative_recombination_values * electron_number_density
+            + collisional_recombination_values * electron_number_density**2
+        )
+        rate_matrices = np.empty((len(electron_number_density), 2, 2))
+        rate_matrices[:, 0, 0] = -ionization_rate
+        rate_matrices[:, 0, 1] = recombination_rate
+        rate_matrices[:, 1, :] = 1.0
+        rate_matrix_array = np.empty((1, len(rate_matrices)), dtype=object)
+        rate_matrix_array[0] = list(rate_matrices)
+        return pd.DataFrame(
+            rate_matrix_array,
+            index=pd.Index([1], name="atomic_number"),
+            columns=radiative_recombination.index,
+        )
+
+    return SimpleNamespace(
+        ion_population_index=pd.MultiIndex.from_tuples(
+            [(1, 0), (1, 1)],
+            names=["atomic_number", "ion_number"],
+        ),
+        solve=solve,
+    )
+
+
+def test_charge_conserving_solver_matches_iip_with_full_atomic_data(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+    iip_charge_conserving_rate_matrix: SimpleNamespace,
+) -> None:
+    """Match IIP NLTE populations with identical post-Monte-Carlo rates."""
+    legacy_parent = SimpleNamespace(
+        nlte_species=iip_plasma_after_mc.nlte_species,
+        previous_ion_number_density=None,
+        previous_electron_densities=None,
+    )
+    ion_number_density = NLTEIonNumberDensity(legacy_parent)
+
+    expected_ion_population, expected_electron_density = (
+        ion_number_density.calculate(
+            iip_plasma_after_mc.phi,
+            iip_plasma_after_mc.alpha_stim,
+            iip_plasma_after_mc.alpha_sp,
+            iip_plasma_after_mc.gamma,
+            iip_plasma_after_mc.coll_ion_coeff,
+            iip_plasma_after_mc.coll_recomb_coeff,
+            iip_plasma_after_mc.number_density,
+            iip_plasma_after_mc.level_boltzmann_factor,
+        )
+    )
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        iip_plasma_after_mc.t_electrons * u.K,
+        iip_plasma_after_mc.electron_densities.to_numpy() / u.cm**3,
+    )
+    ion_pop_solver = IonPopulationSolver(iip_charge_conserving_rate_matrix)
+    actual_ion_population, actual_electron_density = ion_pop_solver.solve(
+        None,
+        electron_distribution,
+        iip_plasma_after_mc.number_density,
+        iip_plasma_after_mc.lte_level_number_density,
+        iip_plasma_after_mc.level_number_density,
+        iip_plasma_after_mc.lte_ion_number_density,
+        iip_plasma_after_mc.ion_number_density,
+        iip_plasma_after_mc.partition_function,
+        iip_plasma_after_mc.level_boltzmann_factor,
+        level_to_continuum_saha_factor=iip_plasma_after_mc.phi_lucy,
+    )
+
+    pd.testing.assert_frame_equal(
+        actual_ion_population,
+        expected_ion_population,
+        check_dtype=False,
+        check_names=False,
+        rtol=3e-10,
+        atol=0.0,
+    )
+    pd.testing.assert_series_equal(
+        actual_electron_density,
+        expected_electron_density,
+        check_dtype=False,
+        check_names=False,
+        rtol=3e-10,
+        atol=0.0,
+    )
+
+
+def test_charge_conserving_solver_only_resolves_unconverged_shells(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+    iip_charge_conserving_rate_matrix: SimpleNamespace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep converged shell charge roots fixed during lagged iterations."""
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        iip_plasma_after_mc.t_electrons * u.K,
+        iip_plasma_after_mc.electron_densities.to_numpy() / u.cm**3,
+    )
+    estimated_ion_population = iip_plasma_after_mc.ion_number_density.copy()
+    estimated_ion_population.iloc[:, 0] = 0.0
+    solver = IonPopulationSolver(iip_charge_conserving_rate_matrix)
+    solve_shell_charge = solver.solve_shell_charge
+    solved_shell_indices = []
+
+    def record_solve_shell_charge(
+        shell_idx: int, *args: object, **kwargs: object
+    ) -> float:
+        solved_shell_indices.append(shell_idx)
+        return solve_shell_charge(shell_idx, *args, **kwargs)
+
+    monkeypatch.setattr(solver, "solve_shell_charge", record_solve_shell_charge)
+    solver.solve(
+        None,
+        electron_distribution,
+        iip_plasma_after_mc.number_density,
+        iip_plasma_after_mc.lte_level_number_density,
+        iip_plasma_after_mc.level_number_density,
+        iip_plasma_after_mc.lte_ion_number_density,
+        estimated_ion_population,
+        iip_plasma_after_mc.partition_function,
+        iip_plasma_after_mc.level_boltzmann_factor,
+        # Use a looser tolerance for this merge; the following branch will
+        # tighten it once shell-local charge solves remove the parity offset.
+        tolerance=1e-8,
+        level_to_continuum_saha_factor=iip_plasma_after_mc.phi_lucy,
+    )
+
+    assert [
+        solved_shell_indices.count(shell_idx)
+        for shell_idx in range(len(iip_plasma_after_mc.number_density.columns))
+    ] == [2] + [1] * (len(iip_plasma_after_mc.number_density.columns) - 1)
+
+
+def test_type_iip_workflow_initial_plasma_regression(
+    type_iip_workflow,
+    regression_data,
+):
+    """Compare initial IIP plasma outputs with regression references."""
+    for attr in INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS:
+        assert_regression_dataframe(
+            regression_data,
+            f"workflow_init_{attr}",
+            getattr(type_iip_workflow.plasma_solver, attr),
+            rtol=1e-10,  # Mac ARM64 tolerance
+        )
+
+
+def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
+    tau_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_tau_sobolevs_init_nlte.h5",
+        key="data",
+    )
+    beta_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_beta_sobolevs_init_nlte.h5",
+        key="data",
+    )
+    ion_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_ion_density_init_nlte.h5",
+        key="data",
+    )
+    level_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_level_number_density_init_nlte.h5",
+        key="data",
+    )
+    transition_probabilities_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_transition_probabilities_init_nlte.h5",
+        key="data",
+    )
+    electron_densities_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_electron_densities_init_nlte.h5",
+        key="data",
+    )
+    p_fb_deactivation_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_p_fb_deactivation_init_nlte.h5",
+        key="data",
+    )
+    chi_bf_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_chi_bf_init_nlte.h5",
+        key="data",
+    )
+    t_electrons_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_t_electrons_init_nlte.h5", key="data"
+    )
+
+    print(
+        "init transition_probabilities max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.transition_probabilities,
+                transition_probabilities_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        iip_plasma_nlte_init.transition_probabilities,
+        transition_probabilities_ctardis,
+        rtol=3e-8,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    print(
+        "init ion_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.ion_number_density,
+                ion_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        iip_plasma_nlte_init.ion_number_density,
+        ion_number_density_ctardis,
+        rtol=4e-8,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    print(
+        "init tau_sobolevs max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.tau_sobolevs,
+                tau_sobolevs_ctardis,
+            )
+        )
+    )
+    # Sobolev values are stored differently between codes, so comparing raw data instead
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.tau_sobolevs.values,
+        tau_sobolevs_ctardis.values,
+        rtol=4e-8,
+        atol=0,
+    )
+
+    print(
+        "init beta_sobolev max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.beta_sobolev,
+                beta_sobolevs_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.beta_sobolev.values,
+        beta_sobolevs_ctardis.values,
+        rtol=3e-8,
+        atol=0,
+    )
+
+    print(
+        "init level_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.level_number_density,
+                level_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        iip_plasma_nlte_init.level_number_density,
+        level_number_density_ctardis,
+        rtol=4e-8,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    print(
+        "init electron_densities max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.electron_densities,
+                electron_densities_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_series_equal(
+        iip_plasma_nlte_init.electron_densities,
+        electron_densities_ctardis,
+        rtol=2e-12,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    print(
+        "init t_electrons max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                pd.DataFrame(iip_plasma_nlte_init.t_electrons),
+                t_electrons_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.t_electrons,
+        t_electrons_ctardis.values,
+        rtol=2e-13,
+        atol=0,
+    )
+
+    print(
+        "init p_fb_deactivation max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.p_fb_deactivation,
+                p_fb_deactivation_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.p_fb_deactivation.values,
+        p_fb_deactivation_ctardis.values,
+        rtol=2e-13,
+        atol=0,
+    )
+
+    print(
+        "init chi_bf max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.chi_bf,
+                chi_bf_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.chi_bf.values,
+        chi_bf_ctardis.values,
+        rtol=4e-8,
+        atol=0,
+    )
+
+
+@pytest.fixture(scope="module")
+def continuum_comparison_state(
+    tardis_regression_path: Path,
+) -> ContinuumComparisonState:
+    comparison_config = Configuration.from_yaml(
+        Path(__file__).parent / "data" / "ctardis_compare.yml"
+    )
+    comparison_config.atom_data = (
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+    comparison_config.plasma.nlte.species = [(1, 0)]
+    workflow = TypeIIPWorkflow(comparison_config)
+    plasma = workflow.plasma_solver
+    continuum = workflow.base_continuum
+    photoionization_data = continuum.input.photoionization_data
+    photoionization_index = photoionization_data.index.unique()
+    upper_ion_index = pd.MultiIndex.from_arrays(
+        [
+            photoionization_index.get_level_values("atomic_number"),
+            photoionization_index.get_level_values("ion_number") + 1,
+        ],
+        names=["atomic_number", "ion_number"],
+    ).unique()
+    radiation_field = DilutePlanckianRadiationField(
+        np.asarray(plasma.t_rad) * u.K,
+        np.asarray(plasma.w),
+    )
+    electron_temperature = np.asarray(plasma.t_electrons) * u.K
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        electron_temperature,
+        plasma.electron_densities.to_numpy() / u.cm**3,
+    )
+    level_to_ion_population_factor = plasma.lte_level_number_density.loc[
+        photoionization_index
+    ].divide(
+        plasma.lte_ion_number_density.loc[upper_ion_index].to_numpy()
+        * plasma.electron_densities.to_numpy(),
+    )
+
+    return ContinuumComparisonState(
+        plasma=plasma,
+        continuum=continuum,
+        photoionization_data=photoionization_data,
+        photoionization_index=photoionization_index,
+        upper_ion_index=upper_ion_index,
+        radiation_field=radiation_field,
+        electron_temperature=electron_temperature,
+        electron_distribution=electron_distribution,
+        level_to_ion_population_factor=level_to_ion_population_factor,
+    )
+
+
+@pytest.fixture(scope="module")
+def collisional_bound_rates(
+    continuum_comparison_state: ContinuumComparisonState,
+) -> CollisionalBoundRates:
+
+    collisional_rates = ThermalCollisionalRateSolver(
+        continuum_comparison_state.plasma.atomic_data.levels,
+        continuum_comparison_state.plasma.atomic_data.lines,
+        continuum_comparison_state.plasma.atomic_data.collision_data_temperatures,
+        continuum_comparison_state.plasma.atomic_data.yg_data,
+        collision_strengths_type="cmfgen",
+    ).solve(continuum_comparison_state.electron_temperature)
+    source_levels = collisional_rates.index.get_level_values(
+        "level_number_source"
+    )
+    destination_levels = collisional_rates.index.get_level_values(
+        "level_number_destination"
+    )
+    excitation = collisional_rates[source_levels < destination_levels]
+    deexcitation = collisional_rates[source_levels > destination_levels]
+    excitation_index = excitation.index.droplevel(
+        ["ion_number_source", "ion_number_destination"]
+    ).rename(
+        {
+            "level_number_source": "level_number_lower",
+            "level_number_destination": "level_number_upper",
+        }
+    )
+    deexcitation_index = (
+        deexcitation.index.swaplevel(
+            "level_number_source", "level_number_destination"
+        )
+        .droplevel(["ion_number_source", "ion_number_destination"])
+        .rename(
+            {
+                "level_number_destination": "level_number_lower",
+                "level_number_source": "level_number_upper",
+            }
+        )
+    )
+    return CollisionalBoundRates(
+        excitation,
+        deexcitation,
+        excitation_index,
+        deexcitation_index,
+    )
+
+
+@pytest.fixture(scope="module")
+def collisional_ionization_rate(
+    continuum_comparison_state: ContinuumComparisonState,
+) -> pd.DataFrame:
+    return CollisionalIonizationSeaton(
+        continuum_comparison_state.photoionization_data
+    ).solve(continuum_comparison_state.electron_temperature)
+
+
+@pytest.fixture(scope="module")
+def equilibrium_cooling_channels(
+    continuum_comparison_state: ContinuumComparisonState,
+    collisional_bound_rates: CollisionalBoundRates,
+    collisional_ionization_rate: pd.DataFrame,
+) -> npt.NDArray[np.float64]:
+    bound_free_cooling = BoundFreeThermalRates(
+        continuum_comparison_state.photoionization_data
+    ).solve(
+        continuum_comparison_state.plasma.level_number_density,
+        continuum_comparison_state.plasma.ion_number_density,
+        continuum_comparison_state.electron_distribution,
+        continuum_comparison_state.level_to_ion_population_factor,
+        continuum_comparison_state.radiation_field,
+    )[1]
+    free_free_cooling = FreeFreeThermalRates().solve(
+        pd.Series(
+            0.0,
+            index=continuum_comparison_state.plasma.electron_densities.index,
+        ),
+        continuum_comparison_state.electron_distribution,
+        continuum_comparison_state.plasma.ion_number_density,
+    )[1]
+    collisional_ionization_cooling = CollisionalIonizationThermalRates(
+        continuum_comparison_state.photoionization_data
+    ).solve(
+        continuum_comparison_state.electron_distribution.number_density,
+        continuum_comparison_state.plasma.ion_number_density,
+        continuum_comparison_state.plasma.level_number_density,
+        collisional_ionization_rate,
+        continuum_comparison_state.level_to_ion_population_factor,
+    )[1]
+    collisional_bound_cooling = CollisionalBoundThermalRates(
+        continuum_comparison_state.plasma.atomic_data.lines.loc[
+            collisional_bound_rates.excitation_index
+        ]
+    ).solve(
+        continuum_comparison_state.electron_distribution.number_density,
+        collisional_bound_rates.deexcitation.set_axis(
+            collisional_bound_rates.deexcitation_index
+        ),
+        collisional_bound_rates.excitation.set_axis(
+            collisional_bound_rates.excitation_index
+        ),
+        continuum_comparison_state.plasma.level_number_density,
+    )[1]
+
+    return np.vstack(
+        [
+            collisional_bound_cooling.to_numpy(),
+            collisional_ionization_cooling.to_numpy(),
+            bound_free_cooling.to_numpy(),
+            free_free_cooling.to_numpy(),
+        ]
+    )
+
+
+def test_radiative_ionization_rates_match_iip_continuum(
+    continuum_comparison_state: ContinuumComparisonState,
+) -> None:
+
+    radiative_ionization_rate = AnalyticCorrectedPhotoionizationCoeffSolver(
+        continuum_comparison_state.photoionization_data
+    ).solve(
+        continuum_comparison_state.radiation_field,
+        continuum_comparison_state.electron_temperature,
+        continuum_comparison_state.plasma.lte_level_number_density.loc[
+            continuum_comparison_state.photoionization_index
+        ],
+        continuum_comparison_state.plasma.level_number_density.loc[
+            continuum_comparison_state.photoionization_index
+        ],
+        continuum_comparison_state.plasma.lte_ion_number_density.loc[
+            continuum_comparison_state.upper_ion_index
+        ],
+        continuum_comparison_state.plasma.ion_number_density.loc[
+            continuum_comparison_state.upper_ion_index
+        ],
+    )
+    pd.testing.assert_index_equal(
+        radiative_ionization_rate.index,
+        continuum_comparison_state.continuum.radiative_ionization.rate_coefficient.index,
+    )
+    np.testing.assert_allclose(
+        radiative_ionization_rate.to_numpy(),
+        continuum_comparison_state.continuum.radiative_ionization.rate_coefficient.to_numpy(),
+        rtol=2e-6,
+        atol=0.0,
+    )
+
+
+def test_radiative_recombination_rates_match_iip_continuum(
+    continuum_comparison_state: ContinuumComparisonState,
+) -> None:
+    radiative_recombination_rate = (
+        SpontaneousRecombinationCoeffSolver(
+            continuum_comparison_state.photoionization_data
+        ).solve(continuum_comparison_state.electron_temperature)
+        * continuum_comparison_state.level_to_ion_population_factor
+    )
+    pd.testing.assert_index_equal(
+        radiative_recombination_rate.index,
+        continuum_comparison_state.continuum.radiative_recombination.rate_coefficient.index,
+    )
+    np.testing.assert_allclose(
+        radiative_recombination_rate.to_numpy(),
+        continuum_comparison_state.continuum.radiative_recombination.rate_coefficient.to_numpy(),
+        rtol=2e-4,
+        atol=0.0,
+    )
+
+
+def test_collisional_excitation_rates_match_iip_continuum(
+    continuum_comparison_state: ContinuumComparisonState,
+    collisional_bound_rates: CollisionalBoundRates,
+) -> None:
+    np.testing.assert_allclose(
+        collisional_bound_rates.excitation.to_numpy(),
+        continuum_comparison_state.plasma.coll_exc_coeff.loc[
+            collisional_bound_rates.excitation_index
+        ].to_numpy(),
+        # The standard and IIP implementations use different cgs constant
+        # sources for the complete transition table.
+        rtol=2e-5,
+        atol=0.0,
+    )
+
+
+def test_collisional_deexcitation_rates_match_iip_continuum(
+    continuum_comparison_state: ContinuumComparisonState,
+    collisional_bound_rates: CollisionalBoundRates,
+) -> None:
+    np.testing.assert_allclose(
+        collisional_bound_rates.deexcitation.to_numpy(),
+        continuum_comparison_state.plasma.coll_deexc_coeff.loc[
+            collisional_bound_rates.deexcitation_index
+        ].to_numpy(),
+        rtol=2e-5,
+        atol=0.0,
+    )
+
+
+def test_collisional_ionization_rates_match_iip_continuum(
+    continuum_comparison_state: ContinuumComparisonState,
+    collisional_ionization_rate: pd.DataFrame,
+) -> None:
+    pd.testing.assert_frame_equal(
+        collisional_ionization_rate,
+        continuum_comparison_state.plasma.coll_ion_coeff.loc[
+            collisional_ionization_rate.index
+        ],
+        check_names=False,
+        check_column_type=False,
+    )
+
+
+def test_collisional_recombination_rates_match_iip_continuum(
+    continuum_comparison_state: ContinuumComparisonState,
+    collisional_ionization_rate: pd.DataFrame,
+) -> None:
+    collisional_recombination_rate = (
+        collisional_ionization_rate
+        * continuum_comparison_state.level_to_ion_population_factor
+    )
+    np.testing.assert_allclose(
+        collisional_recombination_rate.to_numpy(),
+        continuum_comparison_state.plasma.coll_recomb_coeff.loc[
+            collisional_recombination_rate.index
+        ].to_numpy(),
+        rtol=2e-5,
+        atol=0.0,
+    )
+
+
+def test_cooling_channel_totals_match_iip_continuum(
+    continuum_comparison_state: ContinuumComparisonState,
+    equilibrium_cooling_channels: npt.NDArray[np.float64],
+) -> None:
+    cooling_rates = continuum_comparison_state.continuum.cooling_rates
+    iip_cooling_channels = np.vstack(
+        [
+            cooling_rates.collisional_excitation_total,
+            cooling_rates.collisional_ionization_total,
+            cooling_rates.radiative_recombination_total,
+            cooling_rates.free_free_total,
+        ]
+    )
+    np.testing.assert_allclose(
+        equilibrium_cooling_channels,
+        iip_cooling_channels,
+        # Independent quadrature and cgs-constant paths accumulate their
+        # largest difference in the free-bound cooling channel.
+        rtol=3e-4,
+        atol=0.0,
+    )
+
+
+def test_cooling_channel_probabilities_match_iip_continuum(
+    continuum_comparison_state: ContinuumComparisonState,
+    equilibrium_cooling_channels: npt.NDArray[np.float64],
+) -> None:
+    cooling_rates = continuum_comparison_state.continuum.cooling_rates
+    actual = equilibrium_cooling_channels / equilibrium_cooling_channels.sum(
+        axis=0
+    )
+    expected = np.vstack(
+        [
+            cooling_rates.collisional_excitation_probability,
+            cooling_rates.collisional_ionization_probability,
+            cooling_rates.radiative_recombination_probability,
+            cooling_rates.free_free_probability,
+        ]
+    )
+    np.testing.assert_allclose(
+        actual,
+        expected,
+        rtol=3e-4,
+        atol=0.0,
+    )
+
+
+@pytest.mark.parametrize(
+    "process_name",
+    [
+        "collisional_excitation",
+        "collisional_ionization",
+        "radiative_recombination",
+    ],
+)
+def test_iip_process_probabilities_normalize_per_shell(
+    continuum_comparison_state: ContinuumComparisonState,
+    process_name: str,
+) -> None:
+    cooling_channel = getattr(
+        continuum_comparison_state.continuum.cooling_rates, process_name
+    )
+    assert cooling_channel.probabilities_array.shape == (
+        len(continuum_comparison_state.plasma.t_electrons),
+        len(cooling_channel.references),
+    )
+    np.testing.assert_allclose(
+        cooling_channel.probabilities_array.sum(axis=1),
+        1.0,
+        rtol=1e-12,
+        atol=0.0,
+    )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "The standalone bound-bound solver does not include IIP's coupled "
+        "continuum rates, ion-stage ratios, or population-dependent Sobolev "
+        "escape probabilities."
+    ),
+)
+def test_standalone_level_populations_equality_with_iip_plasma(
+    iip_plasma_nlte_init: LegacyPlasmaArray,
+    iip_atom_data: object,
+) -> None:
+    """Characterize the known standalone-equilibrium/IIP population gap."""
+    atom_data = iip_atom_data
+    line_index = atom_data.lines.index
+    hydrogen_lines = atom_data.lines.loc[
+        (line_index.get_level_values("atomic_number") == 1)
+        & (line_index.get_level_values("ion_number") == 0)
+    ]
+    standard_rate_matrix = RateMatrix(
+        RadiativeRatesSolver(hydrogen_lines),
+        ThermalCollisionalRateSolver(
+            atom_data.levels,
+            hydrogen_lines,
+            atom_data.collision_data_temperatures,
+            atom_data.yg_data.loc[(1, 0, slice(None), slice(None)), :],
+            "cmfgen",
+        ),
+        atom_data.levels,
+    )
+    radiation_field = DilutePlanckianRadiationField(
+        np.asarray(iip_plasma_nlte_init.t_rad) * u.K,
+        np.asarray(iip_plasma_nlte_init.w),
+    )
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        np.asarray(iip_plasma_nlte_init.t_electrons) * u.K,
+        np.asarray(iip_plasma_nlte_init.electron_densities) / u.cm**3,
+    )
+    standard_matrices = standard_rate_matrix.solve(
+        radiation_field,
+        electron_distribution,
+    )
+    standard_populations = (
+        LevelPopulationSolver(standard_matrices, atom_data.levels)
+        .solve()
+        .loc[(1, 0)]
+    )
+    iip_populations = iip_plasma_nlte_init.level_number_density.loc[(1, 0)]
+    iip_ion_population = iip_plasma_nlte_init.ion_number_density.loc[(1, 0)]
+    iip_populations = iip_populations.divide(iip_ion_population, axis=1)
+
+    common_levels = standard_populations.index.intersection(
+        iip_populations.index
+    )
+    np.testing.assert_allclose(
+        standard_populations.loc[common_levels].to_numpy(),
+        iip_populations.loc[common_levels].to_numpy(),
+        rtol=1e-6,
+        atol=0,
+    )
+
+
+# comparison of plasma after the Monte Carlo calculations have been performed
+def test_iip_plasma_after_mc(
+    iip_regression_path,
+    iip_plasma_after_mc,
+    regression_data,
+):
+    tau_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_tau_sobolevs_after_mc.h5",
+        key="data",
+    )
+
+    beta_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_beta_sobolevs_after_mc.h5",
+        key="data",
+    )
+    ion_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_ion_density_after_mc.h5",
+        key="data",
+    )
+    level_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_level_number_density_after_mc.h5",
+        key="data",
+    )
+    transition_probabilities_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_transition_probabilities_after_mc.h5",
+        key="data",
+    )
+
+    # tolerances are much worse than after init
+
+    print(
+        "after MC transition_probabilities max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.transition_probabilities,
+                transition_probabilities_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        iip_plasma_after_mc.transition_probabilities,
+        transition_probabilities_ctardis,
+        rtol=7e-6,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    print(
+        "after MC ion_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.ion_number_density,
+                ion_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        iip_plasma_after_mc.ion_number_density,
+        ion_number_density_ctardis,
+        rtol=7e-6,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    # Sobolev values are stored differently between codes, so comparing raw data instead
+    print(
+        "after MC tau_sobolevs max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.tau_sobolevs,
+                tau_sobolevs_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_after_mc.tau_sobolevs.values,
+        tau_sobolevs_ctardis.values,
+        rtol=7e-6,
+        atol=0,
+    )
+
+    print(
+        "after MC beta_sobolev max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.beta_sobolev,
+                beta_sobolevs_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_after_mc.beta_sobolev.values,
+        beta_sobolevs_ctardis.values,
+        rtol=7e-6,
+        atol=0,
+    )
+
+    print(
+        "after MC level_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.level_number_density,
+                level_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        iip_plasma_after_mc.level_number_density,
+        level_number_density_ctardis,
+        rtol=7e-6,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    assert_regression_dataframe(
+        regression_data,
+        "after_mc_fractional_heating",
+        iip_plasma_after_mc.fractional_heating,
+        rtol=2e-10,
+    )
+
+    for attr in PLASMA_SOLVER_REGRESSION_OUTPUTS:
+        assert_regression_dataframe(
+            regression_data,
+            f"after_mc_{attr}",
+            getattr(iip_plasma_after_mc, attr),
+            rtol=4e-8,
+        )
+
+
+def thermal_balance_guess(
+    plasma_solver: LegacyPlasmaArray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Used for test below to calculate a thermal balance guess from a plasma"""
+    max_electron_number_density = (
+        plasma_solver.number_density.multiply(
+            plasma_solver.number_density.index.values,
+            axis=0,
+        )
+        .sum()
+        .values
+    )
+    electron_fraction = (
+        plasma_solver.electron_densities / max_electron_number_density
+    ).values
+
+    guess = np.zeros(2 * len(plasma_solver.link_t_rad_t_electron))
+    guess[::2] = electron_fraction
+    guess[1::2] = plasma_solver.link_t_rad_t_electron
+
+    return guess, max_electron_number_density
+
+
+def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
+    """Map a two-shell thermal-balance candidate to evaluator quantities.
+
+    Claim: Each shell's density fraction and temperature ratio are converted
+    to physical values, and the two balance errors retain shell order.
+    Regime: Two shells with unequal density limits and radiation temperatures.
+    Verification: The expected values follow by direct multiplication and
+    inserting the recorded evaluator result.
+    """
+    # Skip full workflow construction because this check needs only the state
+    # read by thermal_balance_iteration, not a configured simulation.
+    workflow = TypeIIPWorkflow.__new__(TypeIIPWorkflow)
+    # SimpleNamespace provides the sole plasma value used here: each shell's
+    # radiation temperature.
+    workflow.plasma_solver = SimpleNamespace(t_rad=np.array([1.0e4, 2.0e4]))
+    level_initial_guess = pd.DataFrame([[0.6, 0.7], [0.4, 0.3]])
+    workflow._thermal_balance_level_initial_guess = level_initial_guess
+
+    # Record the physical values received and return fixed balance errors so
+    # this test checks scaling and shell order without running a plasma solve.
+    class RecordingEvaluator:
+        def __init__(self) -> None:
+            self.call_count = 0
+            self.arguments: tuple[object, ...] | None = None
+            # SimpleNamespace contains only the two evaluator results consumed
+            # by thermal_balance_iteration.
+            self.result = SimpleNamespace(
+                electron_residual=pd.Series([0.1, -0.2]),
+                fractional_heating=pd.Series([0.3, -0.4]),
+            )
+
+        def evaluate(
+            self,
+            trial_electron_density: npt.ArrayLike,
+            electron_temperature: npt.ArrayLike,
+            candidate_level_initial_guess: pd.DataFrame,
+        ) -> SimpleNamespace:
+            self.call_count += 1
+            self.arguments = (
+                np.asarray(trial_electron_density),
+                np.asarray(electron_temperature),
+                candidate_level_initial_guess,
+            )
+            return self.result
+
+    evaluator = RecordingEvaluator()
+    workflow._thermal_balance_evaluator = evaluator
+    workflow._thermal_balance_radiation_temperature = np.array([1.0e4, 2.0e4])
+    candidate = np.array([0.25, 0.8, 0.5, 1.1])
+    maximum_electron_density = np.array([4.0e9, 6.0e9])
+
+    residual = workflow.thermal_balance_iteration(
+        candidate, maximum_electron_density
+    )
+
+    assert evaluator.call_count == 1
+    assert evaluator.arguments is not None
+    trial_density, temperature, actual_initial_guess = evaluator.arguments
+    np.testing.assert_array_equal(trial_density, [1.0e9, 3.0e9])
+    np.testing.assert_allclose(
+        temperature,
+        [8.0e3, 2.2e4],
+        rtol=1e-15,  # Floating-point multiplication only.
+        atol=0.0,
+    )
+    pd.testing.assert_frame_equal(actual_initial_guess, level_initial_guess)
+    np.testing.assert_array_equal(residual, [0.1, 0.3, -0.2, -0.4])
+    assert not hasattr(workflow, "_thermal_balance_evaluation")
+
+
+def test_nlte_beta_sobolev_calculation_matches_plasma_property(
+    iip_plasma_after_mc,
+):
+    """Compare optimized NLTE beta Sobolev values with the plasma property."""
+    nlte_property = iip_plasma_after_mc.plasma_properties_dict[
+        "LevelBoltzmannFactorNLTE"
+    ]
+    beta_sobolev = nlte_property._calculate_beta_sobolevs(
+        iip_plasma_after_mc.level_number_density[0].to_numpy()
+    )
+
+    np.testing.assert_allclose(
+        beta_sobolev,
+        iip_plasma_after_mc.beta_sobolev.values[:, [0]],
+        rtol=5e-13,  # AVX-512 tolerance
+        atol=0.0,
+    )
+
+
+def test_evaluator_matches_iip_five_shell_path(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+    type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """Compare the evaluator composition with shells computed using the iip_plasma."""
+    type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
+    type_iip_workflow.solve_thermal_balance()
+    plasma = type_iip_workflow.plasma_solver
+    _, maximum_electron_density = thermal_balance_guess(plasma)
+
+    shell_indices = pd.Index([0, 2, 3, 8, 23])
+    time_simulation = 2.0e5 * u.s
+    volume = 3.0e30 * u.cm**3
+    estimator_scale = (
+        time_simulation.to_value(u.s)
+        * volume.to_value(u.cm**3)
+        * const.h.cgs.value
+    )
+    estimators = init_estimators_continuum(
+        plasma.photo_ion_estimator.shape, len(plasma.number_density.columns)
+    )
+    estimators.photo_ion_estimator[:] = (
+        np.asarray(plasma.photo_ion_estimator) * estimator_scale
+    )
+    estimators.stim_recomb_estimator[:] = (
+        np.asarray(plasma.stim_recomb_estimator) * estimator_scale
+    )
+    estimators.bf_heating_estimator[:] = np.asarray(plasma.bf_heating_coeff)
+    estimators.stim_recomb_cooling_estimator[:] = np.asarray(
+        plasma.stim_recomb_cooling_coeff
+    )
+    estimators.ff_heating_estimator[:] = np.asarray(plasma.ff_heating_estimator)
+
+    continuum_index = plasma.atomic_data.continuum_data.multi_index_nu_sorted
+    equilibrium_levels = plasma.atomic_data.levels.loc[
+        plasma.level_number_density.index
+    ]
+    level2continuum_edge_idx = pd.Series(
+        np.arange(len(continuum_index), dtype=np.int64),
+        index=continuum_index,
+        name="continuum_idx",
+    )
+    photoionization_data = (
+        plasma.atomic_data.continuum_data.photoionization_data
+    )
+    level_index = plasma.level_number_density.index
+    hydrogen_level_positions = np.flatnonzero(
+        (
+            level_index.get_level_values("atomic_number")
+            == plasma.nlte_species[0][0]
+        )
+        & (
+            level_index.get_level_values("ion_number")
+            == plasma.nlte_species[0][1]
+        )
+    )
+    population_geometries = tuple(
+        ShellNumberDensity(
+            plasma.number_density.loc[1, shell],
+            plasma.level_number_density[shell].to_numpy(dtype=np.float64),
+            hydrogen_level_positions,
+        )
+        for shell in plasma.number_density.columns
+    )
+
+    line_index = plasma.lines.index
+    line_species_index = line_index.droplevel(
+        ["level_number_lower", "level_number_upper"]
+    )
+    nlte_lines_mask = np.asarray(
+        line_species_index.isin(plasma.nlte_species), dtype=bool
+    )
+    time_explosion_seconds = plasma.time_explosion.to_value("s")
+    tau_coefficient = (
+        plasma.lines.wavelength_cm.to_numpy()
+        * plasma.lines.f_lu.to_numpy()
+        * SOBOLEV_COEFFICIENT
+        * time_explosion_seconds
+    )
+    sobolev_input = SobolevInputs(
+        plasma.lines_lower_level_index,
+        plasma.lines_upper_level_index,
+        plasma.g.iloc[plasma.lines_lower_level_index].to_numpy(),
+        plasma.g.iloc[plasma.lines_upper_level_index].to_numpy(),
+        plasma.metastability.iloc[plasma.lines_upper_level_index].to_numpy(),
+        nlte_lines_mask,
+        tau_coefficient,
+        np.arange(len(line_index), dtype=np.int64),
+        line_index,
+    )
+
+    collision_rate_solver = ThermalCollisionalRateSolver(
+        equilibrium_levels,
+        plasma.lines,
+        plasma.atomic_data.collision_data_temperatures,
+        plasma.atomic_data.yg_data,
+        collision_strengths_type="cmfgen",
+    )
+
+    rate_matrix = RateMatrix(
+        RadiativeRatesSolver(plasma.lines),
+        collision_rate_solver,
+        equilibrium_levels,
+    )
+
+    jblues_df = pd.DataFrame(
+        plasma.j_blues,
+        index=plasma.lines.index,
+        columns=plasma.number_density.columns,
+    )
+
+    sobolev_inputs_per_shell = tuple(
+        sobolev_input for _ in plasma.number_density.columns
+    )
+
+    estimated_photoion_rate_solver = EstimatedPhotoionizationRateSolver(
+        photoionization_data,
+        level2continuum_edge_idx,
+        estimators,
+        time_simulation,
+        volume,
+    )
+
+    coll_ion_rate_solver = CollisionalIonizationRateSolver(photoionization_data)
+
+    estimated_ion_rate_matrix = EstimatedIonRateMatrix(
+        estimated_photoion_rate_solver,
+        coll_ion_rate_solver,
+        plasma.phi,
+    )
+
+    ion_pop_solver = IonPopulationSolver(estimated_ion_rate_matrix)
+
+    bf_thermal_rates = BoundFreeThermalRates(photoionization_data)
+    ff_thermal_rates = FreeFreeThermalRates()
+    coll_ion_thermal_rates = CollisionalIonizationThermalRates(
+        photoionization_data
+    )
+    coll_bound_thermal_rates = CollisionalBoundThermalRates(
+        lines=pd.DataFrame({"nu": np.asarray(plasma.nu_lines_coll)})
+    )
+
+    thermal_balance_solver = ThermalBalanceSolver(
+        bf_thermal_rates,
+        ff_thermal_rates,
+        coll_ion_thermal_rates,
+        coll_bound_thermal_rates,
+    )
+
+    evaluator = PlasmaEquilibriumEvaluator(
+        photoionization_data,
+        level2continuum_edge_idx,
+        estimators,
+        time_simulation,
+        volume,
+        equilibrium_levels,
+        plasma.ionization_data,
+        rate_matrix,
+        jblues_df,
+        population_geometries,
+        sobolev_inputs_per_shell,
+        plasma.level_number_density.index,
+        plasma.nlte_species[0],
+        plasma.number_density,
+        maximum_electron_density,
+        ion_population_solver=ion_pop_solver,
+        ion_population_arguments={
+            "radiation_field": None,
+            "elemental_number_density": plasma.number_density,
+            "lte_level_population": plasma.lte_level_number_density,
+            "lte_ion_population": plasma.lte_ion_number_density,
+            "estimated_ion_population": plasma.ion_number_density,
+            "partition_function": plasma.partition_function,
+            "boltzmann_factor": plasma.level_boltzmann_factor,
+            "level_to_continuum_saha_factor": plasma.phi_lucy,
+        },
+        thermal_balance_solver=thermal_balance_solver,
+        thermal_balance_arguments={
+            "collisional_ionization_rate_coefficient": plasma.coll_ion_coeff,
+            "collisional_deexcitation_rate_coefficient": plasma.coll_deexc_coeff,
+            "collisional_excitation_rate_coefficient": plasma.coll_exc_coeff,
+            "free_free_heating_estimator": plasma.ff_heating_estimator,
+            "level_population_ratio": plasma.phi_lucy,
+            "bound_free_heating_estimator": plasma.bf_heating_coeff,
+            "stimulated_recombination_estimator": plasma.stim_recomb_cooling_coeff,
+        },
+        reference_electron_temperature=plasma.t_electrons * u.K,
+    )
+    expected_normalized_levels = plasma.level_number_density.loc[
+        plasma.nlte_species[0]
+    ].divide(plasma.ion_number_density.loc[plasma.nlte_species[0]], axis=1)
+
+    def calculate_iip_total_heating(
+        state: LegacyPlasmaArray,
+    ) -> npt.NDArray[np.float64]:
+        thermal_balance = state.outputs_dict["fractional_heating"]
+        photoionization_data = (
+            state.atomic_data.continuum_data.photoionization_data
+        )
+
+        total_heating_per_shell = np.array(
+            [
+                thermal_balance.heating_function(
+                    state.t_electrons[shell],
+                    state.ff_heating_estimator,
+                    state.bf_heating_coeff,
+                    state.stim_recomb_cooling_coeff,
+                    None,
+                    state.electron_densities,
+                    state.ion_number_density,
+                    state.level_number_density,
+                    state.excitation_energy,
+                    state.g,
+                    state.levels,
+                    state.ionization_data,
+                    photoionization_data,
+                    state.lines,
+                    shell,
+                    state.t_rad,
+                    state.w,
+                    state.time_explosion,
+                    state.b,
+                    state.previous_t_electrons,
+                    state.coll_exc_cooling,
+                    state.coll_deexc_heating,
+                    phi_lucy=state.phi_lucy[shell],
+                )[0]
+                for shell in shell_indices
+            ]
+        )
+
+        return total_heating_per_shell
+
+    result = evaluator.evaluate(
+        plasma.electron_densities.to_numpy(),
+        plasma.t_electrons,
+        expected_normalized_levels,
+    )
+
+    np.testing.assert_allclose(
+        result.normalized_population.loc[:, shell_indices].to_numpy(),
+        expected_normalized_levels.loc[:, shell_indices].to_numpy(),
+        rtol=3e-7,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        result.diagnostic_ion_ratio.loc[shell_indices].to_numpy(),
+        plasma.ion_ratio[shell_indices],
+        rtol=3e-7,
+        atol=0.0,
+    )
+    pd.testing.assert_frame_equal(
+        result.ion_population.loc[:, shell_indices],
+        plasma.ion_number_density.loc[:, shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    pd.testing.assert_series_equal(
+        result.charge_solved_electron_density.loc[shell_indices],
+        plasma.electron_densities.loc[shell_indices],
+        rtol=2e-8,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    pd.testing.assert_frame_equal(
+        result.absolute_level_population.loc[:, shell_indices],
+        plasma.level_number_density.loc[:, shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    np.testing.assert_allclose(
+        result.tau_sobolev.loc[:, shell_indices].to_numpy(),
+        plasma.tau_sobolevs.loc[:, shell_indices].to_numpy(),
+        rtol=1e-5,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        result.beta_sobolev.loc[:, shell_indices].to_numpy(),
+        plasma.beta_sobolev.loc[:, shell_indices].to_numpy(),
+        rtol=1e-5,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        result.fractional_heating.loc[shell_indices].to_numpy(),
+        plasma.fractional_heating[shell_indices],
+        rtol=0.0,
+        atol=2e-7,
+    )
+    np.testing.assert_allclose(
+        result.total_heating.loc[shell_indices].to_numpy(),
+        calculate_iip_total_heating(plasma),
+        rtol=0.0,
+        atol=5e-13,
+    )
+    np.testing.assert_allclose(
+        result.charge_residual.loc[shell_indices].to_numpy(),
+        np.zeros(len(shell_indices)),
+        atol=1e-10,
+    )
+    np.testing.assert_allclose(
+        result.electron_residual.loc[shell_indices].to_numpy(),
+        np.zeros(len(shell_indices)),
+        atol=2e-8,
+    )
+    np.testing.assert_allclose(
+        result.fractional_heating.loc[shell_indices].to_numpy(),
+        np.zeros(len(shell_indices)),
+        atol=2e-7,
+    )
+
+    off_root_candidate, off_root_maximum_density = thermal_balance_guess(
+        iip_plasma_after_mc
+    )
+    type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
+    type_iip_workflow._thermal_balance_evaluator = evaluator
+    type_iip_workflow._thermal_balance_radiation_temperature = np.asarray(
+        type_iip_workflow.plasma_solver.t_rad
+    ).copy()
+    type_iip_workflow._thermal_balance_level_initial_guess = (
+        expected_normalized_levels
+    )
+    actual_outer_residual = type_iip_workflow.thermal_balance_iteration(
+        off_root_candidate, off_root_maximum_density
+    )
+    off_root_result = evaluator.evaluate(
+        off_root_candidate[::2] * off_root_maximum_density,
+        np.asarray(type_iip_workflow.plasma_solver.t_rad)
+        * off_root_candidate[1::2],
+        expected_normalized_levels,
+    )
+    type_iip_workflow._update_plasma_with_legacy_thermal_balance_state(
+        off_root_candidate, off_root_maximum_density
+    )
+    off_root_plasma = type_iip_workflow.plasma_solver
+    pd.testing.assert_frame_equal(
+        off_root_result.ion_population.loc[:, shell_indices],
+        off_root_plasma.ion_number_density.loc[:, shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    pd.testing.assert_series_equal(
+        off_root_result.charge_solved_electron_density.loc[shell_indices],
+        off_root_plasma.electron_densities.loc[shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+        check_dtype=False,
+        check_names=False,
+    )
+    np.testing.assert_allclose(
+        off_root_result.charge_residual.loc[shell_indices].to_numpy(),
+        np.zeros(len(shell_indices)),
+        atol=1e-10,
+    )
+    np.testing.assert_allclose(
+        off_root_result.electron_residual.loc[shell_indices].to_numpy(),
+        actual_outer_residual[::2][shell_indices],
+        rtol=1e-5,
+        atol=1e-10,
+    )
+    np.testing.assert_allclose(
+        off_root_result.fractional_heating.loc[shell_indices].to_numpy(),
+        actual_outer_residual[1::2][shell_indices],
+        rtol=1e-5,
+        atol=0.0,
+    )
+    np.testing.assert_allclose(
+        off_root_result.total_heating.loc[shell_indices].to_numpy(),
+        calculate_iip_total_heating(off_root_plasma),
+        rtol=1e-5,
+        atol=0.0,
+    )
+
+
+def test_standard_thermal_rates_match_iip_plasma_after_mc(
+    iip_plasma_after_mc: LegacyPlasmaArray,
+) -> None:
+    """Compare each standard thermal rate with the IIP plasma value."""
+    photoionization_data = (
+        iip_plasma_after_mc.atomic_data.continuum_data.photoionization_data
+    )
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        iip_plasma_after_mc.t_electrons * u.K,
+        iip_plasma_after_mc.electron_densities.to_numpy() * u.cm**-3,
+    )
+    bound_free_solver = BoundFreeThermalRates(photoionization_data)
+    free_free_solver = FreeFreeThermalRates()
+    collisional_ionization_solver = CollisionalIonizationThermalRates(
+        photoionization_data
+    )
+    collisional_bound_solver = CollisionalBoundThermalRates(
+        pd.DataFrame({"nu": np.asarray(iip_plasma_after_mc.nu_lines_coll)})
+    )
+
+    standard_rates = {
+        "bound_free": bound_free_solver.solve(
+            iip_plasma_after_mc.level_number_density,
+            iip_plasma_after_mc.ion_number_density,
+            electron_distribution,
+            iip_plasma_after_mc.phi_lucy,
+            bound_free_heating_estimator=iip_plasma_after_mc.bf_heating_coeff,
+            stimulated_recombination_estimator=(
+                iip_plasma_after_mc.stim_recomb_cooling_coeff
+            ),
+        ),
+        "free_free": free_free_solver.solve(
+            iip_plasma_after_mc.ff_heating_estimator,
+            electron_distribution,
+            iip_plasma_after_mc.ion_number_density,
+        ),
+        "collisional_ionization": collisional_ionization_solver.solve(
+            electron_distribution.number_density,
+            iip_plasma_after_mc.ion_number_density,
+            iip_plasma_after_mc.level_number_density,
+            iip_plasma_after_mc.coll_ion_coeff,
+            iip_plasma_after_mc.phi_lucy,
+        ),
+        "collisional_bound": collisional_bound_solver.solve(
+            electron_distribution.number_density,
+            iip_plasma_after_mc.coll_deexc_coeff,
+            iip_plasma_after_mc.coll_exc_coeff,
+            iip_plasma_after_mc.level_number_density,
+        ),
+    }
+
+    thermal_balance = iip_plasma_after_mc.outputs_dict["fractional_heating"]
+    legacy_rates = {
+        name: np.empty((2, len(iip_plasma_after_mc.t_electrons)))
+        for name in standard_rates
+    }
+    for shell, temperature in enumerate(iip_plasma_after_mc.t_electrons):
+        legacy_rates["bound_free"][:, shell] = (
+            thermal_balance._calculate_bf_heating_rate(
+                iip_plasma_after_mc.bf_heating_coeff,
+                iip_plasma_after_mc.level_number_density,
+                shell,
+                temperature,
+                photoionization_data,
+                iip_plasma_after_mc.b,
+                iip_plasma_after_mc.previous_t_electrons,
+            ),
+            thermal_balance._calculate_fb_cooling_rate(
+                temperature,
+                iip_plasma_after_mc.stim_recomb_cooling_coeff,
+                iip_plasma_after_mc.phi_lucy[shell],
+                iip_plasma_after_mc.electron_densities,
+                iip_plasma_after_mc.ion_number_density,
+                photoionization_data,
+                shell,
+            )[0],
+        )
+        legacy_rates["free_free"][:, shell] = (
+            thermal_balance._calculate_ff_heating_balance(
+                temperature,
+                iip_plasma_after_mc.ff_heating_estimator,
+                iip_plasma_after_mc.electron_densities,
+                iip_plasma_after_mc.ion_number_density,
+                shell,
+            )
+        )
+        legacy_rates["collisional_ionization"][:, shell] = (
+            thermal_balance._calculate_coll_ion_heating_balance(
+                temperature,
+                photoionization_data,
+                iip_plasma_after_mc.phi_lucy[shell],
+                iip_plasma_after_mc.electron_densities,
+                iip_plasma_after_mc.level_number_density,
+                iip_plasma_after_mc.ion_number_density,
+                shell,
+            )
+        )
+        legacy_rates["collisional_bound"][:, shell] = (
+            iip_plasma_after_mc.coll_deexc_heating[shell],
+            iip_plasma_after_mc.coll_exc_cooling[shell],
+        )
+
+    for process, (heating, cooling) in standard_rates.items():
+        relative_tolerance = {
+            "bound_free": 2e-6,
+            "collisional_ionization": 1e-7,
+            "collisional_bound": 1e-7,
+        }.get(process, 1e-12)
+        np.testing.assert_allclose(
+            np.vstack([heating, cooling]),
+            legacy_rates[process],
+            rtol=relative_tolerance,
+            atol=0.0,
+            err_msg=f"{process} thermal rates differ",
+        )
+
+    standard_total = ThermalBalanceSolver(
+        bound_free_solver,
+        free_free_solver,
+        collisional_ionization_solver,
+        collisional_bound_solver,
+    ).solve(
+        electron_distribution,
+        iip_plasma_after_mc.level_number_density,
+        iip_plasma_after_mc.ion_number_density,
+        iip_plasma_after_mc.coll_ion_coeff,
+        iip_plasma_after_mc.coll_deexc_coeff,
+        iip_plasma_after_mc.coll_exc_coeff,
+        iip_plasma_after_mc.ff_heating_estimator,
+        iip_plasma_after_mc.phi_lucy,
+        bound_free_heating_estimator=iip_plasma_after_mc.bf_heating_coeff,
+        stimulated_recombination_estimator=(
+            iip_plasma_after_mc.stim_recomb_cooling_coeff
+        ),
+    )
+    legacy_heating = sum(rates[0] for rates in legacy_rates.values())
+    legacy_cooling = sum(rates[1] for rates in legacy_rates.values())
+    np.testing.assert_allclose(
+        np.vstack(standard_total),
+        np.vstack(
+            [
+                legacy_heating - legacy_cooling,
+                iip_plasma_after_mc.fractional_heating,
+            ]
+        ),
+        rtol=3e-6,
+        atol=0.0,
+    )
+
+
+def test_thermal_balance_solver(
+    iip_regression_path,
+    type_iip_workflow,
+    iip_plasma_after_mc,
+    regression_data,
+):
+
+    type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
+    initial_guess, max_electron_number_density = thermal_balance_guess(
+        type_iip_workflow.plasma_solver
+    )
+    type_iip_workflow._initialize_thermal_balance_evaluator(
+        max_electron_number_density
+    )
+    initial_residual = type_iip_workflow.thermal_balance_iteration(
+        initial_guess,
+        max_electron_number_density,
+    )
+    assert_regression_dataframe(
+        regression_data,
+        "thermal_balance_iteration_initial_residual",
+        initial_residual,
+        rtol=1e-5,  # Established standard-to-legacy residual parity.
+        atol=3e-11,  # Electron residuals are cancellation-limited near zero.
+    )
+
+    type_iip_workflow.plasma_solver = iip_plasma_after_mc
+    type_iip_workflow.solve_thermal_balance()
+    final_evaluation = type_iip_workflow._thermal_balance_evaluation
+    np.testing.assert_allclose(
+        final_evaluation.normalized_population.sum(axis=0),
+        1.0,
+        rtol=1e-12,
+    )
+    assert (final_evaluation.normalized_population >= 0.0).all().all()
+    np.testing.assert_allclose(
+        final_evaluation.trial_level_residual, 0.0, atol=1e-10
+    )
+    np.testing.assert_allclose(final_evaluation.level_residual, 0.0, atol=1e-10)
+    np.testing.assert_allclose(
+        final_evaluation.electron_residual, 0.0, atol=2e-8
+    )
+    np.testing.assert_allclose(
+        final_evaluation.fractional_heating, 0.0, atol=2e-7
+    )
+    np.testing.assert_allclose(
+        final_evaluation.charge_residual, 0.0, atol=1e-10
+    )
+
+    tau_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_tau_sobolevs_after_tb.h5",
+        key="data",
+    )
+
+    beta_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_beta_sobolevs_after_tb.h5",
+        key="data",
+    )
+    ion_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_ion_density_after_tb.h5",
+        key="data",
+    )
+    level_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_level_number_density_after_tb.h5",
+        key="data",
+    )
+    transition_probabilities_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_transition_probabilities_after_tb.h5",
+        key="data",
+    )
+
+    print(
+        "after thermal balance transition_probabilities max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.transition_probabilities,
+                transition_probabilities_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        type_iip_workflow.plasma_solver.transition_probabilities,
+        transition_probabilities_ctardis,
+        rtol=7e-7,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    print(
+        "after thermal balance ion_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.ion_number_density,
+                ion_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        type_iip_workflow.plasma_solver.ion_number_density,
+        ion_number_density_ctardis,
+        rtol=6e-7,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    # Sobolev values are stored differently between codes, so comparing raw data instead
+    print(
+        "after thermal balance tau_sobolevs max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.tau_sobolevs,
+                tau_sobolevs_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        type_iip_workflow.plasma_solver.tau_sobolevs.values,
+        tau_sobolevs_ctardis.values,
+        rtol=7e-7,
+        atol=0,
+    )
+
+    print(
+        "after thermal balance beta_sobolev max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.beta_sobolev,
+                beta_sobolevs_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        type_iip_workflow.plasma_solver.beta_sobolev.values,
+        beta_sobolevs_ctardis.values,
+        rtol=7e-7,
+        atol=0,
+    )
+
+    print(
+        "after thermal balance level_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.level_number_density,
+                level_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        type_iip_workflow.plasma_solver.level_number_density,
+        level_number_density_ctardis,
+        rtol=6e-7,
+        atol=0,
+        check_dtype=False,
+        check_names=False,
+    )
+
+    assert_regression_dataframe(
+        regression_data,
+        "after_thermal_balance_fractional_heating",
+        iip_plasma_after_mc.fractional_heating,
+        atol=2e-7,  # Legacy publication at the standard accepted root.
+    )
+
+    regression_tolerances = {
+        # Measured maxima are 1.29e-7--4.62e-7 for these legacy outputs.
+        "t_electrons": 3e-7,
+        "link_t_rad_t_electron": 3e-7,
+        "p_fb_deactivation": 2e-7,
+        "chi_bf": 6e-7,
+        "sp_fb_cooling_rates": 4e-7,
+        "stimulated_emission_factor": 5e-7,
+        "ion_ratio": 4e-7,
+        # The departure coefficient is the sole output requiring the full
+        # standard-to-legacy parity tolerance (measured maximum 5.168e-6).
+        "b": 1e-5,
+    }
+    for attr in PLASMA_SOLVER_REGRESSION_OUTPUTS:
+        assert_regression_dataframe(
+            regression_data,
+            f"after_thermal_balance_{attr}",
+            getattr(type_iip_workflow.plasma_solver, attr),
+            rtol=regression_tolerances.get(attr, 3e-11),
+        )
+
+    final_guess, max_electron_number_density = thermal_balance_guess(
+        type_iip_workflow.plasma_solver
+    )
+    residual = type_iip_workflow.thermal_balance_iteration(
+        final_guess,
+        max_electron_number_density,
+    )
+    residual_frame = pd.DataFrame({"value": residual})
+    expected_residual = regression_data.sync_dataframe(
+        residual_frame, key="thermal_balance_iteration_residual"
+    )["value"].to_numpy()
+    np.testing.assert_allclose(
+        residual[::2],
+        expected_residual[::2],
+        rtol=1e-5,
+        atol=2e-8,
+    )
+    np.testing.assert_allclose(
+        residual[1::2],
+        expected_residual[1::2],
+        rtol=1e-5,
+        atol=2e-7,  # Legacy-published and standard roots differ slightly.
+    )
+
+
+@pytest.mark.xfail  # JOSH: This test fails because I disabled diagonalize_ma() in the BaseContinuum object to handle multi-element sims
+def test_solve_continuum_state_after_nlte_init(
+    iip_regression_path, type_iip_workflow, iip_plasma_nlte_init
+):
+    type_iip_workflow.plasma_solver = iip_plasma_nlte_init
+    type_iip_workflow.solve_continuum_state(None)
+
+    recombination_probabilities_ctardis = pd.read_hdf(
+        iip_regression_path / "continuum_recomb_transition_prob_init_nlte.h5",
+        key="data",
+    )
+
+    pd.testing.assert_frame_equal(
+        type_iip_workflow.base_continuum.recombination_transition_probabilities.dataframe,
+        recombination_probabilities_ctardis,
+        rtol=4e-3,
+    )
+
+
+def test_solve_montecarlo(type_iip_workflow, regression_data):
+    opacity_states = type_iip_workflow.solve_opacity()
+    type_iip_workflow.solve_montecarlo(opacity_states, 1000)
+
+    type_iip_workflow.initialize_spectrum_solver()
+    real_packets = type_iip_workflow.spectrum_solver.spectrum_real_packets
+    expected_lum_dens = regression_data.sync_ndarray(
+        real_packets.luminosity_density_lambda.value
+    )
+
+    np.testing.assert_allclose(
+        real_packets.luminosity_density_lambda.value,
+        expected_lum_dens,
+        atol=0,
+        rtol=1e-12,
+    )
+
+
+def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
+    tardis_regression_path: Path,
+) -> None:
+    config = Configuration.from_yaml(
+        "tardis/workflows/tests/data/iip_population_cutoff.yml"
+    )
+    config.atom_data = (
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+    workflow = TypeIIPWorkflow(config)
+    workflow.show_progress_bars = False
+
+    plasma_solver = workflow.plasma_solver
+    # The reported outer shells hit the 1500 K thermal-balance floor before
+    # their second opacity solve. Force that state directly so this regression
+    # does not need the slow least-squares thermal solve.
+    forced_t_electrons = np.full(
+        workflow.simulation_state.geometry.no_of_shells_active, 1500.0
+    )
+    plasma_solver.update(
+        previous_ion_number_density=plasma_solver.ion_number_density.copy(),
+        previous_electron_densities=plasma_solver.electron_densities.values,
+        previous_beta_sobolev=plasma_solver.beta_sobolev.copy(),
+        link_t_rad_t_electron=forced_t_electrons / plasma_solver.t_rad,
+        previous_b=plasma_solver.b,
+        previous_t_electrons=forced_t_electrons,
+    )
+    assert plasma_solver.lte_ion_number_density.loc[(1, 1)].iloc[-1] == 0.0
+
+    workflow.completed_iterations = 1
+    second_iteration_opacity_states = workflow.solve_opacity()
+
+    continuum_state = second_iteration_opacity_states[
+        "opacity_state"
+    ].continuum_state
+    assert np.isfinite(continuum_state.chi_bf.values).all()
+    assert np.isfinite(continuum_state.p_fb_deactivation.values).all()
+    assert np.isfinite(continuum_state.emissivities.values).all()
+    workflow.solve_montecarlo(second_iteration_opacity_states, 10)
+    assert len(workflow.transport_state.packet_collection.output_energies) == 10

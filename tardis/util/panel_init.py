@@ -1,6 +1,7 @@
 import panel as pn
 from tardis.util.environment import Environment
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -11,23 +12,23 @@ preferred_mode = None
 
 def ssh_jh():
     """Initialize panel for JupyterHub (colab comms)"""
-    print("Initializing panel with ipywidgets comms for JupyterHub")
     pn.extension(comms="ipywidgets")
 
 def notebook():
     """Initialize panel for standard Jupyter notebook (default comms)"""
-    print("Initializing panel with ipywidgets comms for Jupyter notebook")
     pn.extension(comms="ipywidgets")
 
 def vscode():
     """Initialize panel for VSCode (ipywidgets comms)"""
-    print("Initializing panel with ipywidgets comms for VSCode")
     pn.extension(comms="ipywidgets")
 
 def vscode_noipy():
     """Initialize panel for VSCode without ipywidgets (vscode comms)"""
-    print("Initializing panel with vscode comms for VSCode (no ipywidgets)")
     pn.extension(comms="vscode")
+
+def sphinx():
+    """Initialize panel for Sphinx documentation builds"""
+    pn.extension("ipywidgets")
 
 def auto():
     """Auto-detect environment and initialize panel"""
@@ -50,7 +51,10 @@ def auto():
     elif Environment.is_notebook():
         print("Auto-detected Jupyter notebook environment")
         notebook()
+    elif Environment.is_sphinx():
+        print("Auto-detected Sphinx build environment")
+        sphinx()
     else:
         print("Defaulting to default panel comms.")
-        notebook()
+        pn.extension()
 

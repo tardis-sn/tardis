@@ -21,8 +21,8 @@ stars (*supernovae*).
 .. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/tardis-sn/tardis
 
-.. image:: https://github.com/tardis-sn/tardis/actions/workflows/docstr-cov.yml/badge.svg
-    :target: https://github.com/tardis-sn/tardis/actions/workflows/docstr-cov.yml
+.. image:: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml/badge.svg
+    :target: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml
 
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml/badge.svg
     :target: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml
@@ -30,8 +30,8 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
-.. image:: https://img.shields.io/badge/benchmarks-passing-green
-    :target: https://github.com/tardis-sn/tardis/actions/workflows/benchmarks.yml
+.. image:: https://github.com/tardis-sn/tardis/actions/workflows/benchmarks.yml/badge.svg
+    :target: https://tardis-sn.github.io/tardis-benchmarks/
 
 .. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/_static/ruff_badge.json
     :target: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml

@@ -1,31 +1,36 @@
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.parse_packet_source_configuration import (
     initialize_packet_source,
 )
 from tardis.model import SimulationState
+from tardis.transport.montecarlo.packet_source.base import BasePacketSource
 
 
 def parse_simulation_state(
-    config, packet_source, enable_legacy_mode, kwargs, atom_data
-):
-    """
-    Initialize the simulation state.
+    config: Configuration,
+    packet_source: BasePacketSource | None,
+    enable_legacy_mode: bool,
+    kwargs: dict,
+    atom_data,
+) -> SimulationState:
+    """Initialize the simulation state.
 
     Parameters
     ----------
-    config : object
+    config
         The configuration object for the simulation.
-    packet_source : object
+    packet_source
         The packet source for the simulation.
-    legacy_mode_enabled : bool
+    enable_legacy_mode
         Flag indicating if legacy mode is enabled.
-    kwargs : dict
+    kwargs
         Additional keyword arguments.
-    atom_data : object
+    atom_data
         The atom data for the simulation.
 
     Returns
     -------
-    object
+    simulation_state
         The initialized simulation state.
     """
     if "model" in kwargs:
@@ -33,9 +38,7 @@ def parse_simulation_state(
     else:
         if hasattr(config, "csvy_model"):
             simulation_state = SimulationState.from_csvy(
-                config,
-                atom_data=atom_data,
-                legacy_mode_enabled=enable_legacy_mode,
+                config, legacy_mode_enabled=enable_legacy_mode
             )
         else:
             simulation_state = SimulationState.from_config(

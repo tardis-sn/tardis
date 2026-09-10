@@ -16,7 +16,7 @@ runs:
   using: "composite"
   steps:
     - name: Clone tardis-sn/tardis-regression-data
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: tardis-sn/tardis-regression-data
         path: tardis-regression-data
@@ -36,7 +36,7 @@ runs:
       shell: bash
     
     - name: Restore LFS cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       id: lfs-cache-regression-data
       with:
         path: tardis-regression-data/.git/lfs

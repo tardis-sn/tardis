@@ -4,10 +4,11 @@ import numpy as np
 import pandas as pd
 from scipy import sparse as sp
 
-from tardis.plasma.properties.base import ProcessingPlasmaProperty
-from tardis.plasma.properties.continuum_processes.rates import (
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.plasma.array_util import (
     get_ground_state_multi_index,
 )
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
 )
@@ -250,8 +251,8 @@ class MarkovChainTransProbs(
             N[column] = N1
             B[column] = B1
             R[column] = R1
-        N = N.sort_index()
-        B = B.sort_index()
+        N = N.sort_index(kind=SORTING_ALGORITHM)
+        B = B.sort_index(kind=SORTING_ALGORITHM)
         return N, R, B, p_deactivation
 
 
@@ -261,7 +262,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         "level_absorption_probs",
         "deactivation_channel_probs",
         "transition_probabilities",
-        "macro_block_references",
+        "macro_block_edge_index",
         "macro_atom_data",
     )
     """
@@ -271,7 +272,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
     level_absorption_probs
     deactivation_channel_probs
     transition_probabilities
-    macro_block_references
+    macro_block_edge_index
     macro_atom_data
     """
 
@@ -395,7 +396,9 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
                 non_continuum_trans_probs,
             ]
         )
-        combined_trans_probs = combined_trans_probs.sort_index()
+        combined_trans_probs = combined_trans_probs.sort_index(
+            kind=SORTING_ALGORITHM
+        )
 
         block_references = (
             combined_trans_probs[0].groupby("source_level_idx").count().cumsum()

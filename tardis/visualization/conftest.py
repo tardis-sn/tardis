@@ -1,8 +1,13 @@
+from copy import deepcopy
+
 import pytest
+
 from tardis.base import run_tardis
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
+
 
 @pytest.fixture(scope="module")
-def simulation_simple(config_verysimple, atomic_dataset, atomic_data_fname):
+def simulation_simple_tracked(config_verysimple, atomic_data_fname):
     """
     Instantiate SDEC plotter using a simple simulation model.
 
@@ -10,7 +15,7 @@ def simulation_simple(config_verysimple, atomic_dataset, atomic_data_fname):
     ----------
     config_verysimple : tardis.io.config_reader.Configuration
         Configuration object for a very simple simulation.
-    atomic_dataset : str or tardis.atomic.AtomData
+    atomic_data_fname : pathlib.Path
         Atomic data.
 
     Returns
@@ -27,10 +32,26 @@ def simulation_simple(config_verysimple, atomic_dataset, atomic_data_fname):
     config_verysimple.montecarlo.no_of_virtual_packets = 1
     config_verysimple.spectrum.num = 2000
     config_verysimple.atom_data = atomic_data_fname
-    
+    config_verysimple.montecarlo.tracking.track_rpacket = True
     sim = run_tardis(
         config_verysimple,
         show_convergence_plots=False,
         log_level="CRITICAl",
     )
     return sim
+
+@pytest.fixture(scope="class")
+def workflow_simple_tracked(config_verysimple, atomic_data_fname):
+    config = deepcopy(config_verysimple)
+    config.atom_data = atomic_data_fname
+    config.montecarlo.iterations = 3
+    config.montecarlo.no_of_packets = 4000
+    config.montecarlo.last_no_of_packets = -1
+    config.spectrum.virtual.virtual_packet_logging = True
+    config.montecarlo.no_of_virtual_packets = 1
+    config.spectrum.num = 2000
+    config.montecarlo.tracking.track_rpacket = True
+
+    workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
+    workflow.run()
+    return workflow

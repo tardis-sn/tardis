@@ -4,6 +4,7 @@ import radioactivedecay as rd
 from astropy import units as u
 from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.model.matter.decay import IsotopicMassFraction
 
 
@@ -34,7 +35,7 @@ def compile_rd_isotope_masses():
     )
     isotope_masses = pd.Series(
         index=isotope_mass_index, data=nuclide_masses
-    ).sort_index()
+    ).sort_index(kind=SORTING_ALGORITHM)
     # there are duplicates that are likely due to excited states
     # dropping them for now
 
@@ -67,21 +68,24 @@ class Composition:
 
     def __init__(self, density, nuclide_mass_fraction):
         self.density = density
-        assert np.all(
-            nuclide_mass_fraction.values >= 0
-        ), "Negative mass fraction detected"
+        assert np.all(nuclide_mass_fraction.values >= 0), (
+            "Negative mass fraction detected"
+        )
         self.nuclide_mass_fraction = nuclide_mass_fraction
 
         self.isotope_masses = self.assemble_isotope_masses()
 
-    def assemble_isotope_masses(self):
-        isotope_mass_df = pd.Series(
-            index=self.isotopic_mass_fraction.index, data=-1, dtype="float64"
+    def assemble_isotope_masses(self) -> pd.DataFrame:
+        isotopic_mass_fraction = self.isotopic_mass_fraction
+        isotope_mass_df = pd.DataFrame(
+            index=isotopic_mass_fraction.index,
+            columns=isotopic_mass_fraction.columns,
+            dtype="float64",
         )
-        for isotope_tuple in self.isotopic_mass_fraction.index:
+        for isotope_tuple in isotopic_mass_fraction.index:
             isotope_symbol = int("{:03d}{:03d}0000".format(*isotope_tuple))
             isotope_mass = rd.Nuclide(isotope_symbol).atomic_mass * u.u.to(u.g)
-            isotope_mass_df[isotope_tuple] = isotope_mass
+            isotope_mass_df.loc[isotope_tuple, :] = isotope_mass
 
         return isotope_mass_df
 
@@ -107,13 +111,17 @@ class Composition:
         effective_element_masses = self.nuclide_mass_fraction[
             self.nuclide_mass_fraction.index.get_level_values(1) == -1
         ].copy()
-        effective_element_masses.index = effective_element_masses.index.droplevel(1)
+        effective_element_masses.index = (
+            effective_element_masses.index.droplevel(1)
+        )
         for col in effective_element_masses.columns:
             effective_element_masses[col] = element_masses.loc[
                 effective_element_masses.index
             ]
 
-        current_isotope_masses = ISOTOPE_MASSES.loc[self.isotopic_mass_fraction.index]
+        current_isotope_masses = ISOTOPE_MASSES.loc[
+            self.isotopic_mass_fraction.index
+        ]
         contributing_isotope_masses = (
             self.isotopic_mass_fraction.multiply(current_isotope_masses, axis=0)
             .groupby(level=0)
@@ -145,10 +153,7 @@ class Composition:
         """Isotopic Number Density computed using the formula: (isotopic_mass_fraction * density) / atomic mass"""
         return (
             self.isotopic_mass_fraction * self.density.to(u.g / u.cm**3).value
-        ).divide(
-            ISOTOPE_MASSES.loc[self.isotopic_mass_fraction.index] * u.u.to(u.g),
-            axis=0,
-        )
+        ).divide(self.isotope_masses, axis=0)
 
     def calculate_mass_fraction_at_time(self, time_explosion):
         """
@@ -170,10 +175,9 @@ class Composition:
         """
         if self.isotopic_mass_fraction.empty:
             return self.elemental_mass_fraction
-        else:
-            return self.isotopic_mass_fraction.calculate_decayed_mass_fractions(
-                time_explosion
-            )
+        return self.isotopic_mass_fraction.calculate_decayed_mass_fractions(
+            time_explosion
+        )
 
     def calculate_elemental_cell_masses(self, volume):
         """
@@ -193,7 +197,9 @@ class Composition:
         --------
         >>> composition.calculate_cell_masses(10 * u.cm**3)
         """
-        return self.elemental_mass_fraction * (self.density * volume).to(u.g).value
+        return (
+            self.elemental_mass_fraction * (self.density * volume).to(u.g).value
+        )
 
     def calculate_cell_masses(self, volume):
         """

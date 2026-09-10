@@ -110,9 +110,9 @@ class TestCustomAbundanceWidget:
     @pytest.mark.parametrize(
         "v0, v1, expected",
         [
-            (11000, 11450, "hidden"),
-            (11100, 11200, "hidden"),
-            (11000, 11451, "visible"),
+            (11000, 11450, False),
+            (11100, 11200, False),
+            (11000, 11451, True),
         ],
     )
     def test_overwrite_existing_shells(self, caw, v0, v1, expected):
@@ -122,7 +122,7 @@ class TestCustomAbundanceWidget:
         caw.input_v_start.value = v0
         caw.input_v_end.value = v1
 
-        assert caw.overwrite_warning.layout.visibility == expected
+        assert caw.overwrite_warning.visible == expected
 
     @pytest.mark.skip(
         reason="Problem with cutting model in restructure. See TARDIS issue 2390"
@@ -204,7 +204,7 @@ class TestCustomAbundanceWidget:
         expected : list
         """
         if multishell_edit:
-            caw.rbs_multi_apply.index = 0
+            caw.rbs_shell_edit_mode.value = ["A range of shells: "]
             for i, item in enumerate(caw.input_items):
                 item.value = inputs[i]
                 caw.checks[i].value = locks[i]

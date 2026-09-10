@@ -29,6 +29,9 @@ import sys
 import datetime
 import tardis  # FIXME: this import is required by astropy.constants
 
+# Set environment variable for TARDIS sphinx builds
+os.environ["TARDIS_SPHINX_BUILD"] = "1"
+
 from importlib import import_module
 import toml
 from pathlib import Path
@@ -44,12 +47,12 @@ except ImportError:
 # Get configuration information from pyproject.toml
 toml_conf_path = Path(__file__).parent.parent / "pyproject.toml"
 
-with open(toml_conf_path, 'r') as f_toml:
+with open(toml_conf_path, "r") as f_toml:
     toml_config = toml.load(f_toml)
 toml_config_project_dict = toml_config["project"]
-toml_config_tool_dict = toml_config['tool']
-for k,v in toml_config_project_dict.items():
-    print(k,v)
+toml_config_tool_dict = toml_config["tool"]
+for k, v in toml_config_project_dict.items():
+    print(k, v)
 
 # -- General configuration ----------------------------------------------------
 
@@ -70,6 +73,7 @@ exclude_patterns.append("_build")
 exclude_patterns.append("**_template.rst")
 exclude_patterns.append("**.ipynb_checkpoints")
 exclude_patterns.append("resources/research_done_using_TARDIS/ads.ipynb")
+exclude_patterns.append("how_to/output/how_to_to_hdf.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
@@ -99,7 +103,7 @@ intersphinx_mapping = {
     "python": ("http://docs.python.org/", None),
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
     "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
-    "matplotlib": ("http://matplotlib.sourceforge.net/", None),
+    "matplotlib": ("http://matplotlib.org/", None),
     "astropy": ("http://docs.astropy.org/en/stable/", None),
     "h5py": ("http://docs.h5py.org/en/latest/", None),
     "pandas": ("http://pandas.pydata.org/pandas-docs/dev/", None),
@@ -135,7 +139,12 @@ nbsphinx_execute_arguments = [
 ]
 
 nbsphinx_prolog = r"""
-{% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
+{% set docpath = env.doc2path(env.docname, base=None) %}
+{% if docpath is string %}
+{% set docname = 'docs/' + docpath %}
+{% else %}
+{% set docname = 'docs/' + docpath.as_posix() %}
+{% endif %}
 .. raw:: html
     
     <style>
@@ -214,12 +223,6 @@ release = package.__version__
 # global configuration are listed below, commented out.
 
 
-# Add any paths that contain custom themes here, relative to this directory.
-# To use a different custom theme, add the directory containing the theme.
-import sphinx_rtd_theme
-
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes. To override the custom theme, set this to the
 # name of a builtin theme or the name of a custom theme in html_theme_path.
@@ -230,6 +233,9 @@ html_theme_options = {
     #    "logotext1": "tardis",  # white,  semi-bold
     #    "logotext2": "",  # orange, light
     #    "logotext3": ":docs"   # white,  light
+    "collapse_navigation": False,
+    "navigation_depth": -1,
+    "titles_only": False,
 }
 
 
@@ -265,8 +271,8 @@ modindex_common_prefix = ["tardis."]
 # -- Google Analytics Using Extension -------------------------------------------------
 
 if os.getenv("GITHUB_ACTIONS"):
-  extensions.append("sphinxcontrib.googleanalytics")
-  googleanalytics_id = "G-53HJHD1BWS"
+    extensions.append("sphinxcontrib.googleanalytics")
+    googleanalytics_id = "G-53HJHD1BWS"
 
 # -- Options for LaTeX output -------------------------------------------------
 
@@ -288,8 +294,7 @@ man_pages = [
 
 # -- Options for the edit_on_github extension ---------------------------------
 
-if toml_config_tool_dict["tardis"]['edit_on_github'] == True:
-
+if toml_config_tool_dict["tardis"]["edit_on_github"] == True:
     extensions += ["sphinx_astropy.ext.edit_on_github"]
 
     edit_on_github_project = toml_config_project_dict["github_project"]
@@ -299,7 +304,7 @@ if toml_config_tool_dict["tardis"]['edit_on_github'] == True:
     edit_on_github_doc_root = "docs"
 
 # -- Resolving issue number to links in changelog -----------------------------
-github_issues_url = toml_config_project_dict['urls']['Issues']
+github_issues_url = toml_config_project_dict["urls"]["Issues"]
 
 # -- Options for linkcheck output -------------------------------------------
 linkcheck_retry = 5
@@ -314,7 +319,7 @@ from ipywidgets.embed import DEFAULT_EMBED_REQUIREJS_URL
 
 # https://panel.holoviz.org/how_to/wasm/sphinx.html#configuration
 nbsite_pyodide_conf = {
-     "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"
+    "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"
 }
 
 html_js_files = [
@@ -356,7 +361,6 @@ html_js_files = [
 # Only source files that convert to html like .rst, .ipynb, etc. are allowed
 
 redirects = [
-    ("using/gui/index.rst", "using/visualization/index.rst"),
 ]
 
 
@@ -380,20 +384,6 @@ def generate_tutorials_page(app):
     with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
-def generate_how_to_guides_page(app):
-    """Create how_to_guides.rst"""
-    notebooks = ""
-    io_path = Path("io")
-
-    for notebook in io_path.rglob("*.ipynb"):
-        if "how_to_" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.parent}/{notebook.stem}`"
-
-    title = "How-To Guides\n*********\n"
-    description = "The following pages contain the TARDIS how-to guides:"
-
-    with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
-        f.write(f"{title}\n{description}\n{notebooks}")
 
 def generate_worflows_page(app):
     "Create workflows.rst"
@@ -409,6 +399,7 @@ def generate_worflows_page(app):
 
     with open("workflows.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
+
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     """Exclude specific functions/methods from the documentation"""
@@ -427,7 +418,7 @@ def create_redirect_files(app, docname):
     template_html_path = Path(app.srcdir) / "_templates/redirect_file.html"
 
     if app.builder.name == "html":
-        for (old_fpath, new_fpath) in redirects:
+        for old_fpath, new_fpath in redirects:
             # Create a page redirection html file for old_fpath
             old_html_fpath = to_html_ext(Path(app.outdir) / old_fpath)
             old_html_fpath.parent.mkdir(parents=True, exist_ok=True)
@@ -453,7 +444,6 @@ def create_redirect_files(app, docname):
 
 def setup(app):
     app.connect("builder-inited", generate_tutorials_page)
-    app.connect("builder-inited", generate_how_to_guides_page)
     app.connect("builder-inited", generate_worflows_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)

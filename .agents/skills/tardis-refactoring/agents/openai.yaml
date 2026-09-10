@@ -1,0 +1,4 @@
+interface:
+  display_name: "TARDIS Refactoring"
+  short_description: "Refactor TARDIS without API constraints"
+  default_prompt: "Use $tardis-refactoring to improve this TARDIS design while preserving scientific behavior."

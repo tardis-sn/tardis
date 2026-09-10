@@ -1,8 +1,8 @@
 import astropy.constants as const
-from scipy.interpolate import interp1d
 import astropy.units as u
 import numpy as np
 from numba import njit
+from scipy.interpolate import interp1d
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
@@ -83,9 +83,9 @@ def sample_energy_distribution(energy_sorted, cdf):
     float
         Sampled energy
     """
-    index = np.searchsorted(cdf, np.random.random())
+    energy_idx = np.searchsorted(cdf, np.random.random())
 
-    return energy_sorted[index]
+    return energy_sorted[energy_idx]
 
 
 @njit(**njit_dict_no_parallel)
@@ -144,15 +144,19 @@ def sample_decay_time(
 
 
 class PositroniumSampler:
-    def __init__(self, n_grid=10000):
-        """
+    """Sample equal-energy packets from the ortho-positronium continuum."""
+
+    def __init__(self, n_grid: int = 10000) -> None:
+        """Initialize the energy-weighted sampling grid.
+
         Parameters
         ----------
         n_grid : int, optional
-            Number of grid points for the CDF, by default 1000
+            Number of grid points for the CDF, by default 10000
         """
         self.x_grid = np.linspace(1e-4, 0.9999, n_grid)
-        self.norm_pdf = self.pdf(self.x_grid) / np.trapz(self.pdf(self.x_grid), self.x_grid)
+        energy_pdf = self.x_grid * self.pdf(self.x_grid)
+        self.norm_pdf = energy_pdf / np.trapezoid(energy_pdf, self.x_grid)
         self.cdf_grid = np.cumsum(self.norm_pdf)
         self.cdf_grid /= self.cdf_grid[-1]
 
@@ -175,7 +179,7 @@ class PositroniumSampler:
         fourth_term = 2 * (1 - x) * np.log(1 - x) / x**2
 
         return 2 * (first_term - second_term + third_term + fourth_term)
-    
+
     def sample_energy(self, samples):
         """
         Returns
@@ -183,10 +187,18 @@ class PositroniumSampler:
         float
             Sampled positronium energy
         """
-        inverse_cdf = interp1d(self.cdf_grid, self.x_grid, bounds_error=False, fill_value="extrapolate")
+        inverse_cdf = interp1d(
+            self.cdf_grid,
+            self.x_grid,
+            bounds_error=False,
+            fill_value="extrapolate",
+        )
 
         z = np.random.random(samples)
         # converted to keV
-        return (inverse_cdf(z) * const.m_e.cgs.value 
-            * const.c.cgs.value**2 
-         * u.erg.to(u.keV))
+        return (
+            inverse_cdf(z)
+            * const.m_e.cgs.value
+            * const.c.cgs.value**2
+            * u.erg.to(u.keV)
+        )

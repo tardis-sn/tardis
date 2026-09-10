@@ -15,8 +15,6 @@ basic_inputs = PlasmaPropertyCollection(
         LinkTRadTElectron,
         HeliumTreatment,
         ContinuumInteractionSpecies,
-        NLTEIonizationSpecies,
-        NLTEExcitationSpecies,
     ]
 )
 basic_properties = PlasmaPropertyCollection(
@@ -34,6 +32,12 @@ basic_properties = PlasmaPropertyCollection(
         StimulatedEmissionFactor,
         SelectedAtoms,
         ElectronTemperature,
+        ThermalLevelBoltzmannFactorLTE,
+        ThermalLTEPartitionFunction,
+        BetaElectron,
+        ThermalGElectron,
+        ThermalPhiSahaLTE,
+        SahaFactor,
     ]
 )
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
@@ -54,12 +58,6 @@ nlte_properties = PlasmaPropertyCollection(
         PreviousBetaSobolev,
     ]
 )
-nlte_root_solver_properties = PlasmaPropertyCollection(
-    [NLTEIndexHelper, NLTEPopulationSolverRoot]
-)
-nlte_lu_solver_properties = PlasmaPropertyCollection(
-    [NLTEIndexHelper, NLTEPopulationSolverLU]
-)
 helium_nlte_properties = PlasmaPropertyCollection(
     [
         HeliumNLTE,
@@ -75,52 +73,4 @@ helium_lte_properties = PlasmaPropertyCollection(
 )
 helium_numerical_nlte_properties = PlasmaPropertyCollection(
     [HeliumNumericalNLTE]
-)
-continuum_interaction_inputs = PlasmaPropertyCollection(
-    [
-        PhotoIonRateCoeff,
-        StimRecombRateFactor,
-        BfHeatingRateCoeffEstimator,
-        StimRecombCoolingRateCoeffEstimator,
-        YgData,
-    ]
-)
-continuum_interaction_properties = PlasmaPropertyCollection(
-    [
-        StimRecombRateCoeff,
-        PhotoIonizationData,
-        SpontRecombRateCoeff,
-        ThermalLevelBoltzmannFactorLTE,
-        ThermalLTEPartitionFunction,
-        BetaElectron,
-        ThermalGElectron,
-        ThermalPhiSahaLTE,
-        SahaFactor,
-        CorrPhotoIonRateCoeff,
-        SpontRecombCoolingRateCoeff,
-        YgInterpolator,
-        CollExcRateCoeff,
-        CollDeexcRateCoeff,
-        RawCollisionTransProbs,
-        MarkovChainIndex,
-        FreeFreeCoolingRate,
-        FreeBoundCoolingRate,
-        LevelNumberDensityLTE,
-        PhotoIonBoltzmannFactor,
-        FreeBoundEmissionCDF,
-        LevelIdxs2LineIdx,
-        LevelIdxs2TransitionIdx,
-        CollIonRateCoeffSeaton,
-        CollRecombRateCoeff,
-        ContinuumInteractionHandler,
-    ]
-)
-adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
-two_photon_properties = PlasmaPropertyCollection(
-    [
-        RawTwoPhotonTransProbs,
-        TwoPhotonData,
-        TwoPhotonEmissionCDF,
-        TwoPhotonFrequencySampler,
-    ]
 )
