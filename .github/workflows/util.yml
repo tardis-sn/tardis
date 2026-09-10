@@ -10,7 +10,7 @@ on:
     types: [completed]
 
 jobs:
-  close-gsoc:
+  close-gsoc-pull-request:
     if: >
       github.event_name == 'pull_request_target' && (
       contains(github.event.pull_request.title, 'gsoc') ||
@@ -37,15 +37,15 @@ jobs:
 
       - run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY"
 
-  pull-request:
+  resolve-pull-request:
     if: github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
     outputs:
-      number: ${{ steps.found.outputs.matching-pr-count == '1' && steps.found.outputs.head-sha == github.event.workflow_run.head_sha && steps.found.outputs.number || '' }}
-      author: ${{ steps.found.outputs.author }}
-      association: ${{ steps.association.outputs.value }}
+      number: ${{ steps.find-workflow-run-pr.outputs.matching-pr-count == '1' && steps.find-workflow-run-pr.outputs.head-sha == github.event.workflow_run.head_sha && steps.find-workflow-run-pr.outputs.number || '' }}
+      login: ${{ steps.find-workflow-run-pr.outputs.author }}
+      association: ${{ steps.get-author-association.outputs.value }}
     steps:
-      - id: found
+      - id: find-workflow-run-pr
         uses: juliangruber/find-pull-request-action@v1
         with:
           github-token: ${{ github.token }}
@@ -53,34 +53,34 @@ jobs:
           base: master
           state: open
 
-      - id: association
-        if: steps.found.outputs.matching-pr-count == '1'
+      - id: get-author-association
+        if: steps.find-workflow-run-pr.outputs.matching-pr-count == '1'
         run: echo "value=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$NUMBER" --jq .author_association)" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
-          NUMBER: ${{ steps.found.outputs.number }}
+          NUMBER: ${{ steps.find-workflow-run-pr.outputs.number }}
 
-  close-no-mailmap:
-    needs: pull-request
-    if: needs.pull-request.outputs.number != '' && github.event.workflow_run.conclusion == 'failure'
+  close-missing-mailmap-entry:
+    needs: resolve-pull-request
+    if: needs.resolve-pull-request.outputs.number != '' && github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.BOT_TOKEN }}
-      NUMBER: ${{ needs.pull-request.outputs.number }}
+      NUMBER: ${{ needs.resolve-pull-request.outputs.number }}
     steps:
       - uses: peter-evans/find-comment@v3
-        id: closed
+        id: find-close-notice
         with:
-          issue-number: ${{ needs.pull-request.outputs.number }}
+          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
           body-includes: we are assuming this is a Google Summer of Code pull request
 
-      - if: steps.closed.outputs.comment-id == ''
+      - if: steps.find-close-notice.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ needs.pull-request.outputs.number }}
+          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
           body: |
-            👋 Welcome @${{ needs.pull-request.outputs.author }}! Thank you for your first contribution to this repository!
+            👋 Welcome @${{ needs.resolve-pull-request.outputs.login }}! Thank you for your first contribution to this repository!
 
             Since this pull request doesn't add your entry to `.mailmap`, we are assuming this is a Google Summer of Code pull request and hence closing it.
 
@@ -88,30 +88,30 @@ jobs:
 
             If you are planning to apply to the program please keep it closed, we don't have the capacity to review GSoC pull requests at the moment.
 
-      - if: steps.closed.outputs.comment-id == ''
+      - if: steps.find-close-notice.outputs.comment-id == ''
         run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY"
 
-  check-first-time-committer:
-    needs: pull-request
+  welcome-first-time-contributor:
+    needs: resolve-pull-request
     if: >
-      needs.pull-request.outputs.number != '' &&
+      needs.resolve-pull-request.outputs.number != '' &&
       github.event.workflow_run.conclusion == 'success' &&
-      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.pull-request.outputs.association)
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.resolve-pull-request.outputs.association)
     runs-on: ubuntu-latest
     steps:
       - uses: peter-evans/find-comment@v3
-        id: welcome
+        id: find-welcome-comment
         with:
-          issue-number: ${{ needs.pull-request.outputs.number }}
+          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
           body-includes: A reviewer will take a look at your pull request soon
 
-      - if: steps.welcome.outputs.comment-id == ''
+      - if: steps.find-welcome-comment.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ needs.pull-request.outputs.number }}
+          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
           body: |
-            👋 Welcome @${{ needs.pull-request.outputs.author }}! Thank you for your first contribution to this repository!
+            👋 Welcome @${{ needs.resolve-pull-request.outputs.login }}! Thank you for your first contribution to this repository!
 
             A reviewer will take a look at your pull request soon.
 
