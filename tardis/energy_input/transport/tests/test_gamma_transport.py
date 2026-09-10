@@ -209,6 +209,10 @@ def test_gamma_distance_trace(
     gamma_packet: GXPacket,
     regression_data,
 ) -> None:
+
+    # set deterministic optical depth
+    gamma_packet.tau = 0.1
+
     (
         distance_interaction,
         distance_boundary,
@@ -216,7 +220,7 @@ def test_gamma_distance_trace(
         shell_change,
     ) = distance_trace(
         gamma_packet,
-        np.array([5.0e8, 1.0e9]),
+        np.array([5.0e8, 2.0e9]),
         np.array([2.0e9, 3.0e9]),
         2.0e-14,
         1.0e5,
@@ -456,9 +460,7 @@ def test_gamma_packet_loop_estimator_for_noninteracting_segment(
 ) -> None:
     time_idx = 1
     gamma_packet_collection.time_index[0] = time_idx
-    gamma_packet_collection.time_start[0] = gamma_loop_arrays["times"][
-        time_idx
-    ]
+    gamma_packet_collection.time_start[0] = gamma_loop_arrays["times"][time_idx]
     gamma_loop_arrays["electron_number_density_time"][0, time_idx] *= 1.0e-4
     gamma_loop_arrays["mass_density_time"][0, time_idx] *= 1.0e-4
 
@@ -493,11 +495,7 @@ def test_gamma_packet_loop_estimator_for_noninteracting_segment(
         gamma_packet,
         gamma_loop_arrays["inner_velocities"],
         gamma_loop_arrays["outer_velocities"],
-        (
-            compton_opacity
-            + photoabsorption_opacity
-            + pair_creation_opacity
-        )
+        (compton_opacity + photoabsorption_opacity + pair_creation_opacity)
         * doppler_factor,
         gamma_loop_arrays["effective_time_array"][time_idx],
         gamma_loop_arrays["times"][time_idx + 1],
@@ -525,8 +523,7 @@ def test_gamma_packet_loop_estimator_for_noninteracting_segment(
     expected = (
         gamma_packet_collection.energy_cmf[0]
         * (
-            compton_opacity
-            * get_compton_energy_loss_fraction(comoving_energy)
+            compton_opacity * get_compton_energy_loss_fraction(comoving_energy)
             + photoabsorption_opacity
         )
         * doppler_factor
@@ -725,12 +722,14 @@ def test_gamma_packet_loop_inner_boundary_end_numba_disabled(
         lambda *args: (20.0, 1.0, 10.0, -1),
     )
 
-    _, _, packets_info_array, energy_deposited_gamma, total_energy, _ = gamma_packet_loop(
-        gamma_packet_collection,
-        -1.0,
-        "kasen",
-        "artis",
-        **gamma_loop_arrays,
+    _, _, packets_info_array, energy_deposited_gamma, total_energy, _ = (
+        gamma_packet_loop(
+            gamma_packet_collection,
+            -1.0,
+            "kasen",
+            "artis",
+            **gamma_loop_arrays,
+        )
     )
 
     assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS

@@ -278,10 +278,13 @@ def run_gamma_ray_loop(
         packet_collection.source_isotopes,
         number_of_packets,
     )
-    for i in range(number_of_packets):
-        total_energy[
-            packet_collection.shell[i], packet_collection.time_index[i]
-        ] += isotope_positron_fraction[i] * energy_per_packet
+
+    # add the isotope positron energy to the total energy at each shell and time
+    np.add.at(
+        total_energy,
+        (packet_collection.shell, packet_collection.time_index),
+        isotope_positron_fraction * energy_per_packet,
+    )
 
     logger.info(
         "Total energy deposited by the positrons is %s",
