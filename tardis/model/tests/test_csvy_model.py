@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
@@ -104,6 +106,41 @@ def test_dimensionality_after_update_v_inner_boundary(
     assert (
         new_csvy_model.t_radiative.shape[0]
         == csvy_model.t_radiative.shape[0] - 1
+    )
+
+
+def test_csvy_model_uses_customized_inner_boundary(
+    example_csvy_file_dir: Path,
+) -> None:
+    """Test active CSVY geometry uses a customized inner boundary.
+
+    Claim: A homologous CSVY model uses the configured inner boundary for its first
+    active velocity and radius.
+    Regime: The inner boundary lies inside the first raw CSVY shell, at 10000 km/s,
+    while the raw model starts at 9000 km/s.
+    Verification: The first active radius is independently calculated from the homologous
+    expansion relation ``r = v * t``.
+    """
+    config = Configuration.from_yaml(
+        example_csvy_file_dir / "radiative_csvy.yml"
+    )
+    custom_v_inner_boundary = 10000 * u.km / u.s
+    config.model.v_inner_boundary = custom_v_inner_boundary
+
+    csvy_model = SimulationState.from_csvy(config)
+    expected_r_inner_boundary = (
+        custom_v_inner_boundary * config.supernova.time_explosion
+    ).cgs
+
+    npt.assert_allclose(
+        csvy_model.v_inner[0].to_value(u.km / u.s),
+        custom_v_inner_boundary.to_value(u.km / u.s),
+        rtol=1e-12,
+    )
+    npt.assert_allclose(
+        csvy_model.r_inner[0].to_value(u.cm),
+        expected_r_inner_boundary.to_value(u.cm),
+        rtol=1e-12,
     )
 
 
