@@ -19,4 +19,6 @@ properties:
     type: boolean
     default: false
     description: Allows for logging on the specified logging levels
-
+  log_file:
+    type: string
+    description: Path to a plain-text file that receives TARDIS log records

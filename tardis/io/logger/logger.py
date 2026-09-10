@@ -1,6 +1,7 @@
 import logging
 import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 import panel as pn
 from IPython.display import display
 import pandas as pd
@@ -199,6 +200,30 @@ class TARDISLogger:
         self.logger.addHandler(stream_handler)
         PYTHON_WARNINGS_LOGGER.addHandler(stream_handler)
 
+    def setup_file_handler(self, log_file: str | Path) -> logging.FileHandler:
+        """Write TARDIS logs to a plain UTF-8 file.
+
+        Parameters
+        ----------
+        log_file : str or pathlib.Path
+            Path to the file that receives TARDIS log records.
+
+        Returns
+        -------
+        logging.FileHandler
+            Configured handler attached to the TARDIS and warnings loggers.
+        """
+        file_handler = logging.FileHandler(log_file, encoding="utf-8")
+        file_handler.setFormatter(
+            logging.Formatter(
+                "%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"
+            )
+        )
+
+        self.logger.addHandler(file_handler)
+        PYTHON_WARNINGS_LOGGER.addHandler(file_handler)
+        return file_handler
+
 class LogFilter:
     """Filter for controlling which log levels are displayed.
     
@@ -277,6 +302,10 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
 
     # Setup widget logging once after display handles are configured
     tardislogger.setup_widget_logging(display_widget=display_logging_widget)
+
+    log_file = tardis_config.get("debug", {}).get("log_file")
+    if log_file:
+        tardislogger.setup_file_handler(log_file)
     
     if use_widget:
         return log_columns, tardislogger

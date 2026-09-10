@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -65,6 +66,15 @@ def test_validate_dict(tardis_config_verysimple):
     # Checks for default value when not provided
     assert config_dict_verysimple["plasma"]["initial_t_inner"] == "-1 K"
     assert config_dict_verysimple["supernova"]["luminosity_wavelength_start"] == "0 angstrom"
+
+
+def test_validate_log_file(tardis_config_verysimple: dict) -> None:
+    """Allow a log-file path in the debug configuration section."""
+    configuration = deepcopy(tardis_config_verysimple)
+    configuration["debug"] = {"log_file": "tardis.log"}
+
+    validated_configuration = validate_dict(configuration)
+    assert validated_configuration["debug"]["log_file"] == "tardis.log"
 
 
 def test_validate_yaml():
