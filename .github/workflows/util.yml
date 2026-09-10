@@ -2,73 +2,117 @@ name: utility
 
 on:
   pull_request_target:
+    types: [opened]
     branches:
       - master
+  workflow_run:
+    workflows: [mailmap]
+    types: [completed]
 
 jobs:
-  add-gsoc-label:
-    if: contains(github.event.pull_request.title, 'GSoC')
+  close-gsoc:
+    if: >
+      github.event_name == 'pull_request_target' && (
+      contains(github.event.pull_request.title, 'gsoc') ||
+      contains(github.event.pull_request.body, 'gsoc') ||
+      contains(github.event.pull_request.title, 'google summer of code') ||
+      contains(github.event.pull_request.body, 'google summer of code'))
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+      NUMBER: ${{ github.event.pull_request.number }}
     steps:
-      - name: Add GSoC label
-        uses: actions/github-script@v9
+      - run: gh pr edit "$NUMBER" --repo "$GITHUB_REPOSITORY" --add-label 'GSoC :sun_with_face:'
+
+      - uses: peter-evans/create-or-update-comment@v5
         with:
-          github-token: ${{ secrets.BOT_TOKEN }}
-          script: |
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              labels: ['GSoC :sun_with_face:']
-            });
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            👋 Hi @${{ github.event.pull_request.user.login }}, thanks for your interest in TARDIS.
+
+            This pull request mentions Google Summer of Code. We don't have the capacity to review GSoC pull requests at the moment, so we are closing it.
+
+            If this is not a Google Summer of Code pull request, please reopen it.
+
+      - run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY"
+
+  pull-request:
+    if: github.event_name == 'workflow_run'
+    runs-on: ubuntu-latest
+    outputs:
+      number: ${{ steps.found.outputs.matching-pr-count == '1' && steps.found.outputs.head-sha == github.event.workflow_run.head_sha && steps.found.outputs.number || '' }}
+      author: ${{ steps.found.outputs.author }}
+      association: ${{ steps.association.outputs.value }}
+    steps:
+      - id: found
+        uses: juliangruber/find-pull-request-action@v1
+        with:
+          github-token: ${{ github.token }}
+          branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+          base: master
+          state: open
+
+      - id: association
+        if: steps.found.outputs.matching-pr-count == '1'
+        run: echo "value=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$NUMBER" --jq .author_association)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.found.outputs.number }}
+
+  close-no-mailmap:
+    needs: pull-request
+    if: needs.pull-request.outputs.number != '' && github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+      NUMBER: ${{ needs.pull-request.outputs.number }}
+    steps:
+      - uses: peter-evans/find-comment@v3
+        id: closed
+        with:
+          issue-number: ${{ needs.pull-request.outputs.number }}
+          body-includes: we are assuming this is a Google Summer of Code pull request
+
+      - if: steps.closed.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ needs.pull-request.outputs.number }}
+          body: |
+            👋 Welcome @${{ needs.pull-request.outputs.author }}! Thank you for your first contribution to this repository!
+
+            Since this pull request doesn't add your entry to `.mailmap`, we are assuming this is a Google Summer of Code pull request and hence closing it.
+
+            If you don't know what Google Summer of Code is and aren't applying to it, please reopen this pull request.
+
+            If you are planning to apply to the program please keep it closed, we don't have the capacity to review GSoC pull requests at the moment.
+
+      - if: steps.closed.outputs.comment-id == ''
+        run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY"
 
   check-first-time-committer:
+    needs: pull-request
     if: >
-      github.event.action == 'opened' &&
-      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), github.event.pull_request.author_association)
+      needs.pull-request.outputs.number != '' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.pull-request.outputs.association)
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: read
-
     steps:
-      - name: Welcome first-time contributor
-        uses: actions/github-script@v9
+      - uses: peter-evans/find-comment@v3
+        id: welcome
         with:
-          script: |
-            const marker = '<!-- tardis:first-time-contributor-welcome -->';
-            const issue_number = context.payload.pull_request.number;
-            const login = context.payload.pull_request.user.login;
-            const body = [
-              marker,
-              `👋 Welcome @${login}! Thank you for your first contribution to this repository!`,
-              '',
-              '**If you are applying to GSoC, please read our [AI Usage Policy](https://tardis-sn.github.io/summer_of_code/ai_usage_policy/) and our [PR checklist](https://tardis-sn.github.io/summer_of_code/pr_checklist/).**',
-              '',
-              'Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.',
-            ].join('\n');
+          issue-number: ${{ needs.pull-request.outputs.number }}
+          body-includes: A reviewer will take a look at your pull request soon
 
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number,
-              per_page: 100,
-            });
+      - if: steps.welcome.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ needs.pull-request.outputs.number }}
+          body: |
+            👋 Welcome @${{ needs.pull-request.outputs.author }}! Thank you for your first contribution to this repository!
 
-            const existingComment = comments.find((comment) => comment.body?.includes(marker));
+            A reviewer will take a look at your pull request soon.
 
-            if (existingComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existingComment.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number,
-                body,
-              });
-            }
+            Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.
