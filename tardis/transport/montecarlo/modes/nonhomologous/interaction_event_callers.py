@@ -1,7 +1,5 @@
-import numpy as np
 from numba import njit
 
-import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
@@ -13,11 +11,6 @@ from tardis.transport.montecarlo.macro_atom import (
 )
 from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
     LineInteractionType,
-    adiabatic_cooling,
-    bf_cooling,
-    bound_free_emission,
-    determine_bf_macro_activation_idx,
-    free_free_emission,
     line_emission,
 )
 from tardis.transport.montecarlo.utils import get_random_mu
@@ -45,40 +38,7 @@ def macro_atom_event(
         destination_level_idx, r_packet.current_shell_id, opacity_state
     )
 
-    if (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.FF_EMISSION
-    ):
-        free_free_emission(
-            r_packet, geometry, opacity_state, enable_full_relativity
-        )
-
-    elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.BF_EMISSION
-    ):
-        bound_free_emission(
-            r_packet,
-            geometry,
-            opacity_state,
-            transition_id,
-            enable_full_relativity,
-        )
-    elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.BF_COOLING
-    ):
-        bf_cooling(
-            r_packet, geometry, opacity_state, enable_full_relativity
-        )
-
-    elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
-    ):
-        adiabatic_cooling(r_packet)  # Not sure this does anything yet
-
-    elif transition_type == MacroAtomTransitionType.BB_EMISSION:
+    if transition_type == MacroAtomTransitionType.BB_EMISSION:
         line_emission(
             r_packet,
             transition_id,

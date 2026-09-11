@@ -7,7 +7,6 @@ from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
-from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import get_doppler_factor
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
@@ -31,7 +30,7 @@ def trace_packet(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumba | OpacityStateNumbaIIP,
+    opacity_state: OpacityStateNumba,
     estimators_line: EstimatorsLine,
     continuous_opacity: float,
     escat_prob: float,
@@ -50,7 +49,7 @@ def trace_packet(
         Radial 1D geometry of the model.
     time_explosion : float
         Time since explosion in seconds.
-    opacity_state: OpacityStateNumba | OpacityStateNumbaIIP
+        opacity_state: OpacityStateNumba
         Opacity state containing line frequencies and Sobolev optical depths.
     estimators_line : EstimatorsLine
         Line-level radiation field estimators.

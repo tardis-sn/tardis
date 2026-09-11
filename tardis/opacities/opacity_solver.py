@@ -11,28 +11,30 @@ from tardis.opacities.tau_sobolev import (
 
 
 class OpacitySolver:
+    """Build line opacity state."""
+
     line_interaction_type: str = "scatter"
     disable_line_scattering: bool = False
 
     def __init__(
         self,
-        line_interaction_type="scatter",
-        disable_line_scattering=False,
-    ):
-        """Solver class for opacities
+        line_interaction_type: str = "scatter",
+        disable_line_scattering: bool = False,
+    ) -> None:
+        """Initialize the opacity solver.
 
         Parameters
         ----------
         line_interaction_type: str
             "scatter", "downbranch", or "macroatom"
-        disable_line_scattering: bool
+        disable_line_scattering : bool
+            Whether to replace line optical depths with zero.
         """
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
 
-    def legacy_solve(self, plasma) -> OpacityState:
-        """
-        Solves the opacity state
+    def legacy_solve(self, plasma: object) -> OpacityState:
+        """Solve opacity from a legacy plasma.
 
         Parameters
         ----------
@@ -66,14 +68,24 @@ class OpacitySolver:
 
         return opacity_state
 
-    def solve(self, plasma) -> OpacityState:
-        """
-        Solves the opacity state
+    def solve(
+        self,
+        plasma: object,
+        tau_sobolev: pd.DataFrame | None = None,
+        beta_sobolev: pd.DataFrame | None = None,
+    ) -> OpacityState:
+        """Solve the opacity state.
 
         Parameters
         ----------
         plasma : tardis.plasma.BasePlasma
             legacy base plasma
+        continuum_state : ContinuumOpacityState, optional
+            Continuum state to include in the opacity state.
+        tau_sobolev : pandas.DataFrame, optional
+            Precomputed Sobolev optical depths.
+        beta_sobolev : pandas.DataFrame, optional
+            Precomputed Sobolev escape probabilities.
 
         Returns
         -------
@@ -90,13 +102,21 @@ class OpacitySolver:
                 ),
                 index=plasma.atomic_data.lines.index,
             )
-        else:
+            beta_sobolev = pd.DataFrame(
+                np.ones_like(tau_sobolev),
+                index=tau_sobolev.index,
+                columns=tau_sobolev.columns,
+            )
+        elif tau_sobolev is None:
             tau_sobolev = calculate_sobolev_line_opacity(
                 plasma.atomic_data.lines,
                 plasma.level_number_density,
                 plasma.time_explosion,
                 plasma.stimulated_emission_factor,
             )
+            beta_sobolev = calculate_beta_sobolev(tau_sobolev)
+
+        if beta_sobolev is None:
             beta_sobolev = calculate_beta_sobolev(tau_sobolev)
 
         opacity_state = OpacityState.from_plasma(
