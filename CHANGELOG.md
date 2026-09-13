@@ -1,5 +1,11 @@
 ## Changelog
 
+### release-2026.09.13 (2026/09/12 23:29)
+- [3734](https://github.com/tardis-sn/tardis/pull/3734) Pre-release 2026.09.13 (3734) (@tardis-bot)
+- [3708](https://github.com/tardis-sn/tardis/pull/3708) TARDIS HE bug fixes (3708) (@andrewfullard)
+- [3729](https://github.com/tardis-sn/tardis/pull/3729) Add regression data commit info to the release notes (3729) (@andrewfullard)
+- [3703](https://github.com/tardis-sn/tardis/pull/3703) Equilibrium solver in workflow (3703) (@andrewfullard)
+- [3725](https://github.com/tardis-sn/tardis/pull/3725) Post-release 2026.09.06 (3725) (@tardis-bot)
 ### release-2026.09.06 (2026/09/05 21:45)
 - [3724](https://github.com/tardis-sn/tardis/pull/3724) Pre-release 2026.09.06 (3724) (@tardis-bot)
 - [3702](https://github.com/tardis-sn/tardis/pull/3702) Equilibrium plasma solver (3702) (@andrewfullard)

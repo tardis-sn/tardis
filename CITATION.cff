@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2026.09.06'
-doi: 10.5281/zenodo.22436000
+title: 'tardis-sn/tardis: TARDIS v2026.09.13'
+doi: 10.5281/zenodo.22731896
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -153,9 +153,6 @@ authors:
 - given-names: Shreyas
   family-names: Singh
   affiliation:
-- given-names: Youssef
-  family-names: Eweis
-  affiliation:
 - given-names: Martin
   family-names: Reinecke
   affiliation:
@@ -163,6 +160,9 @@ authors:
   family-names: Shah
   affiliation:
   orcid: https://orcid.org/0009-0005-8092-547X
+- given-names: Youssef
+  family-names: Eweis
+  affiliation:
 - given-names: Alexander
   family-names: Holas
   affiliation:
@@ -182,11 +182,14 @@ authors:
 - given-names: Laud
   family-names: Bentil
   affiliation:
-- given-names: Asish
-  family-names: Kumar
+- given-names: Shreyans
+  family-names: Saraf
   affiliation:
 - given-names: Anirban
   family-names: Dutta
+  affiliation:
+- given-names: Asish
+  family-names: Kumar
   affiliation:
 - given-names: Jing
   family-names: Lu
@@ -194,30 +197,27 @@ authors:
 - given-names: Ryan
   family-names: Groneck
   affiliation:
-- given-names: Shreyans
-  family-names: Saraf
-  affiliation:
 - given-names: Jordi
   family-names: Eguren
   affiliation:
   orcid: https://orcid.org/0000-0002-2328-8030
-- given-names: Sarthak
-  family-names: Srivastava
+- given-names: Ansh
+  family-names: Kumar
   affiliation:
 - given-names: Matthew
   family-names: Bartnik
   affiliation:
-- given-names: Ansh
-  family-names: Kumar
+- given-names: Sarthak
+  family-names: Srivastava
   affiliation:
 - given-names: Arib
   family-names: Alam
   affiliation:
-- given-names: Mark
-  family-names: Magee
-  affiliation:
 - given-names: Rohith
   family-names: Varma Buddaraju
+  affiliation:
+- given-names: Mark
+  family-names: Magee
   affiliation:
 - given-names: Satwik
   family-names: Kambham
@@ -227,6 +227,9 @@ authors:
   affiliation:
 - given-names: Ayushi
   family-names: Daksh
+  affiliation:
+- given-names: Israel
+  family-names: Roldan
   affiliation:
 - given-names: Cecelia
   family-names: Powers
@@ -245,9 +248,6 @@ authors:
   family-names: Mishra
   affiliation:
   orcid: https://orcid.org/0000-0001-8302-1584
-- given-names: Israel
-  family-names: Roldan
-  affiliation:
 - given-names: John
   family-names: Reichenbach
   affiliation:
@@ -410,7 +410,7 @@ authors:
 - given-names: Shilpi
   family-names: Prasad
   affiliation:
-version: release-2026.09.06
-date-released: 2026-09-06
+version: release-2026.09.13
+date-released: 2026-09-13
 repository-code: https://github.com/tardis-sn/tardis
 license: bsd-3-clause
