@@ -192,7 +192,8 @@ class HDFWriterMixin:
             List of all HDF property names.
         """
         if hasattr(self, "virt_logging") and self.virt_logging:
-            self.hdf_properties.extend(self.vpacket_hdf_properties)
+            return self.optional_hdf_properties + self.hdf_properties + self.vpacket_hdf_properties
+
 
         return self.optional_hdf_properties + self.hdf_properties
 
