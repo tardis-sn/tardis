@@ -1,0 +1,7 @@
+tardis.workflows.type\_iip\_workflow module
+===========================================
+
+.. automodule:: tardis.workflows.type_iip_workflow
+   :members:
+   :show-inheritance:
+   :undoc-members:
