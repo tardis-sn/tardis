@@ -1,0 +1,7 @@
+tardis.iip\_plasma.properties.property\_collections module
+==========================================================
+
+.. automodule:: tardis.iip_plasma.properties.property_collections
+   :members:
+   :show-inheritance:
+   :undoc-members:
