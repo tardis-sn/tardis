@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_22436000
+.. |CITATION| replace:: kerzendorf_2026_22731896
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.436000-blue
-                 :target: https://doi.org/10.5281/zenodo.436000
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.731896-blue
+                 :target: https://doi.org/10.5281/zenodo.731896
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_22436000,
+    @software{kerzendorf_2026_22731896,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -125,36 +125,36 @@ The following BibTeX entries are needed for the references:
                       Savel, Arjun and
                       Gupta, Sumit and
                       Singh, Shreyas and
-                      Eweis, Youssef and
                       Reinecke, Martin and
                       Shah, Swayam and
+                      Eweis, Youssef and
                       Holas, Alexander and
                       Visser, Erin and
                       McClellan, Connor and
                       Bylund, Tomas and
                       Black, William and
                       Bentil, Laud and
-                      Kumar, Asish and
+                      Saraf, Shreyans and
                       Dutta, Anirban and
+                      Kumar, Asish and
                       Lu, Jing and
                       Groneck, Ryan and
-                      Saraf, Shreyans and
                       Eguren, Jordi and
-                      Srivastava, Sarthak and
-                      Bartnik, Matthew and
                       Kumar, Ansh and
+                      Bartnik, Matthew and
+                      Srivastava, Sarthak and
                       Alam, Arib and
-                      Magee, Mark and
                       Varma Buddaraju, Rohith and
+                      Magee, Mark and
                       Kambham, Satwik and
                       Livneh, Ran and
                       Daksh, Ayushi and
+                      Roldan, Israel and
                       Powers, Cecelia and
                       Bhakar, Jayant and
                       Dadu, Aaryan and
                       Rajagopalan, Srinath and
                       Mishra, Sashank and
-                      Roldan, Israel and
                       Reichenbach, John and
                       Actions, GitHub and
                       Rao, Rishmita and
@@ -208,11 +208,11 @@ The following BibTeX entries are needed for the references:
                       Sharma, Sampark and
                       Venkat, Shashank and
                       Prasad, Shilpi},
-      title        = {tardis-sn/tardis: TARDIS v2026.09.06},
+      title        = {tardis-sn/tardis: TARDIS v2026.09.13},
       month        = sep,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.09.06},
-      doi          = {10.5281/zenodo.22436000},
-      url          = {https://doi.org/10.5281/zenodo.22436000},
+      version      = {release-2026.09.13},
+      doi          = {10.5281/zenodo.22731896},
+      url          = {https://doi.org/10.5281/zenodo.22731896},
     }
