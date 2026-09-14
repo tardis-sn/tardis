@@ -33,6 +33,9 @@ from tardis.plasma.equilibrium.rates import (
     RadiativeRatesSolver,
     ThermalCollisionalRateSolver,
 )
+from tardis.plasma.equilibrium.tests.test_evaluator import (
+    ZeroElectronRateSolver,
+)
 from tardis.plasma.properties.atomic import IonizationData, Levels
 from tardis.plasma.properties.general import BetaRadiation, GElectron
 from tardis.plasma.properties.ion_population import IonNumberDensity, PhiSahaLTE
@@ -44,29 +47,6 @@ from tardis.plasma.properties.partition_function import (
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
 )
-
-
-class ZeroElectronRateSolver:
-    """Return no bound-bound electron rates for focused residual tests."""
-
-    def solve(self, temperatures_electron: u.Quantity) -> pd.DataFrame:
-        """Return an empty transition-rate frame."""
-        transition_index = pd.MultiIndex.from_tuples(
-            [],
-            names=[
-                "atomic_number",
-                "ion_number",
-                "ion_number_source",
-                "ion_number_destination",
-                "level_number_source",
-                "level_number_destination",
-            ],
-        )
-        return pd.DataFrame(
-            index=transition_index,
-            columns=pd.RangeIndex(len(temperatures_electron)),
-            dtype=np.float64,
-        )
 
 
 class TestLevelPopulationSolver:
