@@ -10,42 +10,16 @@ on:
     types: [completed]
 
 jobs:
-  close-gsoc-pull-request:
-    if: >
-      github.event_name == 'pull_request_target' && (
-      contains(github.event.pull_request.title, 'gsoc') ||
-      contains(github.event.pull_request.body, 'gsoc') ||
-      contains(github.event.pull_request.title, 'google summer of code') ||
-      contains(github.event.pull_request.body, 'google summer of code'))
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.BOT_TOKEN }}
-      NUMBER: ${{ github.event.pull_request.number }}
-    steps:
-      - run: gh pr edit "$NUMBER" --repo "$GITHUB_REPOSITORY" --add-label 'GSoC :sun_with_face:'
-
-      - uses: peter-evans/create-or-update-comment@v5
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            👋 Hi @${{ github.event.pull_request.user.login }}, thanks for your interest in TARDIS.
-
-            This pull request mentions Google Summer of Code. We don't have the capacity to review GSoC pull requests at the moment, so we are closing it.
-
-            If this is not a Google Summer of Code pull request, please reopen it.
-
-      - run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY"
-
   resolve-pull-request:
-    if: github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
     outputs:
-      number: ${{ steps.find-workflow-run-pr.outputs.matching-pr-count == '1' && steps.find-workflow-run-pr.outputs.head-sha == github.event.workflow_run.head_sha && steps.find-workflow-run-pr.outputs.number || '' }}
-      login: ${{ steps.find-workflow-run-pr.outputs.author }}
+      number: ${{ github.event.pull_request.number || (steps.find-workflow-run-pr.outputs.matching-pr-count == '1' && steps.find-workflow-run-pr.outputs.head-sha == github.event.workflow_run.head_sha && steps.find-workflow-run-pr.outputs.number || '') }}
+      login: ${{ github.event.pull_request.user.login || steps.find-workflow-run-pr.outputs.author }}
       association: ${{ steps.get-author-association.outputs.value }}
+      gsoc: ${{ steps.get-author-association.outputs.gsoc }}
     steps:
       - id: find-workflow-run-pr
+        if: github.event_name == 'workflow_run'
         uses: juliangruber/find-pull-request-action@v1
         with:
           github-token: ${{ github.token }}
@@ -54,15 +28,53 @@ jobs:
           state: open
 
       - id: get-author-association
-        if: steps.find-workflow-run-pr.outputs.matching-pr-count == '1'
-        run: echo "value=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$NUMBER" --jq .author_association)" >> "$GITHUB_OUTPUT"
+        if: github.event_name == 'pull_request_target' || steps.find-workflow-run-pr.outputs.matching-pr-count == '1'
+        uses: actions/github-script@v9
         env:
-          GH_TOKEN: ${{ github.token }}
-          NUMBER: ${{ steps.find-workflow-run-pr.outputs.number }}
+          NUMBER: ${{ github.event.pull_request.number || steps.find-workflow-run-pr.outputs.number }}
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: Number(process.env.NUMBER)
+            });
+            core.setOutput('value', pr.author_association);
+            core.setOutput('gsoc', /gsoc|google summer of code/i.test(`${pr.title}\n${pr.body ?? ''}`));
+
+  close-gsoc-pull-request:
+    needs: resolve-pull-request
+    if: >
+      github.event_name == 'pull_request_target' &&
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.resolve-pull-request.outputs.association) &&
+      needs.resolve-pull-request.outputs.gsoc == 'true'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+      NUMBER: ${{ needs.resolve-pull-request.outputs.number }}
+    steps:
+      - run: gh pr edit "$NUMBER" --repo "$GITHUB_REPOSITORY" --add-label 'GSoC :sun_with_face:'
+
+      - uses: peter-evans/create-or-update-comment@v5
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
+          body: |
+            👋 Hi @${{ needs.resolve-pull-request.outputs.login }}, thanks for your interest in TARDIS.
+
+            This pull request mentions Google Summer of Code. We don't have the capacity to review GSoC pull requests at the moment, so we are closing it.
+
+            If this is not a Google Summer of Code pull request, please reopen it.
+
+      - run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY"
 
   close-missing-mailmap-entry:
     needs: resolve-pull-request
-    if: needs.resolve-pull-request.outputs.number != '' && github.event.workflow_run.conclusion == 'failure'
+    if: >
+      github.event_name == 'workflow_run' &&
+      needs.resolve-pull-request.outputs.number != '' &&
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.resolve-pull-request.outputs.association) &&
+      needs.resolve-pull-request.outputs.gsoc == 'false' &&
+      github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -94,9 +106,11 @@ jobs:
   welcome-first-time-contributor:
     needs: resolve-pull-request
     if: >
+      github.event_name == 'workflow_run' &&
       needs.resolve-pull-request.outputs.number != '' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.resolve-pull-request.outputs.association)
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.resolve-pull-request.outputs.association) &&
+      needs.resolve-pull-request.outputs.gsoc == 'false' &&
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: peter-evans/find-comment@v3
