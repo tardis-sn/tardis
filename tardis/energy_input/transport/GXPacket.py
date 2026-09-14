@@ -51,7 +51,6 @@ class GXPacket:
         shell,
         time_start,
         time_idx,
-        initialize_tau=True,
     ):
         self.location = location
         self.direction = direction
@@ -63,11 +62,7 @@ class GXPacket:
         self.shell = shell
         self.time_start = time_start
         self.time_idx = time_idx
-        # TODO: rename to tau_event
-        if initialize_tau:
-            self.tau = -np.log(np.random.random())
-        else:
-            self.tau = 0.0
+        self.tau = 0.0
 
     def get_location_r(self):
         """Calculate radius of the packet
@@ -77,7 +72,9 @@ class GXPacket:
             float: packet radius
         """
         return np.sqrt(
-            self.location[0] ** 2.0 + self.location[1] ** 2.0 + self.location[2] ** 2.0
+            self.location[0] ** 2.0
+            + self.location[1] ** 2.0
+            + self.location[2] ** 2.0
         )
 
 
