@@ -5,6 +5,37 @@ from collections.abc import Iterable, Sequence
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+from numba import njit
+
+
+@njit(error_model="numpy")
+def assemble_bound_bound_rate_matrix(
+    number_of_levels: int,
+    source_level_idx: npt.NDArray[np.int64],
+    destination_level_idx: npt.NDArray[np.int64],
+    radiative_rate_coefficient: npt.NDArray[np.float64],
+    collisional_rate: npt.NDArray[np.float64],
+    beta_line_idx: npt.NDArray[np.int64],
+    beta_sobolev: npt.NDArray[np.float64],
+) -> npt.NDArray[np.float64]:
+    """Assemble one bound-bound matrix from prepared transition arrays."""
+    matrix = np.zeros((number_of_levels, number_of_levels), dtype=np.float64)
+    for transition_idx in range(len(source_level_idx)):
+        rate = collisional_rate[transition_idx]
+        line_idx = beta_line_idx[transition_idx]
+        if line_idx >= 0:
+            rate += (
+                radiative_rate_coefficient[transition_idx]
+                * beta_sobolev[line_idx]
+            )
+        matrix[
+            destination_level_idx[transition_idx],
+            source_level_idx[transition_idx],
+        ] += rate
+
+    for level_idx in range(number_of_levels):
+        matrix[level_idx, level_idx] = -np.sum(matrix[:, level_idx])
+    return matrix
 
 
 def sum_duplicate_rates(rates: pd.DataFrame) -> pd.DataFrame:
