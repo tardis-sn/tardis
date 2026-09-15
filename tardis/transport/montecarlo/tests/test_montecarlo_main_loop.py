@@ -3,6 +3,8 @@ from copy import deepcopy
 import numpy.testing as npt
 import pytest
 
+from tardis.io.atom_data import AtomData
+from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 
 
@@ -58,6 +60,45 @@ def test_montecarlo_transport(
     npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
     npt.assert_allclose(actual_energy, expected_energy, rtol=1e-13)
     npt.assert_allclose(actual_nu, expected_nu, rtol=1e-13)
+
+
+def test_rpacket_transport_is_independent_of_virtual_packet_count(
+    montecarlo_transport_config: Configuration,
+    atomic_dataset: AtomData,
+) -> None:
+    """
+    Verify virtual-packet sampling does not perturb real-packet transport.
+
+    Claim: Virtual packets are diagnostic formal-solution samples and cannot
+    change real-packet trajectories or estimators.
+    Regime: Identical classic snapshot, source, packet seeds, and thread count;
+    only the number of virtual packets changes.
+    Verification: Exact metamorphic invariance of real-packet outputs and
+    Monte Carlo estimators.
+    """
+    transport_results = []
+    for number_of_vpackets in (0, 3):
+        config = deepcopy(montecarlo_transport_config)
+        simulation = Simulation.from_config(
+            config,
+            atom_data=deepcopy(atomic_dataset),
+            legacy_mode_enabled=True,
+        )
+        simulation.iterate(20, number_of_vpackets)
+        transport_state = simulation.transport.transport_state
+        transport_results.append(
+            (
+                transport_state.packet_collection.output_nus.copy(),
+                transport_state.packet_collection.output_energies.copy(),
+                transport_state.estimators_bulk.mean_frequency.copy(),
+                transport_state.estimators_bulk.mean_intensity_total.copy(),
+                transport_state.estimators_line.mean_intensity_blueward.copy(),
+                transport_state.estimators_line.energy_deposition_line_rate.copy(),
+            )
+        )
+
+    for without_vpackets, with_vpackets in zip(*transport_results, strict=True):
+        npt.assert_array_equal(without_vpackets, with_vpackets)
 
 
 def test_montecarlo_transport_vpacket_log(

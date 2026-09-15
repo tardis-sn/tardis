@@ -28,9 +28,7 @@ def v_packet():
 def v_packet_initialize_line_id(v_packet, opacity_state, time_explosion):
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
     velocity = v_packet.r / time_explosion
-    doppler_factor = get_doppler_factor(
-        velocity, v_packet.mu, False
-    )
+    doppler_factor = get_doppler_factor(velocity, v_packet.mu, False)
     comov_nu = v_packet.nu * doppler_factor
     next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
         inverse_line_list_nu, comov_nu
@@ -127,6 +125,12 @@ def test_trace_vpacket_volley(
         enable_full_relativity=False,
         tau_russian=10.0,
         survival_probability=0.0,
+        last_interaction_in_nu=0.0,
+        last_interaction_in_r=0.0,
+        last_interaction_type=-1,
+        last_interaction_in_id=-1,
+        last_interaction_out_id=-1,
+        last_interaction_shell_id=-1,
     )
 
 
