@@ -275,6 +275,8 @@ class EstimatedPhotoionizationRateSolver:
             index=stimulated_recombination_coeff.index,
             columns=columns,
         )
+
+        # Enforce Case B recombination for hydrogen (no ground state recombination)
         if (1, 0, 0) in photoionization_coeff.index:
             photoionization_coeff.loc[(1, 0, 0)] = 0.0
         if (1, 0, 0) in stimulated_recombination_coeff.index:

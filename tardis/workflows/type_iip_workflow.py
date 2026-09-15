@@ -87,6 +87,12 @@ class TypeIIPWorkflow:
     def __init__(self, configuration, csvy=False):
         """Initialize a TARDIS workflow for Type IIP supernovae.
 
+        Notes
+        -----
+        - Hydrogen is the traditional NLTE species with others treated in dilute-LTE
+        - The plasma is created in LTE first to bootstrap the NLTE plasma
+        - Hydrogen is locked in case B recombination
+
         Parameters
         ----------
         configuration : Configuration
@@ -963,7 +969,13 @@ class TypeIIPWorkflow:
     def _validate_thermal_balance_evaluation(
         evaluation: PlasmaEquilibriumEvaluation,
     ) -> None:
-        """Reject a final evaluator state that does not physically close."""
+        """
+        Reject a final evaluator state with:
+
+        invalid populations, nonfinite derived quantities, failed normalization,
+        or any charge, level-population, electron-density, or heating residual
+        above its declared tolerance.
+        """
         failures = []
         population_fields = {
             "normalized_population": evaluation.normalized_population,
@@ -992,19 +1004,21 @@ class TypeIIPWorkflow:
             if not np.isfinite(np.asarray(state, dtype=np.float64)).all():
                 failures.append(f"{field_name} is nonfinite")
 
-        closure_tolerances = {
+        residual_tolerance_limits = {
             "trial_level_residual": 1e-10,
             "level_residual": 1e-10,
             "charge_residual": 1e-10,
-            # The outer trial density and the independently projected charge
-            # solution differ at the established Phase 2 closure floor.
+            # The charge projection independently solves for the electron
+            # density, so the final projected value can differ slightly from
+            # the outer solver's trial value after the state is rebuilt.
             "electron_residual": 2e-8,
-            # Heating closes by cancellation; these measured Phase 2 floors
-            # are stricter than the observable legacy-parity contract.
+            # Heating residuals subtract nearly cancelling rates, leaving a
+            # small floating-point floor; these limits enforce tighter
+            # closure than the legacy observable-parity requirement.
             "total_heating": 5e-13,
             "fractional_heating": 2e-7,
         }
-        for field_name, tolerance in closure_tolerances.items():
+        for field_name, tolerance in residual_tolerance_limits.items():
             residual = getattr(evaluation, field_name)
             if residual is None:
                 failures.append(f"{field_name} is missing")
