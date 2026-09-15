@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
+import tardis.transport.montecarlo.modes.homologous_packet_propagation as homologous_propagation
 import tardis.transport.montecarlo.modes.iip.packet_propagation as iip_propagation
 from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
@@ -74,13 +75,18 @@ class _CommonPacketPropagationPatcher:
         self.monkeypatch.setattr(
             module, "chi_electron_calculator", lambda *args: 1.0e-20
         )
+        interaction_module = (
+            module
+            if module is nonhomologous_propagation
+            else homologous_propagation
+        )
         self.monkeypatch.setattr(
-            module,
+            interaction_module,
             "line_scatter_event",
             lambda packet, *args, **kwargs: setattr(packet, "next_line_id", 1),
         )
         self.monkeypatch.setattr(
-            module,
+            interaction_module,
             "thomson_scatter",
             lambda packet, *args, **kwargs: setattr(packet, "mu", -packet.mu),
         )
