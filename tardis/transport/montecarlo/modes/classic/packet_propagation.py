@@ -108,6 +108,7 @@ def packet_propagation(
 
     trace_vpacket_volley(
         r_packet,
+        rpacket_tracker,
         vpacket_collection,
         geometry,
         time_explosion,
@@ -193,6 +194,7 @@ def packet_propagation(
             rpacket_tracker.track_line_interaction_after(r_packet)
             trace_vpacket_volley(
                 r_packet,
+                rpacket_tracker,
                 vpacket_collection,
                 geometry,
                 time_explosion,
@@ -220,6 +222,7 @@ def packet_propagation(
 
             trace_vpacket_volley(
                 r_packet,
+                rpacket_tracker,
                 vpacket_collection,
                 geometry,
                 time_explosion,

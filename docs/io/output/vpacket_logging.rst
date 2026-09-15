@@ -8,6 +8,11 @@ simulation's :ref:`virtual packets <virtual_packets>`.
 
 After running the simulation, the following information can be retrieved:
 
+For virtual packets spawned after a line interaction or electron scattering,
+the logged last-interaction fields record the source r-packet's interaction
+metadata. Virtual packets spawned at initial emission have no prior interaction;
+their interaction type and line identifiers use the no-interaction defaults.
+
 .. note::
     The following tables list the attributes of the simulation in which the information would be stored. For
     example, if you call your TARDIS simulation ``sim``, you would access the virtual packet frequencies by running

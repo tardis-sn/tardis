@@ -247,6 +247,7 @@ def trace_vpacket(
 @njit(**njit_dict_no_parallel)
 def trace_vpacket_volley(
     r_packet,
+    rpacket_tracker,
     vpacket_collection,
     numba_radial_1d_geometry,
     time_explosion,
@@ -263,6 +264,8 @@ def trace_vpacket_volley(
     ----------
     r_packet : [type]
         [description]
+    rpacket_tracker : [type]
+        Last-interaction metadata for the source radiative packet.
     vpacket_collection : [type]
         [description]
     numba_radial_1d_geometry : [type]
@@ -371,16 +374,10 @@ def trace_vpacket_volley(
 
         v_packet.energy *= math.exp(-tau_vpacket)
 
-        # these are all placeholders and not actual values
-        vpacket_collection.add_packet(
+        vpacket_collection.add_packet_from_tracker(
             v_packet.nu,
             v_packet.energy,
             v_packet_mu,
             r_packet.r,
-            -99,
-            -99,
-            -99,
-            -99,
-            -99,
-            -99,
+            rpacket_tracker,
         )

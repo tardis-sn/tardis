@@ -5,6 +5,9 @@ from numba.experimental import jitclass
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
+    TrackerLastInteraction,
+)
 
 # Pre-calculate integer values for Numba compatibility
 NO_INTERACTION_INT = int(InteractionType.NO_INTERACTION)
@@ -283,6 +286,43 @@ class VPacketCollection:
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
         self.last_interaction_shell_id[self.idx] = last_interaction_shell_id
         self.idx += 1
+
+    def add_packet_from_tracker(
+        self,
+        nu: float,
+        energy: float,
+        initial_mu: float,
+        initial_r: float,
+        rpacket_tracker: TrackerLastInteraction,
+    ) -> None:
+        """
+        Add a virtual packet with its source packet's interaction metadata.
+
+        Parameters
+        ----------
+        nu : float
+            Frequency of the virtual packet.
+        energy : float
+            Energy of the virtual packet.
+        initial_mu : float
+            Initial directional cosine of the virtual packet.
+        initial_r : float
+            Initial radius of the virtual packet.
+        rpacket_tracker : TrackerLastInteraction
+            Last-interaction state of the source radiative packet.
+        """
+        self.add_packet(
+            nu,
+            energy,
+            initial_mu,
+            initial_r,
+            rpacket_tracker.before_nu,
+            rpacket_tracker.radius,
+            rpacket_tracker.interaction_type,
+            rpacket_tracker.interaction_line_absorb_id,
+            rpacket_tracker.interaction_line_emit_id,
+            rpacket_tracker.shell_id,
+        )
 
     def finalize_arrays(self) -> None:
         """

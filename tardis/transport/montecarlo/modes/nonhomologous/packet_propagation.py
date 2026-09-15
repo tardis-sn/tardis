@@ -99,7 +99,9 @@ def packet_propagation(
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
     if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-        raise NotImplementedError("Full relativity not supported for non-homology.")
+        raise NotImplementedError(
+            "Full relativity not supported for non-homology."
+        )
     set_packet_props_partial_relativity(r_packet, geometry)
     # Manually perform the function of r_packet.initialize_line_id for now until
     # nonhomology is supported
@@ -121,6 +123,7 @@ def packet_propagation(
 
     trace_vpacket_volley(
         r_packet,
+        rpacket_tracker,
         vpacket_collection,
         geometry,
         opacity_state,
@@ -202,6 +205,7 @@ def packet_propagation(
             rpacket_tracker.track_line_interaction_after(r_packet)
             trace_vpacket_volley(
                 r_packet,
+                rpacket_tracker,
                 vpacket_collection,
                 geometry,
                 opacity_state,
@@ -228,6 +232,7 @@ def packet_propagation(
 
             trace_vpacket_volley(
                 r_packet,
+                rpacket_tracker,
                 vpacket_collection,
                 geometry,
                 opacity_state,
@@ -260,8 +265,7 @@ def packet_propagation(
 
 @njit
 def set_packet_props_partial_relativity(
-    r_packet: RPacket,
-    geometry: NumbaRadial1DGeometry
+    r_packet: RPacket, geometry: NumbaRadial1DGeometry
 ) -> None:
     """
     Set packet properties using partial relativistic corrections.
@@ -281,9 +285,7 @@ def set_packet_props_partial_relativity(
     Modifies r_packet.nu and r_packet.energy in-place.
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor(
-        v, r_packet.mu, False
-    )
+    inverse_doppler_factor = get_inverse_doppler_factor(v, r_packet.mu, False)
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
 
@@ -294,6 +296,8 @@ def set_packet_props_full_relativity(
 ) -> None:
 
     raise NotImplementedError("Full relativity not supported for non-homology.")
+
+
 #    beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
 #
 #    inverse_doppler_factor = get_inverse_doppler_factor(
