@@ -1,0 +1,7 @@
+tardis.io.logger.logger\_widget module
+======================================
+
+.. automodule:: tardis.io.logger.logger_widget
+   :members:
+   :show-inheritance:
+   :undoc-members:

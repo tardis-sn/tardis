@@ -1,0 +1,7 @@
+tardis.io.model.arepo.utils module
+==================================
+
+.. automodule:: tardis.io.model.arepo.utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
