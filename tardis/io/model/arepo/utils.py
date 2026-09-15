@@ -293,9 +293,9 @@ def create_full_profile(
         spec_p[spec] = data.isotope_dict[spec].flatten()
         spec_n[spec] = spec_p[spec].copy()
 
-    # Sort by position
-    pos_prof_p = np.sort(pos_p, kind=SORTING_ALGORITHM)
-    pos_prof_n = np.sort(pos_n, kind=SORTING_ALGORITHM)
+    sort_indices = np.argsort(pos_p, kind=SORTING_ALGORITHM)
+    pos_prof_p = pos_p[sort_indices]
+    pos_prof_n = pos_n[sort_indices]
 
     # Apply radius cuts
     maxradius_p = max(pos_prof_p) if outer_radius is None else outer_radius
@@ -313,47 +313,20 @@ def create_full_profile(
     if not mask_p.any() or not mask_n.any():
         raise ValueError("No points left between inner and outer radius.")
 
-    # Sort all quantities by position
-    mass_prof_p = np.array(
-        [x for _, x in sorted(zip(pos_p, mass_p), key=lambda pair: pair[0])]
-    )[mask_p]
-    mass_prof_n = np.array(
-        [x for _, x in sorted(zip(pos_n, mass_n), key=lambda pair: pair[0])]
-    )[mask_n]
+    mass_prof_p = mass_p[sort_indices][mask_p]
+    mass_prof_n = mass_n[sort_indices][mask_n]
 
-    rho_prof_p = np.array(
-        [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
-    )[mask_p]
-    rho_prof_n = np.array(
-        [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
-    )[mask_n]
+    rho_prof_p = rho_p[sort_indices][mask_p]
+    rho_prof_n = rho_n[sort_indices][mask_n]
 
-    vel_prof_p = np.array(
-        [x for _, x in sorted(zip(pos_p, vel_p), key=lambda pair: pair[0])]
-    )[mask_p]
-    vel_prof_n = np.array(
-        [x for _, x in sorted(zip(pos_n, vel_n), key=lambda pair: pair[0])]
-    )[mask_n]
+    vel_prof_p = vel_p[sort_indices][mask_p]
+    vel_prof_n = vel_n[sort_indices][mask_n]
 
     xnuc_prof_p = {}
     xnuc_prof_n = {}
     for spec in data.species:
-        xnuc_prof_p[spec] = np.array(
-            [
-                x
-                for _, x in sorted(
-                    zip(pos_p, spec_p[spec]), key=lambda pair: pair[0]
-                )
-            ]
-        )[mask_p]
-        xnuc_prof_n[spec] = np.array(
-            [
-                x
-                for _, x in sorted(
-                    zip(pos_n, spec_n[spec]), key=lambda pair: pair[0]
-                )
-            ]
-        )[mask_n]
+        xnuc_prof_p[spec] = spec_p[spec][sort_indices][mask_p]
+        xnuc_prof_n[spec] = spec_n[spec][sort_indices][mask_n]
 
     pos_prof_p = pos_prof_p[mask_p]
     pos_prof_n = pos_prof_n[mask_n]
