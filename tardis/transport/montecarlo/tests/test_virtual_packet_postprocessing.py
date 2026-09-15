@@ -5,11 +5,11 @@ import pytest
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.spectrum.virtual_packet import (
+    calculate_virtual_packet_spectrum,
+)
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
-)
-from tardis.transport.montecarlo.modes.montecarlo_transport import (
-    calculate_virtual_packet_spectrum,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
     trace_vpacket_volley,

@@ -1,11 +1,17 @@
-import logging
+from __future__ import annotations
 
-import numpy as np
-from astropy import units as u
+import logging
+from typing import Self
+
 from numba import cuda, set_num_threads
+from numba.typed import List as TypedList
 
 import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
+from tardis.io.configuration.config_reader import (
+    Configuration,
+    ConfigurationNameSpace,
+)
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.transport.montecarlo.configuration.base import (
@@ -13,7 +19,6 @@ from tardis.transport.montecarlo.configuration.base import (
     configuration_initialize,
 )
 from tardis.transport.montecarlo.modes.montecarlo_transport import (
-    calculate_virtual_packet_spectrum,
     montecarlo_transport,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver import (
@@ -25,8 +30,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state 
 from tardis.transport.montecarlo.modes.nonhomologous.packet_propagation import (
     packet_propagation,
 )
-from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
-    trace_vpacket_volley,
+from tardis.transport.montecarlo.packet_source.base import BasePacketSource
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
@@ -41,9 +47,6 @@ from tardis.transport.montecarlo.progress_bars import (
     refresh_packet_pbar,
     reset_packet_pbar,
     update_iterations_pbar,
-)
-from tardis.util.base import (
-    quantity_linspace,
 )
 
 logger = logging.getLogger(__name__)
@@ -62,24 +65,22 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
 
     def __init__(
         self,
-        radfield_prop_solver,
-        spectrum_frequency_grid,
-        vpacket_spawn_range,
-        enable_full_relativity,
-        line_interaction_type,
-        spectrum_method,
-        packet_source,
-        enable_virtual_packet_logging=False,
-        enable_rpacket_tracking=False,
-        nthreads=1,
-        debug_packets=False,
-        logger_buffer=1,
-        use_gpu=False,
-        montecarlo_configuration=None,
-    ):
+        radfield_prop_solver: MCRadiationFieldPropertiesSolver,
+        vpacket_spawn_range: ConfigurationNameSpace,
+        enable_full_relativity: bool,
+        line_interaction_type: str,
+        spectrum_method: str,
+        packet_source: BasePacketSource,
+        enable_virtual_packet_logging: bool = False,
+        enable_rpacket_tracking: bool = False,
+        nthreads: int = 1,
+        debug_packets: bool = False,
+        logger_buffer: int = 1,
+        use_gpu: bool = False,
+        montecarlo_configuration: MonteCarloConfiguration | None = None,
+    ) -> None:
         self.radfield_prop_solver = radfield_prop_solver
         # inject different packets
-        self.spectrum_frequency_grid = spectrum_frequency_grid
         self.vpacket_spawn_range = vpacket_spawn_range
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
@@ -94,7 +95,7 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         self.packet_source = packet_source
 
         # Setting up the Tracking array for storing all the RPacketTracker instances
-        self.rpacket_tracker = None
+        self.rpacket_tracker: TypedList[TrackerFull] | None = None
 
         # Set number of threads
         self.nthreads = nthreads
@@ -153,9 +154,9 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
 
     def run(
         self,
-        transport_state,
-        show_progress_bars=True,
-    ):
+        transport_state: MonteCarloTransportStateNonhomologous,
+        show_progress_bars: bool = True,
+    ) -> None:
         """
         Run the montecarlo calculation.
 
@@ -166,18 +167,14 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         show_progress_bars : bool
             Show progress bars
 
-        Returns
-        -------
-        v_packets_energy_hist : ndarray
-            Histogram of energy from virtual packets
         """
-        return self.run_nonhomologous(transport_state, show_progress_bars)
+        self.run_nonhomologous(transport_state, show_progress_bars)
 
     def run_nonhomologous(
         self,
-        transport_state,
-        show_progress_bars=True,
-    ):
+        transport_state: MonteCarloTransportStateNonhomologous,
+        show_progress_bars: bool = True,
+    ) -> None:
         """
         Run the montecarlo calculation using nonhomologous mode (no continuum).
 
@@ -188,10 +185,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         show_progress_bars : bool
             Show progress bars
 
-        Returns
-        -------
-        v_packets_energy_hist : ndarray
-            Histogram of energy from virtual packets
         """
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
@@ -225,32 +218,11 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             packet_propagation_function=packet_propagation,
         )
 
-        v_packets_energy_hist = np.zeros_like(
-            self.spectrum_frequency_grid.value
-        )
-        if number_of_vpackets > 0:
-            v_packets_energy_hist, vpacket_tracker = (
-                calculate_virtual_packet_spectrum(
-                    transport_state.packet_collection,
-                    transport_state.geometry_state_numba,
-                    0.0,
-                    transport_state.opacity_state_numba,
-                    self.montecarlo_configuration,
-                    self.spectrum_frequency_grid.value,
-                    trackers_list,
-                    number_of_vpackets,
-                    trace_vpacket_volley,
-                )
-            )
+        self.rpacket_tracker = trackers_list if number_of_vpackets > 0 else None
 
         # Attach estimators to transport state
         transport_state.estimators_bulk = estimators_bulk
         transport_state.estimators_line = estimators_line
-
-        if self.montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
-            number_of_vpackets > 0
-        ):
-            transport_state.vpacket_tracker = vpacket_tracker
 
         update_iterations_pbar(1)
         refresh_packet_pbar()
@@ -269,16 +241,13 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
                 trackers_last_interaction_to_df(trackers_list)
             )
 
-        transport_state.virt_logging = (
-            self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
-        )
-
-        return v_packets_energy_hist
-
     @classmethod
     def from_config(
-        cls, config, packet_source, enable_virtual_packet_logging=False
-    ):
+        cls,
+        config: Configuration,
+        packet_source: BasePacketSource,
+        enable_virtual_packet_logging: bool = False,
+    ) -> Self:
         """
         Create a new MontecarloTransport instance from a Configuration object.
 
@@ -302,11 +271,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             logger.debug("Electron scattering switched on")
             constants.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
-        spectrum_frequency_grid = quantity_linspace(
-            config.spectrum.stop.to("Hz", u.spectral()),
-            config.spectrum.start.to("Hz", u.spectral()),
-            num=config.spectrum.num + 1,
-        )
         running_mode = config.spectrum.integrated.compute.upper()
 
         if running_mode == "GPU":
@@ -347,7 +311,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
 
         return cls(
             radfield_prop_solver=radfield_prop_solver,
-            spectrum_frequency_grid=spectrum_frequency_grid,
             vpacket_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,
             line_interaction_type=config.plasma.line_interaction_type,

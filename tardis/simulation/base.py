@@ -416,7 +416,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         return converged
 
-    def iterate(self, no_of_packets, no_of_virtual_packets=0):
+    def iterate(
+        self, no_of_packets: int, no_of_virtual_packets: int = 0
+    ) -> u.Quantity:
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
@@ -443,7 +445,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             iteration=self.iterations_executed,
         )
 
-        v_packets_energy_hist = self.transport.run(
+        self.transport.run(
             transport_state,
             show_progress_bars=self.show_progress_bars,
         )
@@ -487,9 +489,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
-        return emitted_luminosity, v_packets_energy_hist
+        return emitted_luminosity
 
-    def run_convergence(self):
+    def run_convergence(self) -> None:
         """
         run the simulation
         """
@@ -506,9 +508,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.plasma.electron_densities,
                 self.simulation_state.t_inner,
             )
-            emitted_luminosity, v_packets_energy_hist = self.iterate(
-                self.no_of_packets
-            )
+            emitted_luminosity = self.iterate(self.no_of_packets)
             self.converged = self.advance_state(emitted_luminosity)
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
@@ -522,7 +522,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
         )
 
-    def run_final(self):
+    def run_final(self) -> None:
         """
         run the last iteration of the simulation
         """
@@ -535,7 +535,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         # Set up spectrum solver integrator and virtual spectrum
-        emitted_luminosity, v_packets_energy_hist = self.iterate(
+        self.iterate(
             self.last_no_of_packets, self.no_of_virtual_packets
         )
 
@@ -548,11 +548,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.spectrum_solver.setup_optional_spectra(
             self.transport.transport_state,
-            v_packets_energy_hist,
-            formal_integral_solver,
-            self.simulation_state,
-            self.transport,
-            self.plasma,
+            integrator=formal_integral_solver,
+            simulation_state=self.simulation_state,
+            transport=self.transport,
+            plasma=self.plasma,
             opacity_state=self.opacity_state,
             macro_atom_state=self.macro_atom_state,
         )

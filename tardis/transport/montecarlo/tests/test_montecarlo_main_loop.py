@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+import numpy as np
 import numpy.testing as npt
 import pytest
 
@@ -99,6 +100,48 @@ def test_rpacket_transport_is_independent_of_virtual_packet_count(
 
     for without_vpackets, with_vpackets in zip(*transport_results, strict=True):
         npt.assert_array_equal(without_vpackets, with_vpackets)
+
+
+def test_virtual_packet_postprocessing_is_deferred_to_spectrum_solver(
+    montecarlo_transport_config: Configuration,
+    atomic_dataset: AtomData,
+) -> None:
+    """Verify physical transport retains histories for spectrum processing.
+
+    Claim: Monte Carlo transport records real-packet histories but does not
+    calculate or attach virtual-packet results.
+    Regime: Classic transport with virtual-packet sampling and logging enabled.
+    Verification: Virtual results appear only after SpectrumSolver consumes the
+    retained real-packet tracker.
+    """
+    simulation = Simulation.from_config(
+        montecarlo_transport_config,
+        atom_data=deepcopy(atomic_dataset),
+        virtual_packet_logging=True,
+        legacy_mode_enabled=True,
+    )
+    simulation.iterate(20, 3)
+
+    transport = simulation.transport
+    transport_state = transport.transport_state
+    assert transport.rpacket_tracker is not None
+    assert transport_state.vpacket_tracker is None
+    assert transport_state.virt_logging is False
+
+    rpacket_tracker = transport.rpacket_tracker
+    simulation.spectrum_solver.solve_virtual_packet_spectrum(
+        transport_state,
+        transport.montecarlo_configuration,
+        rpacket_tracker,
+    )
+    transport.rpacket_tracker = None
+
+    assert transport_state.vpacket_tracker is not None
+    assert transport_state.virt_logging is True
+    assert transport.rpacket_tracker is None
+    assert np.any(
+        simulation.spectrum_solver._montecarlo_virtual_luminosity.value != 0
+    )
 
 
 def test_montecarlo_transport_vpacket_log(

@@ -94,7 +94,7 @@ def verysimple_time_explosion(nb_simulation_verysimple):
 @pytest.fixture(scope="package")
 def verysimple_vpacket_collection(nb_simulation_verysimple):
     spectrum_frequency_grid = (
-        nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        nb_simulation_verysimple.spectrum_solver.spectrum_frequency_grid.value
     )
     return VPacketCollection(
         source_rpacket_index=0,
@@ -109,7 +109,7 @@ def verysimple_vpacket_collection(nb_simulation_verysimple):
 @pytest.fixture(scope="package")
 def verysimple_3vpacket_collection(nb_simulation_verysimple):
     spectrum_frequency_grid = (
-        nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        nb_simulation_verysimple.spectrum_solver.spectrum_frequency_grid.value
     )
     return VPacketCollection(
         source_rpacket_index=0,

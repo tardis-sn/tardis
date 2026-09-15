@@ -397,7 +397,7 @@ class SimpleTARDISWorkflow:
         opacity_states: dict,
         no_of_real_packets: int,
         no_of_virtual_packets: int = 0,
-    ) -> np.ndarray:
+    ) -> None:
         """Solve the MonteCarlo process
 
         Parameters
@@ -409,10 +409,6 @@ class SimpleTARDISWorkflow:
         no_of_virtual_packets
             Number of virtual packets to simulate per interaction.
 
-        Returns
-        -------
-        virtual_packet_energies
-            Array of unnormalized virtual packet energies in each frequency bin.
         """
         opacity_state = opacity_states["opacity_state"]
         macro_atom_state = opacity_states["macro_atom_state"]
@@ -427,7 +423,7 @@ class SimpleTARDISWorkflow:
             iteration=self.completed_iterations,
         )
 
-        virtual_packet_energies = self.transport_solver.run(
+        self.transport_solver.run(
             self.transport_state,
             show_progress_bars=self.show_progress_bars,
         )
@@ -436,12 +432,9 @@ class SimpleTARDISWorkflow:
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        return virtual_packet_energies
-
     def initialize_spectrum_solver(
         self,
         opacity_states: dict,
-        virtual_packet_energies: np.ndarray | None = None,
     ) -> None:
         """Set up the spectrum solver
 
@@ -449,17 +442,11 @@ class SimpleTARDISWorkflow:
         ----------
         opacity_states
             Opacity and macro atom states.
-        virtual_packet_energies
-            Array of virtual packet energies binned by frequency.
         """
         # Set up spectrum solver
         self.spectrum_solver.transport_state = self.transport_state
 
-        if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
-                virtual_packet_energies
-            )
-
+        formal_integrator = None
         if self.integrated_spectrum_settings is not None:
             # Set up spectrum solver integrator
             self.spectrum_solver.integrator_settings = (
@@ -471,18 +458,17 @@ class SimpleTARDISWorkflow:
                 integrator_settings.interpolate_shells,
                 getattr(integrator_settings, "method", None),
             )
-            self.spectrum_solver.setup_optional_spectra(
-                self.transport_state,
-                virtual_packet_luminosity=None,
-                integrator=formal_integrator,
-                simulation_state=self.simulation_state,
-                transport=self.transport_solver,
-                plasma=self.plasma_solver,
-                opacity_state=opacity_states["opacity_state"],
-                macro_atom_state=opacity_states["macro_atom_state"],
-            )
+        self.spectrum_solver.setup_optional_spectra(
+            self.transport_state,
+            integrator=formal_integrator,
+            simulation_state=self.simulation_state,
+            transport=self.transport_solver,
+            plasma=self.plasma_solver,
+            opacity_state=opacity_states["opacity_state"],
+            macro_atom_state=opacity_states["macro_atom_state"],
+        )
 
-    def run(self):
+    def run(self) -> None:
         """Run the TARDIS simulation until convergence is reached"""
         # Initialize iterations progress bar if showing progress bars
         if self.show_progress_bars:
@@ -496,9 +482,7 @@ class SimpleTARDISWorkflow:
 
             self.opacity_states = self.solve_opacity()
 
-            virtual_packet_energies = self.solve_montecarlo(
-                self.opacity_states, self.real_packet_count
-            )
+            self.solve_montecarlo(self.opacity_states, self.real_packet_count)
 
             (
                 estimated_values,
@@ -522,13 +506,10 @@ class SimpleTARDISWorkflow:
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
         self.opacity_states = self.solve_opacity()
-        virtual_packet_energies = self.solve_montecarlo(
+        self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
 
-        self.initialize_spectrum_solver(
-            self.opacity_states,
-            virtual_packet_energies,
-        )
+        self.initialize_spectrum_solver(self.opacity_states)
