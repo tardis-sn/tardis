@@ -8,6 +8,9 @@ import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.logger import montecarlo_tracking as mc_tracker
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -15,9 +18,6 @@ from tardis.transport.montecarlo.configuration.base import (
 )
 from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
-)
-from tardis.transport.montecarlo.modes.iip.montecarlo_transport import (
-    montecarlo_transport,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
@@ -35,6 +35,9 @@ from tardis.transport.montecarlo.progress_bars import (
     refresh_packet_pbar,
     reset_packet_pbar,
     update_iterations_pbar,
+)
+from tardis.transport.montecarlo.transport_physics import (
+    resolve_transport_physics,
 )
 from tardis.util.base import (
     quantity_linspace,
@@ -198,20 +201,32 @@ class MCTransportSolverIIP(HDFWriterMixin):
         if show_progress_bars:
             reset_packet_pbar(number_of_rpackets)
 
+        if not isinstance(
+            transport_state.geometry_state_numba,
+            NumbaHomologousRadial1DGeometry,
+        ):
+            raise TypeError("Continuum transport requires homologous geometry.")
+        transport_physics = resolve_transport_physics(
+            transport_state.geometry_state_numba,
+            True,
+            continuum_process_enabled=True,
+        )
+
         # IIP mode: returns 3 estimator objects (bulk, line, continuum)
         (
             estimators_bulk,
             estimators_line,
             estimators_continuum,
-        ) = montecarlo_transport(
+        ) = transport_physics.transport_packets(
             transport_state.packet_collection,
             transport_state.geometry_state_numba,
-            transport_state.time_explosion.cgs.value,
             transport_state.opacity_state_numba,
             self.montecarlo_configuration,
             transport_state.n_levels_bf_species_by_n_cells_tuple,
             trackers_list,
             show_progress_bars=show_progress_bars,
+            packet_propagation_function=(transport_physics.propagate_packet),
+            enable_full_relativity=(transport_physics.enable_full_relativity),
         )
 
         # Attach estimators to transport state

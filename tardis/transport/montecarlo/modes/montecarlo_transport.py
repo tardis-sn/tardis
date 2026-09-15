@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -29,6 +30,12 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 
 if TYPE_CHECKING:
+    from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+    from tardis.model.geometry.radial1d_homologous import (
+        NumbaHomologousRadial1DGeometry,
+    )
+    from tardis.opacities.opacity_state_numba import OpacityStateNumba
+    from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
     from tardis.transport.montecarlo.configuration.base import (
         MonteCarloConfiguration,
     )
@@ -238,15 +245,16 @@ def get_vpacket_tracker(
 @njit(**njit_dict)
 def montecarlo_transport_with_vpackets(
     packet_collection: PacketCollection,
-    geometry_state_numba,
-    time_explosion: float,
-    opacity_state_numba,
+    geometry_state_numba: NumbaRadial1DGeometry
+    | NumbaHomologousRadial1DGeometry,
+    opacity_state_numba: OpacityStateNumba | OpacityStateNumbaIIP,
     montecarlo_configuration: MonteCarloConfiguration,
     spectrum_frequency_grid: np.ndarray,
-    trackers,
+    trackers: TypedList,
     number_of_vpackets: int,
     show_progress_bars: bool,
-    packet_propagation_function,
+    packet_propagation_function: Callable,
+    enable_full_relativity: bool,
 ) -> tuple[
     np.ndarray,
     VPacketCollection,
@@ -262,9 +270,6 @@ def montecarlo_transport_with_vpackets(
         Packet collection containing packet input and output arrays.
     geometry_state_numba
         Numba geometry object for the transport mode.
-    time_explosion : float
-        Time since explosion in seconds. Non-homologous mode accepts but does
-        not use this value.
     opacity_state_numba
         Numba opacity state.
     montecarlo_configuration : MonteCarloConfiguration
@@ -279,6 +284,8 @@ def montecarlo_transport_with_vpackets(
         Whether packet progress bars are enabled.
     packet_propagation_function
         Mode-specific packet propagation function.
+    enable_full_relativity : bool
+        Whether to use TARDIS's existing full-relativity branch.
 
     Returns
     -------
@@ -333,13 +340,13 @@ def montecarlo_transport_with_vpackets(
         packet_propagation_function(
             r_packet,
             geometry_state_numba,
-            time_explosion,
             opacity_state_numba,
             estimators_bulk_thread,
             estimators_line_thread,
             vpacket_collection,
             tracker,
             montecarlo_configuration,
+            enable_full_relativity,
         )
         set_packet_collection_output(packet_collection, r_packet, i)
 

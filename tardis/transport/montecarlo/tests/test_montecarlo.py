@@ -363,9 +363,7 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     # model.full_relativity = full_relativity
 
     velocity = packet.r / time_explosion
-    doppler_factor = get_doppler_factor(
-        velocity, packet.mu, full_relativity
-    )
+    doppler_factor = get_doppler_factor(velocity, packet.mu, full_relativity)
 
     numba_estimator = init_estimators_bulk(
         mean_intensity_total=packet_params["j"],
@@ -379,9 +377,7 @@ def test_move_packet(packet_params, expected_params, full_relativity):
         None,
         time_explosion_quantity,
     ).to_numba()
-    move_r_packet(
-        packet, distance, geometry, numba_estimator, full_relativity
-    )
+    move_r_packet(packet, distance, geometry, numba_estimator, full_relativity)
 
     assert_almost_equal(packet.mu, expected_params["mu"])
     assert_almost_equal(packet.r, expected_params["r"])
@@ -391,8 +387,6 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     if full_relativity:
         expected_j *= doppler_factor
         expected_nubar *= doppler_factor
-
-    mc.ENABLE_FULL_RELATIVITY = False
 
     assert_allclose(
         numba_estimator.j_estimator[packet.current_shell_id],
@@ -477,9 +471,6 @@ methods related to continuum interactions.
 )
 def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     packet = radiative_packet.RPacket(r=r, mu=mu, energy=0.9, nu=0.4)
-    mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
-    mc.ENABLE_FULL_RELATIVITY = full_relativity
-
     velocity = r * inv_t_exp
     inverse_doppler_factor = get_inverse_doppler_factor(
         velocity, mu, full_relativity
@@ -489,8 +480,6 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     )
 
     doppler_factor = get_doppler_factor(velocity, mu, full_relativity)
-    mc.ENABLE_FULL_RELATIVITY = False
-
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
 
 
@@ -505,12 +494,9 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
 )
 def test_angle_transformation_invariance(mu, r, inv_t_exp):
     packet = radiative_packet.RPacket(r, mu, 0.4, 0.9)
-    mc.ENABLE_FULL_RELATIVITY = True
-
     mu1 = angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, mu)
     mu_obtained = angle_aberration_LF_to_CMF(packet, 1 / inv_t_exp, mu1)
 
-    mc.ENABLE_FULL_RELATIVITY = False
     assert_almost_equal(mu_obtained, mu)
 
 
@@ -536,8 +522,6 @@ def test_compute_distance2line_relativistic(
         mean_intensity_total=transport.j_estimator,
         mean_frequency=transport.nu_bar_estimator,
     )
-    mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
-
     velocity = r / t_exp
     doppler_factor = get_doppler_factor(velocity, mu, full_relativity)
     comov_nu = packet.nu * doppler_factor
@@ -558,8 +542,6 @@ def test_compute_distance2line_relativistic(
 
     doppler_factor = get_doppler_factor(velocity, mu, full_relativity)
     comov_nu = packet.nu * doppler_factor
-    mc.ENABLE_FULL_RELATIVITY = False
-
     assert_allclose(comov_nu, nu_line, rtol=1e-14)
 
 

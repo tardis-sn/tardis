@@ -2,7 +2,6 @@
 
 from numba import njit
 
-from tardis import constants as const
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
@@ -10,7 +9,6 @@ from tardis.opacities.opacities import chi_electron_calculator
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
-    get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -31,6 +29,7 @@ from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
     trace_packet,
 )
 from tardis.transport.montecarlo.packets.movement import (
+    initialize_packet_frame,
     move_packet_across_shell_boundary,
     move_r_packet,
 )
@@ -46,20 +45,18 @@ from tardis.transport.montecarlo.packets.virtual_packet import (
     trace_vpacket_volley,
 )
 
-C_SPEED_OF_LIGHT = const.c.to("cm/s").value
-
 
 @njit
 def packet_propagation(
     r_packet: RPacket,
     geometry: NumbaHomologousRadial1DGeometry,
-    time_explosion: float,
     opacity_state: OpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     vpacket_collection: VPacketCollection,
-    rpacket_tracker,
+    rpacket_tracker: object,
     montecarlo_configuration: MonteCarloConfiguration,
+    enable_full_relativity: bool,
 ) -> None:
     """
     Execute Monte Carlo transport for a single radiative packet in classic mode.
@@ -73,8 +70,6 @@ def packet_propagation(
         The radiative packet to transport through the ejecta.
     geometry : NumbaHomologousRadial1DGeometry
         The spherically symmetric geometry of the supernova ejecta.
-    time_explosion : float
-        Time since explosion in seconds.
     opacity_state : OpacityStateNumba
         Current opacity state containing line opacities.
     estimators_bulk : EstimatorsBulk
@@ -87,23 +82,22 @@ def packet_propagation(
         Tracker for recording packet interactions and trajectories.
     montecarlo_configuration : MonteCarloConfiguration
         Configuration parameters for the Monte Carlo simulation.
+    enable_full_relativity : bool
+        Whether to use TARDIS's existing full-relativity branch.
 
-    Returns
-    -------
-    None
-        This function modifies the r_packet object in-place and updates
-        estimators and collections.
     """
+    time_explosion = geometry.time_explosion
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
-    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-        set_packet_props_full_relativity(r_packet, time_explosion)
-    else:
-        set_packet_props_partial_relativity(r_packet, time_explosion)
+    initialize_packet_frame(
+        r_packet,
+        geometry,
+        enable_full_relativity,
+    )
     r_packet.initialize_line_id(
         opacity_state,
         time_explosion,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+        enable_full_relativity,
     )
 
     trace_vpacket_volley(
@@ -112,7 +106,7 @@ def packet_propagation(
         geometry,
         time_explosion,
         opacity_state,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+        enable_full_relativity,
         montecarlo_configuration.VPACKET_TAU_RUSSIAN,
         montecarlo_configuration.SURVIVAL_PROBABILITY,
     )
@@ -128,7 +122,7 @@ def packet_propagation(
         doppler_factor = get_doppler_factor(
             velocity,
             r_packet.mu,
-            montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+            enable_full_relativity,
         )
 
         comov_nu = r_packet.nu * doppler_factor
@@ -136,7 +130,7 @@ def packet_propagation(
             opacity_state, comov_nu, r_packet.current_shell_id
         )
 
-        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+        if enable_full_relativity:
             opacity_electron *= doppler_factor
 
         distance, interaction_type, delta_shell = trace_packet(
@@ -148,7 +142,7 @@ def packet_propagation(
             opacity_electron,
             1.0,
             False,
-            montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+            enable_full_relativity,
             montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )
 
@@ -158,7 +152,7 @@ def packet_propagation(
                 distance,
                 geometry,
                 estimators_bulk,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
             rpacket_tracker.track_boundary_event(
                 r_packet,
@@ -178,7 +172,7 @@ def packet_propagation(
                 distance,
                 geometry,
                 estimators_bulk,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
 
             rpacket_tracker.track_line_interaction_before(r_packet)
@@ -188,7 +182,7 @@ def packet_propagation(
                 time_explosion,
                 line_interaction_type,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
             rpacket_tracker.track_line_interaction_after(r_packet)
             trace_vpacket_volley(
@@ -197,7 +191,7 @@ def packet_propagation(
                 geometry,
                 time_explosion,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
                 montecarlo_configuration.SURVIVAL_PROBABILITY,
             )
@@ -208,13 +202,13 @@ def packet_propagation(
                 distance,
                 geometry,
                 estimators_bulk,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
             rpacket_tracker.track_escattering_interaction_before(r_packet)
             thomson_scatter(
                 r_packet,
                 time_explosion,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
             )
             rpacket_tracker.track_escattering_interaction_after(r_packet)
 
@@ -224,7 +218,7 @@ def packet_propagation(
                 geometry,
                 time_explosion,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
                 montecarlo_configuration.SURVIVAL_PROBABILITY,
             )
@@ -249,70 +243,3 @@ def packet_propagation(
         from_shell_id=r_packet.current_shell_id,
         to_shell_id=r_packet.current_shell_id + 1,
     )
-
-
-@njit
-def set_packet_props_partial_relativity(
-    r_packet: RPacket, time_explosion: float
-) -> None:
-    """
-    Set packet properties using partial relativistic corrections.
-
-    This function applies inverse Doppler corrections to the packet frequency
-    and energy based on partial relativistic treatment (first-order in v/c).
-
-    Parameters
-    ----------
-    r_packet
-        The radiative packet whose properties will be modified.
-    time_explosion
-        Time since explosion in seconds, used to calculate velocity.
-
-    Returns
-    -------
-    Modifies r_packet.nu and r_packet.energy in-place.
-    """
-    velocity = r_packet.r / time_explosion
-    inverse_doppler_factor = get_inverse_doppler_factor(
-        velocity,
-        r_packet.mu,
-        enable_full_relativity=False,
-    )
-    r_packet.nu *= inverse_doppler_factor
-    r_packet.energy *= inverse_doppler_factor
-
-
-@njit
-def set_packet_props_full_relativity(
-    r_packet: RPacket, time_explosion: float
-) -> None:
-    """
-    Set packet properties using full relativistic corrections.
-
-    This function applies inverse Doppler corrections to the packet frequency,
-    energy, and direction cosine based on full relativistic treatment, including
-    aberration effects on the direction cosine.
-
-    Parameters
-    ----------
-    r_packet
-        The radiative packet whose properties will be modified.
-    time_explosion
-        Time since explosion in seconds, used to calculate velocity.
-
-    Returns
-    -------
-    Modifies r_packet.nu, r_packet.energy, and r_packet.mu in-place.
-    """
-    beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
-
-    velocity = r_packet.r / time_explosion
-    inverse_doppler_factor = get_inverse_doppler_factor(
-        velocity,
-        r_packet.mu,
-        enable_full_relativity=True,
-    )
-
-    r_packet.nu *= inverse_doppler_factor
-    r_packet.energy *= inverse_doppler_factor
-    r_packet.mu = (r_packet.mu + beta) / (1 + beta * r_packet.mu)
