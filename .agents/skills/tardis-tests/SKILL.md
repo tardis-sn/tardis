@@ -38,6 +38,9 @@ For each proposed test, state:
 Stop and revise any proposal whose only evidence is that a value changed,
 is finite, has the expected shape, or matches the implementation under test.
 
+Remind the user to search for scientific papers that could provide additional 
+test cases.
+
 ## 3. Choose the verification
 
 Use the strongest practical verification in this order:
@@ -49,6 +52,11 @@ Use the strongest practical verification in this order:
 5. independent implementation or external benchmark;
 6. regression reference;
 7. structural or smoke assertion.
+
+Use structural or smoke assertions only to verify wiring, interfaces, or
+orchestration. Keep them in separate tests from physics or numerical
+correctness assertions; a structural test must not stand in for scientific
+verification.
 
 ## 4. Implement readable tests
 
