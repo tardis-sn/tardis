@@ -17,7 +17,7 @@ from tardis.transport.montecarlo.configuration.constants import (
     SIGMA_THOMSON,
 )
 from tardis.transport.montecarlo.nonhomologous_grid import (
-    depressed_quartic,
+    solve_resonance_quartic,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 from tardis.transport.montecarlo.utils import MonteCarloException
@@ -119,7 +119,7 @@ def calculate_distance_line_homologous(
     return distance
 
 
-@njit(**njit_dict_no_parallel)
+@njit(fastmath=False, error_model="numpy", parallel=False)
 def calculate_distance_line(
     rpacket: RPacket,
     geometry: NumbaRadial1DGeometry,
@@ -151,7 +151,7 @@ def calculate_distance_line(
     float
         Distance to the line resonance in centimeters.
     """
-    #TODO: unit check / handling here?
+    # TODO: unit check / handling here?
     r_inner = geometry.r_inner[rpacket.current_shell_id]
     r_outer = geometry.r_outer[rpacket.current_shell_id]
     v_inner = geometry.v_inner[rpacket.current_shell_id]
@@ -165,8 +165,8 @@ def calculate_distance_line(
     # Define useful variables to simplify coefficients
     n = C_SPEED_OF_LIGHT * (1 - nu_line / nu_rest)
     m = dvdr
-    p = 1.0 - mu*mu
-    q = v_outer - m*r_outer
+    p = 1.0 - mu * mu
+    q = v_outer - m * r_outer
 
     # Characteristic scales for non-dimensionalization
     r0 = r_outer - r_inner
@@ -175,9 +175,7 @@ def calculate_distance_line(
     if v0 == 0.0:
         impact_parameter_squared = r * r * p
         if q != 0.0 and n * n < q * q:
-            x_squared = (
-                n * n * impact_parameter_squared / (q * q - n * n)
-            )
+            x_squared = n * n * impact_parameter_squared / (q * q - n * n)
             x_root = math.copysign(math.sqrt(x_squared), n / q) / r0
             x = (x_root, math.nan, math.nan, math.nan)
         else:
@@ -186,25 +184,16 @@ def calculate_distance_line(
         # Dimensionless quantities to use in the quartic solver - improves floating point accuracy
         rd = r / r0
         nd = n / v0
-        md = 1.0  # m/(v0/r0) # dimensionless m will always be 1
         qd = q / v0
 
-        md2 = md * md
         rd2 = rd * rd
-        nd2 = nd * nd
-        qd2 = qd * qd
+        impact_parameter_squared = rd2 * p
 
-        # Define coefficients of the quartic polynomial
-        a = md2
-        b = -2.0 * nd * md
-        c = nd2 + md * rd2 * p - qd2
-        d = -2.0 * nd * md * rd2 * p
-        e = nd2 * rd2 * p
+        # Obtain roots of the quartic polynomial for the dimensionless
+        # x = (d_line + r_i \mu_i) / r0.
+        x = solve_resonance_quartic(nd, impact_parameter_squared, qd)
 
-        # Obtain roots of the quartic polynomial for x (= d_line + r_i \mu_i)
-        x = depressed_quartic(a, b, c, d, e)
-
-    # Convert each root x_i to a candidate distance: d = r0*x_i - r*mu
+    # Convert each dimensionless root to a distance: d = r0*x_i - r*mu.
     # Select the nearest root that satisfies the original, unsquared resonance equation.
     distance = MISS_DISTANCE
     for x_root in x:
@@ -227,9 +216,7 @@ def calculate_distance_line(
 
         new_mu = (r * mu + d_candidate) / new_r
         new_v = v_inner + m * (new_r - r_inner)
-        comov_nu = nu_rest * (
-            1.0 - new_v / C_SPEED_OF_LIGHT * new_mu
-        )
+        comov_nu = nu_rest * (1.0 - new_v / C_SPEED_OF_LIGHT * new_mu)
         if (
             not math.isfinite(comov_nu)
             or abs(comov_nu - nu_line) > 1.0e-7 * nu_line
@@ -344,12 +331,8 @@ def get_line_id_range_nonhomologous(
     frequency_tolerance = CLOSE_LINE_THRESHOLD * max(
         abs(comov_nu_start), abs(comov_nu_end)
     )
-    minimum_frequency = (
-        min(comov_nu_start, comov_nu_end) - frequency_tolerance
-    )
-    maximum_frequency = (
-        max(comov_nu_start, comov_nu_end) + frequency_tolerance
-    )
+    minimum_frequency = min(comov_nu_start, comov_nu_end) - frequency_tolerance
+    maximum_frequency = max(comov_nu_start, comov_nu_end) + frequency_tolerance
 
     # Find the first line with frequency <= maximum_frequency.
     lower_idx = 0
