@@ -1,6 +1,5 @@
 import logging
 from collections.abc import Mapping
-from copy import deepcopy
 
 import numpy as np
 import numpy.typing as npt
@@ -147,28 +146,6 @@ class TypeIIPWorkflow:
 
         self.simulation_state.radiation_field_state = radiation_field
 
-        # create an initial LTE plasma
-        bootstrap_factory = PlasmaSolverFactory(
-            deepcopy(self.atom_data), configuration
-        )
-        bootstrap_factory.continuum_interaction_species = []
-        bootstrap_factory.legacy_nlte_species = []
-
-        # Type IIP historically uses the hydrogen evaluator with all other
-        # species on the ordinary LTE path, including helium.
-        bootstrap_factory.helium_treatment = "none"
-        bootstrap_factory.prepare_factory(
-            self.simulation_state.abundance.index,
-            "tardis.plasma.properties.property_collections",
-            configuration,
-        )
-        bootstrap_plasma = bootstrap_factory.assemble(
-            elemental_number_density,
-            radiation_field,
-            configuration.supernova.time_explosion.to("s"),
-        )
-
-        # use the LTE plasma to create an NLTE plasma
         factory = PlasmaSolverFactory(self.atom_data, configuration)
         factory.helium_treatment = "none"
         factory.legacy_nlte_species = list(
@@ -176,7 +153,7 @@ class TypeIIPWorkflow:
         )
         factory.prepare_factory(
             self.simulation_state.abundance.index,
-            "tardis.plasma.properties.iip_property_collections",
+            "tardis.plasma.properties.property_collections",
             configuration,
             allow_continuum=True,
         )
@@ -189,17 +166,16 @@ class TypeIIPWorkflow:
             elemental_number_density,
             radiation_field,
             configuration.supernova.time_explosion.to("s"),
-            equilibrium_state={
-                "electron_densities": bootstrap_plasma.electron_densities,
-                "ion_number_density": bootstrap_plasma.ion_number_density,
-                "level_number_density": bootstrap_plasma.level_number_density,
-            },
             link_t_rad_t_electron=(
                 configuration.plasma.link_t_rad_t_electron
                 * np.ones(self.simulation_state.geometry.no_of_shells_active)
             ),
         )
-
+        self.plasma_solver.freeze(
+            "electron_densities",
+            "ion_number_density",
+            "level_number_density",
+        )
         self._continuum_estimators = None
         self._tau_sobolev = calculate_sobolev_line_opacity(
             self.atom_data.lines,
@@ -221,14 +197,14 @@ class TypeIIPWorkflow:
         initial_evaluator = self._build_thermal_balance_evaluator(
             maximum_electron_density, analytic=True
         )
-
-        (
-            initial_continuum_coefficients,
-            initial_level_to_continuum_saha_factor,
-            _,
-            _,
-        ) = initial_evaluator.calculate_continuum_coefficients(
-            self.plasma_solver.t_electrons
+        calculated_continuum_coefficients = (
+            initial_evaluator.calculate_continuum_coefficients(
+                self.plasma_solver.t_electrons
+            )
+        )
+        initial_continuum_coefficients = calculated_continuum_coefficients[4]
+        initial_level_to_continuum_saha_factor = (
+            calculated_continuum_coefficients[1]
         )
 
         self._build_continuum_states(
@@ -1132,8 +1108,11 @@ class TypeIIPWorkflow:
         self._thermal_balance_evaluation = (
             self._thermal_balance_evaluator.evaluate(
                 max_electron_number_density * accepted_candidate[::2],
-                self._thermal_balance_radiation_temperature
-                * accepted_candidate[1::2],
+                np.asarray(
+                    self._thermal_balance_radiation_temperature
+                    * accepted_candidate[1::2],
+                    dtype=np.float64,
+                ),
                 accepted_seed_evaluation.normalized_population,
             )
         )
