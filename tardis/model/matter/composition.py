@@ -68,7 +68,7 @@ class Composition:
 
     def __init__(self, density, nuclide_mass_fraction):
         self.density = density
-        assert np.all(nuclide_mass_fraction.values >= 0), (
+        assert np.all(nuclide_mass_fraction.to_numpy() >= 0), (
             "Negative mass fraction detected"
         )
         self.nuclide_mass_fraction = nuclide_mass_fraction
