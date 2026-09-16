@@ -71,11 +71,35 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
 
         initial_v_inner = self.estimate_v_inner()
 
+        active_shell_range = (
+            self.simulation_state.geometry.v_inner_boundary_idx,
+            self.simulation_state.geometry.v_outer_boundary_idx,
+        )
         self.simulation_state.geometry.v_inner_boundary = initial_v_inner
+        if active_shell_range != (
+            self.simulation_state.geometry.v_inner_boundary_idx,
+            self.simulation_state.geometry.v_outer_boundary_idx,
+        ):
+            self._assemble_active_plasma()
+        self.opacity_states = self.solve_opacity()
         self.simulation_state.blackbody_packet_source.radius = (
             self.simulation_state.r_inner[0]
         )
         self.final_integrated_tau = None
+
+    def _assemble_active_plasma(self) -> None:
+        """Assembles a plasma with active geometry"""
+        self.plasma_solver = self.plasma_solver_factory.assemble(
+            self.simulation_state.calculate_elemental_number_density(
+                self.atom_data.atom_data.mass
+            ),
+            DilutePlanckianRadiationField(
+                self.simulation_state.t_radiative,
+                self.simulation_state.dilution_factor,
+            ),
+            self.simulation_state.time_explosion,
+            self.simulation_state._electron_densities,
+        )
 
     def store_plasma_state(
         self,
@@ -162,7 +186,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         )
 
         interpolator = interp1d(
-            self.tau_integ[self.simulation_state.geometry.v_inner_boundary_idx :],
+            self.tau_integ,
             self.simulation_state.geometry.v_inner_active,  # Only use the active values as we only need a numerical estimate, not an index
             fill_value="extrapolate",
         )
@@ -325,10 +349,22 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         next_values : dict
             The next values assigned to the simulation state
         """
+        active_shell_range = (
+            self.simulation_state.geometry.v_inner_boundary_idx,
+            self.simulation_state.geometry.v_outer_boundary_idx,
+        )
         next_values = super().solve_simulation_state(estimated_values)
         self.simulation_state.geometry.v_inner_boundary = next_values[
             "v_inner_boundary"
         ]
+
+        # reassemble the plasma if the geometry has changed
+        if active_shell_range != (
+            self.simulation_state.geometry.v_inner_boundary_idx,
+            self.simulation_state.geometry.v_outer_boundary_idx,
+        ):
+            self._assemble_active_plasma()
+
         self.simulation_state.blackbody_packet_source.radius = (
             self.simulation_state.r_inner[0]
         )
@@ -338,7 +374,6 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
     def solve_plasma(
         self,
         estimated_radfield_properties,
-        mask,
     ):
         """Update the plasma solution with the new radiation field estimates
 
@@ -355,8 +390,8 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
             If the plasma solver radiative rates type is unknown
         """
         radiation_field = DilutePlanckianRadiationField(
-            temperature=self.simulation_state.radiation_field_state.temperature,
-            dilution_factor=self.simulation_state.radiation_field_state.dilution_factor,
+            temperature=self.simulation_state.t_radiative,
+            dilution_factor=self.simulation_state.dilution_factor,
         )
         update_properties = dict(dilute_planckian_radiation_field=radiation_field)
         # A check to see if the plasma is set with JBluesDetailed, in which
@@ -385,12 +420,8 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         elif (
             self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE == "detailed"
         ):
-            j_blues = radiation_field.calculate_mean_intensity(
-                self.plasma_solver.atomic_data.lines.nu.values
-            )
-            j_blues[:, mask] = estimated_radfield_properties.j_blues
             update_properties["j_blues"] = pd.DataFrame(
-                j_blues,
+                estimated_radfield_properties.j_blues,
                 index=self.plasma_solver.atomic_data.lines.index,
             )
         else:
@@ -433,10 +464,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
 
             self.solve_simulation_state(estimated_values)
 
-            self.solve_plasma(
-                estimated_radfield_properties,
-                estimated_values["mask"],
-            )
+            self.solve_plasma(estimated_radfield_properties)
 
             self.converged = self.check_convergence(estimated_values)
 

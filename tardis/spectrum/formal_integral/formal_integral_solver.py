@@ -264,7 +264,6 @@ class FormalIntegralSolver:
             r_inner_interpolated,
             r_outer_interpolated,
             source_function_state,
-            simulation_state,
             opacity_state,
             electron_densities,
         )
@@ -325,7 +324,6 @@ class FormalIntegralSolver:
         r_inner_interpolated: np.ndarray,
         r_outer_interpolated: np.ndarray,
         source_function_state,
-        simulation_state,
         opacity_state,
         electron_densities,
     ) -> tuple[
@@ -352,8 +350,6 @@ class FormalIntegralSolver:
             Pre-computed outer radii for interpolation
         source_function_state : tardis.spectrum.formal_integral.source_function.SourceFunctionState
             Data class that holds the computed source function values which will be interpolated
-        simulation_state : tardis.model.SimulationState
-            The simulation state object
         opacity_state : tardis.opacities.opacity_state.OpacityState
             The opacity state object (regular, non-numba)
         electron_densities : pd.Series
@@ -377,25 +373,15 @@ class FormalIntegralSolver:
 
         electron_densities_interpolated = interp1d(
             r_middle_original,
-            electron_densities.iloc[
-                simulation_state.geometry.v_inner_boundary_idx : simulation_state.geometry.v_outer_boundary_idx
-            ],
+            electron_densities,
             fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",
         )(r_middle_interpolated)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        v_inner_boundary_idx = (
-            simulation_state.geometry.v_inner_boundary_idx
-        )
-        v_outer_boundary_idx = (
-            simulation_state.geometry.v_outer_boundary_idx
-        )
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
-            opacity_state.tau_sobolev.values[
-                :, v_inner_boundary_idx:v_outer_boundary_idx
-            ],
+            opacity_state.tau_sobolev.values,
             fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",
         )(r_middle_interpolated)
