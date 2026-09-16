@@ -56,6 +56,7 @@ def test_he_workflow_initializes_packet_progress_bar(
         "escape_energy_cosi",
         "packets_escaped",
         "gamma_ray_deposited_energy",
+        "gamma_ray_deposition_estimator",
         "total_deposited_energy",
         "positron_energy",
     ],
