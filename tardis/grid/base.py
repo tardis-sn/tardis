@@ -87,7 +87,7 @@ class TardisGrid:
         """
         tmp_config = copy.deepcopy(self.config)
         grid_row = self.grid.iloc[row_index]
-        for colname, value in zip(self.grid.columns, grid_row.values):
+        for colname, value in zip(self.grid.columns, grid_row.to_numpy()):
             _set_tardis_config_property(tmp_config, colname, value)
         return tmp_config
 
