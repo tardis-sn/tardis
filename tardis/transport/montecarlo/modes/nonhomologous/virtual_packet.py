@@ -6,7 +6,9 @@ from numba import njit
 from numba.experimental import jitclass
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacities import chi_continuum_calculator
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
@@ -21,7 +23,13 @@ from tardis.transport.montecarlo.configuration.constants import (
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
 )
-from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
+from tardis.transport.montecarlo.packets.packet_collections import (
+    VPacketCollection,
+)
+from tardis.transport.montecarlo.packets.radiative_packet import (
+    PacketStatus,
+    RPacket,
+)
 
 
 @jitclass
@@ -104,7 +112,9 @@ def trace_vpacket_within_shell(
     chi_e = cur_electron_density * SIGMA_THOMSON
 
     # Calculating doppler factor
-    v = numba_radial_1d_geometry.get_velocity(v_packet.r, v_packet.current_shell_id)
+    v = numba_radial_1d_geometry.get_velocity(
+        v_packet.r, v_packet.current_shell_id
+    )
     doppler_factor = get_doppler_factor(
         v,
         v_packet.mu,
@@ -155,9 +165,7 @@ def trace_vpacket_within_shell(
         ]
 
         distance_trace_line = calculate_distance_line_nonhomologous(
-            v_packet,
-            numba_radial_1d_geometry,
-            nu_line
+            v_packet, numba_radial_1d_geometry, nu_line
         )
 
         if distance_boundary <= distance_trace_line:
@@ -255,28 +263,54 @@ def trace_vpacket(
 
 @njit(**njit_dict_no_parallel)
 def trace_vpacket_volley(
-    r_packet,
-    vpacket_collection,
-    numba_radial_1d_geometry,
-    opacity_state,
-    enable_full_relativity,
-    tau_russian,
-    survival_probability,
-):
-    """
-    Shoot a volley of vpackets (the vpacket collection specifies how many)
-    from the current position of the rpacket.
+    r_packet: RPacket,
+    vpacket_collection: VPacketCollection,
+    numba_radial_1d_geometry: NumbaRadial1DGeometry,
+    time_explosion: float,
+    opacity_state: OpacityStateNumba,
+    enable_full_relativity: bool,
+    tau_russian: float,
+    survival_probability: float,
+    last_interaction_in_nu: float,
+    last_interaction_in_r: float,
+    last_interaction_type: int,
+    last_interaction_in_id: int,
+    last_interaction_out_id: int,
+    last_interaction_shell_id: int,
+) -> None:
+    """Shoot a volley of virtual packets from a tracked real-packet state.
 
     Parameters
     ----------
-    r_packet : [type]
-        [description]
-    vpacket_collection : [type]
-        [description]
-    numba_radial_1d_geometry : [type]
-        [description]
-    opacity_state : [type]
-        [description]
+    r_packet : RPacket
+        Real-packet state that sources the volley.
+    vpacket_collection : VPacketCollection
+        Destination for propagated virtual packets.
+    numba_radial_1d_geometry : NumbaRadial1DGeometry
+        Frozen non-homologous geometry.
+    time_explosion : float
+        Accepted for a common post-processing interface; unused for
+        non-homologous geometry.
+    opacity_state : OpacityStateNumba
+        Frozen opacity state.
+    enable_full_relativity : bool
+        Whether to use full relativistic transformations.
+    tau_russian : float
+        Optical-depth threshold for Russian roulette.
+    survival_probability : float
+        Russian-roulette survival probability.
+    last_interaction_in_nu : float
+        Parent packet frequency before its interaction.
+    last_interaction_in_r : float
+        Parent packet interaction radius.
+    last_interaction_type : int
+        Parent packet interaction type.
+    last_interaction_in_id : int
+        Absorbed line identifier, or -1.
+    last_interaction_out_id : int
+        Emitted line identifier, or -1.
+    last_interaction_shell_id : int
+        Parent packet interaction shell, or -1.
     """
     if (r_packet.nu < vpacket_collection.v_packet_spawn_start_frequency) or (
         r_packet.nu > vpacket_collection.v_packet_spawn_end_frequency
@@ -299,7 +333,9 @@ def trace_vpacket_volley(
         mu_min = 0.0
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
-    v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
+    v = numba_radial_1d_geometry.get_velocity(
+        r_packet.r, r_packet.current_shell_id
+    )
     r_packet_doppler_factor = get_doppler_factor(
         v,
         r_packet.mu,
@@ -314,7 +350,7 @@ def trace_vpacket_volley(
             # connor-mcclellan: for some reason this is still accessed and
             # causes crashes even when relativity is turned off - beta_inner
             # undefined
-            #else:
+            # else:
             #    weight = (
             #        2
             #        * (v_packet_mu + beta_inner)
@@ -363,16 +399,15 @@ def trace_vpacket_volley(
 
         v_packet.energy *= math.exp(-tau_vpacket)
 
-        # these are all placeholders and not actual values
         vpacket_collection.add_packet(
             v_packet.nu,
             v_packet.energy,
             v_packet_mu,
             r_packet.r,
-            -99,
-            -99,
-            -99,
-            -99,
-            -99,
-            -99,
+            last_interaction_in_nu,
+            last_interaction_in_r,
+            last_interaction_type,
+            last_interaction_in_id,
+            last_interaction_out_id,
+            last_interaction_shell_id,
         )

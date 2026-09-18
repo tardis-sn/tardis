@@ -57,6 +57,8 @@ class TrackerFull:
         Line ID for absorbed line interactions.
     line_emit_id : nb.int64[:]
         Line ID for emitted line interactions.
+    next_line_id : nb.int64[:]
+        Next line-search index after each event.
     event_id : nb.int64
         Current event counter.
     extend_factor : nb.int64
@@ -77,6 +79,7 @@ class TrackerFull:
     after_energy: nb.float64[:]  # type: ignore[misc]
     line_absorb_id: nb.int64[:]  # type: ignore[misc]
     line_emit_id: nb.int64[:]  # type: ignore[misc]
+    next_line_id: nb.int64[:]  # type: ignore[misc]
 
     event_id: nb.int64  # type: ignore[misc]
     extend_factor: nb.int64  # type: ignore[misc]
@@ -106,6 +109,7 @@ class TrackerFull:
         self.after_energy = np.full(length, np.nan, dtype=np.float64)
         self.line_absorb_id = np.full(length, -1, dtype=np.int64)
         self.line_emit_id = np.full(length, -1, dtype=np.int64)
+        self.next_line_id = np.full(length, -1, dtype=np.int64)
 
         self.event_id = 0
         self.extend_factor = extend_factor
@@ -141,6 +145,7 @@ class TrackerFull:
         self.after_energy = extend_float_array(self.after_energy, new_length)
         self.line_absorb_id = extend_int_array(self.line_absorb_id, new_length)
         self.line_emit_id = extend_int_array(self.line_emit_id, new_length)
+        self.next_line_id = extend_int_array(self.next_line_id, new_length)
 
     def track_line_interaction_before(self, r_packet) -> None:
         """
@@ -180,6 +185,7 @@ class TrackerFull:
         self.after_mu[self.event_id] = r_packet.mu
         self.after_energy[self.event_id] = r_packet.energy
         self.line_emit_id[self.event_id] = r_packet.next_line_id - 1
+        self.next_line_id[self.event_id] = r_packet.next_line_id
 
         # Increment event counter
         self.event_id += 1
@@ -220,6 +226,7 @@ class TrackerFull:
         self.after_nu[self.event_id] = r_packet.nu
         self.after_mu[self.event_id] = r_packet.mu
         self.after_energy[self.event_id] = r_packet.energy
+        self.next_line_id[self.event_id] = r_packet.next_line_id
 
         # Increment event counter
         self.event_id += 1
@@ -260,6 +267,7 @@ class TrackerFull:
         self.after_nu[self.event_id] = r_packet.nu
         self.after_mu[self.event_id] = r_packet.mu
         self.after_energy[self.event_id] = r_packet.energy
+        self.next_line_id[self.event_id] = r_packet.next_line_id
 
         # Increment event counter
         self.event_id += 1
@@ -302,6 +310,7 @@ class TrackerFull:
         # No line IDs for boundary events
         self.line_absorb_id[self.event_id] = -1
         self.line_emit_id[self.event_id] = -1
+        self.next_line_id[self.event_id] = r_packet.next_line_id
 
         self.event_id += 1
 
@@ -324,5 +333,4 @@ class TrackerFull:
         self.after_energy = self.after_energy[: self.event_id]
         self.line_absorb_id = self.line_absorb_id[: self.event_id]
         self.line_emit_id = self.line_emit_id[: self.event_id]
-
-
+        self.next_line_id = self.next_line_id[: self.event_id]
