@@ -130,11 +130,9 @@ def test_evaluator_uses_temperature_dependent_continuum_coefficients(
 ) -> None:
     """Keep fixed estimator coefficients while rebuilding thermal factors."""
     evaluator = toy_evaluator
-    (rates,), *_ = evaluator.calculate_continuum_coefficients(
-        np.array([1.0e4])
-    )
-    (hot_rates,), *_ = (
-        evaluator.calculate_continuum_coefficients(np.array([2.0e4]))
+    (rates,), *_ = evaluator.calculate_continuum_coefficients(np.array([1.0e4]))
+    (hot_rates,), *_ = evaluator.calculate_continuum_coefficients(
+        np.array([2.0e4])
     )
     npt.assert_allclose(hot_rates.photoionization, rates.photoionization)
     assert not np.array_equal(
@@ -344,7 +342,7 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         level_initial_guess,
     )
 
-    continuum_rate_coeff = evaluator.calculate_continuum_rate_coefficients(
+    continuum_rate_coeff = evaluator.calculate_continuum_coefficients(
         np.array([1.0e4])
     )[0][0]
 
