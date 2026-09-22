@@ -411,7 +411,7 @@ class PlasmaEquilibriumEvaluator:
 
         Parameters
         ----------
-        electron_temperature : array-like
+        electron_temperature : numpy.ndarray
             Electron temperatures in each plasma shell [K].
         """
         if self.estimated_photoionization_rate_solver is not None:
