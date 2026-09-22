@@ -7,11 +7,14 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis.io.configuration.config_reader import Configuration
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
+from tardis.workflows.util import get_tau_integ
 from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
 
 
 @pytest.fixture(scope="module")
-def v_inner_config(config_verysimple_for_simulation_one_loop):
+def v_inner_config(
+    config_verysimple_for_simulation_one_loop: Configuration,
+) -> Configuration:
     config_verysimple_for_simulation_one_loop.model.structure.velocity.start = (
         5000 * u.km / u.s
     )
@@ -24,11 +27,14 @@ def v_inner_config(config_verysimple_for_simulation_one_loop):
         "type": "damped",
         "store_iteration_properties": True,
     }
+    config_verysimple_for_simulation_one_loop.montecarlo.iterations = 7
     return config_verysimple_for_simulation_one_loop
 
 
 @pytest.fixture(scope="module")
-def v_inner_workflow(v_inner_config):
+def v_inner_workflow(
+    v_inner_config: Configuration,
+) -> InnerVelocitySolverWorkflow:
     workflow = InnerVelocitySolverWorkflow(v_inner_config)
     workflow.run()
     return workflow
@@ -156,19 +162,15 @@ def test_simple_tardis_workflow_against_test_tardis_full_regression(
     simple_workflow_verysimple, simulation_tardis_full
 ):
     j_blue_estimators = simple_workflow_verysimple.transport_state.estimators_line.mean_intensity_blueward
-    expected_j_blue_estimators = (
-        simulation_tardis_full.transport.transport_state.estimators_line.mean_intensity_blueward
-    )
+    expected_j_blue_estimators = simulation_tardis_full.transport.transport_state.estimators_line.mean_intensity_blueward
     np.testing.assert_allclose(
         j_blue_estimators,
         expected_j_blue_estimators,
         rtol=1e-14,
-        atol=1e-14 # many values equal to zero
+        atol=1e-14,  # many values equal to zero
     )
 
-    spectrum_real_packets_luminosity = (
-        simple_workflow_verysimple.spectrum_solver.spectrum_real_packets.luminosity
-    )
+    spectrum_real_packets_luminosity = simple_workflow_verysimple.spectrum_solver.spectrum_real_packets.luminosity
     expected_spectrum_real_packets_luminosity = (
         simulation_tardis_full.spectrum_solver.spectrum_real_packets.luminosity
     )
@@ -176,20 +178,16 @@ def test_simple_tardis_workflow_against_test_tardis_full_regression(
         spectrum_real_packets_luminosity,
         expected_spectrum_real_packets_luminosity,
         rtol=1e-14,
-        atol=None
+        atol=None,
     )
 
-    spectrum_virtual_packets_luminosity = (
-        simple_workflow_verysimple.spectrum_solver.spectrum_virtual_packets.luminosity
-    )
-    expected_spectrum_virtual_packets_luminosity = (
-        simulation_tardis_full.spectrum_solver.spectrum_virtual_packets.luminosity
-    )
+    spectrum_virtual_packets_luminosity = simple_workflow_verysimple.spectrum_solver.spectrum_virtual_packets.luminosity
+    expected_spectrum_virtual_packets_luminosity = simulation_tardis_full.spectrum_solver.spectrum_virtual_packets.luminosity
     assert_quantity_allclose(
         spectrum_virtual_packets_luminosity,
         expected_spectrum_virtual_packets_luminosity,
         rtol=1e-14,
-        atol=None
+        atol=None,
     )
 
 
@@ -203,10 +201,82 @@ def test_simple_tardis_workflow_against_test_tardis_full_regression(
         "iterations_v_inner_boundary",
     ],
 )
-def test_v_inner_solver_workflow(v_inner_workflow, attr, regression_data):
-    attr_data = getattr(v_inner_workflow, attr)
+def test_v_inner_solver_workflow(
+    v_inner_workflow: tuple[
+        InnerVelocitySolverWorkflow,
+        ValueError | None,
+    ],
+    attr: str,
+    regression_data: object,
+) -> None:
+    """Claim: Stored workflow output follows the active shell range.
+
+    Regime: A 50-shell v-inner solve whose boundary moves inward one shell.
+    Verification: Compare the original iterations to regression data and the
+    stored optical-depth mask to the shell range implied by each boundary.
+    """
+    workflow = v_inner_workflow
+    attr_data = getattr(workflow, attr)
     if hasattr(attr_data, "value"):
         attr_data = attr_data.value
-    attr_data = pd.DataFrame(attr_data)
-    ref_data = regression_data.sync_dataframe(attr_data)
-    pd.testing.assert_frame_equal(attr_data, ref_data, atol=1e-3, rtol=1e-6)
+    regression_attr_data = pd.DataFrame(attr_data[:2])
+    ref_data = regression_data.sync_dataframe(regression_attr_data)
+
+    if attr == "iterations_mean_optical_depth":
+        geometry = workflow.simulation_state.geometry
+        inner_boundary_indices = (
+            np.searchsorted(
+                geometry.v_inner.to_value(u.cm / u.s),
+                workflow.iterations_v_inner_boundary.to_value(u.cm / u.s),
+                side="right",
+            )
+            - 1
+        )
+        shell_indices = np.arange(len(geometry.v_inner))[None, :]
+        expected_active_shell_mask = (
+            shell_indices >= inner_boundary_indices[:, None]
+        ) & (shell_indices < geometry.v_outer_boundary_idx)
+        assert inner_boundary_indices.min() < inner_boundary_indices[0]
+        np.testing.assert_array_equal(
+            ~np.isnan(attr_data),
+            expected_active_shell_mask,
+        )
+
+    pd.testing.assert_frame_equal(
+        regression_attr_data,
+        ref_data,
+        atol=1e-3,
+        rtol=1e-6,
+    )
+
+
+def test_get_tau_integ_uses_active_shell_properties(
+    v_inner_workflow: tuple[
+        InnerVelocitySolverWorkflow,
+        ValueError | None,
+    ],
+) -> None:
+    tau_integ = get_tau_integ(
+        v_inner_workflow.plasma_solver,
+        v_inner_workflow.opacity_states["opacity_state"],
+        v_inner_workflow.simulation_state,
+        bin_size=2,
+    )
+
+    no_of_active_shells = v_inner_workflow.simulation_state.no_of_shells
+    assert tau_integ["planck"].shape == (no_of_active_shells,)
+    assert tau_integ["rosseland"].shape == (no_of_active_shells,)
+
+
+def test_estimate_v_inner_uses_active_integrated_tau(
+    v_inner_workflow: tuple[
+        InnerVelocitySolverWorkflow,
+        ValueError | None,
+    ],
+) -> None:
+    estimated_v_inner = v_inner_workflow.estimate_v_inner()
+
+    assert estimated_v_inner.unit.is_equivalent(u.km / u.s)
+    assert v_inner_workflow.tau_integ.shape == (
+        v_inner_workflow.simulation_state.no_of_shells,
+    )
