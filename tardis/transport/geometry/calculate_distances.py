@@ -67,7 +67,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_distance_line_homologous(
+def calculate_distance_line(
     r_packet: RPacket,
     comov_nu: float,
     is_last_line: bool,
@@ -162,7 +162,7 @@ def calculate_packet_velocity_properties(
 
 
 @njit(fastmath=False, error_model="numpy", parallel=False)
-def calculate_distance_line(
+def calculate_distance_line_nonhomologous(
     rpacket: RPacket,
     geometry: NumbaRadial1DGeometry,
     nu_line: float,
@@ -384,7 +384,7 @@ def calculate_projected_gradient_zero_distances(
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_comoving_frequency(
+def calculate_comoving_frequency_nonhomologous(
     rpacket: RPacket,
     geometry: NumbaRadial1DGeometry,
     distance: float,
@@ -401,7 +401,7 @@ def calculate_comoving_frequency(
 
 
 @njit(**njit_dict_no_parallel)
-def get_line_id_range(
+def get_line_id_range_nonhomologous(
     line_list_nu: npt.NDArray[np.float64],
     comov_nu_start: float,
     comov_nu_end: float,

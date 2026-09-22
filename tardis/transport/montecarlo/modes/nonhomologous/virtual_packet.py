@@ -11,12 +11,12 @@ from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
 from tardis.transport.geometry.calculate_distances import (
-    calculate_comoving_frequency,
+    calculate_comoving_frequency_nonhomologous,
     calculate_distance_boundary,
-    calculate_distance_line,
+    calculate_distance_line_nonhomologous,
     calculate_packet_velocity_properties,
     calculate_projected_gradient_zero_distances,
-    get_line_id_range,
+    get_line_id_range_nonhomologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
@@ -157,17 +157,17 @@ def trace_vpacket_within_shell(
         else:
             interval_end = distance_boundary
 
-        comov_nu_start = calculate_comoving_frequency(
+        comov_nu_start = calculate_comoving_frequency_nonhomologous(
             v_packet, numba_radial_1d_geometry, interval_start
         )
-        comov_nu_end = calculate_comoving_frequency(
+        comov_nu_end = calculate_comoving_frequency_nonhomologous(
             v_packet, numba_radial_1d_geometry, interval_end
         )
         (
             start_line_id,
             stop_line_id,
             line_id_step,
-        ) = get_line_id_range(
+        ) = get_line_id_range_nonhomologous(
             opacity_state.line_list_nu,
             comov_nu_start,
             comov_nu_end,
@@ -176,7 +176,7 @@ def trace_vpacket_within_shell(
         for cur_line_id in range(
             start_line_id, stop_line_id, line_id_step
         ):
-            distance_trace_line = calculate_distance_line(
+            distance_trace_line = calculate_distance_line_nonhomologous(
                 v_packet,
                 numba_radial_1d_geometry,
                 opacity_state.line_list_nu[cur_line_id],

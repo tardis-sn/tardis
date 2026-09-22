@@ -9,12 +9,12 @@ from tardis.model.geometry.radial1d import (
 )
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.geometry.calculate_distances import (
-    calculate_comoving_frequency,
+    calculate_comoving_frequency_nonhomologous,
     calculate_distance_boundary,
-    calculate_distance_line,
+    calculate_distance_line_nonhomologous,
     calculate_packet_velocity_properties,
     calculate_projected_gradient_zero_distances,
-    get_line_id_range,
+    get_line_id_range_nonhomologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
@@ -119,24 +119,24 @@ def trace_packet(
         else:
             interval_end = distance_boundary
 
-        comov_nu_start = calculate_comoving_frequency(
+        comov_nu_start = calculate_comoving_frequency_nonhomologous(
             r_packet, numba_radial_1d_geometry, interval_start
         )
-        comov_nu_end = calculate_comoving_frequency(
+        comov_nu_end = calculate_comoving_frequency_nonhomologous(
             r_packet, numba_radial_1d_geometry, interval_end
         )
         (
             start_line_id,
             stop_line_id,
             line_id_step,
-        ) = get_line_id_range(
+        ) = get_line_id_range_nonhomologous(
             opacity_state.line_list_nu,
             comov_nu_start,
             comov_nu_end,
         )
 
         for cur_line_id in range(start_line_id, stop_line_id, line_id_step):
-            distance_trace = calculate_distance_line(
+            distance_trace = calculate_distance_line_nonhomologous(
                 r_packet,
                 numba_radial_1d_geometry,
                 opacity_state.line_list_nu[cur_line_id],
@@ -147,7 +147,7 @@ def trace_packet(
                 continue
 
             if distance_electron < distance_trace:
-                comov_nu_event = calculate_comoving_frequency(
+                comov_nu_event = calculate_comoving_frequency_nonhomologous(
                     r_packet,
                     numba_radial_1d_geometry,
                     distance_electron,
@@ -231,7 +231,7 @@ def trace_packet(
             ) / opacity_electron
 
         if distance_electron < interval_end:
-            comov_nu_event = calculate_comoving_frequency(
+            comov_nu_event = calculate_comoving_frequency_nonhomologous(
                 r_packet,
                 numba_radial_1d_geometry,
                 distance_electron,

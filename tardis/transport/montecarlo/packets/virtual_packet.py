@@ -14,7 +14,7 @@ from tardis.transport.frame_transformations import (
 )
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
-    calculate_distance_line_homologous,
+    calculate_distance_line,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import (
@@ -153,7 +153,7 @@ def trace_vpacket_within_shell(
 
         is_last_line = cur_line_id == len(opacity_state.line_list_nu) - 1
 
-        distance_trace_line = calculate_distance_line_homologous(
+        distance_trace_line = calculate_distance_line(
             v_packet,
             comov_nu,
             is_last_line,

@@ -11,7 +11,7 @@ from tardis.opacities.tau_sobolev import (
     calculate_sobolev_line_opacity as classic_calculate_sobolev_line_opacity,
 )
 from tardis.transport.geometry.calculate_distances import (
-    calculate_distance_line,
+    calculate_distance_line_nonhomologous,
 )
 from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
@@ -331,10 +331,13 @@ def test_nonhomologous_distance_solver_disables_fastmath() -> None:
     """Preserve finite checks and cancellation-sensitive root arithmetic."""
     assert depressed_quartic.targetoptions["fastmath"] is False
     assert solve_resonance_quartic.targetoptions["fastmath"] is False
-    assert calculate_distance_line.targetoptions["fastmath"] is False
+    assert (
+        calculate_distance_line_nonhomologous.targetoptions["fastmath"]
+        is False
+    )
 
 
-def test_calculate_distance_line_preserves_near_line_center_root() -> None:
+def test_nonhomologous_distance_preserves_near_line_center_root() -> None:
     """Select the physical member of a close quartic root pair."""
     shell_width = 1.0e12
     geometry = NumbaRadial1DGeometry(
@@ -356,7 +359,9 @@ def test_calculate_distance_line_preserves_near_line_center_root() -> None:
         1.0 - line_velocity * 2.5e5 / C_SPEED_OF_LIGHT
     )
 
-    distance = calculate_distance_line(packet, geometry, line_frequency)
+    distance = calculate_distance_line_nonhomologous(
+        packet, geometry, line_frequency
+    )
 
     npt.assert_allclose(
         distance,
