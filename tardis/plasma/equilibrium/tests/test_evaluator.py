@@ -208,10 +208,10 @@ def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
     )
 
     low_excitation_result = toy_evaluator.evaluate(
-        [1.0e9], [1.0e4], low_excitation_initial_guess
+        np.array([1.0e9]), np.array([1.0e4]), low_excitation_initial_guess
     )
     high_excitation_result = toy_evaluator.evaluate(
-        [1.0e9], [1.0e4], high_excitation_initial_guess
+        np.array([1.0e9]), np.array([1.0e4]), high_excitation_initial_guess
     )
 
     npt.assert_allclose(
@@ -389,8 +389,8 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
     Verification: Both values are fixed analytically by independent linear
     balance relations supplied to the evaluator.
     """
-    target_electron_density = 2.0e9
-    target_electron_temperature = 8.0e3
+    target_electron_density = np.array([2.0e9])
+    target_electron_temperature = np.array([8.0e3])
     maximum_electron_density = 1.0e10
     radiation_temperature = 1.0e4
 
@@ -404,11 +404,11 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
             )
             return (
                 pd.DataFrame(
-                    [[8.0e9], [target_electron_density]],
+                    [[8.0e9], target_electron_density],
                     index=ion_index,
                     columns=[0],
                 ),
-                pd.Series([target_electron_density], index=[0]),
+                pd.Series(target_electron_density, index=[0]),
             )
 
     # Use a linear heating relation with an exact zero at 8000 K so the
@@ -437,8 +437,8 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
     )
 
     final_evaluation = toy_evaluator.evaluate(
-        [target_electron_density],
-        [target_electron_temperature],
+        target_electron_density,
+        target_electron_temperature,
         level_initial_guess,
     )
 
