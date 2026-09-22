@@ -163,6 +163,30 @@ def test_snake_case():
     )
 
 
+class MockVirtLoggingHDF(HDFWriterMixin):
+    hdf_properties = ["property"]
+    vpacket_hdf_properties = ["vproperty"]
+    optional_hdf_properties = []
+
+    virt_logging = True
+
+    def __init__(self, property, vproperty):
+        self.property = property
+        self.vproperty = vproperty
+
+
+def test_full_hdf_properties_idempotent():
+    actual = MockVirtLoggingHDF(1.5, 2.5)
+    expected = ["property", "vproperty"]
+
+    first = list(actual.full_hdf_properties)
+    second = list(actual.full_hdf_properties)
+
+    assert first == expected
+    assert second == expected
+    assert actual.hdf_properties == ["property"]
+
+
 def test_tardis_version_metadata(tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(1.5)
