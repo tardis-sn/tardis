@@ -45,7 +45,7 @@ jobs:
     needs: resolve-pull-request
     if: >
       github.event_name == 'pull_request_target' &&
-      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.resolve-pull-request.outputs.association) &&
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), needs.resolve-pull-request.outputs.association) &&
       needs.resolve-pull-request.outputs.gsoc == 'true'
     runs-on: ubuntu-latest
     env:
@@ -72,7 +72,7 @@ jobs:
     if: >
       github.event_name == 'workflow_run' &&
       needs.resolve-pull-request.outputs.number != '' &&
-      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.resolve-pull-request.outputs.association) &&
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), needs.resolve-pull-request.outputs.association) &&
       needs.resolve-pull-request.outputs.gsoc == 'false' &&
       github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
@@ -108,7 +108,7 @@ jobs:
     if: >
       github.event_name == 'workflow_run' &&
       needs.resolve-pull-request.outputs.number != '' &&
-      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), needs.resolve-pull-request.outputs.association) &&
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), needs.resolve-pull-request.outputs.association) &&
       needs.resolve-pull-request.outputs.gsoc == 'false' &&
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest

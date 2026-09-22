@@ -37,9 +37,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
             self.convergence_strategy.v_inner_boundary
         )
 
-        self.store_iteration_properties = (
-            configuration.montecarlo.convergence_strategy.v_inner_boundary.store_iteration_properties
-        )
+        self.store_iteration_properties = configuration.montecarlo.convergence_strategy.v_inner_boundary.store_iteration_properties
 
         # Need to compute the opacity state on init to get the optical depths
         # for the first inner boundary calculation.
@@ -110,7 +108,6 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         electron_densities,
         t_inner,
         v_inner_boundary,
-        tau_integ,
     ):
         """Store current plasma information,
         including the velocity of the inner boundary
@@ -133,9 +130,16 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
             temperature of inner boundary
         v_inner_boundary : astropy.units.Quantity
             velocity of inner boundary
-        tau_integ : np.ndarray
-            Rosseland mean optical depth
         """
+        # Recompute integrated tau because the shape of the model can change
+        tau_integ = np.log(
+            get_tau_integ(
+                self.plasma_solver,
+                self.opacity_states["opacity_state"],
+                self.simulation_state,
+            )[self.mean_optical_depth]
+        )
+
         self.iterations_t_rad[i, -num_active_shells:] = t_radiative
         self.iterations_w[i, -num_active_shells:] = dilution_factor
         self.iterations_electron_densities[i, -num_active_shells:] = (
@@ -156,12 +160,16 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         executed_iterations : int
             iteration index, i.e. number of iterations executed minus one!
         """
-        self.iterations_t_rad = self.iterations_t_rad[: executed_iterations + 1, :]
+        self.iterations_t_rad = self.iterations_t_rad[
+            : executed_iterations + 1, :
+        ]
         self.iterations_w = self.iterations_w[: executed_iterations + 1, :]
         self.iterations_electron_densities = self.iterations_electron_densities[
             : executed_iterations + 1, :
         ]
-        self.iterations_t_inner = self.iterations_t_inner[: executed_iterations + 1]
+        self.iterations_t_inner = self.iterations_t_inner[
+            : executed_iterations + 1
+        ]
         self.iterations_v_inner_boundary = self.iterations_v_inner_boundary[
             : executed_iterations + 1
         ]
@@ -195,7 +203,8 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         if np.isnan(estimated_v_inner):
             raise ValueError("The estimated v_inner is nan -- aborting")
         logger.info(
-            "Estimated v_inner_boundary: %s", f"{estimated_v_inner.to(u.km / u.s):.2f}"
+            "Estimated v_inner_boundary: %s",
+            f"{estimated_v_inner.to(u.km / u.s):.2f}",
         )
 
         if estimated_v_inner < self.simulation_state.geometry.v_inner[0]:
@@ -213,7 +222,9 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
 
     @property
     def property_mask(self):
-        mask = np.zeros((len(self.simulation_state.geometry.r_inner)), dtype=bool)
+        mask = np.zeros(
+            (len(self.simulation_state.geometry.r_inner)), dtype=bool
+        )
         mask[
             self.simulation_state.geometry.v_inner_boundary_idx : self.simulation_state.geometry.v_outer_boundary_idx
         ] = True
@@ -393,14 +404,18 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
             temperature=self.simulation_state.t_radiative,
             dilution_factor=self.simulation_state.dilution_factor,
         )
-        update_properties = dict(dilute_planckian_radiation_field=radiation_field)
+        update_properties = dict(
+            dilute_planckian_radiation_field=radiation_field
+        )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
         if (
             self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
             == "blackbody"
         ):
-            planckian_radiation_field = radiation_field.to_planckian_radiation_field()
+            planckian_radiation_field = (
+                radiation_field.to_planckian_radiation_field()
+            )
             j_blues = planckian_radiation_field.calculate_mean_intensity(
                 self.plasma_solver.atomic_data.lines.nu.values
             )
@@ -418,7 +433,8 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
                 j_blues, index=self.plasma_solver.atomic_data.lines.index
             )
         elif (
-            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE == "detailed"
+            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "detailed"
         ):
             update_properties["j_blues"] = pd.DataFrame(
                 estimated_radfield_properties.j_blues,
@@ -438,6 +454,10 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
+
+            # Note that we are updating the class attribute here to ensure consistency
+            self.opacity_states = self.solve_opacity()
+
             if self.store_iteration_properties:
                 self.store_plasma_state(
                     self.completed_iterations,
@@ -447,11 +467,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
                     self.plasma_solver.electron_densities,
                     self.simulation_state.t_inner,
                     self.simulation_state.geometry.v_inner_boundary,
-                    self.tau_integ,
                 )
-
-            # Note that we are updating the class attribute here to ensure consistency
-            self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
                 self.opacity_states, self.real_packet_count
@@ -476,7 +492,9 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         if self.converged:
             logger.info("\n\tStarting final iteration")
         else:
-            logger.error("\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration")
+            logger.error(
+                "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
+            )
         self.opacity_states = self.solve_opacity()
         virtual_packet_energies = self.solve_montecarlo(
             self.opacity_states,
@@ -492,10 +510,18 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
                 self.plasma_solver.electron_densities,
                 self.simulation_state.t_inner,
                 self.simulation_state.geometry.v_inner_boundary,
-                self.tau_integ,
             )
 
             self.reshape_store_plasma_state(self.completed_iterations)
+
+        # Recompute integrated optical depth a last time
+        self.tau_integ = np.log(
+            get_tau_integ(
+                self.plasma_solver,
+                self.opacity_states["opacity_state"],
+                self.simulation_state,
+            )[self.mean_optical_depth]
+        )
 
         # Keep final integrated tau always for diagnostic purposes
         self.final_integrated_tau = self.tau_integ[
