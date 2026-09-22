@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=6fdc4e25"></script>
+      <script src="../../../../_static/documentation_options.js?v=c6ecd0c4"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4957,8 +4957,6 @@ class SourceFunctionSolver:
                 The rate energy density is added to the upper level of transitions excited to it
         &quot;&quot;&quot;
         # Parse states for required values
-        v_inner_boundary_idx = sim_state.geometry.v_inner_boundary_idx
-        v_outer_boundary_idx = sim_state.geometry.v_outer_boundary_idx
         no_of_shells = sim_state.no_of_shells
         dilution_factor = sim_state.dilution_factor
         time_explosion = sim_state.time_explosion
@@ -4977,12 +4975,6 @@ class SourceFunctionSolver:
             transport_state.packet_collection.time_of_simulation * u.s
         )
 
-        # slice for the active shells
-        local_slice = slice(v_inner_boundary_idx, v_outer_boundary_idx)
-
-        transition_probabilities = transition_probabilities[:, local_slice]
-        tau_sobolevs = tau_sobolev[:, local_slice]
-
         macroatom_references = macro_atom_state.references_index
         macroatom_transition_metadata = macro_atom_state.transition_metadata
 
@@ -4996,7 +4988,7 @@ class SourceFunctionSolver:
         e_dot_u = self.calculate_e_dot_u(
             time_of_simulation,
             volume,
-            tau_sobolevs,
+            tau_sobolev,
             e_dot_lu_estimator,
             transition_probabilities,
             upper_level_index,
@@ -5037,7 +5029,7 @@ class SourceFunctionSolver:
         Jblue_lu = self.calculate_Jblue_lu(
             time_explosion, time_of_simulation, volume, j_blue_estimator
         )
-        Jred_lu = self.calculate_Jred_lu(Jblue_lu, tau_sobolevs, att_S_ul)
+        Jred_lu = self.calculate_Jred_lu(Jblue_lu, tau_sobolev, att_S_ul)
 
         return SourceFunctionState(att_S_ul, Jred_lu, Jblue_lu, e_dot_u)</div>
 
@@ -5316,7 +5308,7 @@ class SourceFunctionState:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2026.
+      <span class="lastupdated">Last updated on 22 Sep 2026.
       </span></p>
   </div>
 
