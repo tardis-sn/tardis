@@ -1,7 +1,0 @@
-tardis.spectrum.formal\_integral.source\_function module
-========================================================
-
-.. automodule:: tardis.spectrum.formal_integral.source_function
-   :members:
-   :show-inheritance:
-   :undoc-members:

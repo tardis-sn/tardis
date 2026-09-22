@@ -1,7 +1,0 @@
-tardis.spectrum.formal\_integral.formal\_integral\_numba module
-===============================================================
-
-.. automodule:: tardis.spectrum.formal_integral.formal_integral_numba
-   :members:
-   :show-inheritance:
-   :undoc-members:

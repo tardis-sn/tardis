@@ -1,7 +1,0 @@
-tardis.energy\_input.transport.GXPacket module
-==============================================
-
-.. automodule:: tardis.energy_input.transport.GXPacket
-   :members:
-   :show-inheritance:
-   :undoc-members:
