@@ -179,7 +179,7 @@ class OpacityStateNumba:
             arrays sliced. Continuum arrays are not sliced and therefore this
             method must not be used with continuum interactions.
         """
-        opacity_state = OpacityStateNumba(
+        sliced_opacity_state = OpacityStateNumba(
             self.electron_density[i],
             self.t_electrons[i],
             self.line_list_nu,
@@ -203,7 +203,8 @@ class OpacityStateNumba:
             self.photo_ion_activation_idx,
             self.k_packet_idx,
         )
-        opacity_state.sobolev_optical_depth_coefficient = (
+        # Preserve all lines while selecting the same shell slice as tau_sobolev.
+        sliced_opacity_state.sobolev_optical_depth_coefficient = (
             self.sobolev_optical_depth_coefficient[:, i]
         )
-        return opacity_state
+        return sliced_opacity_state

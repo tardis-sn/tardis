@@ -9,11 +9,12 @@ from tardis.model.geometry.radial1d import (
 )
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.geometry.calculate_distances import (
-    calculate_comoving_frequency_nonhomologous,
+    calculate_comoving_frequency,
     calculate_distance_boundary,
     calculate_distance_line,
+    calculate_packet_velocity_properties,
     calculate_projected_gradient_zero_distances,
-    get_line_id_range_nonhomologous,
+    get_line_id_range,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
@@ -90,8 +91,6 @@ def trace_packet(
     """
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
-    v_inner = numba_radial_1d_geometry.v_inner[r_packet.current_shell_id]
-
     (
         distance_boundary,
         delta_shell,
@@ -101,9 +100,7 @@ def trace_packet(
     tau_event = -np.log(np.random.random())
     tau_trace_line_combined = 0.0
 
-    dvdr = numba_radial_1d_geometry.velocity_gradient[
-        r_packet.current_shell_id
-    ]
+    dvdr = numba_radial_1d_geometry.velocity_gradient[r_packet.current_shell_id]
     distance_electron = tau_event / opacity_electron
     (
         first_gradient_zero_distance,
@@ -122,25 +119,23 @@ def trace_packet(
         else:
             interval_end = distance_boundary
 
-        comov_nu_start = calculate_comoving_frequency_nonhomologous(
+        comov_nu_start = calculate_comoving_frequency(
             r_packet, numba_radial_1d_geometry, interval_start
         )
-        comov_nu_end = calculate_comoving_frequency_nonhomologous(
+        comov_nu_end = calculate_comoving_frequency(
             r_packet, numba_radial_1d_geometry, interval_end
         )
         (
             start_line_id,
             stop_line_id,
             line_id_step,
-        ) = get_line_id_range_nonhomologous(
+        ) = get_line_id_range(
             opacity_state.line_list_nu,
             comov_nu_start,
             comov_nu_end,
         )
 
-        for cur_line_id in range(
-            start_line_id, stop_line_id, line_id_step
-        ):
+        for cur_line_id in range(start_line_id, stop_line_id, line_id_step):
             distance_trace = calculate_distance_line(
                 r_packet,
                 numba_radial_1d_geometry,
@@ -152,7 +147,7 @@ def trace_packet(
                 continue
 
             if distance_electron < distance_trace:
-                comov_nu_event = calculate_comoving_frequency_nonhomologous(
+                comov_nu_event = calculate_comoving_frequency(
                     r_packet,
                     numba_radial_1d_geometry,
                     distance_electron,
@@ -179,38 +174,33 @@ def trace_packet(
                     delta_shell,
                 )
 
-            # connor-mcclellan: some hardcoded overrides here until
-            # update_estimators_line is generalized for nonhomologous geometry
-            new_r = np.sqrt(
-                r_packet.r * r_packet.r
-                + distance_trace * distance_trace
-                + 2.0 * r_packet.r * distance_trace * r_packet.mu
+            (
+                _,
+                resonance_direction_cosine,
+                velocity_at_resonance,
+                projected_velocity_gradient,
+            ) = calculate_packet_velocity_properties(
+                r_packet, numba_radial_1d_geometry, distance_trace
             )
-            new_mu = (r_packet.mu * r_packet.r + distance_trace) / new_r
-            new_v = v_inner + dvdr * (new_r - r_inner)
-            new_doppler_factor = 1.0 - new_v / C_SPEED_OF_LIGHT * new_mu
+            new_doppler_factor = (
+                1.0
+                - velocity_at_resonance
+                / C_SPEED_OF_LIGHT
+                * resonance_direction_cosine
+            )
             energy = r_packet.energy * new_doppler_factor
-            projected_velocity_gradient = (
-                new_mu * new_mu * dvdr
-                + (1.0 - new_mu * new_mu) * new_v / new_r
-            )
             if projected_velocity_gradient == 0.0:
                 raise MonteCarloException(
                     "Sobolev optical depth is singular at the line resonance."
                 )
 
-            tau_trace_line = (
-                opacity_state.sobolev_optical_depth_coefficient[
-                    cur_line_id, r_packet.current_shell_id
-                ]
-            )
+            tau_trace_line = opacity_state.sobolev_optical_depth_coefficient[
+                cur_line_id, r_packet.current_shell_id
+            ]
             if tau_trace_line == 0.0:
-                tau_trace_line = (
-                    opacity_state.tau_sobolev[
-                        cur_line_id, r_packet.current_shell_id
-                    ]
-                    * abs(dvdr)
-                )
+                tau_trace_line = opacity_state.tau_sobolev[
+                    cur_line_id, r_packet.current_shell_id
+                ] * abs(dvdr)
             if disable_line_scattering:
                 tau_trace_line = 0.0
             else:
@@ -218,11 +208,11 @@ def trace_packet(
 
             tau_trace_electron = opacity_electron * distance_trace
             tau_trace_combined = (
-                tau_trace_line_combined
-                + tau_trace_line
-                + tau_trace_electron
+                tau_trace_line_combined + tau_trace_line + tau_trace_electron
             )
 
+            # Nonhomologous transport applies the local projected gradient at
+            # each resonance; homologous transport can normalize globally.
             estimators_line.mean_intensity_blueward[
                 cur_line_id, r_packet.current_shell_id
             ] += energy / r_packet.nu / abs(projected_velocity_gradient)
@@ -230,10 +220,7 @@ def trace_packet(
                 cur_line_id, r_packet.current_shell_id
             ] += energy
 
-            if (
-                tau_trace_combined > tau_event
-                and not disable_line_scattering
-            ):
+            if tau_trace_combined > tau_event and not disable_line_scattering:
                 r_packet.next_line_id = cur_line_id
                 r_packet.prev_line_id = cur_line_id - 1
                 return distance_trace, InteractionType.LINE, delta_shell
@@ -244,7 +231,7 @@ def trace_packet(
             ) / opacity_electron
 
         if distance_electron < interval_end:
-            comov_nu_event = calculate_comoving_frequency_nonhomologous(
+            comov_nu_event = calculate_comoving_frequency(
                 r_packet,
                 numba_radial_1d_geometry,
                 distance_electron,

@@ -1,3 +1,5 @@
+from itertools import pairwise
+
 import numpy as np
 import pandas as pd
 from astropy import units as u
@@ -17,6 +19,8 @@ SOBOLEV_COEFFICIENT = (
     .value
 )
 
+DEFAULT_BETA_SOBOLEV_QUADRATURE_ORDER = 20
+
 
 def calculate_sobolev_line_opacity(
     lines,
@@ -24,8 +28,7 @@ def calculate_sobolev_line_opacity(
     velocity_gradient,
     stimulated_emission_factor,
 ):
-    """
-    Calculates the Sobolev line opacity based on the provided parameters.
+    """Calculate the Sobolev line opacity from populations and velocity gradient.
 
     Parameters
     ----------
@@ -126,6 +129,7 @@ def calculate_sobolev_optical_depth_coefficient(
 
 @jit(nopython=True, parallel=True)
 def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
+    """Calculate Sobolev escape probabilities in place."""
     for i in prange(len(tau_sobolevs)):
         if tau_sobolevs[i] > 1e3:
             beta_sobolevs[i] = tau_sobolevs[i] ** -1
@@ -140,6 +144,7 @@ def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
 
 def calculate_beta_sobolev(tau_sobolevs):
     """Calculate the beta Sobolev values based on the provided tau_sobolevs.
+
     Values from the previous iteration can be provided.
 
     Parameters
@@ -168,6 +173,7 @@ def calculate_beta_sobolev_directional(
     sobolev_optical_depth_coefficient: pd.DataFrame,
     velocity_gradient: u.Quantity,
     velocity_over_radius: u.Quantity,
+    quadrature_order: int = DEFAULT_BETA_SOBOLEV_QUADRATURE_ORDER,
 ) -> pd.DataFrame:
     """Calculate the angle-averaged Sobolev escape probability.
 
@@ -179,46 +185,71 @@ def calculate_beta_sobolev_directional(
         Radial velocity derivative in each shell [s^-1].
     velocity_over_radius : astropy.units.Quantity
         Ratio of radial velocity to radius in each shell [s^-1].
+    quadrature_order : int, optional
+        Gauss-Legendre order used on each smooth angular interval.
 
     Returns
     -------
     pandas.DataFrame
         Angle-averaged Sobolev escape probabilities for each line and shell.
     """
-    mus, weights = np.polynomial.legendre.leggauss(20)
-    beta_sobolevs = np.zeros_like(
-        sobolev_optical_depth_coefficient.values
+    quadrature_nodes, quadrature_weights = np.polynomial.legendre.leggauss(
+        quadrature_order
     )
-    velocity_gradient = velocity_gradient.to(1 / u.s).value
-    velocity_over_radius = velocity_over_radius.to(1 / u.s).value
+    optical_depth_coefficients = sobolev_optical_depth_coefficient.to_numpy()
+    beta_sobolevs = np.zeros_like(optical_depth_coefficients, dtype=np.float64)
+    velocity_gradients = velocity_gradient.to(1 / u.s).value
+    velocity_over_radii = velocity_over_radius.to(1 / u.s).value
 
-    for mu, weight in zip(mus, weights, strict=True):
-        projected_velocity_gradient = (
-            mu * mu * velocity_gradient
-            + (1.0 - mu * mu) * velocity_over_radius
-        )
-        tau_sobolevs = np.divide(
-            sobolev_optical_depth_coefficient.values,
-            np.abs(projected_velocity_gradient),
-            out=np.full_like(
-                sobolev_optical_depth_coefficient.values, np.inf
-            ),
-            where=projected_velocity_gradient != 0.0,
-        )
-        tau_sobolevs[
-            sobolev_optical_depth_coefficient.values == 0.0
-        ] = 0.0
+    for shell_idx, (radial_gradient, transverse_gradient) in enumerate(
+        zip(velocity_gradients, velocity_over_radii, strict=True)
+    ):
+        if radial_gradient * transverse_gradient < 0.0:
+            projected_gradient_zero = np.sqrt(
+                transverse_gradient / (transverse_gradient - radial_gradient)
+            )
+            interval_boundaries = (0.0, projected_gradient_zero, 1.0)
+        else:
+            interval_boundaries = (0.0, 1.0)
 
-        beta_directional = np.empty_like(tau_sobolevs)
-        thick = tau_sobolevs > 1e3
-        thin = tau_sobolevs < 1e-4
-        intermediate = np.logical_not(np.logical_or(thick, thin))
-        beta_directional[thick] = tau_sobolevs[thick] ** -1
-        beta_directional[thin] = 1.0 - 0.5 * tau_sobolevs[thin]
-        beta_directional[intermediate] = (
-            1.0 - np.exp(-tau_sobolevs[intermediate])
-        ) / tau_sobolevs[intermediate]
-        beta_sobolevs += 0.5 * weight * beta_directional
+        for lower_bound, upper_bound in pairwise(interval_boundaries):
+            interval_half_width = 0.5 * (upper_bound - lower_bound)
+            interval_midpoint = 0.5 * (upper_bound + lower_bound)
+            direction_cosines = (
+                interval_midpoint + interval_half_width * quadrature_nodes
+            )
+            projected_velocity_gradients = (
+                direction_cosines**2 * radial_gradient
+                + (1.0 - direction_cosines**2) * transverse_gradient
+            )
+            tau_sobolevs = np.divide(
+                optical_depth_coefficients[:, shell_idx, np.newaxis],
+                np.abs(projected_velocity_gradients[np.newaxis, :]),
+                out=np.full(
+                    (
+                        optical_depth_coefficients.shape[0],
+                        quadrature_order,
+                    ),
+                    np.inf,
+                ),
+                where=projected_velocity_gradients[np.newaxis, :] != 0.0,
+            )
+            tau_sobolevs[optical_depth_coefficients[:, shell_idx] == 0.0, :] = (
+                0.0
+            )
+
+            beta_directional = np.empty_like(tau_sobolevs)
+            thick = tau_sobolevs > 1e3
+            thin = tau_sobolevs < 1e-4
+            intermediate = np.logical_not(np.logical_or(thick, thin))
+            beta_directional[thick] = tau_sobolevs[thick] ** -1
+            beta_directional[thin] = 1.0 - 0.5 * tau_sobolevs[thin]
+            beta_directional[intermediate] = (
+                1.0 - np.exp(-tau_sobolevs[intermediate])
+            ) / tau_sobolevs[intermediate]
+            beta_sobolevs[:, shell_idx] += interval_half_width * (
+                beta_directional @ quadrature_weights
+            )
 
     return pd.DataFrame(
         beta_sobolevs,
@@ -228,7 +259,8 @@ def calculate_beta_sobolev_directional(
 
 
 class TauSobolev(ProcessingPlasmaProperty):
-    """
+    """Calculate Sobolev optical depths as a plasma property.
+
     Attributes
     ----------
     tau_sobolev : Pandas DataFrame, dtype float
@@ -285,7 +317,8 @@ class TauSobolev(ProcessingPlasmaProperty):
 
 
 class BetaSobolev(ProcessingPlasmaProperty):
-    """
+    """Calculate Sobolev escape probabilities as a plasma property.
+
     Attributes
     ----------
     beta_sobolev : Numpy Array, dtype float
@@ -295,4 +328,5 @@ class BetaSobolev(ProcessingPlasmaProperty):
     latex_name = (r"\beta_{\textrm{sobolev}}",)
 
     def calculate(self, tau_sobolevs):
+        """Calculate Sobolev escape probabilities."""
         return calculate_beta_sobolev(tau_sobolevs)

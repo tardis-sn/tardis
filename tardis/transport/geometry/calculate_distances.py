@@ -22,6 +22,8 @@ from tardis.transport.montecarlo.nonhomologous_grid import (
 from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 from tardis.transport.montecarlo.utils import MonteCarloException
 
+RESONANCE_FREQUENCY_RELATIVE_TOLERANCE = 1.0e-7
+
 
 @njit(**njit_dict_no_parallel)
 def calculate_distance_boundary(r, mu, r_inner, r_outer):
@@ -119,6 +121,46 @@ def calculate_distance_line_homologous(
     return distance
 
 
+@njit(**njit_dict_no_parallel)
+def calculate_packet_velocity_properties(
+    rpacket: RPacket,
+    geometry: NumbaRadial1DGeometry,
+    distance: float,
+) -> tuple[float, float, float, float]:
+    """Calculate packet position and local velocity-field properties.
+
+    Parameters
+    ----------
+    rpacket : tardis.transport.montecarlo.packets.radiative_packet.RPacket
+        Radiative packet at the start of its trajectory segment.
+    geometry : tardis.model.geometry.radial1d.NumbaRadial1DGeometry
+        Radial geometry containing the piecewise-linear velocity field.
+    distance : float
+        Distance traveled along the packet trajectory in centimeters.
+
+    Returns
+    -------
+    tuple[float, float, float, float]
+        Radius, direction cosine, radial velocity, and projected velocity
+        gradient after traveling ``distance``.
+    """
+    radius = math.sqrt(
+        rpacket.r * rpacket.r
+        + distance * distance
+        + 2.0 * rpacket.r * distance * rpacket.mu
+    )
+    direction_cosine = (rpacket.r * rpacket.mu + distance) / radius
+    velocity = geometry.get_velocity(radius, rpacket.current_shell_id)
+    radial_velocity_gradient = geometry.velocity_gradient[
+        rpacket.current_shell_id
+    ]
+    projected_velocity_gradient = (
+        direction_cosine**2 * radial_velocity_gradient
+        + (1.0 - direction_cosine**2) * velocity / radius
+    )
+    return radius, direction_cosine, velocity, projected_velocity_gradient
+
+
 @njit(fastmath=False, error_model="numpy", parallel=False)
 def calculate_distance_line(
     rpacket: RPacket,
@@ -151,79 +193,122 @@ def calculate_distance_line(
     float
         Distance to the line resonance in centimeters.
     """
-    # TODO: unit check / handling here?
     r_inner = geometry.r_inner[rpacket.current_shell_id]
     r_outer = geometry.r_outer[rpacket.current_shell_id]
     v_inner = geometry.v_inner[rpacket.current_shell_id]
     v_outer = geometry.v_outer[rpacket.current_shell_id]
 
-    r = rpacket.r
-    dvdr = geometry.velocity_gradient[rpacket.current_shell_id]
-    nu_rest = rpacket.nu
-    mu = rpacket.mu
+    radius = rpacket.r
+    velocity_gradient = geometry.velocity_gradient[rpacket.current_shell_id]
+    rest_frequency = rpacket.nu
+    direction_cosine = rpacket.mu
 
-    # Define useful variables to simplify coefficients
-    n = C_SPEED_OF_LIGHT * (1 - nu_line / nu_rest)
-    m = dvdr
-    p = 1.0 - mu * mu
-    q = v_outer - m * r_outer
+    target_projected_velocity = C_SPEED_OF_LIGHT * (
+        1.0 - nu_line / rest_frequency
+    )
+    transverse_direction_fraction = 1.0 - direction_cosine**2
+    velocity_intercept = v_outer - velocity_gradient * r_outer
 
     # Characteristic scales for non-dimensionalization
-    r0 = r_outer - r_inner
-    v0 = v_outer - v_inner
-    distance_tolerance = CLOSE_LINE_THRESHOLD * r0
-    if v0 == 0.0:
-        impact_parameter_squared = r * r * p
-        if q != 0.0 and n * n < q * q:
-            x_squared = n * n * impact_parameter_squared / (q * q - n * n)
-            x_root = math.copysign(math.sqrt(x_squared), n / q) / r0
-            x = (x_root, math.nan, math.nan, math.nan)
+    shell_width = r_outer - r_inner
+    shell_velocity_difference = v_outer - v_inner
+    distance_tolerance = CLOSE_LINE_THRESHOLD * shell_width
+    if shell_velocity_difference == 0.0:
+        impact_parameter_squared = (
+            radius * radius * transverse_direction_fraction
+        )
+        if (
+            velocity_intercept != 0.0
+            and target_projected_velocity**2 < velocity_intercept**2
+        ):
+            projected_position_squared = (
+                target_projected_velocity**2
+                * impact_parameter_squared
+                / (velocity_intercept**2 - target_projected_velocity**2)
+            )
+            scaled_projected_position = (
+                math.copysign(
+                    math.sqrt(projected_position_squared),
+                    target_projected_velocity / velocity_intercept,
+                )
+                / shell_width
+            )
+            projected_position_roots = (
+                scaled_projected_position,
+                math.nan,
+                math.nan,
+                math.nan,
+            )
         else:
-            x = (math.nan, math.nan, math.nan, math.nan)
+            projected_position_roots = (
+                math.nan,
+                math.nan,
+                math.nan,
+                math.nan,
+            )
     else:
-        # Dimensionless quantities to use in the quartic solver - improves floating point accuracy
-        rd = r / r0
-        nd = n / v0
-        qd = q / v0
-
-        rd2 = rd * rd
-        impact_parameter_squared = rd2 * p
+        # Dimensionless quantities improve quartic-solver floating-point accuracy.
+        scaled_radius = radius / shell_width
+        scaled_target_projected_velocity = (
+            target_projected_velocity / shell_velocity_difference
+        )
+        scaled_velocity_intercept = (
+            velocity_intercept / shell_velocity_difference
+        )
+        scaled_impact_parameter_squared = (
+            scaled_radius**2 * transverse_direction_fraction
+        )
 
         # Obtain roots of the quartic polynomial for the dimensionless
         # x = (d_line + r_i \mu_i) / r0.
-        x = solve_resonance_quartic(nd, impact_parameter_squared, qd)
+        projected_position_roots = solve_resonance_quartic(
+            scaled_target_projected_velocity,
+            scaled_impact_parameter_squared,
+            scaled_velocity_intercept,
+        )
 
     # Convert each dimensionless root to a distance: d = r0*x_i - r*mu.
     # Select the nearest root that satisfies the original, unsquared resonance equation.
     distance = MISS_DISTANCE
-    for x_root in x:
-        if not math.isfinite(x_root):
+    for projected_position_root in projected_position_roots:
+        if not math.isfinite(projected_position_root):
             continue
-        d_candidate = r0 * x_root - r * mu
-        if d_candidate <= minimum_distance + distance_tolerance:
+        candidate_distance = (
+            shell_width * projected_position_root - radius * direction_cosine
+        )
+        if candidate_distance <= minimum_distance + distance_tolerance:
             continue
-        if d_candidate > maximum_distance + distance_tolerance:
+        if candidate_distance > maximum_distance + distance_tolerance:
             continue
 
-        new_r = math.sqrt(
-            r * r + d_candidate * d_candidate + 2.0 * r * d_candidate * mu
+        (
+            resonance_radius,
+            resonance_direction_cosine,
+            velocity_at_resonance,
+            _,
+        ) = calculate_packet_velocity_properties(
+            rpacket, geometry, candidate_distance
         )
         if (
-            new_r < r_inner - distance_tolerance
-            or new_r > r_outer + distance_tolerance
+            resonance_radius < r_inner - distance_tolerance
+            or resonance_radius > r_outer + distance_tolerance
         ):
             continue
 
-        new_mu = (r * mu + d_candidate) / new_r
-        new_v = v_inner + m * (new_r - r_inner)
-        comov_nu = nu_rest * (1.0 - new_v / C_SPEED_OF_LIGHT * new_mu)
+        comoving_frequency_at_resonance = rest_frequency * (
+            1.0
+            - velocity_at_resonance
+            / C_SPEED_OF_LIGHT
+            * resonance_direction_cosine
+        )
         if (
-            not math.isfinite(comov_nu)
-            or abs(comov_nu - nu_line) > 1.0e-7 * nu_line
+            not math.isfinite(comoving_frequency_at_resonance)
+            or abs(comoving_frequency_at_resonance - nu_line)
+            > RESONANCE_FREQUENCY_RELATIVE_TOLERANCE * nu_line
         ):
             continue
 
-        distance = min(distance, d_candidate)
+        distance = min(distance, candidate_distance)
 
     return distance
 
@@ -231,7 +316,7 @@ def calculate_distance_line(
 @njit(**njit_dict_no_parallel)
 def calculate_projected_gradient_zero_distances(
     rpacket: RPacket,
-    geometry: NumbaNonhomologousRadial1DGeometry,
+    geometry: NumbaRadial1DGeometry,
     distance_boundary: float,
 ) -> tuple[float, float, int]:
     """Calculate forward projected-gradient zeros in the current shell.
@@ -299,9 +384,9 @@ def calculate_projected_gradient_zero_distances(
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_comoving_frequency_nonhomologous(
+def calculate_comoving_frequency(
     rpacket: RPacket,
-    geometry: NumbaNonhomologousRadial1DGeometry,
+    geometry: NumbaRadial1DGeometry,
     distance: float,
 ) -> float:
     """Calculate packet comoving frequency after a trajectory distance."""
@@ -316,7 +401,7 @@ def calculate_comoving_frequency_nonhomologous(
 
 
 @njit(**njit_dict_no_parallel)
-def get_line_id_range_nonhomologous(
+def get_line_id_range(
     line_list_nu: npt.NDArray[np.float64],
     comov_nu_start: float,
     comov_nu_end: float,
@@ -372,8 +457,12 @@ def get_line_id_range_nonhomologous(
 
 @njit(**njit_dict_no_parallel)
 def calculate_distance_line_full_relativity(
-    nu_line, nu, time_explosion, r_packet
-):
+    nu_line: float,
+    nu: float,
+    time_explosion: float,
+    r_packet: RPacket,
+) -> float:
+    """Calculate a fully relativistic homologous line-resonance distance."""
     # distance = - mu * r + (ct - nu_r * nu_r * sqrt(ct * ct - (1 + r * r * (1 - mu * mu) * (1 + pow(nu_r, -2))))) / (1 + nu_r * nu_r);
     nu_r = nu_line / nu
     ct = C_SPEED_OF_LIGHT * time_explosion

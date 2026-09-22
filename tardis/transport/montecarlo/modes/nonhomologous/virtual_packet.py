@@ -11,11 +11,12 @@ from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
 from tardis.transport.geometry.calculate_distances import (
-    calculate_comoving_frequency_nonhomologous,
+    calculate_comoving_frequency,
     calculate_distance_boundary,
     calculate_distance_line,
+    calculate_packet_velocity_properties,
     calculate_projected_gradient_zero_distances,
-    get_line_id_range_nonhomologous,
+    get_line_id_range,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
@@ -156,17 +157,17 @@ def trace_vpacket_within_shell(
         else:
             interval_end = distance_boundary
 
-        comov_nu_start = calculate_comoving_frequency_nonhomologous(
+        comov_nu_start = calculate_comoving_frequency(
             v_packet, numba_radial_1d_geometry, interval_start
         )
-        comov_nu_end = calculate_comoving_frequency_nonhomologous(
+        comov_nu_end = calculate_comoving_frequency(
             v_packet, numba_radial_1d_geometry, interval_end
         )
         (
             start_line_id,
             stop_line_id,
             line_id_step,
-        ) = get_line_id_range_nonhomologous(
+        ) = get_line_id_range(
             opacity_state.line_list_nu,
             comov_nu_start,
             comov_nu_end,
@@ -188,41 +189,28 @@ def trace_vpacket_within_shell(
             ):
                 continue
 
-            new_r = math.sqrt(
-                v_packet.r * v_packet.r
-                + distance_trace_line * distance_trace_line
-                + 2.0
-                * v_packet.r
-                * distance_trace_line
-                * v_packet.mu
-            )
-            new_mu = (
-                v_packet.mu * v_packet.r + distance_trace_line
-            ) / new_r
-            new_v = numba_radial_1d_geometry.get_velocity(
-                new_r, v_packet.current_shell_id
-            )
-            projected_velocity_gradient = (
-                new_mu * new_mu * dvdr
-                + (1.0 - new_mu * new_mu) * new_v / new_r
+            (
+                _,
+                _,
+                _,
+                projected_velocity_gradient,
+            ) = calculate_packet_velocity_properties(
+                v_packet,
+                numba_radial_1d_geometry,
+                distance_trace_line,
             )
             if projected_velocity_gradient == 0.0:
                 raise MonteCarloException(
                     "Sobolev optical depth is singular at the line resonance."
                 )
 
-            tau_trace_line = (
-                opacity_state.sobolev_optical_depth_coefficient[
-                    cur_line_id, v_packet.current_shell_id
-                ]
-            )
+            tau_trace_line = opacity_state.sobolev_optical_depth_coefficient[
+                cur_line_id, v_packet.current_shell_id
+            ]
             if tau_trace_line == 0.0:
-                tau_trace_line = (
-                    opacity_state.tau_sobolev[
-                        cur_line_id, v_packet.current_shell_id
-                    ]
-                    * abs(dvdr)
-                )
+                tau_trace_line = opacity_state.tau_sobolev[
+                    cur_line_id, v_packet.current_shell_id
+                ] * abs(dvdr)
             tau_trace_combined += tau_trace_line / abs(
                 projected_velocity_gradient
             )

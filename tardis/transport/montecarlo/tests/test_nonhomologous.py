@@ -1,6 +1,7 @@
 import astropy.units as u
 import numpy as np
 import numpy.testing as npt
+import pandas as pd
 import pandas.testing as pdt
 import pytest
 
@@ -32,6 +33,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
 )
 from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
     calculate_beta_sobolev,
+    calculate_beta_sobolev_directional,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
     calculate_sobolev_line_opacity as nonhomologous_calculate_sobolev_line_opacity,
@@ -384,6 +386,54 @@ def test_nonhomologous_calculate_beta_sobolevs(
     actual = calculate_beta_sobolev(tau_sobolevs)
     expected = regression_data.sync_ndarray(actual)
     npt.assert_allclose(actual, expected)
+
+
+def test_directional_beta_sobolev_splits_projected_gradient_zero() -> None:
+    """Resolve the escape-probability cusp at an interior gradient zero."""
+    optical_depth_coefficient = pd.DataFrame([[1.0]])
+    velocity_gradient = np.asarray([-1.0]) / u.s
+    velocity_over_radius = np.asarray([1.0]) / u.s
+
+    actual = calculate_beta_sobolev_directional(
+        optical_depth_coefficient,
+        velocity_gradient,
+        velocity_over_radius,
+        quadrature_order=20,
+    )
+
+    npt.assert_allclose(actual.to_numpy(), [[0.44819011846544604]], rtol=1.0e-8)
+
+
+def test_directional_beta_sobolev_matches_homologous_limit() -> None:
+    """Recover angle-independent escape probabilities under homology."""
+    optical_depth_coefficient = pd.DataFrame([[0.0, 0.5], [1.0, 10.0]])
+    homologous_gradient = np.asarray([2.0, 4.0]) / u.s
+    expected = calculate_beta_sobolev(
+        optical_depth_coefficient / np.asarray([2.0, 4.0])
+    )
+
+    actual = calculate_beta_sobolev_directional(
+        optical_depth_coefficient,
+        homologous_gradient,
+        homologous_gradient,
+        quadrature_order=2,
+    )
+
+    npt.assert_allclose(actual.to_numpy(), expected.to_numpy())
+
+
+def test_directional_beta_sobolev_handles_zero_velocity_gradient() -> None:
+    """Return zero escape for opaque lines in a static velocity field."""
+    optical_depth_coefficient = pd.DataFrame([[0.0], [1.0]])
+    zero_gradient = np.asarray([0.0]) / u.s
+
+    actual = calculate_beta_sobolev_directional(
+        optical_depth_coefficient,
+        zero_gradient,
+        zero_gradient,
+    )
+
+    npt.assert_array_equal(actual.to_numpy(), [[1.0], [0.0]])
 
 
 @pytest.mark.parametrize(
