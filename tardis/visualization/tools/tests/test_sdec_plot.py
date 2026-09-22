@@ -157,6 +157,7 @@ class TestSDECPlotter:
 
         # the tests connected to this fixture wont run individually,
         # since this needs the parse species list to run
+        plotter._parse_species_list(None)
 
         plotter._calculate_plotting_data(
             packets_mode, packet_wvl_range, distance, nelements
@@ -194,7 +195,7 @@ class TestSDECPlotter:
                 np.testing.assert_allclose(
                     plot_object, expected.get(group + attribute_name), atol=0, rtol=RELATIVE_TOLERANCE_SDEC
                 )
-            if attribute_type == "attributes_pd":
+            if attribute_type == "attributes_df":
                 pd.testing.assert_frame_equal(
                     plot_object, expected.get(group + attribute_name), atol=0, rtol=RELATIVE_TOLERANCE_SDEC
                 )
