@@ -1,0 +1,7 @@
+tardis.base module
+==================
+
+.. automodule:: tardis.base
+   :members:
+   :show-inheritance:
+   :undoc-members:

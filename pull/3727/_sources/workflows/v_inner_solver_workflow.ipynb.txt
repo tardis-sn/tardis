@@ -1,0 +1,247 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Workflow to solve v_inner boundary"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The source code for this workflow can be found at: https://github.com/tardis-sn/tardis/blob/master/tardis/workflows/v_inner_solver.py."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This workflow demonstrates how to use the TARDIS modules to perform targeted tasks. This workflow is built on top of the [SimpleTARDISWorkflow](https://github.com/tardis-sn/tardis/blob/master/tardis/workflows/simple_tardis_workflow.py) to solve the v_inner boundary, in addition to the remaining radiative properties."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import matplotlib as mpl\n",
+    "import matplotlib.pyplot as plt\n",
+    "from astropy import units as u"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow\n",
+    "from tardis.io.configuration.config_reader import Configuration"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "config = Configuration.from_yaml('../tardis_example.yml')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This code modifies the TARDIS example configuration to include convergence information for the inner boundary velocity solver."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "config.montecarlo.convergence_strategy['v_inner_boundary'] = {\n",
+    "    'damping_constant' : 0.5,\n",
+    "    'threshold' : 0.01,\n",
+    "    'type' : 'damped',\n",
+    "    'store_iteration_properties' : True\n",
+    "    }\n",
+    "\n",
+    "config.montecarlo.convergence_strategy.stop_if_converged = True \n",
+    "config.model.structure.velocity.start = 5000 * u.km/u.s # Decrease start velocity from 11000 km/s in example file, to search over a wider range\n",
+    "config.model.structure.velocity.num = 50 # Increase number of shells from 20 in example file, to provide more granularity\n",
+    "\n",
+    "workflow = InnerVelocitySolverWorkflow(\n",
+    "    config, tau=2.0/3,\n",
+    "    mean_optical_depth=\"rosseland\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "workflow.run()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Plot the spectrum"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "spectrum = workflow.spectrum_solver.spectrum_real_packets\n",
+    "spectrum_virtual = workflow.spectrum_solver.spectrum_virtual_packets\n",
+    "spectrum_integrated = workflow.spectrum_solver.spectrum_integrated"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "plt.figure(figsize=(10, 6.5))\n",
+    "\n",
+    "spectrum.plot(label=\"Normal packets\")\n",
+    "spectrum_virtual.plot(label=\"Virtual packets\")\n",
+    "spectrum_integrated.plot(label='Formal integral')\n",
+    "\n",
+    "plt.xlim(500, 9000)\n",
+    "plt.title(\"TARDIS example model spectrum\")\n",
+    "plt.xlabel(r\"Wavelength [$\\AA$]\")\n",
+    "plt.ylabel(r\"Luminosity density [erg/s/$\\AA$]\")\n",
+    "plt.legend()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Plot the convergence process"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "\n",
+    "# extract plasma states\n",
+    "t_rad = workflow.iterations_t_rad\n",
+    "t_inner = workflow.iterations_t_inner\n",
+    "w = workflow.iterations_w\n",
+    "taus = workflow.iterations_mean_optical_depth\n",
+    "v_inner = workflow.iterations_v_inner_boundary\n",
+    "\n",
+    "# remove all nans, or rows where all values are nan\n",
+    "t_rad = t_rad[~np.all(np.isnan(t_rad), axis=1)]\n",
+    "t_inner = t_inner[~np.isnan(t_inner)]\n",
+    "w = w[~np.all(np.isnan(w), axis=1)]\n",
+    "taus = taus[~np.all(np.isnan(taus), axis=1)]  \n",
+    "v_inner = v_inner[~np.isnan(v_inner)]\n",
+    "\n",
+    "# initialize figure\n",
+    "fig,axes =  plt.subplots(2,2,figsize=(12,8))\n",
+    "plt.subplots_adjust(wspace=0.4,hspace=0.3)\n",
+    "\n",
+    "# get the raw velocity grid \n",
+    "vel = workflow.simulation_state.geometry.v_inner\n",
+    "\n",
+    "# pick a colormap for the iterations\n",
+    "cmap = plt.get_cmap('plasma',taus.shape[0])\n",
+    "\n",
+    "# plot v inner change\n",
+    "v_inner_plot = axes[0,0]\n",
+    "v_inner_plot.plot(v_inner,marker=\"o\",color=\"b\")\n",
+    "v_inner_plot.set_xlabel(\"Iterations\", fontsize=14)\n",
+    "v_inner_plot.set_ylabel(\"v_inner (cm/s)\", fontsize=14)\n",
+    "v_inner_plot.grid(alpha=0.3)\n",
+    "v_inner_plot.tick_params(axis='y', colors='blue')\n",
+    "v_inner_plot.yaxis.label.set_color('blue')\n",
+    "\n",
+    "# plot t inner change in same subplot\n",
+    "t_inner_plot = axes[0][0].twinx()\n",
+    "t_inner_plot.plot(t_inner,marker=\"s\",color=\"r\")\n",
+    "t_inner_plot.set_ylabel(\"t_inner (K)\", fontsize=14)\n",
+    "t_inner_plot.tick_params(axis='y', colors='red')\n",
+    "t_inner_plot.yaxis.label.set_color('red')\n",
+    "\n",
+    "# plot the tau change\n",
+    "tau_plot = axes[0][1]\n",
+    "for i, tau in enumerate(taus):\n",
+    "    tau_plot.plot(vel[-len(tau):], tau, color=cmap(i/taus.shape[0]),label=f\"itr {i+1}\",alpha=0.7)\n",
+    "tau_plot.scatter(workflow.simulation_state.v_inner_boundary.value, np.log(2.0 / 3.0), color=\"k\",marker=\"o\")\n",
+    "tau_plot.axhline(np.log(2.0 / 3.0), color='black', linestyle='--')\n",
+    "tau_plot.axvline(workflow.simulation_state.v_inner_boundary.value, color='k', linestyle='--')\n",
+    "tau_plot.set_xlabel(\"Velocity (cm/s)\", fontsize=14)\n",
+    "tau_plot.set_ylabel(\"log(tau)\", fontsize=14)\n",
+    "tau_plot.grid(alpha=0.3)\n",
+    "tau_plot.set_title(\"1 Loop of all together - without resetting plasma\", fontsize=14)\n",
+    "\n",
+    "# plot t radiative change\n",
+    "t_rad_plot = axes[1][0]\n",
+    "for i in range(len(taus)):\n",
+    "    t_rad_plot.plot(vel[-len(t_rad[i]):], t_rad[i],color=cmap(i/taus.shape[0]),label=f\"itr {i+1}\",alpha=0.7)\n",
+    "t_rad_plot.set_xlabel(\"Velocity (cm/s)\", fontsize=14)\n",
+    "t_rad_plot.set_ylabel(\"t_rad\", fontsize=14)\n",
+    "t_rad_plot.grid(alpha=0.3)\n",
+    "\n",
+    "# plot dilution factor change\n",
+    "w_plot = axes[1][1]\n",
+    "for i in range(len(taus)):\n",
+    "    w_plot.plot(vel[-len(w[i]):], w[i],color=cmap(i/taus.shape[0]),label=f\"itr {i+1}\",alpha=0.7)\n",
+    "w_plot.set_xlabel(\"Velocity (cm/s)\", fontsize=14)\n",
+    "w_plot.set_ylabel(\"dilution_factor\", fontsize=14)\n",
+    "w_plot.grid(alpha=0.3)\n",
+    "\n",
+    "# add colorbar for iteration number\n",
+    "norm = mpl.colors.Normalize(vmin=1, vmax=len(taus))\n",
+    "sm = mpl.cm.ScalarMappable(cmap=cmap, norm=norm)\n",
+    "cbar = fig.colorbar(sm, ax=axes, orientation='vertical', fraction=0.025, pad=0.02)\n",
+    "cbar.set_label('Iteration Number', fontsize=12)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "tardis",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
