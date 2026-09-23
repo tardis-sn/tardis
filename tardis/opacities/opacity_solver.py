@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from tardis.opacities.continuum.continuum_state import ContinuumOpacityState
 from tardis.opacities.opacity_state import (
     OpacityState,
 )
@@ -12,7 +11,7 @@ from tardis.opacities.tau_sobolev import (
 
 
 class OpacitySolver:
-    """Build line and optional continuum opacity state."""
+    """Build line opacity state."""
 
     line_interaction_type: str = "scatter"
     disable_line_scattering: bool = False
@@ -72,7 +71,6 @@ class OpacitySolver:
     def solve(
         self,
         plasma: object,
-        continuum_state: ContinuumOpacityState | None = None,
         tau_sobolev: pd.DataFrame | None = None,
         beta_sobolev: pd.DataFrame | None = None,
     ) -> OpacityState:
@@ -122,7 +120,7 @@ class OpacitySolver:
             beta_sobolev = calculate_beta_sobolev(tau_sobolev)
 
         opacity_state = OpacityState.from_plasma(
-            plasma, tau_sobolev, beta_sobolev, continuum_state
+            plasma, tau_sobolev, beta_sobolev
         )
 
         return opacity_state
