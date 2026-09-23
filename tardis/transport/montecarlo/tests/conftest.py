@@ -249,6 +249,7 @@ def classic_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
 
 @pytest.fixture
 def iip_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
+    """Opacity state for a IIP model"""
     return OpacityStateNumba(*opacity_state_args[:10])
 
 
