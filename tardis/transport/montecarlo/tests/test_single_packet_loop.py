@@ -112,7 +112,6 @@ def test_classic_packet_propagation_dispatch_numba_disabled(
     classic_opacity_state,
     bulk_estimators,
     line_estimators,
-    vpacket_collection,
     recording_tracker: _RecordingTracker,
     montecarlo_configuration,
     first_interaction: InteractionType,
@@ -134,7 +133,6 @@ def test_classic_packet_propagation_dispatch_numba_disabled(
         classic_opacity_state,
         bulk_estimators,
         line_estimators,
-        vpacket_collection,
         recording_tracker,
         montecarlo_configuration,
     )
@@ -260,7 +258,6 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
     classic_opacity_state,
     bulk_estimators,
     line_estimators,
-    vpacket_collection,
     recording_tracker: _RecordingTracker,
     montecarlo_configuration,
     first_interaction: InteractionType,
@@ -281,7 +278,6 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
         classic_opacity_state,
         bulk_estimators,
         line_estimators,
-        vpacket_collection,
         recording_tracker,
         montecarlo_configuration,
     )
@@ -336,7 +332,7 @@ def test_verysimple_single_packet_loop(
         i,
     )
     # packet_propagation requires: r_packet, geometry, time_explosion, opacity_state,
-    # estimators_bulk, estimators_line, vpacket_collection, rpacket_tracker,
+    # estimators_bulk, estimators_line, rpacket_tracker,
     # montecarlo_configuration
     # This test needs to be updated with all required parameters
     packet_propagation(

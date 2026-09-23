@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 from astropy import units as u
 from numba import cuda, set_num_threads
 
@@ -12,7 +13,8 @@ from tardis.transport.montecarlo.configuration.base import (
     configuration_initialize,
 )
 from tardis.transport.montecarlo.modes.montecarlo_transport import (
-    montecarlo_transport_with_vpackets,
+    calculate_virtual_packet_spectrum,
+    montecarlo_transport,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
@@ -22,6 +24,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state 
 )
 from tardis.transport.montecarlo.modes.nonhomologous.packet_propagation import (
     packet_propagation,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
+    trace_vpacket_volley,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
@@ -191,7 +196,7 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
         number_of_rpackets = len(transport_state.packet_collection.initial_nus)
 
-        if self.enable_rpacket_tracking:
+        if self.enable_rpacket_tracking or number_of_vpackets > 0:
             trackers_list = generate_tracker_full_list(
                 number_of_rpackets,
                 self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
@@ -206,31 +211,38 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         if show_progress_bars:
             reset_packet_pbar(number_of_rpackets)
 
-        # nonhomologous mode: returns 4 values (no continuum estimators)
-        (
-            v_packets_energy_hist,
-            vpacket_tracker,
-            estimators_bulk,
-            estimators_line,
-        ) = montecarlo_transport_with_vpackets(
+        estimators_bulk, estimators_line = montecarlo_transport(
             transport_state.packet_collection,
             transport_state.geometry_state_numba,
             0.0,
             transport_state.opacity_state_numba,
             self.montecarlo_configuration,
-            self.spectrum_frequency_grid.value,
             trackers_list,
-            number_of_vpackets,
             show_progress_bars=show_progress_bars,
             packet_propagation_function=packet_propagation,
         )
 
+        v_packets_energy_hist = np.zeros_like(
+            self.spectrum_frequency_grid.value
+        )
+        if number_of_vpackets > 0:
+            v_packets_energy_hist, vpacket_tracker = (
+                calculate_virtual_packet_spectrum(
+                    transport_state.packet_collection,
+                    transport_state.geometry_state_numba,
+                    0.0,
+                    transport_state.opacity_state_numba,
+                    self.montecarlo_configuration,
+                    self.spectrum_frequency_grid.value,
+                    trackers_list,
+                    number_of_vpackets,
+                    trace_vpacket_volley,
+                )
+            )
+
         # Attach estimators to transport state
         transport_state.estimators_bulk = estimators_bulk
         transport_state.estimators_line = estimators_line
-
-        # Last interaction trackers are already populated directly in the list
-        # No finalization needed with direct list approach
 
         if self.montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
             number_of_vpackets > 0
@@ -240,17 +252,13 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
 
-        # Need to change the implementation of rpacket_trackers_to_dataframe
-        # Such that it also takes of the case of
-        # RPacketLastInteractionTracker
-        if self.enable_rpacket_tracking:
-            self.transport_state.tracker_full_df = trackers_full_to_df(
-                trackers_list
+        if self.enable_rpacket_tracking or number_of_vpackets > 0:
+            tracker_full_df = trackers_full_to_df(trackers_list)
+            self.transport_state.tracker_full_df = (
+                tracker_full_df if self.enable_rpacket_tracking else None
             )
             self.transport_state.tracker_last_interaction_df = (
-                tracker_full_df2tracker_last_interaction_df(
-                    self.transport_state.tracker_full_df
-                )
+                tracker_full_df2tracker_last_interaction_df(tracker_full_df)
             )
         else:
             self.transport_state.tracker_full_df = None
