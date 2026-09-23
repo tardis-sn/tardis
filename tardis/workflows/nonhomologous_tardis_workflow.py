@@ -79,7 +79,7 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
                 "NonhomologousTARDISWorkflow requires explicit radius and "
                 "velocity boundaries. For a specific YAML model, provide "
                 "model.structure.radius start and stop values; for CSVY, "
-                "provide both radius and velocity columns."
+                "provide a radius column and velocity data."
             )
             raise TypeError(geometry_error)
 

@@ -42,13 +42,11 @@ def parse_density_from_config(
         Electron densities.
     """
     time_explosion = config.supernova.time_explosion.cgs
-    (
-        density_time,
-        velocity,
-        density,
-        electron_densities,
-        temperature,
-    ) = parse_structure_from_config(config)
+    structure = parse_structure_from_config(config)
+    density_time = structure.density_time
+    velocity = structure.velocity
+    density = structure.density
+    electron_densities = structure.electron_densities
 
     if density is None:
         adjusted_velocity = velocity.insert(0, 0)
@@ -58,7 +56,9 @@ def parse_density_from_config(
             d_conf, v_middle, time_explosion
         )
 
-    density = calculate_density_after_time(density, density_time, time_explosion)
+    density = calculate_density_after_time(
+        density, density_time, time_explosion
+    )
     # Note: This is the number of shells *without* taking in mind the
     #       v boundaries.
     if len(density) == len(velocity):
