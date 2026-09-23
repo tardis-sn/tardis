@@ -274,18 +274,18 @@ class TestSDECPlotter:
         regression_file = f"test_generate_plot_mpl__plotter_generate_plot_mpl{param_idx}__.h5"
 
         regression_data.fname = regression_file
-        # expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
-        expected = pd.HDFStore(sdec_regression_data / regression_file, mode='r')
+        # expected_fh = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
+        expected_fh = pd.HDFStore(sdec_regression_data / regression_file, mode='r')
 
-        # expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
+        # expected_fh = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
 
         for item in ["_species_name", "_color_list"]:
             np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
+                expected_fh.get("plot_data_hdf/" + item).values.flatten(),
                 getattr(generate_plot_mpl_hdf, item),
             )
 
-        labels = expected["plot_data_hdf/scalars"]
+        labels = expected_fh["plot_data_hdf/scalars"]
         for index1, data in enumerate(fig.get_children()):
             if isinstance(data.get_label(), str):
                 assert (
@@ -296,12 +296,12 @@ class TestSDECPlotter:
             if isinstance(data, Line2D):
                 np.testing.assert_allclose(
                     data.get_xydata(),
-                    expected.get("plot_data_hdf/" + "data" + str(index1)),
+                    expected_fh.get("plot_data_hdf/" + "data" + str(index1)),
                     atol=0, rtol=RELATIVE_TOLERANCE_SDEC
                 )
                 np.testing.assert_allclose(
                     data.get_path().vertices,
-                    expected.get("plot_data_hdf/" + "linepath" + str(index1)),
+                    expected_fh.get("plot_data_hdf/" + "linepath" + str(index1)),
                     atol=0, rtol=RELATIVE_TOLERANCE_SDEC
                 )
             # save artists which correspond to element contributions
@@ -309,7 +309,7 @@ class TestSDECPlotter:
                 for index2, path in enumerate(data.get_paths()):
                     np.testing.assert_allclose(
                         path.vertices,
-                        expected.get(
+                        expected_fh.get(
                             "plot_data_hdf/"
                              "polypath"
                              "ind_"
@@ -320,7 +320,7 @@ class TestSDECPlotter:
                         atol=0,
                         rtol=RELATIVE_TOLERANCE_SDEC
                     )
-        expected.close()
+        expected_fh.close()
 
     @pytest.fixture(scope="class", params=list(enumerate(combinations)))
     def plotter_generate_plot_ply(self, request, observed_spectrum, plotter):
@@ -384,12 +384,12 @@ class TestSDECPlotter:
         regression_file = f"test_generate_plot_mpl__plotter_generate_plot_ply{param_idx}__.h5"
 
         regression_data.fname = regression_file
-        # expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
-        expected = pd.HDFStore(sdec_regression_data / regression_file, mode='r')
+        # expected_fh = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
+        expected_fh = pd.HDFStore(sdec_regression_data / regression_file, mode='r')
 
         for item in ["_species_name", "_color_list"]:
             np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
+                expected_fh.get("plot_data_hdf/" + item).values.flatten(),
                 getattr(generate_plot_plotly_hdf, item),
             )
 
@@ -399,7 +399,7 @@ class TestSDECPlotter:
                 assert (
                     data.stackgroup
                     == getattr(
-                        expected["/plot_data_hdf/scalars"],
+                        expected_fh["/plot_data_hdf/scalars"],
                         "_" + str(index) + "stackgroup",
                     ).decode()
                 )
@@ -407,18 +407,18 @@ class TestSDECPlotter:
                 assert (
                     data.name
                     == getattr(
-                        expected["/plot_data_hdf/scalars"],
+                        expected_fh["/plot_data_hdf/scalars"],
                         "_" + str(index) + "name",
                     ).decode()
                 )
             np.testing.assert_allclose(
-                data.x, expected.get(group + "x").values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_SDEC
+                data.x, expected_fh.get(group + "x").values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_SDEC
             )
             np.testing.assert_allclose(
-                data.y, expected.get(group + "y").values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_SDEC
+                data.y, expected_fh.get(group + "y").values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_SDEC
             )
 
-        expected.close()
+        expected_fh.close()
 
     def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, regression_data):
         fig, _ = plotter_generate_plot_mpl
