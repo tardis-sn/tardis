@@ -167,25 +167,16 @@ def line_scatter_event(
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.energy = comov_energy * inverse_new_doppler_factor
 
-    if line_interaction_type == LineInteractionType.SCATTER:
-        line_emission(
-            r_packet,
-            r_packet.next_line_id,
-            time_explosion,
-            opacity_state,
-            enable_full_relativity,
-        )
-    else:
-        comov_nu = r_packet.nu * old_doppler_factor
-        r_packet.nu = comov_nu * inverse_new_doppler_factor
-        activation_level_id = opacity_state.line2macro_level_upper[
-            r_packet.next_line_id
-        ]
-        macro_atom_event(
-            activation_level_id,
-            r_packet,
-            time_explosion,
-            opacity_state,
-            enable_full_relativity,
-            continuum_state,
-        )
+    comov_nu = r_packet.nu * old_doppler_factor
+    r_packet.nu = comov_nu * inverse_new_doppler_factor
+    activation_level_id = opacity_state.line2macro_level_upper[
+        r_packet.next_line_id
+    ]
+    macro_atom_event(
+        activation_level_id,
+        r_packet,
+        time_explosion,
+        opacity_state,
+        enable_full_relativity,
+        continuum_state,
+    )

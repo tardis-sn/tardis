@@ -83,9 +83,11 @@ def line_scatter_event(
             opacity_state,
             enable_full_relativity,
         )
-    else:
-        comov_nu = r_packet.nu * old_doppler_factor
-        r_packet.nu = comov_nu * inverse_new_doppler_factor
+    else:  # includes both macro atom and downbranch - encoded in the transition probabilities
+        comov_nu = r_packet.nu * old_doppler_factor  # Is this necessary?
+        r_packet.nu = (
+            comov_nu * inverse_new_doppler_factor
+        )  # NOTE - this should get overwritten by macro_atom_event, but makes tests fail potentially from different rng
         activation_level_id = opacity_state.line2macro_level_upper[
             r_packet.next_line_id
         ]

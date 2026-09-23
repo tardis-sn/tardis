@@ -47,6 +47,8 @@ def macro_atom_event(
             enable_full_relativity,
         )
     else:
+        # look at the IIP mode continuum interactions for re-implementation
+        # requires a continuum opacity state
         raise Exception(
             f"Interaction {transition_type} not known or implemented!"
         )
