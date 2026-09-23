@@ -1,0 +1,7 @@
+tardis.opacities.macro\_atom.base module
+========================================
+
+.. automodule:: tardis.opacities.macro_atom.base
+   :members:
+   :show-inheritance:
+   :undoc-members:
