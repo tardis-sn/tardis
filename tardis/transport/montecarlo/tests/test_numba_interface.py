@@ -24,7 +24,9 @@ def test_transport_solver_keeps_active_opacity_state(
     monkeypatch: pytest.MonkeyPatch,
     config_verysimple: Configuration,
     nb_simulation_verysimple: Simulation,
-    solver_class: type[MCTransportSolverClassic | MCTransportSolverNonhomologous],
+    solver_class: type[
+        MCTransportSolverClassic | MCTransportSolverNonhomologous
+    ],
 ) -> None:
     simulation = nb_simulation_verysimple
     geometry = simulation.simulation_state.geometry
@@ -42,7 +44,6 @@ def test_transport_solver_keeps_active_opacity_state(
         beta_sobolev=simulation.opacity_state.beta_sobolev.iloc[
             :, active_shells
         ],
-        continuum_state=simulation.opacity_state.continuum_state,
     )
 
     solver = solver_class.from_config(

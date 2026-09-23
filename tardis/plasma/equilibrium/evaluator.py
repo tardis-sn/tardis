@@ -746,7 +746,7 @@ class PlasmaEquilibriumEvaluator:
             sobolev_inputs,
         ) in enumerate(
             zip(
-                thermal_state.continuum_rate_coefficients,,
+                thermal_state.continuum_rate_coefficients,
                 self.shell_number_densities,
                 self.sobolev_inputs,
                 strict=True,
@@ -1091,7 +1091,7 @@ class PlasmaEquilibriumEvaluator:
             continuum_coefficients,
             thermal_partition_function,
             thermal_level_boltzmann_factor,
-        ) = self.calculate_continuum_coefficients(temperatures)
+        ) = self.calculate_continuum_coefficients(electron_temperature)
         thermal_state = _CandidateThermalState(
             continuum_rate_coefficients,
             level_to_continuum_saha_factor,
@@ -1103,7 +1103,7 @@ class PlasmaEquilibriumEvaluator:
         )
         level_state = self._solve_levels(
             trial_density,
-            temperatures,
+            electron_temperature,
             level_seed,
             thermal_state,
         )
@@ -1162,7 +1162,7 @@ class PlasmaEquilibriumEvaluator:
         )
         final_residual = self._calculate_final_residual(
             final_density,
-            temperatures,
+            electron_temperature,
             absolute_levels,
             level_state,
             thermal_state,
