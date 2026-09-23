@@ -370,6 +370,62 @@ def test_nonhomologous_distance_preserves_near_line_center_root() -> None:
     )
 
 
+def test_nonhomologous_distance_rejects_sign_reversed_root() -> None:
+    """Select a root constructed from the unsquared resonance equation."""
+    shell_width = 1.0e12
+    shell_velocity_difference = 2.5e5
+    geometry = NumbaRadial1DGeometry(
+        np.asarray([2.0e14]),
+        np.asarray([2.01e14]),
+        np.asarray([2.0e7]),
+        np.asarray([2.025e7]),
+    )
+    packet = RPacket(
+        r=2.0e14,
+        mu=0.0,
+        nu=1.0e15,
+        energy=1.0,
+        seed=1963,
+    )
+    packet.current_shell_id = 0
+
+    # Choose a physical projected position x, then construct the target line
+    # velocity N from the original equation
+    # N = x + Q*x/sqrt(x**2 + H**2). Squaring this equation to form the
+    # quartic also produces a closer, sign-reversed root that must be rejected.
+    expected_scaled_projected_position = 2.5e-3
+    scaled_impact_parameter = packet.r / shell_width
+    velocity_gradient = shell_velocity_difference / shell_width
+    velocity_intercept = (
+        geometry.v_outer[0] - velocity_gradient * geometry.r_outer[0]
+    )
+    scaled_velocity_intercept = (
+        velocity_intercept / shell_velocity_difference
+    )
+    line_velocity = expected_scaled_projected_position + (
+        scaled_velocity_intercept
+        * expected_scaled_projected_position
+        / np.sqrt(
+            expected_scaled_projected_position**2
+            + scaled_impact_parameter**2
+        )
+    )
+    line_frequency = packet.nu * (
+        1.0
+        - line_velocity * shell_velocity_difference / C_SPEED_OF_LIGHT
+    )
+
+    distance = calculate_distance_line_nonhomologous(
+        packet, geometry, line_frequency
+    )
+
+    npt.assert_allclose(
+        distance,
+        expected_scaled_projected_position * shell_width,
+        rtol=1.0e-8,
+    )
+
+
 def test_nonhomologous_calculate_beta_sobolevs(
     nb_simulation_verysimple, regression_data
 ):

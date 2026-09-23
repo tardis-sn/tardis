@@ -22,8 +22,6 @@ from tardis.transport.montecarlo.nonhomologous_grid import (
 from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 from tardis.transport.montecarlo.utils import MonteCarloException
 
-RESONANCE_FREQUENCY_RELATIVE_TOLERANCE = 1.0e-7
-
 
 @njit(**njit_dict_no_parallel)
 def calculate_distance_boundary(r, mu, r_inner, r_outer):
@@ -273,6 +271,22 @@ def calculate_distance_line_nonhomologous(
     for projected_position_root in projected_position_roots:
         if not math.isfinite(projected_position_root):
             continue
+        if shell_velocity_difference != 0.0:
+            # The quartic comes from squaring the resonance equation. In the
+            # original equation, x - N and Q*x must have opposite signs.
+            root_difference = (
+                projected_position_root
+                - scaled_target_projected_velocity
+            )
+            velocity_intercept_term = (
+                scaled_velocity_intercept * projected_position_root
+            )
+            if (
+                root_difference > 0.0 and velocity_intercept_term > 0.0
+            ) or (
+                root_difference < 0.0 and velocity_intercept_term < 0.0
+            ):
+                continue
         candidate_distance = (
             shell_width * projected_position_root - radius * direction_cosine
         )
@@ -283,8 +297,8 @@ def calculate_distance_line_nonhomologous(
 
         (
             resonance_radius,
-            resonance_direction_cosine,
-            velocity_at_resonance,
+            _,
+            _,
             _,
         ) = calculate_packet_velocity_properties(
             rpacket, geometry, candidate_distance
@@ -292,19 +306,6 @@ def calculate_distance_line_nonhomologous(
         if (
             resonance_radius < r_inner - distance_tolerance
             or resonance_radius > r_outer + distance_tolerance
-        ):
-            continue
-
-        comoving_frequency_at_resonance = rest_frequency * (
-            1.0
-            - velocity_at_resonance
-            / C_SPEED_OF_LIGHT
-            * resonance_direction_cosine
-        )
-        if (
-            not math.isfinite(comoving_frequency_at_resonance)
-            or abs(comoving_frequency_at_resonance - nu_line)
-            > RESONANCE_FREQUENCY_RELATIVE_TOLERANCE * nu_line
         ):
             continue
 
