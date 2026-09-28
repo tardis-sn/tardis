@@ -49,8 +49,8 @@ def workflow_simple_tracked(config_verysimple, atomic_data_fname):
     config.spectrum.virtual.virtual_packet_logging = True
     config.montecarlo.no_of_virtual_packets = 1
     config.spectrum.num = 2000
-    config_verysimple.montecarlo.tracking.track_rpacket = True
-    
+    config.montecarlo.tracking.track_rpacket = True
+
     workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
     workflow.run()
     return workflow
