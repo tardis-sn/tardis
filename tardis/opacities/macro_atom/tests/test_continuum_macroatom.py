@@ -11,11 +11,14 @@ where test data is prepared in fixtures and regression data is used for validati
 ### FIX THIS TO ONLY TEST HYDROGEN FOR NOW
 # from copy import deepcopy
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
 import pytest
 
+from tardis.io.atom_data import AtomData
 from tardis.opacities.continuum.macro_atom_state import (
     ContinuumMacroAtomState,
 )
@@ -26,20 +29,33 @@ from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 
+@pytest.fixture
+def continuum_atom_data(tardis_regression_path: Path) -> AtomData:
+    """Load the hydrogen atomic tables used by continuum macro-atom tests."""
+    atom_data = AtomData.from_hdf(
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+    atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
+    atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
+    return atom_data
+
+
 @pytest.fixture(
     scope="function"
 )  # Needs to be function scope for multi-iter solve
-def continuum_macro_atom_solver(iip_atom_data):
+def continuum_macro_atom_solver(continuum_atom_data):
     """Fixture creating a ContinuumMacroAtomSolver instance.
 
     Initializes the solver with levels, lines, and photoionization data
     from the atomic dataset.
     """
     solver = ContinuumMacroAtomSolver(
-        levels=iip_atom_data.levels.loc[[1]],
-        lines=iip_atom_data.lines.loc[[1]],
-        photoionization_data=iip_atom_data.photoionization_data.loc[[1]],
-        ionization_energies=iip_atom_data.ionization_data.loc[[1]],
+        levels=continuum_atom_data.levels.loc[[1]],
+        lines=continuum_atom_data.lines.loc[[1]],
+        photoionization_data=continuum_atom_data.photoionization_data.loc[[1]],
+        ionization_energies=continuum_atom_data.ionization_data.loc[[1]],
         selected_continuum_transitions=np.array([]),
         line_interaction_type="macroatom",
     )
@@ -47,7 +63,7 @@ def continuum_macro_atom_solver(iip_atom_data):
 
 
 @pytest.fixture
-def continuum_solver_input_data(iip_atom_data):
+def continuum_solver_input_data(continuum_atom_data):
     """Fixture providing input data for solving macro-atom transitions.
 
     Creates minimal but valid input arrays and DataFrames needed for
@@ -57,14 +73,14 @@ def continuum_solver_input_data(iip_atom_data):
     # Set seed for reproducible random number generation
     np.random.seed(42)
     n_shells = 5
-    n_lines = len(iip_atom_data.lines.loc[[1]])
-    n_levels = len(iip_atom_data.levels.loc[[1]])
+    n_lines = len(continuum_atom_data.lines.loc[[1]])
+    n_levels = len(continuum_atom_data.levels.loc[[1]])
 
     # Create mean intensities for lines in blue wing
     # Shape: (n_lines, n_shells)
     mean_intensities_blue_wing = pd.DataFrame(
         np.random.uniform(0.1, 1.0, size=(n_lines, n_shells)),
-        index=iip_atom_data.lines.loc[[1]].index,
+        index=continuum_atom_data.lines.loc[[1]].index,
         columns=np.arange(n_shells),
     )
 
@@ -72,7 +88,7 @@ def continuum_solver_input_data(iip_atom_data):
     # Shape: (n_lines, n_shells)
     beta_sobolevs = pd.DataFrame(
         np.random.uniform(0.1, 2.0, size=(n_lines, n_shells)),
-        index=iip_atom_data.lines.loc[[1]].index,
+        index=continuum_atom_data.lines.loc[[1]].index,
         columns=np.arange(n_shells),
     )
 
@@ -86,7 +102,7 @@ def continuum_solver_input_data(iip_atom_data):
     # Shape: (n_levels-1, n_shells)
     stim_recomb_corrected_photoionization_rate_coeff = pd.DataFrame(
         np.random.uniform(1e-12, 1e-10, size=(n_levels - 1, n_shells)),
-        index=iip_atom_data.levels.xs(
+        index=continuum_atom_data.levels.xs(
             (1, 0), drop_level=False
         ).index,  # Pandas trim to only neutral H
         columns=np.arange(n_shells),
@@ -96,7 +112,7 @@ def continuum_solver_input_data(iip_atom_data):
     # Shape: (n_continuum_trans, n_shells)
     spontaneous_recombination_coeff = pd.DataFrame(
         np.random.uniform(1e-13, 1e-11, size=(n_levels - 1, n_shells)),
-        index=iip_atom_data.levels.xs(
+        index=continuum_atom_data.levels.xs(
             (1, 0), drop_level=False
         ).index,  # Pandas trim to only neutral H
         columns=np.arange(n_shells),
@@ -106,7 +122,7 @@ def continuum_solver_input_data(iip_atom_data):
     # Shape: (n_levels, n_shells)
     coll_deexc_coeff = pd.DataFrame(
         np.random.uniform(1e-15, 1e-12, size=(n_lines, n_shells)),
-        index=iip_atom_data.lines.loc[[1]].index,
+        index=continuum_atom_data.lines.loc[[1]].index,
         columns=np.arange(n_shells),
     )
 
@@ -114,7 +130,7 @@ def continuum_solver_input_data(iip_atom_data):
     # Shape: (n_lines, n_shells)
     coll_exc_coeff = pd.DataFrame(
         np.random.uniform(1e-16, 1e-13, size=(n_lines, n_shells)),
-        index=iip_atom_data.lines.loc[[1]].index,
+        index=continuum_atom_data.lines.loc[[1]].index,
         columns=np.arange(n_shells),
     )
 
@@ -122,7 +138,7 @@ def continuum_solver_input_data(iip_atom_data):
     # Shape: (n_levels - 1, n_shells)
     coll_ion_coeff = pd.DataFrame(
         np.random.uniform(1e-15, 1e-12, size=(n_levels - 1, n_shells)),
-        index=iip_atom_data.levels.xs(
+        index=continuum_atom_data.levels.xs(
             (1, 0), drop_level=False
         ).index,  # Pandas trim to only neutral H
         columns=np.arange(n_shells),
@@ -132,7 +148,7 @@ def continuum_solver_input_data(iip_atom_data):
     # Shape: (n_levels-1, n_shells)
     coll_recomb_coeff = pd.DataFrame(
         np.random.uniform(1e-16, 1e-13, size=(n_levels - 1, n_shells)),
-        index=iip_atom_data.levels.xs(
+        index=continuum_atom_data.levels.xs(
             (1, 0), drop_level=False
         ).index,  # Pandas trim to only neutral H
         columns=np.arange(n_shells),
@@ -149,7 +165,7 @@ def continuum_solver_input_data(iip_atom_data):
     # Shape: (n_levels,)
     delta_E_yg = pd.Series(
         np.random.uniform(0.1, 20.0, size=n_lines),
-        index=iip_atom_data.lines.loc[[1]].index,
+        index=continuum_atom_data.lines.loc[[1]].index,
     )
 
     # Cooling rates and arrays for different processes
@@ -166,7 +182,7 @@ def continuum_solver_input_data(iip_atom_data):
 
     # Create MultiIndex for collisional excitation cooling destinations
     # Exclude ground state (0) and ionized state (n_levels - 1)
-    coll_exc_cool_destinations = iip_atom_data.levels.xs(
+    coll_exc_cool_destinations = continuum_atom_data.levels.xs(
         (1, 0), drop_level=False
     ).index[:-1]
 

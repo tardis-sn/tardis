@@ -1,144 +1,71 @@
+from pathlib import Path
+
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pandas.testing as pdt
 import pytest
 from astropy import units as u
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
-from tardis import constants as const
-from tardis.iip_plasma.properties.continuum import (
-    CollDeexcRateCoeff,
-    CollExcRateCoeff,
-    Yg,
-    YgInterpolator,
-)
-from tardis.iip_plasma.properties.partition_function import (
-    LevelBoltzmannFactorLTETe,
-)
-from tardis.plasma.equilibrium.rates import (
-    ThermalCollisionalRateSolver,
-)
-
-
-def _with_ion_source_and_destination_index(
-    rate_coefficients: pd.DataFrame,
-) -> pd.DataFrame:
-    """Match the equilibrium solver's collisional-rate index layout."""
-    rate_coefficients = rate_coefficients.copy()
-    rate_coefficients.index.names = [
-        "atomic_number",
-        "ion_number",
-        "level_number_source",
-        "level_number_destination",
-    ]
-    rate_coefficients = rate_coefficients.reset_index()
-    rate_coefficients["ion_number_source"] = rate_coefficients["ion_number"]
-    rate_coefficients["ion_number_destination"] = rate_coefficients[
-        "ion_number"
-    ]
-    return rate_coefficients.set_index(
-        [
-            "atomic_number",
-            "ion_number",
-            "ion_number_source",
-            "ion_number_destination",
-            "level_number_source",
-            "level_number_destination",
-        ]
-    )
+from tardis.io.atom_data import AtomData
+from tardis.plasma.equilibrium.rates import ThermalCollisionalRateSolver
 
 
 @pytest.fixture
-def iip_collision_rate_coefficients(iip_atom_data: object) -> pd.DataFrame:
-    """Calculate excitation and de-excitation rates through IIP properties."""
-    temperatures_electron = np.array([10000.0, 20000.0])
-    yg_interpolator = YgInterpolator(None)
-    yg_interp, yg_allowed_index, yg_forbidden_index = (
-        yg_interpolator.calculate(
-            iip_atom_data.yg_data,
-            iip_atom_data.collision_data_temperatures,
-            iip_atom_data.lines.index,
-        )
+def cmfgen_atomic_data(tardis_regression_path: Path) -> AtomData:
+    atom_data = AtomData.from_hdf(
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
     )
-    yg = Yg(None).calculate(
-        yg_interp, iip_atom_data.yg_data.index, temperatures_electron
-    )
-    coll_exc_coeff, _ = CollExcRateCoeff(None).calculate(
-        iip_atom_data.lines,
-        iip_atom_data.levels.energy,
-        temperatures_electron,
-        yg,
-        yg_allowed_index,
-        yg_forbidden_index,
-    )
-    beta_electron = 1.0 / (const.k_B.cgs.value * temperatures_electron)
-    lte_level_boltzmann_factor = LevelBoltzmannFactorLTETe.calculate(
-        iip_atom_data.levels.energy,
-        iip_atom_data.levels.g,
-        beta_electron,
-        iip_atom_data.levels.index,
-    )
-    coll_deexc_coeff = CollDeexcRateCoeff(None).calculate(
-        lte_level_boltzmann_factor, coll_exc_coeff
-    )
-    coll_deexc_coeff.index = coll_deexc_coeff.index.swaplevel(
-        "level_number_lower", "level_number_upper"
-    )
-
-    return pd.concat(
-        [
-            _with_ion_source_and_destination_index(coll_exc_coeff),
-            _with_ion_source_and_destination_index(coll_deexc_coeff),
-        ]
-    )
+    atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
+    atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
+    return atom_data
 
 
-def test_iip_cmfgen_collisional_strengths(iip_atom_data: object) -> None:
+def test_iip_cmfgen_collisional_strengths(
+    cmfgen_atomic_data: AtomData,
+    regression_data: RegressionData,
+) -> None:
     """Verify IIP collision-strength interpolation at tabulated temperatures."""
-    yg_interp, _, _ = YgInterpolator(None).calculate(
-        iip_atom_data.yg_data,
-        iip_atom_data.collision_data_temperatures,
-        iip_atom_data.lines.index,
+    actual = ThermalCollisionalRateSolver(
+        cmfgen_atomic_data.levels,
+        cmfgen_atomic_data.lines,
+        cmfgen_atomic_data.collision_data_temperatures,
+        cmfgen_atomic_data.yg_data,
+        collision_strengths_type="cmfgen",
+    ).calculate_collision_strengths(
+        cmfgen_atomic_data.collision_data_temperatures * u.K
     )
-    interpolated_yg_data = Yg(None).calculate(
-        yg_interp,
-        iip_atom_data.yg_data.index,
-        iip_atom_data.collision_data_temperatures,
+    expected = regression_data.sync_dataframe(
+        pd.DataFrame(actual.to_numpy()), key="allclose_0"
     )
-    npt.assert_allclose(
-        interpolated_yg_data.values,
-        iip_atom_data.yg_data.values,
-        atol=0,
-        rtol=1e-8,
-    )
+    npt.assert_allclose(actual.to_numpy(), expected.to_numpy(), rtol=1e-8, atol=0.0)
 
 
 def test_thermal_collision_rates_against_iip(
-    iip_atom_data: object,
-    iip_collision_rate_coefficients: pd.DataFrame,
+    cmfgen_atomic_data: AtomData,
+    regression_data: RegressionData,
 ) -> None:
     """Verify equilibrium collisional rates against IIP plasma properties."""
-    radiative_transitions = iip_atom_data.lines.loc[
-        (1, 0, slice(None), slice(None)),
-    ]
-    collision_strengths = iip_atom_data.yg_data.loc[
-        (1, 0, slice(None), slice(None)),
-    ]
-    thermal_rate_solver = ThermalCollisionalRateSolver(
-        iip_atom_data.levels,
-        radiative_transitions,
-        iip_atom_data.collision_data_temperatures,
-        collision_strengths,
+    transition_index = (1, 0, slice(None), slice(None))
+    lines = cmfgen_atomic_data.lines.loc[transition_index, :]
+    strengths = cmfgen_atomic_data.yg_data.loc[transition_index, :]
+    actual = ThermalCollisionalRateSolver(
+        cmfgen_atomic_data.levels,
+        lines,
+        cmfgen_atomic_data.collision_data_temperatures,
+        strengths,
         collision_strengths_type="cmfgen",
         collisional_strength_approximation="regemorter",
-    )
-
-    thermal_rates = thermal_rate_solver.solve(np.array([10000.0, 20000.0]) * u.K)
+    ).solve(np.array([10000.0, 20000.0]) * u.K)
+    expected = regression_data.sync_dataframe(actual, key="frame_0")
     pdt.assert_frame_equal(
-        thermal_rates.loc[iip_collision_rate_coefficients.index],
-        iip_collision_rate_coefficients,
+        actual,
+        expected,
         check_names=False,
         check_column_type=False,
-        atol=0,
+        atol=0.0,
         rtol=2e-5,
     )
