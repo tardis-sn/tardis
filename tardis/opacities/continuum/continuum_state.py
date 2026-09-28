@@ -5,6 +5,9 @@ import numpy.typing as npt
 import pandas as pd
 
 from tardis import constants as const
+from tardis.opacities.continuum.continuum_state_numba import (
+    ContinuumOpacityStateNumba,
+)
 from tardis.plasma.array_util import cumulative_integrate_array_by_blocks
 from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     FreeFreeThermalRates,
@@ -218,6 +221,56 @@ class ContinuumOpacityState:
             ff_cooling_factor,
             fb_emission_cdf,
             photo_ion_idx,
+        )
+
+    def to_numba(
+        self,
+        t_electrons: npt.NDArray[np.float64],
+        macro_atom_state: object,
+    ) -> ContinuumOpacityStateNumba:
+        """Convert continuum data to the arrays used by transport.
+
+        Parameters
+        ----------
+        t_electrons : numpy.ndarray
+            Electron temperatures in each shell [K].
+
+        Returns
+        -------
+        ContinuumOpacityStateNumba
+            Array-backed continuum data used by IIP transport.
+        """
+        continuum_arrays = (
+            self.bf_threshold_list_nu.values,
+            np.ascontiguousarray(
+                self.p_fb_deactivation.values.copy(), dtype=np.float64
+            ),
+            self.photo_ion_nu_threshold_mins.values,
+            self.photo_ion_nu_threshold_maxs.values,
+            self.photo_ion_block_references,
+            self.chi_bf.values,
+            self.x_sect.values,
+            self.phot_nus.values,
+            (self.ff_cooling_factor / np.sqrt(t_electrons)).astype(
+                np.float64
+            ),
+            self.emissivities.values,
+        )
+        if macro_atom_state.photo_ion_block_idx < 0:
+            photo_ion_activation_idx = self.photo_ion_activation_idx.to_numpy(
+                dtype=np.int64
+            )
+        else:
+            photo_ion_activation_idx = np.full(
+                len(self.level2continuum_idx),
+                macro_atom_state.photo_ion_block_idx,
+                dtype=np.int64,
+            )
+        return ContinuumOpacityStateNumba(
+            *continuum_arrays,
+            photo_ion_activation_idx,
+            np.int64(macro_atom_state.k_packet_idx),
+            macro_atom_state.absorbing_probability_matrix,
         )
 
     @property
