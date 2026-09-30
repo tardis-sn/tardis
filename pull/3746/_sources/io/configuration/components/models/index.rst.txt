@@ -104,6 +104,8 @@ Built-in Structure, Density, and Abundance
 
 TARDIS's built-in models for structure, density, and abundance are described in the following sections:
 
+.. _built-in-model-structure:
+
 Structure
 ---------
 
@@ -276,13 +278,10 @@ Notice that for each column that is used in the CSV section of the file, there i
 description to go along with it. While the description is not necessary for any of the fields, the unit section
 is required for ``radius``, ``velocity``, ``density``, and ``t_rad``.
 
-A ``radius`` column selects nonhomologous geometry. Velocity data may come from
-either the CSV column shown here or the YAML ``velocity`` section. Radius and
-velocity entries specify the same shell boundaries, but TARDIS retains their
-values independently: it neither requires :math:`r = vt` nor replaces supplied
-radii with values derived from homologous expansion. Without a ``radius``
-column, TARDIS constructs homologous geometry and derives radius from velocity
-and the time since explosion.
+The presence of a ``radius`` column selects the geometry as described for the
+:ref:`built-in model structure <built-in-model-structure>`. In a CSVY model,
+velocity boundaries may come from either the CSV column shown here or the YAML
+``velocity`` section.
 
 The first entries in boundary-valued ``radius`` and ``velocity`` columns are the
 inner boundary of the computational domain (see
