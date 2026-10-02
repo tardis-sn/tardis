@@ -114,14 +114,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_22436000
+.. |CITATION| replace:: kerzendorf_2026_22985438
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.436000-blue
-                 :target: https://doi.org/10.5281/zenodo.436000
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.985438-blue
+                 :target: https://doi.org/10.5281/zenodo.985438
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_22436000,
+    @software{kerzendorf_2026_22985438,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -146,55 +146,55 @@ The following BibTeX entries are needed for the references:
                       Barna, Barnabás and
                       Gautam, Gaurav and
                       Arya, Atharva and
-                      Smith, Isaac and
                       Shields, Joshua and
+                      Smith, Isaac and
                       Cawley, Kevin and
                       Singhal, Jaladh and
                       Fullard, Andrew and
                       Barbosa, Talytha and
-                      Yu, Jenny and
                       O'Brien, Jack and
                       Sondhi, Dhruv and
+                      Yu, Jenny and
                       Shields, Josh and
                       Patel, Maryam and
                       Varanasi, Kaushik and
                       Rathi, Shikha and
-                      Gillanders, James and
                       Chitchyan, Sona and
-                      Marie Lynn, Haille and
-                      Savel, Arjun and
+                      Gillanders, James and
                       Gupta, Sumit and
                       Singh, Shreyas and
+                      Savel, Arjun and
+                      Marie Lynn, Haille and
                       Eweis, Youssef and
-                      Reinecke, Martin and
                       Shah, Swayam and
+                      Reinecke, Martin and
                       Holas, Alexander and
                       Visser, Erin and
-                      McClellan, Connor and
                       Bylund, Tomas and
-                      Black, William and
+                      McClellan, Connor and
                       Bentil, Laud and
+                      Black, William and
+                      Lu, Jing and
+                      Saraf, Shreyans and
+                      Groneck, Ryan and
                       Kumar, Asish and
                       Dutta, Anirban and
-                      Lu, Jing and
-                      Groneck, Ryan and
-                      Saraf, Shreyans and
                       Eguren, Jordi and
-                      Srivastava, Sarthak and
                       Bartnik, Matthew and
+                      Srivastava, Sarthak and
                       Kumar, Ansh and
                       Alam, Arib and
                       Magee, Mark and
                       Varma Buddaraju, Rohith and
                       Kambham, Satwik and
-                      Livneh, Ran and
                       Daksh, Ayushi and
+                      Livneh, Ran and
                       Powers, Cecelia and
+                      Roldan, Israel and
                       Bhakar, Jayant and
                       Dadu, Aaryan and
                       Rajagopalan, Srinath and
                       Mishra, Sashank and
-                      Roldan, Israel and
                       Reichenbach, John and
                       Actions, GitHub and
                       Rao, Rishmita and
@@ -248,13 +248,13 @@ The following BibTeX entries are needed for the references:
                       Sharma, Sampark and
                       Venkat, Shashank and
                       Prasad, Shilpi},
-      title        = {tardis-sn/tardis: TARDIS v2026.09.06},
+      title        = {tardis-sn/tardis: TARDIS v2026.09.27},
       month        = sep,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.09.06},
-      doi          = {10.5281/zenodo.22436000},
-      url          = {https://doi.org/10.5281/zenodo.22436000},
+      version      = {release-2026.09.27},
+      doi          = {10.5281/zenodo.22985438},
+      url          = {https://doi.org/10.5281/zenodo.22985438},
     }
 
 

@@ -1,0 +1,6 @@
+interface:
+  display_name: "TARDIS Test workflow"
+  short_description: "Build tests for TARDIS"
+  default_prompt: "Use $tardis-tests to write tests for this change."
+policy:
+  allow_implicit_invocation: false

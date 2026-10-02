@@ -125,9 +125,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             macro_atom_state,
             self.line_interaction_type,
         )
-        opacity_state_numba = opacity_state_numba[
-            simulation_state.geometry.r_inner_boundary_index : simulation_state.geometry.r_outer_boundary_index
-        ]
 
         transport_state = MonteCarloTransportStateNonhomologous(
             packet_collection,

@@ -58,8 +58,6 @@ class SourceFunctionSolver:
                 The rate energy density is added to the upper level of transitions excited to it
         """
         # Parse states for required values
-        v_inner_boundary_idx = sim_state.geometry.v_inner_boundary_idx
-        v_outer_boundary_idx = sim_state.geometry.v_outer_boundary_idx
         no_of_shells = sim_state.no_of_shells
         dilution_factor = sim_state.dilution_factor
         time_explosion = sim_state.time_explosion
@@ -78,12 +76,6 @@ class SourceFunctionSolver:
             transport_state.packet_collection.time_of_simulation * u.s
         )
 
-        # slice for the active shells
-        local_slice = slice(v_inner_boundary_idx, v_outer_boundary_idx)
-
-        transition_probabilities = transition_probabilities[:, local_slice]
-        tau_sobolevs = tau_sobolev[:, local_slice]
-
         macroatom_references = macro_atom_state.references_index
         macroatom_transition_metadata = macro_atom_state.transition_metadata
 
@@ -97,7 +89,7 @@ class SourceFunctionSolver:
         e_dot_u = self.calculate_e_dot_u(
             time_of_simulation,
             volume,
-            tau_sobolevs,
+            tau_sobolev,
             e_dot_lu_estimator,
             transition_probabilities,
             upper_level_index,
@@ -138,7 +130,7 @@ class SourceFunctionSolver:
         Jblue_lu = self.calculate_Jblue_lu(
             time_explosion, time_of_simulation, volume, j_blue_estimator
         )
-        Jred_lu = self.calculate_Jred_lu(Jblue_lu, tau_sobolevs, att_S_ul)
+        Jred_lu = self.calculate_Jred_lu(Jblue_lu, tau_sobolev, att_S_ul)
 
         return SourceFunctionState(att_S_ul, Jred_lu, Jblue_lu, e_dot_u)
 
