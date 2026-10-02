@@ -1,6 +1,8 @@
 import numpy as np
 from numba import njit
+from numpy.typing import NDArray
 
+from tardis.energy_input.transport.GXPacket import GXPacket
 from tardis.energy_input.util import (
     C_CGS,
     doppler_factor_3d,
@@ -10,9 +12,10 @@ from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_distance_radial(photon, r_inner, r_outer):
-    """
-    Calculates 3D distance to shell from gamma ray position
+def calculate_distance_radial(
+    photon: GXPacket, r_inner: float, r_outer: float
+) -> tuple[float, int]:
+    """Calculate the 3D distance to a gamma-ray shell boundary.
 
     Parameters
     ----------
@@ -23,23 +26,27 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     Returns
     -------
     distance : float
+        Distance to the selected shell boundary in centimeters.
+    shell_change : int
+        Change in radial-shell index at the selected boundary.
 
+    Notes
+    -----
+    A zero inner radius does not define a boundary. Packets in that central
+    shell continue through the origin to the far-side outer boundary.
     """
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
-    inner_1, inner_2 = solve_quadratic_equation(
-        photon.location, photon.direction, r_inner
-    )
+    inner_1 = -1.0
+    inner_2 = -1.0
+    if r_inner > 0.0:
+        inner_1, inner_2 = solve_quadratic_equation(
+            photon.location, photon.direction, r_inner
+        )
     outer_1, outer_2 = solve_quadratic_equation(
         photon.location, photon.direction, r_outer
     )
 
-    final_position_inner_1 = np.ascontiguousarray(
-        photon.location + photon.direction * inner_1
-    )
-    final_position_inner_2 = np.ascontiguousarray(
-        photon.location + photon.direction * inner_2
-    )
     final_position_outer_1 = np.ascontiguousarray(
         photon.location + photon.direction * outer_1
     )
@@ -50,10 +57,17 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     # Ensure photon.direction is contiguous for dot product operations
     direction_contiguous = np.ascontiguousarray(photon.direction)
 
-    if np.dot(final_position_inner_1, direction_contiguous) > 0:
-        inner_1 = -1
-    if np.dot(final_position_inner_2, direction_contiguous) > 0:
-        inner_2 = -1
+    if r_inner > 0.0:
+        final_position_inner_1 = np.ascontiguousarray(
+            photon.location + photon.direction * inner_1
+        )
+        final_position_inner_2 = np.ascontiguousarray(
+            photon.location + photon.direction * inner_2
+        )
+        if np.dot(final_position_inner_1, direction_contiguous) > 0:
+            inner_1 = -1
+        if np.dot(final_position_inner_2, direction_contiguous) > 0:
+            inner_2 = -1
     if np.dot(final_position_outer_1, direction_contiguous) < 0:
         outer_1 = -1
     if np.dot(final_position_outer_2, direction_contiguous) < 0:
@@ -76,24 +90,29 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     shortest = min(distance_list)
     shell_change = 1
 
-    if shortest == (inner_1 or inner_2):
+    if shortest in (inner_1, inner_2):
         shell_change = -1
+    elif shortest in (outer_1, outer_2):
+        shell_change = 1
+    else:
+        raise ValueError("Selected boundary is not a calculated root")
 
     return shortest, shell_change
 
 
 @njit(**njit_dict_no_parallel)
 def distance_trace(
-    photon,
-    inner_velocity,
-    outer_velocity,
-    total_opacity,
-    current_time,
-    next_time,
-):
-    """
-    Traces distance traveled by gamma ray and finds distance to
-    next interaction and boundary
+    photon: GXPacket,
+    inner_velocity: NDArray[np.float64],
+    outer_velocity: NDArray[np.float64],
+    total_opacity: float,
+    current_time: float,
+    next_time: float,
+) -> tuple[float, float, float, int]:
+    """Trace distances to the next gamma-ray event.
+
+    Calculate the distances to an interaction, shell boundary, and time-bin
+    boundary.
 
     Parameters
     ----------
@@ -110,10 +129,20 @@ def distance_trace(
     distance_boundary : float
     distance_time : float
     shell_change : int
+
+    Notes
+    -----
+    The first high-energy transport shell extends to the origin. Its geometric
+    inner boundary is ignored so that inward packets cross the center without
+    leaving the radial grid.
     """
+    r_inner = 0.0
+    if photon.shell > 0:
+        r_inner = inner_velocity[photon.shell] * current_time
+
     distance_boundary, shell_change = calculate_distance_radial(
         photon,
-        inner_velocity[photon.shell] * current_time,
+        r_inner,
         outer_velocity[photon.shell] * current_time,
     )
 
@@ -123,9 +152,8 @@ def distance_trace(
 
 
 @njit(**njit_dict_no_parallel)
-def move_packet(packet, distance):
-    """
-    Moves packet a distance along its direction vector
+def move_packet(packet: GXPacket, distance: float) -> GXPacket:
+    """Move a packet a distance along its direction vector.
 
     Parameters
     ----------

@@ -1,4 +1,4 @@
-import os
+from collections.abc import Callable
 
 import numpy as np
 import pytest
@@ -22,7 +22,11 @@ from tardis.energy_input.transport.gamma_ray_interactions import (
     pair_creation_packet,
     scatter_type,
 )
-from tardis.energy_input.transport.GXPacket import GXPacket, GXPacketStatus
+from tardis.energy_input.transport.GXPacket import (
+    GXPacket,
+    GXPacketCollection,
+    GXPacketStatus,
+)
 from tardis.energy_input.util import ELECTRON_MASS_ENERGY_KEV, H_CGS_KEV
 
 RTOL = 1.0e-12
@@ -42,6 +46,24 @@ def gamma_packet(basic_gamma_ray: GXPacket, set_seed_fixture) -> GXPacket:
     basic_gamma_ray.time_start = 1.2e5
     basic_gamma_ray.time_idx = 0
     return basic_gamma_ray
+
+
+@pytest.fixture
+def gamma_packet_collection(gamma_packet: GXPacket) -> GXPacketCollection:
+    return GXPacketCollection(
+        gamma_packet.location[:, np.newaxis].copy(),
+        gamma_packet.direction[:, np.newaxis].copy(),
+        np.array([gamma_packet.energy_rf]),
+        np.array([gamma_packet.energy_cmf]),
+        np.array([gamma_packet.nu_rf]),
+        np.array([gamma_packet.nu_cmf]),
+        np.array([gamma_packet.status], dtype=np.int64),
+        np.array([gamma_packet.shell], dtype=np.int64),
+        np.array([gamma_packet.time_start]),
+        np.array([gamma_packet.time_idx], dtype=np.int64),
+        np.array(["Ni56"], dtype="<U16"),
+        np.array([1963], dtype=np.int64),
+    )
 
 
 @pytest.fixture
@@ -94,8 +116,49 @@ def test_gamma_distance_radial_inward(
     )
 
     sync_ndarray_assert_allclose(regression_data, distance, rtol=RTOL)
-    # Current implementation returns +1 here because the shell-change test
-    # compares against ``inner_1 or inner_2``.
+    assert shell_change == -1
+
+
+@pytest.mark.parametrize(
+    ("location", "expected_distance"),
+    [
+        (np.array([1.0e14, 0.0, 0.0]), 3.0e14),
+        (np.zeros(3), 2.0e14),
+    ],
+)
+def test_gamma_distance_radial_crosses_origin(
+    gamma_packet: GXPacket,
+    location: np.ndarray,
+    expected_distance: float,
+) -> None:
+    gamma_packet.location = location
+    gamma_packet.direction = np.array([-1.0, 0.0, 0.0])
+
+    distance, shell_change = calculate_distance_radial(
+        gamma_packet,
+        0.0,
+        2.0e14,
+    )
+
+    assert distance == pytest.approx(expected_distance)
+    assert shell_change == 1
+
+
+def test_gamma_distance_trace_treats_first_shell_as_central(
+    gamma_packet: GXPacket,
+) -> None:
+    gamma_packet.direction = np.array([-1.0, 0.0, 0.0])
+
+    _, distance_boundary, _, shell_change = distance_trace(
+        gamma_packet,
+        np.array([5.0e8]),
+        np.array([2.0e9]),
+        2.0e-14,
+        1.0e5,
+        1.5e5,
+    )
+
+    assert distance_boundary == pytest.approx(3.0e14)
     assert shell_change == 1
 
 
@@ -345,14 +408,14 @@ def test_gamma_process_packet_path_compton(
 
 
 def test_gamma_packet_loop_negative_time_index(
-    gamma_packet: GXPacket,
+    gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
 ) -> None:
-    gamma_packet.time_idx = -1
+    gamma_packet_collection.time_index[0] = -1
 
     with pytest.raises(ValueError, match="Packet time index less than 0!"):
         gamma_packet_loop(
-            [gamma_packet],
+            gamma_packet_collection,
             -1.0,
             "tardis",
             "artis",
@@ -360,25 +423,18 @@ def test_gamma_packet_loop_negative_time_index(
         )
 
 
-@pytest.mark.parametrize("grey_opacity", [-1.0, 0.1])
+@pytest.mark.parametrize("grey_opacity", [-1.0, 1e-4])
 def test_gamma_packet_loop_escape_binning(
-    gamma_packet: GXPacket,
+    gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
     grey_opacity: float,
-    set_seed_fixture,
-    regression_data,
+    set_seed_fixture: Callable[[int], None],
+    regression_data: object,
 ) -> None:
     # Put the packet just inside the outer boundary so the loop exercises
     # escape binning rather than an interaction branch.
-    if os.environ.get("NUMBA_DISABLE_JIT") == "1" and grey_opacity >= 0.0:
-        pytest.xfail(
-            "Current Python execution path leaves doppler_factor undefined "
-            "for grey opacity."
-        )
-
-    packet = gamma_packet
-    packet.location = np.array([1.9e14, 0.0, 0.0])
-    packet.direction = np.array([1.0, 0.0, 0.0])
+    gamma_packet_collection.location[:, 0] = np.array([1.9e14, 0.0, 0.0])
+    gamma_packet_collection.direction[:, 0] = np.array([1.0, 0.0, 0.0])
     set_seed_fixture(1963)
 
     (
@@ -388,16 +444,15 @@ def test_gamma_packet_loop_escape_binning(
         energy_deposited_gamma,
         total_energy,
     ) = gamma_packet_loop(
-        [packet],
+        gamma_packet_collection,
         grey_opacity,
         "kasen",
         "artis",
         **gamma_loop_arrays,
     )
 
-    assert packet.status == GXPacketStatus.ESCAPED
-    assert packet.shell == 1
     assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
+    assert packets_info_array[0, 7] == 1
     sync_ndarray_assert_allclose(
         regression_data,
         energy_out[1, 0],
@@ -410,17 +465,41 @@ def test_gamma_packet_loop_escape_binning(
     )
 
 
+def test_gamma_packet_loop_inward_crosses_center(
+    gamma_packet_collection: GXPacketCollection,
+    gamma_loop_arrays: dict[str, np.ndarray],
+) -> None:
+    gamma_packet_collection.direction[:, 0] = np.array([-1.0, 0.0, 0.0])
+
+    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
+        gamma_packet_loop(
+            gamma_packet_collection,
+            0.0,
+            "tardis",
+            "tardis",
+            **gamma_loop_arrays,
+        )
+    )
+
+    assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
+    assert packets_info_array[0, 6] == pytest.approx(
+        gamma_packet_collection.energy_rf[0]
+    )
+    assert packets_info_array[0, 7] == 1
+    np.testing.assert_array_equal(energy_deposited_gamma, 0.0)
+    np.testing.assert_array_equal(total_energy, 0.0)
+
+
 def test_gamma_packet_loop_tardis_opacity(
-    gamma_packet: GXPacket,
+    gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
     set_seed_fixture,
     regression_data,
 ) -> None:
     # Put the packet just inside the outer boundary so the TARDIS opacity path
     # reaches escape binning deterministically.
-    packet = gamma_packet
-    packet.location = np.array([1.9e14, 0.0, 0.0])
-    packet.direction = np.array([1.0, 0.0, 0.0])
+    gamma_packet_collection.location[:, 0] = np.array([1.9e14, 0.0, 0.0])
+    gamma_packet_collection.direction[:, 0] = np.array([1.0, 0.0, 0.0])
     set_seed_fixture(1963)
 
     (
@@ -430,14 +509,13 @@ def test_gamma_packet_loop_tardis_opacity(
         energy_deposited_gamma,
         total_energy,
     ) = gamma_packet_loop(
-        [packet],
+        gamma_packet_collection,
         -1.0,
         "tardis",
         "tardis",
         **gamma_loop_arrays,
     )
 
-    assert packet.status == GXPacketStatus.ESCAPED
     assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
     sync_ndarray_assert_allclose(
         regression_data,
@@ -457,7 +535,7 @@ def test_gamma_packet_loop_tardis_opacity(
     ],
 )
 def test_gamma_packet_loop_invalid_opacity_type(
-    gamma_packet: GXPacket,
+    gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
     photoabsorption_opacity_type: str,
     pair_creation_opacity_type: str,
@@ -465,7 +543,7 @@ def test_gamma_packet_loop_invalid_opacity_type(
 ) -> None:
     with pytest.raises(ValueError, match=match):
         gamma_packet_loop(
-            [gamma_packet],
+            gamma_packet_collection,
             -1.0,
             photoabsorption_opacity_type,
             pair_creation_opacity_type,
@@ -474,14 +552,13 @@ def test_gamma_packet_loop_invalid_opacity_type(
 
 
 def test_gamma_packet_loop_time_boundary_end_numba_disabled(
-    monkeypatch,
-    python_numba_disabled,
-    gamma_packet: GXPacket,
+    monkeypatch: pytest.MonkeyPatch,
+    python_numba_disabled: None,
+    gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
-    regression_data,
+    regression_data: object,
 ) -> None:
-    packet = gamma_packet
-    packet.time_idx = 1
+    gamma_packet_collection.time_index[0] = 1
 
     # Force the time-boundary branch without depending on sampled distances.
     monkeypatch.setattr(
@@ -490,34 +567,35 @@ def test_gamma_packet_loop_time_boundary_end_numba_disabled(
         lambda *args: (10.0, 20.0, 1.0, 0),
     )
 
-    with pytest.raises(UnboundLocalError):
+    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
         gamma_packet_loop(
-            [packet],
+            gamma_packet_collection,
             -1.0,
             "kasen",
             "artis",
             **gamma_loop_arrays,
         )
+    )
 
-    assert packet.status == GXPacketStatus.END
-    assert packet.shell == 0
+    assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS
+    assert gamma_packet_collection.shell[0] == 0
+    assert packets_info_array[0, 1] == GXPacketStatus.END
+    assert packets_info_array[0, 7] == 0
     sync_ndarray_assert_allclose(
         regression_data,
-        gamma_loop_arrays["energy_deposited_gamma"],
-        gamma_loop_arrays["total_energy"],
+        energy_deposited_gamma,
+        total_energy,
         rtol=RTOL,
     )
 
 
 def test_gamma_packet_loop_inner_boundary_end_numba_disabled(
-    monkeypatch,
-    python_numba_disabled,
-    gamma_packet: GXPacket,
+    monkeypatch: pytest.MonkeyPatch,
+    python_numba_disabled: None,
+    gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
-    regression_data,
+    regression_data: object,
 ) -> None:
-    packet = gamma_packet
-
     # Force the inner-boundary branch without depending on sampled distances.
     monkeypatch.setattr(
         gamma_loop_module,
@@ -525,36 +603,48 @@ def test_gamma_packet_loop_inner_boundary_end_numba_disabled(
         lambda *args: (20.0, 1.0, 10.0, -1),
     )
 
-    with pytest.raises(UnboundLocalError):
+    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
         gamma_packet_loop(
-            [packet],
+            gamma_packet_collection,
             -1.0,
             "kasen",
             "artis",
             **gamma_loop_arrays,
         )
+    )
 
-    assert packet.status == GXPacketStatus.END
-    assert packet.shell == -1
+    assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS
+    assert gamma_packet_collection.shell[0] == 0
+    assert packets_info_array[0, 1] == GXPacketStatus.END
+    assert packets_info_array[0, 7] == -1
     sync_ndarray_assert_allclose(
         regression_data,
-        packet.energy_rf,
-        packet.energy_cmf,
-        gamma_loop_arrays["energy_deposited_gamma"],
-        gamma_loop_arrays["total_energy"],
+        packets_info_array[0, 6],
+        packets_info_array[0, 4],
+        energy_deposited_gamma,
+        total_energy,
         rtol=RTOL,
     )
 
+    assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS
+    assert gamma_packet_collection.shell[0] == 0
+    assert packets_info_array[0, 1] == GXPacketStatus.END
+    assert packets_info_array[0, 6] == pytest.approx(
+        gamma_packet_collection.energy_rf[0]
+    )
+    np.testing.assert_array_equal(
+        gamma_loop_arrays["energy_deposited_gamma"], 0.0
+    )
+    np.testing.assert_array_equal(gamma_loop_arrays["total_energy"], 0.0)
+
 
 def test_gamma_packet_loop_interaction_deposition_numba_disabled(
-    monkeypatch,
-    python_numba_disabled,
-    gamma_packet: GXPacket,
+    monkeypatch: pytest.MonkeyPatch,
+    python_numba_disabled: None,
+    gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
-    regression_data,
+    regression_data: object,
 ) -> None:
-    packet = gamma_packet
-
     # Force an immediate photoabsorption interaction to characterize deposition
     # bookkeeping in the loop.
     monkeypatch.setattr(
@@ -570,7 +660,7 @@ def test_gamma_packet_loop_interaction_deposition_numba_disabled(
 
     _, _, packets_info_array, energy_deposited_gamma, total_energy = (
         gamma_packet_loop(
-            [packet],
+            gamma_packet_collection,
             -1.0,
             "kasen",
             "artis",
@@ -578,7 +668,8 @@ def test_gamma_packet_loop_interaction_deposition_numba_disabled(
         )
     )
 
-    assert packet.status == GXPacketStatus.PHOTOABSORPTION
+    assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS
+    assert packets_info_array[0, 1] == GXPacketStatus.PHOTOABSORPTION
     sync_ndarray_assert_allclose(
         regression_data,
         energy_deposited_gamma,
@@ -589,13 +680,12 @@ def test_gamma_packet_loop_interaction_deposition_numba_disabled(
 
 
 def test_gamma_packet_loop_scattered_escape_numba_disabled(
-    monkeypatch,
-    python_numba_disabled,
-    gamma_packet: GXPacket,
+    monkeypatch: pytest.MonkeyPatch,
+    python_numba_disabled: None,
+    gamma_packet_collection: GXPacketCollection,
     gamma_loop_arrays: dict[str, np.ndarray],
-    regression_data,
+    regression_data: object,
 ) -> None:
-    packet = gamma_packet
     distances_to_return = [
         # First loop step: interaction distance wins.
         (1.0, 20.0, 10.0, 0),
@@ -633,19 +723,23 @@ def test_gamma_packet_loop_scattered_escape_numba_disabled(
         process_packet_path_as_pair_creation,
     )
 
-    with pytest.raises(UnboundLocalError):
+    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
         gamma_packet_loop(
-            [packet],
+            gamma_packet_collection,
             -1.0,
             "kasen",
             "artis",
             **gamma_loop_arrays,
         )
+    )
 
-    assert packet.status == GXPacketStatus.IN_PROCESS
+    assert gamma_packet_collection.status[0] == GXPacketStatus.IN_PROCESS
+    assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
+    assert packets_info_array[0, 5] > 0.0
+    assert packets_info_array[0, 7] == 1
     sync_ndarray_assert_allclose(
         regression_data,
-        gamma_loop_arrays["energy_deposited_gamma"],
-        gamma_loop_arrays["total_energy"],
+        energy_deposited_gamma,
+        total_energy,
         rtol=RTOL,
     )

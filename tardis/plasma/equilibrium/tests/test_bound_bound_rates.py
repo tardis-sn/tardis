@@ -76,8 +76,10 @@ def test_radiative_rates_match_einstein_relations(
         REFERENCE_RADIATION_TEMPERATURES,
         REFERENCE_RADIATION_DILUTION_FACTORS,
     )
-    rates = RadiativeRatesSolver(einstein).solve(radiation_field)
     j_nu = radiation_field.calculate_mean_intensity(einstein.nu.values)
+    rates = RadiativeRatesSolver(einstein).solve(
+        pd.DataFrame(j_nu, index=einstein.index)
+    )
 
     upward = rates.loc[(1, 0, 0, 0, 0, 1)].to_numpy()
     downward = rates.loc[(1, 0, 0, 0, 1, 0)].to_numpy()
@@ -101,6 +103,50 @@ def test_radiative_rates_match_einstein_relations(
     )
 
 
+def test_radiative_rates_use_fixed_j_blues_and_candidate_beta(
+    transition_index: pd.MultiIndex,
+) -> None:
+    """Apply candidate escape probabilities to both Einstein directions."""
+    line_index = transition_index
+    einstein_data = pd.DataFrame(
+        {"A_ul": [7.0], "B_ul": [3.0], "B_lu": [5.0], "nu": [1.0e15]},
+        index=line_index,
+    )
+    shell_index = pd.Index([3, 7], name="shell")
+    j_blues = pd.DataFrame(
+        [[2.0e8, 5.0e8]],
+        index=line_index,
+        columns=shell_index,
+    )
+    beta_sobolev = pd.DataFrame(
+        [[0.25, 0.6]],
+        index=line_index,
+        columns=shell_index,
+    )
+
+    rates = RadiativeRatesSolver(einstein_data).solve(
+        j_blues, beta_sobolev
+    )
+
+    upward = rates.loc[(1, 0, 0, 0, 0, 1)].to_numpy()
+    downward = rates.loc[(1, 0, 0, 0, 1, 0)].to_numpy()
+    npt.assert_allclose(
+        upward,
+        einstein_data.B_lu.iloc[0]
+        * j_blues.iloc[0].to_numpy()
+        * beta_sobolev.iloc[0].to_numpy(),
+    )
+    npt.assert_allclose(
+        downward,
+        (
+            einstein_data.A_ul.iloc[0]
+            + einstein_data.B_ul.iloc[0] * j_blues.iloc[0].to_numpy()
+        )
+        * beta_sobolev.iloc[0].to_numpy(),
+    )
+    pd.testing.assert_index_equal(rates.columns, shell_index)
+
+
 def test_radiative_rates_scale_linearly_with_dilution(
     real_einstein_data: pd.DataFrame,
 ) -> None:
@@ -114,8 +160,18 @@ def test_radiative_rates_scale_linearly_with_dilution(
         REFERENCE_SINGLE_RADIATION_TEMPERATURE,
         REFERENCE_HIGH_DILUTION_FACTOR,
     )
-    rates_a = RadiativeRatesSolver(einstein).solve(field_a)
-    rates_b = RadiativeRatesSolver(einstein).solve(field_b)
+    rates_a = RadiativeRatesSolver(einstein).solve(
+        pd.DataFrame(
+            field_a.calculate_mean_intensity(einstein.nu.values),
+            index=einstein.index,
+        )
+    )
+    rates_b = RadiativeRatesSolver(einstein).solve(
+        pd.DataFrame(
+            field_b.calculate_mean_intensity(einstein.nu.values),
+            index=einstein.index,
+        )
+    )
     # With A_ul=0, doubling dilution doubles both stimulated rates exactly.
     npt.assert_allclose(
         rates_b.to_numpy(), 2.0 * rates_a.to_numpy(), rtol=1e-12

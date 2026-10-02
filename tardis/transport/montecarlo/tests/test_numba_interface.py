@@ -2,7 +2,70 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
+from tardis.io.configuration.config_reader import Configuration
+from tardis.opacities.opacity_state import OpacityState
 from tardis.simulation import Simulation
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.solver import (
+    MCTransportSolverNonhomologous,
+)
+
+
+@pytest.mark.parametrize(
+    "solver_class",
+    [
+        MCTransportSolverClassic,
+        MCTransportSolverNonhomologous,
+    ],
+)
+def test_transport_solver_keeps_active_opacity_state(
+    monkeypatch: pytest.MonkeyPatch,
+    config_verysimple: Configuration,
+    nb_simulation_verysimple: Simulation,
+    solver_class: type[MCTransportSolverClassic | MCTransportSolverNonhomologous],
+) -> None:
+    simulation = nb_simulation_verysimple
+    geometry = simulation.simulation_state.geometry
+    monkeypatch.setattr(geometry, "v_inner_boundary", geometry.v_inner[2])
+    monkeypatch.setattr(geometry, "v_outer_boundary", geometry.v_outer[4])
+
+    active_shells = slice(2, 5)
+    active_opacity_state = OpacityState(
+        electron_density=simulation.opacity_state.electron_density.iloc[
+            active_shells
+        ],
+        t_electrons=simulation.opacity_state.t_electrons[active_shells],
+        line_list_nu=simulation.opacity_state.line_list_nu,
+        tau_sobolev=simulation.opacity_state.tau_sobolev.iloc[:, active_shells],
+        beta_sobolev=simulation.opacity_state.beta_sobolev.iloc[
+            :, active_shells
+        ],
+        continuum_state=simulation.opacity_state.continuum_state,
+    )
+
+    solver = solver_class.from_config(
+        config_verysimple,
+        packet_source=simulation.simulation_state.packet_source,
+    )
+
+    transport_state = solver.initialize_transport_state(
+        simulation.simulation_state,
+        active_opacity_state,
+        simulation.macro_atom_state,
+        simulation.plasma,
+        no_of_packets=1,
+    )
+
+    npt.assert_allclose(
+        transport_state.opacity_state_numba.electron_density,
+        active_opacity_state.electron_density.values,
+    )
+    npt.assert_allclose(
+        transport_state.opacity_state_numba.tau_sobolev,
+        active_opacity_state.tau_sobolev.values,
+    )
 
 
 @pytest.mark.parametrize(
@@ -82,7 +145,7 @@ def test_opacity_state_to_numba(
         )
 
 
-def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
+def test_vpacket_collection_add_packet(verysimple_3vpacket_collection):
     assert verysimple_3vpacket_collection.length == 0
 
     nus = [3.0e15, 0.0, 1e15, 1e5]
@@ -122,6 +185,7 @@ def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
         last_interaction_in_ids,
         last_interaction_out_ids,
         last_interaction_shell_ids,
+        strict=True,
     ):
         verysimple_3vpacket_collection.add_packet(
             nu,

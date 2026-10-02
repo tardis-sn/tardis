@@ -1,8 +1,8 @@
 import astropy.constants as const
-from scipy.interpolate import interp1d
 import astropy.units as u
 import numpy as np
 from numba import njit
+from scipy.interpolate import interp1d
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
@@ -144,17 +144,19 @@ def sample_decay_time(
 
 
 class PositroniumSampler:
-    def __init__(self, n_grid=10000):
-        """
+    """Sample equal-energy packets from the ortho-positronium continuum."""
+
+    def __init__(self, n_grid: int = 10000) -> None:
+        """Initialize the energy-weighted sampling grid.
+
         Parameters
         ----------
         n_grid : int, optional
-            Number of grid points for the CDF, by default 1000
+            Number of grid points for the CDF, by default 10000
         """
         self.x_grid = np.linspace(1e-4, 0.9999, n_grid)
-        self.norm_pdf = self.pdf(self.x_grid) / np.trapezoid(
-            self.pdf(self.x_grid), self.x_grid
-        )
+        energy_pdf = self.x_grid * self.pdf(self.x_grid)
+        self.norm_pdf = energy_pdf / np.trapezoid(energy_pdf, self.x_grid)
         self.cdf_grid = np.cumsum(self.norm_pdf)
         self.cdf_grid /= self.cdf_grid[-1]
 

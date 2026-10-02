@@ -14,6 +14,7 @@ from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 class ThermalBalanceSolver:
     """Class to solve the thermal balance equation using all available
+
     heating and cooling processes. See section 6.4 in Lucy 03, especially
     equations 55-57.
     """
@@ -58,6 +59,7 @@ class ThermalBalanceSolver:
         stimulated_recombination_estimator: pd.DataFrame | None = None,
     ) -> tuple[pd.Series, pd.Series]:
         """Compute the current heating rate and the fractional heating
+
         rate using all available processes. See section 6.4 in Lucy 03.
 
         Parameters
@@ -128,16 +130,16 @@ class ThermalBalanceSolver:
         )
 
         total_heating = (
-            bound_free_heating
-            + free_free_heating
-            + collisional_ionization_heating
-            + collisional_bound_heating
+            bound_free_heating.to_numpy()
+            + free_free_heating.to_numpy()
+            + collisional_ionization_heating.to_numpy()
+            + collisional_bound_heating.to_numpy()
         )
         total_cooling = (
-            free_bound_cooling
-            + free_free_cooling
-            + collisional_ionization_cooling
-            + collisional_bound_cooling
+            free_bound_cooling.to_numpy()
+            + free_free_cooling.to_numpy()
+            + collisional_ionization_cooling.to_numpy()
+            + collisional_bound_cooling.to_numpy()
         )
 
         total_heating_rate = total_heating - total_cooling
@@ -145,4 +147,7 @@ class ThermalBalanceSolver:
             total_heating - total_cooling
         ) / total_cooling
 
-        return total_heating_rate, fractional_heating_rate
+        return (
+            pd.Series(total_heating_rate, index=level_population.columns),
+            pd.Series(fractional_heating_rate, index=level_population.columns),
+        )

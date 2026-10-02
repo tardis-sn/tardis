@@ -1,6 +1,5 @@
 import logging
 
-import pandas as pd
 from astropy import units as u
 from numba import cuda, set_num_threads
 
@@ -45,9 +44,9 @@ logger = logging.getLogger(__name__)
 
 # TODO: refactor this into more parts
 class MCTransportSolverIIP(HDFWriterMixin):
-    """
-    This class modifies the MonteCarloTransportState to solve the radiative
-    transfer problem.
+    """Solve Type IIP Monte Carlo radiative transfer.
+
+    Build and evolve the continuum-enabled transport state.
     """
 
     hdf_properties = ["transport_state"]
@@ -99,30 +98,22 @@ class MCTransportSolverIIP(HDFWriterMixin):
 
     def initialize_transport_state(
         self,
-        simulation_state,
-        opacity_state,
-        macro_atom_state,
-        plasma,
-        no_of_packets,
-        no_of_virtual_packets=0,
-        iteration=0,
-    ):
-        if not plasma.continuum_interaction_species.empty:
-            # Combine phi_lucy data for all nlte_species to get total shape
-            if plasma.nlte_species:
-                all_species_phi_lucy = pd.concat(
-                    [
-                        plasma.phi_lucy.loc[species]
-                        for species in plasma.nlte_species
-                    ],
-                    axis=0,
-                )
-                n_levels_bf_species_by_n_cells_tuple = (
-                    all_species_phi_lucy.shape
-                )
-
-        else:
+        simulation_state: object,
+        opacity_state: object,
+        macro_atom_state: object | None,
+        no_of_packets: int,
+        no_of_virtual_packets: int = 0,
+        iteration: int = 0,
+    ) -> MonteCarloTransportState:
+        """Initialize transport state from explicit opacity inputs."""
+        continuum_state = opacity_state.continuum_state
+        if continuum_state is None:
             n_levels_bf_species_by_n_cells_tuple = (0, 0)
+        else:
+            n_levels_bf_species_by_n_cells_tuple = (
+                len(continuum_state.level2continuum_idx),
+                len(opacity_state.electron_density),
+            )
 
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration

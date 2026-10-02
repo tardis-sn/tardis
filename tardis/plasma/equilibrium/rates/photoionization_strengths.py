@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 
 from tardis import constants as const
+from tardis.plasma.equilibrium.rates.util import (
+    reindex_ion_population_to_level_population,
+)
 from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
     integrate_array_by_blocks,
@@ -350,9 +353,24 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
             axis=0,
         )
 
-        # need to handle He and up. They have extra ionization states that
-        # break the indexing.
         # Lucy 2003 Eq 18
+        if len(lte_level_population.columns) == len(
+            photoionization_boltzmann_factor.columns
+        ):
+            lte_level_population = lte_level_population.set_axis(
+                photoionization_boltzmann_factor.columns,
+                axis="columns",
+            )
+            level_population = level_population.set_axis(
+                photoionization_boltzmann_factor.columns,
+                axis="columns",
+            )
+        lte_ion_population = reindex_ion_population_to_level_population(
+            lte_ion_population, lte_level_population
+        )
+        ion_population = reindex_ion_population_to_level_population(
+            ion_population, lte_level_population
+        )
         correction_factor = (
             1
             - (ion_population / lte_ion_population).values
