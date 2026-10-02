@@ -104,6 +104,8 @@ Built-in Structure, Density, and Abundance
 
 TARDIS's built-in models for structure, density, and abundance are described in the following sections:
 
+.. _built-in-model-structure:
+
 Structure
 ---------
 
@@ -131,11 +133,13 @@ We present an example of the above schema:
             density:
                 type: branch85_w7 #see density schemas below for all options in the density section
 
-The ``radius`` section is optional for homologous workflows. For a
-nonhomologous workflow using a specific YAML structure, provide both ``start``
-and ``stop``. TARDIS linearly spaces the radius and velocity grids using the
-number of shells from ``velocity.num``, allowing the two boundary ranges to
-define a nonhomologous velocity field.
+Omit ``radius`` to construct homologous geometry. In that case, TARDIS derives
+the radial boundaries from the velocity boundaries and the time since explosion
+using :math:`r = vt`. Providing ``radius.start`` and ``radius.stop`` instead
+selects nonhomologous geometry. TARDIS linearly spaces the radius and velocity
+boundaries using the number of shells from ``velocity.num`` and retains the two
+grids independently. It does not require a supplied radius to equal
+:math:`v t`, nor does it replace the supplied radius with a homologous value.
 
 
 Density
@@ -274,16 +278,23 @@ Notice that for each column that is used in the CSV section of the file, there i
 description to go along with it. While the description is not necessary for any of the fields, the unit section
 is required for ``radius``, ``velocity``, ``density``, and ``t_rad``.
 
-When both ``radius`` and ``velocity`` are present, their entries specify the same shell boundaries and TARDIS
-retains them as independent quantities. In particular, it does not replace the supplied radii with radii derived
-from homologous expansion.
+The presence of a ``radius`` column selects the geometry as described for the
+:ref:`built-in model structure <built-in-model-structure>`. In a CSVY model,
+velocity boundaries may come from either the CSV column shown here or the YAML
+``velocity`` section.
 
-Since the ``velocity`` column contains the outer shell velocity, the first entry in the velocity column is the
-velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :doc:`../../../../physics_walkthrough/setup/model`).
-Consequently, **none of the other information in the first row is used**. In our example, there are only two
-shells, and the first shell will have an inner boundary with a velocity of :math:`9000 \mathrm{ km/s}`, an outer boundary
-with a velocity of :math:`10500 \mathrm{ km/s}`, a density of :math:`2.0*10^{-10} \mathrm{ g/cm^3}`, a dilution
-factor of .8, etc.
+The first entries in boundary-valued ``radius`` and ``velocity`` columns are the
+inner boundary of the computational domain (see
+:doc:`../../../../physics_walkthrough/setup/model`). Each subsequent entry is
+the outer boundary of one shell. Shell-valued data such as density, radiative
+temperature, dilution factor, and abundances therefore do not use their first
+entry. In our example, there are two shells. The first has inner boundaries of
+:math:`1.0 \times 10^{14}\,\mathrm{cm}` and
+:math:`9000\,\mathrm{km\,s^{-1}}`, outer boundaries of
+:math:`3.0 \times 10^{14}\,\mathrm{cm}` and
+:math:`10500\,\mathrm{km\,s^{-1}}`, a density of
+:math:`2.0 \times 10^{-10}\,\mathrm{g\,cm^{-3}}`, and a dilution factor of
+0.8.
 
 .. note::
 
