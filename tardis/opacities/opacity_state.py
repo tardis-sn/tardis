@@ -44,6 +44,13 @@ class OpacityState:
     The state preserves labelled plasma data for the MC solver and formal-integral.
     Use :meth:`to_numba` to produce the Numba-compatible transport
     representation.
+
+    Attributes
+    ----------
+    sobolev_optical_depth_coefficient : pandas.DataFrame or None
+        Velocity-gradient-independent coefficient for each line and shell [s^-1].
+        Dividing this coefficient by the absolute projected velocity gradient
+        gives the directional Sobolev optical depth.
     """
 
     def __init__(
@@ -54,6 +61,7 @@ class OpacityState:
         tau_sobolev: pd.DataFrame,
         beta_sobolev: pd.DataFrame | None,
         continuum_state: ContinuumOpacityState | None,
+        sobolev_optical_depth_coefficient: pd.DataFrame | None = None,
     ) -> None:
         """
         Initialize the Python-native opacity state.
@@ -72,14 +80,18 @@ class OpacityState:
             Sobolev escape probabilities for each line and shell.
         continuum_state : ContinuumOpacityState or None
             Continuum quantities needed when continuum interactions are enabled.
+        sobolev_optical_depth_coefficient : pd.DataFrame or None, optional
+            Velocity-gradient-independent coefficient for each line and shell [s^-1].
         """
         self.electron_density = electron_density
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
 
         self.tau_sobolev = tau_sobolev
-
         self.beta_sobolev = beta_sobolev
+        self.sobolev_optical_depth_coefficient = (
+            sobolev_optical_depth_coefficient
+        )
 
         # Continuum Opacity Data
         self.continuum_state = continuum_state
@@ -89,6 +101,7 @@ class OpacityState:
         cls,
         plasma: BasePlasma,
         tau_sobolev: pd.DataFrame,
+        sobolev_optical_depth_coefficient: pd.DataFrame | None = None,
     ) -> Self:
         """
         Construct an opacity state from a legacy plasma object.
@@ -99,6 +112,8 @@ class OpacityState:
             Plasma object containing the line and continuum quantities.
         tau_sobolev : pd.DataFrame
             Sobolev optical depths for each line and shell.
+        sobolev_optical_depth_coefficient : pd.DataFrame or None, optional
+            Velocity-gradient-independent coefficient for each line and shell [s^-1].
 
         Returns
         -------
@@ -117,6 +132,9 @@ class OpacityState:
             tau_sobolev,
             plasma.beta_sobolev,
             continuum_state,
+            sobolev_optical_depth_coefficient=(
+                sobolev_optical_depth_coefficient
+            ),
         )
 
     @classmethod
@@ -126,6 +144,7 @@ class OpacityState:
         tau_sobolev: pd.DataFrame,
         beta_sobolev: pd.DataFrame | None,
         continuum_state: ContinuumOpacityState | None = None,
+        sobolev_optical_depth_coefficient: pd.DataFrame | None = None,
     ) -> Self:
         """
         Construct an opacity state from a plasma object.
@@ -140,6 +159,8 @@ class OpacityState:
             Sobolev escape probabilities for each line and shell.
         continuum_state : ContinuumOpacityState or None
             Continuum state to use instead of constructing one from ``plasma``.
+        sobolev_optical_depth_coefficient : pd.DataFrame or None, optional
+            Velocity-gradient-independent coefficient for each line and shell [s^-1].
 
         Returns
         -------
@@ -160,6 +181,9 @@ class OpacityState:
             tau_sobolev,
             beta_sobolev,
             continuum_state,
+            sobolev_optical_depth_coefficient=(
+                sobolev_optical_depth_coefficient
+            ),
         )
 
     def to_numba(
@@ -330,7 +354,7 @@ class OpacityState:
                 macro_atom_state.transition_metadata.transition_line_idx.values
             )
 
-        return OpacityStateNumba(
+        opacity_state_numba = OpacityStateNumba(
             electron_densities,
             t_electrons,
             line_list_nu,
@@ -354,3 +378,10 @@ class OpacityState:
             photo_ion_activation_idx,
             k_packet_idx,
         )
+        if self.sobolev_optical_depth_coefficient is not None:
+            opacity_state_numba.sobolev_optical_depth_coefficient = (
+                np.ascontiguousarray(
+                    self.sobolev_optical_depth_coefficient, dtype=np.float64
+                )
+            )
+        return opacity_state_numba
