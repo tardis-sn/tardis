@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
@@ -10,44 +11,71 @@ from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
 
 
-def parse_structure_from_config(config: Configuration):
-    """Parses the structure section from a config object
+@dataclass(frozen=True)
+class ParsedStructure:
+    """Physical data parsed from a model structure configuration.
+
+    Attributes
+    ----------
+    density_time : astropy.units.Quantity or None
+        Time at which file-based density values are valid.
+    velocity : astropy.units.Quantity
+        Shell-boundary velocities.
+    radius : astropy.units.Quantity or None
+        Explicit shell-boundary radii.
+    density : astropy.units.Quantity or None
+        File-based density values.
+    electron_densities : astropy.units.Quantity or None
+        File-based electron-density values.
+    temperature : astropy.units.Quantity or None
+        File-based temperature values.
+    """
+
+    density_time: u.Quantity | None
+    velocity: u.Quantity
+    radius: u.Quantity | None
+    density: u.Quantity | None
+    electron_densities: u.Quantity | None
+    temperature: u.Quantity | None
+
+
+def parse_structure_from_config(config: Configuration) -> ParsedStructure:
+    """Parse physical data from a model structure configuration.
 
     Parameters
     ----------
-    config
-        The configuration to parse
+    config : Configuration
+        The configuration to parse.
 
     Returns
     -------
-    density_time
-        Time at which densities are valid.
-    velocity
-        Velocities.
-    density
-        Densities.
-    electron_densities
-        Electron densities.
-    temperature
-        Temperatures.
+    ParsedStructure
+        Parsed boundary, density, electron-density, and temperature data.
 
     Raises
     ------
     NotImplementedError
-        For structure types that are not "specific" or "file"
+        For structure types that are not "specific" or "file".
     """
     density_time = None
     velocity = None
     density = None
     electron_densities = None
     temperature = None
+    radius = None
     structure_config = config.model.structure
     if structure_config.type == "specific":
         velocity = quantity_linspace(
             structure_config.velocity.start,
             structure_config.velocity.stop,
             structure_config.velocity.num + 1,
-        ).cgs
+        ).to(u.cm / u.s)
+        if hasattr(structure_config, "radius"):
+            radius = quantity_linspace(
+                structure_config.radius.start,
+                structure_config.radius.stop,
+                structure_config.velocity.num + 1,
+            ).to(u.cm)
 
     elif structure_config.type == "file":
         if Path(structure_config.filename).is_absolute():
@@ -67,17 +95,26 @@ def parse_structure_from_config(config: Configuration):
     else:
         raise NotImplementedError
 
-    return density_time, velocity, density, electron_densities, temperature
+    return ParsedStructure(
+        density_time=density_time,
+        velocity=velocity,
+        radius=radius,
+        density=density,
+        electron_densities=electron_densities,
+        temperature=temperature,
+    )
 
 
-def parse_geometry_from_config(config: Configuration, time_explosion):
-    """Parse the geometry data from a TARDIS config.
+def parse_homologous_geometry_from_config(
+    config: Configuration, time_explosion: u.Quantity
+) -> HomologousRadial1DGeometry:
+    """Parse homologous geometry data from a TARDIS config.
 
     Parameters
     ----------
-    config
+    config : Configuration
         Configuration object.
-    time_explosion
+    time_explosion : astropy.units.Quantity
         The time of the explosion.
 
     Returns
@@ -85,11 +122,11 @@ def parse_geometry_from_config(config: Configuration, time_explosion):
     HomologousRadial1DGeometry
         The parsed homologous geometry.
     """
-    _, velocity, _, _, _ = parse_structure_from_config(config)
+    structure = parse_structure_from_config(config)
 
     return HomologousRadial1DGeometry(
-        velocity[:-1],
-        velocity[1:],
+        structure.velocity[:-1],
+        structure.velocity[1:],
         v_inner_boundary=config.model.structure.get("v_inner_boundary", None),
         v_outer_boundary=config.model.structure.get("v_outer_boundary", None),
         time_explosion=time_explosion,
@@ -111,23 +148,21 @@ def parse_nonhomologous_geometry_from_config(
     Radial1DGeometry
         Geometry retaining independent radius and velocity boundaries.
     """
-    _, velocity, _, _, _ = parse_structure_from_config(config)
-    structure_config = config.model.structure
-    radius = quantity_linspace(
-        structure_config.radius.start,
-        structure_config.radius.stop,
-        structure_config.velocity.num + 1,
-    ).to("cm")
+    structure = parse_structure_from_config(config)
+    if structure.radius is None:
+        raise ValueError(
+            "Nonhomologous geometry requires explicit radius boundaries."
+        )
 
     return Radial1DGeometry(
-        r_inner=radius[:-1],
-        r_outer=radius[1:],
-        v_inner=velocity[:-1],
-        v_outer=velocity[1:],
-        r_inner_boundary=radius[0],
-        r_outer_boundary=radius[-1],
-        v_inner_boundary=structure_config.get("v_inner_boundary", None),
-        v_outer_boundary=structure_config.get("v_outer_boundary", None),
+        r_inner=structure.radius[:-1],
+        r_outer=structure.radius[1:],
+        v_inner=structure.velocity[:-1],
+        v_outer=structure.velocity[1:],
+        r_inner_boundary=structure.radius[0],
+        r_outer_boundary=structure.radius[-1],
+        v_inner_boundary=config.model.structure.get("v_inner_boundary", None),
+        v_outer_boundary=config.model.structure.get("v_outer_boundary", None),
     )
 
 
