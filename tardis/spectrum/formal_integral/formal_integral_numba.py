@@ -73,7 +73,9 @@ def populate_intersection_points(
     intersection_points : ndarray
         Output array to be filled with intersection_point values.
     shell_ids : ndarray
-        Output array to be filled with the corresponding shell IDs.
+        Output array to be filled with the ID of the shell traversed by the
+        segment that starts at each intersection point. The final point ends
+        the ray; its ID is set to the outermost shell.
 
     Returns
     -------
@@ -88,13 +90,18 @@ def populate_intersection_points(
     offset = N
 
     if impact_parameter <= geometry.r_inner[0]:
-        # intersect the photosphere
+        # intersect the photosphere, then every outer shell boundary
+        intersection_points[0] = 1 - calculate_intersection_point(
+            geometry.r_inner[0], impact_parameter, inv_t
+        )
+        shell_ids[0] = 0
         for i in range(N):
-            intersection_points[i] = 1 - calculate_intersection_point(
+            intersection_points[i + 1] = 1 - calculate_intersection_point(
                 r_outer[i], impact_parameter, inv_t
             )
-            shell_ids[i] = i
-        return N
+            # the segment starting at r_outer[i] lies in shell i + 1
+            shell_ids[i + 1] = min(i + 1, N - 1)
+        return N + 1
     else:
         # no intersection with photosphere
         # that means we intersect each shell twice
@@ -113,7 +120,9 @@ def populate_intersection_points(
             intersection_points[i_low] = 1 + intersection_point
             shell_ids[i_low] = i
             intersection_points[i_up] = 1 - intersection_point
-            shell_ids[i_up] = i
+            # on the near side, the segment starting at r_outer[i]
+            # lies in shell i + 1
+            shell_ids[i_up] = min(i + 1, N - 1)
         return 2 * (N - offset)
 
 
