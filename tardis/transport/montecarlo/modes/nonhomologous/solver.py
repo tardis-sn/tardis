@@ -226,9 +226,9 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             self.spectrum_frequency_grid.value
         )
         if number_of_vpackets > 0:
+            logger.info("Beginning virtual packet processing")
             v_packets_energy_hist, vpacket_tracker = (
                 calculate_virtual_packet_spectrum(
-                    transport_state.packet_collection,
                     transport_state.geometry_state_numba,
                     0.0,
                     transport_state.opacity_state_numba,

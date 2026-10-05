@@ -46,8 +46,6 @@ from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction impor
 )
 from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 
-VPACKET_SEED_XOR = 0x80000000
-
 
 @njit(**njit_dict_no_parallel)
 def make_r_packet(
@@ -348,7 +346,6 @@ def montecarlo_transport(
 
 @njit(**njit_dict)
 def calculate_virtual_packet_spectrum(
-    packet_collection: PacketCollection,
     geometry_state_numba: (
         NumbaHomologousRadial1DGeometry | NumbaRadial1DGeometry
     ),
@@ -364,8 +361,6 @@ def calculate_virtual_packet_spectrum(
 
     Parameters
     ----------
-    packet_collection : PacketCollection
-        Real-packet inputs, including the per-packet random seeds.
     geometry_state_numba
         Numba geometry object used for real-packet transport.
     time_explosion : float
@@ -401,9 +396,8 @@ def calculate_virtual_packet_spectrum(
         packet_idx = np.int64(i)
         tracker = trackers[packet_idx]
         vpacket_collection = vpacket_collections[packet_idx]
-        vpacket_seed = (
-            packet_collection.packet_seeds[packet_idx] ^ VPACKET_SEED_XOR
-        )
+        # Offset the configured seed for deterministic parallel packet sampling.
+        vpacket_seed = montecarlo_configuration.MONTECARLO_SEED + packet_idx
         np.random.seed(vpacket_seed)
 
         for event_idx in range(tracker.event_id):
