@@ -70,17 +70,25 @@ class TARDISLogger:
         self.display_ids = {}
         self.batch_size = batch_size
 
-    def configure_logging(self, log_level, tardis_config, specific_log_level=None):
+    def configure_logging(
+        self,
+        log_level: str | None,
+        tardis_config: dict,
+        specific_log_level: bool | None = None,
+    ) -> None:
         """Configure the logging level and filtering for TARDIS loggers.
         
         Parameters
         ----------
-        log_level : str
-            The logging level to use (e.g., "INFO", "DEBUG").
+        log_level : str or None
+            The logging level to use (e.g., "INFO", "DEBUG"). Overrides the
+            ``debug.log_level`` configuration entry when given.
         tardis_config : dict
             Configuration dictionary containing debug settings.
-        specific_log_level : bool, optional
-            Whether to enable specific log level filtering.
+        specific_log_level : bool or None, optional
+            Whether to enable specific log level filtering. Filtering is
+            enabled if either this argument or the
+            ``debug.specific_log_level`` configuration entry is True.
             
         Raises
         ------
@@ -88,9 +96,9 @@ class TARDISLogger:
             If an invalid log_level is provided.
         """
         if "debug" in tardis_config:
-            specific_log_level = tardis_config["debug"].get(
-                "specific_log_level", specific_log_level
-            )
+            specific_log_level = specific_log_level or tardis_config[
+                "debug"
+            ].get("specific_log_level", self.config.DEFAULT_SPECIFIC_STATE)
             logging_level = log_level or tardis_config["debug"].get(
                 "log_level", "INFO"
             )
