@@ -1,5 +1,16 @@
 ## Changelog
 
+### release-2026.09.27 (2026/09/26 21:45)
+- [3748](https://github.com/tardis-sn/tardis/pull/3748) Pre-release 2026.09.27 (3748) (@tardis-bot)
+- [3727](https://github.com/tardis-sn/tardis/pull/3727) Equilibrium solver cleanup (3727) (@andrewfullard)
+- [3740](https://github.com/tardis-sn/tardis/pull/3740) Correct ordering of optical depth calculation for v_inner workflow (3740) (@andrewfullard)
+- [3741](https://github.com/tardis-sn/tardis/pull/3741) GSoC Pull requests auto close bug fix (3741) (@atharva-2001)
+- [3718](https://github.com/tardis-sn/tardis/pull/3718) Fix slicing issues across TARDIS (3718) (@andrewfullard)
+- [3722](https://github.com/tardis-sn/tardis/pull/3722) TARDIS test writing skill (3722) (@andrewfullard)
+- [3704](https://github.com/tardis-sn/tardis/pull/3704) Equilibrium solver replaces IIP-specific plasma and improves performance (3704) (@andrewfullard)
+- [3730](https://github.com/tardis-sn/tardis/pull/3730) Speed up the arepo profile creation (3730) (@andrewfullard)
+- [3733](https://github.com/tardis-sn/tardis/pull/3733) Close gsoc pull requests (3733) (@atharva-2001)
+- [3735](https://github.com/tardis-sn/tardis/pull/3735) Post-release 2026.09.13 (3735) (@tardis-bot)
 ### release-2026.09.13 (2026/09/12 23:29)
 - [3734](https://github.com/tardis-sn/tardis/pull/3734) Pre-release 2026.09.13 (3734) (@tardis-bot)
 - [3708](https://github.com/tardis-sn/tardis/pull/3708) TARDIS HE bug fixes (3708) (@andrewfullard)

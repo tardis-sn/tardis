@@ -25,21 +25,22 @@ from tardis.transport.montecarlo.estimators import init_estimators_continuum
 class ZeroElectronRateSolver:
     """Return no bound-bound electron rates for focused evaluator tests."""
 
+    all_collisional_strengths_index = pd.MultiIndex.from_tuples(
+        [],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "ion_number_source",
+            "ion_number_destination",
+            "level_number_source",
+            "level_number_destination",
+        ],
+    )
+
     def solve(self, temperatures_electron: u.Quantity) -> pd.DataFrame:
         """Return an empty transition-rate frame."""
-        transition_index = pd.MultiIndex.from_tuples(
-            [],
-            names=[
-                "atomic_number",
-                "ion_number",
-                "ion_number_source",
-                "ion_number_destination",
-                "level_number_source",
-                "level_number_destination",
-            ],
-        )
         return pd.DataFrame(
-            index=transition_index,
+            index=self.all_collisional_strengths_index,
             columns=pd.RangeIndex(len(temperatures_electron)),
             dtype=np.float64,
         )
@@ -129,10 +130,8 @@ def test_evaluator_uses_temperature_dependent_continuum_coefficients(
 ) -> None:
     """Keep fixed estimator coefficients while rebuilding thermal factors."""
     evaluator = toy_evaluator
-    (rates,), *_ = evaluator._calculate_continuum_rate_coefficients(
-        np.array([1.0e4])
-    )
-    (hot_rates,), *_ = evaluator._calculate_continuum_rate_coefficients(
+    (rates,), *_ = evaluator.calculate_continuum_coefficients(np.array([1.0e4]))
+    (hot_rates,), *_ = evaluator.calculate_continuum_coefficients(
         np.array([2.0e4])
     )
     npt.assert_allclose(hot_rates.photoionization, rates.photoionization)
@@ -209,10 +208,10 @@ def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
     )
 
     low_excitation_result = toy_evaluator.evaluate(
-        [1.0e9], [1.0e4], low_excitation_initial_guess
+        np.array([1.0e9]), np.array([1.0e4]), low_excitation_initial_guess
     )
     high_excitation_result = toy_evaluator.evaluate(
-        [1.0e9], [1.0e4], high_excitation_initial_guess
+        np.array([1.0e9]), np.array([1.0e4]), high_excitation_initial_guess
     )
 
     npt.assert_allclose(
@@ -253,7 +252,7 @@ def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
     reported convergence.
     """
     evaluator = toy_evaluator
-    continuum_rates = evaluator._calculate_continuum_rate_coefficients(
+    continuum_rates = evaluator.calculate_continuum_coefficients(
         np.array([1.0e4])
     )[0][0]
     arguments = (
@@ -343,7 +342,7 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         level_initial_guess,
     )
 
-    continuum_rate_coeff = evaluator._calculate_continuum_rate_coefficients(
+    continuum_rate_coeff = evaluator.calculate_continuum_coefficients(
         np.array([1.0e4])
     )[0][0]
 
@@ -390,8 +389,8 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
     Verification: Both values are fixed analytically by independent linear
     balance relations supplied to the evaluator.
     """
-    target_electron_density = 2.0e9
-    target_electron_temperature = 8.0e3
+    target_electron_density = np.array([2.0e9])
+    target_electron_temperature = np.array([8.0e3])
     maximum_electron_density = 1.0e10
     radiation_temperature = 1.0e4
 
@@ -405,11 +404,11 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
             )
             return (
                 pd.DataFrame(
-                    [[8.0e9], [target_electron_density]],
+                    [[8.0e9], target_electron_density],
                     index=ion_index,
                     columns=[0],
                 ),
-                pd.Series([target_electron_density], index=[0]),
+                pd.Series(target_electron_density, index=[0]),
             )
 
     # Use a linear heating relation with an exact zero at 8000 K so the
@@ -438,8 +437,8 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
     )
 
     final_evaluation = toy_evaluator.evaluate(
-        [target_electron_density],
-        [target_electron_temperature],
+        target_electron_density,
+        target_electron_temperature,
         level_initial_guess,
     )
 

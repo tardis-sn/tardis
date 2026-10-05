@@ -1,5 +1,3 @@
-import pandas as pd
-
 from tardis.plasma.properties.base import (
     Input,
     ProcessingPlasmaProperty,
@@ -11,12 +9,9 @@ __all__ = [
     "ContinuumInteractionSpecies",
     "DilutePlanckianRadField",
     "DilutionFactor",
-    "ElectronDensitiesInput",
     "HeliumTreatment",
-    "IonNumberDensityInput",
     "IsotopeAbundance",
     "JBlues",
-    "LevelNumberDensityInput",
     "LinkTRadTElectron",
     "NumberDensity",
     "TRadiative",
@@ -90,27 +85,6 @@ class JBlues(Input):
 
     outputs = ("j_blues",)
     latex_name = (r"J_{\textrm{blue}}",)
-
-
-class ElectronDensitiesInput(Input):
-    """Electron densities accepted from an external equilibrium solve."""
-
-    electron_densities: pd.Series
-    outputs = ("electron_densities",)
-
-
-class IonNumberDensityInput(Input):
-    """Ion number densities accepted from an external equilibrium solve."""
-
-    ion_number_density: pd.DataFrame
-    outputs = ("ion_number_density",)
-
-
-class LevelNumberDensityInput(Input):
-    """Level number densities accepted from an external equilibrium solve."""
-
-    level_number_density: pd.DataFrame
-    outputs = ("level_number_density",)
 
 
 class LinkTRadTElectron(Input):
