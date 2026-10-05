@@ -686,7 +686,7 @@ def test_gamma_packet_loop_time_boundary_end_numba_disabled(
         lambda *args: (10.0, 20.0, 1.0, 0),
     )
 
-    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
+    _, _, packets_info_array, energy_deposited_gamma, total_energy, _ = (
         gamma_packet_loop(
             gamma_packet_collection,
             -1.0,
@@ -831,7 +831,7 @@ def test_gamma_packet_loop_scattered_escape_numba_disabled(
         process_packet_path_as_pair_creation,
     )
 
-    _, _, packets_info_array, energy_deposited_gamma, total_energy = (
+    _, _, packets_info_array, energy_deposited_gamma, total_energy, _ = (
         gamma_packet_loop(
             gamma_packet_collection,
             -1.0,
