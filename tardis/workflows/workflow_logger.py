@@ -82,7 +82,7 @@ class WorkflowLogger:
         logger.info("\n\tPlasma stratification:")
         if Environment.allows_widget_display():
             if logger.level <= logging.INFO and (
-                not logger.filters or logger.filters[0].log_levels[0] == logging.INFO
+                not logger.filters or logger.filters[0].log_level == logging.INFO
             ):
                 display(
                     plasma_state_log.iloc[::log_sampling].style.format("{:.3g}")
