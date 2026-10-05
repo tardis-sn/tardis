@@ -3,10 +3,14 @@ import pandas as pd
 from astropy import units as u
 from numpy import genfromtxt
 from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z
+from radioactivedecay.utils import elem_to_Z
 
 from tardis.io.model.readers.util import read_csv_isotope_mass_fractions
-from tardis.util.base import parse_quantity
+from tardis.util.base import (
+    is_element_symbol,
+    parse_quantity,
+    reformat_element_symbol,
+)
 
 
 class ConfigurationError(Exception):
@@ -102,8 +106,12 @@ def read_simple_ascii_mass_fractions(fname: str) -> tuple[np.ndarray, pd.DataFra
     return index, mass_fractions
 
 
-def read_uniform_mass_fractions(mass_fractions_section, no_of_shells):
+def read_uniform_mass_fractions(
+    mass_fractions_section: dict, no_of_shells: int
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read uniform mass fractions from configuration.
+
+    Element symbols are case-insensitive (e.g. "si" or "Si").
 
     Parameters
     ----------
@@ -132,21 +140,19 @@ def read_uniform_mass_fractions(mass_fractions_section, no_of_shells):
         columns=np.arange(no_of_shells), index=isotope_index, dtype=np.float64
     )
 
-    for element_symbol_string in mass_fractions_section:
+    for element_symbol_string, mass_fraction in mass_fractions_section.items():
         if element_symbol_string in ["type", "model_isotope_time_0"]:
             continue
         try:
-            if element_symbol_string in Z_DICT.values():
-                z = elem_to_Z(element_symbol_string)
-                mass_fractions.loc[z] = float(
-                    mass_fractions_section[element_symbol_string]
-                )
+            if is_element_symbol(element_symbol_string):
+                z = elem_to_Z(reformat_element_symbol(element_symbol_string))
+                mass_fractions.loc[z] = float(mass_fraction)
             else:
                 nuc = Nuclide(element_symbol_string)
                 mass_no = nuc.A
                 z = nuc.Z
                 isotope_mass_fractions.loc[(z, mass_no), :] = float(
-                    mass_fractions_section[element_symbol_string]
+                    mass_fraction
                 )
 
         except RuntimeError as err:

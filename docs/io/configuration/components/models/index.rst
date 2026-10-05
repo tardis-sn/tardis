@@ -224,6 +224,8 @@ Abundance
 
 This section can be used to configure uniform abundances for all shells, by giving the atom or isotope name
 and a relative abundance fraction. If it does not add up to 1, TARDIS will warn -- but normalize the numbers.
+Element and isotope names are case-insensitive, so ``Si``, ``si``, and ``SI`` are equivalent, as are
+``Ni56`` and ``ni56``.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/abundances/uniform
     :lift_description:
@@ -269,7 +271,9 @@ as shown in the schema below:
 The CSV part of the CSVY file creates a table that can include information about shell radii, velocities,
 densities, and abundances in each cell. The column headers (the first row of the CSV part) may contain
 ``radius``, ``velocity``, ``density``, ``t_rad``, ``dilution_factor``, or the name of any element or isotope
-(e.g. ``H``, ``Mg``, ``Ni56``). These columns are explained in the following example:
+(e.g. ``H``, ``Mg``, ``Ni56``). Element and isotope names are case-insensitive (e.g. ``mg`` or ``ni56``),
+but each column header must exactly match its field name under ``datatype`` in the YAML section.
+These columns are explained in the following example:
 
 .. literalinclude:: csvy_full_rad.csvy
 
