@@ -47,8 +47,9 @@ def level_to_ion_factor(
     nlte_atom_data: AtomData,
 ) -> pd.DataFrame:
     """LTE level-to-ion factors from the regression atomic data."""
-    temperatures = REFERENCE_ELECTRON_TEMPERATURES
-    beta_electron = BetaElectron(None).calculate(temperatures.to_value(u.K))
+    beta_electron = BetaElectron(None).calculate(
+        REFERENCE_ELECTRON_TEMPERATURES.to_value(u.K)
+    )
     level_boltzmann_factor = ThermalLevelBoltzmannFactorLTE(None).calculate(
         nlte_atom_data.levels["energy"],
         nlte_atom_data.levels["g"],
@@ -64,9 +65,11 @@ def level_to_ion_factor(
         partition_function,
         nlte_atom_data.ionization_data,
     )
-    return SahaFactor(None).calculate(
-        thermal_phi_lte, level_boltzmann_factor, partition_function
-    ).loc[real_photoionization_data.index.unique()]
+    return (
+        SahaFactor(None)
+        .calculate(thermal_phi_lte, level_boltzmann_factor, partition_function)
+        .loc[real_photoionization_data.index.unique()]
+    )
 
 
 def test_seaton_thresholds_and_coefficients_match_analytic_expression(
@@ -179,9 +182,11 @@ def test_three_body_recombination_uses_lte_detailed_balance_factor(
     level_to_ion_factor: pd.DataFrame,
     regression_data: RegressionData,
 ) -> None:
-    actual = CollisionalIonizationSeaton(real_photoionization_data).solve(
-        REFERENCE_ELECTRON_TEMPERATURES
-    ).multiply(level_to_ion_factor)
+    actual = (
+        CollisionalIonizationSeaton(real_photoionization_data)
+        .solve(REFERENCE_ELECTRON_TEMPERATURES)
+        .multiply(level_to_ion_factor)
+    )
     expected = regression_data.sync_dataframe(
         pd.DataFrame(actual.to_numpy()), key="allclose_0"
     )

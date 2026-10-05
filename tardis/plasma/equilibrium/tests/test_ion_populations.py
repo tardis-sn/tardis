@@ -259,6 +259,7 @@ def test_charge_conserving_hydrogen_is_seed_independent_from_near_neutral_densit
     pdt.assert_series_equal(low_seed_electrons, high_seed_electrons, rtol=1e-10)
 
 
+@pytest.fixture
 def h_non_h_population_inputs(tardis_regression_path: Path) -> dict:
     """Return H plus one non-H element for real ionization solver tests."""
     columns = pd.Index(["inner", "outer"], name="shell")
@@ -331,10 +332,10 @@ def h_non_h_population_inputs(tardis_regression_path: Path) -> dict:
 
 
 def test_charge_conserving_multi_element_solution_uses_real_atomic_data(
-    tardis_regression_path: Path,
+    h_non_h_population_inputs: dict,
     regression_data: RegressionData,
 ) -> None:
-    inputs = h_non_h_population_inputs(tardis_regression_path)
+    inputs = h_non_h_population_inputs
     ion_population, electron_density, _ = solve_population(
         inputs["rate_matrix_solver"], inputs, charge_conservation=True
     )

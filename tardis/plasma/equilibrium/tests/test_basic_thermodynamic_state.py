@@ -74,8 +74,8 @@ def test_number_density_and_mass_reconstruct_density(
 ) -> None:
     state = basic_thermodynamic_state
     masses = state["atomic_data"].atom_data.loc[state["selected_atoms"], "mass"]
-    number_density = state["abundance"].mul(state["density"], axis=1).div(
-        masses, axis=0
+    number_density = (
+        state["abundance"].mul(state["density"], axis=1).div(masses, axis=0)
     )
     expected = regression_data.sync_dataframe(
         number_density, key="number_density"
@@ -86,7 +86,9 @@ def test_number_density_and_mass_reconstruct_density(
         check_names=False,
     )
     reconstructed_density = number_density.mul(masses, axis=0).sum(axis=0)
-    npt.assert_allclose(reconstructed_density.to_numpy(), state["density"].to_numpy())
+    npt.assert_allclose(
+        reconstructed_density.to_numpy(), state["density"].to_numpy()
+    )
     assert (number_density >= 0).all().all()
 
 
@@ -153,14 +155,17 @@ def test_electron_statistical_factor_matches_iip(
     thermodynamic_property_values: dict[str, Any],
     regression_data: RegressionData,
 ) -> None:
-    values = thermodynamic_property_values
-    actual = values["g_electron"]
+    actual = thermodynamic_property_values["g_electron"]
     #  iip_plasma uses raw astropy constants not tardis.constants
     npt.assert_allclose(
         actual, expected_array(regression_data, actual), rtol=5e-7
     )
     expected_g = (
-        2 * np.pi * const.m_e.cgs.value / values["beta_rad"] / const.h.cgs.value**2
+        2
+        * np.pi
+        * const.m_e.cgs.value
+        / thermodynamic_property_values["beta_rad"]
+        / const.h.cgs.value**2
     ) ** 1.5
     npt.assert_allclose(actual, expected_g)
 
