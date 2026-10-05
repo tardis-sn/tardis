@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=b548942e"></script>
+      <script src="_static/documentation_options.js?v=fcbe25c1"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -484,14 +484,18 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="physics_walkthrough/tardisgamma/packetinitialization.html">Packet Initialization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="physics_walkthrough/tardisgamma/opacities.html">Sources of Opacity</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="physics_walkthrough/tardisgamma/opacities.html#Pair-Creation">Pair Creation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="physics_walkthrough/tardisgamma/opacities.html#Compton-Scattering">Compton Scattering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="physics_walkthrough/tardisgamma/opacities.html#Photoabsorption">Photoabsorption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physics_walkthrough/tardisgamma/index.html#interaction-opacities">Interaction opacities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physics_walkthrough/tardisgamma/index.html#gamma-ray-deposition-outputs">Gamma-ray deposition outputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="physics_walkthrough/tardisgamma/packetinitialization.html">Packet Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="physics_walkthrough/tardisgamma/opacities.html">Sources of Opacity</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="physics_walkthrough/tardisgamma/opacities.html#Pair-Creation">Pair Creation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="physics_walkthrough/tardisgamma/opacities.html#Compton-Scattering">Compton Scattering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="physics_walkthrough/tardisgamma/opacities.html#Photoabsorption">Photoabsorption</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="physics_walkthrough/tardisgamma/decayenergy.html">Radioactive Decay Energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="physics_walkthrough/tardisgamma/decayenergy.html">Radioactive Decay Energy</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -535,6 +539,7 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.energy_input.transport.gamma_packet_loop.html">tardis.energy_input.transport.gamma_packet_loop module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.gamma_packet_loop"><code class="docutils literal notranslate"><span class="pre">gamma_packet_loop()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.get_compton_energy_loss_fraction"><code class="docutils literal notranslate"><span class="pre">get_compton_energy_loss_fraction()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.make_gx_packet"><code class="docutils literal notranslate"><span class="pre">make_gx_packet()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.process_packet_path"><code class="docutils literal notranslate"><span class="pre">process_packet_path()</span></code></a></li>
 </ul>
@@ -587,13 +592,6 @@
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.time_evolve_cumulative_decay"><code class="docutils literal notranslate"><span class="pre">time_evolve_cumulative_decay()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l6"><a class="reference internal" href="api/tardis.energy_input.gamma_ray_estimators.html">tardis.energy_input.gamma_ray_estimators module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.compton_emissivity_estimator"><code class="docutils literal notranslate"><span class="pre">compton_emissivity_estimator()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.deposition_estimator_kasen"><code class="docutils literal notranslate"><span class="pre">deposition_estimator_kasen()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.get_average_compton_fraction"><code class="docutils literal notranslate"><span class="pre">get_average_compton_fraction()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.pair_creation_estimator"><code class="docutils literal notranslate"><span class="pre">pair_creation_estimator()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l6"><a class="reference internal" href="api/tardis.energy_input.gamma_ray_transport.html">tardis.energy_input.gamma_ray_transport module</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_average_energies"><code class="docutils literal notranslate"><span class="pre">calculate_average_energies()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_average_power_per_mass"><code class="docutils literal notranslate"><span class="pre">calculate_average_power_per_mass()</span></code></a></li>
@@ -602,7 +600,7 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="api/tardis.energy_input.main_gamma_ray_loop.html">tardis.energy_input.main_gamma_ray_loop module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.calculate_electron_number_density"><code class="docutils literal notranslate"><span class="pre">calculate_electron_number_density()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.calculate_scaled_elemental_number_density"><code class="docutils literal notranslate"><span class="pre">calculate_scaled_elemental_number_density()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.get_effective_time_array"><code class="docutils literal notranslate"><span class="pre">get_effective_time_array()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.get_packet_properties"><code class="docutils literal notranslate"><span class="pre">get_packet_properties()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.run_gamma_ray_loop"><code class="docutils literal notranslate"><span class="pre">run_gamma_ray_loop()</span></code></a></li>
@@ -4342,6 +4340,7 @@
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.escape_energy"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.escape_energy</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.escape_energy_cosi"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.escape_energy_cosi</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.gamma_ray_deposited_energy"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.gamma_ray_deposited_energy</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.gamma_ray_deposition_estimator"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.gamma_ray_deposition_estimator</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.hdf_properties"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.hdf_properties</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.packets_escaped"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.packets_escaped</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.positron_energy"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.positron_energy</span></code></a></li>
@@ -5469,8 +5468,6 @@
 </li>
       <li><a href="api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_ejecta_velocity_volume">calculate_ejecta_velocity_volume() (in module tardis.energy_input.gamma_ray_transport)</a>
 </li>
-      <li><a href="api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.calculate_electron_number_density">calculate_electron_number_density() (in module tardis.energy_input.main_gamma_ray_loop)</a>
-</li>
       <li><a href="api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.calculate_elemental_cell_masses">calculate_elemental_cell_masses() (tardis.model.matter.composition.Composition method)</a>
 </li>
       <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.calculate_elemental_number_density">calculate_elemental_number_density() (tardis.model.base.SimulationState method)</a>
@@ -5559,6 +5556,8 @@
         <li><a href="api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource.calculate_radfield_luminosity">(tardis.transport.montecarlo.packet_source.BasePacketSource method)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.calculate_scaled_elemental_number_density">calculate_scaled_elemental_number_density() (in module tardis.energy_input.main_gamma_ray_loop)</a>
+</li>
       <li><a href="api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.calculate_sobolev_line_opacity">calculate_sobolev_line_opacity() (in module tardis.opacities.tau_sobolev)</a>
 </li>
       <li><a href="api/tardis.opacities.sobolevs_from_levels.html#tardis.opacities.sobolevs_from_levels.calculate_sobolev_opacities_from_level_densities">calculate_sobolev_opacities_from_level_densities() (in module tardis.opacities.sobolevs_from_levels)</a>
@@ -5778,8 +5777,6 @@
       <li><a href="api/tardis.model.matter.composition.html#tardis.model.matter.composition.compile_rd_isotope_masses">compile_rd_isotope_masses() (in module tardis.model.matter.composition)</a>
 </li>
       <li><a href="api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition">Composition (class in tardis.model.matter.composition)</a>
-</li>
-      <li><a href="api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.compton_emissivity_estimator">compton_emissivity_estimator() (in module tardis.energy_input.gamma_ray_estimators)</a>
 </li>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.compton_opacity_calculation">compton_opacity_calculation() (in module tardis.opacities.opacities)</a>
 </li>
@@ -6172,8 +6169,6 @@
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.DensityEditor">DensityEditor (class in tardis.visualization.widgets.custom_abundance)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.level_population.html#tardis.iip_plasma.properties.level_population.DepartureCoefficient">DepartureCoefficient (class in tardis.iip_plasma.properties.level_population)</a>
-</li>
-      <li><a href="api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.deposition_estimator_kasen">deposition_estimator_kasen() (in module tardis.energy_input.gamma_ray_estimators)</a>
 </li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.deprecated">deprecated() (in module tardis.util.base)</a>
 </li>
@@ -6617,6 +6612,8 @@
 </li>
       <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.gamma_ray_deposited_energy">gamma_ray_deposited_energy (tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult attribute)</a>
 </li>
+      <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.gamma_ray_deposition_estimator">gamma_ray_deposition_estimator (tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult attribute)</a>
+</li>
       <li><a href="api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.GammaRayPacketSource">GammaRayPacketSource (class in tardis.transport.montecarlo.packet_source)</a>
 
       <ul>
@@ -6673,11 +6670,11 @@
         <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.get_attributes_from_store">(tardis.io.atom_data.base.AtomData method)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.get_average_compton_fraction">get_average_compton_fraction() (in module tardis.energy_input.gamma_ray_estimators)</a>
-</li>
       <li><a href="api/tardis.io.atom_data.nlte_data.html#tardis.io.atom_data.nlte_data.NLTEData.get_collision_matrix">get_collision_matrix() (tardis.io.atom_data.nlte_data.NLTEData method)</a>
 </li>
       <li><a href="api/tardis.energy_input.transport.gamma_ray_interactions.html#tardis.energy_input.transport.gamma_ray_interactions.get_compton_angle">get_compton_angle() (in module tardis.energy_input.transport.gamma_ray_interactions)</a>
+</li>
+      <li><a href="api/tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.get_compton_energy_loss_fraction">get_compton_energy_loss_fraction() (in module tardis.energy_input.transport.gamma_packet_loop)</a>
 </li>
       <li><a href="api/tardis.energy_input.transport.gamma_ray_interactions.html#tardis.energy_input.transport.gamma_ray_interactions.get_compton_fraction">get_compton_fraction() (in module tardis.energy_input.transport.gamma_ray_interactions)</a>
 </li>
@@ -6733,10 +6730,10 @@
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.get_index">get_index() (in module tardis.energy_input.util)</a>
 </li>
-      <li><a href="api/tardis.io.configuration.config_internal.html#tardis.io.configuration.config_internal.get_internal_configuration">get_internal_configuration() (in module tardis.io.configuration.config_internal)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.io.configuration.config_internal.html#tardis.io.configuration.config_internal.get_internal_configuration">get_internal_configuration() (in module tardis.io.configuration.config_internal)</a>
+</li>
       <li><a href="api/tardis.io.util.html#tardis.io.util.get_internal_data_path">get_internal_data_path() (in module tardis.io.util)</a>
 </li>
       <li><a href="api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor">get_inverse_doppler_factor() (in module tardis.transport.frame_transformations)</a>
@@ -7931,8 +7928,6 @@
 </li>
         <li><a href="api/tardis.energy_input.gamma_ray_channel.html#module-tardis.energy_input.gamma_ray_channel">tardis.energy_input.gamma_ray_channel</a>
 </li>
-        <li><a href="api/tardis.energy_input.gamma_ray_estimators.html#module-tardis.energy_input.gamma_ray_estimators">tardis.energy_input.gamma_ray_estimators</a>
-</li>
         <li><a href="api/tardis.energy_input.gamma_ray_transport.html#module-tardis.energy_input.gamma_ray_transport">tardis.energy_input.gamma_ray_transport</a>
 </li>
         <li><a href="api/tardis.energy_input.main_gamma_ray_loop.html#module-tardis.energy_input.main_gamma_ray_loop">tardis.energy_input.main_gamma_ray_loop</a>
@@ -8976,8 +8971,6 @@
 </li>
       <li><a href="api/tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketStatus.PAIR_CREATION">PAIR_CREATION (tardis.energy_input.transport.GXPacket.GXPacketStatus attribute)</a>
 </li>
-      <li><a href="api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.pair_creation_estimator">pair_creation_estimator() (in module tardis.energy_input.gamma_ray_estimators)</a>
-</li>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.pair_creation_opacity_artis">pair_creation_opacity_artis() (in module tardis.opacities.opacities)</a>
 </li>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.pair_creation_opacity_calculation">pair_creation_opacity_calculation() (in module tardis.opacities.opacities)</a>
@@ -9984,13 +9977,6 @@
 </li>
       </ul></li>
       <li>
-    tardis.energy_input.gamma_ray_estimators
-
-      <ul>
-        <li><a href="api/tardis.energy_input.gamma_ray_estimators.html#module-tardis.energy_input.gamma_ray_estimators">module</a>
-</li>
-      </ul></li>
-      <li>
     tardis.energy_input.gamma_ray_transport
 
       <ul>
@@ -10984,8 +10970,6 @@
         <li><a href="api/tardis.plasma.exceptions.html#module-tardis.plasma.exceptions">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties
 
@@ -10993,6 +10977,8 @@
         <li><a href="api/tardis.plasma.properties.html#module-tardis.plasma.properties">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.atomic
 
@@ -12284,7 +12270,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Oct 2026.
+      <span class="lastupdated">Last updated on 05 Oct 2026.
       </span></p>
   </div>
 

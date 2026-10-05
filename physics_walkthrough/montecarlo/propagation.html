@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=b548942e"></script>
+      <script src="../../_static/documentation_options.js?v=fcbe25c1"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -489,14 +489,18 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tardisgamma/index.html">TARDIS-High Energy</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tardisgamma/packetinitialization.html">Packet Initialization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tardisgamma/opacities.html">Sources of Opacity</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../tardisgamma/opacities.html#Pair-Creation">Pair Creation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tardisgamma/opacities.html#Compton-Scattering">Compton Scattering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tardisgamma/opacities.html#Photoabsorption">Photoabsorption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tardisgamma/index.html#interaction-opacities">Interaction opacities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tardisgamma/index.html#gamma-ray-deposition-outputs">Gamma-ray deposition outputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tardisgamma/packetinitialization.html">Packet Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tardisgamma/opacities.html">Sources of Opacity</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tardisgamma/opacities.html#Pair-Creation">Pair Creation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tardisgamma/opacities.html#Compton-Scattering">Compton Scattering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tardisgamma/opacities.html#Photoabsorption">Photoabsorption</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../tardisgamma/decayenergy.html">Radioactive Decay Energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tardisgamma/decayenergy.html">Radioactive Decay Energy</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -540,6 +544,7 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../api/tardis.energy_input.transport.gamma_packet_loop.html">tardis.energy_input.transport.gamma_packet_loop module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../api/tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.gamma_packet_loop"><code class="docutils literal notranslate"><span class="pre">gamma_packet_loop()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../api/tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.get_compton_energy_loss_fraction"><code class="docutils literal notranslate"><span class="pre">get_compton_energy_loss_fraction()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../api/tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.make_gx_packet"><code class="docutils literal notranslate"><span class="pre">make_gx_packet()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../api/tardis.energy_input.transport.gamma_packet_loop.html#tardis.energy_input.transport.gamma_packet_loop.process_packet_path"><code class="docutils literal notranslate"><span class="pre">process_packet_path()</span></code></a></li>
 </ul>
@@ -592,13 +597,6 @@
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.time_evolve_cumulative_decay"><code class="docutils literal notranslate"><span class="pre">time_evolve_cumulative_decay()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l6"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_estimators.html">tardis.energy_input.gamma_ray_estimators module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.compton_emissivity_estimator"><code class="docutils literal notranslate"><span class="pre">compton_emissivity_estimator()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.deposition_estimator_kasen"><code class="docutils literal notranslate"><span class="pre">deposition_estimator_kasen()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.get_average_compton_fraction"><code class="docutils literal notranslate"><span class="pre">get_average_compton_fraction()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.pair_creation_estimator"><code class="docutils literal notranslate"><span class="pre">pair_creation_estimator()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l6"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_transport.html">tardis.energy_input.gamma_ray_transport module</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_average_energies"><code class="docutils literal notranslate"><span class="pre">calculate_average_energies()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_average_power_per_mass"><code class="docutils literal notranslate"><span class="pre">calculate_average_power_per_mass()</span></code></a></li>
@@ -607,7 +605,7 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="../../api/tardis.energy_input.main_gamma_ray_loop.html">tardis.energy_input.main_gamma_ray_loop module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.calculate_electron_number_density"><code class="docutils literal notranslate"><span class="pre">calculate_electron_number_density()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.calculate_scaled_elemental_number_density"><code class="docutils literal notranslate"><span class="pre">calculate_scaled_elemental_number_density()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.get_effective_time_array"><code class="docutils literal notranslate"><span class="pre">get_effective_time_array()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.get_packet_properties"><code class="docutils literal notranslate"><span class="pre">get_packet_properties()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.run_gamma_ray_loop"><code class="docutils literal notranslate"><span class="pre">run_gamma_ray_loop()</span></code></a></li>
@@ -4347,6 +4345,7 @@
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.escape_energy"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.escape_energy</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.escape_energy_cosi"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.escape_energy_cosi</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.gamma_ray_deposited_energy"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.gamma_ray_deposited_energy</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.gamma_ray_deposition_estimator"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.gamma_ray_deposition_estimator</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.hdf_properties"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.hdf_properties</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.packets_escaped"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.packets_escaped</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.positron_energy"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult.positron_energy</span></code></a></li>
@@ -4902,7 +4901,7 @@ safely applied, no general relativistic effects which would force photons on
 curved trajectories are included.</p>
 </div>
 <p>In spherical geometry, this propagation process may be illustrated by the
-following sketch (taken from <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>):</p>
+following sketch (taken from <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id16" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>):</p>
 <a class="reference internal image-reference" href="../../_images/spherical_symmetry.png"><img alt="../../_images/spherical_symmetry.png" src="../../_images/spherical_symmetry.png" style="width: 500px;" />
 </a>
 <p>The packet starts the propagation at <span class="math notranslate nohighlight">\(r_i\)</span> along the direction
@@ -5065,7 +5064,7 @@ optical depth <span class="math notranslate nohighlight">\(\tau_\mathrm{Sobolev}
 <section id="distance-to-next-event">
 <h3>Distance to Next Event<a class="headerlink" href="#distance-to-next-event" title="Link to this heading"></a></h3>
 <p>With these assumptions, the accumulation of optical depth along a packet’s trajectory currently proceeds according
-to the following scheme (which was originally introduced by <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):
+to the following scheme (which was originally introduced by <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):
 given the current lab-frame frequency of the packet, the distance to the next
 Sobolev point (i.e. to the next line resonance) is calculated as discussed above.
 Until this location, the packet continuously accumulates optical depth due to the possibility of
@@ -5075,8 +5074,8 @@ procedure is repeated, now with respect to the next transition in the
 frequency-ordered list of all possible atomic line transitions. The point at
 which the accumulated optical depth reaches the randomly generated interaction optical depth
 <span class="math notranslate nohighlight">\(\tau_\mathrm{interaction}\)</span> determines the type of interaction the packet performs and at which location in
-the spatial mesh, as shown with the example cases in the sketch below (taken from <span class="bibtex-citation" id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>, adapted from
-<span class="bibtex-citation" id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):</p>
+the spatial mesh, as shown with the example cases in the sketch below (taken from <span class="bibtex-citation" id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id16" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>, adapted from
+<span class="bibtex-citation" id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):</p>
 <a class="reference internal image-reference" href="../../_images/optical_depth_summation.png"><img alt="../../_images/optical_depth_summation.png" src="../../_images/optical_depth_summation.png" style="width: 500px;" />
 </a>
 <p>Three possible cases are highlighted in the above diagram, with the dotted lines showing the (randomly assigned)
@@ -5207,7 +5206,7 @@ radiation field emitted by the photosphere in the following way:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Oct 2026.
+      <span class="lastupdated">Last updated on 05 Oct 2026.
       </span></p>
   </div>
 
