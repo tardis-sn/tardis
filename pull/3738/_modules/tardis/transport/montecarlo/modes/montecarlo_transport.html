@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=287cd2d9"></script>
+      <script src="../../../../../_static/documentation_options.js?v=cde29518"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4943,8 +4943,6 @@ from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction impor
 )
 from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 
-VPACKET_SEED_XOR = 0x80000000
-
 
 <div class="viewcode-block" id="make_r_packet">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet">[docs]</a>
@@ -5268,7 +5266,6 @@ def montecarlo_transport(
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum">[docs]</a>
 @njit(**njit_dict)
 def calculate_virtual_packet_spectrum(
-    packet_collection: PacketCollection,
     geometry_state_numba: (
         NumbaHomologousRadial1DGeometry | NumbaRadial1DGeometry
     ),
@@ -5284,8 +5281,6 @@ def calculate_virtual_packet_spectrum(
 
     Parameters
     ----------
-    packet_collection : PacketCollection
-        Real-packet inputs, including the per-packet random seeds.
     geometry_state_numba
         Numba geometry object used for real-packet transport.
     time_explosion : float
@@ -5321,9 +5316,8 @@ def calculate_virtual_packet_spectrum(
         packet_idx = np.int64(i)
         tracker = trackers[packet_idx]
         vpacket_collection = vpacket_collections[packet_idx]
-        vpacket_seed = (
-            packet_collection.packet_seeds[packet_idx] ^ VPACKET_SEED_XOR
-        )
+        # Offset the configured seed for deterministic parallel packet sampling.
+        vpacket_seed = montecarlo_configuration.MONTECARLO_SEED + packet_idx
         np.random.seed(vpacket_seed)
 
         for event_idx in range(tracker.event_id):
@@ -5412,7 +5406,7 @@ def calculate_virtual_packet_spectrum(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Sep 2026.
+      <span class="lastupdated">Last updated on 05 Oct 2026.
       </span></p>
   </div>
 
