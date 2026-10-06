@@ -15,8 +15,11 @@ EMITTED_LEVELS = [
 
 @pytest.fixture
 def tardis_logger():
+    # setup
     tardis_logger = TARDISLogger()
+    # pass tardis_logger to the test
     yield tardis_logger
+    # teardown and reset the logging configuration to a safe default
     tardis_logger.configure_logging("INFO", {}, specific_log_level=False)
 
 
