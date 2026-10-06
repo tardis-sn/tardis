@@ -37,17 +37,17 @@ def get_current_line_id(nu, line_list):
 
 
 @njit(**njit_dict_no_parallel)
-def sample_nu_free_bound(opacity_state, shell, continuum_id):
+def sample_nu_free_bound(continuum_state, shell, continuum_id):
     """
     Attributes
     ----------
     nu_fb_sampler : float
         Frequency of the free-bounds emission process
     """
-    start = opacity_state.photo_ion_block_references[continuum_id]
-    end = opacity_state.photo_ion_block_references[continuum_id + 1]
-    phot_nus_block = opacity_state.phot_nus[start:end]
-    em = opacity_state.emissivities[start:end, shell]
+    start = continuum_state.photo_ion_block_references[continuum_id]
+    end = continuum_state.photo_ion_block_references[continuum_id + 1]
+    phot_nus_block = continuum_state.phot_nus[start:end]
+    em = continuum_state.emissivities[start:end, shell]
 
     zrand = np.random.random()
     idx = np.searchsorted(em, zrand, side="right")
@@ -62,6 +62,7 @@ def bound_free_emission(
     r_packet,
     time_explosion,
     opacity_state,
+    continuum_state,
     continuum_id,
     enable_full_relativity,
 ):
@@ -81,7 +82,7 @@ def bound_free_emission(
     )
 
     comov_nu = sample_nu_free_bound(
-        opacity_state, r_packet.current_shell_id, continuum_id
+        continuum_state, r_packet.current_shell_id, continuum_id
     )
     r_packet.nu = comov_nu * inverse_doppler_factor
     current_line_id = get_current_line_id(comov_nu, opacity_state.line_list_nu)
@@ -94,7 +95,13 @@ def bound_free_emission(
 
 
 @njit(**njit_dict_no_parallel)
-def bf_cooling(r_packet, time_explosion, opacity_state, enable_full_relativity):
+def bf_cooling(
+    r_packet,
+    time_explosion,
+    opacity_state,
+    continuum_state,
+    enable_full_relativity,
+):
     """
     Bound-Free Cooling - Determine and run bf emission from cooling
 
@@ -107,7 +114,7 @@ def bf_cooling(r_packet, time_explosion, opacity_state, enable_full_relativity):
     # Josh: I don't think we need to do this - BF cooling already picks one
     # The interaction handler already sends you to an individual level, but here we
     # ignore that and choose the level again.
-    fb_cooling_prob = opacity_state.p_fb_deactivation[
+    fb_cooling_prob = continuum_state.p_fb_deactivation[
         :, r_packet.current_shell_id
     ]
     p = fb_cooling_prob[0]  # First fb_cooling prob_is 0
@@ -121,6 +128,7 @@ def bf_cooling(r_packet, time_explosion, opacity_state, enable_full_relativity):
         r_packet,
         time_explosion,
         opacity_state,
+        continuum_state,
         continuum_idx,
         enable_full_relativity,
     )
@@ -260,7 +268,7 @@ def line_emission(
 
 @njit(**njit_dict_no_parallel)
 def determine_bf_macro_activation_idx(
-    opacity_state, nu, chi_bf_contributions, active_continua
+    continuum_state, nu, chi_bf_contributions, active_continua
 ):
     """
     Determine the macro atom activation level after bound-free absorption.
@@ -286,14 +294,14 @@ def determine_bf_macro_activation_idx(
 
     # Perform a MC experiment to determine whether thermal or
     # ionization energy is created
-    nu_threshold = opacity_state.photo_ion_nu_threshold_mins[active_continuum_idx]
+    nu_threshold = continuum_state.photo_ion_nu_threshold_mins[active_continuum_idx]
     fraction_ionization = nu_threshold / nu
     if (
         np.random.random() < fraction_ionization
     ):  # Create ionization energy (i-packet)
-        destination_level_idx = opacity_state.photo_ion_activation_idx[
+        destination_level_idx = continuum_state.photo_ion_activation_idx[
             active_continuum_idx
         ]
     else:  # Create thermal energy (k-packet)
-        destination_level_idx = opacity_state.k_packet_idx
+        destination_level_idx = continuum_state.k_packet_idx
     return destination_level_idx
