@@ -1,0 +1,7 @@
+tardis.plasma.properties.legacy\_property\_collections module
+=============================================================
+
+.. automodule:: tardis.plasma.properties.legacy_property_collections
+   :members:
+   :show-inheritance:
+   :undoc-members:
