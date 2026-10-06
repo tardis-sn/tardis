@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from astropy import units as u
 from numpy.testing import assert_allclose
 
 import tardis.transport.frame_transformations as frame_transformations
@@ -8,7 +9,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 # 13 days [s]; any positive value works because only beta = r / (c t) enters.
-TIME_EXPLOSION = 13.0 * 86400.0
+TIME_EXPLOSION = 13.0 * u.day.to("s")
 # Direction cosines and frequency ratios are O(1) and each transformation is a
 # handful of floating-point operations, so round trips are exact to a few ulp
 # (~1e-16). 1e-14 allows that rounding while rejecting any algebraic error.

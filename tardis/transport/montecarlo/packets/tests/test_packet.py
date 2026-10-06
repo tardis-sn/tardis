@@ -31,10 +31,11 @@ SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 # ``geometry`` fixture below [cm].
 SHELL_R_INNER = 6.912e14
 SHELL_R_OUTER = 8.64e14
-# Absolute tolerance for distances [cm]. One ulp at r ~ 1e15 cm is 0.125 cm and
-# the boundary roots combine a handful of operations on squared radii, so a few
-# ulp of rounding is expected; 1 cm is a small multiple of that and is still
-# 14 orders of magnitude below the shell width.
+# Absolute tolerance for distances [cm]. The last significant digit at
+# r ~ 1e15 cm is 0.125 cm and the boundary roots combine a handful of operations
+# on squared radii, so a few times the last digit of rounding is expected; 1 cm 
+# is a small multiple of that and is still 14 orders of magnitude below the 
+# shell width.
 DISTANCE_ATOL_CM = 1.0
 # Relative tolerance on the radius a packet lands at after travelling the
 # returned distance. Double-precision eps is 2.2e-16; 1e-12 leaves headroom for
@@ -350,7 +351,7 @@ def test_calculate_distance_line_reaches_resonance(
     factor written out explicitly below, rather than from the distance
     formula under test.
     """
-    time_explosion = 13.0 * 86400.0  # 13 days [s]
+    time_explosion = 13.0 * u.day.to("s")  # 13 days [s]
     nu_lab = 6.0e14  # ~500 nm, optical [Hz]
     ct = C_SPEED_OF_LIGHT * time_explosion
     r = beta * ct  # homologous: v = r / t
