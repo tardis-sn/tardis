@@ -1,0 +1,7 @@
+tardis.iip\_plasma.exceptions module
+====================================
+
+.. automodule:: tardis.iip_plasma.exceptions
+   :members:
+   :show-inheritance:
+   :undoc-members:
