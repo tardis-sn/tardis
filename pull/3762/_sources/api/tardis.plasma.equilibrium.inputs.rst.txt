@@ -1,0 +1,7 @@
+tardis.plasma.equilibrium.inputs module
+=======================================
+
+.. automodule:: tardis.plasma.equilibrium.inputs
+   :members:
+   :show-inheritance:
+   :undoc-members:
