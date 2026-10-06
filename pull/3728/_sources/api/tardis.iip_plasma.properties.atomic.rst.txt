@@ -1,7 +1,0 @@
-tardis.iip\_plasma.properties.atomic module
-===========================================
-
-.. automodule:: tardis.iip_plasma.properties.atomic
-   :members:
-   :show-inheritance:
-   :undoc-members:
