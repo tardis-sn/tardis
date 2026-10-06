@@ -1,5 +1,7 @@
 import math
 
+import numpy as np
+import numpy.typing as npt
 from numba import njit
 
 from tardis.model.geometry.radial1d import (
@@ -63,31 +65,36 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_distance_line(
-    r_packet,
-    comov_nu,
-    is_last_line,
-    nu_line,
-    time_explosion,
-    enable_full_relativity,
-):
+def calculate_distance_line_homologous(
+    r_packet: RPacket,
+    comov_nu: float,
+    is_last_line: bool,
+    nu_line: float,
+    time_explosion: float,
+    enable_full_relativity: bool,
+) -> float:
     """
-    Calculate distance until RPacket is in resonance with the next line
+    Calculate the homologous-flow distance to the next line resonance.
 
     Parameters
     ----------
-    r_packet : tardis.transport.montecarlo.r_packet.RPacket
+    r_packet : tardis.transport.montecarlo.packets.radiative_packet.RPacket
+        Radiative packet being propagated.
     comov_nu : float
-        comoving frequency at the CURRENT position of the RPacket
+        Comoving frequency at the current packet position.
     is_last_line : bool
-        return MISS_DISTANCE if at the end of the line list
+        Whether the packet has reached the end of the line list.
     nu_line : float
-        line to check the distance to
+        Rest frequency of the target line.
     time_explosion : float
-        time since explosion in seconds
+        Time since explosion in seconds.
+    enable_full_relativity : bool
+        Whether to use the full-relativity distance calculation.
 
     Returns
     -------
+    float
+        Distance to the line resonance in centimeters.
     """
     nu = r_packet.nu
 
@@ -113,17 +120,36 @@ def calculate_distance_line(
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_distance_line_nonhomologous(
-    rpacket : RPacket,
-    geometry : NumbaRadial1DGeometry,
-    nu_line : float
-):
+def calculate_distance_line(
+    rpacket: RPacket,
+    geometry: NumbaRadial1DGeometry,
+    nu_line: float,
+    minimum_distance: float = 0.0,
+    maximum_distance: float = MISS_DISTANCE,
+) -> float:
     """
-    Calculate distance until RPacket is in resonance with the next line
+    Calculate the distance to a line resonance in a radial velocity field.
+
+    Candidate roots must lie after ``minimum_distance`` and no farther than
+    ``maximum_distance`` along the current packet trajectory.
+
+    Parameters
+    ----------
+    rpacket : tardis.transport.montecarlo.packets.radiative_packet.RPacket
+        Radiative packet being propagated.
+    geometry : tardis.model.geometry.radial1d.NumbaRadial1DGeometry
+        Radial geometry containing the piecewise-linear velocity field.
+    nu_line : float
+        Rest frequency of the target line.
+    minimum_distance : float, optional
+        Exclusive lower bound for candidate resonance distances.
+    maximum_distance : float, optional
+        Inclusive upper bound for candidate resonance distances.
 
     Returns
     -------
-    distance (cm)
+    float
+        Distance to the line resonance in centimeters.
     """
     #TODO: unit check / handling here?
     r_inner = geometry.r_inner[rpacket.current_shell_id]
@@ -133,7 +159,6 @@ def calculate_distance_line_nonhomologous(
 
     r = rpacket.r
     dvdr = geometry.velocity_gradient[rpacket.current_shell_id]
-    v = geometry.get_velocity(r, rpacket.current_shell_id)
     nu_rest = rpacket.nu
     mu = rpacket.mu
 
@@ -146,52 +171,220 @@ def calculate_distance_line_nonhomologous(
     # Characteristic scales for non-dimensionalization
     r0 = r_outer - r_inner
     v0 = v_outer - v_inner
+    distance_tolerance = CLOSE_LINE_THRESHOLD * r0
     if v0 == 0.0:
-        # Velocity gradient is zero - packet cannot shift into a line in this shell
-        return MISS_DISTANCE
+        impact_parameter_squared = r * r * p
+        if q != 0.0 and n * n < q * q:
+            x_squared = (
+                n * n * impact_parameter_squared / (q * q - n * n)
+            )
+            x_root = math.copysign(math.sqrt(x_squared), n / q) / r0
+            x = (x_root, math.nan, math.nan, math.nan)
+        else:
+            x = (math.nan, math.nan, math.nan, math.nan)
+    else:
+        # Dimensionless quantities to use in the quartic solver - improves floating point accuracy
+        rd = r / r0
+        nd = n / v0
+        md = 1.0  # m/(v0/r0) # dimensionless m will always be 1
+        qd = q / v0
 
-    # Dimensionless quantities to use in the quartic solver - improves floating point accuracy
-    rd = r/r0
-    nd = n/v0
-    md = 1.0 # m/(v0/r0) # dimensionless m will always be 1
-    qd = q/v0
+        md2 = md * md
+        rd2 = rd * rd
+        nd2 = nd * nd
+        qd2 = qd * qd
 
-    md2 = md*md
-    rd2 = rd*rd
-    nd2 = nd*nd
-    qd2 = qd*qd
+        # Define coefficients of the quartic polynomial
+        a = md2
+        b = -2.0 * nd * md
+        c = nd2 + md * rd2 * p - qd2
+        d = -2.0 * nd * md * rd2 * p
+        e = nd2 * rd2 * p
 
-    # Define coefficients of the quartic polynomial
-    a = md2
-    b = -2.0 * nd * md
-    c = nd2 + md * rd2 * p - qd2
-    d = -2.0 * nd * md * rd2 * p
-    e = nd2 * rd2 * p
-
-    # m is the velocity gradient
-    # n is the relative line velocity
-    # If m and n have the same sign, a doppler shift *may* reach the line in this cell
-    # If m and n have opposite signs, the velocity in this cell *cannot* shift the packet towards the line
-    beta = v/C_SPEED_OF_LIGHT
-    doppler_factor = 1.0 - mu * beta
-    comov_nu = nu_rest * doppler_factor
-
-    if (comov_nu - nu_line > 1e-14*nu_line and m > 0.0) or (comov_nu - nu_line < -1e-14*nu_line and m < 0.0):
         # Obtain roots of the quartic polynomial for x (= d_line + r_i \mu_i)
         x = depressed_quartic(a, b, c, d, e)
-        # Convert each root x_i to a candidate distance: d = r0*x_i - r*mu
-        # Select the smallest positive, finite distance among all four roots.
-        distance = MISS_DISTANCE
-        for x_root in x:
-            if math.isnan(x_root):
-                continue
-            d_candidate = r0 * x_root - r * mu
-            if d_candidate > 0.0 and d_candidate < distance:
-                distance = d_candidate
-    else:
-        distance = MISS_DISTANCE
+
+    # Convert each root x_i to a candidate distance: d = r0*x_i - r*mu
+    # Select the nearest root that satisfies the original, unsquared resonance equation.
+    distance = MISS_DISTANCE
+    for x_root in x:
+        if not math.isfinite(x_root):
+            continue
+        d_candidate = r0 * x_root - r * mu
+        if d_candidate <= minimum_distance + distance_tolerance:
+            continue
+        if d_candidate > maximum_distance + distance_tolerance:
+            continue
+
+        new_r = math.sqrt(
+            r * r + d_candidate * d_candidate + 2.0 * r * d_candidate * mu
+        )
+        if (
+            new_r < r_inner - distance_tolerance
+            or new_r > r_outer + distance_tolerance
+        ):
+            continue
+
+        new_mu = (r * mu + d_candidate) / new_r
+        new_v = v_inner + m * (new_r - r_inner)
+        comov_nu = nu_rest * (
+            1.0 - new_v / C_SPEED_OF_LIGHT * new_mu
+        )
+        if (
+            not math.isfinite(comov_nu)
+            or abs(comov_nu - nu_line) > 1.0e-7 * nu_line
+        ):
+            continue
+
+        distance = min(distance, d_candidate)
 
     return distance
+
+
+@njit(**njit_dict_no_parallel)
+def calculate_projected_gradient_zero_distances(
+    rpacket: RPacket,
+    geometry: NumbaRadial1DGeometry,
+    distance_boundary: float,
+) -> tuple[float, float, int]:
+    """Calculate forward projected-gradient zeros in the current shell.
+
+    Returns up to two distances where the derivative of the projected fluid
+    velocity along the packet trajectory changes sign. Missing distances are
+    returned as ``MISS_DISTANCE``.
+    """
+    shell_id = rpacket.current_shell_id
+    r = rpacket.r
+    mu = rpacket.mu
+    m = geometry.velocity_gradient[shell_id]
+    q = geometry.v_outer[shell_id] - m * geometry.r_outer[shell_id]
+    impact_parameter_squared = r * r * (1.0 - mu * mu)
+
+    first_distance = MISS_DISTANCE
+    second_distance = MISS_DISTANCE
+    zero_count = 0
+
+    if m == 0.0 or q == 0.0 or impact_parameter_squared == 0.0:
+        return first_distance, second_distance, zero_count
+
+    # For v(r) = m*r + q, the projected gradient along the ray is
+    # m + q*b**2/r**3. Its zeros therefore satisfy r**3 = -q*b**2/m.
+    turning_radius_cubed = -q * impact_parameter_squared / m
+    if turning_radius_cubed <= 0.0:
+        return first_distance, second_distance, zero_count
+
+    turning_radius = turning_radius_cubed ** (1.0 / 3.0)
+    shell_width = geometry.r_outer[shell_id] - geometry.r_inner[shell_id]
+    distance_tolerance = CLOSE_LINE_THRESHOLD * shell_width
+    impact_parameter = math.sqrt(impact_parameter_squared)
+
+    # A zero at the impact parameter only touches zero and does not reverse
+    # the monotonic line-list traversal direction.
+    if turning_radius <= impact_parameter + distance_tolerance:
+        return first_distance, second_distance, zero_count
+
+    turning_x_squared = (
+        turning_radius * turning_radius - impact_parameter_squared
+    )
+    turning_x = math.sqrt(turning_x_squared)
+    initial_x = r * mu
+    negative_x_distance = -turning_x - initial_x
+    positive_x_distance = turning_x - initial_x
+
+    if (
+        negative_x_distance > distance_tolerance
+        and negative_x_distance < distance_boundary - distance_tolerance
+    ):
+        first_distance = negative_x_distance
+        zero_count = 1
+
+    if (
+        positive_x_distance > distance_tolerance
+        and positive_x_distance < distance_boundary - distance_tolerance
+    ):
+        if zero_count == 0:
+            first_distance = positive_x_distance
+        else:
+            second_distance = positive_x_distance
+        zero_count += 1
+
+    return first_distance, second_distance, zero_count
+
+
+@njit(**njit_dict_no_parallel)
+def calculate_comoving_frequency_nonhomologous(
+    rpacket: RPacket,
+    geometry: NumbaRadial1DGeometry,
+    distance: float,
+) -> float:
+    """Calculate packet comoving frequency after a trajectory distance."""
+    new_r = math.sqrt(
+        rpacket.r * rpacket.r
+        + distance * distance
+        + 2.0 * rpacket.r * distance * rpacket.mu
+    )
+    new_mu = (rpacket.r * rpacket.mu + distance) / new_r
+    new_v = geometry.get_velocity(new_r, rpacket.current_shell_id)
+    return rpacket.nu * (1.0 - new_v / C_SPEED_OF_LIGHT * new_mu)
+
+
+@njit(**njit_dict_no_parallel)
+def get_line_id_range_nonhomologous(
+    line_list_nu: npt.NDArray[np.float64],
+    comov_nu_start: float,
+    comov_nu_end: float,
+) -> tuple[int, int, int]:
+    """Return directional line-list bounds for one monotonic path interval.
+
+    The transport line list is ordered by descending frequency. The returned
+    range conservatively includes both interval endpoint frequencies; the
+    distance bounds reject a resonance at the packet's interval start.
+    """
+    line_count = len(line_list_nu)
+    frequency_tolerance = CLOSE_LINE_THRESHOLD * max(
+        abs(comov_nu_start), abs(comov_nu_end)
+    )
+    minimum_frequency = (
+        min(comov_nu_start, comov_nu_end) - frequency_tolerance
+    )
+    maximum_frequency = (
+        max(comov_nu_start, comov_nu_end) + frequency_tolerance
+    )
+
+    # Find the first line with frequency <= maximum_frequency.
+    lower_idx = 0
+    upper_idx = line_count
+    while lower_idx < upper_idx:
+        middle_idx = (lower_idx + upper_idx) // 2
+        if line_list_nu[middle_idx] > maximum_frequency:
+            lower_idx = middle_idx + 1
+        else:
+            upper_idx = middle_idx
+    maximum_frequency_line_id = lower_idx
+
+    # Find the first line with frequency < minimum_frequency.
+    lower_idx = 0
+    upper_idx = line_count
+    while lower_idx < upper_idx:
+        middle_idx = (lower_idx + upper_idx) // 2
+        if line_list_nu[middle_idx] >= minimum_frequency:
+            lower_idx = middle_idx + 1
+        else:
+            upper_idx = middle_idx
+    minimum_frequency_stop_line_id = lower_idx
+
+    if comov_nu_end < comov_nu_start:
+        return (
+            maximum_frequency_line_id,
+            minimum_frequency_stop_line_id,
+            1,
+        )
+
+    return (
+        minimum_frequency_stop_line_id - 1,
+        maximum_frequency_line_id - 1,
+        -1,
+    )
 
 
 @njit(**njit_dict_no_parallel)

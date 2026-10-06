@@ -44,6 +44,13 @@ class OpacityState:
     The state preserves labelled plasma data for the MC solver and formal-integral.
     Use :meth:`to_numba` to produce the Numba-compatible transport
     representation.
+
+    Attributes
+    ----------
+    sobolev_optical_depth_coefficient : pandas.DataFrame or None
+        Gradient-independent coefficient for each line and shell [s^-1].
+        Dividing this coefficient by the absolute projected velocity gradient
+        gives the directional Sobolev optical depth.
     """
 
     def __init__(
@@ -78,6 +85,7 @@ class OpacityState:
         self.line_list_nu = line_list_nu
 
         self.tau_sobolev = tau_sobolev
+        self.sobolev_optical_depth_coefficient = None
 
         self.beta_sobolev = beta_sobolev
 
@@ -330,7 +338,7 @@ class OpacityState:
                 macro_atom_state.transition_metadata.transition_line_idx.values
             )
 
-        return OpacityStateNumba(
+        opacity_state_numba = OpacityStateNumba(
             electron_densities,
             t_electrons,
             line_list_nu,
@@ -354,3 +362,10 @@ class OpacityState:
             photo_ion_activation_idx,
             k_packet_idx,
         )
+        if self.sobolev_optical_depth_coefficient is not None:
+            opacity_state_numba.sobolev_optical_depth_coefficient = (
+                np.ascontiguousarray(
+                    self.sobolev_optical_depth_coefficient, dtype=np.float64
+                )
+            )
+        return opacity_state_numba
