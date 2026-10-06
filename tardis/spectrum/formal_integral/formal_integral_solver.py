@@ -279,9 +279,11 @@ class FormalIntegralSolver:
             r_outer_interpolated,
         )
 
+        # The integrators work in plain cgs floats; Numba would otherwise drop
+        # the units silently, and pure Python fails on them (issue #2543)
         luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
-            simulation_state.t_inner,
-            frequencies,
+            simulation_state.t_inner.to_value(u.K),
+            frequencies.to_value(u.Hz),
             att_S_ul_interpolated,
             Jred_lu_interpolated,
             Jblue_lu_interpolated,
