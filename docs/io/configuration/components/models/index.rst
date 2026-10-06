@@ -254,8 +254,7 @@ CSVY Model
 
 TARDIS allows users to use a CSVY file to input information about the model. To do this, instead of a
 ``model`` section, one includes ``csvy_model: <file path to CSVY file>`` in the main TARDIS configuration
-file. The other sections of the main configuration file, such as ``supernova`` and ``plasma``, are
-validated in the same way as for a YAML model (see :ref:`config-value-checks`).
+file.
 
 The CSVY model has a YAML part as well as a CSV part, separated by the YAML delimiter ``---``. This means
 that each CSVY model file has the following structure: The first line of the file is the YAML delimiter,

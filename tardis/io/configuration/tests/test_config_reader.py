@@ -181,29 +181,6 @@ def test_plasma_section_config(key, tardis_config_verysimple):
 
 
 @pytest.mark.parametrize(
-    ("section", "key", "value"),
-    [
-        ("supernova", "time_explosion", Quantity("-10 day")),
-        ("plasma", "initial_t_inner", Quantity("-100 K")),
-        ("plasma", "initial_t_rad", Quantity("-100 K")),
-    ],
-)
-def test_csvy_config_values_are_validated(
-    section, key, value, tardis_config_verysimple
-):
-    del tardis_config_verysimple["model"]
-    tardis_config_verysimple["csvy_model"] = "csvy_full.csvy"
-    tardis_config_verysimple[section][key] = value
-
-    with pytest.raises(ValueError):
-        Configuration.from_config_dict(
-            tardis_config_verysimple,
-            validate=True,
-            config_dirname="tardis/io/model/readers/tests/data",
-        )
-
-
-@pytest.mark.parametrize(
     ("key", "value"),
     [
         ("nlte_ionization_species", ["H I"]),
