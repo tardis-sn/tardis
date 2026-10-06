@@ -20,7 +20,6 @@ Submodules
    tardis.opacities.opacity_solver
    tardis.opacities.opacity_state
    tardis.opacities.opacity_state_numba
-   tardis.opacities.opacity_state_numba_iip
    tardis.opacities.sobolevs_from_levels
    tardis.opacities.tau_sobolev
 
