@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.packet\_source.high\_energy module
+==============================================================
+
+.. automodule:: tardis.transport.montecarlo.packet_source.high_energy
+   :members:
+   :show-inheritance:
+   :undoc-members:
