@@ -42,12 +42,18 @@ The values in the example here define a density profile that is dropping off wit
     The grid of points specified in the input file is interpreted by
     TARDIS as defining a grid in which the tabulated velocities are
     taken as the outer boundaries of grid cells and the density is
-    assumed to be uniform with each cell.
+    assumed to be uniform within each cell. See :ref:`model-edge-cell-quantities`.
 
 Inner Boundary
 ==============
 
-The first velocity-density pair in a custom density file (given by index 0) specifies the velocity of the inner boundary approximation. The density associated with this velocity is the density within the inner boundary, which does not affect TARDIS spectra. Therefore, the first density (5.4869692e-10 in the example above) can be replaced by a placeholder value. The user can choose to both specify a custom density file AND specify v_inner_boundary or v_outer_boundary in the configuration YAML file for a TARDIS run. However, the YAML-specified values must be within the velocity range specified in the custom density file, otherwise TARDIS will raise an error. When one of the YAML-specified boundary velocities falls within the velocity range specified in the custom density file, then the boundary velocity is set equal to the number in the configuration YAML file. This has the effect of splitting a cell in the custom density file into two parts, a region within the boundary and a region outside the boundary.
+The first velocity-density pair in a custom density file (given by index 0) specifies the velocity of the inner boundary approximation. The density associated with this velocity is the density within the inner boundary, which does not affect TARDIS spectra. Therefore, the first density (5.4869692e-10 in the example above) can be replaced by a placeholder value. The user can choose to both specify a custom density file AND specify ``v_inner_boundary`` or ``v_outer_boundary`` in the configuration YAML file for a TARDIS run. The YAML-specified boundary velocity then replaces the corresponding edge of the computational domain:
+
+- If the boundary velocity falls inside a cell of the custom density file, TARDIS truncates that cell at the boundary and discards the part of the cell outside the domain, along with any cells beyond it. The truncated cell keeps the density of the full cell, so its mass decreases.
+- If the boundary velocity lies outside the velocity range of the custom density file, TARDIS issues a warning and extends the innermost or outermost cell to the boundary. The extended cell keeps its density, so its mass increases.
+- ``v_inner_boundary`` must be smaller than ``v_outer_boundary``; otherwise TARDIS raises an error.
+
+See :ref:`model-edge-cell-quantities` for details.
 
 It is always a good idea to check the model velocities and abundances used in a TARDIS simulation after it has been successfully run.
 
@@ -71,5 +77,6 @@ the model section of the YAML file:
 .. note::
     The specifications for the velocities of the inner and outer boundary values can be neglected
     (in which case TARDIS will default to using the full velocity range specified in the density.txt file).
-    Values for the boundary velocities that lie outside the range covered by density.txt will not be accepted.
+    Boundary velocities that lie outside the range covered by density.txt are accepted with a warning,
+    and TARDIS extends the innermost or outermost cell to reach them (see `Inner Boundary`_).
 

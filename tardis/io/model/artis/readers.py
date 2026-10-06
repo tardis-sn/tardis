@@ -100,7 +100,10 @@ def parse_artis_structure_to_dataclass(fname: str | Path) -> ArtisData:
 
     Notes
     -----
-    The first ARTIS row represents the unused central model point. It is
+    Each ARTIS row gives the outer velocity of an ARTIS cell together with the
+    cell-mean density and mass fractions, matching the TARDIS convention of
+    edge-defined velocities and cell-defined values. The first ARTIS row
+    represents the unused central cell, which extends to zero velocity. It is
     retained in ``velocity`` as the first shell boundary but removed from
     ``mean_density`` and ``isotope_mass_fractions``. Consequently, the returned
     velocity array has one more entry than the shell-based arrays.

@@ -29,6 +29,12 @@ def read_stella_model(fname):
     """
     Read in a STELLA model file and return the data and model
 
+    The table is returned unchanged. STELLA columns are labeled as cell
+    centre values (for example ``cell_center_v``), outer edge values
+    (``outer_edge_r``), or cell averages. When building a TARDIS model, take
+    the shell edges from the outer edge columns. See
+    :ref:`model-edge-cell-quantities`.
+
     Parameters
     ----------
     fname : str

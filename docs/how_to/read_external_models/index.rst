@@ -1,5 +1,8 @@
 How-to read external models
-********************
+***************************
+
+External codes define model quantities at cell edges, cell centres, or as cell averages. See
+:ref:`model-edge-cell-quantities` for how each importer maps these onto TARDIS shells.
 
 .. toctree::
     :maxdepth: 1

@@ -23,6 +23,12 @@ def read_cmfgen_density(fname: str):
 
     Rest columns contain abundances of elements and isotopes
 
+    CMFGEN tabulates quantities at radial grid points. TARDIS uses each grid
+    point velocity as the outer edge of a shell and assigns the density,
+    electron density, and temperature at that grid point to the whole shell
+    inside it. This is a piecewise-constant reconstruction, not a shell
+    average. See :ref:`model-edge-cell-quantities`.
+
     Parameters
     ----------
     fname : str

@@ -9,14 +9,14 @@ ASCII Format
 
 To use a stratified ejecta composition in TARDIS, the elemental abundances may
 be specified on a per-cell basis via an external ASCII file (similar to setting
-up a :ref:`custom density <densitycust>` profile). An ASCII file that could
-work on a mesh with ten cells should be formatted like this:
+up a :ref:`custom density <densitycust>` profile). An ASCII file that matches a
+density file with ten rows (nine cells) should be formatted like this:
 
 .. literalinclude:: abund.dat
 
 In this file:
 
-- there should be the same number of rows as there are cells specified in the velocity/density structure part of the TARDIS setup
+- there should be the same number of rows as in the density file. As with the density file, the first row (index 0) is ignored, and row :math:`j` gives the composition of the cell whose outer boundary is the velocity in row :math:`j` of the density file (see :ref:`model-leading-row`)
 - each row contains 31 numbers, the first of which is the index (i.e. matching the zone to the density profile file)
 - the remaining 30 entries in each row give the set of elemental abundances for atomic number Z=1 to Z=30 (in order)
 
@@ -107,7 +107,8 @@ The example file shown here has three simple layers:
   
     As with the custom density file, the first row will be ignored. It is
     supposed to give the composition below the photosphere. Thus, the first row
-    (after the header) can be filled with dummy values.
+    (after the header) can be filled with dummy values. See
+    :ref:`model-leading-row`.
 
 .. warning::
 

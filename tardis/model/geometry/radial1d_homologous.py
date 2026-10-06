@@ -10,6 +10,13 @@ class HomologousRadial1DGeometry:
     """
     Holds information about model geometry for radial 1D models.
 
+    Velocities and radii are edge-defined: shell ``i`` spans ``v_inner[i]``
+    to ``v_outer[i]``, and ``v_inner[1:]`` equals ``v_outer[:-1]``. Inside a
+    shell the velocity follows ``v = r / time_explosion``. ``v_middle`` and
+    ``r_middle`` are arithmetic midpoints of the edges, not volume-weighted
+    centres. Quantities such as density are held per shell elsewhere and are
+    uniform within each shell. See :ref:`model-edge-cell-quantities`.
+
     Parameters
     ----------
     v_inner : astropy.units.quantity.Quantity
@@ -74,7 +81,7 @@ class HomologousRadial1DGeometry:
 
         if self.v_outer_boundary > self.v_outer[-1]:
             warnings.warn(
-                "Requesting inner boundary below inner shell. Extrapolating the inner cell"
+                "Requesting outer boundary above outer shell. Extrapolating the outer cell"
             )
 
     @property

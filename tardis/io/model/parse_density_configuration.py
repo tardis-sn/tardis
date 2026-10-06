@@ -21,6 +21,10 @@ def parse_density_section_config(
     """Parse the density section of the configuration file and produce a density at
     time_explosion.
 
+    The density profile is evaluated at `v_middle`, so each returned value is
+    a point sample at the shell midpoint that TARDIS uses as the uniform
+    density of that shell. It is not an average over the shell.
+
     Parameters
     ----------
     density_configuration
