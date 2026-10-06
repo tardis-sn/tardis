@@ -4,6 +4,7 @@ import numpy as np
 import numpy.testing as ntest
 import pandas as pd
 import pytest
+from astropy import units as u
 
 from tardis.spectrum.formal_integral.base import (
     check_formal_integral_requirements,
@@ -96,6 +97,17 @@ def test_intensity_black_body(nu, temperature, expected):
     # TODO: check if cuda
     # actual_cuda = intensity_black_body_cuda(nu, temperature)
     # assert np.isclose(actual_cuda, expected)
+
+
+def test_intensity_black_body_rejects_quantities() -> None:
+    """
+    The black body takes plain cgs floats; callers must strip units first.
+
+    Under Numba the units are dropped silently, but with Numba disabled the
+    Planck exponent is not dimensionless (issue #2543).
+    """
+    with pytest.raises(u.UnitTypeError, match="dimensionless"):
+        intensity_black_body(1e15 * u.Hz, 1e4 * u.K)
 
 
 @pytest.mark.parametrize(
