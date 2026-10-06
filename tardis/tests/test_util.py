@@ -15,6 +15,7 @@ from tardis.util.base import (
     element_symbol2atomic_number,
     int_to_roman,
     intensity_black_body,
+    is_valid_nuclide_or_elem,
     parse_quantity,
     quantity_linspace,
     reformat_element_symbol,
@@ -228,6 +229,23 @@ def test_reformat_element_symbol(
         reformat_element_symbol(unformatted_element_string)
         == formatted_element_string
     )
+
+
+@pytest.mark.parametrize(
+    ["input_nuclide", "expected"],
+    [
+        ("Ni56", True),
+        ("ni56", True),
+        ("Ni-56", True),
+        ("Fe", True),
+        ("fe", True),
+        ("FE", True),
+        ("Xx", False),
+        ("velocity", False),
+    ],
+)
+def test_is_valid_nuclide_or_elem(input_nuclide, expected):
+    assert is_valid_nuclide_or_elem(input_nuclide) is expected
 
 
 @pytest.mark.parametrize(

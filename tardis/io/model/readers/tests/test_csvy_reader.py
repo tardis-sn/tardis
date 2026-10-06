@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy.testing as npt
+import pandas as pd
 import pytest
 
 from tardis.io.model import csvy
@@ -48,3 +49,22 @@ def test_missing_required_property(csvy_missing_fname):
     # Validation now happens inside load_csvy, so it should raise during loading
     with pytest.raises(Exception):
         csvy_data = csvy.load_csvy(csvy_missing_fname)
+
+
+def test_parse_csv_mass_fractions_ignores_capitalization():
+    csv_data = pd.DataFrame(
+        {
+            "velocity": [9000.0, 10000.0],
+            "h": [0.5, 0.3],
+            "HE": [0.3, 0.3],
+            "Si": [0.1, 0.2],
+            "ni56": [0.1, 0.2],
+        }
+    )
+    _, mass_fractions, isotope_mass_fractions = csvy.parse_csv_mass_fractions(
+        csv_data
+    )
+    npt.assert_allclose(mass_fractions.loc[1].values, [0.5, 0.3])
+    npt.assert_allclose(mass_fractions.loc[2].values, [0.3, 0.3])
+    npt.assert_allclose(mass_fractions.loc[14].values, [0.1, 0.2])
+    npt.assert_allclose(isotope_mass_fractions.loc[(28, 56)].values, [0.1, 0.2])
