@@ -5,9 +5,7 @@ import numpy as np
 from numba import njit
 from numba.experimental import jitclass
 
-import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.opacities.opacities import chi_continuum_calculator
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
