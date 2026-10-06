@@ -293,10 +293,10 @@ def test_solve_montecarlo(
     opacity_states = type_iip_workflow.solve_opacity()
     type_iip_workflow.solve_montecarlo(opacity_states, 1000)
     type_iip_workflow.initialize_spectrum_solver()
-    luminosity_density = (
-        type_iip_workflow.spectrum_solver.spectrum_real_packets.luminosity_density_lambda.value
+    luminosity_density = type_iip_workflow.spectrum_solver.spectrum_real_packets.luminosity_density_lambda.value
+    expected_luminosity_density = regression_data.sync_ndarray(
+        luminosity_density
     )
-    expected_luminosity_density = regression_data.sync_ndarray(luminosity_density)
     np.testing.assert_allclose(
         luminosity_density,
         expected_luminosity_density,
@@ -352,12 +352,16 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     evaluator = workflow._build_thermal_balance_evaluator(
         maximum_electron_density, analytic=True
     )
-    continuum_coefficients = evaluator.calculate_continuum_coefficients(
-        forced_t_electrons
-    )
-    level_to_continuum_saha_factor = continuum_coefficients[1]
-    partition_function = continuum_coefficients[5]
-    level_boltzmann_factor = continuum_coefficients[6]
+    (
+        _,
+        level_to_continuum_saha_factor,
+        _,
+        _,
+        coefficient_state,
+        partition_function,
+        level_boltzmann_factor,
+    ) = evaluator.calculate_continuum_coefficients(forced_t_electrons)
+
     lte_ion_population, _ = calculate_lte_populations(
         plasma_solver.thermal_phi_lte,
         partition_function,
@@ -369,14 +373,14 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         ],
     )
     workflow._build_continuum_states(
-        continuum_coefficients,
+        coefficient_state,
         level_to_continuum_saha_factor,
     )
     assert lte_ion_population.loc[(1, 1)].iloc[-1] == 0.0
 
     workflow.completed_iterations = 1
     opacity_states = workflow.solve_opacity()
-    continuum_state = opacity_states["opacity_state"].continuum_state
+    continuum_state = workflow.continuum_opacity_state
     assert np.isfinite(continuum_state.chi_bf.values).all()
     cross_sections = plasma_solver.photo_ion_cross_sections
     upper_ion_index = pd.MultiIndex.from_arrays(
