@@ -1,3 +1,4 @@
+import io
 from pathlib import Path
 
 import astropy.tests.helper as test_helper
@@ -188,3 +189,38 @@ def test_creat_from_J(spectrum):
     )
 
     compare_spectra(actual, spectrum)
+
+
+@pytest.mark.parametrize(
+    "mode, column",
+    [
+        ("luminosity_density", "luminosity_density_lambda"),
+        ("flux", "flux_lambda"),
+    ],
+)
+def test_to_ascii(mode, column):
+    """Both output modes write (wavelength, value) rows to the file."""
+    spectrum = TARDISSpectrum(
+        u.Quantity([1, 2, 3, 4], "Hz"),
+        u.Quantity([1, 2, 3], "erg / s") * np.pi,
+    )
+    spectrum.distance = u.Quantity(0.5, "cm")
+
+    buffer = io.StringIO()
+    spectrum.to_ascii(buffer, mode=mode)
+    buffer.seek(0)
+    written = np.loadtxt(buffer)
+
+    expected = np.column_stack(
+        [spectrum.wavelength.value, getattr(spectrum, column).value]
+    )
+    np.testing.assert_allclose(written, expected)
+
+
+def test_to_ascii_invalid_mode():
+    spectrum = TARDISSpectrum(
+        u.Quantity([1, 2, 3, 4], "Hz"),
+        u.Quantity([1, 2, 3], "erg / s"),
+    )
+    with pytest.raises(NotImplementedError):
+        spectrum.to_ascii(io.StringIO(), mode="not_a_mode")
