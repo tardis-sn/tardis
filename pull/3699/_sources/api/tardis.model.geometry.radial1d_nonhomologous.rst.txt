@@ -1,7 +1,0 @@
-tardis.model.geometry.radial1d\_nonhomologous module
-====================================================
-
-.. automodule:: tardis.model.geometry.radial1d_nonhomologous
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.modes.nonhomologous.rad\_packet\_transport module
-=============================================================================
-
-.. automodule:: tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport
-   :members:
-   :show-inheritance:
-   :undoc-members:

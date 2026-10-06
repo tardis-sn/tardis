@@ -1,7 +1,0 @@
-tardis.workflows.nonhomologous\_tardis\_workflow module
-=======================================================
-
-.. automodule:: tardis.workflows.nonhomologous_tardis_workflow
-   :members:
-   :show-inheritance:
-   :undoc-members:
