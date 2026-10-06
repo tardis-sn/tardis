@@ -8,7 +8,6 @@ Submodules
    :maxdepth: 4
 
    tardis.transport.montecarlo.estimators.base
-   tardis.transport.montecarlo.estimators.continuum_radfield_properties
    tardis.transport.montecarlo.estimators.estimators_bulk
    tardis.transport.montecarlo.estimators.estimators_continuum
    tardis.transport.montecarlo.estimators.estimators_line
