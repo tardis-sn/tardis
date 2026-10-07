@@ -44,7 +44,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             g_electron, beta_rad, ionization_data, level_boltzmann_factor, g, w
         )
         helium_population.loc[0, helium_population.columns] = (
-            he_one_population.values
+            he_one_population.to_numpy()
         )
         # He I ground state
         helium_population.loc[0, 0] = 0.0
@@ -53,7 +53,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             float(g.loc[2, 1, 0]) ** (-1.0)
         )
         helium_population.loc[1, helium_population.columns] = (
-            he_two_population.values
+            he_two_population.to_numpy()
         )
         # He II ground state
         helium_population.loc[1, 0] = 1.0

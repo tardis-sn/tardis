@@ -344,7 +344,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     )
     maximum_electron_density = (
         plasma_solver.number_density.multiply(
-            plasma_solver.number_density.index.values, axis=0
+            plasma_solver.number_density.index.to_numpy(), axis=0
         )
         .sum()
         .to_numpy()
@@ -381,7 +381,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     workflow.completed_iterations = 1
     opacity_states = workflow.solve_opacity()
     continuum_state = workflow.continuum_opacity_state
-    assert np.isfinite(continuum_state.chi_bf.values).all()
+    assert np.isfinite(continuum_state.chi_bf.to_numpy()).all()
     cross_sections = plasma_solver.photo_ion_cross_sections
     upper_ion_index = pd.MultiIndex.from_arrays(
         [
@@ -409,7 +409,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         continuum_state.chi_bf,
         expected_chi_bf.loc[continuum_state.level2continuum_idx.index],
     )
-    assert np.isfinite(continuum_state.p_fb_deactivation.values).all()
-    assert np.isfinite(continuum_state.emissivities.values).all()
+    assert np.isfinite(continuum_state.p_fb_deactivation.to_numpy()).all()
+    assert np.isfinite(continuum_state.emissivities.to_numpy()).all()
     workflow.solve_montecarlo(opacity_states, 10)
     assert len(workflow.transport_state.packet_collection.output_energies) == 10

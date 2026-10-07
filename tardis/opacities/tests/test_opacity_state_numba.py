@@ -47,13 +47,14 @@ def test_opacity_state_to_numba(
         index = ...
 
     npt.assert_allclose(
-        actual.electron_density, legacy_plasma.electron_densities.values[index]
+        actual.electron_density,
+        legacy_plasma.electron_densities.to_numpy()[index],
     )
     npt.assert_allclose(
-        actual.line_list_nu, legacy_plasma.atomic_data.lines.nu.values
+        actual.line_list_nu, legacy_plasma.atomic_data.lines.nu.to_numpy()
     )
     npt.assert_allclose(
-        actual.tau_sobolev, legacy_plasma.tau_sobolevs.values[:, index]
+        actual.tau_sobolev, legacy_plasma.tau_sobolevs.to_numpy()[:, index]
     )
     if line_interaction_type == "scatter":
         empty = np.zeros(1, dtype=np.int64)

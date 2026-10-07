@@ -44,6 +44,7 @@ WIDGET_INPUT_STYLE = """
     }
     """
 
+
 class CustomAbundanceWidgetData:
     """The model information and data that required in custom
     abundance widget.
@@ -108,12 +109,17 @@ class CustomAbundanceWidgetData:
             ).cgs
         else:
             velocity_field_index = [
-                field["name"] for field in csvy_data.model_config.datatype.fields
+                field["name"]
+                for field in csvy_data.model_config.datatype.fields
             ].index("velocity")
             velocity_unit = u.Unit(
-                csvy_data.model_config.datatype.fields[velocity_field_index]["unit"]
+                csvy_data.model_config.datatype.fields[velocity_field_index][
+                    "unit"
+                ]
             )
-            velocity = csvy_data.raw_csv_data["velocity"].values * velocity_unit
+            velocity = (
+                csvy_data.raw_csv_data["velocity"].to_numpy() * velocity_unit
+            )
 
         no_of_shells = len(velocity) - 1
 
@@ -148,12 +154,17 @@ class CustomAbundanceWidgetData:
                 raise ValueError(f"Unrecognized density type {d_conf.type}")
         else:
             density_field_index = [
-                field["name"] for field in csvy_data.model_config.datatype.fields
+                field["name"]
+                for field in csvy_data.model_config.datatype.fields
             ].index("density")
             density_unit = u.Unit(
-                csvy_data.model_config.datatype.fields[density_field_index]["unit"]
+                csvy_data.model_config.datatype.fields[density_field_index][
+                    "unit"
+                ]
             )
-            density_0 = csvy_data.raw_csv_data["density"].values * density_unit
+            density_0 = (
+                csvy_data.raw_csv_data["density"].to_numpy() * density_unit
+            )
             time_0 = csvy_data.model_config.model_density_time_0
 
         if hasattr(csvy_data.model_config, "abundance"):
@@ -282,7 +293,9 @@ class CustomAbundanceWidgetData:
         CustomAbundanceWidgetData
         """
         abundance = sim.simulation_state.abundance.copy()
-        isotope_abundance = sim.simulation_state.composition.isotopic_mass_fraction.copy()
+        isotope_abundance = (
+            sim.simulation_state.composition.isotopic_mass_fraction.copy()
+        )
 
         # integrate element and isotope to one DataFrame
         abundance["mass_number"] = ""
@@ -445,7 +458,7 @@ class CustomAbundanceWidget:
             disabled=True,
             width=30,
             height=30,
-            align='end',
+            align="end",
             margin=(5, 5, 5, 0),
         )
         self.btn_prev.on_click(self.on_btn_prev)
@@ -453,17 +466,13 @@ class CustomAbundanceWidget:
             icon="chevron-right",
             width=30,
             height=30,
-            align='end',
+            align="end",
             margin=5,
         )
         self.btn_next.on_click(self.on_btn_next)
 
         self.checks = [
-            pn.widgets.Checkbox(
-                width=30,
-                height=30,
-                margin=(11, 0, 0, 0)
-            )
+            pn.widgets.Checkbox(width=30, height=30, margin=(11, 0, 0, 0))
             for element in self.data.elements
         ]
         self.input_items = [
@@ -477,7 +486,9 @@ class CustomAbundanceWidget:
             for element in self.data.elements
         ]
         for i in range(self.no_of_elements):
-            self.input_items[i].param.watch(self.input_item_eventhandler, "value")
+            self.input_items[i].param.watch(
+                self.input_item_eventhandler, "value"
+            )
             self.input_items[i].index = i
             self.checks[i].param.watch(self.check_eventhandler, "value")
             self.checks[i].index = i
@@ -495,7 +506,9 @@ class CustomAbundanceWidget:
             visible=False,
             width=200,
             height=30,
-            stylesheets=[":host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}"],
+            stylesheets=[
+                ":host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}"
+            ],
         )
 
         self.symb_warning = pn.pane.Alert(
@@ -503,7 +516,9 @@ class CustomAbundanceWidget:
             alert_type="warning",
             width=200,
             height=30,
-            stylesheets=[":host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}"],
+            stylesheets=[
+                ":host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}"
+            ],
         )
         self.input_symb = pn.widgets.TextInput(
             name="Element: ",
@@ -530,14 +545,16 @@ class CustomAbundanceWidget:
             disabled=True,
             margin=(32, 0, 0, 0),
         )
-        self.irs_shell_range.param.watch(self.irs_shell_range_eventhandler, "value_throttled")
+        self.irs_shell_range.param.watch(
+            self.irs_shell_range_eventhandler, "value_throttled"
+        )
 
         self.btn_add_shell = pn.widgets.Button(
             icon="square-plus",
             name="Add",
             disabled=True,
             width=80,
-            align='end',
+            align="end",
             margin=5,
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)
@@ -545,7 +562,7 @@ class CustomAbundanceWidget:
             start=0,
             step=1,
             name="Add shell(s) with velocity range (km/s): ",
-            align='end',
+            align="end",
             margin=(5, 5, 5, 15),
             stylesheets=[WIDGET_INPUT_STYLE],
         )
@@ -554,7 +571,7 @@ class CustomAbundanceWidget:
             step=1,
             width=90,
             name="to",
-            align='end',
+            align="end",
             margin=5,
             stylesheets=[WIDGET_INPUT_STYLE],
         )
@@ -574,7 +591,9 @@ class CustomAbundanceWidget:
         self.btn_output.on_click(self.on_btn_output)
 
         self.input_path = pn.widgets.TextInput(
-            name="File path: ", placeholder="Input file name or path", margin=(5, 0, 5, 10)
+            name="File path: ",
+            placeholder="Input file name or path",
+            margin=(5, 0, 5, 10),
         )
 
         self.input_i_time_0 = pn.widgets.FloatInput(
@@ -598,9 +617,12 @@ class CustomAbundanceWidget:
             options=["Only selected shell", "A range of shells: "],
             value="Only selected shell",
             inline=False,
-            stylesheets=["label input[type=\"radio\"] + span {top: 0px;}", ".bk-input-group {gap: 10px;}"],
+            stylesheets=[
+                'label input[type="radio"] + span {top: 0px;}',
+                ".bk-input-group {gap: 10px;}",
+            ],
         )
-        self._watcher_single_apply= self.rbs_shell_edit_mode.param.watch(
+        self._watcher_single_apply = self.rbs_shell_edit_mode.param.watch(
             self.rbs_shell_editing_eventhandler, "value"
         )
 
@@ -756,8 +778,7 @@ class CustomAbundanceWidget:
 
         return bool(
             index_1 - index_0 > 1
-            or (index_1 - index_0 == 1
-            and not np.isclose(v_vals[index_0], v_0))
+            or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
         )
 
     def on_btn_add_shell(self, obj):
@@ -1066,11 +1087,20 @@ class CustomAbundanceWidget:
             z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
-        self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
+        self.data.abundance = self.data.abundance.sort_index(
+            kind=SORTING_ALGORITHM
+        )
 
         # Add new Input control and Checkbox control.
-        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 15px}"])
-        check = pn.widgets.Checkbox(width=30, sizing_mode="stretch_height", margin=(10, 0, 0, 0))
+        item = pn.widgets.FloatInput(
+            start=0,
+            end=1,
+            step=0.01,
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 15px}"],
+        )
+        check = pn.widgets.Checkbox(
+            width=30, sizing_mode="stretch_height", margin=(10, 0, 0, 0)
+        )
         item.index = self.no_of_elements - 1
         check.index = self.no_of_elements - 1
         item.param.watch(self.input_item_eventhandler, "value")
@@ -1299,28 +1329,31 @@ class CustomAbundanceWidget:
         else:
             # --------------Combine widget components--------------
             self.box_editor = pn.Row(
-                    pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
-                    pn.Column(
-                        *self.checks
-                    ),
+                pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
+                pn.Column(*self.checks),
             )
 
             box_add_shell = pn.Row(
-                    self.input_v_start,
-                    self.input_v_end,
-                    self.btn_add_shell,
-                    self.overwrite_warning,
+                self.input_v_start,
+                self.input_v_end,
+                self.btn_add_shell,
+                self.overwrite_warning,
                 margin=(0, 0, 0, 50),
-                align='end',
+                align="end",
             )
 
             box_head = pn.Row(
-                self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell,
-                margin=(0, 0, 20, 0)
+                self.dpd_shell_no,
+                self.btn_prev,
+                self.btn_next,
+                box_add_shell,
+                margin=(0, 0, 20, 0),
             )
 
             box_add_element = pn.Row(
-                self.input_symb, self.btn_add_element, self.symb_warning,
+                self.input_symb,
+                self.btn_add_element,
+                self.symb_warning,
                 width=200,
                 margin=(0, 0, 0, 110),
             )
@@ -1342,40 +1375,37 @@ class CustomAbundanceWidget:
             box_norm = pn.Row(self.btn_norm, self.norm_warning)
 
             box_apply = pn.Column(
-
-                    pn.pane.Markdown("Apply abundance(s) to:", margin=(0, 0, 0, 0)),
-                    pn.Row(
-                            self.rbs_shell_edit_mode,
-                            self.irs_shell_range,
-                    ),
-                    self.abundance_note,
+                pn.pane.Markdown("Apply abundance(s) to:", margin=(0, 0, 0, 0)),
+                pn.Row(
+                    self.rbs_shell_edit_mode,
+                    self.irs_shell_range,
+                ),
+                self.abundance_note,
                 margin=(0, 0, 15, 50),
             )
 
             box_features = pn.Column(box_norm, help_note)
             box_abundance = pn.WidgetBox(
-                    box_apply,
-                    pn.Row(self.box_editor, box_features),
-                    box_add_element,
-                    sizing_mode="stretch_width",
-                    styles={'width':'auto'},
+                box_apply,
+                pn.Row(self.box_editor, box_features),
+                box_add_element,
+                sizing_mode="stretch_width",
+                styles={"width": "auto"},
             )
             box_density = self.density_editor.display()
 
             main_tab = pn.Tabs(
-                ('Edit Abundance', box_abundance),
-                ('Edit Density', box_density),
+                ("Edit Abundance", box_abundance),
+                ("Edit Density", box_density),
             )
 
             hint = pn.pane.HTML(
                 "<b><font size='3'>Save model as file: </font></b>"
             )
             box_output = pn.Column(
-                    hint,
-                    self.input_i_time_0,
-                    pn.Row(
-                        self.input_path, self.btn_output, self.ckb_overwrite
-                    ),
+                hint,
+                self.input_i_time_0,
+                pn.Row(self.input_path, self.btn_output, self.ckb_overwrite),
             )
 
             # Initialize the widget and plot colormap
@@ -1385,12 +1415,15 @@ class CustomAbundanceWidget:
             self.density_editor.read_density()
 
             return pn.Column(
-                    pn.Row(pn.pane.Markdown("Scale of yaxes:", margin=(0, 0)), self.tbs_scale),
-                    pn.panel(self.fig, sizing_mode="stretch_width"),
-                    box_head,
-                    main_tab,
-                    box_output,
-                    self.error_view,
+                pn.Row(
+                    pn.pane.Markdown("Scale of yaxes:", margin=(0, 0)),
+                    self.tbs_scale,
+                ),
+                pn.panel(self.fig, sizing_mode="stretch_width"),
+                box_head,
+                main_tab,
+                box_output,
+                self.error_view,
             )
 
     def to_csvy(self, path, overwrite):
@@ -1403,7 +1436,7 @@ class CustomAbundanceWidget:
         overwrite : bool
             True if overwriting, False otherwise.
         """
-        self.error_view.object=""
+        self.error_view.object = ""
         posix_path = Path(path)
         posix_path = posix_path.with_suffix(".csvy")
 
@@ -1421,7 +1454,7 @@ class CustomAbundanceWidget:
         ----------
         path : pathlib.PosixPath
         """
-        self.error_view.object=""
+        self.error_view.object = ""
         name = path.name
         d_time_0 = self.data.density_t_0
         i_time_0 = self.input_i_time_0.value * u.day
@@ -1599,7 +1632,9 @@ class DensityEditor:
             name="Density time_0 (day): ",
             margin=(10, 0, 20, 10),
         )
-        self.input_d_time_0.param.watch(self.input_d_time_0_eventhandler, "value")
+        self.input_d_time_0.param.watch(
+            self.input_d_time_0_eventhandler, "value"
+        )
 
         self.dpd_dtype = pn.widgets.Select(
             options=["-", "uniform", "exponential", "power_law"],
@@ -1612,28 +1647,40 @@ class DensityEditor:
             name="rho_0",
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
+            stylesheets=[
+                WIDGET_INPUT_STYLE,
+                "label {width: 70px; text-align: end;}",
+            ],
         )
 
         self.input_exp = pn.widgets.FloatInput(
             name="exponent",
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
+            stylesheets=[
+                WIDGET_INPUT_STYLE,
+                "label {width: 70px; text-align: end;}",
+            ],
         )
 
         self.input_v_0 = pn.widgets.FloatInput(
             name="v_0",
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
+            stylesheets=[
+                WIDGET_INPUT_STYLE,
+                "label {width: 70px; text-align: end;}",
+            ],
         )
 
         self.input_value = pn.widgets.FloatInput(
             name="value",
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
+            stylesheets=[
+                WIDGET_INPUT_STYLE,
+                "label {width: 70px; text-align: end;}",
+            ],
         )
 
         self.btn_calculate = pn.widgets.Button(
@@ -1645,7 +1692,7 @@ class DensityEditor:
 
         self.uniform_box = pn.Row(
             self.input_value,
-            pn.pane.Markdown("g cm^3", margin=(0,5)),
+            pn.pane.Markdown("g cm^3", margin=(0, 5)),
             visible=False,
         )
 
@@ -1661,14 +1708,14 @@ class DensityEditor:
 
         self.exp_box = pn.Column(
             form_exp,
-            pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0,5))),
-            pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0,5))),
+            pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0, 5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0, 5))),
             visible=False,
         )
         self.pow_box = pn.Column(
             form_pow,
-            pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0,5))),
-            pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0,5))),
+            pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0, 5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0, 5))),
             self.input_exp,
             visible=False,
         )
@@ -1802,18 +1849,19 @@ class DensityEditor:
             "<font size='3'>2) Edit densities for all shells:</font>"
         )
         d_box = pn.Row(
-            self.input_d, pn.pane.Markdown("g/cm^3", margin=(15, 5)),
+            self.input_d,
+            pn.pane.Markdown("g/cm^3", margin=(15, 5)),
             margin=(0, 0, 20, 0),
         )
         widget = pn.WidgetBox(
-                self.input_d_time_0,
-                hint1,
-                d_box,
-                hint2,
-                self.dpd_dtype,
-                self.dtype_out,
-                self.btn_calculate,
-                sizing_mode="stretch_width",
-                styles={'width':'auto'},
+            self.input_d_time_0,
+            hint1,
+            d_box,
+            hint2,
+            self.dpd_dtype,
+            self.dtype_out,
+            self.btn_calculate,
+            sizing_mode="stretch_width",
+            styles={"width": "auto"},
         )
         return widget
