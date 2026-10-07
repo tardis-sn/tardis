@@ -1,0 +1,29 @@
+tardis.iip\_plasma.properties package
+=====================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.iip_plasma.properties.atomic
+   tardis.iip_plasma.properties.base
+   tardis.iip_plasma.properties.continuum
+   tardis.iip_plasma.properties.estimators
+   tardis.iip_plasma.properties.general
+   tardis.iip_plasma.properties.ion_population
+   tardis.iip_plasma.properties.level_population
+   tardis.iip_plasma.properties.nlte
+   tardis.iip_plasma.properties.partition_function
+   tardis.iip_plasma.properties.plasma_input
+   tardis.iip_plasma.properties.property_collections
+   tardis.iip_plasma.properties.radiative_properties
+
+Module contents
+---------------
+
+.. automodule:: tardis.iip_plasma.properties
+   :members:
+   :show-inheritance:
+   :undoc-members:
