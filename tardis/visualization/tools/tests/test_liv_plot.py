@@ -677,7 +677,7 @@ class TestLIVPlotter:
 
         # Test that plot data arrays are identical
         for i, (sim_data, workflow_data) in enumerate(
-            zip(plotter.plot_data, plotter_from_workflow.plot_data)
+            zip(plotter.plot_data, plotter_from_workflow.plot_data, strict=True)
         ):
             np.testing.assert_allclose(
                 [item.value for item in sim_data],

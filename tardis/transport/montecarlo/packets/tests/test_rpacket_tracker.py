@@ -71,7 +71,14 @@ def test_boundary_interactions(tracker_full_df, regression_data):
         ].to_numpy()
         next_shell_id = packet_df[boundary_mask]["after_shell_id"].to_numpy()
         per_packet_info.append(
-            [*zip(boundary_event_idx, current_shell_id, next_shell_id)]
+            [
+                *zip(
+                    boundary_event_idx,
+                    current_shell_id,
+                    next_shell_id,
+                    strict=True,
+                )
+            ]
         )
         max_len = max(max_len, boundary_event_idx.size)
 
