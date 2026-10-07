@@ -171,7 +171,7 @@ def test_solve(
     )
 
     expected_ion_number_density = regression_data.sync_dataframe(
-        actual_ion_number_density, key="ion_number_density"
+        actual_ion_number_density, key="ion_population"
     )
     expected_electron_density = regression_data.sync_dataframe(
         actual_electron_density, key="electron_density"

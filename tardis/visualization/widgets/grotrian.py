@@ -549,7 +549,7 @@ class GrotrianPlot:
             raw_level_number_densities = raw_level_number_densities[self.shell]
 
         raw_level_number_densities = pd.Series(
-            raw_level_number_densities, name="number density"
+            raw_level_number_densities, name="population"
         )
 
         ### Join level number densities and energy values
@@ -577,13 +577,13 @@ class GrotrianPlot:
                     "energy",
                     "mean",
                 ),  # Set energy as mean of merged levels
-                number_density=("number density", "sum"),
+                population=("population", "sum"),
             )
         )  # Add the number densities of merged levels
 
         ### Standardize the level number densities to get width coefficient of levels
         self.level_data["level_width_coefficient"] = standardize(
-            self.level_data.number_density,
+            self.level_data.population,
             transform=self._level_width_transform,
             zero_undefined_offset=1e-3,
         )
@@ -611,7 +611,7 @@ class GrotrianPlot:
                     y=level_info.y_coord * np.ones(10),
                     mode="lines",
                     hovertemplate=f"Energy: {level_info.energy:.2e} eV<br>"
-                    + f"Number density: {level_info.number_density:.2e}"
+                    + f"Number density: {level_info.population:.2e}"
                     + "<extra></extra>",
                     line=dict(
                         color="black",
@@ -619,7 +619,7 @@ class GrotrianPlot:
                         * self.level_width_scale
                         + self.level_width_offset,
                     )
-                    if level_info.number_density > 0
+                    if level_info.population > 0
                     else dict(color="grey", dash="dash"),
                     showlegend=False,
                 ),
@@ -643,13 +643,13 @@ class GrotrianPlot:
         """
         ### Create width scale
         ### Find lower and upper bounds of number densities and corresponding widths
-        min_number_density_idx = self.level_data.number_density[
-            self.level_data.number_density > 0
+        min_number_density_idx = self.level_data.population[
+            self.level_data.population > 0
         ].idxmin()
-        max_number_density_idx = self.level_data.number_density.idxmax()
+        max_number_density_idx = self.level_data.population.idxmax()
 
-        min_number_density = self.level_data.number_density[min_number_density_idx]
-        max_number_density = self.level_data.number_density[max_number_density_idx]
+        min_number_density = self.level_data.population[min_number_density_idx]
+        max_number_density = self.level_data.population[max_number_density_idx]
 
         min_width = (
             self.level_data.level_width_coefficient[min_number_density_idx]
