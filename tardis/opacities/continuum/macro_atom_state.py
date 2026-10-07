@@ -95,7 +95,9 @@ class ContinuumMacroAtomState:
             ],
             names=["atomic_number", "ion_number"],
         )
-        level_number_density = level_number_density.loc[photo_ion_index].to_numpy()
+        photo_ion_level_number_density = level_number_density.loc[
+            photo_ion_index
+        ].to_numpy()
         stimulated_recombination_number_density = (
             level_to_continuum_saha_factor.loc[photo_ion_index].to_numpy()
             * ion_number_density.loc[upper_ion_index].to_numpy()
@@ -103,9 +105,9 @@ class ContinuumMacroAtomState:
         )
         number_density_correction = np.divide(
             stimulated_recombination_number_density,
-            level_number_density,
+            photo_ion_level_number_density,
             out=np.zeros((len(photo_ion_index), len(columns))),
-            where=level_number_density != 0.0,
+            where=photo_ion_level_number_density != 0.0,
         )
         radiative_ionization_rate = pd.DataFrame(
             continuum_coefficients.photoionization.loc[
