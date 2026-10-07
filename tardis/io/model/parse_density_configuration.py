@@ -71,7 +71,9 @@ def parse_density_section_config(
 
 
 def parse_density_section_csvy(
-    csvy_model_config: Configuration, time_explosion: u.Quantity
+    csvy_model_config: Configuration,
+    csvy_model_data: pd.DataFrame | None,
+    time_explosion: u.Quantity,
 ) -> u.Quantity:
     """Parse the density section of the csvy file and produce a density at
     time_explosion.
@@ -80,6 +82,8 @@ def parse_density_section_csvy(
     ----------
     csvy_model_config
         CSVY model configuration.
+    csvy_model_data
+        Tabular data from the CSVY model.
     time_explosion
         Time of the explosion.
 
@@ -96,16 +100,14 @@ def parse_density_section_csvy(
         ).cgs
     else:
         velocity_field_index = [
-            field.name for field in csvy_model_config.datatype.fields
+            field["name"] for field in csvy_model_config.datatype.fields
         ].index("velocity")
         velocity_unit = u.Unit(
-            csvy_model_config.datatype.fields[velocity_field_index].unit
+            csvy_model_config.datatype.fields[velocity_field_index]["unit"]
         )
-        velocity = csvy_model_config.velocity.values * velocity_unit
+        velocity = csvy_model_data["velocity"].values * velocity_unit
 
-    adjusted_velocity = velocity.insert(0, 0)
-    v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
-    no_of_shells = len(adjusted_velocity) - 1
+    v_middle = velocity[1:] * 0.5 + velocity[:-1] * 0.5
 
     if hasattr(csvy_model_config, "density"):
         density_0, time_0 = parse_density_section_config(
@@ -143,7 +145,9 @@ def parse_density_from_csvy(
     function. The parsed density data is returned.
     """
     if hasattr(csvy_model_config, "density"):
-        density = parse_density_section_csvy(csvy_model_config, time_explosion)
+        density = parse_density_section_csvy(
+            csvy_model_config, csvy_model_data, time_explosion
+        )
     else:
         time_0 = csvy_model_config.model_density_time_0
         density_field_index = [
