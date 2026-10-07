@@ -21,7 +21,7 @@ from tardis.plasma.equilibrium.rates import (
     ThermalCollisionalRateSolver,
 )
 from tardis.plasma.equilibrium.rates.util import (
-    reindex_ion_population_to_level_population,
+    reindex_ion_number_density_to_level_number_density,
 )
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -299,7 +299,7 @@ def assemble_ion_rate_matrices(
             )
 
     atomic_numbers = sorted(rate_matrices)
-    ion_population_index = pd.MultiIndex.from_tuples(
+    ion_number_density_index = pd.MultiIndex.from_tuples(
         [
             (atomic_number, ion_number)
             for atomic_number in atomic_numbers
@@ -320,7 +320,7 @@ def assemble_ion_rate_matrices(
             index=pd.Index(atomic_numbers, name="atomic_number"),
             columns=photoion_rates_df.columns,
         ),
-        ion_population_index,
+        ion_number_density_index,
     )
 
 
@@ -345,7 +345,7 @@ class AnalyticIonRateMatrix:
         self.collisional_ionization_rate_solver = (
             collisional_ionization_rate_solver
         )
-        self.ion_population_index = pd.MultiIndex.from_tuples(
+        self.ion_number_density_index = pd.MultiIndex.from_tuples(
             [], names=["atomic_number", "ion_number"]
         )
 
@@ -354,10 +354,10 @@ class AnalyticIonRateMatrix:
         radiation_field: DilutePlanckianRadiationField
         | PlanckianRadiationField,
         thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
-        lte_level_population: pd.DataFrame,
-        level_population: pd.DataFrame,
-        lte_ion_population: pd.DataFrame,
-        ion_population: pd.DataFrame,
+        lte_level_number_density: pd.DataFrame,
+        level_number_density: pd.DataFrame,
+        lte_ion_number_density: pd.DataFrame,
+        ion_number_density: pd.DataFrame,
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame | None = None,
@@ -371,17 +371,17 @@ class AnalyticIonRateMatrix:
             A radiation field that can compute its mean intensity.
         thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
             Electron properties.
-        lte_level_population : pd.DataFrame
+        lte_level_number_density : pd.DataFrame
             LTE level number density. Columns are cells.
-        level_population : pd.DataFrame
+        level_number_density : pd.DataFrame
             Estimated level number density. Columns are cells.
-        lte_ion_population : pd.DataFrame
+        lte_ion_number_density : pd.DataFrame
             LTE ion number density. Columns are cells.
-        ion_population : pd.DataFrame
+        ion_number_density : pd.DataFrame
             Estimated ion number density. Columns are cells.
         level_to_continuum_saha_factor : pandas.DataFrame, optional
             Density-independent Lucy level-to-continuum Saha factor. When
-            omitted, retain the existing LTE-population-derived behavior.
+            omitted, retain the existing LTE-number density-derived behavior.
         partition_function : pandas.DataFrame
             Partition functions by ion and shell.
         boltzmann_factor : pandas.DataFrame
@@ -396,11 +396,11 @@ class AnalyticIonRateMatrix:
             shell.
         """
         if level_to_continuum_saha_factor is None:
-            lte_ion_population = reindex_ion_population_to_level_population(
-                lte_ion_population, lte_level_population
+            lte_ion_number_density = reindex_ion_number_density_to_level_number_density(
+                lte_ion_number_density, lte_level_number_density
             )
-            level_to_continuum_saha_factor = lte_level_population / (
-                lte_ion_population.values
+            level_to_continuum_saha_factor = lte_level_number_density / (
+                lte_ion_number_density.values
                 * thermal_electron_energy_distribution.number_density.value
             )
 
@@ -408,10 +408,10 @@ class AnalyticIonRateMatrix:
             self.radiative_ionization_rate_solver.solve(
                 radiation_field,
                 thermal_electron_energy_distribution,
-                lte_level_population,
-                level_population,
-                lte_ion_population,
-                ion_population,
+                lte_level_number_density,
+                level_number_density,
+                lte_ion_number_density,
+                ion_number_density,
                 partition_function,
                 boltzmann_factor,
                 level_to_continuum_saha_factor,
@@ -425,7 +425,7 @@ class AnalyticIonRateMatrix:
                 boltzmann_factor,
             )
         )
-        rate_matrices, self.ion_population_index = assemble_ion_rate_matrices(
+        rate_matrices, self.ion_number_density_index = assemble_ion_rate_matrices(
             photoion_rates_df,
             recomb_rates_df,
             collisional_ionization_rates_df,
@@ -463,7 +463,7 @@ class EstimatedIonRateMatrix:
             collisional_ionization_rate_solver
         )
         self.lte_ionization_factor = lte_ionization_factor
-        self.ion_population_index = pd.MultiIndex.from_tuples(
+        self.ion_number_density_index = pd.MultiIndex.from_tuples(
             [], names=["atomic_number", "ion_number"]
         )
         self.prepared_matrix_coefficients: (
@@ -474,8 +474,8 @@ class EstimatedIonRateMatrix:
     def prepare(
         self,
         thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
-        level_population: pd.DataFrame,
-        ion_population: pd.DataFrame,
+        level_number_density: pd.DataFrame,
+        ion_number_density: pd.DataFrame,
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame,
@@ -493,8 +493,8 @@ class EstimatedIonRateMatrix:
         photoionization_rate, recombination_rate = (
             self.radiative_ionization_rate_solver.solve(
                 unit_density_distribution,
-                level_population,
-                ion_population,
+                level_number_density,
+                ion_number_density,
                 level_to_continuum_saha_factor,
             )
         )
@@ -504,8 +504,8 @@ class EstimatedIonRateMatrix:
                 level_to_continuum_saha_factor,
                 partition_function,
                 boltzmann_factor,
-                level_population=level_population,
-                ion_population=ion_population,
+                level_number_density=level_number_density,
+                ion_number_density=ion_number_density,
             )
         )
         aggregated_rates = [
@@ -569,13 +569,13 @@ class EstimatedIonRateMatrix:
                     continue
                 ion_states = atomic_number + 1
                 constant_matrices = np.zeros(
-                    (len(level_population.columns), ion_states, ion_states)
+                    (len(level_number_density.columns), ion_states, ion_states)
                 )
                 linear_matrices = np.zeros_like(constant_matrices)
                 ionization_factor = effective_lte_ionization_factor.loc[
-                    atomic_number, level_population.columns
+                    atomic_number, level_number_density.columns
                 ]
-                for shell_idx, shell in enumerate(level_population.columns):
+                for shell_idx, shell in enumerate(level_number_density.columns):
                     factors = ionization_factor[shell].to_numpy()
                     ion_count = min(len(factors), ion_states - 1)
                     source_ions = np.arange(ion_count)
@@ -597,7 +597,7 @@ class EstimatedIonRateMatrix:
                 )
 
         atomic_numbers = sorted(matrix_coefficients)
-        self.ion_population_index = pd.MultiIndex.from_tuples(
+        self.ion_number_density_index = pd.MultiIndex.from_tuples(
             [
                 (atomic_number, ion_number)
                 for atomic_number in atomic_numbers
@@ -606,7 +606,7 @@ class EstimatedIonRateMatrix:
             names=["atomic_number", "ion_number"],
         )
         self.prepared_matrix_coefficients = matrix_coefficients
-        self.prepared_columns = level_population.columns.copy()
+        self.prepared_columns = level_number_density.columns.copy()
 
     def solve_prepared(
         self,
@@ -650,21 +650,21 @@ class EstimatedIonRateMatrix:
         radiation_field: DilutePlanckianRadiationField
         | PlanckianRadiationField,
         thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
-        lte_level_population: pd.DataFrame,
-        level_population: pd.DataFrame,
-        lte_ion_population: pd.DataFrame,
-        ion_population: pd.DataFrame,
+        lte_level_number_density: pd.DataFrame,
+        level_number_density: pd.DataFrame,
+        lte_ion_number_density: pd.DataFrame,
+        ion_number_density: pd.DataFrame,
         partition_function: pd.DataFrame,
         boltzmann_factor: pd.DataFrame,
         level_to_continuum_saha_factor: pd.DataFrame,
         lte_ionization_factor: pd.DataFrame | None = None,
     ) -> pd.DataFrame:
         """Compute the ionization rate matrix from fixed estimators."""
-        del radiation_field, lte_level_population, lte_ion_population
+        del radiation_field, lte_level_number_density, lte_ion_number_density
         self.prepare(
             thermal_electron_energy_distribution,
-            level_population,
-            ion_population,
+            level_number_density,
+            ion_number_density,
             partition_function,
             boltzmann_factor,
             level_to_continuum_saha_factor,
@@ -674,5 +674,5 @@ class EstimatedIonRateMatrix:
             thermal_electron_energy_distribution.number_density.to_value(
                 "cm^-3"
             ),
-            level_population.columns,
+            level_number_density.columns,
         )

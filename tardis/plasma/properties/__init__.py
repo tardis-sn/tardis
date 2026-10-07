@@ -9,8 +9,8 @@ from tardis.opacities.macro_atom.transition_probabilities import *
 from tardis.plasma.properties.atomic import *
 from tardis.plasma.properties.general import *
 from tardis.plasma.properties.helium_nlte import *
-from tardis.plasma.properties.ion_population import *
-from tardis.plasma.properties.level_population import *
+from tardis.plasma.properties.ion_number_density import *
+from tardis.plasma.properties.level_number_density import *
 from tardis.plasma.properties.nlte import *
 from tardis.plasma.properties.partition_function import *
 from tardis.plasma.properties.plasma_input import *

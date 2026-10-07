@@ -3,11 +3,11 @@ import numpy.typing as npt
 import pandas as pd
 
 
-class LevelPopulationSolver:
-    """Solve normalized level populations from bound-bound rate matrices."""
+class LevelNumberDensitySolver:
+    """Solve fractional level number densities from bound-bound rate matrices."""
 
     def __init__(self, rates_matrices: pd.DataFrame, levels: pd.DataFrame):
-        """Solve the normalized level population values from the rate matrices.
+        """Solve the fractional level number density values from the rate matrices.
 
         Parameters
         ----------
@@ -20,10 +20,10 @@ class LevelPopulationSolver:
         self.rates_matrices = rates_matrices
         self.levels = levels
 
-    def _calculate_level_population(
+    def _calculate_level_number_density(
         self, rates_matrix: npt.NDArray[np.float64]
     ) -> npt.NDArray[np.float64]:
-        """Calculate normalized per-level populations.
+        """Calculate fractional per-level number densities.
 
         Parameters
         ----------
@@ -33,25 +33,25 @@ class LevelPopulationSolver:
         Returns
         -------
         np.ndarray
-            The normalized, per-level population.
+            The normalized, per-level number density.
         """
-        normalized_ion_population = np.zeros(rates_matrix.shape[0])
-        normalized_ion_population[0] = 1.0
-        normalized_level_population = np.linalg.solve(
-            rates_matrix, normalized_ion_population
+        fractional_ion_number_density = np.zeros(rates_matrix.shape[0])
+        fractional_ion_number_density[0] = 1.0
+        fractional_level_number_density = np.linalg.solve(
+            rates_matrix, fractional_ion_number_density
         )
-        return normalized_level_population
+        return fractional_level_number_density
 
     def solve(self) -> pd.DataFrame:
-        """Solves the normalized level population values from the rate matrices.
+        """Solves the fractional level number density values from the rate matrices.
 
         Returns
         -------
         pd.DataFrame
-            Normalized level population values indexed by atomic number, ion
+            Normalized level number density values indexed by atomic number, ion
             number and level number. Columns are cells.
         """
-        normalized_level_populations = np.full(
+        fractional_level_number_densities = np.full(
             (len(self.levels), len(self.rates_matrices.columns)), np.nan
         )
 
@@ -59,15 +59,15 @@ class LevelPopulationSolver:
             matrices = np.stack(
                 self.rates_matrices.loc[species_id].to_numpy()
             )
-            populations = np.array(
-                [self._calculate_level_population(matrix) for matrix in matrices]
+            number_densities = np.array(
+                [self._calculate_level_number_density(matrix) for matrix in matrices]
             ).T
-            normalized_level_populations[
+            fractional_level_number_densities[
                 self.levels.index.get_loc(species_id)
-            ] = populations
+            ] = number_densities
 
         return pd.DataFrame(
-            normalized_level_populations,
+            fractional_level_number_densities,
             index=self.levels.index,
             columns=self.rates_matrices.columns,
         )

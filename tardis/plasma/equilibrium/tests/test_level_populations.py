@@ -10,18 +10,18 @@ from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
 from tardis.plasma.equilibrium.evaluator import (
-    calculate_nlte_level_population_residual,
+    calculate_nlte_level_number_density_residual,
 )
 from tardis.plasma.equilibrium.inputs import (
     LevelEquationRates,
     ShellNumberDensity,
     SobolevInputs,
 )
-from tardis.plasma.equilibrium.ion_populations import (
-    FixedElectronDensityIonPopulationSolver,
+from tardis.plasma.equilibrium.ion_number_densities import (
+    FixedElectronDensityIonNumberDensitySolver,
 )
-from tardis.plasma.equilibrium.level_populations import (
-    LevelPopulationSolver,
+from tardis.plasma.equilibrium.level_number_densities import (
+    LevelNumberDensitySolver,
 )
 from tardis.plasma.equilibrium.rate_matrix import (
     AnalyticIonRateMatrix,
@@ -38,8 +38,8 @@ from tardis.plasma.equilibrium.tests.test_evaluator import (
 )
 from tardis.plasma.properties.atomic import IonizationData, Levels
 from tardis.plasma.properties.general import BetaRadiation, GElectron
-from tardis.plasma.properties.ion_population import IonNumberDensity, PhiSahaLTE
-from tardis.plasma.properties.level_population import LevelNumberDensity
+from tardis.plasma.properties.ion_number_density import IonNumberDensity, PhiSahaLTE
+from tardis.plasma.properties.level_number_density import LevelNumberDensity
 from tardis.plasma.properties.partition_function import (
     LevelBoltzmannFactorLTE,
     PartitionFunction,
@@ -72,51 +72,51 @@ class TestLevelPopulationSolver:
         )
 
         rates_matrices = rate_matrix_solver.solve(rad_field, electron_dist)
-        self.solver = LevelPopulationSolver(
+        self.solver = LevelNumberDensitySolver(
             rates_matrices, new_chianti_atomic_dataset_si.levels
         )
 
     def test_calculate_level_population_simple(self):
         """Test solving a 2-level ion."""
         rates_matrix = np.array([[1, 1], [2, -2]])
-        expected_population = np.array([0.5, 0.5])
-        result = self.solver._calculate_level_population(rates_matrix)
-        np.testing.assert_array_almost_equal(result, expected_population)
+        expected_number_density = np.array([0.5, 0.5])
+        result = self.solver._calculate_level_number_density(rates_matrix)
+        np.testing.assert_array_almost_equal(result, expected_number_density)
 
     def test_calculate_level_population_empty(self):
         """Test empty rate matrix."""
         rates_matrix = np.array([[]])
         with pytest.raises(np.linalg.LinAlgError):
-            self.solver._calculate_level_population(rates_matrix)
+            self.solver._calculate_level_number_density(rates_matrix)
 
     def test_calculate_level_population_zeros(self):
         """Test zero rate matrix."""
         rates_matrix = np.array([[0, 0], [0, 0]])
         with pytest.raises(np.linalg.LinAlgError):
-            self.solver._calculate_level_population(rates_matrix)
+            self.solver._calculate_level_number_density(rates_matrix)
 
     def test_solve(self, regression_data):
         """Test the solve method."""
         result = self.solver.solve()
-        expected_populations = regression_data.sync_dataframe(result)
-        pdt.assert_frame_equal(result, expected_populations, atol=0, rtol=1e-15)
+        expected_number_densities = regression_data.sync_dataframe(result)
+        pdt.assert_frame_equal(result, expected_number_densities, atol=0, rtol=1e-15)
 
         for species_id in self.solver.rates_matrices.index:
             species_matrices = self.solver.rates_matrices.loc[species_id]
-            species_populations = result.loc[species_id]
+            species_number_densities = result.loc[species_id]
             for shell in result.columns:
                 matrix = species_matrices[shell]
-                population = species_populations[shell].to_numpy()
+                number_density = species_number_densities[shell].to_numpy()
                 balance = np.zeros(matrix.shape[0])
                 balance[0] = 1.0
 
                 np.testing.assert_allclose(
-                    matrix @ population, balance, rtol=1e-12, atol=1e-14
+                    matrix @ number_density, balance, rtol=1e-12, atol=1e-14
                 )
                 np.testing.assert_allclose(
-                    population.sum(), 1.0, rtol=1e-12, atol=1e-14
+                    number_density.sum(), 1.0, rtol=1e-12, atol=1e-14
                 )
-                assert np.all(population >= 0.0)
+                assert np.all(number_density >= 0.0)
                 assert np.isfinite(np.linalg.cond(matrix))
 
 
@@ -160,7 +160,7 @@ def test_reduced_nlte_residual_recomputes_q_and_beta() -> None:
         np.array([1.0e4]) * u.K,
         np.array([1.0e9]) / u.cm**3,
     )
-    population = ShellNumberDensity(
+    number_density = ShellNumberDensity(
         1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
     )
     sobolev = SobolevInputs(
@@ -175,14 +175,14 @@ def test_reduced_nlte_residual_recomputes_q_and_beta() -> None:
         line_index,
     )
 
-    residual, beta_sobolev, q_ratio = calculate_nlte_level_population_residual(
+    residual, beta_sobolev, q_ratio = calculate_nlte_level_number_density_residual(
         level_fractions,
         level_rates,
         rate_matrix_solver,
         j_blues,
         electron_distribution,
         (1, 0),
-        population,
+        number_density,
         sobolev,
     )
 
@@ -190,14 +190,14 @@ def test_reduced_nlte_residual_recomputes_q_and_beta() -> None:
     npt.assert_allclose(residual, np.array([0.0, 0.5]))
     npt.assert_allclose(beta_sobolev, np.array([1.0]))
 
-    _, _, perturbed_q_ratio = calculate_nlte_level_population_residual(
+    _, _, perturbed_q_ratio = calculate_nlte_level_number_density_residual(
         np.array([0.25, 0.75]),
         level_rates,
         rate_matrix_solver,
         j_blues,
         electron_distribution,
         (1, 0),
-        population,
+        number_density,
         sobolev,
     )
     npt.assert_allclose(perturbed_q_ratio, 0.125)
@@ -256,19 +256,19 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         * hydrogen_density
         / (1.0 + np.sqrt(1.0 + 4.0 * hydrogen_density / hydrogen_saha_factor))
     )
-    lte_ion_populations, _ = IonNumberDensity(
+    lte_ion_number_densities, _ = IonNumberDensity(
         None,
         electron_densities=electron_densities,
     ).calculate(saha_factor, lte_partition_function, elemental_number_density)
     lte_electron_densities = (
-        lte_ion_populations
-        * lte_ion_populations.index.get_level_values("ion_number").to_numpy()[
+        lte_ion_number_densities
+        * lte_ion_number_densities.index.get_level_values("ion_number").to_numpy()[
             :, None
         ]
     ).sum()
-    lte_level_populations = LevelNumberDensity(None).calculate(
+    lte_level_number_densities = LevelNumberDensity(None).calculate(
         lte_boltzmann_factors,
-        lte_ion_populations,
+        lte_ion_number_densities,
         levels,
         lte_partition_function,
     )
@@ -301,32 +301,32 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         radiation_field,
         electron_distribution,
     )
-    nlte_level_population_fractions = (
-        LevelPopulationSolver(
+    fractional_nlte_level_number_density = (
+        LevelNumberDensitySolver(
             level_matrices,
             atomic_data.levels,
         )
         .solve()
         .loc[species]
     )
-    lte_level_population_fractions = lte_level_populations.loc[species].divide(
-        lte_ion_populations.loc[species],
+    fractional_lte_level_number_density = lte_level_number_densities.loc[species].divide(
+        lte_ion_number_densities.loc[species],
         axis=1,
     )
 
     np.testing.assert_allclose(
-        nlte_level_population_fractions.to_numpy(),
-        lte_level_population_fractions.to_numpy(),
+        fractional_nlte_level_number_density.to_numpy(),
+        fractional_lte_level_number_density.to_numpy(),
         # Independent rate and Boltzmann calculations agree to about 5e-8.
         # Increased to deal with Mac vs Linux numerical differences
         rtol=5e-7,
         atol=0.0,
     )
 
-    estimated_level_populations = lte_level_populations.copy()
-    estimated_level_populations.loc[species] = (
-        nlte_level_population_fractions.multiply(
-            lte_ion_populations.loc[species],
+    estimated_level_number_densities = lte_level_number_densities.copy()
+    estimated_level_number_densities.loc[species] = (
+        fractional_nlte_level_number_density.multiply(
+            lte_ion_number_densities.loc[species],
             axis=1,
         ).to_numpy()
     )
@@ -338,23 +338,23 @@ def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
         AnalyticPhotoionizationRateSolver(photoionization_data),
         CollisionalIonizationRateSolver(photoionization_data),
     )
-    nlte_ion_populations, nlte_electron_densities = (
-        FixedElectronDensityIonPopulationSolver(ion_rate_matrix).solve(
+    nlte_ion_number_densities, nlte_electron_densities = (
+        FixedElectronDensityIonNumberDensitySolver(ion_rate_matrix).solve(
             radiation_field,
             electron_distribution,
             elemental_number_density,
-            lte_level_populations,
-            estimated_level_populations,
-            lte_ion_populations,
-            lte_ion_populations.copy(),
+            lte_level_number_densities,
+            estimated_level_number_densities,
+            lte_ion_number_densities,
+            lte_ion_number_densities.copy(),
             lte_partition_function,
             lte_boltzmann_factors,
         )
     )
 
     np.testing.assert_allclose(
-        nlte_ion_populations.to_numpy(),
-        lte_ion_populations.to_numpy(),
+        nlte_ion_number_densities.to_numpy(),
+        lte_ion_number_densities.to_numpy(),
         rtol=1e-8,
         atol=0.0,
     )

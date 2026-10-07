@@ -29,14 +29,14 @@ from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.equilibrium.evaluator import (
     PlasmaEquilibriumEvaluation,
     PlasmaEquilibriumEvaluator,
-    calculate_lte_populations,
+    calculate_lte_number_densities,
 )
 from tardis.plasma.equilibrium.inputs import (
     ContinuumCoefficientState,
     ShellNumberDensity,
     SobolevInputs,
 )
-from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
+from tardis.plasma.equilibrium.ion_number_densities import IonNumberDensitySolver
 from tardis.plasma.equilibrium.rate_matrix import (
     AnalyticIonRateMatrix,
     EstimatedIonRateMatrix,
@@ -739,7 +739,7 @@ class TypeIIPWorkflow:
             ),
             equilibrium_levels,
         )
-        lte_ion_population, lte_level_population = calculate_lte_populations(
+        lte_ion_number_density, lte_level_number_density = calculate_lte_number_densities(
             plasma.thermal_phi_lte,
             plasma.thermal_lte_partition_function,
             plasma.number_density,
@@ -764,7 +764,7 @@ class TypeIIPWorkflow:
                 CollisionalIonizationRateSolver(photoionization_data),
                 plasma.phi,
             )
-        ion_population_solver = IonPopulationSolver(ion_rate_matrix)
+        ion_number_density_solver = IonNumberDensitySolver(ion_rate_matrix)
         collisional_index = rate_matrix_solver.electron_rate_solver.all_collisional_strengths_index
         lower_level_index = pd.MultiIndex.from_arrays(
             [
@@ -834,17 +834,17 @@ class TypeIIPWorkflow:
             hydrogen_species,
             plasma.number_density,
             maximum_electron_density,
-            ion_population_solver=ion_population_solver,
-            ion_population_arguments={
+            ion_number_density_solver=ion_number_density_solver,
+            ion_number_density_arguments={
                 "radiation_field": (
                     plasma.dilute_planckian_radiation_field
                     if analytic
                     else None
                 ),
                 "elemental_number_density": plasma.number_density,
-                "lte_level_population": lte_level_population,
-                "lte_ion_population": lte_ion_population,
-                "estimated_ion_population": plasma.ion_number_density,
+                "lte_level_number_density": lte_level_number_density,
+                "lte_ion_number_density": lte_ion_number_density,
+                "estimated_ion_number_density": plasma.ion_number_density,
                 "partition_function": plasma.thermal_lte_partition_function,
                 "boltzmann_factor": plasma.thermal_lte_level_boltzmann_factor,
             },
@@ -934,8 +934,8 @@ class TypeIIPWorkflow:
         evaluation = self._thermal_balance_evaluation
         self.plasma_solver.update(
             electron_densities=evaluation.charge_solved_electron_density,
-            ion_number_density=evaluation.ion_population,
-            level_number_density=evaluation.absolute_level_population,
+            ion_number_density=evaluation.ion_number_density,
+            level_number_density=evaluation.absolute_level_number_density,
             link_t_rad_t_electron=candidate[1::2],
         )
         self._tau_sobolev = evaluation.tau_sobolev
@@ -948,30 +948,30 @@ class TypeIIPWorkflow:
         """
         Reject a final evaluator state with:
 
-        invalid populations, nonfinite derived quantities, failed normalization,
-        or any charge, level-population, electron-density, or heating residual
+        invalid number densities, nonfinite derived quantities, failed normalization,
+        or any charge, level number-density, electron-density, or heating residual
         above its declared tolerance.
         """
         failures = []
-        population_fields = {
-            "normalized_population": evaluation.normalized_population,
-            "absolute_level_population": evaluation.absolute_level_population,
-            "ion_population": evaluation.ion_population,
+        number_density_fields = {
+            "fractional_number_density": evaluation.fractional_number_density,
+            "absolute_level_number_density": evaluation.absolute_level_number_density,
+            "ion_number_density": evaluation.ion_number_density,
             "electron_density": evaluation.charge_solved_electron_density,
         }
-        for field_name, population in population_fields.items():
-            if population is None:
+        for field_name, number_density in number_density_fields.items():
+            if number_density is None:
                 failures.append(f"{field_name} is missing")
                 continue
-            population_values = np.asarray(population, dtype=np.float64)
-            if not np.isfinite(population_values).all():
+            number_density_values = np.asarray(number_density, dtype=np.float64)
+            if not np.isfinite(number_density_values).all():
                 failures.append(f"{field_name} is nonfinite")
-            if (population_values < 0.0).any():
+            if (number_density_values < 0.0).any():
                 failures.append(f"{field_name} is negative")
 
-        normalized_totals = evaluation.normalized_population.sum(axis=0)
+        normalized_totals = evaluation.fractional_number_density.sum(axis=0)
         if not np.allclose(normalized_totals, 1.0, rtol=1e-12, atol=0.0):
-            failures.append("normalized_population does not sum to one")
+            failures.append("fractional_number_density does not sum to one")
 
         for field_name, state in {
             "tau_sobolev": evaluation.tau_sobolev,
@@ -1097,7 +1097,7 @@ class TypeIIPWorkflow:
             args=(max_electron_number_density,),
         )
         # Preserve the frozen seed used by the optimizer for the first rebuild,
-        # then use that accepted population as the final-state seed.
+        # then use that accepted number density as the final-state seed.
         accepted_candidate = thermal_lsq_result.x
         accepted_seed_evaluation = self._thermal_balance_evaluator.evaluate(
             max_electron_number_density * accepted_candidate[::2],
@@ -1113,7 +1113,7 @@ class TypeIIPWorkflow:
                     * accepted_candidate[1::2],
                     dtype=np.float64,
                 ),
-                accepted_seed_evaluation.normalized_population,
+                accepted_seed_evaluation.fractional_number_density,
             )
         )
         self._validate_thermal_balance_evaluation(

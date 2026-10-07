@@ -71,7 +71,7 @@ Now, we can calculate the ionization balance using equation 14 in :cite:`Mazzali
 
 In the last step, we calculate the ion number densities according using the methods in :class:`LTEPlasma`
 
-Finally, we calculate the level populations (:func:`NebularPlasma.calculate_level_populations`),
+Finally, we calculate the level number densities (:func:`NebularPlasma.calculate_level_number_densities`),
 by using the calculated ion species number densities:
 
 .. math::
