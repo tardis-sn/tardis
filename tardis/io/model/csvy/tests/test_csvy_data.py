@@ -29,11 +29,6 @@ velocity,H
 12000,1.0
 """
 
-UNITLESS_VELOCITY_REASON = (
-    "CSVYData.velocity is a unitless array in cm/s, but the geometry "
-    "constructors require an astropy Quantity."
-)
-
 
 @pytest.fixture
 def csvy_data(tmp_path) -> CSVYData:
@@ -42,9 +37,6 @@ def csvy_data(tmp_path) -> CSVYData:
     return load_csvy(fname)
 
 
-@pytest.mark.xfail(
-    raises=AttributeError, strict=True, reason=UNITLESS_VELOCITY_REASON
-)
 def test_to_geometry_splits_velocity_boundaries_into_shells(csvy_data):
     geometry = csvy_data.to_geometry(time_explosion=13 * u.day)
 
@@ -52,9 +44,6 @@ def test_to_geometry_splits_velocity_boundaries_into_shells(csvy_data):
     npt.assert_allclose(geometry.v_outer.to("km/s").value, [11000, 12000])
 
 
-@pytest.mark.xfail(
-    raises=AttributeError, strict=True, reason=UNITLESS_VELOCITY_REASON
-)
 def test_to_nonhomologous_geometry_radii_follow_homologous_expansion(
     csvy_data,
 ):
