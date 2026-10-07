@@ -380,7 +380,7 @@ def expand_species_list(species_list):
     Expand a species list into a fully-resolved list of species strings.
 
     This includes:
-    - Expanding ion ranges like 'Si I - V' into ['Si I', 'Si II', ..., 'Si V']
+    - Expanding ion ranges like 'Si I-V' into ['Si I', 'Si II', ..., 'Si V']
     - Keeping individual ions or elements as-is
 
     Parameters
@@ -437,8 +437,8 @@ def parse_species_list_util(species_list):
         Species can be given as:
         - An ion (e.g. 'Fe II')
         - An element (e.g. 'Ca')
-        - A range of ions (e.g. 'Si I - V')
-        - A combination of the above (e.g. ['Si II', 'Fe I - III', 'Ca'])
+        - A range of ions (e.g. 'Si I-V')
+        - A combination of the above (e.g. ['Si II', 'Fe I-III', 'Ca'])
 
     Returns
     -------

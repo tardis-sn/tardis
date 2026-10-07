@@ -187,7 +187,7 @@ class SDECPlotter:
         species_list : list of species to plot
             List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
             Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
-            (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
+            (e.g. Si I-V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
 
         """
         if species_list is not None:

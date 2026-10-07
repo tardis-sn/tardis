@@ -121,7 +121,7 @@ class LIVPlotter:
         species_list : list of species to plot
             List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
             Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
-            (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
+            (e.g. Si I-V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
         nelements : int, optional
             Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
 
