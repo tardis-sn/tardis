@@ -36,7 +36,7 @@ def calculate_sobolev_opacities_from_level_densities(
         Mask identifying lines with metastable upper levels.
     nlte_lines_mask : numpy.ndarray, dtype bool
         Mask identifying lines treated with non-local thermodynamic equilibrium
-        populations.
+        number densities.
     tau_coefficient : numpy.ndarray
         Coefficient multiplying the lower-level density for each line's optical
         depth.
@@ -53,16 +53,16 @@ def calculate_sobolev_opacities_from_level_densities(
         n_lower = level_density_values[lines_lower_level_index[line_index]]
         n_upper = level_density_values[lines_upper_level_index[line_index]]
 
-        population_difference = (
+        number_density_difference = (
             n_lower - (g_lower[line_index] / g_upper[line_index]) * n_upper
         )
 
         if (
             meta_stable_upper[line_index] or nlte_lines_mask[line_index]
-        ) and population_difference < 0.0:
-            population_difference = 0.0
+        ) and number_density_difference < 0.0:
+            number_density_difference = 0.0
 
-        tau_sobolevs[i] = tau_coefficient[line_index] * population_difference
+        tau_sobolevs[i] = tau_coefficient[line_index] * number_density_difference
         if tau_sobolevs[i] > 1e3:
             beta_sobolevs[i] = tau_sobolevs[i] ** -1
         elif tau_sobolevs[i] < 1e-4:

@@ -200,10 +200,10 @@ def test_estimated_rates_use_lucy_ion_matrix_coefficients(
     """Estimated rates use level fractions and Lucy's Saha factor."""
     level_index = mock_photoionization_cross_sections.index
     columns = pd.Index([0])
-    level_population = pd.DataFrame(
+    level_number_density = pd.DataFrame(
         [2.0, 3.0], index=level_index, columns=columns
     )
-    ion_population = pd.DataFrame(
+    ion_number_density = pd.DataFrame(
         [10.0, 20.0],
         index=pd.MultiIndex.from_tuples(
             [(1, 0), (1, 1)], names=["atomic_number", "ion_number"]
@@ -231,8 +231,8 @@ def test_estimated_rates_use_lucy_ion_matrix_coefficients(
     )
     actual_photoionization, actual_recombination = solver.solve(
         electron_distribution,
-        level_population,
-        ion_population,
+        level_number_density,
+        ion_number_density,
         level_to_continuum_saha_factor,
     )
 
@@ -299,17 +299,17 @@ def test_bound_free_heating_and_cooling_match_iip_plasma(
         [(1, 0, 0), (1, 0, 1)],
         names=["atomic_number", "ion_number", "level_number"],
     )
-    level_population = pd.DataFrame(
+    level_number_density = pd.DataFrame(
         np.ones((2, 2)), index=level_index, columns=[0, 1]
     )
-    ion_population = pd.DataFrame(
+    ion_number_density = pd.DataFrame(
         np.ones((1, 2)),
         index=pd.MultiIndex.from_tuples(
             [(1, 1)], names=["atomic_number", "ion_number"]
         ),
         columns=[0, 1],
     )
-    level_population_ratio = pd.DataFrame(
+    level_number_density_ratio = pd.DataFrame(
         np.ones((2, 2)), index=level_index, columns=[0, 1]
     )
     # The IIP workflow supplies bound-free heating through its MC estimator.
@@ -318,10 +318,10 @@ def test_bound_free_heating_and_cooling_match_iip_plasma(
         [[0.0, 0.0], [3.0, 4.0]], index=level_index, columns=[0, 1]
     )
     heating, cooling = BoundFreeThermalRates(photo_data).solve(
-        level_population,
-        ion_population,
+        level_number_density,
+        ion_number_density,
         electron_distribution,
-        level_population_ratio,
+        level_number_density_ratio,
         bound_free_heating_estimator=bf_heating_estimator,
     )
     expected_heating = regression_data.sync_dataframe(
@@ -354,24 +354,24 @@ def test_bound_free_non_estimator_rates_match_iip_plasma(
         [(1, 0, 0), (1, 0, 1)],
         names=["atomic_number", "ion_number", "level_number"],
     )
-    level_population = pd.DataFrame(
+    level_number_density = pd.DataFrame(
         np.ones((2, 2)), index=level_index, columns=[0, 1]
     )
-    ion_population = pd.DataFrame(
+    ion_number_density = pd.DataFrame(
         np.ones((1, 2)),
         index=pd.MultiIndex.from_tuples(
             [(1, 1)], names=["atomic_number", "ion_number"]
         ),
         columns=[0, 1],
     )
-    level_population_ratio = pd.DataFrame(
+    level_number_density_ratio = pd.DataFrame(
         np.ones((2, 2)), index=level_index, columns=[0, 1]
     )
     heating, cooling = BoundFreeThermalRates(photo_data).solve(
-        level_population,
-        ion_population,
+        level_number_density,
+        ion_number_density,
         electron_distribution,
-        level_population_ratio,
+        level_number_density_ratio,
         radiation_field,
     )
 

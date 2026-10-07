@@ -71,9 +71,9 @@ class ContinuumMacroAtomState:
         level_to_continuum_saha_factor : pandas.DataFrame
             Saha factors relating bound levels to their continua.
         ion_number_density : pandas.DataFrame
-            Ion populations for each shell.
+            Ion number densities for each shell.
         level_number_density : pandas.DataFrame
-            Level populations for each shell.
+            Level number densities for each shell.
         electron_densities : pandas.Series
             Electron number densities for each shell.
         t_electrons : numpy.typing.ArrayLike
@@ -95,23 +95,23 @@ class ContinuumMacroAtomState:
             ],
             names=["atomic_number", "ion_number"],
         )
-        level_population = level_number_density.loc[photo_ion_index].to_numpy()
-        stimulated_recombination_population = (
+        level_number_density = level_number_density.loc[photo_ion_index].to_numpy()
+        stimulated_recombination_number_density = (
             level_to_continuum_saha_factor.loc[photo_ion_index].to_numpy()
             * ion_number_density.loc[upper_ion_index].to_numpy()
             * electron_densities.to_numpy()
         )
-        population_correction = np.divide(
-            stimulated_recombination_population,
-            level_population,
+        number_density_correction = np.divide(
+            stimulated_recombination_number_density,
+            level_number_density,
             out=np.zeros((len(photo_ion_index), len(columns))),
-            where=level_population != 0.0,
+            where=level_number_density != 0.0,
         )
         radiative_ionization_rate = pd.DataFrame(
             continuum_coefficients.photoionization.loc[
                 photo_ion_index
             ].to_numpy()
-            - population_correction
+            - number_density_correction
             * continuum_coefficients.stimulated_recombination.loc[
                 photo_ion_index
             ].to_numpy(),

@@ -18,7 +18,7 @@ from tardis.plasma.equilibrium.rates.collisional_ionization_strengths import (
     CollisionalIonizationSeaton,
 )
 from tardis.plasma.properties.general import BetaElectron, ThermalGElectron
-from tardis.plasma.properties.ion_population import (
+from tardis.plasma.properties.ion_number_density import (
     SahaFactor,
     ThermalPhiSahaLTE,
 )
