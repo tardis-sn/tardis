@@ -241,20 +241,18 @@ class ContinuumOpacityState:
             Array-backed continuum data used by IIP transport.
         """
         continuum_arrays = (
-            self.bf_threshold_list_nu.values,
+            self.bf_threshold_list_nu.to_numpy(),
             np.ascontiguousarray(
-                self.p_fb_deactivation.values.copy(), dtype=np.float64
+                self.p_fb_deactivation.to_numpy().copy(), dtype=np.float64
             ),
-            self.photo_ion_nu_threshold_mins.values,
-            self.photo_ion_nu_threshold_maxs.values,
+            self.photo_ion_nu_threshold_mins.to_numpy(),
+            self.photo_ion_nu_threshold_maxs.to_numpy(),
             self.photo_ion_block_references,
-            self.chi_bf.values,
-            self.x_sect.values,
-            self.phot_nus.values,
-            (self.ff_cooling_factor / np.sqrt(t_electrons)).astype(
-                np.float64
-            ),
-            self.emissivities.values,
+            self.chi_bf.to_numpy(),
+            self.x_sect.to_numpy(),
+            self.phot_nus.to_numpy(),
+            (self.ff_cooling_factor / np.sqrt(t_electrons)).astype(np.float64),
+            self.emissivities.to_numpy(),
         )
         if macro_atom_state.photo_ion_block_idx < 0:
             photo_ion_activation_idx = self.photo_ion_activation_idx.to_numpy(
@@ -308,7 +306,8 @@ class ContinuumOpacityState:
         return np.pad(
             self.phot_nus.groupby(level=[0, 1, 2], sort=False)
             .count()
-            .values.cumsum(),
+            .to_numpy()
+            .cumsum(),
             [1, 0],
         )
 

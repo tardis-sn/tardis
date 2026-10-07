@@ -25,20 +25,23 @@ class XGData:
         ]
         arr = np.stack(
             [
-                df.drop(["enclosed_mass", "radius"], axis=1).values
+                df.drop(["enclosed_mass", "radius"], axis=1).to_numpy()
                 for df in self.data_blocks
             ],
             axis=0,
         )
 
         # Enclosed mass stays 1D
-        enclosed_mass = self.data_blocks[0]["enclosed_mass"].values
+        enclosed_mass = self.data_blocks[0]["enclosed_mass"].to_numpy()
 
         # Radius becomes 2D (time, cell_id)
-        radius_arr = np.stack([df["radius"].values for df in self.data_blocks], axis=0)
+        radius_arr = np.stack(
+            [df["radius"].to_numpy() for df in self.data_blocks], axis=0
+        )
 
         data_vars = {
-            col: (("time", "cell_id"), arr[:, :, i]) for i, col in enumerate(cols)
+            col: (("time", "cell_id"), arr[:, :, i])
+            for i, col in enumerate(cols)
         }
 
         ds = xr.Dataset(
@@ -71,17 +74,19 @@ def xg_block_size(path):
                 timestamp_blocks.append(i)
 
     # Ensure all differences between timestamps are consistent
-    assert (
-        len(timestamp_blocks) > 1
-    ), "File must contain at least two 'Time' entries to determine block size."
-    assert np.all(
-        np.diff(timestamp_blocks) == np.diff(timestamp_blocks)[0]
-    ), "Inconsistent block sizes detected in the file."
+    assert len(timestamp_blocks) > 1, (
+        "File must contain at least two 'Time' entries to determine block size."
+    )
+    assert np.all(np.diff(timestamp_blocks) == np.diff(timestamp_blocks)[0]), (
+        "Inconsistent block sizes detected in the file."
+    )
 
     return len(timestamp_blocks), np.diff(timestamp_blocks)[0]
 
 
-def read_xg_file(file_path: str, column_names: list, show_progress: bool = True):
+def read_xg_file(
+    file_path: str, column_names: list, show_progress: bool = True
+):
     """
     Reads the timestamps and corresponding data blocks from an .xg file.
 

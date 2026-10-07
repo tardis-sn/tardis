@@ -143,7 +143,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         self.iterations_t_rad[i, -num_active_shells:] = t_radiative
         self.iterations_w[i, -num_active_shells:] = dilution_factor
         self.iterations_electron_densities[i, -num_active_shells:] = (
-            electron_densities.values[-num_active_shells:]
+            electron_densities.to_numpy()[-num_active_shells:]
         )
         self.iterations_t_inner[i] = t_inner
         self.iterations_v_inner_boundary[i] = v_inner_boundary
@@ -417,7 +417,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
                 radiation_field.to_planckian_radiation_field()
             )
             j_blues = planckian_radiation_field.calculate_mean_intensity(
-                self.plasma_solver.atomic_data.lines.nu.values
+                self.plasma_solver.atomic_data.lines.nu.to_numpy()
             )
             update_properties["j_blues"] = pd.DataFrame(
                 j_blues, index=self.plasma_solver.atomic_data.lines.index
@@ -427,7 +427,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
             == "dilute-blackbody"
         ):
             j_blues = radiation_field.calculate_mean_intensity(
-                self.plasma_solver.atomic_data.lines.nu.values
+                self.plasma_solver.atomic_data.lines.nu.to_numpy()
             )
             update_properties["j_blues"] = pd.DataFrame(
                 j_blues, index=self.plasma_solver.atomic_data.lines.index

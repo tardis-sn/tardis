@@ -124,8 +124,8 @@ class AnalyticPhotoionizationRateSolver:
                 lte_ion_population, lte_level_population
             )
             # Lucy 2003 Eq 14
-            level_to_continuum_saha_factor = lte_level_population.values / (
-                lte_ion_population.values
+            level_to_continuum_saha_factor = lte_level_population.to_numpy() / (
+                lte_ion_population.to_numpy()
                 * electron_energy_distribution.number_density
             )
 
@@ -207,7 +207,9 @@ class EstimatedPhotoionizationRateSolver:
         photoionization_coeff, stimulated_recombination_coeff = (
             EstimatedPhotoionizationCoeffSolver(
                 self.level2continuum_edge_idx
-            ).solve(self.estimators_continuum, self.time_simulation, self.volume)
+            ).solve(
+                self.estimators_continuum, self.time_simulation, self.volume
+            )
         )
         spontaneous_recombination_coeff = (
             self.spontaneous_recombination_rate_coeff_solver.solve(
@@ -254,9 +256,7 @@ class EstimatedPhotoionizationRateSolver:
             photoionization_coeff,
             stimulated_recombination_coeff,
             spontaneous_recombination_coeff,
-        ) = (
-            self.solve_coefficients(electron_energy_distribution.temperature)
-        )
+        ) = self.solve_coefficients(electron_energy_distribution.temperature)
         columns = level_population.columns
         photoionization_coeff = photoionization_coeff.loc[:, columns]
         stimulated_recombination_coeff = stimulated_recombination_coeff.loc[
@@ -292,13 +292,13 @@ class EstimatedPhotoionizationRateSolver:
                 ion_population, level_population, next_higher=False
             )
         )
-        photoionization_rate = photoionization_coeff * (
-            level_population_fraction.loc[photoionization_coeff.index]
+        photoionization_rate = (
+            photoionization_coeff
+            * (level_population_fraction.loc[photoionization_coeff.index])
         )
 
         recombination_rate = (
-            spontaneous_recombination_coeff
-            + stimulated_recombination_coeff
+            spontaneous_recombination_coeff + stimulated_recombination_coeff
         ) * level_to_continuum_saha_factor.loc[
             spontaneous_recombination_coeff.index
         ]

@@ -57,21 +57,21 @@ class ThermalCollisionalRateSolver:
                 self.all_collisional_strengths_index.droplevel(
                     "level_number_upper"
                 )
-            ].energy.values
+            ].energy.to_numpy()
             - self.levels.loc[
                 self.all_collisional_strengths_index.droplevel(
                     "level_number_lower"
                 )
-            ].energy.values
+            ].energy.to_numpy()
         ) * u.erg
 
         self.g_upper = self.levels.loc[
             self.all_collisional_strengths_index.droplevel("level_number_lower")
-        ].g.values
+        ].g.to_numpy()
 
         self.g_lower = self.levels.loc[
             self.all_collisional_strengths_index.droplevel("level_number_upper")
-        ].g.values
+        ].g.to_numpy()
 
         if collisional_strength_approximation == "regemorter":
             self.thermal_collision_strength_approximator = (

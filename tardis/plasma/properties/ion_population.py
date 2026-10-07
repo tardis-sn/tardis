@@ -67,7 +67,7 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
 
         for i, start_id in enumerate(block_ids[:-1]):
             end_id = block_ids[i + 1]
-            current_block = partition_function.values[start_id:end_id]
+            current_block = partition_function.to_numpy()[start_id:end_id]
             current_phis = current_block[1:] / current_block[:-1]
             phis[start_id - i : end_id - i - 1] = current_phis
 
@@ -75,7 +75,7 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
             partition_function.index
         ).dropna()
         phi_index = broadcast_ionization_energy.index
-        broadcast_ionization_energy = broadcast_ionization_energy.values
+        broadcast_ionization_energy = broadcast_ionization_energy.to_numpy()
 
         phi_coefficient = (
             2
@@ -164,8 +164,8 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
     @staticmethod
     def get_zeta_values(zeta_data, ion_index, t_rad):
-        zeta_t_rad = zeta_data.columns.values.astype(np.float64)
-        zeta_values = zeta_data.loc[ion_index].values.astype(np.float64)
+        zeta_t_rad = zeta_data.columns.to_numpy().astype(np.float64)
+        zeta_values = zeta_data.loc[ion_index].to_numpy().astype(np.float64)
         zeta = interpolate.interp1d(
             zeta_t_rad, zeta_values, bounds_error=False, fill_value=np.nan
         )(t_rad)
@@ -174,7 +174,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         if np.any(np.isnan(zeta)):
             warnings.warn(
                 f"t_rads outside of zeta factor interpolation"
-                f" zeta_min={zeta_data.columns.values.min():.2f} zeta_max={zeta_data.columns.values.max():.2f} "
+                f" zeta_min={zeta_data.columns.to_numpy().min():.2f} zeta_max={zeta_data.columns.to_numpy().max():.2f} "
                 f"- replacing with zeta = 1.0"
             )
             zeta[np.isnan(zeta)] = 1.0
@@ -229,20 +229,20 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
             radiation_field_correction = -np.ones(
                 (len(ionization_data), len(beta_rad))
             )
-            less_than_chi_0 = (ionization_data < self.chi_0).values
+            less_than_chi_0 = (ionization_data < self.chi_0).to_numpy()
             factor_a = t_electrons / (departure_coefficient * w * t_rad)
             radiation_field_correction[~less_than_chi_0] = factor_a * np.exp(
                 np.outer(
-                    ionization_data.values[~less_than_chi_0],
+                    ionization_data.to_numpy()[~less_than_chi_0],
                     beta_rad - beta_electron,
                 )
             )
             radiation_field_correction[less_than_chi_0] = 1 - np.exp(
-                np.outer(ionization_data.values[less_than_chi_0], beta_rad)
+                np.outer(ionization_data.to_numpy()[less_than_chi_0], beta_rad)
                 - beta_rad * self.chi_0
             )
             radiation_field_correction[less_than_chi_0] += factor_a * np.exp(
-                np.outer(ionization_data.values[less_than_chi_0], beta_rad)
+                np.outer(ionization_data.to_numpy()[less_than_chi_0], beta_rad)
                 - self.chi_0 * beta_electron
             )
         else:
@@ -305,9 +305,9 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         if block_ids is None:
             block_ids = IonNumberDensity._calculate_block_ids(phi)
 
-        ion_populations = np.empty_like(partition_function.values)
+        ion_populations = np.empty_like(partition_function.to_numpy())
 
-        phi_electron = np.nan_to_num(phi.values / n_electron.values)
+        phi_electron = np.nan_to_num(phi.to_numpy() / n_electron.to_numpy())
 
         for i, start_id in enumerate(block_ids[:-1]):
             end_id = block_ids[i + 1]
@@ -317,7 +317,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
             tmp_ion_populations = np.empty(
                 (current_phis.shape[0] + 1, current_phis.shape[1])
             )
-            tmp_ion_populations[0] = number_density.values[i] / (
+            tmp_ion_populations[0] = number_density.to_numpy()[i] / (
                 1 + np.sum(phis_product, axis=0)
             )
             tmp_ion_populations[1:] = tmp_ion_populations[0] * phis_product
@@ -355,14 +355,14 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                 )
                 ion_numbers = ion_number_density.index.get_level_values(
                     1
-                ).values
+                ).to_numpy()
                 ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
-                new_n_electron = (ion_number_density.values * ion_numbers).sum(
-                    axis=0
-                )
+                new_n_electron = (
+                    ion_number_density.to_numpy() * ion_numbers
+                ).sum(axis=0)
                 if np.any(np.isnan(new_n_electron)):
                     raise PlasmaIonizationError(
-                        'n_electron just turned "nan" -' " aborting"
+                        'n_electron just turned "nan" - aborting'
                     )
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
@@ -435,10 +435,10 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
             1.0 / n_electron
         )
         helium_population_updated.loc[0, helium_population_updated.columns] = (
-            he_one_population.values
+            he_one_population.to_numpy()
         )
         helium_population_updated.loc[2, helium_population_updated.columns] = (
-            he_three_population.values
+            he_three_population.to_numpy()
         )
         unnormalised = helium_population_updated.sum()
         normalised = helium_population_updated.mul(
@@ -480,14 +480,14 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                 ]
                 ion_numbers = ion_number_density.index.get_level_values(
                     1
-                ).values
+                ).to_numpy()
                 ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
-                new_n_electron = (ion_number_density.values * ion_numbers).sum(
-                    axis=0
-                )
+                new_n_electron = (
+                    ion_number_density.to_numpy() * ion_numbers
+                ).sum(axis=0)
                 if np.any(np.isnan(new_n_electron)):
                     raise PlasmaIonizationError(
-                        'n_electron just turned "nan" -' " aborting"
+                        'n_electron just turned "nan" - aborting'
                     )
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
@@ -564,7 +564,7 @@ class SahaFactor(ProcessingPlasmaProperty):
         phi_saha[phi_saha == 0.0] = sys.float_info.min
         partition_function = thermal_lte_partition_function.loc[
             partition_function_index
-        ].values
+        ].to_numpy()
         return boltzmann_factor / (phi_saha * partition_function)
 
     @staticmethod

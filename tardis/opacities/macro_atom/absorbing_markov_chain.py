@@ -62,7 +62,7 @@ def create_absorbing_probs(
     # This logic fails if any source blocks are dropped. Previous implementation was
     # num_states = len(metadata.source.unique()). Not needed right now but will be
     # needed if we want to do Markov chain reduction for only specific species.
-    num_states = int(metadata.source_level_idx.max()) + 1 
+    num_states = int(metadata.source_level_idx.max()) + 1
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
     # Josh: The expected steps calculation is another linear algebra solve. We don't need
@@ -70,8 +70,8 @@ def create_absorbing_probs(
     # useful for diagnostic purposes in the future.
     # expected_steps_in_cells_from_states = np.zeros((num_cells, num_states))
 
-    rows = metadata[internal_mask].source_level_idx.values
-    cols = metadata[internal_mask].destination_level_idx.values
+    rows = metadata[internal_mask].source_level_idx.to_numpy()
+    cols = metadata[internal_mask].destination_level_idx.to_numpy()
     identity_matrix = scipy.sparse.identity(num_states, format="csc")
 
     def solve_cell(cell: int) -> tuple[int, np.ndarray]:

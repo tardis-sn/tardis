@@ -1,6 +1,7 @@
 """This module provides an opacity calculator class with which the opacities
 and optical depth information may be extracted from Tardis runs.
 """
+
 import logging
 
 import astropy.units as units
@@ -132,8 +133,9 @@ class OpacityCalculator:
         allowed_values = ["log", "linear"]
         if val not in allowed_values:
             raise ValueError(
-                "wrong bin_scaling; must be "
-                "among {:s}".format(",".join(allowed_values))
+                "wrong bin_scaling; must be among {:s}".format(
+                    ",".join(allowed_values)
+                )
             )
         self._reset_bins()
         self._bin_scaling = val
@@ -304,12 +306,11 @@ class OpacityCalculator:
         """
         index = self.mdl.plasma.tau_sobolevs.index
         line_waves = self.mdl.plasma.atomic_data.lines.loc[index]
-        line_waves = line_waves.wavelength.values * units.AA
+        line_waves = line_waves.wavelength.to_numpy() * units.AA
 
         kappa_exp = np.zeros((self.nbins, self.nshells)) / units.cm
 
         for i in range(self.nbins):
-
             lam_low = self.nu_bins[i + 1].to(
                 "AA", equivalencies=units.spectral()
             )
@@ -319,7 +320,7 @@ class OpacityCalculator:
                 (line_waves > lam_low) * (line_waves < lam_up)
             ).ravel()
             taus = self.mdl.plasma.tau_sobolevs.iloc[mask]
-            tmp = np.sum(1 - np.exp(-taus)).values
+            tmp = np.sum(1 - np.exp(-taus)).to_numpy()
             kappa_exp[i, :] = (
                 tmp
                 * self.nu_bins[i]
@@ -347,7 +348,7 @@ class OpacityCalculator:
             logger.warning("using astropy < 1.1.1: setting sigma_T manually")
             sigma_T = 6.65245873e-29 * units.m**2
 
-        edens = self.mdl.plasma.electron_densities.values
+        edens = self.mdl.plasma.electron_densities.to_numpy()
 
         try:
             edens.to("1/cm^3")

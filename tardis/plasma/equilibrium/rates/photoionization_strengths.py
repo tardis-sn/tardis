@@ -22,12 +22,13 @@ class SpontaneousRecombinationCoeffSolver:
         photoionization_cross_sections,
     ):
         self.photoionization_cross_sections = photoionization_cross_sections
-        self.nu = self.photoionization_cross_sections.nu.values * u.Hz
+        self.nu = self.photoionization_cross_sections.nu.to_numpy() * u.Hz
 
         self.photoionization_block_references = np.pad(
             self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])
             .count()
-            .values.cumsum(),
+            .to_numpy()
+            .cumsum(),
             [1, 0],
         )
 
@@ -189,7 +190,7 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
             )
         )
         stimulated_recombination_rate_coeff = integrate_array_by_blocks(
-            stimulated_recombination_rate_coeff.values,
+            stimulated_recombination_rate_coeff.to_numpy(),
             self.nu.value,
             self.photoionization_block_references,
         )
@@ -225,7 +226,7 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
             axis=0,
         )
         photoionization_rate_coeff = integrate_array_by_blocks(
-            photoionization_rate_coeff.values,
+            photoionization_rate_coeff.to_numpy(),
             self.nu.value,
             self.photoionization_block_references,
         )
@@ -373,7 +374,7 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
         )
         correction_factor = (
             1
-            - (ion_population / lte_ion_population).values
+            - (ion_population / lte_ion_population).to_numpy()
             * (lte_level_population / level_population)
             * photoionization_boltzmann_factor
         )
@@ -383,7 +384,7 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
         )
 
         corrected_photoionization_rate_coeff = integrate_array_by_blocks(
-            corrected_photoionization_rate_coeff.values,
+            corrected_photoionization_rate_coeff.to_numpy(),
             self.nu.value,
             self.photoionization_block_references,
         )

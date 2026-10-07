@@ -30,8 +30,8 @@ def _create_absorbing_probs_reference(
     internal_jump_probs = transition_probabilities[internal_mask]
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
-    rows = metadata[internal_mask].source_level_idx.values
-    cols = metadata[internal_mask].destination_level_idx.values
+    rows = metadata[internal_mask].source_level_idx.to_numpy()
+    cols = metadata[internal_mask].destination_level_idx.to_numpy()
     for cell in range(num_cells):
         internal_jump_matrix = scipy.sparse.coo_matrix(
             (internal_jump_probs.iloc[:, cell].to_numpy(), (rows, cols)),

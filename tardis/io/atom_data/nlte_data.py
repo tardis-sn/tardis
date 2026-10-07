@@ -27,15 +27,15 @@ class NLTEData:
             )
             self.lines_idx[species] = lines_idx
             self.lines_level_number_lower[species] = (
-                self.lines.level_number_lower.values[lines_idx].astype(int)
+                self.lines.level_number_lower.to_numpy()[lines_idx].astype(int)
             )
             self.lines_level_number_upper[species] = (
-                self.lines.level_number_upper.values[lines_idx].astype(int)
+                self.lines.level_number_upper.to_numpy()[lines_idx].astype(int)
             )
 
-            self.A_uls[species] = self.lines.A_ul.values[lines_idx]
-            self.B_uls[species] = self.lines.B_ul.values[lines_idx]
-            self.B_lus[species] = self.lines.B_lu.values[lines_idx]
+            self.A_uls[species] = self.lines.A_ul.to_numpy()[lines_idx]
+            self.B_uls[species] = self.lines.B_ul.to_numpy()[lines_idx]
+            self.B_lus[species] = self.lines.B_lu.to_numpy()[lines_idx]
 
     def _create_collision_coefficient_matrix(self):
         self.C_ul_interpolator = {}
@@ -67,7 +67,7 @@ class NLTEData:
             ) in collision_group.get_group(species).iterrows():
                 # line.columns : delta_e, g_ratio, temperatures ...
                 C_ul_matrix[level_number_lower, level_number_upper, :] = (
-                    line.values[2:]
+                    line.to_numpy()[2:]
                 )
                 delta_E_matrix[level_number_lower, level_number_upper] = line[
                     "delta_e"

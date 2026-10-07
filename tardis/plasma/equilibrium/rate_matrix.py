@@ -400,7 +400,7 @@ class AnalyticIonRateMatrix:
                 lte_ion_population, lte_level_population
             )
             level_to_continuum_saha_factor = lte_level_population / (
-                lte_ion_population.values
+                lte_ion_population.to_numpy()
                 * thermal_electron_energy_distribution.number_density.value
             )
 

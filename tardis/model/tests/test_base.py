@@ -105,7 +105,7 @@ class TestModelFromPaper1Config:
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
         assert_array_almost_equal(
-            oxygen_abundance, self.simulation_state.abundance.loc[8].values
+            oxygen_abundance, self.simulation_state.abundance.loc[8].to_numpy()
         )
 
     def test_velocities(self):
@@ -152,7 +152,7 @@ class TestModelFromASCIIDensity:
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
         assert_array_almost_equal(
-            oxygen_abundance, self.simulation_state.abundance.loc[8].values
+            oxygen_abundance, self.simulation_state.abundance.loc[8].to_numpy()
         )
 
 
@@ -176,7 +176,7 @@ class TestModelFromArtisDensity:
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
         assert_array_almost_equal(
-            oxygen_abundance, self.simulation_state.abundance.loc[8].values
+            oxygen_abundance, self.simulation_state.abundance.loc[8].to_numpy()
         )
 
 
@@ -600,4 +600,4 @@ def test_hdf_simulation_state_nparray(
     actual = getattr(simulation_verysimple.simulation_state, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    assert_almost_equal(actual, expected.values)
+    assert_almost_equal(actual, expected.to_numpy())

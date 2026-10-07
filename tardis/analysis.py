@@ -21,22 +21,24 @@ class LastLineInteraction:
         transport_state = simulation.transport.transport_state
 
         if transport_state.tracker_full_df is None:
-            raise ValueError("No tracking data available. Enable tracking by setting config.montecarlo.tracking.track_rpacket = True")
+            raise ValueError(
+                "No tracking data available. Enable tracking by setting config.montecarlo.tracking.track_rpacket = True"
+            )
 
-
-        packet_data = extract_and_process_packet_data(simulation, "real", include_shell_id=True)
+        packet_data = extract_and_process_packet_data(
+            simulation, "real", include_shell_id=True
+        )
         packets_df = packet_data["packets_df"]
 
         return cls(
-            packets_df["last_line_interaction_in_id"].values,
-            packets_df["last_line_interaction_out_id"].values,
-            packets_df["last_line_interaction_shell_id"].values,
+            packets_df["last_line_interaction_in_id"].to_numpy(),
+            packets_df["last_line_interaction_out_id"].to_numpy(),
+            packets_df["last_line_interaction_shell_id"].to_numpy(),
             packet_data["nus"].to("Hz").value,
-            packets_df["last_line_interaction_in_nu"].values,
+            packets_df["last_line_interaction_in_nu"].to_numpy(),
             simulation.plasma.atomic_data.lines,
             packet_filter_mode,
         )
-
 
     def __init__(
         self,
@@ -162,7 +164,7 @@ class LastLineInteraction:
         elif self.packet_filter_mode == "line_in_nu":
             line_in_nu = self.lines.wavelength.iloc[
                 self.last_line_interaction_in_id
-            ].values
+            ].to_numpy()
             packet_filter = (
                 line_in_nu > self.wavelength_start.to(u.angstrom).value
             ) & (line_in_nu < self.wavelength_end.to(u.angstrom).value)
@@ -289,7 +291,9 @@ class TARDISHistory:
                     int(re.match(r"model(\d+)", key.split("/")[1]).groups()[0])
                 )
 
-            self.iterations = np.sort(np.unique(iterations), kind=SORTING_ALGORITHM)
+            self.iterations = np.sort(
+                np.unique(iterations), kind=SORTING_ALGORITHM
+            )
             hdf_store.close()
         else:
             self.iterations = iterations
@@ -444,14 +448,14 @@ class TARDISHistory:
     def calculate_relative_lte_level_populations(self, species, iteration=-1):
         self.load_atom_data()
         t_rads = self.load_t_rads(iteration)
-        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:, 0])
+        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.to_numpy()[:, 0])
 
         species_levels = self.levels.iloc[species]
 
         relative_lte_level_populations = (
-            species_levels.g.values[np.newaxis].T
+            species_levels.g.to_numpy()[np.newaxis].T
             / float(species_levels.g.loc[0])
-        ) * np.exp(-beta_rads * species_levels.energy.values[np.newaxis].T)
+        ) * np.exp(-beta_rads * species_levels.energy.to_numpy()[np.newaxis].T)
 
         return pd.DataFrame(
             relative_lte_level_populations, index=species_levels.index
@@ -460,7 +464,7 @@ class TARDISHistory:
     def calculate_departure_coefficients(self, species, iteration=-1):
         self.load_atom_data()
         t_rads = self.load_t_rads(iteration)
-        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:, 0])
+        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.to_numpy()[:, 0])
 
         species_levels = self.levels.iloc[species]
         species_level_populations = self.load_level_populations(iteration).iloc[
