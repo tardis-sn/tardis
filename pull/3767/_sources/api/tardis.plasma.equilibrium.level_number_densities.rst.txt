@@ -1,0 +1,7 @@
+tardis.plasma.equilibrium.level\_number\_densities module
+=========================================================
+
+.. automodule:: tardis.plasma.equilibrium.level_number_densities
+   :members:
+   :show-inheritance:
+   :undoc-members:

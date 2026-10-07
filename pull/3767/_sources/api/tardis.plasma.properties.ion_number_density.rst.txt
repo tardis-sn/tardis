@@ -1,0 +1,7 @@
+tardis.plasma.properties.ion\_number\_density module
+====================================================
+
+.. automodule:: tardis.plasma.properties.ion_number_density
+   :members:
+   :show-inheritance:
+   :undoc-members:

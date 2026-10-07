@@ -1,0 +1,7 @@
+tardis.plasma.properties.level\_number\_density module
+======================================================
+
+.. automodule:: tardis.plasma.properties.level_number_density
+   :members:
+   :show-inheritance:
+   :undoc-members:
