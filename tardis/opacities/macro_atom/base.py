@@ -64,8 +64,8 @@ def initialize_macro_atom_transition_type_filters(atomic_data, macro_atom_data):
     pd.ndarray
         macro atom block references
     """
-    transition_up_filter = macro_atom_data.transition_type.values == 1
-    transition_up_line_filter = macro_atom_data.lines_idx.values[
+    transition_up_filter = macro_atom_data.transition_type.to_numpy() == 1
+    transition_up_line_filter = macro_atom_data.lines_idx.to_numpy()[
         transition_up_filter
     ]
     block_references = np.hstack(
@@ -91,7 +91,7 @@ def get_transition_probability_coefs(macro_atom_data):
     np.ndarray
         Reshaped macro atom transition probabilities
     """
-    return macro_atom_data.transition_probability.values[np.newaxis].T
+    return macro_atom_data.transition_probability.to_numpy()[np.newaxis].T
 
 
 def get_macro_atom_data(atomic_data):
@@ -168,13 +168,13 @@ class TransitionProbabilities(
         transition_probabilities = np.empty(
             (self.transition_probability_coef.shape[0], beta_sobolev.shape[1])
         )
-        transition_type = macro_atom_data.transition_type.values
-        lines_idx = macro_atom_data.lines_idx.values
-        tpos = macro_atom_data.transition_probability.values
+        transition_type = macro_atom_data.transition_type.to_numpy()
+        lines_idx = macro_atom_data.lines_idx.to_numpy()
+        tpos = macro_atom_data.transition_probability.to_numpy()
         util.fast_calculate_transition_probabilities(
             tpos,
-            beta_sobolev.values,
-            j_blues.values,
+            beta_sobolev.to_numpy(),
+            j_blues.to_numpy(),
             stimulated_emission_factor,
             transition_type,
             lines_idx,
@@ -187,8 +187,10 @@ class TransitionProbabilities(
     def initialize_macro_atom_transition_type_filters(
         self, atomic_data, macro_atom_data
     ):
-        self.transition_up_filter = macro_atom_data.transition_type.values == 1
-        self.transition_up_line_filter = macro_atom_data.lines_idx.values[
+        self.transition_up_filter = (
+            macro_atom_data.transition_type.to_numpy() == 1
+        )
+        self.transition_up_line_filter = macro_atom_data.lines_idx.to_numpy()[
             self.transition_up_filter
         ]
         self.block_references = np.hstack(
@@ -200,13 +202,13 @@ class TransitionProbabilities(
 
     @staticmethod
     def _get_transition_probability_coefs(macro_atom_data):
-        return macro_atom_data.transition_probability.values[np.newaxis].T
+        return macro_atom_data.transition_probability.to_numpy()[np.newaxis].T
 
     def prepare_transition_probabilities(
         self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
     ):
-        current_beta_sobolev = beta_sobolev.values.take(
-            macro_atom_data.lines_idx.values, axis=0, mode="raise"
+        current_beta_sobolev = beta_sobolev.to_numpy().take(
+            macro_atom_data.lines_idx.to_numpy(), axis=0, mode="raise"
         )
         transition_probabilities = (
             self.transition_probability_coef * current_beta_sobolev

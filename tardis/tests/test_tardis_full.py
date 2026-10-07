@@ -61,7 +61,9 @@ class TestTransportSimple:
         simulation_tardis_full,
     ):
         request.cls.regression_data = RegressionData(request)
-        data = request.cls.regression_data.sync_hdf_store(simulation_tardis_full)
+        data = request.cls.regression_data.sync_hdf_store(
+            simulation_tardis_full
+        )
 
         yield simulation_tardis_full
         data.close()
@@ -75,7 +77,7 @@ class TestTransportSimple:
 
         npt.assert_allclose(
             simulation.transport.transport_state.estimators_line.mean_intensity_blueward,
-            expected.values,
+            expected.to_numpy(),
         )
 
     def test_spectrum(self, simulation):

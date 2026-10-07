@@ -276,7 +276,7 @@ class TestCollisionalTransitions:
 
         # Check that energies are properly weighted (function doesn't do groupby)
         expected = (coll_coeff * electron_densities).multiply(
-            delta_E.values, axis=0
+            delta_E.to_numpy(), axis=0
         )
         pd.testing.assert_frame_equal(result, expected)
 
@@ -312,7 +312,7 @@ class TestCollisionalTransitions:
 
         # Check calculation
         expected = (coll_coeff * electron_densities).multiply(
-            energy_lowers.values, axis=0
+            energy_lowers.to_numpy(), axis=0
         )
         pd.testing.assert_frame_equal(result, expected)
 
@@ -346,7 +346,7 @@ class TestCollisionalTransitions:
 
         # Check calculation
         expected = (coll_coeff * electron_densities).multiply(
-            energy_lowers.values, axis=0
+            energy_lowers.to_numpy(), axis=0
         )
         pd.testing.assert_frame_equal(result, expected)
 
@@ -392,7 +392,7 @@ class TestCollisionalTransitions:
 
         # Check calculation
         expected = (ion_coeff * electron_densities).multiply(
-            ion_energies.values, axis=0
+            ion_energies.to_numpy(), axis=0
         )
         pd.testing.assert_frame_equal(result, expected)
 
@@ -436,7 +436,7 @@ class TestCollisionalTransitions:
 
         # Check calculation
         expected = (recomb_coeff * electron_densities).multiply(
-            recomb_energies.values, axis=0
+            recomb_energies.to_numpy(), axis=0
         )
         pd.testing.assert_frame_equal(result, expected)
 
@@ -480,7 +480,7 @@ class TestCollisionalTransitions:
 
         # Check calculation
         expected = (recomb_coeff * electron_densities).multiply(
-            recomb_energies.values, axis=0
+            recomb_energies.to_numpy(), axis=0
         )
         pd.testing.assert_frame_equal(result, expected)
 
