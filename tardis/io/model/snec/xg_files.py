@@ -86,7 +86,7 @@ def xg_block_size(path):
 
 def read_xg_file(
     file_path: str, column_names: list, show_progress: bool = True
-):
+) -> XGData:
     """
     Reads the timestamps and corresponding data blocks from an .xg file.
 
