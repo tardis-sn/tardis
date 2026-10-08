@@ -27,6 +27,53 @@ from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
+# Shell used by the boundary-distance tests; the same radii as shell 0 of the
+# ``geometry`` fixture below [cm].
+SHELL_R_INNER = 6.912e14
+SHELL_R_OUTER = 8.64e14
+# Absolute tolerance for distances [cm]. The last significant digit at
+# r ~ 1e15 cm is 0.125 cm and the boundary roots combine a handful of operations
+# on squared radii, so a few times the last digit of rounding is expected; 1 cm 
+# is a small multiple of that and is still 14 orders of magnitude below the 
+# shell width.
+DISTANCE_ATOL_CM = 1.0
+# Relative tolerance on the radius a packet lands at after travelling the
+# returned distance. Double-precision eps is 2.2e-16; 1e-12 leaves headroom for
+# fastmath reassociation and the sqrt/square round trip, while still rejecting
+# any algebraic error in the root (which shifts the landing point by O(1)).
+LANDING_RTOL = 1e-12
+
+
+def propagate_along_ray(
+    r: float, mu: float, distance: float
+) -> tuple[float, float]:
+    """
+    Advance a straight ray in spherical geometry by the law of cosines.
+
+    This is the forward map that the boundary and line distance solvers invert,
+    so it gives an independent check of their roots.
+
+    Parameters
+    ----------
+    r : float
+        Starting radius [cm].
+    mu : float
+        Starting direction cosine relative to the radial direction.
+    distance : float
+        Path length travelled [cm].
+
+    Returns
+    -------
+    r_new : float
+        Radius after travelling ``distance`` [cm].
+    mu_new : float
+        Direction cosine at the new position (radial projection of the
+        unchanged direction vector).
+    """
+    r_new = np.sqrt(r * r + distance * distance + 2.0 * r * distance * mu)
+    mu_new = (r * mu + distance) / r_new
+    return r_new, mu_new
+
 
 @pytest.fixture(scope="function")
 def geometry():
@@ -63,23 +110,171 @@ def estimators():
 
 
 @pytest.mark.parametrize(
-    ["packet_params", "expected_params"],
+    ["r", "mu", "expected_distance", "expected_delta_shell"],
     [
-        ({"mu": 0.3, "r": 7.5e14}, {"d_boundary": 259376919351035.88}),
-        ({"mu": -0.3, "r": 7.5e13}, {"d_boundary": -664987228972291.5}),
-        ({"mu": -0.3, "r": 7.5e14}, {"d_boundary": 709376919351035.9}),
+        # Radially outward: the path is a radius, d = r_outer - r.
+        (7.5e14, 1.0, SHELL_R_OUTER - 7.5e14, 1),
+        # Radially inward: d = r - r_inner, and the packet enters the shell
+        # below.
+        (7.5e14, -1.0, 7.5e14 - SHELL_R_INNER, -1),
+        # Perpendicular to the radius: right triangle with hypotenuse r_outer,
+        # d = sqrt(r_outer^2 - r^2). Impact parameter r > r_inner, so outward.
+        (7.5e14, 0.0, np.sqrt(SHELL_R_OUTER**2 - 7.5e14**2), 1),
+        # Sitting on the outer boundary heading outward: zero distance.
+        (SHELL_R_OUTER, 0.5, 0.0, 1),
+        # Sitting on the inner boundary heading inward: zero distance.
+        (SHELL_R_INNER, -0.5, 0.0, -1),
+        # Starting on the outer boundary heading inward at mu = -0.5. The
+        # impact parameter r_outer * sqrt(1 - 0.25) = 7.48e14 cm exceeds
+        # r_inner, so the ray misses the inner sphere and re-exits through
+        # r_outer along a chord of length 2 * r_outer * |mu| = r_outer.
+        (SHELL_R_OUTER, -0.5, SHELL_R_OUTER, 1),
     ],
 )
-def test_calculate_distance_boundary(packet_params, expected_params, geometry):
-    mu = packet_params["mu"]
-    r = packet_params["r"]
+def test_calculate_distance_boundary_exact_geometry(
+    r: float, mu: float, expected_distance: float, expected_delta_shell: int
+) -> None:
+    """
+    Claim: the distance to the shell boundary matches closed-form geometry.
 
-    d_boundary = calculate_distances.calculate_distance_boundary(
-        r, mu, geometry.r_inner[0], geometry.r_outer[0]
+    Regime: straight-line propagation inside a single spherical shell.
+    Verification: radial, perpendicular, on-boundary and chord cases whose
+    distances follow from elementary geometry, independent of the quadratic
+    roots used by the implementation.
+    """
+    distance, delta_shell = calculate_distances.calculate_distance_boundary(
+        r, mu, SHELL_R_INNER, SHELL_R_OUTER
     )
 
-    # Accuracy to within 0.1cm
-    assert_almost_equal(d_boundary[0], expected_params["d_boundary"], decimal=1)
+    assert delta_shell == expected_delta_shell, (
+        "Packet would be sent to the wrong neighbouring shell"
+    )
+    assert_allclose(
+        distance, expected_distance, rtol=1e-14, atol=DISTANCE_ATOL_CM
+    )
+
+
+def test_calculate_distance_boundary_lands_on_target_sphere() -> None:
+    """
+    Claim: for any packet inside the shell, the returned distance is
+    non-negative, the packet lands on the boundary sphere indicated by
+    ``delta_shell`` after travelling it, and ``delta_shell`` is -1 exactly
+    when the ray intersects the inner sphere.
+
+    Regime: r_inner < r < r_outer, mu uniform in [-1, 1].
+    Verification: the landing radius is recomputed with the law of cosines
+    (the forward map the solver inverts), and the inner-sphere hit criterion
+    is the impact-parameter test b = r * sqrt(1 - mu^2) < r_inner for an
+    inward ray, rather than the discriminant form used by the implementation.
+    An inward ray meets the inner sphere before its point of closest approach
+    to the centre (at path length -r * mu), which rules out the far-side root.
+    """
+    # Arbitrary fixed seed so the 1000 sampled rays are deterministic.
+    rng = np.random.default_rng(seed=2918)
+    radii = rng.uniform(SHELL_R_INNER, SHELL_R_OUTER, size=1000)
+    mus = rng.uniform(-1.0, 1.0, size=1000)
+
+    for r, mu in zip(radii, mus, strict=True):
+        distance, delta_shell = calculate_distances.calculate_distance_boundary(
+            r, mu, SHELL_R_INNER, SHELL_R_OUTER
+        )
+
+        impact_parameter = r * np.sqrt(1.0 - mu * mu)
+        hits_inner = mu < 0.0 and impact_parameter < SHELL_R_INNER
+        expected_delta_shell = -1 if hits_inner else 1
+        target_radius = SHELL_R_INNER if hits_inner else SHELL_R_OUTER
+        r_landing, _ = propagate_along_ray(r, mu, distance)
+
+        assert distance >= 0.0, f"Negative path length at r={r}, mu={mu}"
+        assert delta_shell == expected_delta_shell, (
+            f"Wrong shell crossing at r={r}, mu={mu}"
+        )
+        assert_allclose(
+            r_landing,
+            target_radius,
+            rtol=LANDING_RTOL,
+            err_msg=f"Packet does not land on the boundary at r={r}, mu={mu}",
+        )
+        if hits_inner:
+            assert distance <= -r * mu, (
+                f"Far-side intersection with the inner sphere at r={r}, mu={mu}"
+            )
+
+
+@pytest.mark.parametrize(
+    ["mu_offset", "expected_delta_shell"],
+    [
+        # 1e-6 steeper than the tangent direction: the ray clips the inner
+        # sphere.
+        (-1e-6, -1),
+        # 1e-6 shallower than the tangent direction: the ray passes the inner
+        # sphere and exits through r_outer.
+        (1e-6, 1),
+    ],
+)
+def test_calculate_distance_boundary_grazing_inner_sphere(
+    mu_offset: float, expected_delta_shell: int
+) -> None:
+    """
+    Claim: rays just either side of the tangent to the inner sphere are sent
+    to the correct neighbouring shell and land on that shell's boundary.
+
+    Regime: near-grazing incidence, where the discriminant
+    r_inner^2 - r^2 (1 - mu^2) passes through zero and is most sensitive to
+    rounding.
+    Verification: the tangent direction mu_t = -sqrt(1 - (r_inner / r)^2)
+    gives the switch-over analytically; the landing radius is checked with
+    the law of cosines.
+    """
+    r = 7.5e14
+    mu_tangent = -np.sqrt(1.0 - (SHELL_R_INNER / r) ** 2)
+    mu = mu_tangent + mu_offset
+
+    distance, delta_shell = calculate_distances.calculate_distance_boundary(
+        r, mu, SHELL_R_INNER, SHELL_R_OUTER
+    )
+    target_radius = (
+        SHELL_R_INNER if expected_delta_shell == -1 else SHELL_R_OUTER
+    )
+    r_landing, _ = propagate_along_ray(r, mu, distance)
+
+    assert delta_shell == expected_delta_shell
+    assert_allclose(r_landing, target_radius, rtol=LANDING_RTOL)
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "mu == 0 takes the inward branch of calculate_distance_boundary; on "
+        "r == r_inner the discriminant rounds slightly positive and returns a "
+        "negative distance with delta_shell = -1."
+    ),
+)
+@pytest.mark.parametrize("mu", [0.0, -0.0])
+def test_calculate_distance_boundary_tangent_on_inner_boundary(
+    mu: float,
+) -> None:
+    """
+    Claim: a packet on the inner boundary moving tangentially (mu = 0) moves
+    away from the inner sphere, so it must exit through r_outer after
+    d = sqrt(r_outer^2 - r_inner^2).
+
+    Regime: measure-zero edge case at the inner boundary; documents a known
+    defect rather than a frequently reached state.
+    Verification: right triangle with legs r_inner and d and hypotenuse
+    r_outer.
+    """
+    distance, delta_shell = calculate_distances.calculate_distance_boundary(
+        SHELL_R_INNER, mu, SHELL_R_INNER, SHELL_R_OUTER
+    )
+
+    assert delta_shell == 1
+    assert_allclose(
+        distance,
+        np.sqrt(SHELL_R_OUTER**2 - SHELL_R_INNER**2),
+        rtol=1e-14,
+        atol=DISTANCE_ATOL_CM,
+    )
 
 
 #
@@ -134,6 +329,72 @@ def test_calculate_distance_line(
 
     assert_almost_equal(d_line, expected_params["d_line"])
     assert obtained_tardis_error == expected_params["tardis_error"]
+
+
+@pytest.mark.parametrize("enable_full_relativity", [False, True])
+# beta = v / c of the packet's starting position: 0.03 (9000 km/s) is typical
+# of the photospheric region of a Type Ia supernova; 0.2 stresses the
+# relativistic terms.
+@pytest.mark.parametrize("beta", [0.03, 0.2])
+@pytest.mark.parametrize("mu", [-1.0, -0.5, 0.0, 0.5, 1.0])
+def test_calculate_distance_line_reaches_resonance(
+    mu: float, beta: float, enable_full_relativity: bool
+) -> None:
+    """
+    Claim: after travelling the returned line distance, the packet's
+    comoving-frame frequency equals the line frequency.
+
+    Regime: homologous expansion v = r / t, partial (first-order) and full
+    special relativity, all propagation directions.
+    Verification: the packet is advanced with the law of cosines and the
+    comoving frequency at the new position is computed from the Doppler
+    factor written out explicitly below, rather than from the distance
+    formula under test.
+    """
+    time_explosion = 13.0 * u.day.to("s")  # 13 days [s]
+    nu_lab = 6.0e14  # ~500 nm, optical [Hz]
+    ct = C_SPEED_OF_LIGHT * time_explosion
+    r = beta * ct  # homologous: v = r / t
+
+    def comoving_nu(r_now: float, mu_now: float) -> float:
+        # nu_cmf = nu_lab * (1 - beta * mu) to first order, times the Lorentz
+        # factor gamma = 1 / sqrt(1 - beta^2) in full relativity.
+        beta_now = r_now / ct
+        doppler_factor = 1.0 - beta_now * mu_now
+        if enable_full_relativity:
+            doppler_factor /= np.sqrt(1.0 - beta_now * beta_now)
+        return nu_lab * doppler_factor
+
+    comov_nu_start = comoving_nu(r, mu)
+    # Place the line 0.1% redward of the current comoving frequency
+    # (~300 km/s), far above CLOSE_LINE_THRESHOLD (1e-14), so the solver
+    # takes the propagation branch rather than the zero-distance shortcut.
+    nu_line = comov_nu_start * (1.0 - 1e-3)
+    packet = radiative_packet.RPacket(
+        r=r, mu=mu, nu=nu_lab, energy=1.0, seed=1963
+    )
+
+    distance = calculate_distances.calculate_distance_line(
+        packet,
+        comov_nu_start,
+        False,
+        nu_line,
+        time_explosion,
+        enable_full_relativity,
+    )
+    r_new, mu_new = propagate_along_ray(r, mu, distance)
+
+    assert distance > 0.0
+    # A rounding error delta in the distance shifts the comoving frequency by
+    # ~nu * delta / ct. Even the cancellation in the full-relativity root
+    # (losing ~3 digits for a 1e-3 offset) leaves this near 1e-16, so 1e-12
+    # only fails on a wrong formula.
+    assert_allclose(
+        comoving_nu(r_new, mu_new),
+        nu_line,
+        rtol=1e-12,
+        err_msg="Packet is not in resonance with the line after moving",
+    )
 
 
 @pytest.mark.parametrize(
