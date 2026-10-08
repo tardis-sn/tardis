@@ -53,7 +53,7 @@ class BoundBoundMatrixRates:
 
 @dataclass(frozen=True)
 class ShellNumberDensity:
-    """Absolute population information fixed for one shell."""
+    """Absolute number density information fixed for one shell."""
 
     hydrogen_number_density: float
     level_number_density: FloatArray

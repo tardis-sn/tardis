@@ -4,7 +4,7 @@ import pandas as pd
 
 from tardis import constants as const
 from tardis.plasma.equilibrium.rates.util import (
-    reindex_ion_population_to_level_population,
+    reindex_ion_number_density_to_level_number_density,
 )
 from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
@@ -326,10 +326,10 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
         self,
         mean_intensity_photoionization_df,
         photoionization_boltzmann_factor,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
+        lte_level_number_density,
+        level_number_density,
+        lte_ion_number_density,
+        ion_number_density,
     ):
         """
         Calculate the stimulated emission corrected photoionization rate coefficient.
@@ -354,27 +354,27 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
         )
 
         # Lucy 2003 Eq 18
-        if len(lte_level_population.columns) == len(
+        if len(lte_level_number_density.columns) == len(
             photoionization_boltzmann_factor.columns
         ):
-            lte_level_population = lte_level_population.set_axis(
+            lte_level_number_density = lte_level_number_density.set_axis(
                 photoionization_boltzmann_factor.columns,
                 axis="columns",
             )
-            level_population = level_population.set_axis(
+            level_number_density = level_number_density.set_axis(
                 photoionization_boltzmann_factor.columns,
                 axis="columns",
             )
-        lte_ion_population = reindex_ion_population_to_level_population(
-            lte_ion_population, lte_level_population
+        lte_ion_number_density = reindex_ion_number_density_to_level_number_density(
+            lte_ion_number_density, lte_level_number_density
         )
-        ion_population = reindex_ion_population_to_level_population(
-            ion_population, lte_level_population
+        ion_number_density = reindex_ion_number_density_to_level_number_density(
+            ion_number_density, lte_level_number_density
         )
         correction_factor = (
             1
-            - (ion_population / lte_ion_population).values
-            * (lte_level_population / level_population)
+            - (ion_number_density / lte_ion_number_density).values
+            * (lte_level_number_density / level_number_density)
             * photoionization_boltzmann_factor
         )
 
@@ -397,10 +397,10 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
         self,
         dilute_blackbody_radiationfield_state,
         electron_temperature,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
+        lte_level_number_density,
+        level_number_density,
+        lte_ion_number_density,
+        ion_number_density,
     ):
         """
         Prepares the ionization and recombination coefficients by grouping them for
@@ -437,10 +437,10 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
             self.calculate_corrected_photoionization_rate_coeff(
                 mean_intensity_photoionization_df,
                 photoionization_boltzmann_factor,
-                lte_level_population,
-                level_population,
-                lte_ion_population,
-                ion_population,
+                lte_level_number_density,
+                level_number_density,
+                lte_ion_number_density,
+                ion_number_density,
             )
         )
 

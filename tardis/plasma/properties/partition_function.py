@@ -7,7 +7,7 @@ import pandas as pd
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
+from tardis.plasma.equilibrium.level_number_densities import LevelNumberDensitySolver
 from tardis.plasma.equilibrium.rate_matrix import RateMatrix
 from tardis.plasma.equilibrium.rates import (
     RadiativeRatesSolver,
@@ -34,7 +34,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     Attributes
     ----------
     general_level_boltzmann_factor : Pandas DataFrame, dtype float
-        Level population proportionality values.
+        Level number density proportionality values.
         Evaluated at the radiation temperature.
         Indexed by atomic number, ion number, level number.
         Columns corresponding to zones. Does not consider
@@ -65,7 +65,7 @@ class ThermalLevelBoltzmannFactorLTE(LevelBoltzmannFactorLTE):
     Attributes
     ----------
     thermal_lte_level_boltzmann_factor : Pandas DataFrame, dtype float
-        Level population proportionality values for LTE.
+        Level number density proportionality values for LTE.
         Evaluated at the temperature of the
         electron gas (thermal). Indexed
         by atomic number, ion number, level number.
@@ -90,7 +90,7 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
     Attributes
     ----------
     general_level_boltzmann_factor : Pandas DataFrame, dtype float
-        Level population proportionality values. Indexed
+        Level number density proportionality values. Indexed
         by atomic number, ion number, level number.
         Columns corresponding to zones. Dilute radiation
         field means non-metastable level values are
@@ -220,7 +220,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 dilute_planckian_radiation_field, electron_distribution
             )
 
-            solver = LevelPopulationSolver(rate_matrix, atomic_data.levels)
+            solver = LevelNumberDensitySolver(rate_matrix, atomic_data.levels)
 
             level_pops = solver.solve()
 

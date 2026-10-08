@@ -305,7 +305,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         if block_ids is None:
             block_ids = IonNumberDensity._calculate_block_ids(phi)
 
-        ion_populations = np.empty_like(partition_function.values)
+        ion_number_densities = np.empty_like(partition_function.values)
 
         phi_electron = np.nan_to_num(phi.values / n_electron.values)
 
@@ -314,20 +314,20 @@ class IonNumberDensity(ProcessingPlasmaProperty):
             current_phis = phi_electron[start_id:end_id]
             phis_product = np.cumprod(current_phis, 0)
 
-            tmp_ion_populations = np.empty(
+            tmp_ion_number_densities = np.empty(
                 (current_phis.shape[0] + 1, current_phis.shape[1])
             )
-            tmp_ion_populations[0] = number_density.values[i] / (
+            tmp_ion_number_densities[0] = number_density.values[i] / (
                 1 + np.sum(phis_product, axis=0)
             )
-            tmp_ion_populations[1:] = tmp_ion_populations[0] * phis_product
+            tmp_ion_number_densities[1:] = tmp_ion_number_densities[0] * phis_product
 
-            ion_populations[start_id + i : end_id + 1 + i] = tmp_ion_populations
+            ion_number_densities[start_id + i : end_id + 1 + i] = tmp_ion_number_densities
 
-        ion_populations[ion_populations < ion_zero_threshold] = 0.0
+        ion_number_densities[ion_number_densities < ion_zero_threshold] = 0.0
 
         return (
-            pd.DataFrame(data=ion_populations, index=partition_function.index),
+            pd.DataFrame(data=ion_number_densities, index=partition_function.index),
             block_ids,
         )
 
@@ -426,19 +426,19 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
         self.block_ids = None
         self._electron_densities = electron_densities
 
-    def update_he_population(
+    def update_he_number_density(
         self, helium_population, n_electron, number_density
     ):
         helium_population_updated = helium_population.copy()
-        he_one_population = helium_population_updated.loc[0].mul(n_electron)
-        he_three_population = helium_population_updated.loc[2].mul(
+        he_one_number_density = helium_population_updated.loc[0].mul(n_electron)
+        he_three_number_density = helium_population_updated.loc[2].mul(
             1.0 / n_electron
         )
         helium_population_updated.loc[0, helium_population_updated.columns] = (
-            he_one_population.values
+            he_one_number_density.values
         )
         helium_population_updated.loc[2, helium_population_updated.columns] = (
-            he_three_population.values
+            he_three_number_density.values
         )
         unnormalised = helium_population_updated.sum()
         normalised = helium_population_updated.mul(
@@ -466,7 +466,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                     self.block_ids,
                     self.ion_zero_threshold,
                 )
-                helium_population_updated = self.update_he_population(
+                helium_population_updated = self.update_he_number_density(
                     helium_population, n_electron, number_density
                 )
                 ion_number_density.loc[2, 0] = helium_population_updated.loc[
@@ -515,7 +515,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                 self.ion_zero_threshold,
             )
 
-            helium_population_updated = self.update_he_population(
+            helium_population_updated = self.update_he_number_density(
                 helium_population, n_electron, number_density
             )
             ion_number_density.loc[2, 0].update(
@@ -533,7 +533,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
 class SahaFactor(ProcessingPlasmaProperty):
     """
     Calculates the 'Saha factor' Phi_ik = n_i* / (n_k* n_e), i.e.,
-    the ratio of the LTE level population n_i*, and the product of
+    the ratio of the LTE level number density n_i*, and the product of
     the LTE ion density n_k* and the actual electron density n_e.
 
     Attributes

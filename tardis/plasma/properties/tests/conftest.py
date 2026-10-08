@@ -139,7 +139,7 @@ def partition_function(level_boltzmann_factor_lte):
     partition_function_module = PartitionFunction(None)
     return partition_function_module.calculate(level_boltzmann_factor_lte)
 
-# ION / LEVEL POPULATION PROPERTIES
+# ION / LEVEL NUMBER DENSITY PROPERTIES
 
 @pytest.fixture
 def ionization_data(atomic_dataset, selected_atoms):

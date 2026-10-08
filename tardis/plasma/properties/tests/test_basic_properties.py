@@ -153,7 +153,7 @@ def test_stimulated_emission_factor_metastable_upper_clamps_negative_to_zero(
 def test_stimulated_emission_factor_nlte_species_clamps_negative_to_zero(
     two_level_inputs,
 ):
-    # Same inverted population; NLTE flag must clamp the negative factor
+    # Same inverted number density; NLTE flag must clamp the negative factor
     inputs = two_level_inputs(
         n_lower=1e10, n_upper=3e10, g_lower=4.0, g_upper=2.0
     )

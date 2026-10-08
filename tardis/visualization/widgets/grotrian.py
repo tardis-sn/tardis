@@ -49,7 +49,7 @@ def standardize(
     zero_undefined_offset=0,
 ):
     """
-    Utility function to standardize displayed values like wavelengths, num_packets, levels populations to the range [0, 1]
+    Utility function to standardize displayed values like wavelengths, num_packets, levels number densities to the range [0, 1]
     This helps in computing visual elements like widths, colors, etc.
 
     Parameters
@@ -133,8 +133,8 @@ class GrotrianPlot:
         Mapping from atomic number to symbol and name
     level_energy_data : pandas.Series
         Level energies (in eV) indexed by (atomic_number, ion_number, level_number)
-    level_population_data : pandas.DataFrame
-        Level populations indexed by (atomic_number, ion_number, level_number)
+    level_number_density_data : pandas.DataFrame
+        Level number densities indexed by (atomic_number, ion_number, level_number)
         and each column representing the supernova shell
     line_interaction_analysis : tardis.analysis.LastLineInteraction
         LastLineInteraction object with the appropriate filters
@@ -149,7 +149,7 @@ class GrotrianPlot:
         Note: User should set the atomic_number and ion_number together using set_ion function.
     shell : int or None
         The supernova shell to filter on.
-        If None, the level populations are averaged across all shells,
+        If None, the level number densities are averaged across all shells,
         and all last line interaction are considered
         Default value is None
     max_levels : int
@@ -171,10 +171,10 @@ class GrotrianPlot:
     cmapname : str
         The name of the colormap used to denote wavelengths. Default value is "rainbow"
     level_width_scale : float
-        The multiplier to convert standardized level populations to level widths
+        The multiplier to convert standardized level number densities to level widths
         Default value is 3
     level_width_offset : float
-        The offset for level widths (to add to the scaled standardized level populations)
+        The offset for level widths (to add to the scaled standardized level number densities)
         Default value is 1
     transition_width_scale : float
         The multiplier to convert standardized packet count to transition widths
@@ -208,7 +208,7 @@ class GrotrianPlot:
             sim.plasma.atomic_data.levels.energy * u.erg.to(u.electronvolt),
             name="energy",
         )
-        level_population_data = sim.plasma.level_number_density
+        level_number_density_data = sim.plasma.level_number_density
         line_interaction_analysis = {
             filter_mode: LastLineInteraction.from_simulation(sim, filter_mode)
             for filter_mode in cls.FILTER_MODES
@@ -216,7 +216,7 @@ class GrotrianPlot:
         return cls(
             atom_data=atom_data,
             level_energy_data=level_energy_data,
-            level_population_data=level_population_data,
+            level_number_density_data=level_number_density_data,
             line_interaction_analysis=line_interaction_analysis,
             **kwargs,
         )
@@ -225,13 +225,13 @@ class GrotrianPlot:
         self,
         atom_data,
         level_energy_data,
-        level_population_data,
+        level_number_density_data,
         line_interaction_analysis,
     ):
         # Set data members
         self._atom_data = atom_data
         self._level_energy_data = level_energy_data
-        self._level_population_data = level_population_data
+        self._level_number_density_data = level_number_density_data
         self._line_interaction_analysis = line_interaction_analysis
 
         # Max number of levels to display
@@ -253,7 +253,7 @@ class GrotrianPlot:
         ### Define default parameters for visual elements related to energy levels
         self.level_width_scale, self.level_width_offset = 3, 1
         self._level_width_transform = np.log  # Scale of the level widths
-        self._population_spacer = np.geomspace  # To space width bar counts
+        self._number_density_spacer = np.geomspace  # To space width bar counts
         ### Scale of the y-axis
         self._y_scale = "Log"
         self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]
@@ -353,7 +353,7 @@ class GrotrianPlot:
         if (atomic_number, ion_number) not in self._level_energy_data.index or (
             atomic_number,
             ion_number,
-        ) not in self._level_population_data.index:
+        ) not in self._level_number_density_data.index:
             raise ValueError(
                 "The (atomic_number, ion_number) pair doesn't exist in model"
             )
@@ -530,32 +530,32 @@ class GrotrianPlot:
 
     def _compute_level_data(self):
         """
-        Computes the level population data for the horizontal platforms in the widget
+        Computes the level number density data for the horizontal platforms in the widget
         """
         ### Get energy levels and convert to eV
         raw_energy_levels = self._level_energy_data.loc[
             self.atomic_number, self.ion_number
         ].loc[0 : self.max_levels]
 
-        ### Get level populations
-        raw_level_populations = self._level_population_data.loc[
+        ### Get level number densities
+        raw_level_number_densities = self._level_number_density_data.loc[
             self.atomic_number, self.ion_number
         ].loc[0 : self.max_levels]
 
-        ### Average out the level populations across all zones, if zone not selected
+        ### Average out the level number densities across all zones, if zone not selected
         if self.shell is None:
-            raw_level_populations = raw_level_populations.mean(axis=1)
+            raw_level_number_densities = raw_level_number_densities.mean(axis=1)
         else:
-            raw_level_populations = raw_level_populations[self.shell]
+            raw_level_number_densities = raw_level_number_densities[self.shell]
 
-        raw_level_populations = pd.Series(
-            raw_level_populations, name="population"
+        raw_level_number_densities = pd.Series(
+            raw_level_number_densities, name="population"
         )
 
-        ### Join level populations and energy values
+        ### Join level number densities and energy values
         raw_level_data = pd.merge(
             raw_energy_levels,
-            raw_level_populations,
+            raw_level_number_densities,
             left_index=True,
             right_index=True,
         )
@@ -579,9 +579,9 @@ class GrotrianPlot:
                 ),  # Set energy as mean of merged levels
                 population=("population", "sum"),
             )
-        )  # Add the populations of merged levels
+        )  # Add the number densities of merged levels
 
-        ### Standardize the level populations to get width coefficient of levels
+        ### Standardize the level number densities to get width coefficient of levels
         self.level_data["level_width_coefficient"] = standardize(
             self.level_data.population,
             transform=self._level_width_transform,
@@ -611,7 +611,7 @@ class GrotrianPlot:
                     y=level_info.y_coord * np.ones(10),
                     mode="lines",
                     hovertemplate=f"Energy: {level_info.energy:.2e} eV<br>"
-                    + f"Population: {level_info.population:.2e}"
+                    + f"Number density: {level_info.population:.2e}"
                     + "<extra></extra>",
                     line=dict(
                         color="black",
@@ -637,42 +637,42 @@ class GrotrianPlot:
                 yref="y2",
             )
 
-    def _draw_population_width_scale(self):
+    def _draw_number_density_width_scale(self):
         """
-        Displays the level population width reference bar
+        Displays the level number density width reference bar
         """
         ### Create width scale
-        ### Find lower and upper bounds of populations and corresponding widths
-        min_population_idx = self.level_data.population[
+        ### Find lower and upper bounds of number densities and corresponding widths
+        min_number_density_idx = self.level_data.population[
             self.level_data.population > 0
         ].idxmin()
-        max_population_idx = self.level_data.population.idxmax()
+        max_number_density_idx = self.level_data.population.idxmax()
 
-        min_population = self.level_data.population[min_population_idx]
-        max_population = self.level_data.population[max_population_idx]
+        min_number_density = self.level_data.population[min_number_density_idx]
+        max_number_density = self.level_data.population[max_number_density_idx]
 
         min_width = (
-            self.level_data.level_width_coefficient[min_population_idx]
+            self.level_data.level_width_coefficient[min_number_density_idx]
             * self.level_width_scale
             + self.level_width_offset
         )
         max_width = (
-            self.level_data.level_width_coefficient[max_population_idx]
+            self.level_data.level_width_coefficient[max_number_density_idx]
             * self.level_width_scale
             + self.level_width_offset
         )
 
-        ### Space the populations (log) and corresponding widths (linear) equally
+        ### Space the number densities (log) and corresponding widths (linear) equally
         scale_granularity = 10  # Number of scale ticks to display
-        population_ticks = self._population_spacer(
-            min_population, max_population, scale_granularity
+        number_density_ticks = self._number_density_spacer(
+            min_number_density, max_number_density, scale_granularity
         )
         width_ticks = np.linspace(min_width, max_width, scale_granularity)
         y_positions = np.linspace(0, 1, scale_granularity)
 
         ### Draw the scale lines
-        for population, width, y_pos in zip(
-            population_ticks, width_ticks, y_positions
+        for number_density, width, y_pos in zip(
+            number_density_ticks, width_ticks, y_positions
         ):
             self.fig.add_shape(
                 type="line",
@@ -687,7 +687,7 @@ class GrotrianPlot:
             self.fig.add_annotation(
                 x=0.35,
                 y=y_pos,
-                text=f"{population:.1e}",
+                text=f"{number_density:.1e}",
                 showarrow=False,
                 xref="x1",
                 yref="y1",
@@ -696,7 +696,7 @@ class GrotrianPlot:
         self.fig.add_annotation(
             x=0.28,
             y=-0.08,
-            text="Populations",
+            text="Number densities",
             showarrow=False,
             xref="x1",
             yref="y1",
@@ -939,7 +939,7 @@ class GrotrianPlot:
 
         ### Create energy level platforms and width reference scale
         self._draw_energy_levels()
-        self._draw_population_width_scale()
+        self._draw_number_density_width_scale()
 
         # Remove ticklabels from x-axis
         self.fig.update_xaxes(

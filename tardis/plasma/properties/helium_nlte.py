@@ -7,7 +7,7 @@ import pandas as pd
 from tardis.plasma.properties.base import (
     ProcessingPlasmaProperty,
 )
-from tardis.plasma.properties.ion_population import PhiSahaNebular
+from tardis.plasma.properties.ion_number_density import PhiSahaNebular
 
 __all__ = [
     "HeliumNLTE",
@@ -36,24 +36,24 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         partition_function,
     ):
         """
-        Updates all of the helium level populations according to the helium NLTE recomb approximation.
+        Updates all of the helium level number densities according to the helium NLTE recomb approximation.
         """
         helium_population = level_boltzmann_factor.loc[2].copy()
         # He I excited states
-        he_one_population = HeliumNLTE.calculate_helium_one(
+        he_one_number_density = HeliumNLTE.calculate_helium_one(
             g_electron, beta_rad, ionization_data, level_boltzmann_factor, g, w
         )
         helium_population.loc[0, helium_population.columns] = (
-            he_one_population.values
+            he_one_number_density.values
         )
         # He I ground state
         helium_population.loc[0, 0] = 0.0
         # He II excited states
-        he_two_population = level_boltzmann_factor.loc[2, 1].mul(
+        he_two_number_density = level_boltzmann_factor.loc[2, 1].mul(
             float(g.loc[2, 1, 0]) ** (-1.0)
         )
         helium_population.loc[1, helium_population.columns] = (
-            he_two_population.values
+            he_two_number_density.values
         )
         # He II ground state
         helium_population.loc[1, 0] = 1.0
@@ -79,7 +79,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         g_electron, beta_rad, ionization_data, level_boltzmann_factor, g, w
     ):
         """
-        Calculates the He I level population values, in equilibrium with the He II ground state.
+        Calculates the He I level number density values, in equilibrium with the He II ground state.
         """
         return (
             level_boltzmann_factor.loc[2, 0]
@@ -102,10 +102,10 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         g,
     ):
         """
-        Calculates the He III level population values.
+        Calculates the He III level number density values.
         """
         zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
-        he_three_population = (
+        he_three_number_density = (
             2
             * (float(g.loc[2, 2, 0]) / float(g.loc[2, 1, 0]))
             * g_electron
@@ -114,7 +114,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             * (delta.loc[2, 2] * zeta + w * (1.0 - zeta))
             * (t_electrons / t_rad) ** 0.5
         )
-        return he_three_population
+        return he_three_number_density
 
 
 class HeliumNumericalNLTE(ProcessingPlasmaProperty):
@@ -229,18 +229,18 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                 f"He_NLTE_Files/discradfield{zone}.txt",
             )
             os.rename("debug_occs.dat", f"He_NLTE_Files/occs{zone}.txt")
-        # Reading in populations from files
+        # Reading in number densities from files
         helium_population = level_boltzmann_factor.loc[2].copy()
         for zone, _ in enumerate(electron_densities):
             with open(f"He_NLTE_Files/discradfield{zone}.txt") as read_file:
                 for level in range(35):
-                    level_population = read_file.readline()
-                    level_population = float(level_population)
-                    helium_population[zone].loc[0, level] = level_population
+                    level_number_density = read_file.readline()
+                    level_number_density = float(level_number_density)
+                    helium_population[zone].loc[0, level] = level_number_density
                 helium_population[zone].loc[1, 0] = float(read_file.readline())
-        # Performing He LTE level populations (upper two energy levels,
+        # Performing He LTE level number densities (upper two energy levels,
         # He II excited states, He III)
-        he_one_population = HeliumNLTE.calculate_helium_one(
+        he_one_number_density = HeliumNLTE.calculate_helium_one(
             g_electron,
             beta_rad,
             partition_function,
@@ -252,13 +252,13 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
             t_rad,
             t_electrons,
         )
-        helium_population.loc[0, 35].update(he_one_population.loc[35])
-        helium_population.loc[0, 36].update(he_one_population.loc[36])
+        helium_population.loc[0, 35].update(he_one_number_density.loc[35])
+        helium_population.loc[0, 36].update(he_one_number_density.loc[36])
 
-        he_two_population = level_boltzmann_factor.loc[2, 1, 1:].mul(
+        he_two_number_density = level_boltzmann_factor.loc[2, 1, 1:].mul(
             (float(g.loc[2, 1, 0]) ** (-1)) * helium_population.loc[s1, 0]
         )
-        helium_population.loc[1, 1:].update(he_two_population)
+        helium_population.loc[1, 1:].update(he_two_number_density)
 
         helium_population.loc[2, 0] = HeliumNLTE.calculate_helium_three(
             t_rad,

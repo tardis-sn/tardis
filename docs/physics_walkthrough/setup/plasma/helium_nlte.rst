@@ -11,7 +11,7 @@ Recombination He NLTE
 
 Paper version:
 
-This section will summarise the equations used in the calculation of the helium state for the `recomb-NLTE` approximation in TARDIS. A full physical justification for these equations will be provided in an upcoming paper. All of the level populations are given as a function of the He II ground state population (:math:`n_{2,1,0}`), and the values are then normalised using the helium number density to give the correct level number densities.
+This section will summarise the equations used in the calculation of the helium state for the `recomb-NLTE` approximation in TARDIS. A full physical justification for these equations will be provided in an upcoming paper. All of the level number densities are given as a function of the He II ground state number density (:math:`n_{2,1,0}`), and the values are then normalised using the helium number density to give the correct level number densities.
 
 Symbols/Indexing:
  * :math:`N_{i,j}`: Ion Number Density

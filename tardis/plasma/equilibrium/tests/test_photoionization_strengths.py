@@ -108,26 +108,26 @@ def test_analytic_corrected_photoionization_coeff_solver(
         mock_photoionization_cross_sections
     )
     electron_temperature = np.array([1e4, 1e4]) * u.K
-    lte_level_population = pd.DataFrame(
+    lte_level_number_density = pd.DataFrame(
         np.ones((2, 2)), index=mock_photoionization_cross_sections.index
     )
-    level_population = pd.DataFrame(
+    level_number_density = pd.DataFrame(
         np.ones((2, 2)), index=mock_photoionization_cross_sections.index
     )
-    lte_ion_population = pd.DataFrame(
+    lte_ion_number_density = pd.DataFrame(
         np.ones((2, 2)), index=mock_photoionization_cross_sections.index
     )
-    ion_population = pd.DataFrame(
+    ion_number_density = pd.DataFrame(
         np.ones((2, 2)), index=mock_photoionization_cross_sections.index
     )
 
     actual_corrected_photoionization_rate_coeff = solver.solve(
         mock_dilute_blackbody_radiationfield_state,
         electron_temperature,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
+        lte_level_number_density,
+        level_number_density,
+        lte_ion_number_density,
+        ion_number_density,
     )
 
     assert isinstance(actual_corrected_photoionization_rate_coeff, pd.DataFrame)

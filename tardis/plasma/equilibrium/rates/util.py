@@ -1,18 +1,18 @@
 import pandas as pd
 
 
-def reindex_ion_population_to_level_population(
-    ion_population: pd.DataFrame,
-    level_population: pd.DataFrame,
+def reindex_ion_number_density_to_level_number_density(
+    ion_number_density: pd.DataFrame,
+    level_number_density: pd.DataFrame,
     next_higher: bool = True,
 ) -> pd.DataFrame:
-    """Align ion population indexes with level populations by ionization stage.
+    """Align ion number density indexes with level number densities by ionization stage.
 
     Parameters
     ----------
-    ion_population : pd.DataFrame
+    ion_number_density : pd.DataFrame
         Ion-resolved values indexed by atomic number and ion number.
-    level_population : pd.DataFrame
+    level_number_density : pd.DataFrame
         Level-resolved values indexed by atomic number, ion number, and level
         number.
     next_higher : bool, optional
@@ -22,31 +22,31 @@ def reindex_ion_population_to_level_population(
     Returns
     -------
     pd.DataFrame
-        Ion-resolved values with the level-population index and columns.
+        Ion-resolved values with the level number-density index and columns.
     """
-    if ion_population.index.nlevels == level_population.index.nlevels:
-        aligned_ion_population = ion_population.reindex(
-            index=level_population.index,
-            columns=level_population.columns,
+    if ion_number_density.index.nlevels == level_number_density.index.nlevels:
+        aligned_ion_number_density = ion_number_density.reindex(
+            index=level_number_density.index,
+            columns=level_number_density.columns,
         )
     else:
-        ion_number = level_population.index.get_level_values("ion_number")
+        ion_number = level_number_density.index.get_level_values("ion_number")
         if next_higher:
             ion_number = ion_number + 1
         ion_index = pd.MultiIndex.from_arrays(
             [
-                level_population.index.get_level_values("atomic_number"),
+                level_number_density.index.get_level_values("atomic_number"),
                 ion_number,
             ],
-            names=ion_population.index.names,
+            names=ion_number_density.index.names,
         )
-        aligned_ion_population = ion_population.reindex(
-            index=ion_index, columns=level_population.columns
+        aligned_ion_number_density = ion_number_density.reindex(
+            index=ion_index, columns=level_number_density.columns
         )
     return pd.DataFrame(
-        aligned_ion_population.to_numpy(),
-        index=level_population.index,
-        columns=level_population.columns,
+        aligned_ion_number_density.to_numpy(),
+        index=level_number_density.index,
+        columns=level_number_density.columns,
     )
 
 
