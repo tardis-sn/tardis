@@ -75,7 +75,8 @@ FF_OPAC_CONST = (
 
 def calculate_upsilon_g_2_collisional_rates(yg, t_electrons, delta_energies):
     boltzmann_factor = np.exp(
-        -delta_energies.values[np.newaxis].T / (t_electrons * const.k_B).value
+        -delta_energies.to_numpy()[np.newaxis].T
+        / (t_electrons * const.k_B).value
     )
 
     q_lu = (
@@ -113,7 +114,7 @@ class UpsilonCMFGENSolver:
         # can produce upsilon/g or not, depending on how easy it is
         self.upsilon_g_lu_interpolator = PchipInterpolator(
             upsilon_temperatures,
-            self.upsilon_lu_data.values,
+            self.upsilon_lu_data.to_numpy(),
             axis=1,
             extrapolate=True,
         )
@@ -239,7 +240,9 @@ class UpsilonRegemorterSolver:
             transition_data.index.get_level_values("level_number_lower")
             < transition_data.index.get_level_values("level_number_upper")
         )
-        self.transition_data = transition_data.sort_index(kind=SORTING_ALGORITHM)
+        self.transition_data = transition_data.sort_index(
+            kind=SORTING_ALGORITHM
+        )
         self.g_bar = g_bar
 
     def solve(self, t_electrons):
@@ -275,10 +278,10 @@ class UpsilonRegemorterSolver:
         .. [2] Hubeny, I. and Mihalas, D., "Theory of Stellar Atmospheres". 2014.
         """
         upsilon_g_lu = (
-            self.transition_data.f_lu.values
+            self.transition_data.f_lu.to_numpy()
             * (
                 HYDROGEN_IONIZATION_ENERGY
-                / (const.h * self.transition_data.nu.values * u.Hz)
+                / (const.h * self.transition_data.nu.to_numpy() * u.Hz)
             )
             ** 2
         )
@@ -291,7 +294,7 @@ class UpsilonRegemorterSolver:
         )
 
         u0 = (
-            const.h.cgs.value * self.transition_data.nu.values[np.newaxis].T
+            const.h.cgs.value * self.transition_data.nu.to_numpy()[np.newaxis].T
         ) / (t_electrons.value * const.k_B.cgs.value)
         gamma_component = 0.276 * exp1_times_exp(u0)  # Eq 9.59 in Mihalas
         # choice of transitions between principal quantum numbers g_bar = 0.2, otherwise gbar = 0.7
@@ -319,7 +322,7 @@ class CollExcRateCoeff:
     def calculate(self, yg_interp, yg_index, t_electrons, delta_E_yg):
         yg = yg_interp(t_electrons)
         boltzmann_factor = np.exp(
-            -delta_E_yg.values[np.newaxis].T / (t_electrons * K_B)
+            -delta_E_yg.to_numpy()[np.newaxis].T / (t_electrons * K_B)
         )
         q_ij = (
             BETA_COLL.value / np.sqrt(t_electrons) * yg * boltzmann_factor
@@ -344,10 +347,10 @@ class CollDeexcRateCoeff:
 
         n_lower_prop = thermal_lte_level_boltzmann_factor.loc[
             level_lower_index
-        ].values
+        ].to_numpy()
         n_upper_prop = thermal_lte_level_boltzmann_factor.loc[
             level_upper_index
-        ].values
+        ].to_numpy()
 
         coll_deexc_coeff = coll_exc_coeff * n_lower_prop / n_upper_prop
         return coll_deexc_coeff

@@ -120,17 +120,17 @@ def test_new_macro_atom_solver(
     )
 
     npt.assert_allclose(
-        macro_atom_sorted_to_legacy.transition_probabilities.values,
-        legacy_macro_atom_state.transition_probabilities.values,
+        macro_atom_sorted_to_legacy.transition_probabilities.to_numpy(),
+        legacy_macro_atom_state.transition_probabilities.to_numpy(),
         rtol=1e-7,
     )
     npt.assert_array_equal(
-        macro_atom_sorted_to_legacy.transition_metadata.transition_type.values,
-        legacy_plasma.atomic_data.macro_atom_data["transition_type"].values,
+        macro_atom_sorted_to_legacy.transition_metadata.transition_type.to_numpy(),
+        legacy_plasma.atomic_data.macro_atom_data["transition_type"].to_numpy(),
     )
     npt.assert_array_equal(
-        macro_atom_sorted_to_legacy.transition_metadata.transition_line_idx.values,
-        legacy_plasma.atomic_data.macro_atom_data["lines_idx"].values,
+        macro_atom_sorted_to_legacy.transition_metadata.transition_line_idx.to_numpy(),
+        legacy_plasma.atomic_data.macro_atom_data["lines_idx"].to_numpy(),
     )
 
     macro_atom_recreated = macro_atom_state.recreate_legacy_macro_atom_state(
@@ -138,8 +138,8 @@ def test_new_macro_atom_solver(
     )
 
     npt.assert_allclose(
-        macro_atom_recreated.transition_probabilities.values,
-        macro_atom_sorted_to_legacy.transition_probabilities.values,
+        macro_atom_recreated.transition_probabilities.to_numpy(),
+        macro_atom_sorted_to_legacy.transition_probabilities.to_numpy(),
         rtol=1e-7,
     )
 
@@ -149,17 +149,17 @@ def test_new_macro_atom_solver(
     )
 
     npt.assert_array_equal(
-        macro_atom_recreated.macro_block_edge_index.values,
+        macro_atom_recreated.macro_block_edge_index.to_numpy(),
         legacy_plasma.atomic_data.macro_atom_references[
             "block_references"
-        ].values,
+        ].to_numpy(),
     )
 
     npt.assert_array_equal(
-        macro_atom_recreated.destination_level_id.values,
+        macro_atom_recreated.destination_level_id.to_numpy(),
         legacy_plasma.atomic_data.macro_atom_data[
             "destination_level_idx"
-        ].values,
+        ].to_numpy(),
     )
 
     regression_new_macro_atom_data = regression_data.sync_dataframe(

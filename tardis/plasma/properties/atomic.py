@@ -185,7 +185,8 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         photoionization_data = photoionization_data[mask_selected_species]
         phot_nus = photoionization_data["nu"]
         block_references = np.pad(
-            phot_nus.groupby(level=[0, 1, 2]).count().values.cumsum(), [1, 0]
+            phot_nus.groupby(level=[0, 1, 2]).count().to_numpy().cumsum(),
+            [1, 0],
         )
         photo_ion_index = photoionization_data.index.unique()
         nu_i = photoionization_data.groupby(level=[0, 1, 2]).first().nu
@@ -199,8 +200,8 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         ].references_idx
         photo_ion_idx = pd.DataFrame(
             {
-                "source_level_idx": source_idx.values,
-                "destination_level_idx": destination_idx.values,
+                "source_level_idx": source_idx.to_numpy(),
+                "destination_level_idx": destination_idx.to_numpy(),
             },
             index=photo_ion_index,
         )
@@ -245,8 +246,8 @@ class ContinuumInteractionHandler(ProcessingPlasmaProperty):
         nus = photo_ion_cross_sections.nu.loc[
             level2continuum_idx.index
         ]  # Sort by descending frequency
-        nu_mins = nus.groupby(level=[0, 1, 2], sort=False).first().values
-        nu_maxs = nus.groupby(level=[0, 1, 2], sort=False).last().values
+        nu_mins = nus.groupby(level=[0, 1, 2], sort=False).first().to_numpy()
+        nu_maxs = nus.groupby(level=[0, 1, 2], sort=False).last().to_numpy()
 
         @njit(error_model="numpy", fastmath=True)
         def get_current_bound_free_continua(nu):
@@ -271,7 +272,7 @@ class ContinuumInteractionHandler(ProcessingPlasmaProperty):
 
         destination_level_idxs = photo_ion_idx.loc[
             level2continuum_idx.index, "destination_level_idx"
-        ].values
+        ].to_numpy()
 
         @njit(error_model="numpy", fastmath=True)
         def determine_bf_macro_activation_idx(
@@ -378,7 +379,7 @@ class TwoPhotonData(ProcessingPlasmaProperty):
         if not mask_selected_species.sum():
             raise IncompleteAtomicData(
                 "two photon transition data for the requested "
-                f"continuum_interactions species: {continuum_interaction_species.values.tolist()}"
+                f"continuum_interactions species: {continuum_interaction_species.to_numpy().tolist()}"
             )
         two_photon_data = two_photon_data[mask_selected_species]
         index_lower = two_photon_data.index.droplevel("level_number_upper")
@@ -391,8 +392,8 @@ class TwoPhotonData(ProcessingPlasmaProperty):
         ].references_idx
         two_photon_idx = pd.DataFrame(
             {
-                "source_level_idx": source_idx.values,
-                "destination_level_idx": destination_idx.values,
+                "source_level_idx": source_idx.to_numpy(),
+                "destination_level_idx": destination_idx.to_numpy(),
             },
             index=two_photon_data.index,
         )
@@ -580,7 +581,7 @@ class ZetaData(BaseAtomicDataProperty):
         zeta_data["atomic_number"] = zeta_data.index.codes[0] + 1
         zeta_data["ion_number"] = zeta_data.index.codes[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
-        zeta_data_check = counter(zeta_data.atomic_number.values)
+        zeta_data_check = counter(zeta_data.atomic_number.to_numpy())
         keys = np.array(list(zeta_data_check.keys()))
         values = np.array(zeta_data_check.values())
         if np.all(keys + 1 == values) and keys:
@@ -609,11 +610,11 @@ class ZetaData(BaseAtomicDataProperty):
             )
             for value in range(len(zeta_data)):
                 updated_dataframe.loc[
-                    zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
+                    zeta_data.atomic_number.to_numpy()[value],
+                    zeta_data.ion_number.to_numpy()[value],
                 ] = zeta_data.loc[
-                    zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
+                    zeta_data.atomic_number.to_numpy()[value],
+                    zeta_data.ion_number.to_numpy()[value],
                 ]
             updated_dataframe = updated_dataframe.astype(float)
             updated_index = pd.DataFrame(updated_index)
@@ -695,7 +696,10 @@ class YgData(ProcessingPlasmaProperty):
         index = yg_data.index
         lu_index = index.droplevel("level_number_lower")
         ll_index = index.droplevel("level_number_upper")
-        delta_E = energies.loc[lu_index].values - energies.loc[ll_index].values
+        delta_E = (
+            energies.loc[lu_index].to_numpy()
+            - energies.loc[ll_index].to_numpy()
+        )
         delta_E = pd.Series(delta_E, index=index)
 
         source_idx = atomic_data.macro_atom_references.loc[
@@ -706,8 +710,8 @@ class YgData(ProcessingPlasmaProperty):
         ].references_idx
         yg_idx = pd.DataFrame(
             {
-                "source_level_idx": source_idx.values,
-                "destination_level_idx": destination_idx.values,
+                "source_level_idx": source_idx.to_numpy(),
+                "destination_level_idx": destination_idx.to_numpy(),
             },
             index=index,
         )
@@ -753,8 +757,8 @@ class YgData(ProcessingPlasmaProperty):
             ["level_number_lower", "level_number_upper"]
         ).isin(continuum_interaction_species)
         lines_filtered = atomic_data.lines[mask_selected_species]
-        f_lu = lines_filtered.f_lu.values
-        nu_lines = lines_filtered.nu.values
+        f_lu = lines_filtered.f_lu.to_numpy()
+        nu_lines = lines_filtered.nu.to_numpy()
 
         yg = f_lu * (I_H / (H * nu_lines)) ** 2
         coll_const = A0**2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))

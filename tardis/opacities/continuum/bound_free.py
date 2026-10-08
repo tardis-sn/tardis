@@ -22,7 +22,7 @@ class BoundFreeOpacity(ProcessingPlasmaProperty):
         lte_level_number_density,
         boltzmann_factor_photo_ion,
     ):
-        cross_section = photo_ion_cross_sections["x_sect"].values
+        cross_section = photo_ion_cross_sections["x_sect"].to_numpy()
 
         n_i = level_number_density.loc[photo_ion_cross_sections.index]
         lte_n_i = lte_level_number_density.loc[photo_ion_cross_sections.index]

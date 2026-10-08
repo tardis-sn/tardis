@@ -65,7 +65,9 @@ def test_radiative_rates_match_einstein_relations(
     radiation_field = DilutePlanckianRadiationField(
         REFERENCE_RADIATION_TEMPERATURES, REFERENCE_RADIATION_DILUTION_FACTORS
     )
-    j_nu = radiation_field.calculate_mean_intensity(real_einstein_data.nu.values)
+    j_nu = radiation_field.calculate_mean_intensity(
+        real_einstein_data.nu.to_numpy()
+    )
     rates = RadiativeRatesSolver(real_einstein_data).solve(
         pd.DataFrame(j_nu, index=real_einstein_data.index)
     )
@@ -88,7 +90,8 @@ def test_radiative_rates_match_einstein_relations(
         j_nu[0],
         REFERENCE_RADIATION_DILUTION_FACTORS
         * intensity_black_body(
-            real_einstein_data.nu.values * u.Hz, REFERENCE_RADIATION_TEMPERATURES
+            real_einstein_data.nu.to_numpy() * u.Hz,
+            REFERENCE_RADIATION_TEMPERATURES,
         ),
     )
 
@@ -135,7 +138,7 @@ def test_radiative_rates_scale_linearly_with_dilution(
             DilutePlanckianRadiationField(
                 REFERENCE_SINGLE_RADIATION_TEMPERATURE,
                 REFERENCE_LOW_DILUTION_FACTOR,
-            ).calculate_mean_intensity(einstein.nu.values),
+            ).calculate_mean_intensity(einstein.nu.to_numpy()),
             index=einstein.index,
         )
     )
@@ -144,12 +147,14 @@ def test_radiative_rates_scale_linearly_with_dilution(
             DilutePlanckianRadiationField(
                 REFERENCE_SINGLE_RADIATION_TEMPERATURE,
                 REFERENCE_HIGH_DILUTION_FACTOR,
-            ).calculate_mean_intensity(einstein.nu.values),
+            ).calculate_mean_intensity(einstein.nu.to_numpy()),
             index=einstein.index,
         )
     )
     # With A_ul=0, doubling dilution doubles both stimulated rates exactly.
-    npt.assert_allclose(rates_b.to_numpy(), 2.0 * rates_a.to_numpy(), rtol=1e-12)
+    npt.assert_allclose(
+        rates_b.to_numpy(), 2.0 * rates_a.to_numpy(), rtol=1e-12
+    )
 
 
 def test_tabulated_collision_strength_interpolation_matches_iip(
@@ -206,9 +211,13 @@ def test_collisional_coefficients_satisfy_detailed_balance_and_temperature_scali
         collision_strengths_type="cmfgen",
     ).solve(temperatures * u.K)
     downward = rates.loc[(1, 0, 0, 0, 1, 0)].to_numpy()
-    expected = regression_data.sync_dataframe(
-        pd.DataFrame({"value": downward}), key="allclose_0"
-    ).to_numpy().ravel()
+    expected = (
+        regression_data.sync_dataframe(
+            pd.DataFrame({"value": downward}), key="allclose_0"
+        )
+        .to_numpy()
+        .ravel()
+    )
     npt.assert_allclose(downward, expected, rtol=1e-12)
     upward = rates.loc[(1, 0, 0, 0, 0, 1)].to_numpy()
     delta_energy = (

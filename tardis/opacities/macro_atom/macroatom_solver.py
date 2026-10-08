@@ -137,14 +137,14 @@ class LegacyMacroAtomSolver:
         transition_probabilities = np.empty(
             (self.transition_probability_coef.shape[0], beta_sobolev.shape[1])
         )
-        transition_type = macro_atom_data.transition_type.values
-        lines_idx = macro_atom_data.lines_idx.values
-        tpos = macro_atom_data.transition_probability.values
+        transition_type = macro_atom_data.transition_type.to_numpy()
+        lines_idx = macro_atom_data.lines_idx.to_numpy()
+        tpos = macro_atom_data.transition_probability.to_numpy()
         # This function modifies transition_probabilities inplace
         util.fast_calculate_transition_probabilities(
             tpos,
-            beta_sobolev.values,
-            mean_intensities_lines_blue_wing.values,
+            beta_sobolev.to_numpy(),
+            mean_intensities_lines_blue_wing.to_numpy(),
             stimulated_emission_factor,
             transition_type,
             lines_idx,
@@ -273,7 +273,7 @@ class BoundBoundMacroAtomSolver:
                 ]
             ]
             .convert_dtypes(int)
-            .values
+            .to_numpy()
         )  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
 
         self._lines_level_upper = self.lines.index.droplevel(
@@ -659,7 +659,7 @@ class BoundBoundMacroAtomSolver:
         # Append a dummy index so that the interactions can access a "block end" if a packet activates the macroatom highest level of the heaviest element in the montecarlo.
         # Without this the kernel will crash trying to access an index that doesn't exist.
         macro_data = np.append(
-            macro_data.values, len(macro_atom_transition_metadata)
+            macro_data.to_numpy(), len(macro_atom_transition_metadata)
         )
         unique_source_multi_index = unique_source_multi_index.append(
             pd.MultiIndex.from_tuples(
@@ -1048,7 +1048,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self.ionization_energies[
                 get_ground_state_multi_index(coll_ion_coeff.index)
             ]
-            - self.levels.energy.loc[coll_ion_coeff.index].values
+            - self.levels.energy.loc[coll_ion_coeff.index].to_numpy()
         )
         self._coll_energies_lower = self.levels.energy.loc[
             coll_exc_coeff.index.droplevel("level_number_upper")

@@ -311,8 +311,8 @@ class TestContinuumMacroAtomSolver:
         probs = continuum_macro_atom_state.transition_probabilities
 
         # Probabilities should be bounded [0, 1]
-        assert (probs.values >= 0).all()
-        assert (probs.values <= 1.0).all()
+        assert (probs.to_numpy() >= 0).all()
+        assert (probs.to_numpy() <= 1.0).all()
 
     def test_transition_probabilities_normalize_by_source_block(
         self, continuum_macro_atom_state: MacroAtomState
@@ -466,7 +466,7 @@ class TestContinuumMacroAtomSolver:
         probs = continuum_macro_atom_state.transition_probabilities
 
         # Check for inf
-        n_infs = np.isinf(probs.values).sum()
+        n_infs = np.isinf(probs.to_numpy()).sum()
         assert n_infs == 0, (
             f"Found {n_infs} infinite values in transition probabilities"
         )

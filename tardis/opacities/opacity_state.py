@@ -152,26 +152,26 @@ class OpacityState:
                     macro_atom_state.normalized_deactivating_probs
                     if continuum_processes_enabled
                     else macro_atom_state.transition_probabilities
-                ).values.copy(),
+                )
+                .to_numpy()
+                .copy(),
                 dtype=np.float64,
             )
             line2macro_level_upper = (
-                macro_atom_state.line2macro_level_upper.values
+                macro_atom_state.line2macro_level_upper.to_numpy()
             )
             macro_block_edge_index = np.asarray(
                 macro_atom_state.macro_block_edge_index
             )
             transition_type = (
-                macro_atom_state.transition_metadata.transition_type.values
+                macro_atom_state.transition_metadata.transition_type.to_numpy()
             )
-            destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.values
-            transition_line_id = (
-                macro_atom_state.transition_metadata.transition_line_idx.values
-            )
+            destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.to_numpy()
+            transition_line_id = macro_atom_state.transition_metadata.transition_line_idx.to_numpy()
         return OpacityStateNumba(
-            self.electron_density.values,
+            self.electron_density.to_numpy(),
             self.t_electrons,
-            self.line_list_nu.values,
+            self.line_list_nu.to_numpy(),
             np.ascontiguousarray(self.tau_sobolev, dtype=np.float64),
             transition_probabilities,
             line2macro_level_upper,
