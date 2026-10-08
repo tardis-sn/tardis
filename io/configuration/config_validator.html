@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=1ed2c843"></script>
+      <script src="../../_static/documentation_options.js?v=72e8db7e"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1614,9 +1614,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.from_yaml"><code class="docutils literal notranslate"><span class="pre">Configuration.from_yaml()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.hdf_name"><code class="docutils literal notranslate"><span class="pre">Configuration.hdf_name</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.parse_convergence_section"><code class="docutils literal notranslate"><span class="pre">Configuration.parse_convergence_section()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.validate_model_section"><code class="docutils literal notranslate"><span class="pre">Configuration.validate_model_section()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.validate_montecarlo_section"><code class="docutils literal notranslate"><span class="pre">Configuration.validate_montecarlo_section()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.validate_spectrum_section"><code class="docutils literal notranslate"><span class="pre">Configuration.validate_spectrum_section()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigurationError"><code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code></a></li>
@@ -4631,6 +4628,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="example.html">TARDIS Example Configuration</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Configuration Validator</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#value-checks">Value Checks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#container">Container</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#how-to-use">How to use</a></li>
 </ul>
@@ -4920,6 +4918,33 @@
              
   <section id="configuration-validator">
 <h1>Configuration Validator<a class="headerlink" href="#configuration-validator" title="Link to this heading"></a></h1>
+<section id="value-checks">
+<span id="config-value-checks"></span><h2>Value Checks<a class="headerlink" href="#value-checks" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.from_config_dict" title="tardis.io.configuration.config_reader.Configuration.from_config_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Configuration.from_config_dict</span></code></a>
+validates a configuration in two steps. First, the configuration is checked
+against the YAML schemas in <code class="docutils literal notranslate"><span class="pre">tardis/io/configuration/schemas</span></code>, which set
+types, units, and default values. Second, TARDIS checks the values that the
+schemas cannot express in a single pass over every section present in the
+configuration. It raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for an invalid value and a
+<code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code> for an unsupported combination of options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">supernova</span></code>: <code class="docutils literal notranslate"><span class="pre">time_explosion</span></code> must be positive, and
+<code class="docutils literal notranslate"><span class="pre">luminosity_wavelength_start</span></code> must not exceed
+<code class="docutils literal notranslate"><span class="pre">luminosity_wavelength_end</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plasma</span></code>: <code class="docutils literal notranslate"><span class="pre">initial_t_inner</span></code> and <code class="docutils literal notranslate"><span class="pre">initial_t_rad</span></code> must be at least
+-1 K.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code>: the structure velocity <code class="docutils literal notranslate"><span class="pre">stop</span></code> must not be less than <code class="docutils literal notranslate"><span class="pre">start</span></code>,
+<code class="docutils literal notranslate"><span class="pre">v_outer_boundary</span></code> must not be less than <code class="docutils literal notranslate"><span class="pre">v_inner_boundary</span></code> for file
+structures, and density parameters (<code class="docutils literal notranslate"><span class="pre">rho_0</span></code>, <code class="docutils literal notranslate"><span class="pre">v_0</span></code>, <code class="docutils literal notranslate"><span class="pre">time_0</span></code>, and the
+uniform <code class="docutils literal notranslate"><span class="pre">value</span></code>) must be positive.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spectrum</span></code>: <code class="docutils literal notranslate"><span class="pre">start</span></code> must not exceed <code class="docutils literal notranslate"><span class="pre">stop</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">montecarlo</span></code>: the convergence strategy must be <code class="docutils literal notranslate"><span class="pre">damped</span></code> or
+<code class="docutils literal notranslate"><span class="pre">adaptive_damped</span></code>; <code class="docutils literal notranslate"><span class="pre">custom</span></code> is not implemented. The <code class="docutils literal notranslate"><span class="pre">integrated</span></code>
+spectrum method cannot be combined with <code class="docutils literal notranslate"><span class="pre">enable_full_relativity</span></code>.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">supernova</span></code> and <code class="docutils literal notranslate"><span class="pre">plasma</span></code> checks apply to configurations that use a
+<a class="reference internal" href="components/models/index.html#csvy-model"><span class="std std-ref">CSVY model</span></a> as well as to configurations with a <code class="docutils literal notranslate"><span class="pre">model</span></code>
+section.</p>
 <p>The default config validator takes a user configuration and a default configuration and creates a consistent and valid configuration for TARDIS based on the constraints given in the default configuration. Both input data are normally given as a YAML dictionary with a consistent hierarchical structure, i.e. for every item in the user configuration there has to be a declaration in the default configuration at the same hierarchical level. This declaration can be either an unspecific empty level declaration like:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -4969,6 +4994,7 @@
 <li><p><strong>Quantity_range:</strong> Like property type range but with quantities as start and stop. The consistency of the units is checked.</p></li>
 </ul>
 <p>Additionally to the four standard keywords the types integer, float, and quantity can have the keywords <code class="docutils literal notranslate"><span class="pre">allowed_value</span></code> and <code class="docutils literal notranslate"><span class="pre">allowed_type</span></code>. <code class="docutils literal notranslate"><span class="pre">allowed_value</span></code> specifies the allowed values in a list, whereas <code class="docutils literal notranslate"><span class="pre">allowed_type</span></code> specifies a range of allowed values, such as “x&gt;10”.</p>
+</section>
 <section id="container">
 <h2>Container<a class="headerlink" href="#container" title="Link to this heading"></a></h2>
 <p>For more complex configurations with dependencies, you can use the containers that allow branching in the configuration. A container is declared in the default configuration file by setting the  <code class="docutils literal notranslate"><span class="pre">property_type</span></code> to container property and specifying the properties of the container with keyword type. The <code class="docutils literal notranslate"><span class="pre">property_type</span></code> of this section is container-declaration that allows you to specify the possible container items with the keyword container. For every specified container item, the code expects the declaration of all sub items. The keywords for this are “_“ + “name of the container item”.
@@ -5071,7 +5097,7 @@ If the type declaration for this container is finished, you can specify all cont
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 06 Oct 2026.
+      <span class="lastupdated">Last updated on 08 Oct 2026.
       </span></p>
   </div>
 

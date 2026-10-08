@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=1ed2c843"></script>
+      <script src="../../../../_static/documentation_options.js?v=72e8db7e"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1611,9 +1611,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.from_yaml"><code class="docutils literal notranslate"><span class="pre">Configuration.from_yaml()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.hdf_name"><code class="docutils literal notranslate"><span class="pre">Configuration.hdf_name</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.parse_convergence_section"><code class="docutils literal notranslate"><span class="pre">Configuration.parse_convergence_section()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.validate_model_section"><code class="docutils literal notranslate"><span class="pre">Configuration.validate_model_section()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.validate_montecarlo_section"><code class="docutils literal notranslate"><span class="pre">Configuration.validate_montecarlo_section()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.validate_spectrum_section"><code class="docutils literal notranslate"><span class="pre">Configuration.validate_spectrum_section()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigurationError"><code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code></a></li>
@@ -4628,6 +4625,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../io/configuration/example.html">TARDIS Example Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../io/configuration/config_validator.html">Configuration Validator</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../io/configuration/config_validator.html#value-checks">Value Checks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../io/configuration/config_validator.html#container">Container</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../io/configuration/config_validator.html#how-to-use">How to use</a></li>
 </ul>
@@ -5000,12 +4998,10 @@ class ConfigurationNameSpace(dict):
 
 
     def __init__(self, value=None):
-        if value is None:
-            pass
-        elif isinstance(value, dict):
+        if isinstance(value, dict):
             for key in value:
                 self.__setitem__(key, value[key])
-        else:
+        elif value is not None:
             raise TypeError(&quot;expected dict&quot;)
 
         if hasattr(self, &quot;csvy_model&quot;) and hasattr(self, &quot;model&quot;):
@@ -5182,7 +5178,12 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 <div class="viewcode-block" id="Configuration.from_config_dict">
 <a class="viewcode-back" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.from_config_dict">[docs]</a>
     @classmethod
-    def from_config_dict(cls, config_dict, validate=True, config_dirname=&quot;&quot;):
+    def from_config_dict(
+        cls,
+        config_dict: dict,
+        validate: bool = True,
+        config_dirname: str = &quot;&quot;,
+    ) -&gt; Configuration:
         &quot;&quot;&quot;
         Validating and subsequently parsing a config file.
 
@@ -5192,6 +5193,9 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
             dictionary of a raw unvalidated config file
         validate : bool
             Turn validation on or off.
+        config_dirname : str
+            Directory against which relative file paths in the configuration
+            are resolved.
 
         Returns
         -------
@@ -5204,75 +5208,106 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
         validated_config_dict[&quot;config_dirname&quot;] = config_dirname
 
-        montecarlo_section = validated_config_dict[&quot;montecarlo&quot;]
-        Configuration.validate_montecarlo_section(montecarlo_section)
-
-        if &quot;csvy_model&quot; in validated_config_dict.keys():
-            pass
-        elif &quot;model&quot; in validated_config_dict.keys():
-            model_section = validated_config_dict[&quot;model&quot;]
-            Configuration.validate_model_section(model_section)
-            # SuperNova Section Validation
-            supernova_section = validated_config_dict[&quot;supernova&quot;]
-
-            time_explosion = supernova_section[&quot;time_explosion&quot;]
-            luminosity_wavelength_start = supernova_section[
-                &quot;luminosity_wavelength_start&quot;
-            ]
-            luminosity_wavelength_end = supernova_section[
-                &quot;luminosity_wavelength_end&quot;
-            ]
-            if time_explosion.value &lt;= 0:
-                raise ValueError(
-                    f&quot;Time Of Explosion is Invalid, {time_explosion}&quot;
-                )
-            if (
-                luminosity_wavelength_start.value
-                &gt; luminosity_wavelength_end.value
-            ):
-                raise ValueError(
-                    &quot;Integral Limits for Luminosity Wavelength are Invalid, Start Limit &gt; End Limit \n&quot;
-                    f&quot;Luminosity Wavelength Start : {luminosity_wavelength_start} \n&quot;
-                    f&quot;Luminosity Wavelength End : {luminosity_wavelength_end}&quot;
-                )
-
-            # Plasma Section Validation
-            plasma_section = validated_config_dict[&quot;plasma&quot;]
-
-            initial_t_inner = plasma_section[&quot;initial_t_inner&quot;]
-            initial_t_rad = plasma_section[&quot;initial_t_rad&quot;]
-            if initial_t_inner.value &lt; -1:
-                raise ValueError(
-                    f&quot;Initial Temperature of Inner Boundary Black Body is Invalid, {initial_t_inner}&quot;
-                )
-            if initial_t_rad.value &lt; -1:
-                raise ValueError(
-                    f&quot;Initial Radiative Temperature is Invalid, {initial_t_rad}&quot;
-                )
-
-        spectrum_section = validated_config_dict[&quot;spectrum&quot;]
-        Configuration.validate_spectrum_section(
-            spectrum_section, montecarlo_section[&quot;enable_full_relativity&quot;]
-        )
+        cls._validate_config_values(validated_config_dict)
 
         return cls(validated_config_dict)</div>
 
 
-<div class="viewcode-block" id="Configuration.validate_spectrum_section">
-<a class="viewcode-back" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.validate_spectrum_section">[docs]</a>
     @staticmethod
-    def validate_spectrum_section(
-        spectrum_section, enable_full_relativity=False
-    ):
+    def _validate_config_values(config_dict: dict) -&gt; None:
         &quot;&quot;&quot;
-        Validate the spectrum section dictionary
+        Check the configuration values that the schema cannot express.
+
+        The schema checks types, units, and defaults but cannot compare a
+        quantity with a number or with another field. These checks run in one
+        pass over every section present in the configuration, after schema
+        validation. The montecarlo convergence section is also expanded in
+        place.
+
+        Parameters
+        ----------
+        config_dict : dict
+            Schema-validated configuration dictionary.
+
+        Raises
+        ------
+        ValueError
+            If a configuration value is out of range or inconsistent with
+            another value.
+        NotImplementedError
+            If the configuration requests an unsupported combination of
+            options.
+        &quot;&quot;&quot;
+        montecarlo_section = config_dict[&quot;montecarlo&quot;]
+        Configuration._validate_montecarlo_section(montecarlo_section)
+
+        if &quot;model&quot; in config_dict:
+            Configuration._validate_model_section(config_dict[&quot;model&quot;])
+        if &quot;supernova&quot; in config_dict:
+            Configuration._validate_supernova_section(config_dict[&quot;supernova&quot;])
+        if &quot;plasma&quot; in config_dict:
+            Configuration._validate_plasma_section(config_dict[&quot;plasma&quot;])
+
+        Configuration._validate_spectrum_section(
+            config_dict[&quot;spectrum&quot;], montecarlo_section[&quot;enable_full_relativity&quot;]
+        )
+
+    @staticmethod
+    def _validate_supernova_section(supernova_section: dict) -&gt; None:
+        &quot;&quot;&quot;
+        Validate the supernova section dictionary.
+
+        Parameters
+        ----------
+        supernova_section : dict
+        &quot;&quot;&quot;
+        time_explosion = supernova_section[&quot;time_explosion&quot;]
+        luminosity_wavelength_start = supernova_section[
+            &quot;luminosity_wavelength_start&quot;
+        ]
+        luminosity_wavelength_end = supernova_section[
+            &quot;luminosity_wavelength_end&quot;
+        ]
+        if time_explosion.value &lt;= 0:
+            raise ValueError(f&quot;Time Of Explosion is Invalid, {time_explosion}&quot;)
+        if luminosity_wavelength_start.value &gt; luminosity_wavelength_end.value:
+            raise ValueError(
+                &quot;Integral Limits for Luminosity Wavelength are Invalid, Start Limit &gt; End Limit \n&quot;
+                f&quot;Luminosity Wavelength Start : {luminosity_wavelength_start} \n&quot;
+                f&quot;Luminosity Wavelength End : {luminosity_wavelength_end}&quot;
+            )
+
+    @staticmethod
+    def _validate_plasma_section(plasma_section: dict) -&gt; None:
+        &quot;&quot;&quot;
+        Validate the plasma section dictionary.
+
+        Parameters
+        ----------
+        plasma_section : dict
+        &quot;&quot;&quot;
+        initial_t_inner = plasma_section[&quot;initial_t_inner&quot;]
+        initial_t_rad = plasma_section[&quot;initial_t_rad&quot;]
+        if initial_t_inner.value &lt; -1:
+            raise ValueError(
+                f&quot;Initial Temperature of Inner Boundary Black Body is Invalid, {initial_t_inner}&quot;
+            )
+        if initial_t_rad.value &lt; -1:
+            raise ValueError(
+                f&quot;Initial Radiative Temperature is Invalid, {initial_t_rad}&quot;
+            )
+
+    @staticmethod
+    def _validate_spectrum_section(
+        spectrum_section: dict, enable_full_relativity: bool = False
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Validate the spectrum section dictionary.
 
         Parameters
         ----------
         spectrum_section : dict
         &quot;&quot;&quot;
-        # Spectrum Section Validation
-
         start = spectrum_section[&quot;start&quot;]
         stop = spectrum_section[&quot;stop&quot;]
         if start.value &gt; stop.value:
@@ -5289,15 +5324,12 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 &quot;enable_full_relativity to &#39;True&#39;.\n&quot;
                 &quot;The FormalIntegrator is not yet implemented for the full &quot;
                 &quot;relativity mode. &quot;
-            )</div>
+            )
 
-
-<div class="viewcode-block" id="Configuration.validate_model_section">
-<a class="viewcode-back" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.validate_model_section">[docs]</a>
     @staticmethod
-    def validate_model_section(model_section):
+    def _validate_model_section(model_section: dict) -&gt; None:
         &quot;&quot;&quot;
-        Parse the model section dictionary
+        Validate the model section dictionary.
 
         Parameters
         ----------
@@ -5353,15 +5385,12 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 if &quot;time_0&quot; in model_section[&quot;structure&quot;][&quot;density&quot;].keys():
                     time_0 = model_section[&quot;structure&quot;][&quot;density&quot;][&quot;time_0&quot;]
                     if time_0.value &lt;= 0:
-                        raise ValueError(f&quot;Time Specified is Invalid, {time_0}&quot;)</div>
+                        raise ValueError(f&quot;Time Specified is Invalid, {time_0}&quot;)
 
-
-<div class="viewcode-block" id="Configuration.validate_montecarlo_section">
-<a class="viewcode-back" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.validate_montecarlo_section">[docs]</a>
     @staticmethod
-    def validate_montecarlo_section(montecarlo_section):
+    def _validate_montecarlo_section(montecarlo_section: dict) -&gt; None:
         &quot;&quot;&quot;
-        Validate the montecarlo section dictionary
+        Validate the montecarlo section dictionary.
 
         Parameters
         ----------
@@ -5379,8 +5408,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 &quot;you need to implement your specific convergence treatment&quot;
             )
         else:
-            raise ValueError(&#39;convergence_strategy is not &quot;damped&quot;, &quot;adaptive_damped&quot; or &quot;custom&quot;&#39;)</div>
-
+            raise ValueError(&#39;convergence_strategy is not &quot;damped&quot;, &quot;adaptive_damped&quot; or &quot;custom&quot;&#39;)
 
 <div class="viewcode-block" id="Configuration.parse_convergence_section">
 <a class="viewcode-back" href="../../../../api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.parse_convergence_section">[docs]</a>
@@ -5410,10 +5438,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                         ] = convergence_section_dict[param]
 
         return convergence_section_dict</div>
-
-
-    def __init__(self, config_dict):
-        super().__init__(config_dict)</div>
+</div>
 
 
 
@@ -5422,6 +5447,12 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 def quantity_representer(dumper, data):
     &quot;&quot;&quot;
     Represents Astropy Quantity as str
+
+    Astropy&#39;s own YAML representer (`astropy.io.misc.yaml`) writes a tagged
+    ``!astropy.units.Quantity`` mapping. TARDIS configurations write
+    quantities as plain strings such as ``10 km / s``, which `YAMLLoader`
+    parses back, so this representer keeps dumped configurations in the
+    same format as the input files.
 
     Parameters
     ----------
@@ -5472,7 +5503,7 @@ yaml.add_representer(Configuration, cns_representer)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 06 Oct 2026.
+      <span class="lastupdated">Last updated on 08 Oct 2026.
       </span></p>
   </div>
 
