@@ -34,16 +34,16 @@ from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
     move_r_packet,
 )
-from tardis.transport.montecarlo.packets.packet_collections import (
-    VPacketCollection,
-)
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
     RPacket,
 )
-from tardis.transport.montecarlo.packets.virtual_packet import (
-    trace_vpacket_volley,
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
+    TrackerLastInteraction,
 )
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
@@ -57,8 +57,7 @@ def packet_propagation(
     opacity_state: OpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
-    vpacket_collection: VPacketCollection,
-    rpacket_tracker,
+    rpacket_tracker: TrackerFull | TrackerLastInteraction,
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> None:
     """
@@ -81,9 +80,7 @@ def packet_propagation(
         Monte Carlo estimators for cell-level bulk radiation field quantities.
     estimators_line : EstimatorsLine
         Monte Carlo estimators for line-level radiation field quantities.
-    vpacket_collection : VPacketCollection
-        Collection for storing virtual packets when enabled.
-    rpacket_tracker
+    rpacket_tracker : TrackerFull or TrackerLastInteraction
         Tracker for recording packet interactions and trajectories.
     montecarlo_configuration : MonteCarloConfiguration
         Configuration parameters for the Monte Carlo simulation.
@@ -104,17 +101,6 @@ def packet_propagation(
         opacity_state,
         time_explosion,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-    )
-
-    trace_vpacket_volley(
-        r_packet,
-        vpacket_collection,
-        geometry,
-        time_explosion,
-        opacity_state,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-        montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-        montecarlo_configuration.SURVIVAL_PROBABILITY,
     )
 
     rpacket_tracker.track_boundary_event(
@@ -191,17 +177,6 @@ def packet_propagation(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_line_interaction_after(r_packet)
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                geometry,
-                time_explosion,
-                opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
-
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(
                 r_packet,
@@ -217,17 +192,6 @@ def packet_propagation(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_escattering_interaction_after(r_packet)
-
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                geometry,
-                time_explosion,
-                opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
         else:
             # Handle any unrecognized interaction types
             rpacket_tracker.track_boundary_event(

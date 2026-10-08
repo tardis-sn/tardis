@@ -31,20 +31,20 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
     trace_packet,
 )
-from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
-    trace_vpacket_volley,
-)
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
     move_r_packet,
-)
-from tardis.transport.montecarlo.packets.packet_collections import (
-    VPacketCollection,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
     RPacket,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
+    TrackerLastInteraction,
 )
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
@@ -58,8 +58,7 @@ def packet_propagation(
     opacity_state: OpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
-    vpacket_collection: VPacketCollection,
-    rpacket_tracker,
+    rpacket_tracker: TrackerFull | TrackerLastInteraction,
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> None:
     """
@@ -83,9 +82,7 @@ def packet_propagation(
         Monte Carlo estimators for cell-level bulk radiation field quantities.
     estimators_line : EstimatorsLine
         Monte Carlo estimators for line-level radiation field quantities.
-    vpacket_collection : VPacketCollection
-        Collection for storing virtual packets when enabled.
-    rpacket_tracker
+    rpacket_tracker : TrackerFull or TrackerLastInteraction
         Tracker for recording packet interactions and trajectories.
     montecarlo_configuration : MonteCarloConfiguration
         Configuration parameters for the Monte Carlo simulation.
@@ -99,7 +96,9 @@ def packet_propagation(
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
     if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-        raise NotImplementedError("Full relativity not supported for non-homology.")
+        raise NotImplementedError(
+            "Full relativity not supported for non-homology."
+        )
     set_packet_props_partial_relativity(r_packet, geometry)
     # Manually perform the function of r_packet.initialize_line_id for now until
     # nonhomology is supported
@@ -118,16 +117,6 @@ def packet_propagation(
         next_line_id -= 1
     r_packet.next_line_id = next_line_id
     r_packet.prev_line_id = next_line_id - 1
-
-    trace_vpacket_volley(
-        r_packet,
-        vpacket_collection,
-        geometry,
-        opacity_state,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-        montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-        montecarlo_configuration.SURVIVAL_PROBABILITY,
-    )
 
     rpacket_tracker.track_boundary_event(
         r_packet, from_shell_id=-1, to_shell_id=0
@@ -200,16 +189,6 @@ def packet_propagation(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_line_interaction_after(r_packet)
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                geometry,
-                opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
-
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(
                 r_packet,
@@ -225,16 +204,6 @@ def packet_propagation(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_escattering_interaction_after(r_packet)
-
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                geometry,
-                opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
         else:
             # Handle any unrecognized interaction types
             rpacket_tracker.track_boundary_event(
@@ -260,8 +229,7 @@ def packet_propagation(
 
 @njit
 def set_packet_props_partial_relativity(
-    r_packet: RPacket,
-    geometry: NumbaRadial1DGeometry
+    r_packet: RPacket, geometry: NumbaRadial1DGeometry
 ) -> None:
     """
     Set packet properties using partial relativistic corrections.
@@ -281,9 +249,7 @@ def set_packet_props_partial_relativity(
     Modifies r_packet.nu and r_packet.energy in-place.
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor(
-        v, r_packet.mu, False
-    )
+    inverse_doppler_factor = get_inverse_doppler_factor(v, r_packet.mu, False)
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
 
@@ -294,6 +260,8 @@ def set_packet_props_full_relativity(
 ) -> None:
 
     raise NotImplementedError("Full relativity not supported for non-homology.")
+
+
 #    beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
 #
 #    inverse_doppler_factor = get_inverse_doppler_factor(
