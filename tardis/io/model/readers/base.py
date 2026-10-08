@@ -104,13 +104,20 @@ def read_density_file(filename, filetype):
     time_of_model : astropy.units.Quantity
         time at which the model is valid
     velocity : np.ndarray
-        the array containing the velocities
+        the array containing the N + 1 shell-boundary velocities
     unscaled_mean_densities : np.ndarray
-        the array containing the densities
+        the array containing the N shell densities
     electron_densities : np.ndarray
-        The array containing electron densities
+        The array containing the N shell electron densities
     temperature : np.ndarray
-        The array containing temperatures
+        The array containing the N shell temperatures
+
+    Notes
+    -----
+    Every supported file type stores one row per velocity edge. The first
+    row's velocity is the inner edge of the innermost shell, and the cell
+    values in that row are discarded by the file parsers. See
+    :ref:`model-leading-row`.
     """
     # Lazy import to avoid circular dependency
     from tardis.io.model.artis.readers import (

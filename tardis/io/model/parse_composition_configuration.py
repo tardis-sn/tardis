@@ -49,6 +49,10 @@ def parse_density_from_config(
     electron_densities = structure.electron_densities
 
     if density is None:
+        # Prepend v = 0 so the density array matches the file-based layout,
+        # whose leading entry is the region inside the innermost edge and is
+        # dropped below. Each shell density is the profile sampled at the
+        # shell velocity midpoint, not averaged over the shell.
         adjusted_velocity = velocity.insert(0, 0)
         v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
         d_conf = config.model.structure.density

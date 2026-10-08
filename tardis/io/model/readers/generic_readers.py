@@ -18,6 +18,9 @@ def read_simple_ascii_density(
 ) -> tuple[u.Quantity, u.Quantity, u.Quantity]:
     """Reading a density file of the following structure (example; lines starting with a hash will be ignored):
     The first density describes the mean density in the center of the model and is not used.
+    Each velocity is the outer edge of a shell, and the first velocity is the
+    inner edge of the innermost shell. Each density is the uniform density of
+    the shell inside its velocity.
     5 s
     #index velocity [km/s] density [g/cm^3]
     0 1.1e4 1.6e8
@@ -48,6 +51,8 @@ def read_simple_ascii_density(
         dtype=[("index", "i8"), ("velocity", "f8"), ("density", "f8")],
         encoding="utf-8",
     )
+    # Velocities are shell edges; densities are shell values, so the first
+    # density (inside the innermost edge) is dropped.
     velocity = (data["velocity"] * u.km / u.s).to("cm/s")
     mean_density = (data["density"] * u.Unit("g/cm^3"))[1:]
 
@@ -94,6 +99,8 @@ def read_simple_ascii_mass_fractions(fname: str) -> tuple[np.ndarray, pd.DataFra
     """
     data = np.loadtxt(fname)
 
+    # Rows align with the density-file rows; the first row lies inside the
+    # innermost velocity edge and is dropped.
     index = data[1:, 0].astype(int)
     mass_fractions = pd.DataFrame(
         data[1:, 1:].transpose(), index=np.arange(1, data.shape[1])

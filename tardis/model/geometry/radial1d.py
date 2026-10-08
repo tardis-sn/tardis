@@ -10,6 +10,12 @@ class Radial1DGeometry:
     """
     Holds information about model geometry for non-homologous radial 1D models.
 
+    Velocities and radii are edge-defined and stored independently. Inside a
+    shell the velocity is interpolated linearly in radius between the two edge
+    velocities. ``v_middle`` and ``r_middle`` are arithmetic midpoints of the
+    edges. Quantities such as density are held per shell elsewhere and are
+    uniform within each shell. See :ref:`model-edge-cell-quantities`.
+
     Attributes
     ----------
     volume : astropy.units.quantity.Quantity

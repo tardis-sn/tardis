@@ -81,7 +81,10 @@ def read_blondin_toymodel(fname):
         blondin_csv.iloc[:, 3:].sum(axis=1), axis=0
     )
 
-    # changing velocities to outer boundary
+    # Toy-model velocities are cell centres, but TARDIS reads the velocity
+    # column as outer shell edges. Place each edge midway between adjacent
+    # cell centres and extrapolate the outermost edge. The other columns stay
+    # in their rows as cell values.
     new_velocities = 0.5 * (
         blondin_csv.velocity.iloc[:-1].values
         + blondin_csv.velocity.iloc[1:].values
