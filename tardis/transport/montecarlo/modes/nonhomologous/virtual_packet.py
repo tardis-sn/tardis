@@ -5,8 +5,6 @@ import numpy as np
 from numba import njit
 from numba.experimental import jitclass
 
-import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
-from tardis.opacities.opacities import chi_continuum_calculator
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
@@ -114,22 +112,7 @@ def trace_vpacket_within_shell(
         enable_full_relativity,
     )
 
-    comov_nu = v_packet.nu * doppler_factor
-
-    if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-        (
-            chi_bf_tot,
-            chi_bf_contributions,
-            current_continua,
-            x_sect_bfs,
-            chi_ff,
-        ) = chi_continuum_calculator(
-            opacity_state, comov_nu, v_packet.current_shell_id
-        )
-        chi_continuum = chi_e + chi_bf_tot + chi_ff
-
-    else:
-        chi_continuum = chi_e
+    chi_continuum = chi_e
 
     if enable_full_relativity:
         chi_continuum *= doppler_factor

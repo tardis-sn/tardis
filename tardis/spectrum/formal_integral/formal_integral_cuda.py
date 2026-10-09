@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from numba import cuda
+from numpy.typing import NDArray
 
 from tardis.spectrum.formal_integral.base import (
     C_INV,
@@ -519,17 +520,43 @@ class CudaFormalIntegrator:
 
     def formal_integral(
         self,
-        iT,
-        interpolated_frequencies,
-        att_S_ul,
-        Jred_lu,
-        Jblue_lu,
-        tau_sobolev,
-        electron_density,
-        N,
-    ):
+        iT: float,
+        interpolated_frequencies: NDArray[np.float64],
+        att_S_ul: NDArray[np.float64],
+        Jred_lu: NDArray[np.float64],
+        Jblue_lu: NDArray[np.float64],
+        tau_sobolev: NDArray[np.float64],
+        electron_density: NDArray[np.float64],
+        N: int,
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """
-        Simple wrapper for the CUDA implementation of the formal integral
+        Run the CUDA implementation of the formal integral.
+
+        Parameters
+        ----------
+        iT : float
+            Inner boundary temperature in K.
+        interpolated_frequencies : ndarray
+            Frequency grid in Hz.
+        att_S_ul : ndarray
+            Attenuated source function values.
+        Jred_lu : ndarray
+            Mean intensity on the red side of each line and shell.
+        Jblue_lu : ndarray
+            Mean intensity on the blue side of each line and shell.
+        tau_sobolev : ndarray
+            Sobolev optical depths (2D array: lines x shells).
+        electron_density : ndarray
+            Electron densities per shell.
+        N : int
+            Number of impact parameters.
+
+        Returns
+        -------
+        lum_density : ndarray
+            Integrated luminosities for each frequency.
+        intensities_nu : ndarray
+            Intensities per frequency and impact parameter.
         """
         # global read-only values
         size_line, size_shell = tau_sobolev.shape  # int64, int64
@@ -571,7 +598,7 @@ class CudaFormalIntegrator:
         radii_outer = cuda.to_device(self.geometry.r_outer)
         line_list_frequencies = cuda.to_device(self.plasma.line_list_nu)
         interpolated_frequencies = cuda.to_device(
-            interpolated_frequencies.value
+            interpolated_frequencies
         )
         att_S_ul = cuda.to_device(att_S_ul)
         Jred_lu = cuda.to_device(Jred_lu)
@@ -595,7 +622,7 @@ class CudaFormalIntegrator:
             radii_outer,
             self.time_explosion,
             line_list_frequencies,
-            iT.value,
+            iT,
             interpolated_frequencies,
             interpolated_frequencies_size,
             att_S_ul,

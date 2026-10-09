@@ -1,11 +1,38 @@
+import numpy as np
+import numpy.testing as npt
+import pandas as pd
 import pytest
-from tardis.opacities.opacity_state import OpacityState
-from tardis.opacities.opacity_solver import OpacitySolver
+
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
 )
-import numpy.testing as npt
-import numpy as np
+from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.opacity_state import OpacityState
+
+
+def test_sobolev_coefficient_survives_numba_shell_slice() -> None:
+    """Keep the line-strength coefficient aligned with its shell after slicing."""
+    coefficients = pd.DataFrame([[2.0, 3.0]])
+    opacity_state = OpacityState(
+        pd.Series([0.0, 0.0]),
+        np.array([5000.0, 5000.0]),
+        pd.Series([4.0e14]),
+        pd.DataFrame([[20.0, 30.0]]),
+        None,
+        sobolev_optical_depth_coefficient=coefficients,
+    )
+
+    numba_state = opacity_state.to_numba(None, "scatter")
+    sliced_state = numba_state[slice(1, 2)]
+
+    npt.assert_array_equal(
+        numba_state.sobolev_optical_depth_coefficient,
+        coefficients.to_numpy(),
+    )
+    npt.assert_array_equal(
+        sliced_state.sobolev_optical_depth_coefficient,
+        coefficients.to_numpy()[:, 1:2],
+    )
 
 
 @pytest.mark.parametrize(
