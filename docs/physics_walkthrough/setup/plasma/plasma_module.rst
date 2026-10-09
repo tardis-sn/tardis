@@ -87,7 +87,7 @@ The plasma properties used throughout the plasma module are defined in
 ``legacy_property_collections.py``. A separate ``property_collections.py``
 file exists but is not imported by the main plasma solver factory and is
 therefore not active during standard TARDIS runs. The standard plasma solver
-imports its property collections from ``legacy_property_collections.py``. 
+imports its property collections from ``legacy_property_collections.py``.
 
 Property Categories
 ~~~~~~~~~~~~~~~~~~~
@@ -311,8 +311,8 @@ of their status.
    for active plasma properties.
 
 ``tardis/plasma/properties/nlte_excitation_data.py``
-   Defines ``NLTEExcitationData``, which is not referenced elsewhere in 
-   the active codebase and is the existing implementation relevant to 
+   Defines ``NLTEExcitationData``, which is not referenced elsewhere in
+   the active codebase and is the existing implementation relevant to
    future NLTE excitation work.
 
 ``tardis/plasma/properties/hydrogen_continuum.py``

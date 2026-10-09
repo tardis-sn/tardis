@@ -8,12 +8,19 @@ from numba.experimental import jitclass
 
 @jitclass
 class OpacityStateNumba:
-    """Array-backed line opacity and macro-atom data for transport."""
+    """Array-backed line opacity and macro-atom data for transport.
+
+    Attributes
+    ----------
+    sobolev_optical_depth_coefficient : numpy.ndarray
+        Velocity-gradient-independent coefficient for each line and shell [s^-1].
+    """
 
     electron_density: nb.float64[:]
     t_electrons: nb.float64[:]
     line_list_nu: nb.float64[:]
     tau_sobolev: nb.float64[:, :]
+    sobolev_optical_depth_coefficient: nb.float64[:, :]
     transition_probabilities: nb.float64[:, :]
     line2macro_level_upper: nb.int64[:]
     macro_block_edge_index: nb.int64[:]
@@ -38,6 +45,7 @@ class OpacityStateNumba:
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
+        self.sobolev_optical_depth_coefficient = np.zeros_like(tau_sobolev)
         self.transition_probabilities = transition_probabilities
         self.line2macro_level_upper = line2macro_level_upper
         self.macro_block_edge_index = macro_block_edge_index
@@ -47,7 +55,7 @@ class OpacityStateNumba:
 
     def __getitem__(self, i: slice) -> Self:
         """Return a shell-sliced view of this opacity state."""
-        return OpacityStateNumba(
+        sliced_opacity_state = OpacityStateNumba(
             self.electron_density[i],
             self.t_electrons[i],
             self.line_list_nu,
@@ -59,3 +67,7 @@ class OpacityStateNumba:
             self.destination_level_id,
             self.transition_line_id,
         )
+        sliced_opacity_state.sobolev_optical_depth_coefficient = (
+            self.sobolev_optical_depth_coefficient[:, i]
+        )
+        return sliced_opacity_state

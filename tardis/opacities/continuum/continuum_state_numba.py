@@ -51,4 +51,3 @@ class ContinuumOpacityStateNumba:
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
         self.absorbing_markov_probabilities = absorbing_markov_probabilities
-
