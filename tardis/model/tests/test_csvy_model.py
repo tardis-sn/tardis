@@ -57,7 +57,7 @@ def test_compare_models(model_config_fnames, atomic_dataset):
             if hasattr(config_model_val, "value"):
                 config_model_val = config_model_val.value
                 csvy_model_val = csvy_model_val.value
-            npt.assert_array_almost_equal(csvy_model_val, config_model_val)
+            npt.assert_allclose(csvy_model_val, config_model_val, rtol=1e-10)
 
     assert (
         csvy_simulation_state.abundance.shape
@@ -141,6 +141,29 @@ def test_csvy_model_uses_customized_inner_boundary(
         csvy_model.r_inner[0].to_value(u.cm),
         expected_r_inner_boundary.to_value(u.cm),
         rtol=1e-12,
+    )
+
+
+@pytest.mark.parametrize(
+    "density_type", ["branch85", "uniform", "powerlaw", "exponential"]
+)
+def test_csvy_density_section(example_csvy_file_dir, density_type):
+    """Density sections in csvy files should give one density per shell,
+    matching the same profile defined in a config file"""
+    csvy_model = SimulationState.from_csvy(
+        Configuration.from_yaml(
+            example_csvy_file_dir / f"{density_type}_csvy.yml"
+        )
+    )
+    config = Configuration.from_yaml(
+        example_csvy_file_dir / f"{density_type}_old_config.yml"
+    )
+    config.model.abundances.model_isotope_time_0 = 0 * u.s
+    config_model = SimulationState.from_config(config, atom_data=None)
+
+    assert len(csvy_model.composition.density) == csvy_model.no_of_raw_shells
+    npt.assert_allclose(
+        csvy_model.density.value, config_model.density.value, rtol=1e-10
     )
 
 
