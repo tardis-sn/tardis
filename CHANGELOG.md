@@ -1,5 +1,17 @@
 ## Changelog
 
+### release-2026.10.11 (2026/10/10 21:52)
+- [3770](https://github.com/tardis-sn/tardis/pull/3770) Pre-release 2026.10.11 (3770) (@tardis-bot)
+- [3762](https://github.com/tardis-sn/tardis/pull/3762) Validate config and CSVY quantities after yaml parsing (3762) (@andrewfullard)
+- [3763](https://github.com/tardis-sn/tardis/pull/3763) Correct quantity conversion in formal integral (3763) (@andrewfullard)
+- [3751](https://github.com/tardis-sn/tardis/pull/3751) Replace iip_plasma with regression data for testing (3751) (@andrewfullard)
+- [3622](https://github.com/tardis-sn/tardis/pull/3622) Remove Unbuilt Plasma Attributes from Tested Plasma Properties (3622) (@RishmitaR)
+- [3699](https://github.com/tardis-sn/tardis/pull/3699) New Plasma Module Documentation (3699) (@Angel-Gupta037)
+- [3754](https://github.com/tardis-sn/tardis/pull/3754) Remove old estimator code (3754) (@andrewfullard)
+- [3728](https://github.com/tardis-sn/tardis/pull/3728) Opacity state refactor (3728) (@andrewfullard)
+- [3710](https://github.com/tardis-sn/tardis/pull/3710) TARDIS HE estimators (3710) (@andrewfullard)
+- [3746](https://github.com/tardis-sn/tardis/pull/3746) Improve geometry parsing and configuration for models (3746) (@connor-mcclellan)
+- [3749](https://github.com/tardis-sn/tardis/pull/3749) Post-release 2026.09.27 (3749) (@tardis-bot)
 ### release-2026.09.27 (2026/09/26 21:45)
 - [3748](https://github.com/tardis-sn/tardis/pull/3748) Pre-release 2026.09.27 (3748) (@tardis-bot)
 - [3727](https://github.com/tardis-sn/tardis/pull/3727) Equilibrium solver cleanup (3727) (@andrewfullard)
