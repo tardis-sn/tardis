@@ -273,7 +273,8 @@ def calculate_distance_line_nonhomologous(
         if not math.isfinite(projected_position_root):
             continue
         if shell_velocity_difference != 0.0:
-            # Squaring the resonance equation also produces sign-reversed roots.
+            # The quartic solver squares the resonance equation to remove a sqrt
+            # Here we reject roots that don't preserve the original sign of the unsquared equation
             scaled_resonance_offset = (
                 projected_position_root
                 - scaled_target_projected_velocity
