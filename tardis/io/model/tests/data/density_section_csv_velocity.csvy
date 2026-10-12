@@ -1,0 +1,24 @@
+---
+name: csvy_density_section_csv_velocity
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: Density section with velocity given in the CSV section.
+tardis_model_config_version: v1.0
+datatype:
+  fields:
+    - name: velocity
+      unit: km/s
+      desc: velocities of shell outer boundaries.
+    - name: H
+      desc: fractional H abundance
+    - name: He
+      desc: fractional He abundance
+
+density:
+  type: branch85_w7
+---
+velocity,H,He
+10000,0.3,0.7
+11000,0.6,0.4
+18000,0.6,0.4
+19000,0.6,0.4

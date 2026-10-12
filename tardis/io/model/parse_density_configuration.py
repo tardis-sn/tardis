@@ -75,8 +75,7 @@ def parse_density_section_csvy(
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
 ) -> u.Quantity:
-    """Parse the density section of the csvy file and produce a density at
-    time_explosion.
+    """Parse the density section of the csvy file and produce a density at time_explosion.
 
     Parameters
     ----------
@@ -105,7 +104,7 @@ def parse_density_section_csvy(
         velocity_unit = u.Unit(
             csvy_model_config.datatype.fields[velocity_field_index]["unit"]
         )
-        velocity = csvy_model_data["velocity"].values * velocity_unit
+        velocity = csvy_model_data["velocity"].to_numpy() * velocity_unit
 
     v_middle = velocity[1:] * 0.5 + velocity[:-1] * 0.5
 

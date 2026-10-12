@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -14,55 +16,11 @@ from tardis.io.model.parse_geometry_configuration import (
     parse_velocity_from_csvy,
 )
 
-CSVY_WITH_DENSITY_SECTION_AND_CSV_VELOCITY = """---
-name: csvy_density_section_csv_velocity
-model_density_time_0: 1 day
-model_isotope_time_0: 0 day
-description: Density section with velocity given in the CSV section.
-tardis_model_config_version: v1.0
-datatype:
-  fields:
-    - name: velocity
-      unit: km/s
-      desc: velocities of shell outer boundaries.
-    - name: H
-      desc: fractional H abundance
-    - name: He
-      desc: fractional He abundance
-
-density:
-  type: branch85_w7
----
-velocity,H,He
-10000,0.3,0.7
-11000,0.6,0.4
-18000,0.6,0.4
-19000,0.6,0.4
-"""
-
-CSVY_WITH_DENSITY_SECTION_AND_YAML_VELOCITY = """---
-name: csvy_density_section_yaml_velocity
-model_density_time_0: 1 day
-model_isotope_time_0: 0 day
-description: Density section with velocity given in the YAML section.
-tardis_model_config_version: v1.0
-
-velocity:
-  start: 9000 km/s
-  stop: 12000 km/s
-  num: 5
-density:
-  type: branch85_w7
-abundance:
-  type: uniform
-  H: 1.0
----
-"""
+DATA_PATH = Path(__file__).parent / "data"
 
 
-def test_parse_density_from_csvy_density_section_with_csv_velocity(tmp_path):
-    csvy_path = tmp_path / "density_section.csvy"
-    csvy_path.write_text(CSVY_WITH_DENSITY_SECTION_AND_CSV_VELOCITY)
+def test_parse_density_from_csvy_density_section_with_csv_velocity():
+    csvy_path = DATA_PATH / "density_section_csv_velocity.csvy"
     csvy_data = load_csvy(csvy_path)
     time_explosion = 13 * u.day
 
@@ -82,11 +40,8 @@ def test_parse_density_from_csvy_density_section_with_csv_velocity(tmp_path):
     assert len(density) == len(csvy_data.raw_csv_data) - 1
 
 
-def test_parse_density_from_csvy_density_section_with_yaml_velocity(
-    tmp_path,
-):
-    csvy_path = tmp_path / "density_section_yaml_velocity.csvy"
-    csvy_path.write_text(CSVY_WITH_DENSITY_SECTION_AND_YAML_VELOCITY)
+def test_parse_density_from_csvy_density_section_with_yaml_velocity():
+    csvy_path = DATA_PATH / "density_section_yaml_velocity.csvy"
     csvy_data = load_csvy(csvy_path)
 
     density = parse_density_from_csvy(
