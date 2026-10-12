@@ -120,43 +120,68 @@ def calculate_distance_line(
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_packet_velocity_properties(
-    rpacket: RPacket,
-    geometry: NumbaRadial1DGeometry,
+def calculate_packet_position(
+    initial_radius: float,
+    initial_direction_cosine: float,
     distance: float,
-) -> tuple[float, float, float, float]:
-    """Calculate packet position and local velocity-field properties.
+) -> tuple[float, float]:
+    """Calculate the packet position after a trajectory distance.
 
     Parameters
     ----------
-    rpacket : tardis.transport.montecarlo.packets.radiative_packet.RPacket
-        Radiative packet at the start of its trajectory segment.
-    geometry : tardis.model.geometry.radial1d.NumbaRadial1DGeometry
-        Radial geometry containing the piecewise-linear velocity field.
+    initial_radius : float
+        Packet radius at the start of the trajectory segment in centimeters.
+    initial_direction_cosine : float
+        Initial cosine of the packet direction relative to the radial
+        direction.
     distance : float
         Distance traveled along the packet trajectory in centimeters.
 
     Returns
     -------
-    tuple[float, float, float, float]
-        Radius, direction cosine, radial velocity, and projected velocity
-        gradient after traveling ``distance``.
+    tuple[float, float]
+        Radius and direction cosine after traveling ``distance``.
     """
     radius = math.sqrt(
-        rpacket.r * rpacket.r
+        initial_radius * initial_radius
         + distance * distance
-        + 2.0 * rpacket.r * distance * rpacket.mu
+        + 2.0 * initial_radius * distance * initial_direction_cosine
     )
-    direction_cosine = (rpacket.r * rpacket.mu + distance) / radius
-    velocity = geometry.get_velocity(radius, rpacket.current_shell_id)
-    radial_velocity_gradient = geometry.velocity_gradient[
-        rpacket.current_shell_id
-    ]
-    projected_velocity_gradient = (
+    direction_cosine = (
+        initial_radius * initial_direction_cosine + distance
+    ) / radius
+    return radius, direction_cosine
+
+
+@njit(**njit_dict_no_parallel)
+def calculate_projected_velocity_gradient(
+    radius: float,
+    direction_cosine: float,
+    radial_velocity: float,
+    radial_velocity_gradient: float,
+) -> float:
+    """Calculate the velocity gradient projected along a packet trajectory.
+
+    Parameters
+    ----------
+    radius : float
+        Packet radius in centimeters.
+    direction_cosine : float
+        Cosine of the packet direction relative to the radial direction.
+    radial_velocity : float
+        Radial flow velocity at ``radius`` in centimeters per second.
+    radial_velocity_gradient : float
+        Radial derivative of the flow velocity in inverse seconds.
+
+    Returns
+    -------
+    float
+        Projected velocity gradient in inverse seconds.
+    """
+    return (
         direction_cosine**2 * radial_velocity_gradient
-        + (1.0 - direction_cosine**2) * velocity / radius
+        + (1.0 - direction_cosine**2) * radial_velocity / radius
     )
-    return radius, direction_cosine, velocity, projected_velocity_gradient
 
 
 @njit(fastmath=False, error_model="numpy", parallel=False)
@@ -300,13 +325,8 @@ def calculate_distance_line_nonhomologous(
         ):
             continue
 
-        (
-            resonance_radius,
-            _,
-            _,
-            _,
-        ) = calculate_packet_velocity_properties(
-            rpacket, geometry, candidate_distance
+        resonance_radius, _ = calculate_packet_position(
+            rpacket.r, rpacket.mu, candidate_distance
         )
         if (
             resonance_radius < r_inner - distance_tolerance
@@ -407,12 +427,9 @@ def calculate_comoving_frequency_nonhomologous(
     distance: float,
 ) -> float:
     """Calculate packet comoving frequency after a trajectory distance."""
-    new_r = math.sqrt(
-        rpacket.r * rpacket.r
-        + distance * distance
-        + 2.0 * rpacket.r * distance * rpacket.mu
+    new_r, new_mu = calculate_packet_position(
+        rpacket.r, rpacket.mu, distance
     )
-    new_mu = (rpacket.r * rpacket.mu + distance) / new_r
     new_v = geometry.get_velocity(new_r, rpacket.current_shell_id)
     return rpacket.nu * (1.0 - new_v / C_SPEED_OF_LIGHT * new_mu)
 

@@ -12,8 +12,9 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_comoving_frequency_nonhomologous,
     calculate_distance_boundary,
     calculate_distance_line_nonhomologous,
-    calculate_packet_velocity_properties,
+    calculate_packet_position,
     calculate_projected_gradient_zero_distances,
+    calculate_projected_velocity_gradient,
     get_line_id_range_nonhomologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
@@ -172,15 +173,21 @@ def trace_vpacket_within_shell(
             ):
                 continue
 
-            (
-                _,
-                _,
-                _,
-                projected_velocity_gradient,
-            ) = calculate_packet_velocity_properties(
-                v_packet,
-                numba_radial_1d_geometry,
-                distance_trace_line,
+            resonance_radius, resonance_direction_cosine = (
+                calculate_packet_position(
+                    v_packet.r,
+                    v_packet.mu,
+                    distance_trace_line,
+                )
+            )
+            velocity_at_resonance = numba_radial_1d_geometry.get_velocity(
+                resonance_radius, v_packet.current_shell_id
+            )
+            projected_velocity_gradient = calculate_projected_velocity_gradient(
+                resonance_radius,
+                resonance_direction_cosine,
+                velocity_at_resonance,
+                dvdr,
             )
             if projected_velocity_gradient == 0.0:
                 raise MonteCarloException(
