@@ -1,14 +1,17 @@
 import numpy as np
 import numpy.testing as npt
 import pytest
+from numpy.typing import NDArray
 
 from tardis.energy_input.util import (
     C_CGS,
     R_ELECTRON_SQUARED,
     angle_aberration_gamma,
     doppler_factor_3d_all_packets,
+    euler_rodrigues,
     get_perpendicular_vector,
     klein_nishina,
+    solve_quadratic_equation,
     spherical_to_cartesian,
 )
 from tardis.opacities.opacities import (
@@ -67,16 +70,92 @@ def test_angle_aberration_gamma_inverse_round_trip() -> None:
     npt.assert_allclose(actual, previous)
 
 
-@pytest.mark.xfail(reason="To be removed")
-def test_euler_rodrigues():
-    """Test Euler-Rodrigues rotation"""
-    assert False
+@pytest.mark.parametrize(
+    ("rotation_axis", "initial_direction", "expected_direction"),
+    [
+        (
+            np.array([1.0, 0.0, 0.0]),
+            np.array([0.0, 1.0, 0.0]),
+            np.array([0.0, 0.0, 1.0]),
+        ),
+        (
+            np.array([0.0, 1.0, 0.0]),
+            np.array([0.0, 0.0, 1.0]),
+            np.array([1.0, 0.0, 0.0]),
+        ),
+        (
+            np.array([0.0, 0.0, 1.0]),
+            np.array([1.0, 0.0, 0.0]),
+            np.array([0.0, 1.0, 0.0]),
+        ),
+    ],
+)
+def test_euler_rodrigues(
+    rotation_axis: NDArray[np.float64],
+    initial_direction: NDArray[np.float64],
+    expected_direction: NDArray[np.float64],
+) -> None:
+    """Verify right-handed quarter turns about the Cartesian basis axes.
+
+    Claim: A positive pi/2 rotation maps each basis direction according to the
+    right-hand rule.
+    Regime: Unit rotation axes and unit input vectors in Cartesian space.
+    Verification: Exact analytic rotations of the Cartesian basis.
+    """
+    rotation_matrix = euler_rodrigues(np.pi / 2.0, rotation_axis)
+
+    npt.assert_allclose(
+        rotation_matrix @ initial_direction,
+        expected_direction,
+        rtol=1.0e-14,
+        atol=1.0e-15,
+        err_msg="Euler-Rodrigues rotation violated the right-hand rule",
+    )
 
 
-@pytest.mark.xfail(reason="To be implemented")
-def test_solve_quadratic_equation():
-    """Test the quadratic solver"""
-    assert False
+@pytest.mark.parametrize(
+    ("position", "direction", "radius", "expected_roots"),
+    [
+        (
+            np.array([1.0, 0.0, 0.0]),
+            np.array([1.0, 0.0, 0.0]),
+            2.0,
+            np.array([1.0, -3.0]),
+        ),
+        (
+            np.array([-3.0, 2.0, 0.0]),
+            np.array([1.0, 0.0, 0.0]),
+            2.0,
+            np.array([3.0, -np.inf]),
+        ),
+        (
+            np.array([3.0, 0.0, 0.0]),
+            np.array([0.0, 1.0, 0.0]),
+            2.0,
+            np.array([-np.inf, -np.inf]),
+        ),
+    ],
+)
+def test_solve_quadratic_equation(
+    position: NDArray[np.float64],
+    direction: NDArray[np.float64],
+    radius: float,
+    expected_roots: NDArray[np.float64],
+) -> None:
+    """Verify line-sphere intersections against analytic roots.
+
+    Claim: The solver returns the path lengths where a ray intersects a sphere.
+    Regime: A secant, tangent, and non-intersecting unit-direction ray.
+    Verification: Closed-form roots of the corresponding quadratic equations.
+    """
+    actual_roots = solve_quadratic_equation(position, direction, radius)
+
+    npt.assert_allclose(
+        actual_roots,
+        expected_roots,
+        rtol=1.0e-14,
+        err_msg="Ray path lengths do not match the analytic sphere intersections",
+    )
 
 
 @pytest.mark.parametrize(
