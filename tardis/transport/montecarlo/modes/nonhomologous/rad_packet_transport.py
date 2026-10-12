@@ -174,6 +174,7 @@ def trace_packet(
                     delta_shell,
                 )
 
+            # Line interaction
             (
                 _,
                 resonance_direction_cosine,

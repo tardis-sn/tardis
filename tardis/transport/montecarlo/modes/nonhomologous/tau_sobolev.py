@@ -177,6 +177,11 @@ def calculate_beta_sobolev_directional(
 ) -> pd.DataFrame:
     """Calculate the angle-averaged Sobolev escape probability.
 
+    The directional ``beta_sobolev`` averages ``(1.0 - np.exp(-tau)) / tau`` over
+    ``quadrature_order`` number of direction cosines, where ``tau`` is
+    ``sobolev_optical_depth_coefficient / abs(projected_velocity_gradient)``.
+    The angular interval is split where the projected gradient changes sign.
+
     Parameters
     ----------
     sobolev_optical_depth_coefficient : pandas.DataFrame

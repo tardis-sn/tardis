@@ -3,17 +3,25 @@ import math
 import numpy as np
 from numba import njit
 
-_FLOAT64_EPSILON = np.finfo(np.float64).eps
-_FLOAT64_TINY = np.finfo(np.float64).tiny
-_RECIPROCAL_ROOT_THRESHOLD = math.sqrt(_FLOAT64_EPSILON)
-_QUARTIC_NJIT_OPTIONS = {
+FLOAT64_EPSILON = np.finfo(np.float64).eps
+FLOAT64_ROUNDOFF_TOLERANCE = (
+    FLOAT64_EPSILON * 8.0
+)  # factor for catching values near algebraic zero in large differences
+FLOAT64_TINY = np.finfo(np.float64).tiny
+RECIPROCAL_ROOT_THRESHOLD = math.sqrt(FLOAT64_EPSILON)
+# fastmath permits LLVM to algebraically re-associate terms for optimization.
+# the expressions are equivalent but the floating point arithmetic is not ---
+# since the discriminants in the root solver come from nearly-cancelling terms,
+# a difference in floating point round-off could change what root-solving branch
+# is selected unless we turn fastmath off.
+QUARTIC_NJIT_OPTIONS = {
     "fastmath": False,
     "error_model": "numpy",
     "parallel": False,
 }
 
 
-@njit(**_QUARTIC_NJIT_OPTIONS)
+@njit(**QUARTIC_NJIT_OPTIONS)
 def _solve_real_quadratic(
     linear_coefficient: float, constant_coefficient: float
 ) -> tuple[float, float]:
@@ -24,9 +32,9 @@ def _solve_real_quadratic(
     discriminant_scale = max(
         abs(linear_coefficient * linear_coefficient),
         abs(4.0 * constant_coefficient),
-        _FLOAT64_TINY,
+        FLOAT64_TINY,
     )
-    discriminant_tolerance = 8.0 * _FLOAT64_EPSILON * discriminant_scale
+    discriminant_tolerance = FLOAT64_ROUNDOFF_TOLERANCE * discriminant_scale
 
     if discriminant < 0.0:
         if discriminant >= -discriminant_tolerance:
@@ -50,7 +58,7 @@ def _solve_real_quadratic(
     return first_root, constant_coefficient / first_root
 
 
-@njit(**_QUARTIC_NJIT_OPTIONS)
+@njit(**QUARTIC_NJIT_OPTIONS)
 def _solve_biquadratic(
     quadratic_coefficient: float,
     constant_coefficient: float,
@@ -60,14 +68,10 @@ def _solve_biquadratic(
     first_squared_root, second_squared_root = _solve_real_quadratic(
         quadratic_coefficient, constant_coefficient
     )
-    squared_root_tolerance = (
-        8.0
-        * _FLOAT64_EPSILON
-        * max(
-            abs(quadratic_coefficient),
-            math.sqrt(abs(constant_coefficient)),
-            _FLOAT64_TINY,
-        )
+    squared_root_tolerance = FLOAT64_ROUNDOFF_TOLERANCE * max(
+        abs(quadratic_coefficient),
+        math.sqrt(abs(constant_coefficient)),
+        FLOAT64_TINY,
     )
     first_positive_root = math.nan
     first_negative_root = math.nan
@@ -104,7 +108,7 @@ def _solve_biquadratic(
     )
 
 
-@njit(**_QUARTIC_NJIT_OPTIONS)
+@njit(**QUARTIC_NJIT_OPTIONS)
 def _solve_resolvent_cubic(
     quadratic_coefficient: float,
     linear_coefficient: float,
@@ -138,14 +142,10 @@ def _solve_resolvent_cubic(
         )
         negative_discriminant_term = depressed_linear_coefficient**3 / 27.0
         discriminant = positive_discriminant_term + negative_discriminant_term
-        discriminant_tolerance = (
-            8.0
-            * _FLOAT64_EPSILON
-            * max(
-                abs(positive_discriminant_term),
-                abs(negative_discriminant_term),
-                _FLOAT64_TINY,
-            )
+        discriminant_tolerance = FLOAT64_ROUNDOFF_TOLERANCE * max(
+            abs(positive_discriminant_term),
+            abs(negative_discriminant_term),
+            FLOAT64_TINY,
         )
         if abs(discriminant) <= discriminant_tolerance:
             discriminant = 0.0
@@ -198,9 +198,9 @@ def _solve_resolvent_cubic(
         abs(quadratic_coefficient),
         math.sqrt(abs(constant_coefficient)),
         abs(linear_coefficient) ** (2.0 / 3.0),
-        _FLOAT64_TINY,
+        FLOAT64_TINY,
     )
-    squared_factor_tolerance = 8.0 * _FLOAT64_EPSILON * squared_factor_scale
+    squared_factor_tolerance = FLOAT64_ROUNDOFF_TOLERANCE * squared_factor_scale
     if squared_factor < 0.0:
         if squared_factor >= -squared_factor_tolerance:
             squared_factor = 0.0
@@ -224,7 +224,7 @@ def _solve_resolvent_cubic(
     return squared_factor
 
 
-@njit(**_QUARTIC_NJIT_OPTIONS)
+@njit(**QUARTIC_NJIT_OPTIONS)
 def _solve_depressed_quartic(
     quadratic_coefficient: float,
     linear_coefficient: float,
@@ -233,7 +233,14 @@ def _solve_depressed_quartic(
     resolvent_discriminant: float,
     use_supplied_discriminant: bool,
 ) -> tuple[float, float, float, float]:
-    """Factor and solve a depressed quartic using real arithmetic."""
+    """Solve a depressed quartic and shift its roots.
+
+    The coefficients are ``quadratic_coefficient``, ``linear_coefficient``,
+    and ``constant_coefficient``. Add ``root_shift`` to each root.
+
+    Use ``resolvent_discriminant`` instead of recomputing it when
+    ``use_supplied_discriminant`` is true.
+    """
     if linear_coefficient == 0.0:
         return _solve_biquadratic(
             quadratic_coefficient, constant_coefficient, root_shift
@@ -252,21 +259,17 @@ def _solve_depressed_quartic(
     factor = math.sqrt(squared_factor)
     factor_sum = quadratic_coefficient + squared_factor
     factor_sum_scale = max(
-        abs(quadratic_coefficient), squared_factor, _FLOAT64_TINY
+        abs(quadratic_coefficient), squared_factor, FLOAT64_TINY
     )
     if abs(factor_sum) < 0.01 * factor_sum_scale:
         factor_sum_squared = (
             linear_coefficient * linear_coefficient / squared_factor
             + 4.0 * constant_coefficient
         )
-        factor_sum_squared_tolerance = (
-            8.0
-            * _FLOAT64_EPSILON
-            * max(
-                linear_coefficient * linear_coefficient / squared_factor,
-                abs(4.0 * constant_coefficient),
-                _FLOAT64_TINY,
-            )
+        factor_sum_squared_tolerance = FLOAT64_ROUNDOFF_TOLERANCE * max(
+            linear_coefficient * linear_coefficient / squared_factor,
+            abs(4.0 * constant_coefficient),
+            FLOAT64_TINY,
         )
         if (
             factor_sum_squared < 0.0
@@ -301,7 +304,7 @@ def _solve_depressed_quartic(
     )
 
 
-@njit(**_QUARTIC_NJIT_OPTIONS)
+@njit(**QUARTIC_NJIT_OPTIONS)
 def depressed_quartic(
     leading_coefficient: float,
     cubic_coefficient: float,
@@ -361,33 +364,36 @@ def depressed_quartic(
     )
 
 
-@njit(**_QUARTIC_NJIT_OPTIONS)
+@njit(**QUARTIC_NJIT_OPTIONS)
 def solve_resonance_quartic(
     line_velocity: float,
     impact_parameter_squared: float,
     velocity_intercept: float,
 ) -> tuple[float, float, float, float]:
-    """Solve the structured quartic for a line-resonance distance.
+    """Solve the structured quartic for line-resonance ray coordinates.
 
-    The polynomial is
+    A ``projected_position`` root satisfies::
 
-    ``(x - N)**2 * (x**2 + H**2) - Q**2 * x**2``,
-
-    where the arguments are ``N``, ``H**2``, and ``Q`` respectively.
+        (projected_position - line_velocity)**2 * (
+            projected_position**2 + impact_parameter_squared
+        ) == velocity_intercept**2 * projected_position**2
 
     Parameters
     ----------
     line_velocity : float
-        Dimensionless line velocity ``N``.
+        Target line-resonance projected velocity, scaled by the shell velocity
+        difference.
     impact_parameter_squared : float
-        Squared dimensionless ray impact parameter ``H**2``.
+        Squared ray impact parameter, scaled by the squared shell width.
     velocity_intercept : float
-        Dimensionless affine velocity intercept ``Q``.
+        Intercept of the shell's linear radial velocity law, scaled by the
+        shell velocity difference.
 
     Returns
     -------
     tuple of float
-        Four real roots or NaN placeholders for non-real roots.
+        Four dimensionless signed ray-coordinate roots or NaN placeholders
+        for non-real roots.
     """
     if impact_parameter_squared == 0.0:
         return (
@@ -453,8 +459,8 @@ def solve_resonance_quartic(
     )
     discriminant_inner_term = invariant_sum**3 + 27.0 * invariant_product
     discriminant_inner_scale = abs(invariant_sum**3) + 27.0 * invariant_product
-    if abs(discriminant_inner_term) <= (
-        8.0 * _FLOAT64_EPSILON * max(discriminant_inner_scale, _FLOAT64_TINY)
+    if abs(discriminant_inner_term) <= FLOAT64_ROUNDOFF_TOLERANCE * max(
+        discriminant_inner_scale, FLOAT64_TINY
     ):
         discriminant_inner_term = 0.0
     resolvent_discriminant = (
@@ -476,7 +482,7 @@ def solve_resonance_quartic(
     for root in direct_roots:
         if math.isfinite(root):
             direct_real_root_count += 1
-            if abs(root) < _RECIPROCAL_ROOT_THRESHOLD:
+            if abs(root) < RECIPROCAL_ROOT_THRESHOLD:
                 recover_small_roots = True
 
     # Shifting depressed roots back to x can cancel when a real root is much
@@ -508,7 +514,7 @@ def solve_resonance_quartic(
             for root in direct_roots:
                 if (
                     math.isfinite(root)
-                    and abs(root) >= _RECIPROCAL_ROOT_THRESHOLD
+                    and abs(root) >= RECIPROCAL_ROOT_THRESHOLD
                     and selected_root_count < 4
                 ):
                     selected_roots[selected_root_count] = root
@@ -518,7 +524,7 @@ def solve_resonance_quartic(
                 if math.isfinite(reciprocal_root) and reciprocal_root != 0.0:
                     root = 1.0 / reciprocal_root
                     if (
-                        abs(root) < _RECIPROCAL_ROOT_THRESHOLD
+                        abs(root) < RECIPROCAL_ROOT_THRESHOLD
                         and selected_root_count < 4
                     ):
                         selected_roots[selected_root_count] = root

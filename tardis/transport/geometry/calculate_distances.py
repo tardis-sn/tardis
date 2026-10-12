@@ -257,42 +257,46 @@ def calculate_distance_line_nonhomologous(
             scaled_radius**2 * transverse_direction_fraction
         )
 
-        # Obtain roots of the quartic polynomial for the dimensionless
-        # x = (d_line + r_i \mu_i) / r0.
+        # Obtain roots of the quartic polynomial
         projected_position_roots = solve_resonance_quartic(
             scaled_target_projected_velocity,
             scaled_impact_parameter_squared,
             scaled_velocity_intercept,
         )
 
-    # Convert each dimensionless root to a distance: d = r0*x_i - r*mu.
+    # Convert each dimensionless signed ray coordinate to a path distance from
+    # the packet's current position: distance = shell_width *
+    # projected_position_root - radius * direction_cosine.
     # Select the nearest root that satisfies the original, unsquared resonance equation.
     distance = MISS_DISTANCE
     for projected_position_root in projected_position_roots:
         if not math.isfinite(projected_position_root):
             continue
         if shell_velocity_difference != 0.0:
-            # The quartic comes from squaring the resonance equation. In the
-            # original equation, x - N and Q*x must have opposite signs.
-            root_difference = (
+            # Squaring the resonance equation also produces sign-reversed roots.
+            scaled_resonance_offset = (
                 projected_position_root
                 - scaled_target_projected_velocity
             )
-            velocity_intercept_term = (
+            scaled_intercept_projection = (
                 scaled_velocity_intercept * projected_position_root
             )
-            if (
-                root_difference > 0.0 and velocity_intercept_term > 0.0
+            has_unphysical_sign = (
+                scaled_resonance_offset > 0.0
+                and scaled_intercept_projection > 0.0
             ) or (
-                root_difference < 0.0 and velocity_intercept_term < 0.0
-            ):
+                scaled_resonance_offset < 0.0
+                and scaled_intercept_projection < 0.0
+            )
+            if has_unphysical_sign:
                 continue
         candidate_distance = (
             shell_width * projected_position_root - radius * direction_cosine
         )
-        if candidate_distance <= minimum_distance + distance_tolerance:
-            continue
-        if candidate_distance > maximum_distance + distance_tolerance:
+        if (
+            candidate_distance <= minimum_distance + distance_tolerance
+            or candidate_distance > maximum_distance + distance_tolerance
+        ):
             continue
 
         (
@@ -322,9 +326,20 @@ def calculate_projected_gradient_zero_distances(
 ) -> tuple[float, float, int]:
     """Calculate forward projected-gradient zeros in the current shell.
 
-    Returns up to two distances where the derivative of the projected fluid
-    velocity along the packet trajectory changes sign. Missing distances are
-    returned as ``MISS_DISTANCE``.
+    Parameters
+    ----------
+    rpacket : RPacket
+        Packet defining the current trajectory.
+    geometry : NumbaRadial1DGeometry
+        Radial geometry containing the velocity field.
+    distance_boundary : float
+        Distance to the next shell boundary in centimeters.
+
+    Returns
+    -------
+    tuple[float, float, int]
+        First and second zero distances, followed by the number found. Missing
+        distances are returned as ``MISS_DISTANCE``.
     """
     shell_id = rpacket.current_shell_id
     r = rpacket.r
