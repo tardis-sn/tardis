@@ -38,21 +38,3 @@ def test_positronium_sampler_energy_weights_photon_pdf() -> None:
     expected_cdf /= expected_cdf[-1]
 
     npt.assert_allclose(sampler.cdf_grid, expected_cdf)
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_sample_energy_distribution():
-    """To test the energy distribution sample"""
-    assert False
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_setup_input_energy():
-    """To test setting up the input energy"""
-    assert False
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_intensity_ratio():
-    """To test the intensity ratio"""
-    assert False

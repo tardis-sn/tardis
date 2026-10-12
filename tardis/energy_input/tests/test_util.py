@@ -68,18 +68,6 @@ def test_angle_aberration_gamma_inverse_round_trip() -> None:
 
 
 @pytest.mark.xfail(reason="To be removed")
-def test_doppler_gamma():
-    """Test the doppler shift"""
-    assert False
-
-
-@pytest.mark.xfail(reason="To be removed")
-def test_angle_aberration_gamma():
-    """Test the angle aberration equation"""
-    assert False
-
-
-@pytest.mark.xfail(reason="To be removed")
 def test_euler_rodrigues():
     """Test Euler-Rodrigues rotation"""
     assert False
