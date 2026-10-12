@@ -1,0 +1,7 @@
+tardis.iip\_plasma.base module
+==============================
+
+.. automodule:: tardis.iip_plasma.base
+   :members:
+   :show-inheritance:
+   :undoc-members:
