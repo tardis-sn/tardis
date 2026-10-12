@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=84f8ec09"></script>
+      <script src="../../../../_static/documentation_options.js?v=057a1c8b"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4997,8 +4997,7 @@ def parse_density_section_csvy(
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
 ) -&gt; u.Quantity:
-    &quot;&quot;&quot;Parse the density section of the csvy file and produce a density at
-    time_explosion.
+    &quot;&quot;&quot;Parse the density section of the csvy file and produce a density at time_explosion.
 
     Parameters
     ----------
@@ -5027,7 +5026,7 @@ def parse_density_section_csvy(
         velocity_unit = u.Unit(
             csvy_model_config.datatype.fields[velocity_field_index][&quot;unit&quot;]
         )
-        velocity = csvy_model_data[&quot;velocity&quot;].values * velocity_unit
+        velocity = csvy_model_data[&quot;velocity&quot;].to_numpy() * velocity_unit
 
     v_middle = velocity[1:] * 0.5 + velocity[:-1] * 0.5
 
@@ -5188,7 +5187,7 @@ def calculate_density_after_time(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Oct 2026.
+      <span class="lastupdated">Last updated on 12 Oct 2026.
       </span></p>
   </div>
 
