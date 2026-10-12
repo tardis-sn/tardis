@@ -33,8 +33,8 @@ SHELL_R_INNER = 6.912e14
 SHELL_R_OUTER = 8.64e14
 # Absolute tolerance for distances [cm]. The last significant digit at
 # r ~ 1e15 cm is 0.125 cm and the boundary roots combine a handful of operations
-# on squared radii, so a few times the last digit of rounding is expected; 1 cm 
-# is a small multiple of that and is still 14 orders of magnitude below the 
+# on squared radii, so a few times the last digit of rounding is expected; 1 cm
+# is a small multiple of that and is still 14 orders of magnitude below the
 # shell width.
 DISTANCE_ATOL_CM = 1.0
 # Relative tolerance on the radius a packet lands at after travelling the
