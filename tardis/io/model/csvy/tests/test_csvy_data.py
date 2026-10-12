@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy.testing as npt
 import pytest
 from astropy import units as u
@@ -31,7 +33,7 @@ velocity,H
 
 
 @pytest.fixture
-def csvy_data(tmp_path) -> CSVYData:
+def csvy_data(tmp_path: Path) -> CSVYData:
     fname = tmp_path / "geometry.csvy"
     fname.write_text(CSVY_TEXT)
     return load_csvy(fname)

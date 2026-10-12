@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from pathlib import Path
 
 import numpy.testing as npt
@@ -78,7 +79,7 @@ velocity,H,Ni56
 
 
 @pytest.fixture
-def write_csvy(tmp_path: Path):
+def write_csvy(tmp_path: Path) -> Callable:
     def write(text: str) -> Path:
         fname = tmp_path / "model.csvy"
         fname.write_text(text)
