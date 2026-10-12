@@ -5,10 +5,10 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
+from tardis.io.model.csvy import load_yaml_from_csvy
 from tardis.visualization.widgets.custom_abundance import (
     CustomAbundanceWidget,
     CustomAbundanceWidgetData,
-    CustomYAML,
 )
 
 
@@ -56,6 +56,15 @@ class TestCustomAbundanceWidgetData:
 
 
 class TestCustomAbundanceWidget:
+    def test_to_csvy(self, caw, tmp_path):
+        """Write the widget data through the shared CSVY writer."""
+        caw.to_csvy(tmp_path / "model", overwrite=False)
+
+        metadata = load_yaml_from_csvy(tmp_path / "model.csvy")
+
+        assert metadata["tardis_model_config_version"] == "v1.0"
+        assert metadata["datatype"]["fields"][2]["name"] == "O"
+
     def test_update_input_item_value(self, caw):
         """Tests updating an input item value
 
@@ -232,20 +241,3 @@ class TestCustomAbundanceWidget:
 
             for i, item in enumerate(caw.input_items):
                 assert item.value == expected[i]
-
-
-class TestCustomYAML:
-    def test_create_fields_dict(self):
-        """Test creating fields in the YAML"""
-        custom_yaml = CustomYAML("test", 0, 0, 0, 0)
-        custom_yaml.create_fields_dict(["H", "He"])
-        datatype_dict = {
-            "fields": [
-                {"name": "velocity", "unit": "km/s"},
-                {"name": "density", "unit": "g/cm^3"},
-                {"name": "H", "desc": "fractional H abundance"},
-                {"name": "He", "desc": "fractional He abundance"},
-            ]
-        }
-
-        assert custom_yaml.datatype == datatype_dict
