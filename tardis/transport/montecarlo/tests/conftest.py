@@ -1,9 +1,11 @@
 from copy import deepcopy
+from pathlib import Path
 
 import numpy as np
 import pytest
 from astropy import units as u
 
+from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.geometry.radial1d import (
     NumbaRadial1DGeometry,
@@ -49,8 +51,9 @@ def montecarlo_transport_config(
 
 @pytest.fixture(scope="session")
 def montecarlo_transport_simulation(
-    example_configuration_dir, atomic_dataset
+    example_configuration_dir: Path, atomic_dataset: AtomData
 ) -> Simulation:
+    """Simulate using the verysimple configuration"""
     atomic_dataset = deepcopy(atomic_dataset)
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_verysimple.yml"
