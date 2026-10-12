@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from astropy import units as u
 
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model.geometry.radial1d import (
     NumbaRadial1DGeometry,
 )
@@ -44,6 +45,30 @@ def montecarlo_transport_config(
 
     del config_montecarlo_1e5_verysimple["config_dirname"]
     return config_montecarlo_1e5_verysimple
+
+
+@pytest.fixture(scope="session")
+def montecarlo_transport_simulation(
+    example_configuration_dir, atomic_dataset
+) -> Simulation:
+    atomic_dataset = deepcopy(atomic_dataset)
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
+    config.montecarlo.last_no_of_packets = 1e5
+    config.montecarlo.no_of_virtual_packets = 0
+    config.montecarlo.iterations = 1
+    config.plasma.line_interaction_type = "macroatom"
+    del config["config_dirname"]
+    simulation = Simulation.from_config(
+        config,
+        atom_data=atomic_dataset,
+        virtual_packet_logging=False,
+        legacy_mode_enabled=True,
+    )
+    simulation.run_convergence()
+    simulation.run_final()
+    return simulation
 
 
 @pytest.fixture(scope="package")
