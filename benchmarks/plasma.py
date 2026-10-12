@@ -22,6 +22,7 @@ class BenchmarkPlasma(BenchmarkBase):
     repeat = 3
 
     def setup(self):
+        """Initialize transition blocks"""
         n_blocks = 720
         block_size = 120
         n_shells = 24
@@ -57,6 +58,7 @@ class BenchmarkPlasma(BenchmarkBase):
         self.normalize_transition_probabilities()
 
     def time_cumulative_integrate_array_by_blocks(self):
+        """Benchmark block integration"""
         cumulative_integrate_array_by_blocks(
             self.alpha_sp_energy,
             self.frequency,
@@ -64,9 +66,11 @@ class BenchmarkPlasma(BenchmarkBase):
         )
 
     def time_normalize_transition_probabilities(self):
+        """Benchmark normalizing transition probabilities using setup"""
         self.normalize_transition_probabilities()
 
     def normalize_transition_probabilities(self):
+        """Benchmark transition probabilities with the bound-bound macro atom"""
         BoundBoundMacroAtomSolver.normalize_transition_probabilities(
             self.transition_probabilities.copy(),
             self.transition_metadata,
