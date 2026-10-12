@@ -7,6 +7,7 @@ from tardis.energy_input.util import (
     C_CGS,
     R_ELECTRON_SQUARED,
     angle_aberration_gamma,
+    compton_theta_distribution,
     doppler_factor_3d_all_packets,
     euler_rodrigues,
     get_perpendicular_vector,
@@ -155,6 +156,30 @@ def test_solve_quadratic_equation(
         expected_roots,
         rtol=1.0e-14,
         err_msg="Ray path lengths do not match the analytic sphere intersections",
+    )
+
+
+def test_compton_theta_distribution_thomson_limit() -> None:
+    """Verify the Thomson-limit angular second moment.
+
+    Claim: The low-energy Compton angular distribution approaches the Thomson
+    distribution, whose mean squared scattering cosine is 2/5.
+    Regime: Zero-energy limit on a uniform 1001-point polar-angle grid.
+    Verification: Analytic integration of sin(theta) * (1 + cos(theta)**2)
+    over solid angle.
+    """
+    theta, cumulative_probability = compton_theta_distribution(
+        0.0, sample_resolution=1001
+    )
+    probability = np.diff(np.concatenate(([0.0], cumulative_probability)))
+
+    actual_second_moment = np.sum(probability * np.cos(theta) ** 2)
+
+    npt.assert_allclose(
+        actual_second_moment,
+        2.0 / 5.0,
+        atol=1.0e-6,
+        err_msg="Compton angular sampling does not approach the Thomson limit",
     )
 
 
