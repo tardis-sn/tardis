@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 from astropy import units as u
@@ -9,6 +10,7 @@ from tardis.model.geometry.radial1d_homologous import (
 )
 from tardis.spectrum.base import TARDISSpectrum
 from tardis.spectrum.formal_integral.base import (
+    IntegrationError,
     check_formal_integral_requirements,
 )
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
@@ -18,6 +20,17 @@ from tardis.spectrum.formal_integral.formal_integral_numba import (
     NumbaFormalIntegrator,
 )
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
+
+if TYPE_CHECKING:
+    from pandas import Series
+
+    from tardis.io.atom_data.base import AtomData
+    from tardis.model.base import SimulationState
+    from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+    from tardis.opacities.opacity_state import OpacityState
+    from tardis.transport.montecarlo.modes.classic.solver import (
+        MCTransportSolverClassic,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -172,12 +185,12 @@ class FormalIntegralSolver:
     def solve(
         self,
         frequencies: u.Quantity,
-        simulation_state,
-        transport_solver,
-        opacity_state,
-        atomic_data,
-        electron_densities,
-        macro_atom_state=None,
+        simulation_state: SimulationState,
+        transport_solver: MCTransportSolverClassic,
+        opacity_state: OpacityState,
+        atomic_data: AtomData,
+        electron_densities: Series,
+        macro_atom_state: MacroAtomState | None = None,
     ) -> TARDISSpectrum:
         """
         Solve the formal integral.
@@ -295,9 +308,13 @@ class FormalIntegralSolver:
         luminosity_densities = np.array(luminosity_densities, dtype=np.float64)
         delta_frequency = frequencies[1] - frequencies[0]
 
-        assert np.allclose(
-            frequencies.diff(), delta_frequency, atol=0, rtol=1e-12
-        ), "Frequency grid must be uniform"
+        frequency_steps = frequencies.diff()
+        if not np.allclose(frequency_steps, delta_frequency, atol=0, rtol=1e-12):
+            raise IntegrationError(
+                "Formal integral requires a uniform frequency grid. "
+                f"Frequency steps range from {frequency_steps.min()} to "
+                f"{frequency_steps.max()}."
+            )
 
         luminosity = (
             u.Quantity(luminosity_densities, u.erg / u.s / u.Hz)

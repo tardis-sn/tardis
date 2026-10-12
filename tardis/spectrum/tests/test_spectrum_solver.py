@@ -5,11 +5,15 @@ import numpy as np
 import pandas as pd
 import pytest
 from astropy.tests.helper import assert_quantity_allclose
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation.base import Simulation
 from tardis.spectrum.base import SpectrumSolver
-from tardisbase.testing.regression_data.regression_data import RegressionData
+from tardis.spectrum.formal_integral.base import IntegrationError
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 
 
 class TestSpectrumSolver:
@@ -105,3 +109,53 @@ class TestSpectrumSolver:
         )
 
         assert result_integrated is None
+
+
+def test_nonuniform_frequency_grid_raises_integration_error(
+    simulation_verysimple: Simulation,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real formal solver reports unsupported frequency spacing."""
+    simulation = simulation_verysimple
+    monkeypatch.setattr(simulation.transport, "line_interaction_type", "macroatom")
+    frequencies = np.array([4.0, 5.0, 7.0]) * 1e14 * u.Hz
+    integrator = FormalIntegralSolver(points=10, interpolate_shells=-1, method="numba")
+
+    with pytest.raises(IntegrationError, match="requires a uniform frequency grid"):
+        integrator.solve(
+            frequencies,
+            simulation.simulation_state,
+            simulation.transport,
+            simulation.opacity_state,
+            simulation.plasma.atomic_data,
+            simulation.plasma.electron_densities,
+            simulation.macro_atom_state,
+        )
+
+
+def test_integrated_spectrum_warns_with_integration_error(
+    simulation_verysimple: Simulation,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A real nonuniform integration produces a diagnostic and NaN fallback."""
+    simulation = simulation_verysimple
+    monkeypatch.setattr(simulation.transport, "line_interaction_type", "macroatom")
+    transport_state = simulation.transport.transport_state
+    frequencies = np.array([4.0, 5.0, 7.0, 8.0]) * 1e14 * u.Hz
+    solver = SpectrumSolver(transport_state, frequencies, None)
+    integrator = FormalIntegralSolver(points=10, interpolate_shells=-1, method="numba")
+    solver.setup_optional_spectra(
+        transport_state,
+        integrator=integrator,
+        simulation_state=simulation.simulation_state,
+        transport=simulation.transport,
+        plasma=simulation.plasma,
+        opacity_state=simulation.opacity_state,
+        macro_atom_state=simulation.macro_atom_state,
+    )
+
+    with pytest.warns(UserWarning, match="requires a uniform frequency grid"):
+        spectrum = solver.spectrum_integrated
+
+    assert np.isnan(spectrum.frequency.value).all()
+    assert np.isnan(spectrum.luminosity.value).all()

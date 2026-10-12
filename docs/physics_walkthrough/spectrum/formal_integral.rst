@@ -138,6 +138,13 @@ Current Limitations
 
 The current implementation of the formal integral has some limitations:
 
+* The frequency grid passed to the formal integral solver must be uniformly
+  spaced. A nonuniform grid raises ``IntegrationError`` with the minimum and
+  maximum frequency steps. When accessing ``spectrum_integrated``, this error
+  is reported in a warning and the existing NaN spectrum fallback is returned.
+  Check the warning before using the result; this fallback is not a valid
+  computed spectrum. The Monte Carlo packet spectra remain available.
+
 * Once electron scattering is included, the scheme only produces accurate results when many resonances occur on the rays. This is simply because otherwise the average of :math:`J^b` and :math:`J^r` does not provide an accurate representation of the mean intensity between successive resonance points. Also, :math:`d\tau` can become large which can create unphysical, negative intensities.
 
 It is always advised to check the results of the formal integration against the

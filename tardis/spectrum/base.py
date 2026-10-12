@@ -88,7 +88,8 @@ class SpectrumSolver(HDFWriterMixin):
         )
 
     @property
-    def spectrum_integrated(self):
+    def spectrum_integrated(self) -> TARDISSpectrum | None:
+        """Return the integrated spectrum, or a NaN spectrum on IntegrationError."""
         if self._spectrum_integrated is None and self.integrator is not None:
             # This was changed from unpacking to specific attributes as compute
             # is not used in calculate_spectrum
@@ -102,9 +103,10 @@ class SpectrumSolver(HDFWriterMixin):
                     self.plasma.electron_densities,
                     self.macro_atom_state,
                 )
-            except IntegrationError:
+            except IntegrationError as error:
                 # if integration is impossible or fails, return an empty spectrum
                 warnings.warn(
+                    f"Formal integration failed: {error}. "
                     "The FormalIntegrator is not yet implemented for the full "
                     "relativity mode or continuum processes. "
                     "Please run with config option enable_full_relativity: "
