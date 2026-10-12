@@ -1,0 +1,7 @@
+tardis.iip\_plasma.properties.estimators module
+===============================================
+
+.. automodule:: tardis.iip_plasma.properties.estimators
+   :members:
+   :show-inheritance:
+   :undoc-members:
