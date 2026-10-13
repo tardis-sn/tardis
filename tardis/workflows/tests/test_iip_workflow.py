@@ -10,7 +10,7 @@ from tardisbase.testing.regression_data.regression_data import RegressionData
 from tardis import constants as const
 from tardis.conftest import assert_regression_dataframe
 from tardis.io.configuration.config_reader import Configuration
-from tardis.plasma.equilibrium.evaluator import calculate_lte_populations
+from tardis.plasma.equilibrium.evaluator import calculate_lte_number_densities
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
 PLASMA_SOLVER_REGRESSION_OUTPUTS = (
@@ -65,7 +65,7 @@ def test_workflow_initial_populations_match_ctardis(
     type_iip_workflow: TypeIIPWorkflow,
     ctardis_reference_path: Path,
 ) -> None:
-    """Compare standard initial plasma populations with C-TARDIS data."""
+    """Compare standard initial plasma number densities with C-TARDIS data."""
     # The implementations are independent; tolerances capture initialization
     # parity rather than require identical nonlinear iterates.
     plasma = type_iip_workflow.plasma_solver
@@ -175,7 +175,7 @@ def test_type_iip_workflow_initial_plasma_regression(
 ) -> None:
     """Compare the standard dilute-LTE bootstrap with legacy IIP outputs.
 
-    Claim: Initial populations, continuum opacity, and Sobolev quantities
+    Claim: Initial number densities, continuum opacity, and Sobolev quantities
     retain observable legacy parity before the first Monte Carlo estimators.
     Regime: The five-shell Type IIP comparison configuration.
     Verification: Stored IIP outputs are independent of the standard plasma
@@ -313,11 +313,11 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
 ) -> None:
     """Evaluate finite outer-shell opacity at the 1500 K thermal floor.
 
-    Claim: A zero LTE hydrogen-ion population produces the stimulated-
+    Claim: A zero LTE hydrogen-ion number density produces the stimulated-
     recombination correction in ``chi_bf`` without invalid opacity values.
     Regime: Second opacity iteration in shells forced to the 1500 K floor.
     Verification: The expected opacity is evaluated directly from the
-    bound-free population equation, independently of continuum-state assembly.
+    bound-free number density equation, independently of continuum-state assembly.
     """
     config = Configuration.from_yaml(
         "tardis/workflows/tests/data/iip_population_cutoff.yml"
@@ -362,7 +362,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         level_boltzmann_factor,
     ) = evaluator.calculate_continuum_coefficients(forced_t_electrons)
 
-    lte_ion_population, _ = calculate_lte_populations(
+    lte_ion_number_density, _ = calculate_lte_number_densities(
         plasma_solver.thermal_phi_lte,
         partition_function,
         plasma_solver.number_density,
@@ -376,7 +376,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         coefficient_state,
         level_to_continuum_saha_factor,
     )
-    assert lte_ion_population.loc[(1, 1)].iloc[-1] == 0.0
+    assert lte_ion_number_density.loc[(1, 1)].iloc[-1] == 0.0
 
     workflow.completed_iterations = 1
     opacity_states = workflow.solve_opacity()
@@ -390,7 +390,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         ],
         names=["atomic_number", "ion_number"],
     )
-    stimulated_recombination_population = (
+    stimulated_recombination_number_density = (
         level_to_continuum_saha_factor.loc[cross_sections.index].to_numpy()
         * plasma_solver.ion_number_density.loc[upper_ion_index].to_numpy()
         * plasma_solver.electron_densities.to_numpy()
@@ -403,7 +403,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     # chi_bf = [n_l - n_e n_(ion+1) Phi_lu exp(-h nu / k_B T_e)] sigma_bf.
     expected_chi_bf = (
         plasma_solver.level_number_density.loc[cross_sections.index]
-        - stimulated_recombination_population * boltzmann_factor
+        - stimulated_recombination_number_density * boltzmann_factor
     ).multiply(cross_sections.x_sect.to_numpy(), axis=0)
     pd.testing.assert_frame_equal(
         continuum_state.chi_bf,

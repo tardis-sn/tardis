@@ -47,13 +47,13 @@ class ThermalBalanceSolver:
     def solve(
         self,
         thermal_electron_distribution: ThermalElectronEnergyDistribution,
-        level_population: pd.DataFrame,
-        ion_population: pd.DataFrame,
+        level_number_density: pd.DataFrame,
+        ion_number_density: pd.DataFrame,
         collisional_ionization_rate_coefficient: pd.DataFrame,
         collisional_deexcitation_rate_coefficient: pd.DataFrame,
         collisional_excitation_rate_coefficient: pd.DataFrame,
         free_free_heating_estimator: pd.DataFrame,
-        level_population_ratio: pd.DataFrame,
+        level_number_density_ratio: pd.DataFrame,
         radiation_field: DilutePlanckianRadiationField | None = None,
         bound_free_heating_estimator: pd.DataFrame | None = None,
         stimulated_recombination_estimator: pd.DataFrame | None = None,
@@ -66,9 +66,9 @@ class ThermalBalanceSolver:
         ----------
         thermal_electron_distribution : ThermalElectronEnergyDistribution
             Electron energy, temperature, and density.
-        level_population : pd.DataFrame
+        level_number_density : pd.DataFrame
             Level number density.
-        ion_population : pd.DataFrame
+        ion_number_density : pd.DataFrame
             Ion number density.
         collisional_ionization_rate_coefficient : pd.DataFrame
             Collisional ionization rate coefficient.
@@ -78,8 +78,8 @@ class ThermalBalanceSolver:
             Collisional excitation rate coefficient.
         free_free_heating_estimator : pd.DataFrame
             Montecarlo estimator for free-free heating.
-        level_population_ratio : pd.DataFrame
-            Level population to ion population ratio. Lucy 03, equation 14.
+        level_number_density_ratio : pd.DataFrame
+            Level number density to ion number density ratio. Lucy 03, equation 14.
         radiation_field : RadiationField, optional
             Radiation field for mean intensity calculation.
         bound_free_heating_estimator : pd.DataFrame, optional
@@ -95,10 +95,10 @@ class ThermalBalanceSolver:
         electron_density = thermal_electron_distribution.number_density
 
         bound_free_heating, free_bound_cooling = self.bound_free_solver.solve(
-            level_population,
-            ion_population,
+            level_number_density,
+            ion_number_density,
             thermal_electron_distribution,
-            level_population_ratio,
+            level_number_density_ratio,
             radiation_field,
             bound_free_heating_estimator,
             stimulated_recombination_estimator,
@@ -107,16 +107,16 @@ class ThermalBalanceSolver:
         free_free_heating, free_free_cooling = self.free_free_solver.solve(
             free_free_heating_estimator,
             thermal_electron_distribution,
-            ion_population,
+            ion_number_density,
         )
 
         collisional_ionization_heating, collisional_ionization_cooling = (
             self.collisional_ionization_solver.solve(
                 electron_density,
-                ion_population,
-                level_population,
+                ion_number_density,
+                level_number_density,
                 collisional_ionization_rate_coefficient,
-                level_population_ratio,
+                level_number_density_ratio,
             )
         )
 
@@ -125,7 +125,7 @@ class ThermalBalanceSolver:
                 electron_density,
                 collisional_deexcitation_rate_coefficient,
                 collisional_excitation_rate_coefficient,
-                level_population,
+                level_number_density,
             )
         )
 
@@ -148,6 +148,6 @@ class ThermalBalanceSolver:
         ) / total_cooling
 
         return (
-            pd.Series(total_heating_rate, index=level_population.columns),
-            pd.Series(fractional_heating_rate, index=level_population.columns),
+            pd.Series(total_heating_rate, index=level_number_density.columns),
+            pd.Series(fractional_heating_rate, index=level_number_density.columns),
         )

@@ -17,13 +17,13 @@ from tardis.plasma.properties.general import (
     GElectron,
     ThermalGElectron,
 )
-from tardis.plasma.properties.ion_population import (
+from tardis.plasma.properties.ion_number_density import (
     IonNumberDensity,
     PhiSahaLTE,
     SahaFactor,
     ThermalPhiSahaLTE,
 )
-from tardis.plasma.properties.level_population import LevelNumberDensity
+from tardis.plasma.properties.level_number_density import LevelNumberDensity
 from tardis.plasma.properties.partition_function import (
     LevelBoltzmannFactorDiluteLTE,
     LevelBoltzmannFactorLTE,
@@ -288,7 +288,7 @@ def test_lte_ion_and_level_populations_conserve_elements(
     level_by_ion = standard_levels.groupby(
         level=["atomic_number", "ion_number"]
     ).sum()
-    # Level populations are normalized by their partition function; this
+    # Level number densities are normalized by their partition function; this
     # identity is also independent of the ion-density solver tolerance.
     npt.assert_allclose(
         level_by_ion.to_numpy(), standard_ions.to_numpy(), rtol=1e-12
