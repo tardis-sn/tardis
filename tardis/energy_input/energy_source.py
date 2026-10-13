@@ -11,33 +11,6 @@ from tardis.energy_input.util import (
 )
 
 
-def setup_input_energy(nuclear_data, source):
-    """Sets up energy distribution and CDF for a
-    source of decay radiation.
-
-    Parameters
-    ----------
-    nuclear_data : Pandas dataframe
-        Dataframe of nuclear decay properties
-    source : str
-        Type of decay radiation
-
-    Returns
-    -------
-    One-dimensional Numpy Array, dtype float
-        Sorted energy array
-    One-dimensional Numpy Array, dtype float
-        CDF where each index corresponds to the energy in
-        the sorted array
-    """
-    intensity = nuclear_data[nuclear_data.Radiation == source]["Rad Intensity"]
-    energy = nuclear_data[nuclear_data.Radiation == source]["Rad Energy"]
-
-    intensity /= 100  # = [i / 100 if i > 1 else i for i in intensity]
-
-    return energy, intensity
-
-
 def intensity_ratio(nuclear_data, source_1, source_2):
     """Determined the ratio of intensities between two
     sources of decay radiation
@@ -60,8 +33,12 @@ def intensity_ratio(nuclear_data, source_1, source_2):
     float
         Number of decay products per decay
     """
-    intensity_1 = nuclear_data.query("type==" + source_1)["intensity"].to_numpy()
-    intensity_2 = nuclear_data.query("type==" + source_2)["intensity"].to_numpy()
+    intensity_1 = nuclear_data.query("type==" + source_1)[
+        "intensity"
+    ].to_numpy()
+    intensity_2 = nuclear_data.query("type==" + source_2)[
+        "intensity"
+    ].to_numpy()
     total_intensity = np.sum(intensity_1) + np.sum(intensity_2)
     # Factor of 100 is because intensities are in percent
     scale_factor = total_intensity / 100

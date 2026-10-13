@@ -1,21 +1,8 @@
 import numpy.testing as npt
-import pytest
 
 from tardis.energy_input.transport.gamma_ray_grid import (
     move_packet,
 )
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_calculate_distance_radial():
-    """Test the radial distance calculation"""
-    assert False
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_distance_trace():
-    """Test the distance trace"""
-    assert False
 
 
 def test_move_packet(basic_gamma_ray):
