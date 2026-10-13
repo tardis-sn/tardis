@@ -1,0 +1,24 @@
+---
+name: csvy_with_isotopes
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: Velocity and abundances (including an isotope) in the CSV section.
+tardis_model_config_version: v1.0
+datatype:
+  fields:
+    - name: velocity
+      unit: km/s
+      desc: velocities of shell outer boundaries.
+    - name: H
+      desc: fractional H abundance
+    - name: Ni56
+      desc: fractional Ni56 abundance
+
+density:
+  type: uniform
+  value: 1e-10 g/cm^3
+---
+velocity,H,Ni56
+10000,0.0,0.0
+11000,0.9,0.1
+12000,0.7,0.3
