@@ -119,7 +119,8 @@ def populate_intersection_points_cuda(
         will be set with z values. the array is truncated
         by the value `1`.
     oshell_id : array(int64, 1d, C)
-        will be set with the corresponding shell_ids
+        will be set with the ID of the shell traversed by the segment
+        that starts at each intersection point
 
     Returns
     -------
@@ -131,13 +132,18 @@ def populate_intersection_points_cuda(
     offset = N
 
     if impact_parameter <= radii_inner[0]:
-        # intersect the photosphere
+        # intersect the photosphere, then every outer shell boundary
+        oz[0] = 1 - calculate_intersection_point_cuda(
+            radii_inner[0], impact_parameter, inverse_time_explosion
+        )
+        oshell_id[0] = 0
         for i in range(N):
-            oz[i] = 1 - calculate_intersection_point_cuda(
+            oz[i + 1] = 1 - calculate_intersection_point_cuda(
                 radii_outer[i], impact_parameter, inverse_time_explosion
             )
-            oshell_id[i] = i
-        return N
+            # the segment starting at radii_outer[i] lies in shell i + 1
+            oshell_id[i + 1] = min(i + 1, N - 1)
+        return N + 1
     else:
         # no intersection with photosphere
         # that means we intersect each shell twice
@@ -157,7 +163,9 @@ def populate_intersection_points_cuda(
             oz[i_low] = 1 + intersection_point
             oshell_id[i_low] = i
             oz[i_up] = 1 - intersection_point
-            oshell_id[i_up] = i
+            # on the near side, the segment starting at radii_outer[i]
+            # lies in shell i + 1
+            oshell_id[i_up] = min(i + 1, N - 1)
         return 2 * (N - offset)
 
 
