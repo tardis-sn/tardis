@@ -7,6 +7,7 @@ from astropy import units as u
 from tardis.io.model.csvy.data import CSVYData
 from tardis.io.model.csvy.readers import load_csvy
 
+
 @pytest.fixture
 def csvy_data() -> CSVYData:
     return load_csvy(Path(__file__).parent / "data" / "csvy_geometry.csvy")
