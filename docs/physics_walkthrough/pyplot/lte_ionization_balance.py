@@ -69,7 +69,7 @@ for ion_number in [0, 1, 2, 3]:
     current_ion_density = ion_number_densities.loc[14, ion_number]
     ax1.plot(
         current_ion_density.index,
-        current_ion_density.values,
+        current_ion_density.to_numpy(),
         "%s-" % ion_colors[ion_number],
         label="Si %s W=1.0"
         % tardis.util.base.int_to_roman(ion_number + 1).upper(),
@@ -83,7 +83,7 @@ t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, cmap=plt.cm.jet)
 for t_rad in t_rads[::5]:
     ax2.plot(
         level_populations[t_rad].index,
-        level_populations[t_rad].values,
+        level_populations[t_rad].to_numpy(),
         color=t_rad_color_map.to_rgba(t_rad),
     )
     ax2.semilogy()

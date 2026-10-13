@@ -76,7 +76,7 @@ def load_csvy(fname: str | Path) -> CSVYData:
             yaml_dict["datatype"]["fields"][velocity_field_index]["unit"]
         )
         velocity = (
-            (csvy_data["velocity"].values * velocity_unit).to("cm/s").value
+            (csvy_data["velocity"].to_numpy() * velocity_unit).to("cm/s").value
         )
     else:
         raise ValueError("Velocity information not found in CSVY file")
@@ -94,7 +94,7 @@ def load_csvy(fname: str | Path) -> CSVYData:
             yaml_dict["datatype"]["fields"][density_field_index]["unit"]
         )
         density = (
-            (csvy_data["density"].values * density_unit).to("g/cm^3").value
+            (csvy_data["density"].to_numpy() * density_unit).to("g/cm^3").value
         )
     else:
         density = None
@@ -177,7 +177,6 @@ def load_yaml_from_csvy(fpath: str | Path) -> dict:
                 yaml_dict = yaml.load("".join(yaml_lines[1:-1]), YAMLLoader)
                 return yaml_dict
         raise ValueError(f"End {YAML_DELIMITER} not found")
-
 
 
 def load_csv_from_csvy(fpath: str | Path) -> pd.DataFrame | None:

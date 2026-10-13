@@ -61,8 +61,8 @@ def expected_ff_emissivity(continuum_compare_data):
 
     def ff_emissivity(t_electron):
         emissivity = emissivities[t_electron]
-        nu_bins = emissivity["nu_bins"].values
-        emissivity_value = emissivity["emissivity"].dropna().values
+        nu_bins = emissivity["nu_bins"].to_numpy()
+        emissivity_value = emissivity["emissivity"].dropna().to_numpy()
 
         return nu_bins, emissivity_value
 
@@ -363,9 +363,7 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     # model.full_relativity = full_relativity
 
     velocity = packet.r / time_explosion
-    doppler_factor = get_doppler_factor(
-        velocity, packet.mu, full_relativity
-    )
+    doppler_factor = get_doppler_factor(velocity, packet.mu, full_relativity)
 
     numba_estimator = init_estimators_bulk(
         mean_intensity_total=packet_params["j"],
@@ -379,9 +377,7 @@ def test_move_packet(packet_params, expected_params, full_relativity):
         None,
         time_explosion_quantity,
     ).to_numba()
-    move_r_packet(
-        packet, distance, geometry, numba_estimator, full_relativity
-    )
+    move_r_packet(packet, distance, geometry, numba_estimator, full_relativity)
 
     assert_almost_equal(packet.mu, expected_params["mu"])
     assert_almost_equal(packet.r, expected_params["r"])

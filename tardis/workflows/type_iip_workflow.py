@@ -188,7 +188,7 @@ class TypeIIPWorkflow:
 
         maximum_electron_density = (
             self.plasma_solver.number_density.multiply(
-                self.plasma_solver.number_density.index.values, axis=0
+                self.plasma_solver.number_density.index.to_numpy(), axis=0
             )
             .sum()
             .to_numpy()
@@ -377,7 +377,7 @@ class TypeIIPWorkflow:
 
         sigma_T = const.sigma_T.cgs.value
 
-        N_H = number_density.loc[1].values
+        N_H = number_density.loc[1].to_numpy()
 
         # alternative tau calculation from ctardis
         # v_inner = geometry_state.v_inner_active.value
@@ -1039,15 +1039,15 @@ class TypeIIPWorkflow:
         max_electron_number_density = (
             (
                 self.plasma_solver.number_density.multiply(
-                    self.plasma_solver.number_density.index.values, axis=0
+                    self.plasma_solver.number_density.index.to_numpy(), axis=0
                 )
             )
             .sum()
-            .values
+            .to_numpy()
         )
         initial_electron_fraction = (
             self.plasma_solver.electron_densities / max_electron_number_density
-        ).values
+        ).to_numpy()
 
         logger.info("Initial electron fraction: %s", initial_electron_fraction)
 
@@ -1184,7 +1184,7 @@ class TypeIIPWorkflow:
 
         ff_norm_factor = self.get_ff_heating_norm_factor(
             self.plasma_solver.ion_number_density,
-            self.plasma_solver.electron_densities.values,
+            self.plasma_solver.electron_densities.to_numpy(),
             self.plasma_solver.t_electrons,
         )
         ff_norm_factor *= (
@@ -1243,13 +1243,13 @@ class TypeIIPWorkflow:
             Free-free heating normalization factor
         """
         ionic_charge_squared = np.square(
-            ion_number_density.index.get_level_values(1).values
+            ion_number_density.index.get_level_values(1).to_numpy()
         )
         norm_factor = (
             electron_densities
             * ion_number_density.multiply(ionic_charge_squared, axis=0)
             .sum()
-            .values
+            .to_numpy()
         ) ** -1
         norm_factor *= np.sqrt(t_electrons)
         return norm_factor

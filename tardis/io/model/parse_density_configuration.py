@@ -101,7 +101,7 @@ def parse_density_section_csvy(
         velocity_unit = u.Unit(
             csvy_model_config.datatype.fields[velocity_field_index].unit
         )
-        velocity = csvy_model_config.velocity.values * velocity_unit
+        velocity = csvy_model_config.velocity.to_numpy() * velocity_unit
 
     adjusted_velocity = velocity.insert(0, 0)
     v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
@@ -152,7 +152,7 @@ def parse_density_from_csvy(
         density_unit = u.Unit(
             csvy_model_config.datatype.fields[density_field_index]["unit"]
         )
-        density_0 = csvy_model_data["density"].values * density_unit
+        density_0 = csvy_model_data["density"].to_numpy() * density_unit
         density_0 = density_0.to("g/cm^3")[1:]
         # Removing as the new architecture removes the 0th shell already
         # density_0 = density_0.insert(0, 0)

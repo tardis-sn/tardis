@@ -197,7 +197,7 @@ def parse_velocity_from_csvy(
     velocity_unit = u.Unit(
         csvy_model_config.datatype.fields[velocity_field_idx]["unit"]
     )
-    velocity = csvy_model_data["velocity"].values * velocity_unit
+    velocity = csvy_model_data["velocity"].to_numpy() * velocity_unit
     return velocity.to("cm/s")
 
 
@@ -269,7 +269,7 @@ def parse_nonhomologous_geometry_from_csvy(
     radius_unit = u.Unit(
         csvy_model_config.datatype.fields[radius_field_idx]["unit"]
     )
-    radius = (csvy_model_data["radius"].values * radius_unit).to("cm")
+    radius = (csvy_model_data["radius"].to_numpy() * radius_unit).to("cm")
 
     return Radial1DGeometry(
         r_inner=radius[:-1],
