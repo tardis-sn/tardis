@@ -22,6 +22,11 @@ def csvy_missing_fname(example_model_file_dir: Path):
     return example_model_file_dir / "csvy_missing.csvy"
 
 
+@pytest.fixture
+def csvy_with_isotopes_fname() -> Path:
+    return Path(__file__).parent / "data" / "csvy_with_isotopes.csvy"
+
+
 def test_csvy_finds_csv_first_line(csvy_full_fname):
     csvy_data = csvy.load_csvy(csvy_full_fname)
 
@@ -51,33 +56,6 @@ def test_missing_required_property(csvy_missing_fname):
         csvy_data = csvy.load_csvy(csvy_missing_fname)
 
 
-CSVY_WITH_ISOTOPES = """---
-name: csvy_with_isotopes
-model_density_time_0: 1 day
-model_isotope_time_0: 0 day
-description: Velocity and abundances (including an isotope) in the CSV section.
-tardis_model_config_version: v1.0
-datatype:
-  fields:
-    - name: velocity
-      unit: km/s
-      desc: velocities of shell outer boundaries.
-    - name: H
-      desc: fractional H abundance
-    - name: Ni56
-      desc: fractional Ni56 abundance
-
-density:
-  type: uniform
-  value: 1e-10 g/cm^3
----
-velocity,H,Ni56
-10000,0.0,0.0
-11000,0.9,0.1
-12000,0.7,0.3
-"""
-
-
 @pytest.fixture
 def write_csvy(tmp_path: Path) -> Callable:
     def write(text: str) -> Path:
@@ -89,9 +67,9 @@ def write_csvy(tmp_path: Path) -> Callable:
 
 
 def test_load_csvy_converts_velocity_to_cgs_and_drops_inner_boundary_row(
-    write_csvy,
+    csvy_with_isotopes_fname,
 ):
-    csvy_data = csvy.load_csvy(write_csvy(CSVY_WITH_ISOTOPES))
+    csvy_data = csvy.load_csvy(csvy_with_isotopes_fname)
 
     npt.assert_allclose(csvy_data.velocity, [1e9, 1.1e9, 1.2e9])
     assert csvy_data.density is None
@@ -99,8 +77,8 @@ def test_load_csvy_converts_velocity_to_cgs_and_drops_inner_boundary_row(
     assert list(csvy_data.mass_fractions.columns) == [0, 1]
 
 
-def test_load_csvy_parses_isotope_mass_fractions(write_csvy):
-    csvy_data = csvy.load_csvy(write_csvy(CSVY_WITH_ISOTOPES))
+def test_load_csvy_parses_isotope_mass_fractions(csvy_with_isotopes_fname):
+    csvy_data = csvy.load_csvy(csvy_with_isotopes_fname)
 
     isotope_mass_fractions = csvy_data.isotope_mass_fractions
     assert list(isotope_mass_fractions.index) == [(28, 56)]
@@ -134,8 +112,8 @@ def test_load_csvy_without_closing_delimiter_raises(write_csvy):
         csvy.load_csvy(fname)
 
 
-def test_load_yaml_from_csvy_returns_yaml_metadata(write_csvy):
-    yaml_dict = csvy.load_yaml_from_csvy(write_csvy(CSVY_WITH_ISOTOPES))
+def test_load_yaml_from_csvy_returns_yaml_metadata(csvy_with_isotopes_fname):
+    yaml_dict = csvy.load_yaml_from_csvy(csvy_with_isotopes_fname)
 
     assert yaml_dict["name"] == "csvy_with_isotopes"
     assert [field["name"] for field in yaml_dict["datatype"]["fields"]] == [
@@ -155,8 +133,8 @@ def test_load_yaml_from_csvy_without_closing_delimiter_raises(write_csvy):
         csvy.load_yaml_from_csvy(write_csvy("---\nname: unterminated\n"))
 
 
-def test_load_csv_from_csvy_returns_csv_table(write_csvy):
-    data = csvy.load_csv_from_csvy(write_csvy(CSVY_WITH_ISOTOPES))
+def test_load_csv_from_csvy_returns_csv_table(csvy_with_isotopes_fname):
+    data = csvy.load_csv_from_csvy(csvy_with_isotopes_fname)
 
     assert list(data.columns) == ["velocity", "H", "Ni56"]
     npt.assert_allclose(data["velocity"], [10000, 11000, 12000])

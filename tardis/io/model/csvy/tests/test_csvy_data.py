@@ -7,36 +7,9 @@ from astropy import units as u
 from tardis.io.model.csvy.data import CSVYData
 from tardis.io.model.csvy.readers import load_csvy
 
-CSVY_TEXT = """---
-name: csvy_geometry
-model_density_time_0: 1 day
-model_isotope_time_0: 0 day
-description: Three velocity boundaries, two shells.
-tardis_model_config_version: v1.0
-datatype:
-  fields:
-    - name: velocity
-      unit: km/s
-      desc: velocities of shell boundaries.
-    - name: H
-      desc: fractional H abundance
-
-density:
-  type: uniform
-  value: 1e-10 g/cm^3
----
-velocity,H
-10000,0.0
-11000,1.0
-12000,1.0
-"""
-
-
 @pytest.fixture
-def csvy_data(tmp_path: Path) -> CSVYData:
-    fname = tmp_path / "geometry.csvy"
-    fname.write_text(CSVY_TEXT)
-    return load_csvy(fname)
+def csvy_data() -> CSVYData:
+    return load_csvy(Path(__file__).parent / "data" / "csvy_geometry.csvy")
 
 
 def test_to_geometry_splits_velocity_boundaries_into_shells(csvy_data):
