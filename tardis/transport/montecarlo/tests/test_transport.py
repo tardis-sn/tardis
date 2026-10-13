@@ -1,10 +1,16 @@
 import numpy as np
+import numpy.testing as npt
+import pandas as pd
 import pytest
 
 from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
+)
+from tardis.opacities.opacity_state import OpacityState
+from tardis.transport.montecarlo.configuration.constants import (
+    C_SPEED_OF_LIGHT,
 )
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     init_estimators_bulk,
@@ -14,6 +20,10 @@ from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
     trace_packet as nonhomologous_trace_packet,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
+    VPacket,
+    trace_vpacket_within_shell,
 )
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
@@ -42,6 +52,56 @@ FALLTHROUGH_OPACITY = {
     "tau_sobolev": np.zeros((2, 2)),
     "line_list_nu": [3.999e14, 3.998e14],
 }
+
+
+def test_nonhomologous_vpacket_uses_projected_line_strength() -> None:
+    """A radial resonance has Sobolev depth C/|dv/dr| in one linear shell."""
+    inner_radius = 1.0e14  # cm
+    outer_radius = 2.0e14  # cm
+    inner_velocity = 1.0e8  # cm/s
+    outer_velocity = 2.0e8  # cm/s
+    velocity_gradient = (outer_velocity - inner_velocity) / (
+        outer_radius - inner_radius
+    )  # s^-1
+    line_strength = 2.0e-6  # s^-1
+    packet_frequency = 4.0e14  # Hz
+    resonance_velocity = 1.5e8  # cm/s, halfway through the shell
+    line_frequency = packet_frequency * (
+        1.0 - resonance_velocity / C_SPEED_OF_LIGHT
+    )
+
+    geometry = NumbaRadial1DGeometry(
+        np.array([inner_radius]),
+        np.array([outer_radius]),
+        np.array([inner_velocity]),
+        np.array([outer_velocity]),
+    )
+    opacity_state = OpacityState(
+        pd.Series([0.0]),
+        np.array([5000.0]),
+        pd.Series([line_frequency]),
+        pd.DataFrame([[10.0]]),
+        None,
+        sobolev_optical_depth_coefficient=pd.DataFrame([[line_strength]]),
+    ).to_numba(None, "scatter")
+    packet = VPacket(
+        r=1.1e14,
+        mu=1.0,
+        nu=packet_frequency,
+        energy=1.0,
+        current_shell_id=0,
+        next_line_id=0,
+    )
+
+    optical_depth, _, _ = trace_vpacket_within_shell(
+        packet, geometry, opacity_state, False
+    )
+
+    npt.assert_allclose(
+        optical_depth,
+        line_strength / abs(velocity_gradient),
+        rtol=1.0e-8,
+    )
 
 
 @pytest.mark.parametrize("enable_full_relativity", [False, True])
@@ -478,9 +538,9 @@ def test_iip_trace_packet_no_line_fallthrough(
             1.0e-20,
             NONHOMOLOGOUS_LINE_OPACITY,
             {"next_line_id": 0, "prev_line_id": 0},
-            InteractionType.BOUNDARY, # end of line list
-            1,
+            InteractionType.LINE,
             0,
+            -1,
         ),
         (
             {"negative_velocity_gradient": True},
