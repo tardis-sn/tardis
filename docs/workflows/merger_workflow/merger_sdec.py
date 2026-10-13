@@ -16,6 +16,7 @@ from tardis.visualization import SDECPlotter
 from tardis.workflows.nonhomologous_tardis_workflow import (
     NonhomologousTARDISWorkflow,
 )
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.workflows.util import get_tau_integ
 
 
@@ -58,7 +59,7 @@ merger_df["velocity_cms"] = (
     merger_df["velocity"].to_numpy() * u.km / u.s
 ).to_value(u.cm / u.s)
 merger_df["radius_cm"] = (
-    merger_df["velocity"].to_numpy() * u.km / u.s * time_explosion * u.day
+    merger_df["radius"].to_numpy() * u.cm
 ).to_value(u.cm)
 
 # Overplot processed csvy data
@@ -67,11 +68,11 @@ axes[4].plot(merger_df["radius_cm"], merger_df["density"], c="C1", lw=5, alpha=0
 axes[5].plot(merger_df["radius_cm"], merger_df["t_rad"], c="C1", lw=5, alpha=0.3, label='CSVY data used for TARDIS sim')
 
 # Plot fiducial tardis example profiles for comparison
-config = Configuration.from_yaml('../../tardis_example.yml')
-workflow = NonhomologousTARDISWorkflow(config)
-v_fiducial = np.linspace(config.model.structure.velocity.start, config.model.structure.velocity.stop, config.model.structure.velocity.num)
-dens_fiducial = workflow.simulation_state.composition.density
-temp_fiducial = workflow.simulation_state.t_radiative
+fiducial_config = Configuration.from_yaml('../../tardis_example.yml')
+fiducial_workflow = StandardTARDISWorkflow(fiducial_config)
+v_fiducial = np.linspace(fiducial_config.model.structure.velocity.start, fiducial_config.model.structure.velocity.stop, fiducial_config.model.structure.velocity.num)
+dens_fiducial = fiducial_workflow.simulation_state.composition.density
+temp_fiducial = fiducial_workflow.simulation_state.t_radiative
 r_fiducial = (v_fiducial*time_explosion*u.day).to(u.cm)
 axes[3].plot(r_fiducial, v_fiducial.to(u.cm/u.s), c='C3')
 axes[4].plot(r_fiducial, dens_fiducial, c='C3')
