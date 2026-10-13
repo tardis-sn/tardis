@@ -13,6 +13,18 @@ TARDIS has several built-in models for the shell structure, density, and abundan
 we recommend using the YAML configuration method. For creating a custom model (which will be discussed below), we
 recommend using the CSVY method.
 
+.. note::
+
+    TARDIS treats velocities and radii as values at shell boundaries (edges) and treats density,
+    abundances, and radiation-field quantities as uniform values within each shell (cells). See
+    :doc:`edge_and_cell_quantities` for how each input format and importer maps its data onto
+    this grid.
+
+.. toctree::
+    :maxdepth: 1
+
+    edge_and_cell_quantities
+
 .. contents::
     :local:
 
@@ -92,6 +104,8 @@ Model Converters
 There are a variety of formats for models from other codes
 (both hydro and radiative transfer) that can be converted to TARDIS input files.
 Here we aim to provide converters for the most commonly used file formats.
+See :ref:`model-edge-cell-quantities` for how each converter maps source data onto TARDIS
+shell boundaries and shell values.
     
 .. toctree::
     :maxdepth: 2
@@ -289,7 +303,7 @@ inner boundary of the computational domain (see
 :doc:`../../../../physics_walkthrough/setup/model`). Each subsequent entry is
 the outer boundary of one shell. Shell-valued data such as density, radiative
 temperature, dilution factor, and abundances therefore do not use their first
-entry. In our example, there are two shells. The first has inner boundaries of
+entry (see :ref:`model-leading-row`). In our example, there are two shells. The first has inner boundaries of
 :math:`1.0 \times 10^{14}\,\mathrm{cm}` and
 :math:`9000\,\mathrm{km\,s^{-1}}`, outer boundaries of
 :math:`3.0 \times 10^{14}\,\mathrm{cm}` and
