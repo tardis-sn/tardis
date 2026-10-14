@@ -7,6 +7,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from scipy.optimize import least_squares, root
+from scipy.special import softmax
 
 from tardis.opacities.sobolevs_from_levels import (
     calculate_sobolev_opacities_from_level_densities,
@@ -635,20 +636,47 @@ class PlasmaEquilibriumEvaluator:
                 bound_bound_rates=bound_bound_rates,
             )[0]
 
-        solution = root(residual, level_seed, options={"xtol": 1e-12})
-        level_solution = solution.x
-        if not np.isfinite(level_solution).all():
-            raise ValueError("Reduced level-population solve did not converge.")
-        if np.any(level_solution < 0.0):
-            # Match iip_plasma's general fallback: scipy root HYBR result is
-            # retained whenever its iterate is physical, while a negative
-            # iterate is rebuilt by the slower bounded solver instead of clipped
-            # or accepted.
-            level_solution = least_squares(
-                residual,
-                level_seed,
-                bounds=(0.0, 1.0),
-            ).x
+        def calculate_physical_level_residual(
+            candidate: npt.NDArray[np.float64],
+        ) -> float:
+            if (
+                not np.isfinite(candidate).all()
+                or np.any(candidate < 0.0)
+                or candidate.sum() <= 0.0
+            ):
+                return np.inf
+            candidate_residual = residual(candidate / candidate.sum())
+            if not np.isfinite(candidate_residual).all():
+                return np.inf
+            return float(np.max(np.abs(candidate_residual)))
+
+        level_solution = root(residual, level_seed, options={"xtol": 1e-12}).x
+        best_residual = calculate_physical_level_residual(level_solution)
+        if best_residual > 1e-10:
+            # Log ratios preserve positive, normalized populations while
+            # solving from the fixed initial level seed.
+            def calculate_log_ratio_residual(
+                log_ratios: npt.NDArray[np.float64],
+            ) -> npt.NDArray[np.float64]:
+                return residual(softmax(np.r_[0.0, log_ratios]))[1:]
+
+            minimum_fraction = np.finfo(np.float64).eps
+            initial_log_ratios = np.log(
+                np.maximum(level_seed[1:], minimum_fraction)
+                / max(level_seed[0], minimum_fraction)
+            )
+            log_solution = least_squares(
+                calculate_log_ratio_residual,
+                initial_log_ratios,
+                ftol=1e-12,
+                xtol=1e-12,
+                gtol=1e-14,
+                max_nfev=3000,
+            )
+            log_fractions = softmax(np.r_[0.0, log_solution.x])
+            log_residual = calculate_physical_level_residual(log_fractions)
+            if log_residual < best_residual:
+                level_solution = log_fractions
         if not np.isfinite(level_solution).all():
             raise ValueError(
                 "Reduced level-population solve returned nonfinite fractions."
@@ -662,10 +690,6 @@ class PlasmaEquilibriumEvaluator:
                 "Reduced level-population solve returned zero fractions."
             )
 
-        # Legacy iip_plasma accepts a finite, nonnegative root(method='hybr') iterate
-        # even when SciPy reports failure or the level equations are not closed.
-        # This code deliberately preserves that behavior; the residual remains
-        # part of the returned diagnostics but is not an acceptance criterion.
         fractions = level_solution / level_solution.sum()
         level_residual, beta_sobolev, ionized_to_neutral_ratio = (
             self._calculate_level_state(
@@ -679,10 +703,19 @@ class PlasmaEquilibriumEvaluator:
                 bound_bound_rates=bound_bound_rates,
             )
         )
-        if ionized_to_neutral_ratio < 0.0:
+        if (
+            not np.isfinite(ionized_to_neutral_ratio)
+            or ionized_to_neutral_ratio < 0.0
+        ):
             raise ValueError(
-                "Reduced level-population solve returned a negative "
+                "Reduced level-population solve returned an invalid "
                 "ionized-to-neutral ratio."
+            )
+        # Legacy IIP returns a physical iterate at difficult trial points;
+        # the workflow checks final closure before accepting a thermal state.
+        if not np.isfinite(level_residual).all():
+            raise ValueError(
+                "Reduced level-population solve returned a nonfinite residual."
             )
         return (
             fractions,

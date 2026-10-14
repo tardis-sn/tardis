@@ -281,11 +281,6 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
     assert not hasattr(workflow, "_thermal_balance_evaluation")
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="IIP level root can retain a physical iterate with an open residual",
-)
 def test_iip_level_solution_is_seed_independent_after_first_transport(
     type_iip_workflow: TypeIIPWorkflow,
 ) -> None:
