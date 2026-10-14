@@ -8,7 +8,8 @@ jobs:
   close-untemplated-issue:
     if: >
       contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), github.event.issue.author_association) &&
-      !contains(github.event.issue.body, '**Additional context**')
+      !contains(github.event.issue.body, 'Environment (`conda list`)') &&
+      !contains(github.event.issue.body, '**Is your feature request related to a problem? Please describe.**')
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.BOT_TOKEN }}
