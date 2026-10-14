@@ -6,6 +6,8 @@ import pandas as pd
 import pandas.testing as pdt
 import pytest
 from astropy import units as u
+from numpy.typing import ArrayLike, NDArray
+from scipy.optimize import root as scipy_root
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -282,6 +284,109 @@ def test_evaluator_refines_physical_level_iterate_when_optimizer_stalls(
     assert not np.array_equal(actual[0], stalled_fractions)
     assert actual[0].sum() == 1.0
     assert np.all(actual[0] >= 0.0)
+    npt.assert_allclose(actual[3], 0.0, rtol=0.0, atol=1e-10)
+
+
+def test_evaluator_retries_open_level_equations_despite_optimizer_success(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Select a retry by its physical residual, ignoring optimizer status.
+
+    Claim: A near-ground seed that gives an open level solution must be retried
+    from a less concentrated seed when another physical solution closes.
+    Regime: One shell, two neutral-hydrogen levels, fixed 1e9 cm^-3 electron
+    density and 10000 K temperature; the first two optimizers falsely report
+    success and a later retry reports failure despite closing the equations.
+    Verification: This is a control-flow check using the evaluator's physical
+    equations. A separate SciPy root call establishes a closed candidate; the
+    returned population is checked against those equations. The 1e-10
+    tolerance is the workflow's level-closure limit.
+    """
+    evaluator = toy_evaluator
+    electron_density = 1.0e9  # cm^-3
+    electron_temperature = 1.0e4  # K
+    continuum_rates = evaluator.calculate_continuum_coefficients(
+        np.array([electron_temperature])
+    )[0][0]
+    population_geometry = evaluator.shell_number_densities[0]
+    sobolev_inputs = evaluator.sobolev_inputs[0]
+
+    def physical_residual(
+        level_fractions: NDArray[np.float64],
+    ) -> NDArray[np.float64]:
+        return evaluator._calculate_level_state(
+            0,
+            electron_density,
+            electron_temperature,
+            level_fractions,
+            continuum_rates,
+            population_geometry,
+            sobolev_inputs,
+        )[0]
+
+    closed_fractions = scipy_root(
+        physical_residual, np.array([0.5, 0.5]), options={"xtol": 1e-12}
+    ).x
+    stalled_fractions = np.array([0.4, 0.6])
+    assert np.all(closed_fractions >= 0.0)
+    npt.assert_allclose(closed_fractions.sum(), 1.0, rtol=0.0, atol=1e-10)
+    npt.assert_allclose(
+        physical_residual(closed_fractions), 0.0, rtol=0.0, atol=1e-10
+    )
+    assert np.max(np.abs(physical_residual(stalled_fractions))) > 1e-10
+
+    # The synthetic 1e-10 split distinguishes the original 1e-12 excited
+    # fraction from a materially less concentrated retry seed.
+    def controlled_root(
+        _residual: object, seed: ArrayLike, **kwargs: object
+    ) -> SimpleNamespace:
+        del kwargs
+        if np.asarray(seed)[1] > 1e-10:
+            return SimpleNamespace(success=False, x=closed_fractions)
+        return SimpleNamespace(success=True, x=stalled_fractions)
+
+    def controlled_log_solver(
+        _residual: object, log_ratios: ArrayLike, **kwargs: object
+    ) -> SimpleNamespace:
+        del kwargs
+        if np.exp(np.asarray(log_ratios)[0]) > 1e-10:
+            fractions = closed_fractions
+            success = False
+        else:
+            fractions = stalled_fractions
+            success = True
+        return SimpleNamespace(
+            success=success,
+            x=np.log(fractions[1:] / fractions[0]),
+        )
+
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.root", controlled_root
+    )
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.least_squares",
+        controlled_log_solver,
+    )
+    actual = evaluator._calculate_level_solution(
+        0,
+        electron_density,
+        electron_temperature,
+        np.array([1.0 - 1e-12, 1e-12]),
+        continuum_rates,
+        population_geometry,
+        sobolev_inputs,
+    )
+
+    assert np.all(actual[0] >= 0.0)
+    npt.assert_allclose(actual[0].sum(), 1.0, rtol=0.0, atol=1e-15)
+    npt.assert_allclose(
+        physical_residual(actual[0]),
+        0.0,
+        rtol=0.0,
+        atol=1e-10,
+        err_msg="optimizer success hid an open physical level solution",
+    )
     npt.assert_allclose(actual[3], 0.0, rtol=0.0, atol=1e-10)
 
 

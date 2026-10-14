@@ -650,11 +650,25 @@ class PlasmaEquilibriumEvaluator:
                 return np.inf
             return float(np.max(np.abs(candidate_residual)))
 
-        level_solution = root(residual, level_seed, options={"xtol": 1e-12}).x
-        best_residual = calculate_physical_level_residual(level_solution)
-        if best_residual > 1e-10:
+        # An empirical per-level floor lets a retry repopulate excited levels
+        # depleted by the previous thermal state while retaining its shape.
+        floored_seed = np.maximum(level_seed, 1e-4)
+        floored_seed /= floored_seed.sum()
+        level_solution = level_seed
+        best_residual = np.inf
+        for seed_idx, trial_seed in enumerate((level_seed, floored_seed)):
+            root_solution = root(
+                residual, trial_seed, options={"xtol": 1e-12}
+            ).x
+            root_residual = calculate_physical_level_residual(root_solution)
+            if seed_idx == 0 or root_residual < best_residual:
+                level_solution = root_solution
+                best_residual = root_residual
+            if best_residual <= 1e-10:
+                break
+
             # Log ratios preserve positive, normalized populations while
-            # solving from the fixed initial level seed.
+            # solving from this trial seed.
             def calculate_log_ratio_residual(
                 log_ratios: npt.NDArray[np.float64],
             ) -> npt.NDArray[np.float64]:
@@ -662,8 +676,8 @@ class PlasmaEquilibriumEvaluator:
 
             minimum_fraction = np.finfo(np.float64).eps
             initial_log_ratios = np.log(
-                np.maximum(level_seed[1:], minimum_fraction)
-                / max(level_seed[0], minimum_fraction)
+                np.maximum(trial_seed[1:], minimum_fraction)
+                / max(trial_seed[0], minimum_fraction)
             )
             log_solution = least_squares(
                 calculate_log_ratio_residual,
@@ -677,6 +691,9 @@ class PlasmaEquilibriumEvaluator:
             log_residual = calculate_physical_level_residual(log_fractions)
             if log_residual < best_residual:
                 level_solution = log_fractions
+                best_residual = log_residual
+            if best_residual <= 1e-10:
+                break
         if not np.isfinite(level_solution).all():
             raise ValueError(
                 "Reduced level-population solve returned nonfinite fractions."
