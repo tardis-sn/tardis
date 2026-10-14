@@ -237,19 +237,18 @@ def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
     )
 
 
-def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
+def test_evaluator_refines_physical_level_iterate_when_optimizer_stalls(
     toy_evaluator: PlasmaEquilibriumEvaluator,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Accept a physical population when the level solver stops early.
+    """Refine a physical population when the level solver stops early.
 
-    Claim: A finite, nonnegative, normalized population remains usable when
-    the level solver reports failure.
+    Claim: This stalled physical iterate can be refined to level equilibrium.
     Regime: One shell and two neutral-hydrogen levels at fixed density and
     temperature.
-    Verification: Population conservation and a deliberately nonzero level
-    balance error show that acceptance depends on physical admissibility, not
-    reported convergence.
+    Verification: Replace HYBR's result with a physical but unsolved iterate;
+    the returned population must differ and close the level equations to the
+    workflow's 1e-10 tolerance.
     """
     evaluator = toy_evaluator
     continuum_rates = evaluator.calculate_continuum_coefficients(
@@ -280,9 +279,56 @@ def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
     )
     actual = evaluator._calculate_level_solution(*arguments)
 
-    npt.assert_array_equal(actual[0], stalled_fractions)
+    assert not np.array_equal(actual[0], stalled_fractions)
     assert actual[0].sum() == 1.0
     assert np.all(actual[0] >= 0.0)
+    npt.assert_allclose(actual[3], 0.0, rtol=0.0, atol=1e-10)
+
+
+def test_evaluator_reports_open_level_solution_after_all_retries(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Expose the residual when no retry closes a physical trial iterate.
+
+    Claim: An outer thermal trial can use a physical best-effort population,
+    but its unsolved level balance must remain visible to final validation.
+    Regime: One shell with two neutral-hydrogen levels at fixed density and
+    temperature.
+    Verification: Both optimizers return the same unsolved physical iterate;
+    the evaluator returns its nonzero equation residual.
+    """
+    evaluator = toy_evaluator
+    continuum_rates = evaluator.calculate_continuum_coefficients(
+        np.array([1.0e4])
+    )[0][0]
+    stalled_fractions = np.array([0.4, 0.6])
+
+    def stalled_root(*args: object, **kwargs: object) -> SimpleNamespace:
+        del args, kwargs
+        return SimpleNamespace(success=True, x=stalled_fractions)
+
+    def stalled_log_solver(*args: object, **kwargs: object) -> SimpleNamespace:
+        del args, kwargs
+        return SimpleNamespace(success=True, x=np.array([np.log(1.5)]))
+
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.root", stalled_root
+    )
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.least_squares",
+        stalled_log_solver,
+    )
+    actual = evaluator._calculate_level_solution(
+        0,
+        1.0e9,
+        1.0e4,
+        np.array([0.5, 0.5]),
+        continuum_rates,
+        evaluator.shell_number_densities[0],
+        evaluator.sobolev_inputs[0],
+    )
+    npt.assert_array_equal(actual[0], stalled_fractions)
     assert np.max(np.abs(actual[3])) > 1e-10
 
 
