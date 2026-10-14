@@ -281,6 +281,95 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
     assert not hasattr(workflow, "_thermal_balance_evaluation")
 
 
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason="IIP level root can retain a physical iterate with an open residual",
+)
+def test_iip_level_solution_is_seed_independent_after_first_transport(
+    type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """Close the same IIP level equations from two initial populations.
+
+    Claim: A fixed shell equilibrium is independent of the initial level
+    population and closes the level equations.
+    Regime: Pure-hydrogen comparison model, first Monte Carlo estimators, and
+    the shell-3 thermal candidate that exposed seed sensitivity after #3704.
+    Verification: Seed independence is a metamorphic relation; the direct
+    level-equation residual prevents two matching but unsolved populations from
+    passing. The 1e-10 residual tolerance matches the workflow's declared
+    level-closure limit; 1e-8 relative and 1e-10 absolute population
+    tolerances allow the 1e-12-step inner solve to amplify small changes in
+    weakly populated excited levels.
+    """
+    workflow = type_iip_workflow
+    workflow.show_progress_bars = False
+    workflow.solve_montecarlo(
+        workflow.solve_opacity(), workflow.real_packet_count
+    )
+    estimated_values, _ = workflow.get_convergence_estimates()
+    workflow.solve_simulation_state(estimated_values)
+    continuum_estimators, j_blues = workflow.update_estimators()
+    workflow.solve_plasma(continuum_estimators, j_blues)
+
+    plasma = workflow.plasma_solver
+    maximum_electron_density = (
+        plasma.number_density.multiply(
+            plasma.number_density.index.values, axis=0
+        )
+        .sum()
+        .to_numpy()
+    )
+    workflow._initialize_thermal_balance_evaluator(maximum_electron_density)
+    evaluator = workflow._thermal_balance_evaluator
+    shell_idx = 3
+    # First thermal solve candidate: n_e in cm^-3 and T_e in K. Keep full
+    # precision because rounding these ratios changes the level-root basin.
+    electron_density = maximum_electron_density[shell_idx] * 0.998778561236385
+    electron_temperature = (
+        workflow._thermal_balance_radiation_temperature[shell_idx]
+        * 0.8503012782179825
+    )
+    temperatures = np.asarray(plasma.t_electrons, dtype=np.float64).copy()
+    temperatures[shell_idx] = electron_temperature
+    electron_densities = plasma.electron_densities.to_numpy(
+        dtype=np.float64
+    ).copy()
+    electron_densities[shell_idx] = electron_density
+    initial_result = evaluator.evaluate(
+        electron_densities,
+        temperatures,
+        workflow._thermal_balance_level_initial_guess,
+    )
+    accepted_result = evaluator.evaluate(
+        electron_densities,
+        temperatures,
+        initial_result.normalized_population,
+    )
+
+    np.testing.assert_allclose(
+        initial_result.normalized_population[shell_idx],
+        accepted_result.normalized_population[shell_idx],
+        rtol=1e-8,
+        atol=1e-10,
+        err_msg="the IIP level equilibrium depends on its initial population",
+    )
+    np.testing.assert_allclose(
+        initial_result.trial_level_residual[shell_idx],
+        0.0,
+        rtol=0.0,
+        atol=1e-10,
+        err_msg="the initial-seed IIP level equations do not close",
+    )
+    np.testing.assert_allclose(
+        accepted_result.trial_level_residual[shell_idx],
+        0.0,
+        rtol=0.0,
+        atol=1e-10,
+        err_msg="the accepted-seed IIP level equations do not close",
+    )
+
+
 def test_solve_montecarlo(
     type_iip_workflow: TypeIIPWorkflow,
     regression_data: RegressionData,
