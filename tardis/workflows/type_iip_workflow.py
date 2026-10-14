@@ -77,6 +77,19 @@ from tardis.workflows.workflow_logger import WorkflowLogger
 # logging support
 logger = logging.getLogger(__name__)
 
+THERMAL_BALANCE_RESIDUAL_LIMITS = {
+    "trial_level_residual": 1e-10,
+    "level_residual": 1e-10,
+    "charge_residual": 1e-10,
+    # The charge projection independently solves for the electron density, so
+    # the projected value can differ slightly from the outer trial value.
+    "electron_residual": 2e-8,
+    # Heating residuals subtract nearly cancelling rates, leaving a small
+    # floating-point floor.
+    "total_heating": 5e-13,
+    "fractional_heating": 2e-7,
+}
+
 
 class TypeIIPWorkflow:
     """Coordinate Type IIP plasma, transport, and thermal-balance solves."""
@@ -983,21 +996,7 @@ class TypeIIPWorkflow:
             if not np.isfinite(np.asarray(state, dtype=np.float64)).all():
                 failures.append(f"{field_name} is nonfinite")
 
-        residual_tolerance_limits = {
-            "trial_level_residual": 1e-10,
-            "level_residual": 1e-10,
-            "charge_residual": 1e-10,
-            # The charge projection independently solves for the electron
-            # density, so the final projected value can differ slightly from
-            # the outer solver's trial value after the state is rebuilt.
-            "electron_residual": 2e-8,
-            # Heating residuals subtract nearly cancelling rates, leaving a
-            # small floating-point floor; these limits enforce tighter
-            # closure than the legacy observable-parity requirement.
-            "total_heating": 5e-13,
-            "fractional_heating": 2e-7,
-        }
-        for field_name, tolerance in residual_tolerance_limits.items():
+        for field_name, tolerance in THERMAL_BALANCE_RESIDUAL_LIMITS.items():
             residual = getattr(evaluation, field_name)
             if residual is None:
                 failures.append(f"{field_name} is missing")
@@ -1132,7 +1131,12 @@ class TypeIIPWorkflow:
                 "electron/heating shells: %s",
                 joint_failure,
             )
-            local_residual_limits = np.array([2e-8, 2e-7])
+            local_residual_limits = np.array(
+                [
+                    THERMAL_BALANCE_RESIDUAL_LIMITS["electron_residual"],
+                    THERMAL_BALANCE_RESIDUAL_LIMITS["fractional_heating"],
+                ]
+            )
             electron_residual = (
                 self._thermal_balance_evaluation.electron_residual.to_numpy()
             )
@@ -1146,7 +1150,7 @@ class TypeIIPWorkflow:
                 | (np.abs(fractional_heating) > local_residual_limits[1])
             )
             if not len(failed_shells):
-                raise joint_failure
+                raise
             accepted_candidate = accepted_candidate.copy()
             for shell_idx in failed_shells:
                 shell_slice = slice(2 * shell_idx, 2 * shell_idx + 2)
@@ -1162,14 +1166,6 @@ class TypeIIPWorkflow:
                         trial_candidate, max_electron_number_density
                     )[shell_slice]
 
-                local_options = {
-                    "bounds": (local_lower_bound, upper_bound[shell_slice]),
-                    "xtol": 1e-14,
-                    "ftol": 1e-12,
-                    "gtol": 1e-14,
-                    "x_scale": "jac",
-                    "max_nfev": 100,
-                }
                 local_start = np.clip(
                     accepted_candidate[shell_slice],
                     local_lower_bound,
@@ -1178,7 +1174,12 @@ class TypeIIPWorkflow:
                 shell_result = lsq(
                     shell_residual,
                     local_start,
-                    **local_options,
+                    bounds=(local_lower_bound, upper_bound[shell_slice]),
+                    xtol=1e-14,
+                    ftol=1e-12,
+                    gtol=1e-14,
+                    x_scale="jac",
+                    max_nfev=100,
                 )
                 if np.any(np.abs(shell_result.fun) > local_residual_limits):
                     # Retry from this shell's pre-optimization state when the
@@ -1193,7 +1194,15 @@ class TypeIIPWorkflow:
                         alternate_result = lsq(
                             shell_residual,
                             alternate_start,
-                            **local_options,
+                            bounds=(
+                                local_lower_bound,
+                                upper_bound[shell_slice],
+                            ),
+                            xtol=1e-14,
+                            ftol=1e-12,
+                            gtol=1e-14,
+                            x_scale="jac",
+                            max_nfev=100,
                         )
                         shell_closes = np.all(
                             np.abs(shell_result.fun) <= local_residual_limits
