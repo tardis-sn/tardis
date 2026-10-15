@@ -5,6 +5,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import pytest
+from astropy import units as u
 from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis import constants as const
@@ -279,6 +280,398 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
     pd.testing.assert_frame_equal(actual_initial_guess, level_initial_guess)
     np.testing.assert_array_equal(residual, [0.1, 0.3, -0.2, -0.4])
     assert not hasattr(workflow, "_thermal_balance_evaluation")
+
+
+def test_thermal_balance_uses_joint_solution_without_local_retry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep the joint thermal solution when it passes final validation.
+
+    Claim: Shell-local optimization is a fallback and does not add optimizer
+    calls to a closed joint solution.
+    Regime: One shell with a joint candidate inside the physical bounds.
+    Verification: Record calls at the SciPy optimizer boundary and require the
+    accepted plasma candidate to equal the joint result.
+    """
+    workflow = TypeIIPWorkflow.__new__(TypeIIPWorkflow)
+    workflow.plasma_solver = SimpleNamespace(
+        link_t_rad_t_electron=np.array([0.8]),
+        number_density=pd.DataFrame([[2.0]], index=[1]),
+        electron_densities=pd.Series([1.0]),
+    )
+    workflow.simulation_state = SimpleNamespace(
+        geometry=SimpleNamespace(no_of_shells_active=1),
+        t_radiative=np.array([1.0e4]) * u.K,
+    )
+    workflow._thermal_balance_radiation_temperature = np.array([1.0e4])
+    workflow._thermal_balance_level_initial_guess = pd.DataFrame([[1.0]])
+    evaluation = SimpleNamespace(normalized_population=pd.DataFrame([[1.0]]))
+    workflow._thermal_balance_evaluator = SimpleNamespace(
+        evaluate=lambda *_: evaluation
+    )
+    workflow._initialize_thermal_balance_evaluator = lambda _: None
+    workflow._validate_thermal_balance_evaluation = lambda _: None
+    accepted_candidates = []
+    workflow._update_plasma_with_thermal_balance_state = (
+        lambda candidate: accepted_candidates.append(candidate.copy())
+    )
+    optimizer_starts = []
+    joint_candidate = np.array([0.6, 0.9])
+
+    def recording_lsq(
+        _objective: object, initial_guess: npt.ArrayLike, **_kwargs: object
+    ) -> SimpleNamespace:
+        optimizer_starts.append(np.asarray(initial_guess).copy())
+        return SimpleNamespace(x=joint_candidate, fun=np.zeros(2), status=1)
+
+    monkeypatch.setattr(
+        "tardis.workflows.type_iip_workflow.lsq", recording_lsq
+    )
+
+    workflow.solve_thermal_balance()
+
+    assert len(optimizer_starts) == 1
+    np.testing.assert_array_equal(accepted_candidates, [joint_candidate])
+
+
+def test_thermal_balance_retries_failed_shell_from_alternate_start(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Recover a failed shell from an alternate bounded thermal state.
+
+    Claim: A joint candidate that fails closure is retried locally, and a
+    closing alternate is preferred over a lower-norm candidate that still
+    violates an individual residual gate.
+    Regime: Two shells, with the first joint electron fraction below the
+    positive local bound and its first local result narrowly failing electron
+    closure while the second shell is already closed.
+    Verification: Record optimizer starts and supply residuals at the declared
+    electron and heating limits independently of the workflow implementation.
+    """
+    workflow = TypeIIPWorkflow.__new__(TypeIIPWorkflow)
+    workflow.plasma_solver = SimpleNamespace(
+        link_t_rad_t_electron=np.array([0.8, 0.9]),
+        number_density=pd.DataFrame([[2.0, 4.0]], index=[1]),
+        electron_densities=pd.Series([1.0, 2.0]),
+    )
+    workflow.simulation_state = SimpleNamespace(
+        geometry=SimpleNamespace(no_of_shells_active=2),
+        t_radiative=np.array([1.0e4, 1.1e4]) * u.K,
+    )
+    workflow._thermal_balance_radiation_temperature = np.array([1.0e4, 1.1e4])
+    workflow._thermal_balance_level_initial_guess = pd.DataFrame([[1.0, 1.0]])
+    failed_evaluation = SimpleNamespace(
+        normalized_population=pd.DataFrame([[1.0, 1.0]]),
+        electron_residual=pd.Series([0.7, 0.0]),
+        fractional_heating=pd.Series([0.06, 0.0]),
+        total_heating=pd.Series([1.0e-8, 0.0]),
+    )
+    closed_evaluation = SimpleNamespace(
+        normalized_population=pd.DataFrame([[1.0, 1.0]]),
+        electron_residual=pd.Series([0.0, 0.0]),
+        fractional_heating=pd.Series([0.0, 0.0]),
+        total_heating=pd.Series([0.0, 0.0]),
+    )
+    evaluator_calls = 0
+
+    def evaluate(*_args: object) -> SimpleNamespace:
+        nonlocal evaluator_calls
+        evaluator_calls += 1
+        return failed_evaluation if evaluator_calls <= 2 else closed_evaluation
+
+    workflow._thermal_balance_evaluator = SimpleNamespace(evaluate=evaluate)
+    workflow._initialize_thermal_balance_evaluator = lambda _: None
+    validation_calls = 0
+
+    def validate(_evaluation: object) -> None:
+        nonlocal validation_calls
+        validation_calls += 1
+        if validation_calls == 1:
+            raise RuntimeError("joint closure failed")
+
+    workflow._validate_thermal_balance_evaluation = validate
+    accepted_candidates = []
+    workflow._update_plasma_with_thermal_balance_state = (
+        lambda candidate: accepted_candidates.append(candidate.copy())
+    )
+    optimizer_starts = []
+    optimizer_results = (
+        SimpleNamespace(
+            x=np.array([0.0, 0.7, 0.7, 1.0]),
+            fun=np.array([0.7, 0.06, 0.0, 0.0]),
+            status=3,
+        ),
+        SimpleNamespace(
+            x=np.array([0.4, 0.75]), fun=np.array([3.0e-8, 0.0]), status=3
+        ),
+        SimpleNamespace(
+            x=np.array([0.6, 0.85]), fun=np.array([0.0, 1.0e-7]), status=1
+        ),
+    )
+
+    def recording_lsq(
+        _objective: object, initial_guess: npt.ArrayLike, **_kwargs: object
+    ) -> SimpleNamespace:
+        optimizer_starts.append(np.asarray(initial_guess).copy())
+        return optimizer_results[len(optimizer_starts) - 1]
+
+    monkeypatch.setattr(
+        "tardis.workflows.type_iip_workflow.lsq", recording_lsq
+    )
+
+    workflow.solve_thermal_balance()
+
+    assert len(optimizer_starts) == 3
+    np.testing.assert_array_equal(
+        optimizer_starts[1], [np.finfo(float).eps, 0.7]
+    )
+    np.testing.assert_array_equal(optimizer_starts[2], [0.5, 0.8])
+    np.testing.assert_array_equal(
+        accepted_candidates, [[0.6, 0.85, 0.7, 1.0]]
+    )
+
+
+def test_iip_level_solution_is_seed_independent_after_first_transport(
+    type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """Close the same IIP level equations from two initial populations.
+
+    Claim: A fixed shell equilibrium is independent of the initial level
+    population and closes the level equations.
+    Regime: Pure-hydrogen comparison model, first Monte Carlo estimators, and
+    the shell-3 thermal candidate that exposed seed sensitivity after #3704.
+    Verification: Seed independence is a metamorphic relation; the direct
+    level-equation residual prevents two matching but unsolved populations from
+    passing. The 1e-10 residual tolerance matches the workflow's declared
+    level-closure limit; 1e-8 relative and 1e-10 absolute population
+    tolerances allow the 1e-12-step inner solve to amplify small changes in
+    weakly populated excited levels.
+    """
+    workflow = type_iip_workflow
+    workflow.show_progress_bars = False
+    workflow.solve_montecarlo(
+        workflow.solve_opacity(), workflow.real_packet_count
+    )
+    estimated_values, _ = workflow.get_convergence_estimates()
+    workflow.solve_simulation_state(estimated_values)
+    continuum_estimators, j_blues = workflow.update_estimators()
+    workflow.solve_plasma(continuum_estimators, j_blues)
+
+    plasma = workflow.plasma_solver
+    maximum_electron_density = (
+        plasma.number_density.multiply(
+            plasma.number_density.index.values, axis=0
+        )
+        .sum()
+        .to_numpy()
+    )
+    workflow._initialize_thermal_balance_evaluator(maximum_electron_density)
+    evaluator = workflow._thermal_balance_evaluator
+    shell_idx = 3
+    # First thermal solve candidate: n_e in cm^-3 and T_e in K. Keep full
+    # precision because rounding these ratios changes the level-root basin.
+    electron_density = maximum_electron_density[shell_idx] * 0.998778561236385
+    electron_temperature = (
+        workflow._thermal_balance_radiation_temperature[shell_idx]
+        * 0.8503012782179825
+    )
+    temperatures = np.asarray(plasma.t_electrons, dtype=np.float64).copy()
+    temperatures[shell_idx] = electron_temperature
+    electron_densities = plasma.electron_densities.to_numpy(
+        dtype=np.float64
+    ).copy()
+    electron_densities[shell_idx] = electron_density
+    initial_result = evaluator.evaluate(
+        electron_densities,
+        temperatures,
+        workflow._thermal_balance_level_initial_guess,
+    )
+    accepted_result = evaluator.evaluate(
+        electron_densities,
+        temperatures,
+        initial_result.normalized_population,
+    )
+
+    np.testing.assert_allclose(
+        initial_result.normalized_population[shell_idx],
+        accepted_result.normalized_population[shell_idx],
+        rtol=1e-8,
+        atol=1e-10,
+        err_msg="the IIP level equilibrium depends on its initial population",
+    )
+    np.testing.assert_allclose(
+        initial_result.trial_level_residual[shell_idx],
+        0.0,
+        rtol=0.0,
+        atol=1e-10,
+        err_msg="the initial-seed IIP level equations do not close",
+    )
+    np.testing.assert_allclose(
+        accepted_result.trial_level_residual[shell_idx],
+        0.0,
+        rtol=0.0,
+        atol=1e-10,
+        err_msg="the accepted-seed IIP level equations do not close",
+    )
+
+
+def test_iip_level_equations_close_from_distinct_seeds_after_second_transport(
+    type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """Close second-transport hydrogen level equations from distinct seeds.
+
+    Claim: Both initial populations lead to a physical solution of the fixed
+    shell-23 level equations.
+    Regime: Pure-hydrogen comparison model, two 100000-packet transport steps,
+    and the second thermal candidate that exposed the near-ground seed trap.
+    Verification: Recompute the level-equation residual independently of the
+    solver's returned residual. The 1e-10 limit is the workflow's level-closure
+    criterion. Distinct closed roots are allowed in this nonlinear model.
+    """
+    workflow = type_iip_workflow
+    workflow.show_progress_bars = False
+    for iteration_idx in range(2):
+        opacity_states = workflow.solve_opacity()
+        workflow.solve_montecarlo(opacity_states, workflow.real_packet_count)
+        estimated_values, _ = workflow.get_convergence_estimates()
+        workflow.solve_simulation_state(estimated_values)
+        continuum_estimators, j_blues = workflow.update_estimators()
+        workflow.damped_normalized_j_blues = j_blues
+        workflow.solve_plasma(continuum_estimators, j_blues)
+        if iteration_idx == 0:
+            workflow.solve_thermal_balance()
+            workflow.solve_continuum_state(continuum_estimators)
+            workflow.converged = workflow.check_convergence(estimated_values)
+            workflow.completed_iterations += 1
+
+    plasma = workflow.plasma_solver
+    maximum_electron_density = (
+        plasma.number_density.multiply(
+            plasma.number_density.index.values, axis=0
+        )
+        .sum()
+        .to_numpy()
+    )
+    workflow._initialize_thermal_balance_evaluator(maximum_electron_density)
+    evaluator = workflow._thermal_balance_evaluator
+    shell_idx = 23
+    # These dimensionless candidate ratios reproduce the second thermal
+    # iteration's open shell-23 level solution.
+    electron_density = maximum_electron_density[shell_idx] * 0.69998
+    electron_temperature = (
+        workflow._thermal_balance_radiation_temperature[shell_idx] * 0.79428
+    )
+    temperatures = np.asarray(plasma.t_electrons, dtype=np.float64).copy()
+    temperatures[shell_idx] = electron_temperature
+    continuum_rates = evaluator.calculate_continuum_coefficients(temperatures)[
+        0
+    ][shell_idx]
+    original_seed = workflow._thermal_balance_level_initial_guess.iloc[
+        :, shell_idx
+    ].to_numpy(dtype=np.float64)
+    uniform_seed = np.full_like(original_seed, 1.0 / len(original_seed))
+
+    original_solution = evaluator._calculate_level_solution(
+        shell_idx,
+        electron_density,
+        electron_temperature,
+        original_seed,
+        continuum_rates,
+        evaluator.shell_number_densities[shell_idx],
+        evaluator.sobolev_inputs[shell_idx],
+    )
+    uniform_solution = evaluator._calculate_level_solution(
+        shell_idx,
+        electron_density,
+        electron_temperature,
+        uniform_seed,
+        continuum_rates,
+        evaluator.shell_number_densities[shell_idx],
+        evaluator.sobolev_inputs[shell_idx],
+    )
+
+    for seed_name, solution in (
+        ("uniform", uniform_solution),
+        ("original", original_solution),
+    ):
+        fractions = solution[0]
+        assert np.all(fractions >= 0.0)
+        np.testing.assert_allclose(fractions.sum(), 1.0, rtol=0.0, atol=1e-12)
+        physical_residual = evaluator._calculate_level_state(
+            shell_idx,
+            electron_density,
+            electron_temperature,
+            fractions,
+            continuum_rates,
+            evaluator.shell_number_densities[shell_idx],
+            evaluator.sobolev_inputs[shell_idx],
+        )[0]
+        np.testing.assert_allclose(
+            physical_residual,
+            0.0,
+            rtol=0.0,
+            atol=1e-10,
+            err_msg=f"the {seed_name} seed does not close the hydrogen equations",
+        )
+
+
+def test_iip_documentation_model_closes_first_thermal_balance(
+    tardis_regression_path: Path,
+) -> None:
+    """Require charge and energy closure for the documented Type IIP model.
+
+    Claim: The first thermal solve satisfies electron density and heating
+    balance in every shell.
+    Regime: The ten-shell pure-hydrogen documentation model after its first
+    200000-packet Monte Carlo transport step.
+    Verification: Compare the independently charge-solved electron density
+    with the trial density and inspect the physical heating residuals after
+    the workflow solve. The limits are the declared final closure thresholds;
+    the 5e-13 heating floor allows cancellation of large thermal rates.
+    """
+    config = Configuration.from_yaml(
+        "docs/workflows/iip_workflow/iip_config.yml"
+    )
+    config.atom_data = (
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+    config.plasma.nlte.species = [(1, 0)]
+    workflow = TypeIIPWorkflow(config)
+    workflow.show_progress_bars = False
+    workflow.solve_montecarlo(
+        workflow.solve_opacity(), workflow.real_packet_count
+    )
+    estimated_values, _ = workflow.get_convergence_estimates()
+    workflow.solve_simulation_state(estimated_values)
+    continuum_estimators, j_blues = workflow.update_estimators()
+    workflow.damped_normalized_j_blues = j_blues
+    workflow.solve_plasma(continuum_estimators, j_blues)
+    workflow.solve_thermal_balance()
+
+    evaluation = workflow._thermal_balance_evaluation
+    np.testing.assert_allclose(
+        evaluation.trial_electron_density,
+        evaluation.charge_solved_electron_density,
+        rtol=2e-8,
+        atol=0.0,
+        err_msg="the first thermal solve does not close electron density",
+    )
+    np.testing.assert_allclose(
+        evaluation.total_heating,
+        0.0,
+        rtol=0.0,
+        atol=5e-13,
+        err_msg="the first thermal solve does not close total heating",
+    )
+    np.testing.assert_allclose(
+        evaluation.fractional_heating,
+        0.0,
+        rtol=0.0,
+        atol=2e-7,
+        err_msg="the first thermal solve does not close fractional heating",
+    )
 
 
 def test_solve_montecarlo(
