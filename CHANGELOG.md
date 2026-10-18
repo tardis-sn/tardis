@@ -1,5 +1,9 @@
 ## Changelog
 
+### release-2026.10.18 (2026/10/13 17:21)
+- [3764](https://github.com/tardis-sn/tardis/pull/3764) Remove previous plasma implementation (3764) (@andrewfullard)
+- [3778](https://github.com/tardis-sn/tardis/pull/3778) Remove reference notebooks that duplicate code with minimal added value (3778) (@andrewfullard)
+- [3771](https://github.com/tardis-sn/tardis/pull/3771) Post-release 2026.10.11 (3771) (@tardis-bot)
 ### release-2026.10.11 (2026/10/10 21:52)
 - [3770](https://github.com/tardis-sn/tardis/pull/3770) Pre-release 2026.10.11 (3770) (@tardis-bot)
 - [3762](https://github.com/tardis-sn/tardis/pull/3762) Validate config and CSVY quantities after yaml parsing (3762) (@andrewfullard)
