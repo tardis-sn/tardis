@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=707a3474"></script>
+      <script src="../../../../_static/documentation_options.js?v=3c210dd6"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -37,7 +37,7 @@
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="Using a custom density profile" href="densitycust/densitycust.html" />
+    <link rel="next" title="Edge-Defined and Cell-Defined Values" href="edge_and_cell_quantities.html" />
     <link rel="prev" title="Plasma Configuration" href="../plasma.html" />
     <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
 
@@ -3671,6 +3671,15 @@
 </ul>
 </li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="edge_and_cell_quantities.html">Edge-Defined and Cell-Defined Values</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="edge_and_cell_quantities.html#quantity-conventions">Quantity Conventions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="edge_and_cell_quantities.html#tabular-inputs-and-the-leading-row">Tabular Inputs and the Leading Row</a></li>
+<li class="toctree-l6"><a class="reference internal" href="edge_and_cell_quantities.html#generated-cell-values">Generated Cell Values</a></li>
+<li class="toctree-l6"><a class="reference internal" href="edge_and_cell_quantities.html#boundaries-inside-a-shell">Boundaries Inside a Shell</a></li>
+<li class="toctree-l6"><a class="reference internal" href="edge_and_cell_quantities.html#importer-mappings">Importer Mappings</a></li>
+<li class="toctree-l6"><a class="reference internal" href="edge_and_cell_quantities.html#writing-a-new-importer">Writing a New Importer</a></li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="#model-configuration">Model Configuration</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#custom-model-configurations">Custom Model Configurations</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="#file-structure">File Structure</a></li>
@@ -3724,10 +3733,7 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../../how_to/read_external_models/arepo_to_tardis.html#Extracting-a-profile-and-converting-it-to-a-csvy-file">Extracting a profile and converting it to a csvy file</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../how_to/read_external_models/arepo_to_tardis.html#Plotting-the-data">Plotting the data</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../how_to/read_external_models/arepo_to_tardis.html#Manually-rebinning-the-data">Manually rebinning the data</a></li>
-<li class="toctree-l8"><a class="reference internal" href="../../../../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../../how_to/read_external_models/arepo_to_tardis.html#Using-the-legacy-command-line-tool">Using the legacy command line tool</a></li>
-</ul>
-</li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a></li>
 </ul>
 </li>
 </ul>
@@ -4072,6 +4078,18 @@ or separately in a CSVY file. See <a class="reference external" href="https://cs
 <p>TARDIS has several built-in models for the shell structure, density, and abundance. If only these are being used,
 we recommend using the YAML configuration method. For creating a custom model (which will be discussed below), we
 recommend using the CSVY method.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TARDIS treats velocities and radii as values at shell boundaries (edges) and treats density,
+abundances, and radiation-field quantities as uniform values within each shell (cells). See
+<a class="reference internal" href="edge_and_cell_quantities.html"><span class="doc">Edge-Defined and Cell-Defined Values</span></a> for how each input format and importer maps its data onto
+this grid.</p>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="edge_and_cell_quantities.html">Edge-Defined and Cell-Defined Values</a></li>
+</ul>
+</div>
 <nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#model-configuration" id="id7">Model Configuration</a></p>
@@ -4339,7 +4357,9 @@ would entail, see:</p>
 <span id="converters"></span><h3><a class="toc-backref" href="#id12" role="doc-backlink">Model Converters</a><a class="headerlink" href="#model-converters" title="Link to this heading"></a></h3>
 <p>There are a variety of formats for models from other codes
 (both hydro and radiative transfer) that can be converted to TARDIS input files.
-Here we aim to provide converters for the most commonly used file formats.</p>
+Here we aim to provide converters for the most commonly used file formats.
+See <a class="reference internal" href="edge_and_cell_quantities.html#model-edge-cell-quantities"><span class="std std-ref">Edge-Defined and Cell-Defined Values</span></a> for how each converter maps source data onto TARDIS
+shell boundaries and shell values.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="converters/cmfgen.html">Convert CMFGEN files to TARDIS file format</a></li>
@@ -5016,7 +5036,7 @@ inner boundary of the computational domain (see
 <a class="reference internal" href="../../../../physics_walkthrough/setup/model.html"><span class="doc">Model</span></a>). Each subsequent entry is
 the outer boundary of one shell. Shell-valued data such as density, radiative
 temperature, dilution factor, and abundances therefore do not use their first
-entry. In our example, there are two shells. The first has inner boundaries of
+entry (see <a class="reference internal" href="edge_and_cell_quantities.html#model-leading-row"><span class="std std-ref">Tabular Inputs and the Leading Row</span></a>). In our example, there are two shells. The first has inner boundaries of
 <span class="math notranslate nohighlight">\(1.0 \times 10^{14}\,\mathrm{cm}\)</span> and
 <span class="math notranslate nohighlight">\(9000\,\mathrm{km\,s^{-1}}\)</span>, outer boundaries of
 <span class="math notranslate nohighlight">\(3.0 \times 10^{14}\,\mathrm{cm}\)</span> and
@@ -5048,14 +5068,14 @@ Configuration</span></a> in the Monte Carlo section of the configuration file.</
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../plasma.html" class="btn btn-neutral float-left" title="Plasma Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="densitycust/densitycust.html" class="btn btn-neutral float-right" title="Using a custom density profile" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="edge_and_cell_quantities.html" class="btn btn-neutral float-right" title="Edge-Defined and Cell-Defined Values" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Oct 2026.
+      <span class="lastupdated">Last updated on 19 Oct 2026.
       </span></p>
   </div>
 

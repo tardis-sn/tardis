@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=707a3474"></script>
+      <script src="../../_static/documentation_options.js?v=3c210dd6"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -3672,6 +3672,15 @@
 </ul>
 </li>
 <li class="toctree-l4 current"><a class="reference internal" href="../../io/configuration/components/models/index.html">Models</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="../../io/configuration/components/models/edge_and_cell_quantities.html">Edge-Defined and Cell-Defined Values</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../io/configuration/components/models/edge_and_cell_quantities.html#quantity-conventions">Quantity Conventions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../io/configuration/components/models/edge_and_cell_quantities.html#tabular-inputs-and-the-leading-row">Tabular Inputs and the Leading Row</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../io/configuration/components/models/edge_and_cell_quantities.html#generated-cell-values">Generated Cell Values</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../io/configuration/components/models/edge_and_cell_quantities.html#boundaries-inside-a-shell">Boundaries Inside a Shell</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../io/configuration/components/models/edge_and_cell_quantities.html#importer-mappings">Importer Mappings</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../io/configuration/components/models/edge_and_cell_quantities.html#writing-a-new-importer">Writing a New Importer</a></li>
+</ul>
+</li>
 <li class="toctree-l5 current"><a class="reference internal" href="../../io/configuration/components/models/index.html#model-configuration">Model Configuration</a><ul class="current">
 <li class="toctree-l6"><a class="reference internal" href="../../io/configuration/components/models/index.html#custom-model-configurations">Custom Model Configurations</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../io/configuration/components/models/index.html#file-structure">File Structure</a></li>
@@ -3725,10 +3734,7 @@
 <li class="toctree-l8"><a class="reference internal" href="#Extracting-a-profile-and-converting-it-to-a-csvy-file">Extracting a profile and converting it to a csvy file</a></li>
 <li class="toctree-l8"><a class="reference internal" href="#Plotting-the-data">Plotting the data</a></li>
 <li class="toctree-l8"><a class="reference internal" href="#Manually-rebinning-the-data">Manually rebinning the data</a></li>
-<li class="toctree-l8"><a class="reference internal" href="#Selecting-a-specific-region">Selecting a specific region</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="#Using-the-legacy-command-line-tool">Using the legacy command line tool</a></li>
-</ul>
-</li>
+<li class="toctree-l8"><a class="reference internal" href="#Selecting-a-specific-region">Selecting a specific region</a></li>
 </ul>
 </li>
 </ul>
@@ -4176,7 +4182,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">mass</span></code>: Mass array in g</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">isotope_dict</span></code>: Dictionary of nuclear mass fractions keyed by species name</p></li>
 </ul>
-<p>See the <a class="reference external" href="../../../../../api/tardis.io.model.arepo.rst">API</a> documentation for more options on how to load snapshots.</p>
+<p>See the <a class="reference internal" href="../../api/tardis.io.model.arepo.html"><span class="doc">API</span></a> documentation for more options on how to load snapshots.</p>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle">Note</p>
 <p>The built in functionality only loads Arepo particle species <code class="docutils literal notranslate"><span class="pre">0</span></code>, i.e. gas particles. For most (if not all) purposes connected to TARDIS, gas particles should be the only species of interest. In case you need to load a different particle species, please manually load the data.</p>
@@ -4363,7 +4369,7 @@ Nuclear data shape (per element):  (1218054,)
 </section>
 <section id="Plotting-the-data">
 <h2>Plotting the data<a class="headerlink" href="#Plotting-the-data" title="Link to this heading"></a></h2>
-<p>Using <code class="docutils literal notranslate"><span class="pre">plot_profile()</span></code> you can create a plot of the exported profile. You can save it by passing <code class="docutils literal notranslate"><span class="pre">save=&lt;filename&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">dpi=&lt;dpi&gt;</span></code> arguments. Due to the large number of cells usually used in Arepo simulations, it is recommended to plot the data only <strong>after</strong> rebinning the profiles or exporting them to a <code class="docutils literal notranslate"><span class="pre">csvy</span></code> file (which automatically rebins the data).</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">plot_profile()</span></code> you can create a plot of the exported profile. You can save it by passing <code class="docutils literal notranslate"><span class="pre">save=&lt;filename&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">dpi=&lt;dpi&gt;</span></code> arguments. Due to the large number of cells usually used in Arepo simulations, it is recommended to plot the data only <strong>after</strong> rebinning the profiles with <code class="docutils literal notranslate"><span class="pre">rebin_profile()</span></code>.</p>
 </section>
 <section id="Manually-rebinning-the-data">
 <h2>Manually rebinning the data<a class="headerlink" href="#Manually-rebinning-the-data" title="Link to this heading"></a></h2>
@@ -4441,8 +4447,10 @@ Nuclear data shape (per element):  (1218054,)
 <img alt="../../_images/how_to_read_external_models_arepo_to_tardis_23_0.png" src="../../_images/how_to_read_external_models_arepo_to_tardis_23_0.png" />
 </div>
 </div>
-<p>Once you have created a profile of the desired region, you can export the profile to a <code class="docutils literal notranslate"><span class="pre">csvy</span></code> file using <code class="docutils literal notranslate"><span class="pre">export_profile_to_csvy()</span></code>, which in turn can be used in a TARDIS model. Here you have to specify how many shells you want to export. The profiles are rebinned automatically using <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binned_statistic.html">Scipy’s binned_statistic function</a>, using the mean value of the data in each bin (mass-weighted for velocities and
-abundances).</p>
+<p>Once you have created a profile of the desired region, you can export the profile to a <code class="docutils literal notranslate"><span class="pre">csvy</span></code> file using <code class="docutils literal notranslate"><span class="pre">export_profile_to_csvy()</span></code>, which in turn can be used in a TARDIS model. Here you have to specify how many shells you want to export.</p>
+<p><code class="docutils literal notranslate"><span class="pre">export_profile_to_csvy()</span></code> does <strong>not</strong> rebin the profile. It writes <code class="docutils literal notranslate"><span class="pre">nshells</span></code> rows chosen at evenly spaced indices of the profile arrays, using the values of those rows directly. To export averaged shells, first rebin the profile with <code class="docutils literal notranslate"><span class="pre">rebin_profile()</span></code> to the desired number of shells, then pass the same number as <code class="docutils literal notranslate"><span class="pre">nshells</span></code>. Otherwise, each exported row is the value of a single Arepo cell and the remaining cells are discarded.</p>
+<p>TARDIS reads the exported <code class="docutils literal notranslate"><span class="pre">velocity</span></code> column as the outer edge of each shell, while density and abundances are values for the whole shell. The shell edges are therefore the representative velocities of the exported rows (for rebinned data, the mass-weighted mean velocity of each bin), not the bin boundaries. As with all CSVY models, the values in the first row other than velocity are ignored. See <a class="reference internal" href="../../io/configuration/components/models/edge_and_cell_quantities.html"><span class="doc">Edge-Defined and Cell-Defined
+Values</span></a> for details.</p>
 <p>Note: You need to pass the profile data for one direction only (typically the positive direction <code class="docutils literal notranslate"><span class="pre">_p</span></code>).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -4456,7 +4464,7 @@ abundances).</p>
     <span class="n">xnuc_prof_p</span><span class="p">,</span>
     <span class="n">arepo_data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="s2">&quot;snapshot_converted_to_tardis.csvy&quot;</span><span class="p">,</span>
-    <span class="n">nshells</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">nshells</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -4471,30 +4479,11 @@ abundances).</p>
 </pre></div></div>
 </div>
 <p>During the export, the <code class="docutils literal notranslate"><span class="pre">yaml</span></code> header is automatically written and includes the time of the snapshot as the time for both the nuclear data as well as the density profile. By default, you export one direction (typically positive). To export the negative axis, pass the <code class="docutils literal notranslate"><span class="pre">_n</span></code> profiles instead of <code class="docutils literal notranslate"><span class="pre">_p</span></code>.</p>
-<p>All abundances will be normalized such that they roughly sum to 1, but slight deviations are expected to occur.</p>
+<p>The exported abundances are not normalized. If they do not sum to 1 in each shell, TARDIS normalizes them when it loads the model and issues a warning.</p>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle">Note</p>
 <p>The export function will not overwrite existing files, but rather add an incrementing number to the filename.</p>
 </div>
-<section id="Using-the-legacy-command-line-tool">
-<h3>Using the legacy command line tool<a class="headerlink" href="#Using-the-legacy-command-line-tool" title="Link to this heading"></a></h3>
-<div class="admonition warning">
-<p class="admonition-title fa fa-exclamation-circle">Note</p>
-<p>The command line tool uses the legacy class-based API which is still available in <code class="docutils literal notranslate"><span class="pre">tardis.io.model.arepo.arepo</span></code> but is deprecated. For new code, please use the functional API shown above.</p>
-</div>
-<p>You can use the legacy <code class="docutils literal notranslate"><span class="pre">tardis.io.model.arepo.arepo</span></code> module as a command line utility for batch processing:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>./&lt;location_of_arepo_module&gt;/arepo.py<span class="w"> </span>snapshot.hdf5<span class="w"> </span>snapshot_converted.csvy<span class="w"> </span>-o<span class="w"> </span><span class="m">40</span><span class="w"> </span>-n<span class="w"> </span><span class="m">20</span><span class="w"> </span>--inner_radius<span class="w"> </span>1e11<span class="w"> </span>--outer_radius<span class="w"> </span>2e11<span class="w"> </span>-e<span class="w"> </span>ni56<span class="w"> </span>si28<span class="w"> </span>--plot<span class="w"> </span>plot.png
-</pre></div>
-</div>
-<p>This will also save diagnostic plots of both the raw and rebinned profiles. For more information on how to use the command line tool run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>./&lt;location_of_arepo_module&gt;/arepo.py<span class="w"> </span>--help
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title fa fa-exclamation-circle">Note</p>
-<p>The command line tool does only work with snapshot files, not with e.g. json files. It is in any case not advised to use json files as an intermediate step, as the become huge for higher resolutions.</p>
-</div>
-</section>
 </section>
 </section>
 
@@ -4510,7 +4499,7 @@ abundances).</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Oct 2026.
+      <span class="lastupdated">Last updated on 19 Oct 2026.
       </span></p>
   </div>
 

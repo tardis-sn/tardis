@@ -25,11 +25,13 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=707a3474"></script>
+      <script src="../../../../../_static/documentation_options.js?v=3c210dd6"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../../../../_static/js/theme.js"></script>
@@ -3669,6 +3671,15 @@
 </ul>
 </li>
 <li class="toctree-l4 current"><a class="reference internal" href="../index.html">Models</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="../edge_and_cell_quantities.html">Edge-Defined and Cell-Defined Values</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#quantity-conventions">Quantity Conventions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#tabular-inputs-and-the-leading-row">Tabular Inputs and the Leading Row</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#generated-cell-values">Generated Cell Values</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#boundaries-inside-a-shell">Boundaries Inside a Shell</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#importer-mappings">Importer Mappings</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#writing-a-new-importer">Writing a New Importer</a></li>
+</ul>
+</li>
 <li class="toctree-l5 current"><a class="reference internal" href="../index.html#model-configuration">Model Configuration</a><ul class="current">
 <li class="toctree-l6 current"><a class="reference internal" href="../index.html#custom-model-configurations">Custom Model Configurations</a><ul class="current">
 <li class="toctree-l7"><a class="reference internal" href="../index.html#file-structure">File Structure</a></li>
@@ -3722,10 +3733,7 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Extracting-a-profile-and-converting-it-to-a-csvy-file">Extracting a profile and converting it to a csvy file</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Plotting-the-data">Plotting the data</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Manually-rebinning-the-data">Manually rebinning the data</a></li>
-<li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Using-the-legacy-command-line-tool">Using the legacy command line tool</a></li>
-</ul>
-</li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a></li>
 </ul>
 </li>
 </ul>
@@ -4068,8 +4076,8 @@
 <h2>ASCII Format<a class="headerlink" href="#ascii-format" title="Link to this heading"></a></h2>
 <p>To use a stratified ejecta composition in TARDIS, the elemental abundances may
 be specified on a per-cell basis via an external ASCII file (similar to setting
-up a <a class="reference internal" href="../densitycust/densitycust.html#densitycust"><span class="std std-ref">custom density</span></a> profile). An ASCII file that could
-work on a mesh with ten cells should be formatted like this:</p>
+up a <a class="reference internal" href="../densitycust/densitycust.html#densitycust"><span class="std std-ref">custom density</span></a> profile). An ASCII file that matches a
+density file with ten rows (nine cells) should be formatted like this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span># index Z=1 - Z=30
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0 0.1 0 0.2 0 0.2 0 0 0 0 0 0.2 0.1 0.1 0 0
 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0 0.1 0 0.2 0 0.2 0 0 0 0 0 0.2 0.1 0.1 0 0
@@ -4085,7 +4093,7 @@ work on a mesh with ten cells should be formatted like this:</p>
 </div>
 <p>In this file:</p>
 <ul class="simple">
-<li><p>there should be the same number of rows as there are cells specified in the velocity/density structure part of the TARDIS setup</p></li>
+<li><p>there should be the same number of rows as in the density file. As with the density file, the first row (index 0) is ignored, and row <span class="math notranslate nohighlight">\(j\)</span> gives the composition of the cell whose outer boundary is the velocity in row <span class="math notranslate nohighlight">\(j\)</span> of the density file (see <a class="reference internal" href="../edge_and_cell_quantities.html#model-leading-row"><span class="std std-ref">Tabular Inputs and the Leading Row</span></a>)</p></li>
 <li><p>each row contains 31 numbers, the first of which is the index (i.e. matching the zone to the density profile file)</p></li>
 <li><p>the remaining 30 entries in each row give the set of elemental abundances for atomic number Z=1 to Z=30 (in order)</p></li>
 </ul>
@@ -4182,7 +4190,8 @@ Here, Ni will refer to the stable Nickel (i.e. Z=26, A=58).</p>
 <p class="admonition-title">Note</p>
 <p>As with the custom density file, the first row will be ignored. It is
 supposed to give the composition below the photosphere. Thus, the first row
-(after the header) can be filled with dummy values.</p>
+(after the header) can be filled with dummy values. See
+<a class="reference internal" href="../edge_and_cell_quantities.html#model-leading-row"><span class="std std-ref">Tabular Inputs and the Leading Row</span></a>.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -4228,7 +4237,7 @@ the model section of the YAML file:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Oct 2026.
+      <span class="lastupdated">Last updated on 19 Oct 2026.
       </span></p>
   </div>
 

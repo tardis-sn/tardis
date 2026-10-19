@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=707a3474"></script>
+      <script src="../_static/documentation_options.js?v=3c210dd6"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -3669,6 +3669,15 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../io/configuration/components/models/index.html">Models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../io/configuration/components/models/edge_and_cell_quantities.html">Edge-Defined and Cell-Defined Values</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../io/configuration/components/models/edge_and_cell_quantities.html#quantity-conventions">Quantity Conventions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../io/configuration/components/models/edge_and_cell_quantities.html#tabular-inputs-and-the-leading-row">Tabular Inputs and the Leading Row</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../io/configuration/components/models/edge_and_cell_quantities.html#generated-cell-values">Generated Cell Values</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../io/configuration/components/models/edge_and_cell_quantities.html#boundaries-inside-a-shell">Boundaries Inside a Shell</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../io/configuration/components/models/edge_and_cell_quantities.html#importer-mappings">Importer Mappings</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../io/configuration/components/models/edge_and_cell_quantities.html#writing-a-new-importer">Writing a New Importer</a></li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="../io/configuration/components/models/index.html#model-configuration">Model Configuration</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="../io/configuration/components/models/index.html#custom-model-configurations">Custom Model Configurations</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../io/configuration/components/models/index.html#file-structure">File Structure</a></li>
@@ -3722,10 +3731,7 @@
 <li class="toctree-l8"><a class="reference internal" href="../how_to/read_external_models/arepo_to_tardis.html#Extracting-a-profile-and-converting-it-to-a-csvy-file">Extracting a profile and converting it to a csvy file</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../how_to/read_external_models/arepo_to_tardis.html#Plotting-the-data">Plotting the data</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../how_to/read_external_models/arepo_to_tardis.html#Manually-rebinning-the-data">Manually rebinning the data</a></li>
-<li class="toctree-l8"><a class="reference internal" href="../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../how_to/read_external_models/arepo_to_tardis.html#Using-the-legacy-command-line-tool">Using the legacy command line tool</a></li>
-</ul>
-</li>
+<li class="toctree-l8"><a class="reference internal" href="../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a></li>
 </ul>
 </li>
 </ul>
@@ -4173,6 +4179,12 @@ direction profiles are identical in this case.</p>
 <dt class="sig sig-object py" id="tardis.io.model.arepo.utils.export_profile_to_csvy">
 <span class="sig-prename descclassname"><span class="pre">tardis.io.model.arepo.utils.</span></span><span class="sig-name descname"><span class="pre">export_profile_to_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos_prof</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel_prof</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_prof</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_prof</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">xnuc_prof</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">nshells</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/arepo/utils.html#export_profile_to_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.arepo.utils.export_profile_to_csvy" title="Link to this definition"></a></dt>
 <dd><p>Export a 1D profile to CSVY format for TARDIS.</p>
+<p>The representative velocity of each exported row is written to the CSVY
+<code class="docutils literal notranslate"><span class="pre">velocity</span></code> column, which TARDIS reads as the outer edge of a shell. The
+resulting shell edges are therefore representative cell velocities (for
+rebinned data, mass-weighted bin means), not bin boundaries. Density and
+abundances are written as cell values. See
+<a class="reference internal" href="../io/configuration/components/models/edge_and_cell_quantities.html#model-edge-cell-quantities"><span class="std std-ref">Edge-Defined and Cell-Defined Values</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -4190,7 +4202,10 @@ direction profiles are identical in this case.</p>
 </dd>
 <dt><strong>filename</strong><span class="classifier">str or pathlib.Path</span></dt><dd><p>Name of the exported file.</p>
 </dd>
-<dt><strong>nshells</strong><span class="classifier">int</span></dt><dd><p>Number of shells to export.</p>
+<dt><strong>nshells</strong><span class="classifier">int</span></dt><dd><p>Number of rows to export. Rows are chosen at evenly spaced indices of
+the profile arrays without averaging; rebin the profile with
+<a class="reference internal" href="#tardis.io.model.arepo.utils.rebin_profile" title="tardis.io.model.arepo.utils.rebin_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rebin_profile</span></code></a> to the same number of shells first to export bin
+averages.</p>
 </dd>
 <dt><strong>overwrite</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, will overwrite existing files. Default: False</p>
 </dd>
@@ -4320,7 +4335,7 @@ direction profiles are identical in this case.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Oct 2026.
+      <span class="lastupdated">Last updated on 19 Oct 2026.
       </span></p>
   </div>
 

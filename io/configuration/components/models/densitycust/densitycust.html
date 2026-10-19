@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=707a3474"></script>
+      <script src="../../../../../_static/documentation_options.js?v=3c210dd6"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
     <link rel="next" title="Using a custom stratified composition" href="../abundancecust/abundancecust.html" />
-    <link rel="prev" title="Models" href="../index.html" />
+    <link rel="prev" title="Edge-Defined and Cell-Defined Values" href="../edge_and_cell_quantities.html" />
     <link href="../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -3671,6 +3671,15 @@
 </ul>
 </li>
 <li class="toctree-l4 current"><a class="reference internal" href="../index.html">Models</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="../edge_and_cell_quantities.html">Edge-Defined and Cell-Defined Values</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#quantity-conventions">Quantity Conventions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#tabular-inputs-and-the-leading-row">Tabular Inputs and the Leading Row</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#generated-cell-values">Generated Cell Values</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#boundaries-inside-a-shell">Boundaries Inside a Shell</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#importer-mappings">Importer Mappings</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../edge_and_cell_quantities.html#writing-a-new-importer">Writing a New Importer</a></li>
+</ul>
+</li>
 <li class="toctree-l5 current"><a class="reference internal" href="../index.html#model-configuration">Model Configuration</a><ul class="current">
 <li class="toctree-l6 current"><a class="reference internal" href="../index.html#custom-model-configurations">Custom Model Configurations</a><ul class="current">
 <li class="toctree-l7"><a class="reference internal" href="../index.html#file-structure">File Structure</a></li>
@@ -3724,10 +3733,7 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Extracting-a-profile-and-converting-it-to-a-csvy-file">Extracting a profile and converting it to a csvy file</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Plotting-the-data">Plotting the data</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Manually-rebinning-the-data">Manually rebinning the data</a></li>
-<li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Using-the-legacy-command-line-tool">Using the legacy command line tool</a></li>
-</ul>
-</li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a></li>
 </ul>
 </li>
 </ul>
@@ -4106,12 +4112,18 @@ requested by assuming homologous expansion:</p>
 <p>The grid of points specified in the input file is interpreted by
 TARDIS as defining a grid in which the tabulated velocities are
 taken as the outer boundaries of grid cells and the density is
-assumed to be uniform with each cell.</p>
+assumed to be uniform within each cell. See <a class="reference internal" href="../edge_and_cell_quantities.html#model-edge-cell-quantities"><span class="std std-ref">Edge-Defined and Cell-Defined Values</span></a>.</p>
 </div>
 </section>
 <section id="inner-boundary">
 <h2>Inner Boundary<a class="headerlink" href="#inner-boundary" title="Link to this heading"></a></h2>
-<p>The first velocity-density pair in a custom density file (given by index 0) specifies the velocity of the inner boundary approximation. The density associated with this velocity is the density within the inner boundary, which does not affect TARDIS spectra. Therefore, the first density (5.4869692e-10 in the example above) can be replaced by a placeholder value. The user can choose to both specify a custom density file AND specify v_inner_boundary or v_outer_boundary in the configuration YAML file for a TARDIS run. However, the YAML-specified values must be within the velocity range specified in the custom density file, otherwise TARDIS will raise an error. When one of the YAML-specified boundary velocities falls within the velocity range specified in the custom density file, then the boundary velocity is set equal to the number in the configuration YAML file. This has the effect of splitting a cell in the custom density file into two parts, a region within the boundary and a region outside the boundary.</p>
+<p>The first velocity-density pair in a custom density file (given by index 0) specifies the velocity of the inner boundary approximation. The density associated with this velocity is the density within the inner boundary, which does not affect TARDIS spectra. Therefore, the first density (5.4869692e-10 in the example above) can be replaced by a placeholder value. The user can choose to both specify a custom density file AND specify <code class="docutils literal notranslate"><span class="pre">v_inner_boundary</span></code> or <code class="docutils literal notranslate"><span class="pre">v_outer_boundary</span></code> in the configuration YAML file for a TARDIS run. The YAML-specified boundary velocity then replaces the corresponding edge of the computational domain:</p>
+<ul class="simple">
+<li><p>If the boundary velocity falls inside a cell of the custom density file, TARDIS truncates that cell at the boundary and discards the part of the cell outside the domain, along with any cells beyond it. The truncated cell keeps the density of the full cell, so its mass decreases.</p></li>
+<li><p>If the boundary velocity lies outside the velocity range of the custom density file, TARDIS issues a warning and extends the innermost or outermost cell to the boundary. The extended cell keeps its density, so its mass increases.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v_inner_boundary</span></code> must be smaller than <code class="docutils literal notranslate"><span class="pre">v_outer_boundary</span></code>; otherwise TARDIS raises an error.</p></li>
+</ul>
+<p>See <a class="reference internal" href="../edge_and_cell_quantities.html#model-edge-cell-quantities"><span class="std std-ref">Edge-Defined and Cell-Defined Values</span></a> for details.</p>
 <p>It is always a good idea to check the model velocities and abundances used in a TARDIS simulation after it has been successfully run.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -4138,7 +4150,8 @@ the model section of the YAML file:</p>
 <p class="admonition-title">Note</p>
 <p>The specifications for the velocities of the inner and outer boundary values can be neglected
 (in which case TARDIS will default to using the full velocity range specified in the density.txt file).
-Values for the boundary velocities that lie outside the range covered by density.txt will not be accepted.</p>
+Boundary velocities that lie outside the range covered by density.txt are accepted with a warning,
+and TARDIS extends the innermost or outermost cell to reach them (see <a class="reference internal" href="#inner-boundary">Inner Boundary</a>).</p>
 </div>
 </section>
 </section>
@@ -4147,7 +4160,7 @@ Values for the boundary velocities that lie outside the range covered by density
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../edge_and_cell_quantities.html" class="btn btn-neutral float-left" title="Edge-Defined and Cell-Defined Values" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../abundancecust/abundancecust.html" class="btn btn-neutral float-right" title="Using a custom stratified composition" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -4155,7 +4168,7 @@ Values for the boundary velocities that lie outside the range covered by density
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Oct 2026.
+      <span class="lastupdated">Last updated on 19 Oct 2026.
       </span></p>
   </div>
 

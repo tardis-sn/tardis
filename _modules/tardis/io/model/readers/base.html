@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=707a3474"></script>
+      <script src="../../../../../_static/documentation_options.js?v=3c210dd6"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -3666,6 +3666,15 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../io/configuration/components/models/index.html">Models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../io/configuration/components/models/edge_and_cell_quantities.html">Edge-Defined and Cell-Defined Values</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../../io/configuration/components/models/edge_and_cell_quantities.html#quantity-conventions">Quantity Conventions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../../io/configuration/components/models/edge_and_cell_quantities.html#tabular-inputs-and-the-leading-row">Tabular Inputs and the Leading Row</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../../io/configuration/components/models/edge_and_cell_quantities.html#generated-cell-values">Generated Cell Values</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../../io/configuration/components/models/edge_and_cell_quantities.html#boundaries-inside-a-shell">Boundaries Inside a Shell</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../../io/configuration/components/models/edge_and_cell_quantities.html#importer-mappings">Importer Mappings</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../../io/configuration/components/models/edge_and_cell_quantities.html#writing-a-new-importer">Writing a New Importer</a></li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../../io/configuration/components/models/index.html#model-configuration">Model Configuration</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="../../../../../io/configuration/components/models/index.html#custom-model-configurations">Custom Model Configurations</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../../../io/configuration/components/models/index.html#file-structure">File Structure</a></li>
@@ -3719,10 +3728,7 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Extracting-a-profile-and-converting-it-to-a-csvy-file">Extracting a profile and converting it to a csvy file</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Plotting-the-data">Plotting the data</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Manually-rebinning-the-data">Manually rebinning the data</a></li>
-<li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Using-the-legacy-command-line-tool">Using the legacy command line tool</a></li>
-</ul>
-</li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../../how_to/read_external_models/arepo_to_tardis.html#Selecting-a-specific-region">Selecting a specific region</a></li>
 </ul>
 </li>
 </ul>
@@ -4168,13 +4174,20 @@ def read_density_file(filename, filetype):
     time_of_model : astropy.units.Quantity
         time at which the model is valid
     velocity : np.ndarray
-        the array containing the velocities
+        the array containing the N + 1 shell-boundary velocities
     unscaled_mean_densities : np.ndarray
-        the array containing the densities
+        the array containing the N shell densities
     electron_densities : np.ndarray
-        The array containing electron densities
+        The array containing the N shell electron densities
     temperature : np.ndarray
-        The array containing temperatures
+        The array containing the N shell temperatures
+
+    Notes
+    -----
+    Every supported file type stores one row per velocity edge. The first
+    row&#39;s velocity is the inner edge of the innermost shell, and the cell
+    values in that row are discarded by the file parsers. See
+    :ref:`model-leading-row`.
     &quot;&quot;&quot;
     # Lazy import to avoid circular dependency
     from tardis.io.model.artis.readers import (
@@ -4239,7 +4252,7 @@ def read_density_file(filename, filetype):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Oct 2026.
+      <span class="lastupdated">Last updated on 19 Oct 2026.
       </span></p>
   </div>
 
