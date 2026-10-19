@@ -44,7 +44,7 @@ plasma:
 
 montecarlo:
   seed: 23111963
-  no_of_packets: 2.0e+5
+  no_of_packets: 2.0e+6
   iterations: 4
   nthreads: 1
 
