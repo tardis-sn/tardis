@@ -312,8 +312,8 @@ def test_thermal_balance_uses_joint_solution_without_local_retry(
     workflow._initialize_thermal_balance_evaluator = lambda _: None
     workflow._validate_thermal_balance_evaluation = lambda _: None
     accepted_candidates = []
-    workflow._update_plasma_with_thermal_balance_state = (
-        lambda candidate: accepted_candidates.append(candidate.copy())
+    workflow._update_plasma_with_thermal_balance_state = lambda candidate: (
+        accepted_candidates.append(candidate.copy())
     )
     optimizer_starts = []
     joint_candidate = np.array([0.6, 0.9])
@@ -324,9 +324,7 @@ def test_thermal_balance_uses_joint_solution_without_local_retry(
         optimizer_starts.append(np.asarray(initial_guess).copy())
         return SimpleNamespace(x=joint_candidate, fun=np.zeros(2), status=1)
 
-    monkeypatch.setattr(
-        "tardis.workflows.type_iip_workflow.lsq", recording_lsq
-    )
+    monkeypatch.setattr("tardis.workflows.type_iip_workflow.lsq", recording_lsq)
 
     workflow.solve_thermal_balance()
 
@@ -391,8 +389,8 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
 
     workflow._validate_thermal_balance_evaluation = validate
     accepted_candidates = []
-    workflow._update_plasma_with_thermal_balance_state = (
-        lambda candidate: accepted_candidates.append(candidate.copy())
+    workflow._update_plasma_with_thermal_balance_state = lambda candidate: (
+        accepted_candidates.append(candidate.copy())
     )
     optimizer_starts = []
     optimizer_results = (
@@ -415,9 +413,7 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
         optimizer_starts.append(np.asarray(initial_guess).copy())
         return optimizer_results[len(optimizer_starts) - 1]
 
-    monkeypatch.setattr(
-        "tardis.workflows.type_iip_workflow.lsq", recording_lsq
-    )
+    monkeypatch.setattr("tardis.workflows.type_iip_workflow.lsq", recording_lsq)
 
     workflow.solve_thermal_balance()
 
@@ -426,9 +422,7 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
         optimizer_starts[1], [np.finfo(float).eps, 0.7]
     )
     np.testing.assert_array_equal(optimizer_starts[2], [0.5, 0.8])
-    np.testing.assert_array_equal(
-        accepted_candidates, [[0.6, 0.85, 0.7, 1.0]]
-    )
+    np.testing.assert_array_equal(accepted_candidates, [[0.6, 0.85, 0.7, 1.0]])
 
 
 def test_iip_level_solution_is_seed_independent_after_first_transport(
@@ -629,9 +623,7 @@ def test_iip_documentation_model_closes_first_thermal_balance(
     the workflow solve. The limits are the declared final closure thresholds;
     the 5e-13 heating floor allows cancellation of large thermal rates.
     """
-    config = Configuration.from_yaml(
-        "docs/workflows/iip_workflow/iip_config.yml"
-    )
+    config = Configuration.from_yaml("../data/simple_iip_config.yml")
     config.atom_data = (
         tardis_regression_path
         / "atom_data"
