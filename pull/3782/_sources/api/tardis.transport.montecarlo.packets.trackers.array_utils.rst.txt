@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.packets.trackers.array\_utils module
+================================================================
+
+.. automodule:: tardis.transport.montecarlo.packets.trackers.array_utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
