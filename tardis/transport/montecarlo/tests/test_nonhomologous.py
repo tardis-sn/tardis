@@ -1,4 +1,6 @@
 from collections.abc import Callable
+from decimal import Decimal, localcontext
+from types import SimpleNamespace
 
 import astropy.units as u
 import numpy as np
@@ -8,7 +10,11 @@ import pandas.testing as pdt
 import pytest
 from numpy.typing import NDArray
 
+from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
 from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
 from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
@@ -22,12 +28,20 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_projected_gradient_zero_distances,
     get_line_id_range_nonhomologous,
 )
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+)
 from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     EstimatorsBulk,
+    init_estimators_bulk,
 )
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
+    init_estimators_line,
+)
+from tardis.transport.montecarlo.modes.classic.packet_propagation import (
+    packet_propagation as propagate_homologous,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.interaction_event_callers import (
     line_scatter_event as nonhomologous_line_scatter_event,
@@ -43,6 +57,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
 )
 from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
     OpacitySolver as NonhomologousOpacitySolver,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.packet_propagation import (
+    packet_propagation as propagate_nonhomologous,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
     trace_packet as nonhomologous_trace_packet,
@@ -71,6 +88,382 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
     RPacket,
 )
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
+)
+
+
+@pytest.fixture
+def homologous_limit_case(
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
+    classic_opacity_state: OpacityStateNumba,
+) -> SimpleNamespace:
+    """Provide an isolated line in a linear v=r/t field in two shells."""
+    homologous = homologous_radial_1d_geometry
+    nonhomologous = NumbaRadial1DGeometry(
+        homologous.r_inner,
+        homologous.r_outer,
+        homologous.v_inner,
+        homologous.v_outer,
+    )
+    classic_opacity_state.electron_density[:] = 0.0
+    classic_opacity_state.tau_sobolev[:] = 0.0
+    classic_opacity_state.tau_sobolev[0, :] = 100.0
+    classic_opacity_state.line_list_nu[:] = [3.9999e14, 1.0e9]
+    radius, mu, frequency = 7.5e14, 0.3, 4.0e14
+    ct = const.c.cgs.value * homologous.time_explosion
+    lab_frequency = frequency / (1.0 - radius * mu / ct)
+    # Decimal solves the unsquared linear equation, not the production quartic.
+    with localcontext() as context:
+        context.prec = 80
+        analytic_distance_decimal = Decimal.from_float(ct) * (
+            1
+            - Decimal.from_float(3.9999e14) / Decimal.from_float(lab_frequency)
+        ) - Decimal.from_float(radius) * Decimal.from_float(mu)
+    analytic_distance = float(analytic_distance_decimal)
+    neighbourhood = 0.1 * (homologous.r_outer[0] - homologous.r_inner[0])
+    maximum_projected_radius = (
+        abs(radius * mu) + analytic_distance + neighbourhood
+    )
+    maximum_projected_beta = maximum_projected_radius / ct
+    # IEEE binary64: three operations in (r*mu+s)/ct give gamma_3*A.
+    # The two values near unity each round by <=2^-54; their final
+    # subtraction is exact by Sterbenz's lemma (both lie between 1/2 and 1).
+    unit_roundoff = np.finfo(np.float64).eps / 2.0
+    gamma_three = 3.0 * unit_roundoff / (1.0 - 3.0 * unit_roundoff)
+    assert 0.5 < 1.0 - maximum_projected_beta < 1.0
+    assert 0.5 < 3.9999e14 / lab_frequency < 1.0
+    residual_bound = gamma_three * maximum_projected_beta + unit_roundoff
+    minimum_derivative = (
+        1.0 / ct
+    )  # |F'(s)|, in cm^-1 throughout the neighbourhood.
+    distance_tolerance = 10.0 * residual_bound / minimum_derivative
+    return SimpleNamespace(
+        homologous=homologous,
+        nonhomologous=nonhomologous,
+        opacity=classic_opacity_state,
+        time=homologous.time_explosion,
+        radius=radius,
+        mu=mu,
+        lab_frequency=lab_frequency,
+        ct=ct,
+        analytic_distance=analytic_distance,
+        analytic_distance_decimal=analytic_distance_decimal,
+        neighbourhood=neighbourhood,
+        residual_bound=residual_bound,
+        distance_tolerance=distance_tolerance,
+    )
+
+
+def test_nonhomologous_resonance_matches_homologous_limit(
+    homologous_limit_case: SimpleNamespace,
+    line_estimators: EstimatorsLine,
+    set_seed_fixture: Callable[[int], None],
+) -> None:
+    """Verify the root and cursor against the homologous solution (verification).
+
+    Claim: v=r/t, dv/dr=1/t gives the analytic resonance and ordered cursor.
+    Regime: oblique outward ray, isolated opaque line well inside shell zero,
+    with a red sentinel well beyond the outer boundary. Verification: solve
+    F(s)=1-(r*mu+s)/(ct)-nu_line/nu_lab=0, independently of the quartic.
+    On the neighbourhood s_exact +/- 0.1 shell width, |F'|=1/(ct) cm^-1.
+    The independent 80-digit Decimal root uses the binary64 physical inputs.
+    Over this neighbourhood, binary64 evaluation of F has absolute error
+    <=gamma_3*A+u, A=max(|r*mu|+s)/(ct), u=2^-53: three operations form A,
+    each near-unity subtraction/division rounds by <=2^-54, and the final
+    subtraction is exact by Sterbenz. The resulting residual bound is about
+    1.111e-16; ten times this bound / min|F'| gives about 1732 cm, selected
+    without inspecting the production root. Exact event/cursor/shell assertions
+    detect wrong-root selection, a wrong gradient or an off-by-one cursor.
+    """
+    case = homologous_limit_case
+    radius, mu, lab_frequency = case.radius, case.mu, case.lab_frequency
+    ct = case.ct
+    packet = RPacket(radius, mu, lab_frequency, 0.9, 42, 0)
+    packet.next_line_id, packet.prev_line_id = 0, -1
+    line_frequency = case.opacity.line_list_nu[0]
+    analytic_distance = case.analytic_distance
+    distance_tolerance = case.distance_tolerance
+    neighbourhood = case.neighbourhood
+    boundary_distance = (
+        np.sqrt(case.homologous.r_outer[0] ** 2 - radius**2 * (1.0 - mu**2))
+        - radius * mu
+    )
+    assert 0.0 < analytic_distance - neighbourhood
+    assert analytic_distance + neighbourhood < boundary_distance
+    actual_distance = calculate_distance_line_nonhomologous(
+        packet, case.nonhomologous, line_frequency
+    )
+    npt.assert_allclose(
+        actual_distance, analytic_distance, rtol=0, atol=distance_tolerance
+    )
+    # Also check the unsquared physical equation, which rejects extraneous roots.
+    with localcontext() as context:
+        context.prec = 80
+        residual = (
+            case.analytic_distance_decimal - Decimal.from_float(actual_distance)
+        ) / Decimal.from_float(ct)
+    assert abs(residual) <= Decimal.from_float(10.0 * case.residual_bound)
+    npt.assert_allclose(
+        case.nonhomologous.velocity_gradient,
+        1.0 / case.time,
+        rtol=1.0e-12,
+        atol=0,
+    )
+    set_seed_fixture(42)
+    distance, event, delta_shell = nonhomologous_trace_packet(
+        packet,
+        case.nonhomologous,
+        case.opacity,
+        line_estimators,
+        0.0,
+        False,
+        False,
+    )
+    assert event == InteractionType.LINE
+    assert packet.current_shell_id == 0
+    assert packet.next_line_id == 0
+    assert packet.prev_line_id == -1
+    assert delta_shell == 1
+    npt.assert_allclose(
+        distance, analytic_distance, rtol=0, atol=distance_tolerance
+    )
+    expected_energy = packet.energy * line_frequency / lab_frequency
+    # A root displacement ds changes E_comov by E_lab*ds/(ct), not by ds erg.
+    energy_tolerance = packet.energy * distance_tolerance / ct
+    npt.assert_allclose(
+        line_estimators.energy_deposition_line_rate[0, 0],
+        expected_energy,
+        rtol=1.0e-12,
+        atol=energy_tolerance,
+    )
+    npt.assert_allclose(
+        line_estimators.mean_intensity_blueward[0, 0],
+        expected_energy / lab_frequency,
+        rtol=1.0e-12,
+        atol=energy_tolerance / lab_frequency,
+    )
+
+
+def test_nonhomologous_packet_matches_homologous_limit(
+    homologous_limit_case: SimpleNamespace,
+    montecarlo_configuration: MonteCarloConfiguration,
+    set_seed_fixture: Callable[[int], None],
+) -> None:
+    """Characterize seeded end-to-end agreement in the homologous limit.
+
+    Claim: the current propagators agree on final packet, event/cursor history
+    and bulk/line estimators for v=r/t and dv/dr=1/t. Regime: one isolated
+    opaque line, radiative scattering, electron-free two-shell ejecta, seed 42.
+    Verification: metamorphic comparison with homologous transport; the root
+    is independently verified in the companion test. Evidence: characterization
+    (not an independent validation of either entire transport solver).
+    The companion fixture derives delta~=1732 cm from an independent IEEE
+    residual bound and an 80-digit unsquared root. Two roots can differ by
+    Delta=2*delta. For the fixed outward emission cosine z>0, |dr_line/ds|<=1,
+    |dD_in/ds|=1/(ct), |dD_out/dr|=z/(ct). Thus packet E proportional to
+    D_in/D_out and nu proportional to 1/D_out have separately bounded relative
+    errors a+b+ab and b. At a boundary R, |dmu_R/dr_line| is bounded by
+    r_max*(1-z^2)/(R^2*z). Segment length derivatives are 1, <=1/z, and
+    <=r_max*(1-z^2)/z*(1/R_inner+1/R_outer) for the three positive path lengths.
+    Each bulk E*D*length or E*nu*D^2*length product uses these relative bounds;
+    a shell sum uses its largest segment bound. No distance in cm is reused
+    as an energy/frequency tolerance. Floating point allowance is 1e-12.
+    Exact discrete outcomes detect wrong cursor/process/dispatcher wiring.
+    """
+    case = homologous_limit_case
+    packets, trackers, bulks, lines = [], [], [], []
+    for geometry, propagate in [
+        (case.homologous, propagate_homologous),
+        (case.nonhomologous, propagate_nonhomologous),
+    ]:
+        packet = RPacket(7.5e14, 0.3, 4.0e14, 0.9, 42, 0)
+        tracker = TrackerFull(16, 2)
+        bulk, line = init_estimators_bulk(2), init_estimators_line((2, 2))
+        set_seed_fixture(42)
+        propagate(
+            packet,
+            geometry,
+            case.time,
+            case.opacity,
+            bulk,
+            line,
+            tracker,
+            montecarlo_configuration,
+        )
+        tracker.finalize()
+        packets.append(packet)
+        trackers.append(tracker)
+        bulks.append(bulk)
+        lines.append(line)
+    classic, nonhomologous = packets
+    ct = case.ct
+    distance_difference = 2.0 * case.distance_tolerance
+    # The second MT19937 draw is the isotropic emission direction, common
+    # to both paths; the first draw selects the opaque line interaction.
+    emission_mu = 2.0 * np.random.RandomState(42).random_sample(2)[1] - 1.0
+    assert emission_mu > 0.0
+    line_radius = np.sqrt(
+        case.radius**2
+        + case.analytic_distance**2
+        + 2.0 * case.radius * case.analytic_distance * case.mu
+    )
+    maximum_line_radius = line_radius + case.neighbourhood
+    inner_boundary, outer_boundary = case.homologous.r_outer
+    assert maximum_line_radius < inner_boundary
+    minimum_doppler = 1.0 - inner_boundary / ct
+    incoming_doppler_fraction = distance_difference / (ct * minimum_doppler)
+    outgoing_doppler_fraction = emission_mu * incoming_doppler_fraction
+    energy_fraction = (
+        incoming_doppler_fraction
+        + outgoing_doppler_fraction
+        + incoming_doppler_fraction * outgoing_doppler_fraction
+    )
+    frequency_fraction = outgoing_doppler_fraction
+    final_mu_error = (
+        maximum_line_radius
+        * (1.0 - emission_mu**2)
+        * distance_difference
+        / (outer_boundary**2 * emission_mu)
+    )
+    for packet in packets:
+        assert packet.status == PacketStatus.EMITTED
+        assert packet.current_shell_id == 1
+        assert packet.next_line_id == 1
+        npt.assert_allclose(
+            packet.r, case.homologous.r_outer[-1], rtol=1.0e-12, atol=0
+        )
+    npt.assert_allclose(
+        nonhomologous.mu, classic.mu, rtol=0, atol=final_mu_error + 1.0e-12
+    )
+    npt.assert_allclose(
+        nonhomologous.energy,
+        classic.energy,
+        rtol=energy_fraction + 1.0e-12,
+        atol=0,
+    )
+    npt.assert_allclose(
+        nonhomologous.nu, classic.nu, rtol=frequency_fraction + 1.0e-12, atol=0
+    )
+    for attribute in [
+        "interaction_type",
+        "before_shell_id",
+        "after_shell_id",
+        "line_absorb_id",
+        "line_emit_id",
+        "next_line_id",
+        "status",
+    ]:
+        npt.assert_array_equal(
+            getattr(trackers[1], attribute), getattr(trackers[0], attribute)
+        )
+    npt.assert_array_equal(
+        trackers[0].interaction_type,
+        [
+            InteractionType.BOUNDARY,
+            InteractionType.LINE,
+            InteractionType.BOUNDARY,
+            InteractionType.BOUNDARY,
+            InteractionType.BOUNDARY,
+        ],
+    )
+    npt.assert_allclose(
+        trackers[1].radius,
+        trackers[0].radius,
+        rtol=1.0e-12,
+        atol=distance_difference,
+    )
+    for tracker in trackers:
+        npt.assert_allclose(
+            tracker.radius[1],
+            line_radius,
+            rtol=1.0e-12,
+            atol=case.distance_tolerance,
+        )
+        npt.assert_allclose(
+            tracker.after_mu[1], emission_mu, rtol=0, atol=1.0e-15
+        )
+    npt.assert_allclose(
+        lines[1].energy_deposition_line_rate,
+        lines[0].energy_deposition_line_rate,
+        rtol=incoming_doppler_fraction + 1.0e-12,
+        atol=0,
+    )
+    npt.assert_allclose(
+        lines[1].mean_intensity_blueward,
+        lines[0].mean_intensity_blueward,
+        rtol=incoming_doppler_fraction + 1.0e-12,
+        atol=0,
+    )
+    # Three segments: source->line, line->shell edge, shell edge->outer edge.
+    impact_squared = line_radius**2 * (1.0 - emission_mu**2)
+    edge_projections = np.sqrt(case.homologous.r_outer**2 - impact_squared)
+    segment_lengths = np.array(
+        [
+            case.analytic_distance,
+            edge_projections[0] - line_radius * emission_mu,
+            edge_projections[1] - edge_projections[0],
+        ]
+    )
+    length_derivatives = np.array(
+        [
+            1.0,
+            1.0 / emission_mu,
+            maximum_line_radius
+            * (1.0 - emission_mu**2)
+            / emission_mu
+            * (1.0 / inner_boundary + 1.0 / outer_boundary),
+        ]
+    )
+    minimum_lengths = (
+        segment_lengths - length_derivatives * case.distance_tolerance
+    )
+    assert np.all(minimum_lengths > 0.0)
+    length_fractions = (
+        length_derivatives * distance_difference / minimum_lengths
+    )
+    doppler_derivatives = np.array(
+        [
+            0.0,
+            emission_mu / ct,
+            maximum_line_radius
+            * (1.0 - emission_mu**2)
+            / (ct * inner_boundary * emission_mu),
+        ]
+    )
+    doppler_fractions = (
+        doppler_derivatives * distance_difference / minimum_doppler
+    )
+    energy_fractions = np.array([0.0, energy_fraction, energy_fraction])
+    frequency_fractions = np.array(
+        [0.0, frequency_fraction, frequency_fraction]
+    )
+    # Positive product perturbations: prod(1+relative_error)-1, evaluated
+    # with log1p/expm1 to avoid cancellation at ~1e-11 relative errors.
+    intensity_fractions = np.expm1(
+        np.log1p(energy_fractions)
+        + np.log1p(doppler_fractions)
+        + np.log1p(length_fractions)
+    )
+    mean_frequency_fractions = np.expm1(
+        np.log1p(energy_fractions)
+        + np.log1p(frequency_fractions)
+        + 2.0 * np.log1p(doppler_fractions)
+        + np.log1p(length_fractions)
+    )
+    for shell_id, segment_ids in [(0, [0, 1]), (1, [2])]:
+        npt.assert_allclose(
+            bulks[1].mean_intensity_total[shell_id],
+            bulks[0].mean_intensity_total[shell_id],
+            rtol=np.max(intensity_fractions[segment_ids]) + 1.0e-12,
+            atol=0,
+        )
+        npt.assert_allclose(
+            bulks[1].mean_frequency[shell_id],
+            bulks[0].mean_frequency[shell_id],
+            rtol=np.max(mean_frequency_fractions[segment_ids]) + 1.0e-12,
+            atol=0,
+        )
 
 
 @pytest.mark.parametrize(
