@@ -264,7 +264,14 @@ class SimpleTARDISWorkflow:
                 f"Iteration converged {self.consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
                 f"times."
             )
-            return self.consecutive_converges_count >= hold_iterations + 1
+            converged = self.consecutive_converges_count >= hold_iterations + 1
+            if converged and not self.convergence_strategy.stop_if_converged:
+                logger.info(
+                    "Convergence reached, but the iterations continue because "
+                    "convergence_strategy.stop_if_converged is False. Set it "
+                    "to True to stop at convergence."
+                )
+            return converged
 
         self.consecutive_converges_count = 0
         return False

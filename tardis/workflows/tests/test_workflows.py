@@ -1,3 +1,6 @@
+import logging
+from types import SimpleNamespace
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -280,3 +283,32 @@ def test_estimate_v_inner_uses_active_integrated_tau(
     assert v_inner_workflow.tau_integ.shape == (
         v_inner_workflow.simulation_state.no_of_shells,
     )
+
+
+@pytest.mark.parametrize(
+    "stop_if_converged, expect_hint",
+    [(False, True), (True, False)],
+)
+def test_simple_workflow_hints_stop_if_converged_when_converged(
+    caplog: pytest.LogCaptureFixture,
+    stop_if_converged: bool,
+    expect_hint: bool,
+) -> None:
+    """The workflow tells users it keeps iterating after convergence unless stop_if_converged is set."""
+    solver = SimpleNamespace(get_convergence_status=lambda *args: True)
+    workflow = SimpleNamespace(
+        convergence_solvers={"t_inner": solver},
+        simulation_state=SimpleNamespace(t_inner=1.0, no_of_shells=1),
+        convergence_strategy=SimpleNamespace(
+            hold_iterations=0, stop_if_converged=stop_if_converged
+        ),
+        consecutive_converges_count=0,
+    )
+
+    with caplog.at_level(logging.INFO):
+        converged = SimpleTARDISWorkflow.check_convergence(
+            workflow, {"t_inner": 1.0}
+        )
+
+    assert converged
+    assert ("stop_if_converged" in caplog.text) == expect_hint
