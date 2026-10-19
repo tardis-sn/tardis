@@ -18,7 +18,12 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_event_callers i
 
 
 @pytest.mark.parametrize(
-    "line_interaction_type", list(interaction_events.LineInteractionType)
+    "line_interaction_type",
+    [
+        interaction_events.LineInteractionType.SCATTER,
+        interaction_events.LineInteractionType.DOWNBRANCH,
+        interaction_events.LineInteractionType.MACROATOM,
+    ],
 )
 @pytest.mark.parametrize(
     "regime",
