@@ -623,7 +623,9 @@ def test_iip_documentation_model_closes_first_thermal_balance(
     the workflow solve. The limits are the declared final closure thresholds;
     the 5e-13 heating floor allows cancellation of large thermal rates.
     """
-    config = Configuration.from_yaml("../data/simple_iip_config.yml")
+    config = Configuration.from_yaml(
+        "tardis/workflows/tests/data/simple_iip_config.yml"
+    )
     config.atom_data = (
         tardis_regression_path
         / "atom_data"
