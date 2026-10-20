@@ -76,7 +76,7 @@ class PlasmaStateStorerMixin:
         """
         self.iterations_w[i, :] = w
         self.iterations_t_rad[i, :] = t_rad
-        self.iterations_electron_densities[i, :] = electron_densities.values
+        self.iterations_electron_densities[i, :] = electron_densities.to_numpy()
         self.iterations_t_inner[i] = t_inner
 
     def reshape_plasma_state_store(self, executed_iterations):
@@ -384,7 +384,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 radiation_field.to_planckian_radiation_field()
             )
             j_blues = planckian_radiation_field.calculate_mean_intensity(
-                self.plasma.atomic_data.lines.nu.values
+                self.plasma.atomic_data.lines.nu.to_numpy()
             )
             update_properties["j_blues"] = pd.DataFrame(
                 j_blues, index=self.plasma.atomic_data.lines.index
@@ -394,7 +394,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             == "dilute-blackbody"
         ):
             j_blues = radiation_field.calculate_mean_intensity(
-                self.plasma.atomic_data.lines.nu.values
+                self.plasma.atomic_data.lines.nu.to_numpy()
             )
             update_properties["j_blues"] = pd.DataFrame(
                 j_blues, index=self.plasma.atomic_data.lines.index

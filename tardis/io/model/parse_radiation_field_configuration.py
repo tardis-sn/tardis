@@ -115,7 +115,7 @@ def parse_radiation_field_state_from_csvy(
             csvy_model_config.datatype.fields[t_rad_field_index]["unit"]
         )
         # t_rad is cell-defined; drop the row inside the innermost edge.
-        t_radiative = csvy_model_data["t_rad"].iloc[1:].values * t_rad_unit
+        t_radiative = csvy_model_data["t_rad"].iloc[1:].to_numpy() * t_rad_unit
 
     elif config.plasma.initial_t_rad > 0 * u.K:
         t_radiative = (
@@ -131,7 +131,7 @@ def parse_radiation_field_state_from_csvy(
     if hasattr(csvy_model_data, "columns") and (
         "dilution_factor" in csvy_model_data.columns
     ):
-        dilution_factor = csvy_model_data["dilution_factor"].iloc[1:].values
+        dilution_factor = csvy_model_data["dilution_factor"].iloc[1:].to_numpy()
     else:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
 
