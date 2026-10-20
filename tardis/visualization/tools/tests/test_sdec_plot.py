@@ -146,18 +146,17 @@ class TestSDECPlotter:
         (
             distance,
             packet_wvl_range,
-            _,
+            species_list,
             packets_mode,
             nelements,
             _,
         ) = request.param
-        # plotter._parse_species_list(species_list=None)
         if packets_mode == "virtual":
             pytest.skip("Skipping tests for virtual packets mode")
 
-        # the tests connected to this fixture wont run individually,
-        # since this needs the parse species list to run
-        plotter._parse_species_list(None)
+        # Parse the same species list as the from_workflow fixture, since
+        # both share this reference data
+        plotter._parse_species_list(species_list)
 
         plotter._calculate_plotting_data(
             packets_mode, packet_wvl_range, distance, nelements
