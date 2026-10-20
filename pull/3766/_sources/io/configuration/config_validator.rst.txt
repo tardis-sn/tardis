@@ -2,6 +2,37 @@
 Configuration Validator
 ***********************
 
+.. _config-value-checks:
+
+Value Checks
+^^^^^^^^^^^^
+
+:meth:`Configuration.from_config_dict <tardis.io.configuration.config_reader.Configuration.from_config_dict>`
+validates a configuration in two steps. First, the configuration is checked
+against the YAML schemas in ``tardis/io/configuration/schemas``, which set
+types, units, and default values. Second, TARDIS checks the values that the
+schemas cannot express in a single pass over every section present in the
+configuration. It raises a ``ValueError`` for an invalid value and a
+``NotImplementedError`` for an unsupported combination of options:
+
+- ``supernova``: ``time_explosion`` must be positive, and
+  ``luminosity_wavelength_start`` must not exceed
+  ``luminosity_wavelength_end``.
+- ``plasma``: ``initial_t_inner`` and ``initial_t_rad`` must be at least
+  -1 K.
+- ``model``: the structure velocity ``stop`` must not be less than ``start``,
+  ``v_outer_boundary`` must not be less than ``v_inner_boundary`` for file
+  structures, and density parameters (``rho_0``, ``v_0``, ``time_0``, and the
+  uniform ``value``) must be positive.
+- ``spectrum``: ``start`` must not exceed ``stop``.
+- ``montecarlo``: the convergence strategy must be ``damped`` or
+  ``adaptive_damped``; ``custom`` is not implemented. The ``integrated``
+  spectrum method cannot be combined with ``enable_full_relativity``.
+
+The ``supernova`` and ``plasma`` checks apply to configurations that use a
+:ref:`CSVY model <csvy-model>` as well as to configurations with a ``model``
+section.
+
 The default config validator takes a user configuration and a default configuration and creates a consistent and valid configuration for TARDIS based on the constraints given in the default configuration. Both input data are normally given as a YAML dictionary with a consistent hierarchical structure, i.e. for every item in the user configuration there has to be a declaration in the default configuration at the same hierarchical level. This declaration can be either an unspecific empty level declaration like:
 
 - Main_level:

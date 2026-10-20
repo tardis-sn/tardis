@@ -13,6 +13,18 @@ TARDIS has several built-in models for the shell structure, density, and abundan
 we recommend using the YAML configuration method. For creating a custom model (which will be discussed below), we
 recommend using the CSVY method.
 
+.. note::
+
+    TARDIS treats velocities and radii as values at shell boundaries (edges) and treats density,
+    abundances, and radiation-field quantities as uniform values within each shell (cells). See
+    :doc:`edge_and_cell_quantities` for how each input format and importer maps its data onto
+    this grid.
+
+.. toctree::
+    :maxdepth: 1
+
+    edge_and_cell_quantities
+
 .. contents::
     :local:
 
@@ -92,6 +104,8 @@ Model Converters
 There are a variety of formats for models from other codes
 (both hydro and radiative transfer) that can be converted to TARDIS input files.
 Here we aim to provide converters for the most commonly used file formats.
+See :ref:`model-edge-cell-quantities` for how each converter maps source data onto TARDIS
+shell boundaries and shell values.
     
 .. toctree::
     :maxdepth: 2
@@ -224,6 +238,8 @@ Abundance
 
 This section can be used to configure uniform abundances for all shells, by giving the atom or isotope name
 and a relative abundance fraction. If it does not add up to 1, TARDIS will warn -- but normalize the numbers.
+Element and isotope names are case-insensitive, so ``Si``, ``si``, and ``SI`` are equivalent, as are
+``Ni56`` and ``ni56``.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/abundances/uniform
     :lift_description:
@@ -254,7 +270,8 @@ CSVY Model
 
 TARDIS allows users to use a CSVY file to input information about the model. To do this, instead of a
 ``model`` section, one includes ``csvy_model: <file path to CSVY file>`` in the main TARDIS configuration
-file.
+file. The other sections of the main configuration file, such as ``supernova`` and ``plasma``, are
+validated in the same way as for a YAML model (see :ref:`config-value-checks`).
 
 The CSVY model has a YAML part as well as a CSV part, separated by the YAML delimiter ``---``. This means
 that each CSVY model file has the following structure: The first line of the file is the YAML delimiter,
@@ -269,7 +286,9 @@ as shown in the schema below:
 The CSV part of the CSVY file creates a table that can include information about shell radii, velocities,
 densities, and abundances in each cell. The column headers (the first row of the CSV part) may contain
 ``radius``, ``velocity``, ``density``, ``t_rad``, ``dilution_factor``, or the name of any element or isotope
-(e.g. ``H``, ``Mg``, ``Ni56``). These columns are explained in the following example:
+(e.g. ``H``, ``Mg``, ``Ni56``). Element and isotope names are case-insensitive (e.g. ``mg`` or ``ni56``),
+but each column header must exactly match its field name under ``datatype`` in the YAML section.
+These columns are explained in the following example:
 
 .. literalinclude:: csvy_full_rad.csvy
 
@@ -288,7 +307,7 @@ inner boundary of the computational domain (see
 :doc:`../../../../physics_walkthrough/setup/model`). Each subsequent entry is
 the outer boundary of one shell. Shell-valued data such as density, radiative
 temperature, dilution factor, and abundances therefore do not use their first
-entry. In our example, there are two shells. The first has inner boundaries of
+entry (see :ref:`model-leading-row`). In our example, there are two shells. The first has inner boundaries of
 :math:`1.0 \times 10^{14}\,\mathrm{cm}` and
 :math:`9000\,\mathrm{km\,s^{-1}}`, outer boundaries of
 :math:`3.0 \times 10^{14}\,\mathrm{cm}` and
