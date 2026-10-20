@@ -1,16 +1,13 @@
 from copy import deepcopy
 
 import numpy.testing as npt
-import pandas as pd
-import pytest
 
 from tardis.simulation import Simulation
 
 
-@pytest.mark.xfail(reason="Relies on later test")
 def test_montecarlo_transport_weighted(
     montecarlo_transport_config,
-    regression_data,
+    montecarlo_transport_simulation,
     atomic_dataset,
     simple_weighted_packet_source,
 ):
@@ -27,29 +24,9 @@ def test_montecarlo_transport_weighted(
     montecarlo_transport_simulation_weighted.run_convergence()
     montecarlo_transport_simulation_weighted.run_final()
 
-    # Get the montecarlo simple regression data
-    # Directly use the regression data path to construct the path
-    regression_data_dir = (
-        regression_data.regression_data_path
-        / "tardis/transport/montecarlo/tests/test_montecarlo_main_loop/test_montecarlo_main_loop.h5"
+    expected_transport_state = (
+        montecarlo_transport_simulation.transport.transport_state
     )
-    expected_hdf_store = pd.HDFStore(regression_data_dir, mode="r")
-
-    # Load compare data from refdata
-
-    expected_nu = expected_hdf_store[
-        "/simulation/transport/transport_state/output_nu"
-    ]
-    expected_energy = expected_hdf_store[
-        "/simulation/transport/transport_state/output_energy"
-    ]
-    expected_nu_bar_estimator = expected_hdf_store[
-        "/simulation/transport/transport_state/nu_bar_estimator"
-    ]
-    expected_j_estimator = expected_hdf_store[
-        "/simulation/transport/transport_state/j_estimator"
-    ]
-    expected_hdf_store.close()
     transport_state = (
         montecarlo_transport_simulation_weighted.transport.transport_state
     )
@@ -57,11 +34,19 @@ def test_montecarlo_transport_weighted(
     actual_nu = transport_state.packet_collection.output_nus
     actual_nu_bar_estimator = transport_state.estimators_bulk.mean_frequency
     actual_j_estimator = transport_state.estimators_bulk.mean_intensity_total
+    expected_energy = expected_transport_state.packet_collection.output_energies
+    expected_nu = expected_transport_state.packet_collection.output_nus
+    expected_nu_bar_estimator = (
+        expected_transport_state.estimators_bulk.mean_frequency
+    )
+    expected_j_estimator = (
+        expected_transport_state.estimators_bulk.mean_intensity_total
+    )
 
     # Compare
     npt.assert_allclose(
-        actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-2
+        actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-14
     )
-    npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-2)
-    npt.assert_allclose(actual_energy, expected_energy, rtol=1e-2)
-    npt.assert_allclose(actual_nu, expected_nu, rtol=1e-2)
+    npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-14)
+    npt.assert_allclose(actual_energy, expected_energy, rtol=1e-14)
+    npt.assert_allclose(actual_nu, expected_nu, rtol=1e-14)
