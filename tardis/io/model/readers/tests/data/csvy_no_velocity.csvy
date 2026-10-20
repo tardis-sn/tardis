@@ -1,0 +1,10 @@
+---
+name: no_velocity
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: No velocity information anywhere.
+tardis_model_config_version: v1.0
+density:
+  type: uniform
+  value: 1e-10 g/cm^3
+---
