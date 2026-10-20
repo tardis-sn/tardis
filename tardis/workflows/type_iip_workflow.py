@@ -6,8 +6,6 @@ import numpy.typing as npt
 import pandas as pd
 from astropy import units as u
 from scipy.interpolate import interp1d
-from scipy.optimize import least_squares as lsq
-from scipy.sparse import block_diag
 
 from tardis import constants as const
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
@@ -27,7 +25,6 @@ from tardis.opacities.tau_sobolev import (
 )
 from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.equilibrium.evaluator import (
-    PlasmaEquilibriumEvaluation,
     PlasmaEquilibriumEvaluator,
     calculate_lte_populations,
 )
@@ -58,7 +55,10 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     FreeFreeThermalRates,
 )
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
-from tardis.plasma.equilibrium.thermal_balance import ThermalBalanceSolver
+from tardis.plasma.equilibrium.thermal_balance import (
+    ElectronThermalBalanceSolver,
+    ThermalBalanceSolver,
+)
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
@@ -76,19 +76,6 @@ from tardis.workflows.workflow_logger import WorkflowLogger
 
 # logging support
 logger = logging.getLogger(__name__)
-
-THERMAL_BALANCE_RESIDUAL_LIMITS = {
-    "trial_level_residual": 1e-10,
-    "level_residual": 1e-10,
-    "charge_residual": 1e-10,
-    # The charge projection independently solves for the electron density, so
-    # the projected value can differ slightly from the outer trial value.
-    "electron_residual": 2e-8,
-    # Heating residuals subtract nearly cancelling rates, leaving a small
-    # floating-point floor.
-    "total_heating": 5e-13,
-    "fractional_heating": 2e-7,
-}
 
 
 class TypeIIPWorkflow:
@@ -890,58 +877,6 @@ class TypeIIPWorkflow:
             )
         )
 
-    def thermal_balance_iteration(
-        self,
-        initial_guess: npt.NDArray[np.float64],
-        max_electron_number_density: npt.NDArray[np.float64],
-    ) -> npt.NDArray[np.float64]:
-        """Compute the fixed-candidate thermal-balance residual.
-
-        Parameters
-        ----------
-        initial_guess : np.ndarray
-            Initial guess for the electron number density fraction and
-            link_t_rad_t_electron for each shell, in the form
-            [n_e_frac_1, link_1, n_e_frac_2, link_2,...]
-        max_electron_number_density : np.ndarray
-            Maximum possible electron number density for each shell.
-
-        Returns
-        -------
-        np.ndarray
-            Interleaved normalized electron and fractional-heating residuals.
-        """
-        electron_density_fraction = initial_guess[::2]
-        link_t_rad_t_electron = initial_guess[1::2]
-
-        logger.info("Link: %s", link_t_rad_t_electron)
-
-        electron_densities = (
-            max_electron_number_density * electron_density_fraction
-        )
-        evaluation = self._thermal_balance_evaluator.evaluate(
-            electron_densities,
-            self._thermal_balance_radiation_temperature * link_t_rad_t_electron,
-            self._thermal_balance_level_initial_guess,
-        )
-
-        electron_residual = evaluation.electron_residual.to_numpy()
-        fractional_heating = evaluation.fractional_heating.to_numpy()
-        solution = np.zeros_like(initial_guess)
-        if not np.isfinite(fractional_heating).all():
-            logger.warning("Heating not finite\n")
-        if not np.isfinite(electron_residual).all():
-            logger.warning("Fractional electron change not finite\n")
-
-        solution[::2] = electron_residual
-        solution[1::2] = fractional_heating
-        logger.info(
-            "Normalized electron fraction change: %s",
-            electron_residual,
-        )
-        logger.info("Heating: %s", fractional_heating)
-        return solution
-
     def _update_plasma_with_thermal_balance_state(
         self,
         candidate: npt.NDArray[np.float64],
@@ -956,67 +891,6 @@ class TypeIIPWorkflow:
         )
         self._tau_sobolev = evaluation.tau_sobolev
         self._beta_sobolev = evaluation.beta_sobolev
-
-    @staticmethod
-    def _validate_thermal_balance_evaluation(
-        evaluation: PlasmaEquilibriumEvaluation,
-    ) -> None:
-        """
-        Reject a final evaluator state with:
-
-        invalid populations, nonfinite derived quantities, failed normalization,
-        or any charge, level-population, electron-density, or heating residual
-        above its declared tolerance.
-        """
-        failures = []
-        population_fields = {
-            "normalized_population": evaluation.normalized_population,
-            "absolute_level_population": evaluation.absolute_level_population,
-            "ion_population": evaluation.ion_population,
-            "electron_density": evaluation.charge_solved_electron_density,
-        }
-        for field_name, population in population_fields.items():
-            if population is None:
-                failures.append(f"{field_name} is missing")
-                continue
-            population_values = np.asarray(population, dtype=np.float64)
-            if not np.isfinite(population_values).all():
-                failures.append(f"{field_name} is nonfinite")
-            if (population_values < 0.0).any():
-                failures.append(f"{field_name} is negative")
-
-        normalized_totals = evaluation.normalized_population.sum(axis=0)
-        if not np.allclose(normalized_totals, 1.0, rtol=1e-12, atol=0.0):
-            failures.append("normalized_population does not sum to one")
-
-        for field_name, state in {
-            "tau_sobolev": evaluation.tau_sobolev,
-            "beta_sobolev": evaluation.beta_sobolev,
-        }.items():
-            if not np.isfinite(np.asarray(state, dtype=np.float64)).all():
-                failures.append(f"{field_name} is nonfinite")
-
-        for field_name, tolerance in THERMAL_BALANCE_RESIDUAL_LIMITS.items():
-            residual = getattr(evaluation, field_name)
-            if residual is None:
-                failures.append(f"{field_name} is missing")
-                continue
-            residual_values = np.asarray(residual, dtype=np.float64)
-            if not np.isfinite(residual_values).all():
-                failures.append(f"{field_name} is nonfinite")
-                continue
-            maximum_residual = float(np.max(np.abs(residual_values)))
-            if maximum_residual > tolerance:
-                failures.append(
-                    f"{field_name}={maximum_residual:.3e} exceeds "
-                    f"{tolerance:.3e}"
-                )
-
-        if failures:
-            raise RuntimeError(
-                "Thermal-balance solution failed final closure: "
-                + "; ".join(failures)
-            )
 
     def solve_thermal_balance(self) -> None:
         """Solve the plasma heating and cooling balance.
@@ -1059,7 +933,6 @@ class TypeIIPWorkflow:
         self._initialize_thermal_balance_evaluator(max_electron_number_density)
         no_shells = self.simulation_state.geometry.no_of_shells_active
 
-        jac_sparsity = block_diag([np.ones((2, 2))] * no_shells)
         t_floor = 1500.0 * u.K
         minimum_t_rad_link = t_floor / self.simulation_state.t_radiative.min()
         logger.info("Minimum T_rad link: %s", minimum_t_rad_link)
@@ -1087,169 +960,20 @@ class TypeIIPWorkflow:
             )
             initial_guess = np.clip(initial_guess, lower_bound, upper_bound)
 
-        thermal_lsq_result = lsq(
-            self.thermal_balance_iteration,
-            initial_guess,
-            bounds=(lower_bound, upper_bound),
-            jac_sparsity=jac_sparsity,
-            xtol=1e-14,
-            ftol=1e-12,
-            x_scale="jac",
-            verbose=1,
-            max_nfev=100,
-            method="trf",
-            gtol=1e-14,
-            args=(max_electron_number_density,),
-        )
-        # Preserve the frozen seed used by the optimizer for the first rebuild,
-        # then use that accepted population as the final-state seed.
-        accepted_candidate = thermal_lsq_result.x
-        accepted_seed_evaluation = self._thermal_balance_evaluator.evaluate(
-            max_electron_number_density * accepted_candidate[::2],
-            self._thermal_balance_radiation_temperature
-            * accepted_candidate[1::2],
+        thermal_balance_solver = ElectronThermalBalanceSolver(
+            self._thermal_balance_evaluator,
+            self._thermal_balance_radiation_temperature,
             self._thermal_balance_level_initial_guess,
+            max_electron_number_density,
         )
-        self._thermal_balance_evaluation = (
-            self._thermal_balance_evaluator.evaluate(
-                max_electron_number_density * accepted_candidate[::2],
-                np.asarray(
-                    self._thermal_balance_radiation_temperature
-                    * accepted_candidate[1::2],
-                    dtype=np.float64,
-                ),
-                accepted_seed_evaluation.normalized_population,
-            )
+        (
+            accepted_candidate,
+            self._thermal_balance_evaluation,
+        ) = thermal_balance_solver.solve(
+            initial_guess,
+            lower_bound,
+            upper_bound,
         )
-        try:
-            self._validate_thermal_balance_evaluation(
-                self._thermal_balance_evaluation
-            )
-        except RuntimeError as joint_failure:
-            logger.warning(
-                "Joint thermal balance failed final closure; retrying failed "
-                "electron/heating shells: %s",
-                joint_failure,
-            )
-            local_residual_limits = np.array(
-                [
-                    THERMAL_BALANCE_RESIDUAL_LIMITS["electron_residual"],
-                    THERMAL_BALANCE_RESIDUAL_LIMITS["fractional_heating"],
-                ]
-            )
-            electron_residual = (
-                self._thermal_balance_evaluation.electron_residual.to_numpy()
-            )
-            fractional_heating = (
-                self._thermal_balance_evaluation.fractional_heating.to_numpy()
-            )
-            failed_shells = np.flatnonzero(
-                ~np.isfinite(electron_residual)
-                | ~np.isfinite(fractional_heating)
-                | (np.abs(electron_residual) > local_residual_limits[0])
-                | (np.abs(fractional_heating) > local_residual_limits[1])
-            )
-            if not len(failed_shells):
-                raise
-            accepted_candidate = accepted_candidate.copy()
-            for shell_idx in failed_shells:
-                shell_slice = slice(2 * shell_idx, 2 * shell_idx + 2)
-                local_lower_bound = lower_bound[shell_slice].copy()
-
-                def shell_residual(
-                    local_candidate: npt.NDArray[np.float64],
-                ) -> npt.NDArray[np.float64]:
-                    """Return the charge and heating residuals for one shell."""
-                    trial_candidate = accepted_candidate.copy()
-                    trial_candidate[shell_slice] = local_candidate
-                    return self.thermal_balance_iteration(
-                        trial_candidate, max_electron_number_density
-                    )[shell_slice]
-
-                local_start = np.clip(
-                    accepted_candidate[shell_slice],
-                    local_lower_bound,
-                    upper_bound[shell_slice],
-                )
-                shell_result = lsq(
-                    shell_residual,
-                    local_start,
-                    bounds=(local_lower_bound, upper_bound[shell_slice]),
-                    xtol=1e-14,
-                    ftol=1e-12,
-                    gtol=1e-14,
-                    x_scale="jac",
-                    max_nfev=100,
-                )
-                if np.any(np.abs(shell_result.fun) > local_residual_limits):
-                    # Retry from this shell's pre-optimization state when the
-                    # joint candidate lies in a stalled local basin.
-                    alternate_start = initial_guess[shell_slice]
-                    alternate_start = np.clip(
-                        alternate_start,
-                        local_lower_bound,
-                        upper_bound[shell_slice],
-                    )
-                    if not np.array_equal(alternate_start, local_start):
-                        alternate_result = lsq(
-                            shell_residual,
-                            alternate_start,
-                            bounds=(
-                                local_lower_bound,
-                                upper_bound[shell_slice],
-                            ),
-                            xtol=1e-14,
-                            ftol=1e-12,
-                            gtol=1e-14,
-                            x_scale="jac",
-                            max_nfev=100,
-                        )
-                        shell_closes = np.all(
-                            np.abs(shell_result.fun) <= local_residual_limits
-                        )
-                        alternate_closes = np.all(
-                            np.abs(alternate_result.fun)
-                            <= local_residual_limits
-                        )
-                        if (alternate_closes and not shell_closes) or (
-                            alternate_closes == shell_closes
-                            and np.linalg.norm(
-                                alternate_result.fun / local_residual_limits
-                            )
-                            < np.linalg.norm(
-                                shell_result.fun / local_residual_limits
-                            )
-                        ):
-                            shell_result = alternate_result
-                accepted_candidate[shell_slice] = shell_result.x
-                logger.info(
-                    "Shell-local thermal balance shell=%s candidate=%s residual=%s status=%s",
-                    shell_idx,
-                    shell_result.x,
-                    shell_result.fun,
-                    shell_result.status,
-                )
-
-            accepted_seed_evaluation = self._thermal_balance_evaluator.evaluate(
-                max_electron_number_density * accepted_candidate[::2],
-                self._thermal_balance_radiation_temperature
-                * accepted_candidate[1::2],
-                self._thermal_balance_level_initial_guess,
-            )
-            self._thermal_balance_evaluation = (
-                self._thermal_balance_evaluator.evaluate(
-                    max_electron_number_density * accepted_candidate[::2],
-                    np.asarray(
-                        self._thermal_balance_radiation_temperature
-                        * accepted_candidate[1::2],
-                        dtype=np.float64,
-                    ),
-                    accepted_seed_evaluation.normalized_population,
-                )
-            )
-            self._validate_thermal_balance_evaluation(
-                self._thermal_balance_evaluation
-            )
         self._update_plasma_with_thermal_balance_state(accepted_candidate)
 
     def solve_continuum_state(

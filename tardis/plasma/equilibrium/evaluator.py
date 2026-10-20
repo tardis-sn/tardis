@@ -672,7 +672,7 @@ class PlasmaEquilibriumEvaluator:
             def calculate_log_ratio_residual(
                 log_ratios: npt.NDArray[np.float64],
             ) -> npt.NDArray[np.float64]:
-                return residual(softmax(np.r_[0.0, log_ratios]))[1:]
+                return residual(softmax(np.concatenate(([0.0], log_ratios))))[1:]
 
             minimum_fraction = np.finfo(np.float64).eps
             initial_log_ratios = np.log(
@@ -687,7 +687,9 @@ class PlasmaEquilibriumEvaluator:
                 gtol=1e-14,
                 max_nfev=3000,
             )
-            log_fractions = softmax(np.r_[0.0, log_solution.x])
+            log_fractions = softmax(
+                np.concatenate(([0.0], log_solution.x))
+            )
             log_residual = calculate_physical_level_residual(log_fractions)
             if log_residual < best_residual:
                 level_solution = log_fractions

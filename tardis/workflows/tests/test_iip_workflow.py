@@ -5,13 +5,15 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import pytest
-from astropy import units as u
 from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis import constants as const
 from tardis.conftest import assert_regression_dataframe
 from tardis.io.configuration.config_reader import Configuration
 from tardis.plasma.equilibrium.evaluator import calculate_lte_populations
+from tardis.plasma.equilibrium.thermal_balance import (
+    ElectronThermalBalanceSolver,
+)
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
 PLASMA_SOLVER_REGRESSION_OUTPUTS = (
@@ -213,7 +215,7 @@ def test_type_iip_workflow_initial_plasma_regression(
         )
 
 
-def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
+def test_thermal_balance_residual_delegates_to_evaluator() -> None:
     """Map a two-shell thermal-balance candidate to evaluator quantities.
 
     Claim: Each shell's density fraction and temperature ratio are converted
@@ -222,14 +224,7 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
     Verification: The expected values follow by direct multiplication and
     inserting the recorded evaluator result.
     """
-    # Skip full workflow construction because this check needs only the state
-    # read by thermal_balance_iteration, not a configured simulation.
-    workflow = TypeIIPWorkflow.__new__(TypeIIPWorkflow)
-    # SimpleNamespace provides the sole plasma value used here: each shell's
-    # radiation temperature.
-    workflow.plasma_solver = SimpleNamespace(t_rad=np.array([1.0e4, 2.0e4]))
     level_initial_guess = pd.DataFrame([[0.6, 0.7], [0.4, 0.3]])
-    workflow._thermal_balance_level_initial_guess = level_initial_guess
 
     # Record the physical values received and return fixed balance errors so
     # this test checks scaling and shell order without running a plasma solve.
@@ -238,7 +233,7 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
             self.call_count = 0
             self.arguments: tuple[object, ...] | None = None
             # SimpleNamespace contains only the two evaluator results consumed
-            # by thermal_balance_iteration.
+            # by calculate_residual.
             self.result = SimpleNamespace(
                 electron_residual=pd.Series([0.1, -0.2]),
                 fractional_heating=pd.Series([0.3, -0.4]),
@@ -259,14 +254,16 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
             return self.result
 
     evaluator = RecordingEvaluator()
-    workflow._thermal_balance_evaluator = evaluator
-    workflow._thermal_balance_radiation_temperature = np.array([1.0e4, 2.0e4])
     candidate = np.array([0.25, 0.8, 0.5, 1.1])
     maximum_electron_density = np.array([4.0e9, 6.0e9])
-
-    residual = workflow.thermal_balance_iteration(
-        candidate, maximum_electron_density
+    solver = ElectronThermalBalanceSolver(
+        evaluator,
+        np.array([1.0e4, 2.0e4]),
+        level_initial_guess,
+        maximum_electron_density,
     )
+
+    residual = solver.calculate_residual(candidate)
 
     assert evaluator.call_count == 1
     assert evaluator.arguments is not None
@@ -279,7 +276,6 @@ def test_thermal_balance_iteration_delegates_to_evaluator() -> None:
     )
     pd.testing.assert_frame_equal(actual_initial_guess, level_initial_guess)
     np.testing.assert_array_equal(residual, [0.1, 0.3, -0.2, -0.4])
-    assert not hasattr(workflow, "_thermal_balance_evaluation")
 
 
 def test_thermal_balance_uses_joint_solution_without_local_retry(
@@ -293,28 +289,14 @@ def test_thermal_balance_uses_joint_solution_without_local_retry(
     Verification: Record calls at the SciPy optimizer boundary and require the
     accepted plasma candidate to equal the joint result.
     """
-    workflow = TypeIIPWorkflow.__new__(TypeIIPWorkflow)
-    workflow.plasma_solver = SimpleNamespace(
-        link_t_rad_t_electron=np.array([0.8]),
-        number_density=pd.DataFrame([[2.0]], index=[1]),
-        electron_densities=pd.Series([1.0]),
-    )
-    workflow.simulation_state = SimpleNamespace(
-        geometry=SimpleNamespace(no_of_shells_active=1),
-        t_radiative=np.array([1.0e4]) * u.K,
-    )
-    workflow._thermal_balance_radiation_temperature = np.array([1.0e4])
-    workflow._thermal_balance_level_initial_guess = pd.DataFrame([[1.0]])
     evaluation = SimpleNamespace(normalized_population=pd.DataFrame([[1.0]]))
-    workflow._thermal_balance_evaluator = SimpleNamespace(
-        evaluate=lambda *_: evaluation
+    solver = ElectronThermalBalanceSolver(
+        SimpleNamespace(evaluate=lambda *_: evaluation),
+        np.array([1.0e4]),
+        pd.DataFrame([[1.0]]),
+        np.array([2.0]),
     )
-    workflow._initialize_thermal_balance_evaluator = lambda _: None
-    workflow._validate_thermal_balance_evaluation = lambda _: None
-    accepted_candidates = []
-    workflow._update_plasma_with_thermal_balance_state = lambda candidate: (
-        accepted_candidates.append(candidate.copy())
-    )
+    solver.validate_evaluation = lambda _: None
     optimizer_starts = []
     joint_candidate = np.array([0.6, 0.9])
 
@@ -324,12 +306,19 @@ def test_thermal_balance_uses_joint_solution_without_local_retry(
         optimizer_starts.append(np.asarray(initial_guess).copy())
         return SimpleNamespace(x=joint_candidate, fun=np.zeros(2), status=1)
 
-    monkeypatch.setattr("tardis.workflows.type_iip_workflow.lsq", recording_lsq)
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.thermal_balance.least_squares",
+        recording_lsq,
+    )
 
-    workflow.solve_thermal_balance()
+    accepted_candidate, _ = solver.solve(
+        np.array([0.5, 0.8]),
+        np.array([np.finfo(float).eps, 0.15]),
+        np.array([1.0, 1.5]),
+    )
 
     assert len(optimizer_starts) == 1
-    np.testing.assert_array_equal(accepted_candidates, [joint_candidate])
+    np.testing.assert_array_equal(accepted_candidate, joint_candidate)
 
 
 def test_thermal_balance_retries_failed_shell_from_alternate_start(
@@ -346,18 +335,6 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
     Verification: Record optimizer starts and supply residuals at the declared
     electron and heating limits independently of the workflow implementation.
     """
-    workflow = TypeIIPWorkflow.__new__(TypeIIPWorkflow)
-    workflow.plasma_solver = SimpleNamespace(
-        link_t_rad_t_electron=np.array([0.8, 0.9]),
-        number_density=pd.DataFrame([[2.0, 4.0]], index=[1]),
-        electron_densities=pd.Series([1.0, 2.0]),
-    )
-    workflow.simulation_state = SimpleNamespace(
-        geometry=SimpleNamespace(no_of_shells_active=2),
-        t_radiative=np.array([1.0e4, 1.1e4]) * u.K,
-    )
-    workflow._thermal_balance_radiation_temperature = np.array([1.0e4, 1.1e4])
-    workflow._thermal_balance_level_initial_guess = pd.DataFrame([[1.0, 1.0]])
     failed_evaluation = SimpleNamespace(
         normalized_population=pd.DataFrame([[1.0, 1.0]]),
         electron_residual=pd.Series([0.7, 0.0]),
@@ -377,8 +354,12 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
         evaluator_calls += 1
         return failed_evaluation if evaluator_calls <= 2 else closed_evaluation
 
-    workflow._thermal_balance_evaluator = SimpleNamespace(evaluate=evaluate)
-    workflow._initialize_thermal_balance_evaluator = lambda _: None
+    solver = ElectronThermalBalanceSolver(
+        SimpleNamespace(evaluate=evaluate),
+        np.array([1.0e4, 1.1e4]),
+        pd.DataFrame([[1.0, 1.0]]),
+        np.array([2.0, 4.0]),
+    )
     validation_calls = 0
 
     def validate(_evaluation: object) -> None:
@@ -387,11 +368,7 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
         if validation_calls == 1:
             raise RuntimeError("joint closure failed")
 
-    workflow._validate_thermal_balance_evaluation = validate
-    accepted_candidates = []
-    workflow._update_plasma_with_thermal_balance_state = lambda candidate: (
-        accepted_candidates.append(candidate.copy())
-    )
+    solver.validate_evaluation = validate
     optimizer_starts = []
     optimizer_results = (
         SimpleNamespace(
@@ -413,16 +390,23 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
         optimizer_starts.append(np.asarray(initial_guess).copy())
         return optimizer_results[len(optimizer_starts) - 1]
 
-    monkeypatch.setattr("tardis.workflows.type_iip_workflow.lsq", recording_lsq)
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.thermal_balance.least_squares",
+        recording_lsq,
+    )
 
-    workflow.solve_thermal_balance()
+    accepted_candidate, _ = solver.solve(
+        np.array([0.5, 0.8, 0.5, 0.9]),
+        np.array([np.finfo(float).eps, 0.15] * 2),
+        np.array([1.0, 1.5] * 2),
+    )
 
     assert len(optimizer_starts) == 3
     np.testing.assert_array_equal(
         optimizer_starts[1], [np.finfo(float).eps, 0.7]
     )
     np.testing.assert_array_equal(optimizer_starts[2], [0.5, 0.8])
-    np.testing.assert_array_equal(accepted_candidates, [[0.6, 0.85, 0.7, 1.0]])
+    np.testing.assert_array_equal(accepted_candidate, [0.6, 0.85, 0.7, 1.0])
 
 
 def test_iip_level_solution_is_seed_independent_after_first_transport(
