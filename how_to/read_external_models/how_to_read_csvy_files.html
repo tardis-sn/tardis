@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c210dd6"></script>
+      <script src="../../_static/documentation_options.js?v=e971f191"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -530,6 +530,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/index.html#interaction-opacities">Interaction opacities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/index.html#compton-angular-sampling">Compton angular sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/index.html#gamma-ray-deposition-outputs">Gamma-ray deposition outputs</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/packetinitialization.html">Packet Initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/opacities.html">Sources of Opacity</a><ul>
@@ -626,7 +627,6 @@
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.intensity_ratio"><code class="docutils literal notranslate"><span class="pre">intensity_ratio()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.positronium_continuum"><code class="docutils literal notranslate"><span class="pre">positronium_continuum()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.read_artis_lines"><code class="docutils literal notranslate"><span class="pre">read_artis_lines()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.setup_input_energy"><code class="docutils literal notranslate"><span class="pre">setup_input_energy()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_channel.html">tardis.energy_input.gamma_ray_channel module</a><ul>
@@ -638,7 +638,6 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_transport.html">tardis.energy_input.gamma_ray_transport module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_average_energies"><code class="docutils literal notranslate"><span class="pre">calculate_average_energies()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_average_power_per_mass"><code class="docutils literal notranslate"><span class="pre">calculate_average_power_per_mass()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_ejecta_velocity_volume"><code class="docutils literal notranslate"><span class="pre">calculate_ejecta_velocity_volume()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.iron_group_fraction_per_shell"><code class="docutils literal notranslate"><span class="pre">iron_group_fraction_per_shell()</span></code></a></li>
@@ -661,7 +660,6 @@
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.create_energy_cdf"><code class="docutils literal notranslate"><span class="pre">create_energy_cdf()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.sample_decay_time"><code class="docutils literal notranslate"><span class="pre">sample_decay_time()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.sample_energy"><code class="docutils literal notranslate"><span class="pre">sample_energy()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.sample_energy_distribution"><code class="docutils literal notranslate"><span class="pre">sample_energy_distribution()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.sample_mass"><code class="docutils literal notranslate"><span class="pre">sample_mass()</span></code></a></li>
 </ul>
 </li>
@@ -3251,6 +3249,7 @@
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.util.base.html#tardis.util.base.element_symbol2atomic_number"><code class="docutils literal notranslate"><span class="pre">element_symbol2atomic_number()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.util.base.html#tardis.util.base.int_to_roman"><code class="docutils literal notranslate"><span class="pre">int_to_roman()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.util.base.html#tardis.util.base.intensity_black_body"><code class="docutils literal notranslate"><span class="pre">intensity_black_body()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../../api/tardis.util.base.html#tardis.util.base.is_element_symbol"><code class="docutils literal notranslate"><span class="pre">is_element_symbol()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.util.base.html#tardis.util.base.is_valid_nuclide_or_elem"><code class="docutils literal notranslate"><span class="pre">is_valid_nuclide_or_elem()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.util.base.html#tardis.util.base.parse_quantity"><code class="docutils literal notranslate"><span class="pre">parse_quantity()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../api/tardis.util.base.html#tardis.util.base.quantity_linspace"><code class="docutils literal notranslate"><span class="pre">quantity_linspace()</span></code></a></li>
@@ -4348,7 +4347,7 @@ CSV shape: (3, 5)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 19 Oct 2026.
+      <span class="lastupdated">Last updated on 20 Oct 2026.
       </span></p>
   </div>
 
