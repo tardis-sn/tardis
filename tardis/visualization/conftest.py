@@ -22,17 +22,19 @@ def simulation_simple_tracked(config_verysimple, atomic_dataset):
         Simulation object.
     """
     # Setup simulation configuration using config_verysimple and
-    # override properties in such a way to make the simulation run faster
-    config_verysimple.montecarlo.iterations = 3
-    config_verysimple.montecarlo.no_of_packets = 4000
-    config_verysimple.montecarlo.last_no_of_packets = -1
-    config_verysimple.spectrum.virtual.virtual_packet_logging = True
-    config_verysimple.montecarlo.no_of_virtual_packets = 1
-    config_verysimple.spectrum.num = 2000
-    config_verysimple.montecarlo.tracking.track_rpacket = True
+    # override properties in such a way to make the simulation run faster.
+    # Copy first so the session-scoped config is not mutated.
+    config = deepcopy(config_verysimple)
+    config.montecarlo.iterations = 3
+    config.montecarlo.no_of_packets = 4000
+    config.montecarlo.last_no_of_packets = -1
+    config.spectrum.virtual.virtual_packet_logging = True
+    config.montecarlo.no_of_virtual_packets = 1
+    config.spectrum.num = 2000
+    config.montecarlo.tracking.track_rpacket = True
     atomic_data = deepcopy(atomic_dataset)
     sim = run_tardis(
-        config_verysimple,
+        config,
         atom_data=atomic_data,
         show_convergence_plots=False,
         log_level="CRITICAl",
@@ -49,7 +51,7 @@ def workflow_simple_tracked(config_verysimple, atomic_data_fname):
     config.spectrum.virtual.virtual_packet_logging = True
     config.montecarlo.no_of_virtual_packets = 1
     config.spectrum.num = 2000
-    config_verysimple.montecarlo.tracking.track_rpacket = True
+    config.montecarlo.tracking.track_rpacket = True
     
     workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
     workflow.run()

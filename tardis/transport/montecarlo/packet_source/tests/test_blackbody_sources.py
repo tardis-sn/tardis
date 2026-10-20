@@ -14,7 +14,7 @@ RELATIVE_TOLERANCE_BLACKBODY = 1e-7
 
 
 class TestBlackBodySimpleSource:
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="function")
     def blackbodysimplesource(self, request):
         """
         Create BlackBodySimpleSource instance.
