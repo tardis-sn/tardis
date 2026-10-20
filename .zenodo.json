@@ -98,10 +98,10 @@
       "name": "Arya, Atharva"
     },
     {
-      "name": "Shields, Joshua"
+      "name": "Smith, Isaac"
     },
     {
-      "name": "Smith, Isaac"
+      "name": "Shields, Joshua"
     },
     {
       "name": "Cawley, Kevin"
@@ -121,10 +121,10 @@
       "name": "O'Brien, Jack"
     },
     {
-      "name": "Sondhi, Dhruv"
+      "name": "Yu, Jenny"
     },
     {
-      "name": "Yu, Jenny"
+      "name": "Sondhi, Dhruv"
     },
     {
       "name": "Shields, Josh",
@@ -152,10 +152,10 @@
       "name": "Gupta, Sumit"
     },
     {
-      "name": "Singh, Shreyas"
+      "name": "Savel, Arjun"
     },
     {
-      "name": "Savel, Arjun"
+      "name": "Singh, Shreyas"
     },
     {
       "name": "Marie Lynn, Haille"
@@ -174,15 +174,15 @@
       "name": "Holas, Alexander"
     },
     {
-      "name": "Visser, Erin"
+      "name": "McClellan, Connor",
+      "orcid": "0000-0002-6040-8281",
+      "affiliation": "University of Virginia"
     },
     {
       "name": "Bylund, Tomas"
     },
     {
-      "name": "McClellan, Connor",
-      "orcid": "0000-0002-6040-8281",
-      "affiliation": "University of Virginia"
+      "name": "Visser, Erin"
     },
     {
       "name": "Bentil, Laud"
@@ -191,19 +191,19 @@
       "name": "Black, William"
     },
     {
-      "name": "Lu, Jing"
-    },
-    {
-      "name": "Saraf, Shreyans"
-    },
-    {
       "name": "Groneck, Ryan"
+    },
+    {
+      "name": "Lu, Jing"
     },
     {
       "name": "Kumar, Asish"
     },
     {
       "name": "Dutta, Anirban"
+    },
+    {
+      "name": "Saraf, Shreyans"
     },
     {
       "name": "Eguren, Jordi",
@@ -250,11 +250,19 @@
       "orcid": "0009-0005-3670-8777"
     },
     {
+      "name": "Rao, Rishmita",
+      "orcid": "0009-0003-3964-2107",
+      "affiliation": "Texas A&M University"
+    },
+    {
       "name": "Rajagopalan, Srinath"
     },
     {
       "name": "Mishra, Sashank",
       "orcid": "0000-0001-8302-1584"
+    },
+    {
+      "name": "Nitish, P"
     },
     {
       "name": "Reichenbach, John"
@@ -263,15 +271,7 @@
       "name": "Actions, GitHub"
     },
     {
-      "name": "Rao, Rishmita",
-      "orcid": "0009-0003-3964-2107",
-      "affiliation": "Texas A&M University"
-    },
-    {
       "name": "Jain, Rinkle"
-    },
-    {
-      "name": "Nitish, P"
     },
     {
       "name": "Gupta, Harshul"
@@ -286,10 +286,7 @@
       "name": "Chaumal, Aarya"
     },
     {
-      "name": "Patidar, Abhishek"
-    },
-    {
-      "name": "Kunisetty, Saanvi"
+      "name": "Matsumura, Yuki"
     },
     {
       "name": "Gangbhoj, Riddhi"
@@ -298,19 +295,26 @@
       "name": "Sofiatti, Caroline"
     },
     {
-      "name": "Matsumura, Yuki"
+      "name": "Kunisetty, Saanvi"
+    },
+    {
+      "name": "Patidar, Abhishek"
     },
     {
       "name": "Kowalski, Nathan"
     },
     {
+      "name": "Talegaonkar, Chinmay"
+    },
+    {
       "name": "Selsing, Jonatan"
     },
     {
-      "name": "Perkins, Haille"
+      "name": "Gupta, Angel",
+      "orcid": "0009-0007-6690-938X"
     },
     {
-      "name": "Talegaonkar, Chinmay"
+      "name": "Perkins, Haille"
     },
     {
       "name": "Aggarwal, Yash"
@@ -322,10 +326,10 @@
       "name": "Patra, Nilesh"
     },
     {
-      "name": "Volodin, Dmitry"
+      "name": "Buchner, Johannes"
     },
     {
-      "name": "Buchner, Johannes"
+      "name": "Volodin, Dmitry"
     },
     {
       "name": "Vieira, Nicholas"
@@ -374,14 +378,8 @@
       "name": "Gupta, Suyash"
     },
     {
-      "name": "PATIDAR, ABHISHEK"
-    },
-    {
       "name": "Jaiswal, Abhayraj",
       "orcid": "0009-0003-8477-2963"
-    },
-    {
-      "name": "Dasgupta, Debajyoti"
     },
     {
       "name": "Kumar, Aman"
@@ -393,7 +391,10 @@
       "name": "Kumar, Atul"
     },
     {
-      "name": "Gupta, Angel"
+      "name": "Dasgupta, Debajyoti"
+    },
+    {
+      "name": "PATIDAR, ABHISHEK"
     },
     {
       "name": "Chen, Nutan"

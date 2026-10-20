@@ -72,12 +72,10 @@ class ConfigurationNameSpace(dict):
         return cls(config_validator.validate_dict(config_dict))
 
     def __init__(self, value=None):
-        if value is None:
-            pass
-        elif isinstance(value, dict):
+        if isinstance(value, dict):
             for key in value:
                 self.__setitem__(key, value[key])
-        else:
+        elif value is not None:
             raise TypeError("expected dict")
 
         if hasattr(self, "csvy_model") and hasattr(self, "model"):
@@ -231,7 +229,12 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         return cls.from_config_dict(yaml_dict, *args, **kwargs)
 
     @classmethod
-    def from_config_dict(cls, config_dict, validate=True, config_dirname=""):
+    def from_config_dict(
+        cls,
+        config_dict: dict,
+        validate: bool = True,
+        config_dirname: str = "",
+    ) -> Configuration:
         """
         Validating and subsequently parsing a config file.
 
@@ -241,6 +244,9 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
             dictionary of a raw unvalidated config file
         validate : bool
             Turn validation on or off.
+        config_dirname : str
+            Directory against which relative file paths in the configuration
+            are resolved.
 
         Returns
         -------
@@ -253,72 +259,105 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
         validated_config_dict["config_dirname"] = config_dirname
 
-        montecarlo_section = validated_config_dict["montecarlo"]
-        Configuration.validate_montecarlo_section(montecarlo_section)
-
-        if "csvy_model" in validated_config_dict.keys():
-            pass
-        elif "model" in validated_config_dict.keys():
-            model_section = validated_config_dict["model"]
-            Configuration.validate_model_section(model_section)
-            # SuperNova Section Validation
-            supernova_section = validated_config_dict["supernova"]
-
-            time_explosion = supernova_section["time_explosion"]
-            luminosity_wavelength_start = supernova_section[
-                "luminosity_wavelength_start"
-            ]
-            luminosity_wavelength_end = supernova_section[
-                "luminosity_wavelength_end"
-            ]
-            if time_explosion.value <= 0:
-                raise ValueError(
-                    f"Time Of Explosion is Invalid, {time_explosion}"
-                )
-            if (
-                luminosity_wavelength_start.value
-                > luminosity_wavelength_end.value
-            ):
-                raise ValueError(
-                    "Integral Limits for Luminosity Wavelength are Invalid, Start Limit > End Limit \n"
-                    f"Luminosity Wavelength Start : {luminosity_wavelength_start} \n"
-                    f"Luminosity Wavelength End : {luminosity_wavelength_end}"
-                )
-
-            # Plasma Section Validation
-            plasma_section = validated_config_dict["plasma"]
-
-            initial_t_inner = plasma_section["initial_t_inner"]
-            initial_t_rad = plasma_section["initial_t_rad"]
-            if initial_t_inner.value < -1:
-                raise ValueError(
-                    f"Initial Temperature of Inner Boundary Black Body is Invalid, {initial_t_inner}"
-                )
-            if initial_t_rad.value < -1:
-                raise ValueError(
-                    f"Initial Radiative Temperature is Invalid, {initial_t_rad}"
-                )
-
-        spectrum_section = validated_config_dict["spectrum"]
-        Configuration.validate_spectrum_section(
-            spectrum_section, montecarlo_section["enable_full_relativity"]
-        )
+        cls._validate_config_values(validated_config_dict)
 
         return cls(validated_config_dict)
 
     @staticmethod
-    def validate_spectrum_section(
-        spectrum_section, enable_full_relativity=False
-    ):
+    def _validate_config_values(config_dict: dict) -> None:
         """
-        Validate the spectrum section dictionary
+        Check the configuration values that the schema cannot express.
+
+        The schema checks types, units, and defaults but cannot compare a
+        quantity with a number or with another field. These checks run in one
+        pass over every section present in the configuration, after schema
+        validation. The montecarlo convergence section is also expanded in
+        place.
+
+        Parameters
+        ----------
+        config_dict : dict
+            Schema-validated configuration dictionary.
+
+        Raises
+        ------
+        ValueError
+            If a configuration value is out of range or inconsistent with
+            another value.
+        NotImplementedError
+            If the configuration requests an unsupported combination of
+            options.
+        """
+        montecarlo_section = config_dict["montecarlo"]
+        Configuration._validate_montecarlo_section(montecarlo_section)
+
+        if "model" in config_dict:
+            Configuration._validate_model_section(config_dict["model"])
+        if "supernova" in config_dict:
+            Configuration._validate_supernova_section(config_dict["supernova"])
+        if "plasma" in config_dict:
+            Configuration._validate_plasma_section(config_dict["plasma"])
+
+        Configuration._validate_spectrum_section(
+            config_dict["spectrum"], montecarlo_section["enable_full_relativity"]
+        )
+
+    @staticmethod
+    def _validate_supernova_section(supernova_section: dict) -> None:
+        """
+        Validate the supernova section dictionary.
+
+        Parameters
+        ----------
+        supernova_section : dict
+        """
+        time_explosion = supernova_section["time_explosion"]
+        luminosity_wavelength_start = supernova_section[
+            "luminosity_wavelength_start"
+        ]
+        luminosity_wavelength_end = supernova_section[
+            "luminosity_wavelength_end"
+        ]
+        if time_explosion.value <= 0:
+            raise ValueError(f"Time Of Explosion is Invalid, {time_explosion}")
+        if luminosity_wavelength_start.value > luminosity_wavelength_end.value:
+            raise ValueError(
+                "Integral Limits for Luminosity Wavelength are Invalid, Start Limit > End Limit \n"
+                f"Luminosity Wavelength Start : {luminosity_wavelength_start} \n"
+                f"Luminosity Wavelength End : {luminosity_wavelength_end}"
+            )
+
+    @staticmethod
+    def _validate_plasma_section(plasma_section: dict) -> None:
+        """
+        Validate the plasma section dictionary.
+
+        Parameters
+        ----------
+        plasma_section : dict
+        """
+        initial_t_inner = plasma_section["initial_t_inner"]
+        initial_t_rad = plasma_section["initial_t_rad"]
+        if initial_t_inner.value < -1:
+            raise ValueError(
+                f"Initial Temperature of Inner Boundary Black Body is Invalid, {initial_t_inner}"
+            )
+        if initial_t_rad.value < -1:
+            raise ValueError(
+                f"Initial Radiative Temperature is Invalid, {initial_t_rad}"
+            )
+
+    @staticmethod
+    def _validate_spectrum_section(
+        spectrum_section: dict, enable_full_relativity: bool = False
+    ) -> None:
+        """
+        Validate the spectrum section dictionary.
 
         Parameters
         ----------
         spectrum_section : dict
         """
-        # Spectrum Section Validation
-
         start = spectrum_section["start"]
         stop = spectrum_section["stop"]
         if start.value > stop.value:
@@ -338,9 +377,9 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
             )
 
     @staticmethod
-    def validate_model_section(model_section):
+    def _validate_model_section(model_section: dict) -> None:
         """
-        Parse the model section dictionary
+        Validate the model section dictionary.
 
         Parameters
         ----------
@@ -399,9 +438,9 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                         raise ValueError(f"Time Specified is Invalid, {time_0}")
 
     @staticmethod
-    def validate_montecarlo_section(montecarlo_section):
+    def _validate_montecarlo_section(montecarlo_section: dict) -> None:
         """
-        Validate the montecarlo section dictionary
+        Validate the montecarlo section dictionary.
 
         Parameters
         ----------
@@ -448,13 +487,16 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
         return convergence_section_dict
 
-    def __init__(self, config_dict):
-        super().__init__(config_dict)
-
 
 def quantity_representer(dumper, data):
     """
     Represents Astropy Quantity as str
+
+    Astropy's own YAML representer (`astropy.io.misc.yaml`) writes a tagged
+    ``!astropy.units.Quantity`` mapping. TARDIS configurations write
+    quantities as plain strings such as ``10 km / s``, which `YAMLLoader`
+    parses back, so this representer keeps dumped configurations in the
+    same format as the input files.
 
     Parameters
     ----------

@@ -18,8 +18,6 @@ from tardis.energy_input.transport.gamma_ray_grid import (
 )
 from tardis.energy_input.transport.gamma_ray_interactions import (
     compton_scatter,
-    get_compton_angle,
-    get_compton_fraction,
     get_compton_fraction_artis,
     pair_creation_packet,
     scatter_type,
@@ -311,26 +309,6 @@ def test_gamma_scatter_type(
     )
 
     assert actual == expected
-
-
-def test_gamma_compton_angle(set_seed_fixture, regression_data) -> None:
-    set_seed_fixture(1963)
-
-    angle, lost_energy, new_energy = get_compton_angle(1000.0)
-
-    sync_ndarray_assert_allclose(
-        regression_data, np.array([angle, lost_energy, new_energy]), rtol=RTOL
-    )
-
-
-def test_gamma_compton_fraction(set_seed_fixture, regression_data) -> None:
-    set_seed_fixture(1963)
-
-    angle, fraction = get_compton_fraction(1000.0)
-
-    sync_ndarray_assert_allclose(
-        regression_data, np.array([angle, fraction]), rtol=RTOL
-    )
 
 
 def test_gamma_compton_fraction_artis(

@@ -2,6 +2,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 import numpy.testing as npt
+import pandas as pd
 import pytest
 
 from tardis.io.model import csvy
@@ -25,6 +26,16 @@ def csvy_missing_fname(example_model_file_dir: Path):
 @pytest.fixture
 def csvy_with_isotopes_fname() -> Path:
     return Path(__file__).parent / "data" / "csvy_with_isotopes.csvy"
+
+
+@pytest.fixture
+def csvy_no_velocity_fname() -> Path:
+    return Path(__file__).parent / "data" / "csvy_no_velocity.csvy"
+
+
+@pytest.fixture
+def csvy_no_density_fname() -> Path:
+    return Path(__file__).parent / "data" / "csvy_no_density.csvy"
 
 
 def test_csvy_finds_csv_first_line(csvy_full_fname):
@@ -86,23 +97,9 @@ def test_load_csvy_parses_isotope_mass_fractions(csvy_with_isotopes_fname):
     assert list(isotope_mass_fractions.columns) == [0, 1]
 
 
-def test_load_csvy_without_velocity_raises(write_csvy):
-    fname = write_csvy(
-        """---
-name: no_velocity
-model_density_time_0: 1 day
-model_isotope_time_0: 0 day
-description: No velocity information anywhere.
-tardis_model_config_version: v1.0
-density:
-  type: uniform
-  value: 1e-10 g/cm^3
----
-"""
-    )
-
+def test_load_csvy_without_velocity_raises(csvy_no_velocity_fname):
     with pytest.raises(ValueError, match="Velocity information not found"):
-        csvy.load_csvy(fname)
+        csvy.load_csvy(csvy_no_velocity_fname)
 
 
 def test_load_csvy_without_closing_delimiter_raises(write_csvy):
@@ -157,26 +154,22 @@ def test_load_csv_from_csvy_without_closing_delimiter_raises(write_csvy):
         csvy.load_csv_from_csvy(write_csvy("---\nname: unterminated\n"))
 
 
-def test_load_csvy_without_density_leaves_density_unset(write_csvy):
-    fname = write_csvy(
-        """---
-name: no_density
-model_density_time_0: 1 day
-model_isotope_time_0: 0 day
-description: Velocity and abundances only.
-tardis_model_config_version: v1.0
-datatype:
-  fields:
-    - name: velocity
-      unit: km/s
-      desc: velocities of shell boundaries.
-    - name: H
-      desc: fractional H abundance
----
-velocity,H
-10000,0.0
-11000,1.0
-"""
+def test_load_csvy_without_density_leaves_density_unset(csvy_no_density_fname):
+    assert csvy.load_csvy(csvy_no_density_fname).density is None
+def test_parse_csv_mass_fractions_ignores_capitalization():
+    csv_data = pd.DataFrame(
+        {
+            "velocity": [9000.0, 10000.0],
+            "h": [0.5, 0.3],
+            "HE": [0.3, 0.3],
+            "Si": [0.1, 0.2],
+            "ni56": [0.1, 0.2],
+        }
     )
-
-    assert csvy.load_csvy(fname).density is None
+    _, mass_fractions, isotope_mass_fractions = csvy.parse_csv_mass_fractions(
+        csv_data
+    )
+    npt.assert_allclose(mass_fractions.loc[1].values, [0.5, 0.3])
+    npt.assert_allclose(mass_fractions.loc[2].values, [0.3, 0.3])
+    npt.assert_allclose(mass_fractions.loc[14].values, [0.1, 0.2])
+    npt.assert_allclose(isotope_mass_fractions.loc[(28, 56)].values, [0.1, 0.2])
