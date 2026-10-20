@@ -61,7 +61,7 @@ def ctardis_reference_path(tardis_regression_path: Path) -> Path:
     return tardis_regression_path / "tardis" / "workflows" / "tests"
 
 
-def test_workflow_initial_populations_match_ctardis(
+def test_workflow_initial_number_densities_match_ctardis(
     type_iip_workflow: TypeIIPWorkflow,
     ctardis_reference_path: Path,
 ) -> None:
@@ -308,7 +308,7 @@ def test_solve_montecarlo(
     )
 
 
-def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
+def test_iip_outer_shell_number_density_cutoff_second_iteration_opacity(
     tardis_regression_path: Path,
 ) -> None:
     """Evaluate finite outer-shell opacity at the 1500 K thermal floor.
@@ -320,7 +320,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     bound-free number density equation, independently of continuum-state assembly.
     """
     config = Configuration.from_yaml(
-        "tardis/workflows/tests/data/iip_population_cutoff.yml"
+        "tardis/workflows/tests/data/iip_number_density_cutoff.yml"
     )
     config.atom_data = (
         tardis_regression_path

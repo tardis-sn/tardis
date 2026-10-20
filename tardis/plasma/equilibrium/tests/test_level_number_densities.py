@@ -38,7 +38,10 @@ from tardis.plasma.equilibrium.tests.test_evaluator import (
 )
 from tardis.plasma.properties.atomic import IonizationData, Levels
 from tardis.plasma.properties.general import BetaRadiation, GElectron
-from tardis.plasma.properties.ion_number_density import IonNumberDensity, PhiSahaLTE
+from tardis.plasma.properties.ion_number_density import (
+    IonNumberDensity,
+    PhiSahaLTE,
+)
 from tardis.plasma.properties.level_number_density import LevelNumberDensity
 from tardis.plasma.properties.partition_function import (
     LevelBoltzmannFactorLTE,
@@ -49,7 +52,7 @@ from tardis.plasma.radiation_field import (
 )
 
 
-class TestLevelPopulationSolver:
+class TestLevelNumberDensitySolver:
     @pytest.fixture(autouse=True)
     def setup(
         self,
@@ -76,20 +79,20 @@ class TestLevelPopulationSolver:
             rates_matrices, new_chianti_atomic_dataset_si.levels
         )
 
-    def test_calculate_level_population_simple(self):
+    def test_calculate_level_number_density_simple(self):
         """Test solving a 2-level ion."""
         rates_matrix = np.array([[1, 1], [2, -2]])
         expected_number_density = np.array([0.5, 0.5])
         result = self.solver._calculate_level_number_density(rates_matrix)
         np.testing.assert_array_almost_equal(result, expected_number_density)
 
-    def test_calculate_level_population_empty(self):
+    def test_calculate_level_number_density_empty(self):
         """Test empty rate matrix."""
         rates_matrix = np.array([[]])
         with pytest.raises(np.linalg.LinAlgError):
             self.solver._calculate_level_number_density(rates_matrix)
 
-    def test_calculate_level_population_zeros(self):
+    def test_calculate_level_number_density_zeros(self):
         """Test zero rate matrix."""
         rates_matrix = np.array([[0, 0], [0, 0]])
         with pytest.raises(np.linalg.LinAlgError):

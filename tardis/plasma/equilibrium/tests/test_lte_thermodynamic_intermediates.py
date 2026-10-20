@@ -227,7 +227,7 @@ def test_saha_factors_and_phi_ik_match_iip(
     )
 
 
-def test_lte_ion_and_level_populations_conserve_elements(
+def test_lte_ion_and_level_number_densities_conserve_elements(
     lte_equilibrium_inputs: dict[str, Any],
     regression_data: RegressionData,
 ) -> None:
