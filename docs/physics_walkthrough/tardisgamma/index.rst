@@ -23,6 +23,42 @@ equation A3 of :cite:`Kasen2006` using the composition moment
 are sampled from the comoving-frame component opacities. The Doppler factor is
 applied only when converting their sum to the rest-frame path opacity.
 
+Compton angular sampling
+========================
+
+In the Thomson approximation, the differential scattering cross section is
+
+.. math::
+
+   \frac{d\sigma_{\mathrm{T}}}{d\Omega}
+   = \frac{r_{\mathrm{e}}^2}{2}\left(1 + \cos^2\theta\right).
+
+The corresponding second moment of the scattering cosine is therefore
+
+.. math::
+
+   \left\langle\cos^2\theta\right\rangle
+   = \frac{\int_0^\pi \cos^2\theta\left(1 + \cos^2\theta\right)
+     \sin\theta\,d\theta}
+     {\int_0^\pi \left(1 + \cos^2\theta\right)\sin\theta\,d\theta}
+   = \frac{2}{5}.
+
+At finite photon energy, TARDIS uses the Klein--Nishina differential cross
+section per unit solid angle :cite:`KleinNishina1929`. Its direct polar-angle
+sampling distribution is
+
+.. math::
+
+   p(\theta)\,d\theta \propto
+   \frac{d\sigma_{\mathrm{KN}}}{d\Omega}
+   \sin\theta\,d\theta,
+
+which approaches the Thomson result above in the low-energy limit.
+
+The high-energy packet loop samples the equivalent energy-loss distribution
+using the ARTIS integrated-partial-cross-section method. The direct
+polar-angle CDF is retained for the standalone Compton sampling helpers.
+
 Gamma-ray deposition outputs
 ============================
 
