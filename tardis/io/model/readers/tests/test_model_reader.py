@@ -115,6 +115,15 @@ def test_read_uniform_mass_fractions(isotope_uniform_abundance):
     assert np.isclose(isotope_abundance.loc[(28, 58), 2], 0.05, atol=1.0e-12)
 
 
+def test_read_uniform_mass_fractions_ignores_capitalization():
+    abundances, isotope_abundance = read_uniform_mass_fractions(
+        {"type": "uniform", "o": 0.4, "SI": 0.4, "ni56": 0.2}, 3
+    )
+    assert np.allclose(abundances.loc[8], 0.4, atol=1.0e-12)
+    assert np.allclose(abundances.loc[14], 0.4, atol=1.0e-12)
+    assert np.allclose(isotope_abundance.loc[(28, 56)], 0.2, atol=1.0e-12)
+
+
 def test_simple_read_cmfgen_density(cmfgen_fname):
     with pytest.warns(
         DeprecationWarning,
