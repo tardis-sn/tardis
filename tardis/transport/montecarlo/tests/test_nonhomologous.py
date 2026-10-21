@@ -39,6 +39,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
     calculate_sobolev_line_opacity as nonhomologous_calculate_sobolev_line_opacity,
 )
 from tardis.transport.montecarlo.nonhomologous_grid import (
+    FLOAT64_ROUNDOFF_TOLERANCE,
     depressed_quartic,
     solve_resonance_quartic,
 )
@@ -494,7 +495,12 @@ def test_directional_beta_sobolev_handles_zero_velocity_gradient() -> None:
         zero_gradient,
     )
 
-    npt.assert_array_equal(actual.to_numpy(), [[1.0], [0.0]])
+    npt.assert_allclose(
+        actual.to_numpy(),
+        [[1.0], [0.0]],
+        rtol=FLOAT64_ROUNDOFF_TOLERANCE,
+        atol=0.0,
+    )
 
 
 @pytest.mark.parametrize(

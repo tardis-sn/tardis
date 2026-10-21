@@ -326,25 +326,37 @@ def klein_nishina(energy, theta_C):
 
 
 @njit(**njit_dict_no_parallel)
-def compton_theta_distribution(energy, sample_resolution=100):
-    """
-    Calculates the cumulative distribution function of theta angles
-    for Compton Scattering
+def compton_theta_distribution(
+    energy: float, sample_resolution: int = 100
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Calculate the Compton-scattering polar-angle CDF.
 
     Parameters
     ----------
     energy : float
+        Photon energy in keV.
     sample_resolution : int
+        Number of uniformly spaced polar-angle grid points.
 
     Returns
     -------
-    theta_angles : One dimensional Numpy array, dtype float
-    norm_theta_distribution : One dimensional Numpy array, dtype float
+    theta_angles : numpy.ndarray
+        Polar-angle grid in radians.
+    norm_theta_distribution : numpy.ndarray
+        Cumulative probability on the polar-angle grid.
 
+    Notes
+    -----
+    The Klein--Nishina expression is a differential cross section per unit
+    solid angle. Its polar-angle density therefore includes the spherical
+    Jacobian ``sin(theta)`` from ``dOmega = 2 pi sin(theta) dtheta``.
     """
     theta_angles = np.linspace(0, np.pi, sample_resolution)
 
-    theta_distribution = np.cumsum(klein_nishina(energy, theta_angles))
+    angular_probability = klein_nishina(energy, theta_angles) * np.sin(
+        theta_angles
+    )
+    theta_distribution = np.cumsum(angular_probability)
     norm_theta_distribution = theta_distribution / np.max(theta_distribution)
 
     return theta_angles, norm_theta_distribution

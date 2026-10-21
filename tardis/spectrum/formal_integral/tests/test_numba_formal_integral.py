@@ -66,17 +66,21 @@ def test_populate_z_photosphere(formal_integral_geometry, time_explosion, p):
     r_outer = formal_integral_geometry.r_outer
 
     p = r_inner[0] * p
-    oz = np.zeros_like(r_inner)
+    oz = np.zeros(size + 1)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
     N = formal_integral_numba.populate_intersection_points(
         formal_integral_geometry, time_explosion, p, oz, oshell_id
     )
-    assert N == size
+    assert N == size + 1
 
-    ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
+    expected_oshell_id = np.minimum(np.arange(size + 1), size - 1)
+    ntest.assert_allclose(oshell_id, expected_oshell_id)
 
-    ntest.assert_allclose(oz, 1 - calculate_intersection_point(r_outer, p), atol=1e-5)
+    expected_oz = 1 - calculate_intersection_point(
+        np.concatenate([r_inner[:1], r_outer]), p
+    )
+    ntest.assert_allclose(oz, expected_oz, atol=1e-5)
 
 
 @pytest.mark.parametrize("p", [1e-5, 0.5, 0.99, 1])
@@ -101,9 +105,12 @@ def test_populate_z_shells(formal_integral_geometry, time_explosion, p):
     expected_oz = np.zeros_like(oz)
     expected_oshell_id = np.zeros_like(oshell_id)
 
-    # Calculated way to determine which shells get hit
-    expected_oshell_id[:expected_N] = (
-        np.abs(np.arange(0.5, expected_N, 1) - offset) - 0.5 + idx
+    # Each ID is the shell traversed by the segment starting at that point:
+    # inwards through shells size - 1 ... idx on the far side, then outwards
+    # through shells idx + 1 ... size - 1 on the near side.
+    expected_oshell_id[:offset] = np.arange(size - 1, idx - 1, -1)
+    expected_oshell_id[offset:expected_N] = np.minimum(
+        np.arange(idx + 1, size + 1), size - 1
     )
 
     expected_oz[0:offset] = 1 + calculate_intersection_point(
@@ -122,3 +129,41 @@ def test_populate_z_shells(formal_integral_geometry, time_explosion, p):
     ntest.assert_allclose(oshell_id, expected_oshell_id)
 
     ntest.assert_allclose(oz, expected_oz, atol=1e-5)
+
+
+@pytest.mark.parametrize("p", [0.0, 0.5, 0.99, 1.0, 1.05, 1.3, 1.8])
+def test_populate_intersection_points_segment_shells(time_explosion, p):
+    """
+    Test that every ray segment is assigned the shell it actually lies in,
+    on both the far and the near side of the ray.
+    """
+    r = np.linspace(1, 2, 6)
+    geometry = HomologousRadial1DGeometry(
+        r[:-1] * u.cm / (time_explosion * u.s),
+        r[1:] * u.cm / (time_explosion * u.s),
+        None,
+        None,
+        time_explosion * u.s,
+    ).to_numba()
+    size = len(geometry.r_inner)
+
+    oz = np.zeros(2 * size)
+    oshell_id = np.zeros_like(oz, dtype=np.int64)
+    N = formal_integral_numba.populate_intersection_points(
+        geometry, time_explosion, p, oz, oshell_id
+    )
+
+    # with c * time_explosion = 1, the line-of-sight coordinate is 1 - z
+    segment_midpoints = 1 - 0.5 * (oz[: N - 1] + oz[1:N])
+    segment_radii = np.sqrt(p**2 + segment_midpoints**2)
+    segment_shells = oshell_id[: N - 1]
+
+    assert np.all(segment_radii >= geometry.r_inner[segment_shells])
+    assert np.all(segment_radii <= geometry.r_outer[segment_shells])
+    if p <= geometry.r_inner[0]:
+        # rays hitting the photosphere start at the photosphere
+        ntest.assert_allclose(
+            oz[0],
+            1 - calculate_intersection_point(geometry.r_inner[0], p),
+            atol=1e-5,
+        )
