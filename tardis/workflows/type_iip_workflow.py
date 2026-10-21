@@ -30,6 +30,7 @@ from tardis.plasma.equilibrium.evaluator import (
 )
 from tardis.plasma.equilibrium.inputs import (
     ContinuumCoefficientState,
+    DiluteRadiationInputs,
     ShellNumberDensity,
     SobolevInputs,
 )
@@ -855,6 +856,14 @@ class TypeIIPWorkflow:
             thermal_balance_arguments=thermal_balance_arguments,
             radiation_field=(
                 plasma.dilute_planckian_radiation_field if analytic else None
+            ),
+            dilute_radiation=DiluteRadiationInputs(
+                np.asarray(plasma.t_rad, dtype=np.float64).copy(),
+                np.asarray(plasma.w, dtype=np.float64).copy(),
+                plasma.zeta_data,
+                plasma.level_boltzmann_factor.copy(deep=True),
+                plasma.partition_function.copy(deep=True),
+                self.configuration.plasma.get("delta_treatment", None),
             ),
         )
 

@@ -19,6 +19,7 @@ from tardis.plasma.equilibrium.inputs import (
     BoundBoundMatrixRates,
     ContinuumCoefficientState,
     ContinuumRateCoefficients,
+    DiluteRadiationInputs,
     LevelEquationRates,
     ShellNumberDensity,
     SobolevInputs,
@@ -37,9 +38,16 @@ from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
 )
-from tardis.plasma.properties.general import BetaElectron, ThermalGElectron
+from tardis.plasma.properties.general import (
+    BetaElectron,
+    BetaRadiation,
+    GElectron,
+    ThermalGElectron,
+)
 from tardis.plasma.properties.ion_population import (
     IonNumberDensity,
+    PhiSahaNebular,
+    RadiationFieldCorrection,
     SahaFactor,
     ThermalPhiSahaLTE,
 )
@@ -297,6 +305,7 @@ class PlasmaEquilibriumEvaluator:
         thermal_balance_arguments: Mapping[str, object] | None = None,
         reference_electron_temperature: u.Quantity | None = None,
         radiation_field: DilutePlanckianRadiationField | None = None,
+        dilute_radiation: DiluteRadiationInputs | None = None,
     ) -> None:
         """Construct an evaluator from fixed scientific inputs.
 
@@ -344,6 +353,12 @@ class PlasmaEquilibriumEvaluator:
             Temperature at which fixed thermal rate coefficients were built.
         radiation_field : DilutePlanckianRadiationField, optional
             Radiation field used by optional thermal-balance calculations.
+        dilute_radiation : DiluteRadiationInputs, optional
+            Radiation field for species without continuum or NLTE rates. When
+            given, they use nebular ionization at the candidate electron
+            temperature and dilute-LTE excitation. Otherwise they use LTE
+            ionization at the candidate electron temperature and keep the
+            excitation of ``shell_number_densities``.
         """
         self.photoionization_cross_sections = photoionization_cross_sections
         self.level2continuum_edge_idx = level2continuum_edge_idx
@@ -402,6 +417,55 @@ class PlasmaEquilibriumEvaluator:
             thermal_balance_arguments or {}
         )
         self.reference_electron_temperature = reference_electron_temperature
+        self.dilute_radiation = dilute_radiation
+
+    def calculate_nebular_ionization_factor(
+        self, electron_temperature: npt.NDArray[np.float64]
+    ) -> pd.DataFrame:
+        """Calculate nebular ionization factors at candidate temperatures.
+
+        Uses the nebular approximation of Mazzali & Lucy (1993) with the
+        fixed dilute radiation field.
+
+        Parameters
+        ----------
+        electron_temperature : numpy.ndarray
+            Electron temperatures in each plasma shell [K].
+
+        Returns
+        -------
+        pandas.DataFrame
+            Ionization factor n_(i+1) n_e / n_i indexed by atomic number and
+            ion number of the upper ion. Columns are shells.
+        """
+        radiation_temperature = self.dilute_radiation.radiation_temperature
+        dilution_factor = self.dilute_radiation.dilution_factor
+        beta_radiation = BetaRadiation(None).calculate(radiation_temperature)
+        radiation_field_correction = RadiationFieldCorrection(
+            delta_treatment=self.dilute_radiation.delta_treatment
+        ).calculate(
+            dilution_factor,
+            self.ionization_data,
+            beta_radiation,
+            electron_temperature,
+            radiation_temperature,
+            BetaElectron(None).calculate(electron_temperature),
+        )
+        nebular_ionization_factor = PhiSahaNebular.calculate(
+            radiation_temperature,
+            dilution_factor,
+            self.dilute_radiation.zeta_data,
+            electron_temperature,
+            radiation_field_correction,
+            GElectron(None).calculate(beta_radiation),
+            beta_radiation,
+            self.dilute_radiation.partition_function,
+            self.ionization_data,
+        )
+        nebular_ionization_factor.columns = (
+            self.elemental_number_density.columns
+        )
+        return nebular_ionization_factor
 
     def calculate_continuum_coefficients(
         self, electron_temperature: npt.NDArray[np.float64]
@@ -895,8 +959,17 @@ class PlasmaEquilibriumEvaluator:
                 thermal_state.level_to_continuum_saha_factor
             ),
         )
+        # The solver applies this factor only to species without continuum
+        # rates.
+        ionization_factor = (
+            thermal_state.lte_ionization_factor
+            if self.dilute_radiation is None
+            else self.calculate_nebular_ionization_factor(
+                trial_electron_distribution.temperature.to_value(u.K)
+            )
+        )
         return self.ion_population_solver.solve(
-            lte_ionization_factor=thermal_state.lte_ionization_factor,
+            lte_ionization_factor=ionization_factor,
             **solver_arguments,
         )
 
@@ -920,6 +993,15 @@ class PlasmaEquilibriumEvaluator:
                 )
             return absolute_levels
 
+        # Dilute-LTE Boltzmann factors give each ion's level distribution;
+        # without them, the fixed input populations keep their distribution.
+        base_population = (
+            state.full_population
+            if self.dilute_radiation is None
+            else self.dilute_radiation.level_boltzmann_factor.loc[
+                self.level_population_index
+            ].set_axis(state.full_population.columns, axis="columns")
+        )
         level_atomic_numbers = self.level_population_index.get_level_values(
             "atomic_number"
         )
@@ -934,14 +1016,14 @@ class PlasmaEquilibriumEvaluator:
                 (level_atomic_numbers == atomic_number)
                 & (level_ion_numbers == ion_number)
             )
-            base_ion_density = state.full_population.iloc[positions].sum()
+            base_ion_density = base_population.iloc[positions].sum()
             nonzero_density = base_ion_density != 0.0
             base_values = base_ion_density.to_numpy()
             safe_base_values = np.where(
                 nonzero_density.to_numpy(), base_values, 1.0
             )
             scaled_values = (
-                state.full_population.iloc[positions].to_numpy()
+                base_population.iloc[positions].to_numpy()
                 / safe_base_values
                 * ion_density.to_numpy()
             )
