@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=63c43dae"></script>
+      <script src="../_static/documentation_options.js?v=c2ac7b93"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1849,6 +1849,7 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.calculate_continuum_coefficients"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.calculate_continuum_coefficients()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.calculate_nebular_ionization_factor"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.calculate_nebular_ionization_factor()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.evaluate"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.evaluate()</span></code></a></li>
 </ul>
 </li>
@@ -1890,6 +1891,15 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.photoionization"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.photoionization</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.spontaneous_recombination"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.spontaneous_recombination</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.stimulated_recombination"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.stimulated_recombination</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.delta_treatment"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.delta_treatment</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.dilution_factor"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.dilution_factor</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.level_boltzmann_factor"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.level_boltzmann_factor</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.partition_function"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.partition_function</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.radiation_temperature"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.radiation_temperature</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.zeta_data"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.zeta_data</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.LevelEquationRates"><code class="docutils literal notranslate"><span class="pre">LevelEquationRates</span></code></a><ul>
@@ -1968,6 +1978,16 @@
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html">tardis.plasma.equilibrium.thermal_balance module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_residual"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_residual()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.evaluate_candidate"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.evaluate_candidate()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.least_squares_settings"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.least_squares_settings</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_multiple_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_multiple_shells()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_single_shell"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_single_shell()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.validate_evaluation"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.validate_evaluation()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ThermalBalanceSolver</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ThermalBalanceSolver.solve"><code class="docutils literal notranslate"><span class="pre">ThermalBalanceSolver.solve()</span></code></a></li>
 </ul>
@@ -3966,6 +3986,12 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/iip_workflow/thermal_balance.html">Type IIP thermal balance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../workflows/iip_workflow/thermal_balance.html#species-treatment">Species treatment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflows/iip_workflow/thermal_balance.html#level-population-solve">Level-population solve</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflows/iip_workflow/thermal_balance.html#thermal-balance-solve">Thermal-balance solve</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../resources/zreferences.html#bibliography">Bibliography</a></li>
@@ -4239,8 +4265,31 @@
 <span id="tardis-plasma-equilibrium-rates-collisional-rates-module"></span><h1>tardis.plasma.equilibrium.rates.collisional_rates module<a class="headerlink" href="#module-tardis.plasma.equilibrium.rates.collisional_rates" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collisional_rates.ThermalCollisionalRateSolver">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collisional_rates.</span></span><span class="sig-name descname"><span class="pre">ThermalCollisionalRateSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">levels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radiative_transitions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_collisional_strengths_temperatures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_collisional_strengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collision_strengths_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collisional_strength_approximation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'regemorter'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collisional_rates.html#ThermalCollisionalRateSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collisional_rates.ThermalCollisionalRateSolver" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collisional_rates.</span></span><span class="sig-name descname"><span class="pre">ThermalCollisionalRateSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">radiative_transitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_collisional_strengths_temperatures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_collisional_strengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">collision_strengths_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">collisional_strength_approximation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'regemorter'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collisional_rates.html#ThermalCollisionalRateSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collisional_rates.ThermalCollisionalRateSolver" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Solve thermal electron-collision bound-bound rate coefficients.</p>
+<p>Initialize thermal collisional rates for the supplied levels.</p>
+<p>Collision strengths whose lower or upper level is absent from
+<code class="docutils literal notranslate"><span class="pre">levels</span></code> are dropped, because their energies and statistical
+weights are undefined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>levels</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Level energies and statistical weights.</p>
+</dd>
+<dt><strong>radiative_transitions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Radiative line data.</p>
+</dd>
+<dt><strong>thermal_collisional_strengths_temperatures</strong><span class="classifier">array-like</span></dt><dd><p>Temperatures of the tabulated collision strengths [K].</p>
+</dd>
+<dt><strong>thermal_collisional_strengths</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Tabulated collision strengths indexed by transition.</p>
+</dd>
+<dt><strong>collision_strengths_type</strong><span class="classifier">str</span></dt><dd><p>Collision-strength format, <code class="docutils literal notranslate"><span class="pre">&quot;cmfgen&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;chianti&quot;</span></code>.</p>
+</dd>
+<dt><strong>collisional_strength_approximation</strong><span class="classifier">str, optional</span></dt><dd><p>Approximation for transitions without collision strengths.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collisional_rates.ThermalCollisionalRateSolver.calculate_collision_strengths">
 <span class="sig-name descname"><span class="pre">calculate_collision_strengths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperatures_electron</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collisional_rates.html#ThermalCollisionalRateSolver.calculate_collision_strengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collisional_rates.ThermalCollisionalRateSolver.calculate_collision_strengths" title="Link to this definition"></a></dt>

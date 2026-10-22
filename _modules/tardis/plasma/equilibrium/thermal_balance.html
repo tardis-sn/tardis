@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=63c43dae"></script>
+      <script src="../../../../_static/documentation_options.js?v=c2ac7b93"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1846,6 +1846,7 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.calculate_continuum_coefficients"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.calculate_continuum_coefficients()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.calculate_nebular_ionization_factor"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.calculate_nebular_ionization_factor()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.evaluate"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.evaluate()</span></code></a></li>
 </ul>
 </li>
@@ -1887,6 +1888,15 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.photoionization"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.photoionization</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.spontaneous_recombination"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.spontaneous_recombination</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.stimulated_recombination"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.stimulated_recombination</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.delta_treatment"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.delta_treatment</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.dilution_factor"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.dilution_factor</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.level_boltzmann_factor"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.level_boltzmann_factor</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.partition_function"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.partition_function</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.radiation_temperature"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.radiation_temperature</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.zeta_data"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.zeta_data</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.LevelEquationRates"><code class="docutils literal notranslate"><span class="pre">LevelEquationRates</span></code></a><ul>
@@ -1965,6 +1975,16 @@
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html">tardis.plasma.equilibrium.thermal_balance module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_residual"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_residual()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.evaluate_candidate"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.evaluate_candidate()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.least_squares_settings"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.least_squares_settings</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_multiple_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_multiple_shells()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_single_shell"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_single_shell()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.validate_evaluation"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.validate_evaluation()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ThermalBalanceSolver</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ThermalBalanceSolver.solve"><code class="docutils literal notranslate"><span class="pre">ThermalBalanceSolver.solve()</span></code></a></li>
 </ul>
@@ -3963,6 +3983,12 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows/iip_workflow/thermal_balance.html">Type IIP thermal balance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../workflows/iip_workflow/thermal_balance.html#species-treatment">Species treatment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../workflows/iip_workflow/thermal_balance.html#level-population-solve">Level-population solve</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../workflows/iip_workflow/thermal_balance.html#thermal-balance-solve">Thermal-balance solve</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../resources/zreferences.html#bibliography">Bibliography</a></li>
@@ -4228,10 +4254,20 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.plasma.equilibrium.thermal_balance</h1><div class="highlight"><pre>
-<span></span>import pandas as pd
+<span></span>import logging
+
+import numpy as np
+import numpy.typing as npt
+import pandas as pd
+from scipy.optimize import OptimizeResult, least_squares
+from scipy.sparse import block_diag
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
+)
+from tardis.plasma.equilibrium.evaluator import (
+    PlasmaEquilibriumEvaluation,
+    PlasmaEquilibriumEvaluator,
 )
 from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     BoundFreeThermalRates,
@@ -4240,6 +4276,21 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     FreeFreeThermalRates,
 )
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+
+logger = logging.getLogger(__name__)
+
+THERMAL_BALANCE_RESIDUAL_LIMITS = {
+    &quot;trial_level_residual&quot;: 1e-10,
+    &quot;level_residual&quot;: 1e-10,
+    &quot;charge_residual&quot;: 1e-10,
+    # The charge projection independently solves for the electron density, so
+    # the projected value can differ slightly from the outer trial value.
+    &quot;electron_residual&quot;: 2e-8,
+    # Heating residuals subtract nearly cancelling rates, leaving a small
+    # floating-point floor.
+    &quot;total_heating&quot;: 5e-13,
+    &quot;fractional_heating&quot;: 2e-7,
+}
 
 
 <div class="viewcode-block" id="ThermalBalanceSolver">
@@ -4385,6 +4436,417 @@ class ThermalBalanceSolver:
             pd.Series(total_heating_rate, index=level_population.columns),
             pd.Series(fractional_heating_rate, index=level_population.columns),
         )</div>
+</div>
+
+
+
+<div class="viewcode-block" id="ElectronThermalBalanceSolver">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver">[docs]</a>
+class ElectronThermalBalanceSolver:
+    &quot;&quot;&quot;Solve electron density and temperature balance across plasma shells.&quot;&quot;&quot;
+
+    least_squares_settings = {
+        &quot;xtol&quot;: 1e-14,
+        &quot;ftol&quot;: 1e-12,
+        &quot;gtol&quot;: 1e-14,
+        &quot;x_scale&quot;: &quot;jac&quot;,
+        &quot;max_nfev&quot;: 100,
+    }
+
+    def __init__(
+        self,
+        evaluator: PlasmaEquilibriumEvaluator,
+        radiation_temperature: npt.NDArray[np.float64],
+        level_initial_guess: pd.DataFrame,
+        maximum_electron_density: npt.NDArray[np.float64],
+    ) -&gt; None:
+        &quot;&quot;&quot;Initialize a solve from one frozen plasma-equilibrium snapshot.
+
+        Parameters
+        ----------
+        evaluator : PlasmaEquilibriumEvaluator
+            Fixed equilibrium evaluator for the outer thermal solve.
+        radiation_temperature : numpy.ndarray
+            Radiation temperature in each shell [K].
+        level_initial_guess : pandas.DataFrame
+            Frozen normalized level populations used during optimization.
+        maximum_electron_density : numpy.ndarray
+            Maximum electron number density in each shell [cm^-3].
+        &quot;&quot;&quot;
+        self.evaluator = evaluator
+        self.radiation_temperature = radiation_temperature
+        self.level_initial_guess = level_initial_guess
+        self.maximum_electron_density = maximum_electron_density
+
+<div class="viewcode-block" id="ElectronThermalBalanceSolver.calculate_residual">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_residual">[docs]</a>
+    def calculate_residual(
+        self, candidate: npt.NDArray[np.float64]
+    ) -&gt; npt.NDArray[np.float64]:
+        &quot;&quot;&quot;
+        Calculate charge and heating residuals for all shells.
+
+        Parameters
+        ----------
+        candidate : numpy.ndarray
+            Interleaved electron-density fractions and electron-to-radiation
+            temperature ratios for each shell.
+
+        Returns
+        -------
+        numpy.ndarray
+            Interleaved normalized electron-density and fractional-heating
+            residuals for each shell.
+        &quot;&quot;&quot;
+        electron_density_fraction = candidate[::2]
+        temperature_ratio = candidate[1::2]
+
+        logger.info(&quot;Link: %s&quot;, temperature_ratio)
+        evaluation = self.evaluator.evaluate(
+            self.maximum_electron_density * electron_density_fraction,
+            self.radiation_temperature * temperature_ratio,
+            self.level_initial_guess,
+        )
+
+        electron_residual = evaluation.electron_residual.to_numpy()
+        fractional_heating = evaluation.fractional_heating.to_numpy()
+        residual = np.zeros_like(candidate)
+        if not np.isfinite(fractional_heating).all():
+            logger.warning(&quot;Heating not finite\n&quot;)
+        if not np.isfinite(electron_residual).all():
+            logger.warning(&quot;Fractional electron change not finite\n&quot;)
+
+        residual[::2] = electron_residual
+        residual[1::2] = fractional_heating
+        logger.info(
+            &quot;Normalized electron fraction change: %s&quot;, electron_residual
+        )
+        logger.info(&quot;Heating: %s&quot;, fractional_heating)
+        return residual</div>
+
+
+<div class="viewcode-block" id="ElectronThermalBalanceSolver.solve_multiple_shells">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_multiple_shells">[docs]</a>
+    def solve_multiple_shells(
+        self,
+        initial_guess: npt.NDArray[np.float64],
+        lower_bound: npt.NDArray[np.float64],
+        upper_bound: npt.NDArray[np.float64],
+    ) -&gt; OptimizeResult:
+        &quot;&quot;&quot;
+        Solve charge and heating balance for all shells jointly.
+
+        Parameters
+        ----------
+        initial_guess : numpy.ndarray
+            Initial interleaved electron-density fractions and temperature
+            ratios for each shell.
+        lower_bound : numpy.ndarray
+            Lower bounds for each value in `initial_guess`.
+        upper_bound : numpy.ndarray
+            Upper bounds for each value in `initial_guess`.
+
+        Returns
+        -------
+        scipy.optimize.OptimizeResult
+            Result of the joint nonlinear least-squares solve.
+        &quot;&quot;&quot;
+        no_shells = len(initial_guess) // 2
+        return least_squares(
+            self.calculate_residual,
+            initial_guess,
+            bounds=(lower_bound, upper_bound),
+            jac_sparsity=block_diag([np.ones((2, 2))] * no_shells),
+            verbose=1,
+            method=&quot;trf&quot;,
+            **self.least_squares_settings,
+        )</div>
+
+
+<div class="viewcode-block" id="ElectronThermalBalanceSolver.solve_single_shell">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_single_shell">[docs]</a>
+    def solve_single_shell(
+        self,
+        shell_idx: int,
+        accepted_candidate: npt.NDArray[np.float64],
+        initial_guess: npt.NDArray[np.float64],
+        lower_bound: npt.NDArray[np.float64],
+        upper_bound: npt.NDArray[np.float64],
+    ) -&gt; OptimizeResult:
+        &quot;&quot;&quot;
+        Retry one failed shell, including its alternate initial state.
+
+        Parameters
+        ----------
+        shell_idx : int
+            Zero-based position of the shell to solve.
+        accepted_candidate : numpy.ndarray
+            Current interleaved candidate for all shells. Values outside the
+            selected shell remain fixed during the solve.
+        initial_guess : numpy.ndarray
+            Original bounded candidate used as the alternate starting state.
+        lower_bound : numpy.ndarray
+            Lower bounds for the interleaved candidate values.
+        upper_bound : numpy.ndarray
+            Upper bounds for the interleaved candidate values.
+
+        Returns
+        -------
+        scipy.optimize.OptimizeResult
+            Preferred result from the primary or alternate single-shell solve.
+        &quot;&quot;&quot;
+        shell_slice = slice(2 * shell_idx, 2 * shell_idx + 2)
+        local_lower_bound = lower_bound[shell_slice].copy()
+        local_upper_bound = upper_bound[shell_slice]
+        local_residual_limits = np.array(
+            [
+                THERMAL_BALANCE_RESIDUAL_LIMITS[&quot;electron_residual&quot;],
+                THERMAL_BALANCE_RESIDUAL_LIMITS[&quot;fractional_heating&quot;],
+            ]
+        )
+
+        def shell_residual(
+            local_candidate: npt.NDArray[np.float64],
+        ) -&gt; npt.NDArray[np.float64]:
+            trial_candidate = accepted_candidate.copy()
+            trial_candidate[shell_slice] = local_candidate
+            return self.calculate_residual(trial_candidate)[shell_slice]
+
+        local_start = np.clip(
+            accepted_candidate[shell_slice],
+            local_lower_bound,
+            local_upper_bound,
+        )
+        shell_result = least_squares(
+            shell_residual,
+            local_start,
+            bounds=(local_lower_bound, local_upper_bound),
+            **self.least_squares_settings,
+        )
+        if np.any(np.abs(shell_result.fun) &gt; local_residual_limits):
+            alternate_start = np.clip(
+                initial_guess[shell_slice],
+                local_lower_bound,
+                local_upper_bound,
+            )
+            if not np.array_equal(alternate_start, local_start):
+                alternate_result = least_squares(
+                    shell_residual,
+                    alternate_start,
+                    bounds=(local_lower_bound, local_upper_bound),
+                    **self.least_squares_settings,
+                )
+                shell_closes = np.all(
+                    np.abs(shell_result.fun) &lt;= local_residual_limits
+                )
+                alternate_closes = np.all(
+                    np.abs(alternate_result.fun) &lt;= local_residual_limits
+                )
+                if (alternate_closes and not shell_closes) or (
+                    alternate_closes == shell_closes
+                    and np.linalg.norm(
+                        alternate_result.fun / local_residual_limits
+                    )
+                    &lt; np.linalg.norm(shell_result.fun / local_residual_limits)
+                ):
+                    shell_result = alternate_result
+
+        logger.info(
+            &quot;Shell-local thermal balance shell=%s candidate=%s residual=%s status=%s&quot;,
+            shell_idx,
+            shell_result.x,
+            shell_result.fun,
+            shell_result.status,
+        )
+        return shell_result</div>
+
+
+<div class="viewcode-block" id="ElectronThermalBalanceSolver.evaluate_candidate">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.evaluate_candidate">[docs]</a>
+    def evaluate_candidate(
+        self, candidate: npt.NDArray[np.float64]
+    ) -&gt; PlasmaEquilibriumEvaluation:
+        &quot;&quot;&quot;
+        Rebuild the terminal equilibrium state for a candidate.
+
+        Parameters
+        ----------
+        candidate : numpy.ndarray
+            Interleaved electron-density fractions and temperature ratios for
+            each shell.
+
+        Returns
+        -------
+        tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation
+            Equilibrium state rebuilt using the candidate&#39;s converged level
+            populations as the terminal seed.
+        &quot;&quot;&quot;
+        electron_density = self.maximum_electron_density * candidate[::2]
+        electron_temperature = np.asarray(
+            self.radiation_temperature * candidate[1::2], dtype=np.float64
+        )
+        seed_evaluation = self.evaluator.evaluate(
+            electron_density,
+            electron_temperature,
+            self.level_initial_guess,
+        )
+        return self.evaluator.evaluate(
+            electron_density,
+            electron_temperature,
+            seed_evaluation.normalized_population,
+        )</div>
+
+
+<div class="viewcode-block" id="ElectronThermalBalanceSolver.validate_evaluation">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.validate_evaluation">[docs]</a>
+    @staticmethod
+    def validate_evaluation(evaluation: PlasmaEquilibriumEvaluation) -&gt; None:
+        &quot;&quot;&quot;
+        Validate population, charge, level, and thermal closure.
+
+        Parameters
+        ----------
+        evaluation : tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation
+            Terminal equilibrium state to validate.
+
+        Raises
+        ------
+        RuntimeError
+            If populations or derived states are invalid, or if any closure
+            residual exceeds its declared tolerance.
+        &quot;&quot;&quot;
+        failures = []
+        population_fields = {
+            &quot;normalized_population&quot;: evaluation.normalized_population,
+            &quot;absolute_level_population&quot;: evaluation.absolute_level_population,
+            &quot;ion_population&quot;: evaluation.ion_population,
+            &quot;electron_density&quot;: evaluation.charge_solved_electron_density,
+        }
+        for field_name, population in population_fields.items():
+            if population is None:
+                failures.append(f&quot;{field_name} is missing&quot;)
+                continue
+            population_values = np.asarray(population, dtype=np.float64)
+            if not np.isfinite(population_values).all():
+                failures.append(f&quot;{field_name} is nonfinite&quot;)
+            if (population_values &lt; 0.0).any():
+                failures.append(f&quot;{field_name} is negative&quot;)
+
+        normalized_totals = evaluation.normalized_population.sum(axis=0)
+        if not np.allclose(normalized_totals, 1.0, rtol=1e-12, atol=0.0):
+            failures.append(&quot;normalized_population does not sum to one&quot;)
+
+        for field_name, state in {
+            &quot;tau_sobolev&quot;: evaluation.tau_sobolev,
+            &quot;beta_sobolev&quot;: evaluation.beta_sobolev,
+        }.items():
+            if not np.isfinite(np.asarray(state, dtype=np.float64)).all():
+                failures.append(f&quot;{field_name} is nonfinite&quot;)
+
+        for field_name, tolerance in THERMAL_BALANCE_RESIDUAL_LIMITS.items():
+            residual = getattr(evaluation, field_name)
+            if residual is None:
+                failures.append(f&quot;{field_name} is missing&quot;)
+                continue
+            residual_values = np.asarray(residual, dtype=np.float64)
+            if not np.isfinite(residual_values).all():
+                failures.append(f&quot;{field_name} is nonfinite&quot;)
+                continue
+            maximum_residual = float(np.max(np.abs(residual_values)))
+            if maximum_residual &gt; tolerance:
+                failures.append(
+                    f&quot;{field_name}={maximum_residual:.3e} exceeds &quot;
+                    f&quot;{tolerance:.3e}&quot;
+                )
+
+        if failures:
+            raise RuntimeError(
+                &quot;Thermal-balance solution failed final closure: &quot;
+                + &quot;; &quot;.join(failures)
+            )</div>
+
+
+<div class="viewcode-block" id="ElectronThermalBalanceSolver.solve">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve">[docs]</a>
+    def solve(
+        self,
+        initial_guess: npt.NDArray[np.float64],
+        lower_bound: npt.NDArray[np.float64],
+        upper_bound: npt.NDArray[np.float64],
+    ) -&gt; tuple[npt.NDArray[np.float64], PlasmaEquilibriumEvaluation]:
+        &quot;&quot;&quot;
+        Solve jointly, then retry shells that fail final closure.
+
+        Parameters
+        ----------
+        initial_guess : numpy.ndarray
+            Initial interleaved electron-density fractions and temperature
+            ratios for each shell.
+        lower_bound : numpy.ndarray
+            Lower bounds for each value in `initial_guess`.
+        upper_bound : numpy.ndarray
+            Upper bounds for each value in `initial_guess`.
+
+        Returns
+        -------
+        accepted_candidate : numpy.ndarray
+            Interleaved electron-density fractions and temperature ratios from
+            the accepted joint and single-shell solves.
+        evaluation : tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation
+            Validated terminal equilibrium state for `accepted_candidate`.
+
+        Raises
+        ------
+        RuntimeError
+            If the joint failure cannot be attributed to individual charge or
+            heating residuals, or if shell-local retries do not restore final
+            closure.
+        &quot;&quot;&quot;
+        multiple_shell_result = self.solve_multiple_shells(
+            initial_guess, lower_bound, upper_bound
+        )
+        accepted_candidate = multiple_shell_result.x
+        evaluation = self.evaluate_candidate(accepted_candidate)
+        try:
+            self.validate_evaluation(evaluation)
+        except RuntimeError as joint_failure:
+            logger.warning(
+                &quot;Joint thermal balance failed final closure; retrying failed &quot;
+                &quot;electron/heating shells: %s&quot;,
+                joint_failure,
+            )
+            local_residual_limits = np.array(
+                [
+                    THERMAL_BALANCE_RESIDUAL_LIMITS[&quot;electron_residual&quot;],
+                    THERMAL_BALANCE_RESIDUAL_LIMITS[&quot;fractional_heating&quot;],
+                ]
+            )
+            electron_residual = evaluation.electron_residual.to_numpy()
+            fractional_heating = evaluation.fractional_heating.to_numpy()
+            failed_shells = np.flatnonzero(
+                ~np.isfinite(electron_residual)
+                | ~np.isfinite(fractional_heating)
+                | (np.abs(electron_residual) &gt; local_residual_limits[0])
+                | (np.abs(fractional_heating) &gt; local_residual_limits[1])
+            )
+            if not len(failed_shells):
+                raise
+            accepted_candidate = accepted_candidate.copy()
+            for shell_idx in failed_shells:
+                shell_result = self.solve_single_shell(
+                    shell_idx,
+                    accepted_candidate,
+                    initial_guess,
+                    lower_bound,
+                    upper_bound,
+                )
+                shell_slice = slice(2 * shell_idx, 2 * shell_idx + 2)
+                accepted_candidate[shell_slice] = shell_result.x
+
+            evaluation = self.evaluate_candidate(accepted_candidate)
+            self.validate_evaluation(evaluation)
+
+        return accepted_candidate, evaluation</div>
 </div>
 
 </pre></div>

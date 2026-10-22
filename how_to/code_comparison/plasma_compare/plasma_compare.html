@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=63c43dae"></script>
+      <script src="../../../_static/documentation_options.js?v=c2ac7b93"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1852,6 +1852,7 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.calculate_continuum_coefficients"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.calculate_continuum_coefficients()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.calculate_nebular_ionization_factor"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.calculate_nebular_ionization_factor()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.evaluate"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluator.evaluate()</span></code></a></li>
 </ul>
 </li>
@@ -1893,6 +1894,15 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.photoionization"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.photoionization</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.spontaneous_recombination"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.spontaneous_recombination</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.stimulated_recombination"><code class="docutils literal notranslate"><span class="pre">ContinuumRateCoefficients.stimulated_recombination</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.delta_treatment"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.delta_treatment</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.dilution_factor"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.dilution_factor</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.level_boltzmann_factor"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.level_boltzmann_factor</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.partition_function"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.partition_function</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.radiation_temperature"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.radiation_temperature</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.DiluteRadiationInputs.zeta_data"><code class="docutils literal notranslate"><span class="pre">DiluteRadiationInputs.zeta_data</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.LevelEquationRates"><code class="docutils literal notranslate"><span class="pre">LevelEquationRates</span></code></a><ul>
@@ -1971,6 +1981,16 @@
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html">tardis.plasma.equilibrium.thermal_balance module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_residual"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_residual()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.evaluate_candidate"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.evaluate_candidate()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.least_squares_settings"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.least_squares_settings</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_multiple_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_multiple_shells()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_single_shell"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_single_shell()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.validate_evaluation"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.validate_evaluation()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ThermalBalanceSolver</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ThermalBalanceSolver.solve"><code class="docutils literal notranslate"><span class="pre">ThermalBalanceSolver.solve()</span></code></a></li>
 </ul>
@@ -3967,6 +3987,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../io/hdf/index.html#extract-data-using-the-hdf5-libraries">Extract data using the HDF5 libraries</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows/iip_workflow/thermal_balance.html">Type IIP thermal balance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../workflows/iip_workflow/thermal_balance.html#species-treatment">Species treatment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../workflows/iip_workflow/thermal_balance.html#level-population-solve">Level-population solve</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../workflows/iip_workflow/thermal_balance.html#thermal-balance-solve">Thermal-balance solve</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
