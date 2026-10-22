@@ -248,7 +248,7 @@ class SDECPlotter:
             and self.packet_data[packets_mode]["packets_df"] is None
         ):
             raise ValueError(
-                "SDECPlotter doesn't have any data for virtual packets population and SDEC "
+                "SDECPlotter doesn't have any data for virtual packets number density and SDEC "
                 "plot for the same was requested. Either set virtual_packet_logging: True "
                 "in your configuration file to generate SDEC plot with virtual packets, or "
                 "pass packets_mode='real' in your function call to generate SDEC plot with "

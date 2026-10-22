@@ -7,7 +7,7 @@ from tardis.io.atom_data import AtomData
 import numpy as np
 import pandas as pd
 
-# Making 2 Figures for ionization balance and level populations
+# Making 2 Figures for ionization balance and level number densities
 
 plt.figure(1).clf()
 ax1 = plt.figure(1).add_subplot(111)
@@ -37,31 +37,31 @@ assert True, (
 lte_plasma = None
 lte_plasma.update_radiationfield([10000], [1.0])
 
-# Initializing a dataframe to store the ion populations  and level populations for the different temperatures
-ion_number_densities = pd.DataFrame(index=lte_plasma.ion_populations.index)
-level_populations = pd.DataFrame(
-    index=lte_plasma.level_populations.loc[14, 1].index
+# Initializing a dataframe to store the ion number densities  and level number densities for the different temperatures
+ion_number_densities = pd.DataFrame(index=lte_plasma.ion_number_densities.index)
+level_number_densities = pd.DataFrame(
+    index=lte_plasma.level_number_densities.loc[14, 1].index
 )
 t_rads = np.linspace(2000, 20000, 100)
 
-# Calculating the different ion populations and level populuatios for the given temperatures
+# Calculating the different ion number densities and level populuatios for the given temperatures
 for t_rad in t_rads:
     lte_plasma.update_radiationfield([t_rad], ws=[1.0])
     # getting total si number density
     si_number_density = lte_plasma.number_densities.get_value(14, 0)
-    # Normalizing the ion populations
-    ion_density = lte_plasma.ion_populations / si_number_density
+    # Normalizing the ion number densities
+    ion_density = lte_plasma.ion_number_densities / si_number_density
     ion_number_densities[t_rad] = ion_density
 
-    # normalizing the level_populations for Si II
-    current_level_population = lte_plasma.level_populations[0].loc[
+    # normalizing the level_number_densities for Si II
+    current_level_number_density = lte_plasma.level_number_densities[0].loc[
         14, 1
-    ] / lte_plasma.ion_populations.get_value((14, 1), 0)
+    ] / lte_plasma.ion_number_densities.get_value((14, 1), 0)
 
     # normalizing with statistical weight
-    current_level_population /= atom_data.levels.loc[14, 1].g
+    current_level_number_density /= atom_data.levels.loc[14, 1].g
 
-    level_populations[t_rad] = current_level_population
+    level_number_densities[t_rad] = current_level_number_density
 
 ion_colors = ["b", "g", "r", "k"]
 
@@ -82,8 +82,8 @@ t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, cmap=plt.cm.jet)
 
 for t_rad in t_rads[::5]:
     ax2.plot(
-        level_populations[t_rad].index,
-        level_populations[t_rad].values,
+        level_number_densities[t_rad].index,
+        level_number_densities[t_rad].values,
         color=t_rad_color_map.to_rgba(t_rad),
     )
     ax2.semilogy()

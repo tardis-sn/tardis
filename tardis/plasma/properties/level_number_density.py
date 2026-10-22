@@ -12,7 +12,7 @@ __all__ = ["LevelNumberDensity", "LevelNumberDensityHeNLTE"]
 
 class LevelNumberDensity(ProcessingPlasmaProperty):
     """
-    Calculates the level populations
+    Calculates the level number densities
 
     Attributes
     ----------
@@ -45,7 +45,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
         partition_function,
     ):
         """
-        Calculate the level populations from the level_boltzmann_factor,
+        Calculate the level number densities from the level_boltzmann_factor,
         ion_number_density and partition_function
         """
         if self.initialize_indices:
@@ -54,14 +54,14 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
         partition_function_broadcast = partition_function.values[
             self._ion2level_idx
         ]
-        level_population_fraction = (
+        fractional_level_number_density = (
             level_boltzmann_factor.values / partition_function_broadcast
         )
         ion_number_density_broadcast = ion_number_density.values[
             self._ion2level_idx
         ]
         level_number_density = (
-            level_population_fraction * ion_number_density_broadcast
+            fractional_level_number_density * ion_number_density_broadcast
         )
         return pd.DataFrame(
             level_number_density, index=level_boltzmann_factor.index
@@ -89,7 +89,7 @@ class LevelNumberDensityHeNLTE(LevelNumberDensity):
     ):
         """
         If one of the two helium NLTE methods is used, this updates
-        the helium level populations to the appropriate
+        the helium level number densities to the appropriate
         values.
         """
         level_number_density = self._calculate_dilute_lte(

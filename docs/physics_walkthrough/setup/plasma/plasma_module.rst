@@ -28,7 +28,7 @@ There are two types of properties:
   they need.
 
 For example, ``PhiSahaLTE`` (defined in
-``plasma/properties/ion_population.py``) has the function::
+``plasma/properties/ion_number_density.py``) has the function::
 
    calculate(g_electron, beta_rad, partition_function, ionization_data)
 
@@ -247,7 +247,7 @@ NLTE LU Solver Properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``NLTEIndexHelper``
-* ``NLTEPopulationSolverLU`` — Tested in ``test_nlte_solver`` but not
+* ``NLTENumberDensitySolverLU`` — Tested in ``test_nlte_solver`` but not
   exercised in full integration tests. This solver is not activated
   in standard simulation configurations.
 
@@ -264,7 +264,7 @@ NLTE Root Solver Properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``NLTEIndexHelper``
-* ``NLTEPopulationSolverRoot`` — Tested in ``test_nlte_solver`` but
+* ``NLTENumberDensitySolverRoot`` — Tested in ``test_nlte_solver`` but
   not exercised in full integration tests. This solver is not activated
   in standard simulation configurations.
 

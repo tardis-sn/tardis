@@ -33,7 +33,7 @@ Next, we calculate the rate of change of a level by adding up all outgoing and a
                         \underbrace{\sum_{i \ne j} r_{ji}}_\textrm{outgoing rate}
 
 In a statistical equilibrium, all incoming rates and outgoing rates add up to 0 (:math:`\frac{dn_j}{dt}=0`). We use this to
-calculate the level populations using the rate coefficients (:math:`r_ij, r_ji`).
+calculate the level number densities using the rate coefficients (:math:`r_ij, r_ji`).
 
 
 .. math::
@@ -65,7 +65,7 @@ calculate the level populations using the rate coefficients (:math:`r_ij, r_ji`)
     \right)
 
 
-with the additional constraint that all the level number populations need to add up to the current ion population :math:`N`, we change this to
+with the additional constraint that all the level number densities need to add up to the current ion number density :math:`N`, we change this to
 
 .. math::
 
@@ -96,7 +96,7 @@ with the additional constraint that all the level number populations need to add
     \right)
 
 
-For ion-stage populations at fixed electron temperature and radiation field,
+For ion-stage number densities at fixed electron temperature and radiation field,
 TARDIS uses the same statistical-equilibrium convention for each element. One
 dependent rate equation is replaced by elemental abundance conservation,
 
@@ -106,7 +106,7 @@ dependent rate equation is replaced by elemental abundance conservation,
 
 where :math:`y_{i,j}` is the fraction of element :math:`i` in ion stage
 :math:`j`. When charge conservation is requested, the elemental matrices remain
-linear in the ion populations at a trial electron density. TARDIS then solves
+linear in the ion number densities at a trial electron density. TARDIS then solves
 one bounded scalar equation for each shell so that all elements share the same
 electron density,
 
@@ -115,7 +115,7 @@ electron density,
     \sum_i N_i \sum_j j y_{i,j}(n_e) - n_e = 0.
 
 Continuum rates are assembled for every bound ion stage. A level in stage
-:math:`j` is paired with its continuum population in stage :math:`j + 1`, so
+:math:`j` is paired with its continuum number density in stage :math:`j + 1`, so
 multi-electron elements contribute through every supported ionization stage.
 The reverse rates use the level-to-continuum Saha factor from equation 14 of
 :cite:`Lucy2003`,
@@ -180,7 +180,7 @@ which can be written in matrix from:
     \end{matrix}
     \right)
 
-To solve for the level populations, we need an additional constraint: :math:`n_1 + n_2 + n_3 = N`. By setting :math:`N = 1`, we can get the relative rates:
+To solve for the level number densities, we need an additional constraint: :math:`n_1 + n_2 + n_3 = N`. By setting :math:`N = 1`, we can get the relative rates:
 
 .. math::
 
@@ -206,7 +206,7 @@ To solve for the level populations, we need an additional constraint: :math:`n_1
     \right)
 
 
-Now we go back and look at the rate coefficients used for a level population --- as an example :math:`\frac{dn_2}{dt}`:
+Now we go back and look at the rate coefficients used for a level number density --- as an example :math:`\frac{dn_2}{dt}`:
 
 .. math::
 
