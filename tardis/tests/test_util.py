@@ -35,15 +35,6 @@ def artis_abundances_fname(artis_data_dir):
 
 
 
-@pytest.fixture(scope="session")
-def monkeysession():
-    """
-    Creates a session-scoped fixture to be used to mock functions dependent on the user.
-    """
-    with pytest.MonkeyPatch.context() as mp:
-        yield mp
-
-
 def test_malformed_species_error():
     malformed_species_error = MalformedSpeciesError("He")
     assert malformed_species_error.malformed_element_symbol == "He"
