@@ -350,12 +350,19 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
         fractional_heating=pd.Series([0.0, 0.0]),
         total_heating=pd.Series([0.0, 0.0]),
     )
-    evaluator_calls = 0
+    # Each candidate is evaluated twice (seed, then terminal). The joint
+    # candidate fails and the retried candidate closes.
+    evaluations = [
+        failed_evaluation,
+        failed_evaluation,
+        closed_evaluation,
+        closed_evaluation,
+    ]
 
+    # Stand-in for the plasma evaluator, so the test controls which candidate
+    # closes without running a real equilibrium solve.
     def evaluate(*_args: object) -> SimpleNamespace:
-        nonlocal evaluator_calls
-        evaluator_calls += 1
-        return failed_evaluation if evaluator_calls <= 2 else closed_evaluation
+        return evaluations.pop(0)
 
     solver = ElectronThermalBalanceSolver(
         SimpleNamespace(evaluate=evaluate),
@@ -363,12 +370,11 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
         pd.DataFrame([[1.0, 1.0]]),
         np.array([2.0, 4.0]),
     )
-    validation_calls = 0
 
-    def validate(_evaluation: object) -> None:
-        nonlocal validation_calls
-        validation_calls += 1
-        if validation_calls == 1:
+    # The real validator needs fields the fake evaluations lack. Rejecting only
+    # the failed evaluation forces the solver down its shell-retry path.
+    def validate(evaluation: SimpleNamespace) -> None:
+        if evaluation is failed_evaluation:
             raise RuntimeError("joint closure failed")
 
     solver.validate_evaluation = validate

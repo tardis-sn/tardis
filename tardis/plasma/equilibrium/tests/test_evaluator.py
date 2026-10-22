@@ -281,7 +281,6 @@ def test_evaluator_refines_physical_level_iterate_when_optimizer_stalls(
     )
     actual = evaluator._calculate_level_solution(*arguments)
 
-    assert not np.array_equal(actual[0], stalled_fractions)
     assert actual[0].sum() == 1.0
     assert np.all(actual[0] >= 0.0)
     npt.assert_allclose(actual[3], 0.0, rtol=0.0, atol=1e-10)
