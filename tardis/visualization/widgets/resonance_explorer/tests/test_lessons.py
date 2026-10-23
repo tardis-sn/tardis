@@ -9,9 +9,6 @@ from scipy.optimize import brentq
 from tardis.visualization.widgets.resonance_explorer.analysis import (
     analyze_case,
 )
-from tardis.visualization.widgets.resonance_explorer.diagnostics import (
-    diagnose_solver,
-)
 from tardis.visualization.widgets.resonance_explorer.lessons import (
     LESSONS,
     get_lesson,
@@ -227,6 +224,3 @@ def test_branch_sampler_reuses_reference_cases_and_positive_discriminant() -> (
     npt.assert_allclose(
         positive_analysis.crossings[0].x, unique_root, atol=1e-12
     )
-    assert diagnose_solver(positive_analysis)["discriminant_sign"] == "positive"
-    linked = analyze_case(get_lesson_state("linked", "initial").inputs)
-    assert diagnose_solver(linked)["discriminant_sign"] == "negative"

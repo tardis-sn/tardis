@@ -528,4 +528,3 @@ _CASES = (
 )
 
 PRESETS: dict[str, Preset] = {case.name: case for case in _CASES}
-DEFAULT_PRESET = "linked three crossings"

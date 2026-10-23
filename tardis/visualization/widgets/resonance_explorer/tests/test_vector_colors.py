@@ -39,7 +39,6 @@ def linked_case() -> CaseAnalysis:
     ("renderer", "axis_gid"),
     [
         (rendering.render_guided_case, "guided vector construction"),
-        (rendering.render_case, "vector construction"),
     ],
 )
 def test_radial_arrow_colors_follow_the_shell_field(

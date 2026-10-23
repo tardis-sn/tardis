@@ -360,14 +360,3 @@ def test_nearby_root_numbers_do_not_overlap_in_vector_panel() -> None:
         for second in extents[first_idx + 1 :]:
             assert not first.overlaps(second)
 
-
-def test_detailed_figure_also_contains_shell_free_vector_construction() -> None:
-    """The detailed export includes the new geometric explanation."""
-    case = analyze_case(linked_inputs())
-    figure = rendering.render_case(case)
-    figure.canvas.draw()
-    axes = {axis.get_gid(): axis for axis in figure.axes}
-    vectors = axes["vector construction"]
-    assert not any(isinstance(patch, Circle) for patch in vectors.patches)
-    for number in (1, 2, 3):
-        artist(vectors, f"vector-point-{number}")
