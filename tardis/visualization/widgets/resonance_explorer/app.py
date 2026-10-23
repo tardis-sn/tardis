@@ -399,14 +399,3 @@ class ResonanceExplorerWidget:
             Lesson controls, linked plot, and decisions.
         """
         return self.layout
-
-
-def build_app() -> pn.layout.Row:
-    """Create an independent browser-session explorer layout.
-
-    Returns
-    -------
-    panel.layout.Row
-        Locally served lesson controls, linked figure, and decisions.
-    """
-    return ResonanceExplorerWidget().display()
