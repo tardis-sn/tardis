@@ -70,13 +70,13 @@ def _sample_flight(
 def _candidate_style(candidate: object) -> tuple[str, str, str]:
     """Choose marker shape, edge, and label from a candidate disposition."""
     if candidate.verified_event_eligible:
-        return "o", RED, "verified eligible crossing"
+        return "o", RED, "resonance on path"
     if candidate.accepted and not candidate.unsquared_verified:
-        return "X", UNVERIFIED, "production accepted, unsquared unverified"
+        return "X", UNVERIFIED, "root failing the original equation"
     if candidate.physical:
-        return "x", AMBER, "physical root, event excluded"
+        return "x", AMBER, "root not reached"
     if candidate.x is not None and np.isfinite(candidate.x):
-        return "^", MUTED, "squared-sign artifact"
+        return "^", MUTED, "wrong-sign root"
     return "", MUTED, "unavailable slot"
 
 
@@ -139,17 +139,26 @@ def _draw_event_guides(
 ) -> None:
     """Repeat event coordinates in the shared signed-x axes."""
     for ax in axes:
-        for coordinate, color, style in (
-            (analysis.inputs.x_0, INK, (0, (3, 2))),
-            (analysis.x_boundary, MUTED, (0, (3, 2))),
+        for coordinate, color, style, label in (
+            (analysis.inputs.x_0, INK, (0, (3, 2)), "launch position"),
+            (analysis.x_boundary, MUTED, (0, (3, 2)), "shell edge reached"),
             (
                 analysis.x_end,
                 STOP if analysis.x_end != analysis.x_boundary else MUTED,
                 (0, (2, 2)),
+                "flight end"
+                if analysis.x_end != analysis.x_boundary
+                else "shell edge reached",
             ),
         ):
             ax.axvline(
-                coordinate, color=color, lw=0.85, ls=style, alpha=0.65, zorder=1
+                coordinate,
+                color=color,
+                lw=0.85,
+                ls=style,
+                alpha=0.65,
+                zorder=1,
+                label=label,
             )
         for turn in analysis.turn_candidates:
             if np.isfinite(turn.x):
@@ -214,6 +223,7 @@ def _draw_turns(
                 edgecolors=color,
                 linewidths=1.4,
                 zorder=7,
+                label="G = 0 inflection" if inflection else "G = 0",
             )
             artist.set_gid(f"turn-{turn_idx}")
         if turn in analysis.analytic_contacts:
@@ -231,6 +241,7 @@ def _draw_turns(
                     edgecolors=GREEN,
                     linewidths=1.6,
                     zorder=9,
+                    label="target touches curve",
                 )
                 artist.set_gid(f"target-contact-{turn_idx}")
 
@@ -259,9 +270,10 @@ def _draw_candidates(
             edgecolors=MUTED,
             linewidths=1.1,
             zorder=7,
+            label="quartic root position",
         )
         raw_marker.set_gid(f"raw-slot-{candidate.slot_idx}")
-        marker, color, _ = _candidate_style(candidate)
+        marker, color, label = _candidate_style(candidate)
         if not marker:
             continue
         # Numbered crossings own the prominent marker; raw-slot artifacts and
@@ -282,6 +294,7 @@ def _draw_candidates(
                         color=color,
                         linewidths=1.2,
                         zorder=8,
+                        label=label,
                     )
                 else:
                     artist = ax.scatter(
@@ -293,6 +306,7 @@ def _draw_candidates(
                         edgecolors=color,
                         linewidths=1.2,
                         zorder=8,
+                        label=label,
                     )
                 artist.set_gid(f"candidate-slot-{candidate.slot_idx}")
         if candidate.slot_idx == selected_slot_index:
@@ -342,6 +356,7 @@ def _draw_candidates(
                 edgecolors=RED,
                 linewidths=1.4,
                 zorder=9,
+                label="resonance on path (numbered)",
             )
             artist.set_gid(f"crossing-{number}")
             ax.annotate(
@@ -370,6 +385,7 @@ def _draw_candidates(
                 edgecolors=INK,
                 linewidths=1.7,
                 zorder=9.5,
+                label="first resonance on path",
             )
             marker.set_gid("nearest-verified-line")
 
@@ -872,7 +888,7 @@ def render_guided_case(
 
     figure = Figure(figsize=(12.8, 8.4), dpi=130, facecolor="white")
     FigureCanvasAgg(figure)
-    projected_ax = figure.add_axes((0.07, 0.32, 0.64, 0.62))
+    projected_ax = figure.add_axes((0.07, 0.32, 0.64, 0.56))
     gradient_ax = figure.add_axes((0.07, 0.09, 0.64, 0.16), sharex=projected_ax)
     geometry_ax = figure.add_axes((0.75, 0.64, 0.22, 0.30))
     vector_ax = figure.add_axes((0.75, 0.31, 0.22, 0.30))
@@ -909,8 +925,8 @@ def render_guided_case(
     projected_ax.set_ylim(*padded_limits(projected_extrema))
     gradient_ax.set_ylim(*padded_limits(gradient_extrema))
     projected_ax.set_ylabel("projected velocity  v∥(x)", fontsize=9)
-    projected_ax.set_title(
-        "Which forward crossings meet the line target?", loc="left", fontsize=12
+    figure.text(
+        0.07, 0.975, "Which forward crossings meet the line target?", fontsize=12
     )
     projected_ax.annotate(
         f"line target w = {inputs.w:.6g}",
@@ -976,8 +992,6 @@ def render_guided_case(
         active_coordinates, active_gradient, color=GREEN, lw=2.5, zorder=4
     )
     active_gradient_artist.set_gid("active-gradient")
-    if reference is not None and show_reference:
-        projected_ax.legend(loc="upper left", fontsize=8, frameon=False)
 
     speed_scale = max(abs(value) for value in radial_extrema) or 1e-9
     color_norm = TwoSlopeNorm(vmin=-speed_scale, vcenter=0, vmax=speed_scale)
@@ -1076,6 +1090,18 @@ def render_guided_case(
     _draw_event_guides(linked_axes, primary)
     _draw_turns(linked_axes, primary)
     _draw_candidates(linked_axes, primary, selected_slot_index)
+    handles, labels = projected_ax.get_legend_handles_labels()
+    legend = dict(zip(labels, handles, strict=True))
+    projected_ax.legend(
+        legend.values(),
+        legend.keys(),
+        loc="upper left",
+        bbox_to_anchor=(0.07, 0.955),
+        bbox_transform=figure.transFigure,
+        fontsize=8,
+        frameon=False,
+        ncols=4,
+    )
     draw_projection_construction(
         vector_ax,
         primary,
