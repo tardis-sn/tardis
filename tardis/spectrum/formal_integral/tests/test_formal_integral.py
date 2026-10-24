@@ -18,6 +18,7 @@ from tardis.spectrum.formal_integral.formal_integral_numba import (
 )
 from tardis.spectrum.formal_integral.formal_integral_solver import (
     FormalIntegralSolver,
+    integrate_luminosity_density,
 )
 from tardis.spectrum.formal_integral.source_function import SourceFunctionState
 
@@ -37,9 +38,7 @@ def test_check_formal_integral_requirements(
     assert check_formal_integral_requirements(sim_state, plasma, transport)
 
     # should return false
-    warning_match = (
-        "The integrator is missing either model, opacity state or transport"
-    )
+    warning_match = "The integrator is missing either model, opacity state or transport"
     with pytest.warns(UserWarning, match=warning_match):
         assert not check_formal_integral_requirements(
             None, plasma, transport, raises=False
@@ -131,3 +130,37 @@ def test_calculate_p_values(N):
     # actual_cuda = np.zeros_like(expected, dtype=np.float64)
     # actual_cuda[::] = calculate_impact_parameters_cuda(r, N)
     # ntest.assert_allclose(actual_cuda, expected)
+
+
+def test_integrate_luminosity_density_uniform_grid():
+    """On a uniform grid, per-bin integration matches the constant-step rule."""
+    densities = np.full(50, 5.0)
+    frequencies = np.linspace(1e14, 2e14, 50) * u.Hz
+
+    _, luminosity = integrate_luminosity_density(densities, frequencies)
+
+    delta_frequency = frequencies[1] - frequencies[0]
+    expected = u.Quantity(densities, u.erg / u.s / u.Hz) * delta_frequency
+    ntest.assert_allclose(
+        luminosity.to_value(u.erg / u.s),
+        expected.to_value(u.erg / u.s),
+        rtol=1e-12,
+    )
+
+
+def test_integrate_luminosity_density_nonuniform_grid():
+    """A wavelength-defined grid integrates to a positive, finite luminosity.
+
+    The grid maps to a non-uniform, descending frequency grid; the previous
+    constant-step rule produced a negative luminosity there.
+    """
+    densities = np.full(50, 5.0)
+    wavelengths = np.linspace(3000, 7000, 50) * u.AA
+
+    frequency_edges, luminosity = integrate_luminosity_density(densities, wavelengths)
+
+    assert len(frequency_edges) == len(luminosity) + 1
+    assert frequency_edges.unit.is_equivalent(u.Hz)
+    luminosity_values = luminosity.to_value(u.erg / u.s)
+    assert np.all(luminosity_values > 0)
+    assert np.all(np.isfinite(luminosity_values))

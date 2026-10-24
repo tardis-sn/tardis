@@ -22,6 +22,56 @@ from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 logger = logging.getLogger(__name__)
 
 
+def integrate_luminosity_density(luminosity_densities, frequencies):
+    """Integrate formal-integral luminosity densities over a frequency grid.
+
+    Each luminosity density is integrated over its own frequency bin width, so
+    non-uniform grids (for example a wavelength-defined grid, which maps to a
+    non-uniform and descending frequency grid) are handled correctly. On a
+    uniform grid every bin has the same width and this reduces to the previous
+    constant-step result.
+
+    Parameters
+    ----------
+    luminosity_densities : numpy.ndarray or astropy.units.Quantity
+        Luminosity density per unit frequency for each grid point, in
+        erg / s / Hz.
+    frequencies : astropy.units.Quantity
+        The frequency (or wavelength) grid the densities are defined on.
+
+    Returns
+    -------
+    frequency_edges : astropy.units.Quantity
+        The grid converted to bin edges in Hz, with one extra edge appended so
+        there is one edge per density value.
+    luminosity : astropy.units.Quantity
+        The integrated luminosity per bin, in erg / s.
+    """
+    luminosity_densities = np.array(luminosity_densities, dtype=np.float64)
+
+    frequencies = frequencies.to("Hz", u.spectral())
+
+    # Convert the frequency grid to bin edges, extending the final bin by its
+    # own width so there is one edge per luminosity density value.
+    frequency_edges = u.Quantity(
+        np.concatenate(
+            [
+                frequencies.value,
+                [frequencies.value[-1] + np.diff(frequencies.value)[-1]],
+            ]
+        ),
+        frequencies.unit,
+    )
+
+    # abs() keeps the widths positive when a wavelength grid maps to a
+    # descending frequency grid.
+    bin_widths = np.abs(np.diff(frequency_edges))
+
+    luminosity = u.Quantity(luminosity_densities, u.erg / u.s / u.Hz) * bin_widths
+
+    return frequency_edges, luminosity
+
+
 class FormalIntegralSolver:
     """
     Formal integral solver for TARDIS spectra.
@@ -292,32 +342,11 @@ class FormalIntegralSolver:
             points,
         )
 
-        luminosity_densities = np.array(luminosity_densities, dtype=np.float64)
-        delta_frequency = frequencies[1] - frequencies[0]
-
-        assert np.allclose(
-            frequencies.diff(), delta_frequency, atol=0, rtol=1e-12
-        ), "Frequency grid must be uniform"
-
-        luminosity = (
-            u.Quantity(luminosity_densities, u.erg / u.s / u.Hz)
-            * delta_frequency
+        frequency_edges, luminosity = integrate_luminosity_density(
+            luminosity_densities, frequencies
         )
 
-        frequencies = frequencies.to("Hz", u.spectral())
-
-        # Ugly hack to convert to 'bin edges'
-        frequencies = u.Quantity(
-            np.concatenate(
-                [
-                    frequencies.value,
-                    [frequencies.value[-1] + np.diff(frequencies.value)[-1]],
-                ]
-            ),
-            frequencies.unit,
-        )
-
-        return TARDISSpectrum(frequencies, luminosity)
+        return TARDISSpectrum(frequency_edges, luminosity)
 
     def interpolate_integrator_quantities(
         self,
@@ -369,9 +398,7 @@ class FormalIntegralSolver:
 
         r_middle_original = (r_inner_original + r_outer_original) / 2.0
 
-        r_middle_interpolated = (
-            r_inner_interpolated + r_outer_interpolated
-        ) / 2.0
+        r_middle_interpolated = (r_inner_interpolated + r_outer_interpolated) / 2.0
 
         electron_densities_interpolated = interp1d(
             r_middle_original,
