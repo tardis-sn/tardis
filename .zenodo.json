@@ -98,10 +98,10 @@
       "name": "Arya, Atharva"
     },
     {
-      "name": "Smith, Isaac"
+      "name": "Shields, Joshua"
     },
     {
-      "name": "Shields, Joshua"
+      "name": "Smith, Isaac"
     },
     {
       "name": "Cawley, Kevin"
@@ -118,10 +118,10 @@
       "name": "Barbosa, Talytha"
     },
     {
-      "name": "O'Brien, Jack"
+      "name": "Yu, Jenny"
     },
     {
-      "name": "Yu, Jenny"
+      "name": "O'Brien, Jack"
     },
     {
       "name": "Sondhi, Dhruv"
@@ -149,6 +149,14 @@
       "affiliation": "University of Oxford"
     },
     {
+      "name": "Marie Lynn, Haille"
+    },
+    {
+      "name": "McClellan, Connor",
+      "orcid": "0000-0002-6040-8281",
+      "affiliation": "University of Virginia"
+    },
+    {
       "name": "Gupta, Sumit"
     },
     {
@@ -158,14 +166,11 @@
       "name": "Singh, Shreyas"
     },
     {
-      "name": "Marie Lynn, Haille"
+      "name": "Shah, Swayam",
+      "orcid": "0009-0005-8092-547X"
     },
     {
       "name": "Eweis, Youssef"
-    },
-    {
-      "name": "Shah, Swayam",
-      "orcid": "0009-0005-8092-547X"
     },
     {
       "name": "Reinecke, Martin"
@@ -174,27 +179,16 @@
       "name": "Holas, Alexander"
     },
     {
-      "name": "McClellan, Connor",
-      "orcid": "0000-0002-6040-8281",
-      "affiliation": "University of Virginia"
+      "name": "Visser, Erin"
     },
     {
       "name": "Bylund, Tomas"
-    },
-    {
-      "name": "Visser, Erin"
     },
     {
       "name": "Bentil, Laud"
     },
     {
       "name": "Black, William"
-    },
-    {
-      "name": "Groneck, Ryan"
-    },
-    {
-      "name": "Lu, Jing"
     },
     {
       "name": "Kumar, Asish"
@@ -206,6 +200,12 @@
       "name": "Saraf, Shreyans"
     },
     {
+      "name": "Groneck, Ryan"
+    },
+    {
+      "name": "Lu, Jing"
+    },
+    {
       "name": "Eguren, Jordi",
       "orcid": "0000-0002-2328-8030"
     },
@@ -213,25 +213,25 @@
       "name": "Bartnik, Matthew"
     },
     {
-      "name": "Srivastava, Sarthak"
-    },
-    {
       "name": "Kumar, Ansh"
     },
     {
-      "name": "Alam, Arib"
-    },
-    {
-      "name": "Magee, Mark"
+      "name": "Srivastava, Sarthak"
     },
     {
       "name": "Varma Buddaraju, Rohith"
     },
     {
-      "name": "Kambham, Satwik"
+      "name": "Magee, Mark"
+    },
+    {
+      "name": "Alam, Arib"
     },
     {
       "name": "Daksh, Ayushi"
+    },
+    {
+      "name": "Kambham, Satwik"
     },
     {
       "name": "Livneh, Ran"
