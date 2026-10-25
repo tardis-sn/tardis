@@ -1,0 +1,18 @@
+tardis.plasma.electron\_energy\_distribution package
+====================================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.plasma.electron_energy_distribution.base
+
+Module contents
+---------------
+
+.. automodule:: tardis.plasma.electron_energy_distribution
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+tardis.opacities.continuum.continuum\_state\_numba module
+=========================================================
+
+.. automodule:: tardis.opacities.continuum.continuum_state_numba
+   :members:
+   :show-inheritance:
+   :undoc-members:
