@@ -11,6 +11,7 @@ from tardisbase.testing.regression_data.regression_data import RegressionData
 from tardis import constants as const
 from tardis.io.atom_data import AtomData
 from tardis.plasma.equilibrium.rates import ThermalCollisionalRateSolver
+from tardis.plasma.equilibrium.rates.collisional_rates import BETA_COLL
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
 from tardis.plasma.radiation_field.planck_rad_field import (
     DilutePlanckianRadiationField,
@@ -301,3 +302,55 @@ def test_regemorter_collision_rates_sum_lines_sharing_a_level_pair() -> None:
     )
 
     pdt.assert_frame_equal(split_rates, merged_rates, rtol=1e-12, atol=0.0)
+
+
+def test_collisional_deexcitation_stays_finite_when_boltzmann_factor_underflows() -> (
+    None
+):
+    """Keep de-excitation finite for gaps far above the thermal energy.
+
+    Claim: the downward rate coefficient is (g_l / g_u) beta / sqrt(T) Y/g_l,
+    independent of the Boltzmann factor, even when exp(-dE/kT) underflows.
+    Regime: dE/kT ~ 2400, as for highly ionized species at a few 1000 K.
+    Verification: analytic, from a temperature-independent tabulated strength;
+    rtol=1e-12 covers floating-point round-off only.
+    """
+    level_names = ["atomic_number", "ion_number", "level_number"]
+    line_names = [
+        "atomic_number",
+        "ion_number",
+        "level_number_lower",
+        "level_number_upper",
+    ]
+    levels = pd.DataFrame(
+        {"energy": [0.0, 1.0e-9], "g": [2.0, 6.0]},
+        index=pd.MultiIndex.from_tuples([(7, 5, 0), (7, 5, 1)], names=level_names),
+    )
+    pair_index = pd.MultiIndex.from_tuples([(7, 5, 0, 1)], names=line_names)
+    lines = pd.DataFrame(
+        {"f_lu": [0.5], "nu": [1.0e-9 / const.h.cgs.value]}, index=pair_index
+    )
+    collision_temperatures = np.array([2000.0, 5000.0, 10000.0])
+    tabulated_strength = 0.25
+    electron_temperatures = np.array([3000.0, 6000.0]) * u.K
+
+    rates = ThermalCollisionalRateSolver(
+        levels,
+        lines,
+        collision_temperatures,
+        pd.DataFrame(
+            [[tabulated_strength] * 3],
+            index=pair_index,
+            columns=collision_temperatures,
+        ),
+        collision_strengths_type="cmfgen",
+    ).solve(electron_temperatures)
+
+    expected_downward = (
+        (2.0 / 6.0)
+        * (BETA_COLL / np.sqrt(electron_temperatures)).to_value("cm3 / s")
+        * tabulated_strength
+    )
+    npt.assert_allclose(
+        rates.loc[(7, 5, 5, 5, 1, 0)].to_numpy(), expected_downward, rtol=1e-12
+    )
