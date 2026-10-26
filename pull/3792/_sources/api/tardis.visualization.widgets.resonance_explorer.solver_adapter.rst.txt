@@ -1,0 +1,7 @@
+tardis.visualization.widgets.resonance\_explorer.solver\_adapter module
+=======================================================================
+
+.. automodule:: tardis.visualization.widgets.resonance_explorer.solver_adapter
+   :members:
+   :show-inheritance:
+   :undoc-members:

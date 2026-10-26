@@ -1,0 +1,7 @@
+tardis.visualization.widgets.resonance\_explorer.geometry module
+================================================================
+
+.. automodule:: tardis.visualization.widgets.resonance_explorer.geometry
+   :members:
+   :show-inheritance:
+   :undoc-members:

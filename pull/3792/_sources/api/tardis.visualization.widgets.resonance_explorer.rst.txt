@@ -1,0 +1,25 @@
+tardis.visualization.widgets.resonance\_explorer package
+========================================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.visualization.widgets.resonance_explorer.analysis
+   tardis.visualization.widgets.resonance_explorer.app
+   tardis.visualization.widgets.resonance_explorer.geometry
+   tardis.visualization.widgets.resonance_explorer.lessons
+   tardis.visualization.widgets.resonance_explorer.model
+   tardis.visualization.widgets.resonance_explorer.presets
+   tardis.visualization.widgets.resonance_explorer.render
+   tardis.visualization.widgets.resonance_explorer.solver_adapter
+
+Module contents
+---------------
+
+.. automodule:: tardis.visualization.widgets.resonance_explorer
+   :members:
+   :show-inheritance:
+   :undoc-members:

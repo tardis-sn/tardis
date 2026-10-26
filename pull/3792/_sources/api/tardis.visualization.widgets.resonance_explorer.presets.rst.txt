@@ -1,0 +1,7 @@
+tardis.visualization.widgets.resonance\_explorer.presets module
+===============================================================
+
+.. automodule:: tardis.visualization.widgets.resonance_explorer.presets
+   :members:
+   :show-inheritance:
+   :undoc-members:

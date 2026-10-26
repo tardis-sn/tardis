@@ -1,0 +1,7 @@
+tardis.visualization.widgets.resonance\_explorer.lessons module
+===============================================================
+
+.. automodule:: tardis.visualization.widgets.resonance_explorer.lessons
+   :members:
+   :show-inheritance:
+   :undoc-members:
