@@ -25,6 +25,20 @@ class RadiativeRatesSolver:
             einstein_coefficients.index.get_level_values("level_number_lower")
             < einstein_coefficients.index.get_level_values("level_number_upper")
         )
+        # Escape probabilities are matched to transitions by level pair.
+        if einstein_coefficients.index.has_duplicates:
+            duplicate_species = (
+                einstein_coefficients.index[
+                    einstein_coefficients.index.duplicated()
+                ]
+                .droplevel(["level_number_lower", "level_number_upper"])
+                .unique()
+                .tolist()
+            )
+            raise NotImplementedError(
+                "Multiple lines between the same pair of levels are not "
+                f"supported for bound-bound rates of species {duplicate_species}."
+            )
         self.einstein_coefficients = einstein_coefficients.sort_index(
             kind=SORTING_ALGORITHM
         )

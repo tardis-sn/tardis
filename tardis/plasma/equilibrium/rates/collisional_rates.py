@@ -221,6 +221,13 @@ class ThermalCollisionalRateSolver:
                     temperatures_electron
                 )
             )
+            # Lines sharing a level pair add to that pair's collision strength.
+            if thermal_collision_strength_approximated.index.has_duplicates:
+                thermal_collision_strength_approximated = (
+                    thermal_collision_strength_approximated.groupby(
+                        level=thermal_collision_strength_approximated.index.names
+                    ).sum()
+                )
 
         return pd.concat(
             [

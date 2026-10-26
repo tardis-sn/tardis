@@ -125,6 +125,27 @@ def test_radiative_rates_use_fixed_j_blues_and_candidate_beta(
     )
 
 
+def test_radiative_rates_reject_multiple_lines_between_one_level_pair(
+    transition_index: pd.MultiIndex,
+) -> None:
+    """Refuse lines that share a level pair instead of misassigning beta.
+
+    Orchestration: each radiative transition is matched to one Sobolev escape
+    probability by its level pair, which is ambiguous for duplicate pairs.
+    """
+    einstein_data = pd.DataFrame(
+        {
+            "A_ul": [7.0, 9.0],
+            "B_ul": [3.0, 4.0],
+            "B_lu": [5.0, 6.0],
+            "nu": [1.0e15, 1.0e15],
+        },
+        index=transition_index.repeat(2),
+    )
+    with pytest.raises(NotImplementedError, match=r"\(1, 0\)"):
+        RadiativeRatesSolver(einstein_data)
+
+
 def test_radiative_rates_scale_linearly_with_dilution(
     real_einstein_data: pd.DataFrame,
 ) -> None:
@@ -221,3 +242,62 @@ def test_collisional_coefficients_satisfy_detailed_balance_and_temperature_scali
     ) * np.exp(-delta_energy / (const.k_B.cgs.value * temperatures))
     # Detailed balance combines statistical weights and the Boltzmann factor.
     npt.assert_allclose(upward / downward, expected_ratio, rtol=1e-10)
+
+
+def test_regemorter_collision_rates_sum_lines_sharing_a_level_pair() -> None:
+    """Combine Regemorter strengths of lines that share one level pair.
+
+    Claim: two radiative lines between the same levels give the collisional
+    rate of a single line carrying their summed oscillator strength.
+    Regime: van Regemorter approximation, lines at a common frequency, with
+    a tabulated strength on a different pair.
+    Verification: metamorphic; the Regemorter strength is linear in f_lu at
+    fixed frequency, so rtol=1e-12 covers summation round-off only.
+    """
+    level_names = ["atomic_number", "ion_number", "level_number"]
+    line_names = [
+        "atomic_number",
+        "ion_number",
+        "level_number_lower",
+        "level_number_upper",
+    ]
+    levels = pd.DataFrame(
+        {"energy": [0.0, 1.6e-11, 1.9e-11], "g": [2.0, 8.0, 18.0]},
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0, 0), (1, 0, 1), (1, 0, 2)], names=level_names
+        ),
+    )
+    nu_01 = 1.6e-11 / const.h.cgs.value
+    nu_12 = 0.3e-11 / const.h.cgs.value
+    collision_temperatures = np.array([5000.0, 10000.0, 20000.0])
+    tabulated_strengths = pd.DataFrame(
+        [[0.2, 0.3, 0.4]],
+        index=pd.MultiIndex.from_tuples([(1, 0, 1, 2)], names=line_names),
+        columns=collision_temperatures,
+    )
+    split_lines = pd.DataFrame(
+        {"f_lu": [0.3, 0.1, 0.6], "nu": [nu_01, nu_01, nu_12]},
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0, 0, 1), (1, 0, 0, 1), (1, 0, 1, 2)], names=line_names
+        ),
+    )
+    merged_lines = pd.DataFrame(
+        {"f_lu": [0.4, 0.6], "nu": [nu_01, nu_12]},
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0, 0, 1), (1, 0, 1, 2)], names=line_names
+        ),
+    )
+    electron_temperatures = np.array([8000.0, 12000.0]) * u.K
+
+    split_rates, merged_rates = (
+        ThermalCollisionalRateSolver(
+            levels,
+            lines,
+            collision_temperatures,
+            tabulated_strengths,
+            collision_strengths_type="cmfgen",
+        ).solve(electron_temperatures)
+        for lines in (split_lines, merged_lines)
+    )
+
+    pdt.assert_frame_equal(split_rates, merged_rates, rtol=1e-12, atol=0.0)
