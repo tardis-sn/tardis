@@ -30,6 +30,7 @@ from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
     tracker_full_df2tracker_last_interaction_df,
     trackers_full_to_df,
+    trackers_full_to_last_interaction_df,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import (
     generate_tracker_last_interaction_list,
@@ -257,13 +258,19 @@ class MCTransportSolverClassic(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
 
-        if self.enable_rpacket_tracking or number_of_vpackets > 0:
-            tracker_full_df = trackers_full_to_df(trackers_list)
-            self.transport_state.tracker_full_df = (
-                tracker_full_df if self.enable_rpacket_tracking else None
+        if self.enable_rpacket_tracking:
+            self.transport_state.tracker_full_df = trackers_full_to_df(
+                trackers_list, release_trackers=True
             )
             self.transport_state.tracker_last_interaction_df = (
-                tracker_full_df2tracker_last_interaction_df(tracker_full_df)
+                tracker_full_df2tracker_last_interaction_df(
+                    self.transport_state.tracker_full_df
+                )
+            )
+        elif number_of_vpackets > 0:
+            self.transport_state.tracker_full_df = None
+            self.transport_state.tracker_last_interaction_df = (
+                trackers_full_to_last_interaction_df(trackers_list)
             )
         else:
             self.transport_state.tracker_full_df = None

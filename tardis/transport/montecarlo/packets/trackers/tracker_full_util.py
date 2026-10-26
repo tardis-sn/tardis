@@ -14,7 +14,9 @@ from tardis.transport.montecarlo.packets.trackers.tracker_full import (
 
 
 @njit
-def trackers_full_list_to_arrays(trackers) -> tuple:
+def trackers_full_list_to_arrays(
+    trackers: TypedList, release_trackers: bool = False
+) -> tuple:
     """
     Convert a list of TrackerFull instances to concatenated arrays efficiently.
 
@@ -22,6 +24,39 @@ def trackers_full_list_to_arrays(trackers) -> tuple:
     ----------
     trackers : numba.typed.typedlist.List
         List of TrackerFull instances.
+
+    Returns
+    -------
+    tuple
+        Event arrays as returned by ``trackers_full_list_to_selected_arrays``.
+    """
+    event_starts = np.zeros(len(trackers), dtype=np.int64)
+    event_counts = np.empty(len(trackers), dtype=np.int64)
+    for packet_idx, tracker in enumerate(trackers):
+        event_counts[packet_idx] = len(tracker.radius)
+    return trackers_full_list_to_selected_arrays(
+        trackers, event_starts, event_counts, release_trackers
+    )
+
+
+@njit
+def trackers_full_list_to_selected_arrays(
+    trackers: TypedList,
+    event_starts: np.ndarray,
+    event_counts: np.ndarray,
+    release_trackers: bool = False,
+) -> tuple:
+    """
+    Concatenate a contiguous range of events from each TrackerFull.
+
+    Parameters
+    ----------
+    trackers : numba.typed.typedlist.List
+        List of TrackerFull instances.
+    event_starts : numpy.ndarray
+        First event index taken from each tracker.
+    event_counts : numpy.ndarray
+        Number of events taken from each tracker.
 
     Returns
     -------
@@ -43,10 +78,7 @@ def trackers_full_list_to_arrays(trackers) -> tuple:
         - line_absorb_id (np.int64[:]) : Line absorb ID
         - line_emit_id (np.int64[:]) : Line emit ID
     """
-    # Calculate total array size
-    total_events = 0
-    for tracker in trackers:
-        total_events += len(tracker.radius)
+    total_events = event_counts.sum()
 
     # Pre-allocate all arrays
     packet_id = np.empty(total_events, dtype=np.int64)
@@ -68,25 +100,42 @@ def trackers_full_list_to_arrays(trackers) -> tuple:
     # Concatenate arrays from all trackers
     offset = 0
     for packet_idx, tracker in enumerate(trackers):
-        n_events = len(tracker.radius)
-        end_idx = offset + n_events
+        start = event_starts[packet_idx]
+        stop = start + event_counts[packet_idx]
+        end_idx = offset + event_counts[packet_idx]
 
         # Simple array concatenation
         packet_id[offset:end_idx] = packet_idx
-        event_id[offset:end_idx] = np.arange(n_events, dtype=np.int64)
-        radius[offset:end_idx] = tracker.radius
-        before_shell_id[offset:end_idx] = tracker.before_shell_id
-        after_shell_id[offset:end_idx] = tracker.after_shell_id
-        interaction_type[offset:end_idx] = tracker.interaction_type
-        status[offset:end_idx] = tracker.status
-        before_nu[offset:end_idx] = tracker.before_nu
-        before_mu[offset:end_idx] = tracker.before_mu
-        before_energy[offset:end_idx] = tracker.before_energy
-        after_nu[offset:end_idx] = tracker.after_nu
-        after_mu[offset:end_idx] = tracker.after_mu
-        after_energy[offset:end_idx] = tracker.after_energy
-        line_absorb_id[offset:end_idx] = tracker.line_absorb_id
-        line_emit_id[offset:end_idx] = tracker.line_emit_id
+        event_id[offset:end_idx] = np.arange(start, stop, dtype=np.int64)
+        radius[offset:end_idx] = tracker.radius[start:stop]
+        before_shell_id[offset:end_idx] = tracker.before_shell_id[start:stop]
+        after_shell_id[offset:end_idx] = tracker.after_shell_id[start:stop]
+        interaction_type[offset:end_idx] = tracker.interaction_type[start:stop]
+        status[offset:end_idx] = tracker.status[start:stop]
+        before_nu[offset:end_idx] = tracker.before_nu[start:stop]
+        before_mu[offset:end_idx] = tracker.before_mu[start:stop]
+        before_energy[offset:end_idx] = tracker.before_energy[start:stop]
+        after_nu[offset:end_idx] = tracker.after_nu[start:stop]
+        after_mu[offset:end_idx] = tracker.after_mu[start:stop]
+        after_energy[offset:end_idx] = tracker.after_energy[start:stop]
+        line_absorb_id[offset:end_idx] = tracker.line_absorb_id[start:stop]
+        line_emit_id[offset:end_idx] = tracker.line_emit_id[start:stop]
+
+        if release_trackers:
+            tracker.radius = np.empty(0, dtype=np.float64)
+            tracker.before_shell_id = np.empty(0, dtype=np.int64)
+            tracker.after_shell_id = np.empty(0, dtype=np.int64)
+            tracker.interaction_type = np.empty(0, dtype=np.int64)
+            tracker.status = np.empty(0, dtype=np.int64)
+            tracker.before_nu = np.empty(0, dtype=np.float64)
+            tracker.before_mu = np.empty(0, dtype=np.float64)
+            tracker.before_energy = np.empty(0, dtype=np.float64)
+            tracker.after_nu = np.empty(0, dtype=np.float64)
+            tracker.after_mu = np.empty(0, dtype=np.float64)
+            tracker.after_energy = np.empty(0, dtype=np.float64)
+            tracker.line_absorb_id = np.empty(0, dtype=np.int64)
+            tracker.line_emit_id = np.empty(0, dtype=np.int64)
+            tracker.next_line_id = np.empty(0, dtype=np.int64)
 
         offset = end_idx
 
@@ -109,7 +158,9 @@ def trackers_full_list_to_arrays(trackers) -> tuple:
     )
 
 
-def trackers_full_to_df(trackers_full_list) -> pd.DataFrame:
+def trackers_full_to_df(
+    trackers_full_list: TypedList, release_trackers: bool = False
+) -> pd.DataFrame:
     """
     Convert a list of RPacketTracker instances to a comprehensive DataFrame.
 
@@ -125,7 +176,25 @@ def trackers_full_to_df(trackers_full_list) -> pd.DataFrame:
         indexed by packet_id and event_id. Line interaction columns have default
         values (-1 for IDs, NaN for physical quantities) for non-interaction events.
     """
-    # Use the fast array extraction function
+    return event_arrays_to_df(
+        trackers_full_list_to_arrays(trackers_full_list, release_trackers)
+    )
+
+
+def event_arrays_to_df(event_arrays: tuple) -> pd.DataFrame:
+    """
+    Build the full-tracker DataFrame from concatenated event arrays.
+
+    Parameters
+    ----------
+    event_arrays : tuple
+        Event arrays as returned by ``trackers_full_list_to_selected_arrays``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Event DataFrame indexed by packet_id and event_id.
+    """
     (
         packet_id,
         event_id,
@@ -142,7 +211,7 @@ def trackers_full_to_df(trackers_full_list) -> pd.DataFrame:
         after_energy,
         line_absorb_id,
         line_emit_id,
-    ) = trackers_full_list_to_arrays(trackers_full_list)
+    ) = event_arrays
 
     # Create categorical data types
     interaction_type_dtype = CategoricalDtype(
@@ -152,19 +221,24 @@ def trackers_full_to_df(trackers_full_list) -> pd.DataFrame:
         categories=[member.name for member in PacketStatus], ordered=False
     )
 
-    # Convert enum values to their string names and create categorical
-    interaction_type_labels = [
-        InteractionType(int(int_type)).name for int_type in interaction_type
-    ]
-    interaction_type_categorical = pd.Categorical(
-        interaction_type_labels, dtype=interaction_type_dtype
+    # Map enum values (non-contiguous, NO_INTERACTION = -1) to category codes
+    interaction_type_offset = min(InteractionType)
+    interaction_type_codes = np.full(
+        max(InteractionType) - interaction_type_offset + 1, -1, dtype=np.int8
+    )
+    for category_idx, member in enumerate(InteractionType):
+        interaction_type_codes[member - interaction_type_offset] = category_idx
+    interaction_type_categorical = pd.Categorical.from_codes(
+        interaction_type_codes[interaction_type - interaction_type_offset],
+        dtype=interaction_type_dtype,
     )
 
-    # Convert status values to their string names
-    status_labels = [
-        PacketStatus(int(int_status)).name for int_status in status
-    ]
-    status_categorical = pd.Categorical(status_labels, dtype=status_dtype)
+    status_codes = np.full(max(PacketStatus) + 1, -1, dtype=np.int8)
+    for category_idx, member in enumerate(PacketStatus):
+        status_codes[member] = category_idx
+    status_categorical = pd.Categorical.from_codes(
+        status_codes[status], dtype=status_dtype
+    )
 
     # Create comprehensive event DataFrame with specific column order
     event_data = {
@@ -189,6 +263,70 @@ def trackers_full_to_df(trackers_full_list) -> pd.DataFrame:
     )
 
     return pd.DataFrame(event_data, index=multi_index)
+
+
+@njit
+def find_last_interaction_events(trackers: TypedList) -> tuple:
+    """
+    Find each packet's last line, electron-scattering or continuum event.
+
+    Parameters
+    ----------
+    trackers : numba.typed.typedlist.List
+        List of TrackerFull instances.
+
+    Returns
+    -------
+    tuple
+        Event index of the last physical interaction per packet (0 for a
+        packet without one), and the number of events to take per packet
+        (0 for a tracker without events).
+    """
+    last_interaction_event_idx = np.zeros(len(trackers), dtype=np.int64)
+    event_counts = np.zeros(len(trackers), dtype=np.int64)
+    for packet_idx, tracker in enumerate(trackers):
+        event_counts[packet_idx] = min(1, len(tracker.interaction_type))
+        for event_idx in range(len(tracker.interaction_type) - 1, -1, -1):
+            interaction_type = tracker.interaction_type[event_idx]
+            if (
+                interaction_type == InteractionType.LINE
+                or interaction_type == InteractionType.ESCATTERING
+                or interaction_type == InteractionType.CONTINUUM_PROCESS
+            ):
+                last_interaction_event_idx[packet_idx] = event_idx
+                break
+    return last_interaction_event_idx, event_counts
+
+
+def trackers_full_to_last_interaction_df(
+    trackers_full_list: TypedList,
+) -> pd.DataFrame:
+    """
+    Build the last-interaction DataFrame without the full event DataFrame.
+
+    Only the last physical interaction of each packet (or its first event, for
+    a packet without one) is converted, so the result matches
+    ``tracker_full_df2tracker_last_interaction_df(trackers_full_to_df(...))``.
+
+    Parameters
+    ----------
+    trackers_full_list : numba.typed.typedlist.List
+        List of TrackerFull instances.
+
+    Returns
+    -------
+    pd.DataFrame
+        Last-interaction DataFrame indexed by packet_id.
+    """
+    event_starts, event_counts = find_last_interaction_events(
+        trackers_full_list
+    )
+    selected_df = event_arrays_to_df(
+        trackers_full_list_to_selected_arrays(
+            trackers_full_list, event_starts, event_counts
+        )
+    )
+    return tracker_full_df2tracker_last_interaction_df(selected_df)
 
 
 def tracker_full_df2tracker_last_interaction_df(

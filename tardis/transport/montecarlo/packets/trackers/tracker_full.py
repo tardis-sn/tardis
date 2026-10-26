@@ -319,18 +319,18 @@ class TrackerFull:
         Change the size of the arrays from length ( or multiple of length ) to
         the actual number of events.
         """
-        # Finalize all arrays to actual event count
-        self.radius = self.radius[: self.event_id]
-        self.before_shell_id = self.before_shell_id[: self.event_id]
-        self.after_shell_id = self.after_shell_id[: self.event_id]
-        self.interaction_type = self.interaction_type[: self.event_id]
-        self.status = self.status[: self.event_id]
-        self.before_nu = self.before_nu[: self.event_id]
-        self.before_mu = self.before_mu[: self.event_id]
-        self.before_energy = self.before_energy[: self.event_id]
-        self.after_nu = self.after_nu[: self.event_id]
-        self.after_mu = self.after_mu[: self.event_id]
-        self.after_energy = self.after_energy[: self.event_id]
-        self.line_absorb_id = self.line_absorb_id[: self.event_id]
-        self.line_emit_id = self.line_emit_id[: self.event_id]
-        self.next_line_id = self.next_line_id[: self.event_id]
+        # Copy so the unused capacity of each array is released
+        self.radius = self.radius[: self.event_id].copy()
+        self.before_shell_id = self.before_shell_id[: self.event_id].copy()
+        self.after_shell_id = self.after_shell_id[: self.event_id].copy()
+        self.interaction_type = self.interaction_type[: self.event_id].copy()
+        self.status = self.status[: self.event_id].copy()
+        self.before_nu = self.before_nu[: self.event_id].copy()
+        self.before_mu = self.before_mu[: self.event_id].copy()
+        self.before_energy = self.before_energy[: self.event_id].copy()
+        self.after_nu = self.after_nu[: self.event_id].copy()
+        self.after_mu = self.after_mu[: self.event_id].copy()
+        self.after_energy = self.after_energy[: self.event_id].copy()
+        self.line_absorb_id = self.line_absorb_id[: self.event_id].copy()
+        self.line_emit_id = self.line_emit_id[: self.event_id].copy()
+        self.next_line_id = self.next_line_id[: self.event_id].copy()
