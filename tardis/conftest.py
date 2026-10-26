@@ -318,6 +318,7 @@ def simulation_tardis_full(atomic_dataset, example_configuration_dir):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_verysimple.yml"
     )  # the config is mutated in other places
+    config.montecarlo.no_of_virtual_packets = 5
     sim = Simulation.from_config(config, atom_data=atomic_data)
     sim.run_convergence()
     sim.run_final()
@@ -327,7 +328,9 @@ def simulation_tardis_full(atomic_dataset, example_configuration_dir):
 @pytest.fixture(scope="session")
 def simulation_verysimple_default(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
-    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    config = deepcopy(config_verysimple)
+    config.montecarlo.no_of_virtual_packets = 5
+    sim = Simulation.from_config(config, atom_data=atomic_data)
     sim.run_final()
     return sim
 
@@ -335,8 +338,10 @@ def simulation_verysimple_default(config_verysimple, atomic_dataset):
 @pytest.fixture(scope="session")
 def simulation_verysimple_vpacket_tracking(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
+    config = deepcopy(config_verysimple)
+    config.montecarlo.no_of_virtual_packets = 5
     sim = Simulation.from_config(
-        config_verysimple, atom_data=atomic_data, virtual_packet_logging=True
+        config, atom_data=atomic_data, virtual_packet_logging=True
     )
     sim.last_no_of_packets = 4000
     sim.run_final()

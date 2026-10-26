@@ -53,6 +53,7 @@ def simple_workflow_verysimple(atomic_data_fname, example_configuration_dir):
         str(example_configuration_dir / "tardis_configv1_verysimple.yml")
     )
     config["atom_data"] = atomic_data_fname
+    config.montecarlo.no_of_virtual_packets = 5
     workflow = SimpleTARDISWorkflow(config)
     workflow.run()
     return workflow
