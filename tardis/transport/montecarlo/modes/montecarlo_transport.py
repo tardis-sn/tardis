@@ -427,7 +427,7 @@ def calculate_virtual_packet_spectrum(
 
             if is_initial_launch:
                 last_interaction_in_nu = 0.0
-                last_interaction_in_r = 0.0
+                last_interaction_in_r = geometry_state_numba.r_inner[0]
                 last_interaction_type = InteractionType.NO_INTERACTION
                 last_interaction_in_id = -1
                 last_interaction_out_id = -1
