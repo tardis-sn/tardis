@@ -13,6 +13,7 @@ from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     tracker_full_df2tracker_last_interaction_df,
     trackers_full_list_to_arrays,
     trackers_full_to_df,
+    trackers_full_to_last_interaction_df,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
     TrackerLastInteraction,
@@ -36,5 +37,6 @@ __all__ = [
     "tracker_full_df2tracker_last_interaction_df",
     "trackers_full_list_to_arrays",
     "trackers_full_to_df",
+    "trackers_full_to_last_interaction_df",
     "trackers_last_interaction_to_df",
 ]
