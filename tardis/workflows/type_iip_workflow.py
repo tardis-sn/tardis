@@ -275,6 +275,8 @@ class TypeIIPWorkflow:
 
         self.final_iteration_packet_count = int(final_iteration_packet_count)
 
+        # IIP mode does not currently support virtual packets, so the final
+        # iteration never retains real-packet histories for them
         self.virtual_packet_count = int(
             configuration.montecarlo.no_of_virtual_packets
         )
