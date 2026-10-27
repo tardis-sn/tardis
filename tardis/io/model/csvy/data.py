@@ -75,8 +75,9 @@ class CSVYData:
                 if not isinstance(time_explosion, u.Quantity):
                     time_explosion = u.Quantity(time_explosion)
 
-        v_inner = self.velocity[:-1]
-        v_outer = self.velocity[1:]
+        velocity = self.velocity * u.cm / u.s
+        v_inner = velocity[:-1]
+        v_outer = velocity[1:]
         geometry = HomologousRadial1DGeometry(
             v_inner=v_inner,
             v_outer=v_outer,
@@ -115,8 +116,9 @@ class CSVYData:
                 if not isinstance(time_explosion, u.Quantity):
                     time_explosion = u.Quantity(time_explosion)
 
-        v_inner = self.velocity[:-1]
-        v_outer = self.velocity[1:]
+        velocity = self.velocity * u.cm / u.s
+        v_inner = velocity[:-1]
+        v_outer = velocity[1:]
         geometry = Radial1DGeometry(
             r_inner=(v_inner * time_explosion).cgs,
             r_outer=(v_outer * time_explosion).cgs,
