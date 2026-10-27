@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=df0614af"></script>
+      <script src="_static/documentation_options.js?v=24fd20af"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2971,10 +2971,11 @@
 </li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html">tardis.transport.montecarlo.modes.montecarlo_transport module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet"><code class="docutils literal notranslate"><span class="pre">make_r_packet()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport_with_vpackets"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport_with_vpackets()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.set_packet_collection_output"><code class="docutils literal notranslate"><span class="pre">set_packet_collection_output()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.update_packet_progress"><code class="docutils literal notranslate"><span class="pre">update_packet_progress()</span></code></a></li>
 </ul>
@@ -3134,6 +3135,7 @@
 <li class="toctree-l14"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerFull.interaction_type</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.line_absorb_id</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.next_line_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.next_line_id</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.radius"><code class="docutils literal notranslate"><span class="pre">TrackerFull.radius</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.status"><code class="docutils literal notranslate"><span class="pre">TrackerFull.status</span></code></a></li>
 </ul>
@@ -3156,10 +3158,14 @@
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3217,6 +3223,7 @@
 <li class="toctree-l12"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -4809,6 +4816,8 @@
       </ul></li>
       <li><a href="api/tardis.plasma.equilibrium.rates.collision_strengths.html#tardis.plasma.equilibrium.rates.collision_strengths.calculate_upsilon_g_2_collisional_rates">calculate_upsilon_g_2_collisional_rates() (in module tardis.plasma.equilibrium.rates.collision_strengths)</a>
 </li>
+      <li><a href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum">calculate_virtual_packet_spectrum() (in module tardis.transport.montecarlo.modes.montecarlo_transport)</a>
+</li>
       <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate_with_n_electron">calculate_with_n_electron() (tardis.plasma.properties.ion_population.IonNumberDensity static method)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.calculate_yg_van_regemorter">calculate_yg_van_regemorter() (tardis.plasma.properties.atomic.YgData class method)</a>
@@ -4897,10 +4906,10 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET">COLL_DOWN_TO_K_PACKET (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_EXC_COOL">COLL_EXC_COOL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_EXC_COOL">COLL_EXC_COOL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_COOL">COLL_ION_COOL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_INTERNAL">COLL_ION_INTERNAL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
@@ -5491,10 +5500,10 @@
         <li><a href="api/tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver.html#tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver.MCRadiationFieldPropertiesSolver.estimate_jblues">(tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver.MCRadiationFieldPropertiesSolver method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.estimate_t_inner">estimate_t_inner() (tardis.simulation.base.Simulation method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.EstimatedIonRateMatrix">EstimatedIonRateMatrix (class in tardis.plasma.equilibrium.rate_matrix)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.EstimatedPhotoionizationCoeffSolver">EstimatedPhotoionizationCoeffSolver (class in tardis.plasma.equilibrium.rates.photoionization_strengths)</a>
@@ -5532,6 +5541,8 @@
       <li><a href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator.evaluate">evaluate() (tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator method)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.evaluate_candidate">evaluate_candidate() (tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver method)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df">event_arrays_to_df() (in module tardis.transport.montecarlo.packets.trackers.tracker_full_util)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.event_id">event_id (tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull attribute)</a>
 </li>
@@ -5611,6 +5622,8 @@
         <li><a href="api/tardis.visualization.widgets.line_info.html#tardis.visualization.widgets.line_info.LineInfoWidget.FILTER_MODES_DESC">(tardis.visualization.widgets.line_info.LineInfoWidget attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events">find_last_interaction_events() (in module tardis.transport.montecarlo.packets.trackers.tracker_full_util)</a>
+</li>
       <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.fix_bar_layout">fix_bar_layout() (in module tardis.transport.montecarlo.progress_bars)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.FixedElectronDensityIonPopulationSolver">FixedElectronDensityIonPopulationSolver (class in tardis.plasma.equilibrium.ion_populations)</a>
@@ -5669,6 +5682,8 @@
         <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigurationNameSpace.from_config_dict">(tardis.io.configuration.config_reader.ConfigurationNameSpace class method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.from_csvy">from_csvy() (tardis.model.base.SimulationState class method)</a>
 
       <ul>
@@ -5677,8 +5692,6 @@
         <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData.from_csvy">(tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData class method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.opacities.continuum.continuum_state.html#tardis.opacities.continuum.continuum_state.ContinuumOpacityState.from_equilibrium">from_equilibrium() (tardis.opacities.continuum.continuum_state.ContinuumOpacityState class method)</a>
 
       <ul>
@@ -7335,9 +7348,9 @@
       <ul>
         <li><a href="api/tardis.transport.montecarlo.modes.iip.montecarlo_transport.html#tardis.transport.montecarlo.modes.iip.montecarlo_transport.montecarlo_transport">(in module tardis.transport.montecarlo.modes.iip.montecarlo_transport)</a>
 </li>
-      </ul></li>
-      <li><a href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport_with_vpackets">montecarlo_transport_with_vpackets() (in module tardis.transport.montecarlo.modes.montecarlo_transport)</a>
+        <li><a href="api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport">(in module tardis.transport.montecarlo.modes.montecarlo_transport)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.montecarlo_virtual_luminosity">montecarlo_virtual_luminosity (tardis.spectrum.base.SpectrumSolver property)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration">MonteCarloConfiguration (class in tardis.transport.montecarlo.configuration.base)</a>
@@ -7377,6 +7390,8 @@
       <li><a href="resources/zreferences.html#term-Nebular"><strong>Nebular</strong></a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nebular_ionization_delta_treatment">nebular_ionization_delta_treatment (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.next_line_id">next_line_id (tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.SobolevInputs.nlte_lines_mask">nlte_lines_mask (tardis.plasma.equilibrium.inputs.SobolevInputs attribute)</a>
 </li>
@@ -9518,8 +9533,6 @@
         <li><a href="api/tardis.simulation.base.html#module-tardis.simulation.base">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.simulation.convergence
 
@@ -9527,6 +9540,8 @@
         <li><a href="api/tardis.simulation.convergence.html#module-tardis.simulation.convergence">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.spectrum
 
@@ -10399,10 +10414,18 @@
         <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays">(in module tardis.transport.montecarlo.packets.trackers.tracker_full_util)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays">trackers_full_list_to_selected_arrays() (in module tardis.transport.montecarlo.packets.trackers.tracker_full_util)</a>
+</li>
       <li><a href="api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df">trackers_full_to_df() (in module tardis.transport.montecarlo.packets.trackers)</a>
 
       <ul>
         <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df">(in module tardis.transport.montecarlo.packets.trackers.tracker_full_util)</a>
+</li>
+      </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df">trackers_full_to_last_interaction_df() (in module tardis.transport.montecarlo.packets.trackers)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df">(in module tardis.transport.montecarlo.packets.trackers.tracker_full_util)</a>
 </li>
       </ul></li>
       <li><a href="api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df">trackers_last_interaction_to_df() (in module tardis.transport.montecarlo.packets.trackers)</a>
@@ -10796,7 +10819,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Oct 2026.
+      <span class="lastupdated">Last updated on 27 Oct 2026.
       </span></p>
   </div>
 

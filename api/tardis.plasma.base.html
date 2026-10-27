@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=df0614af"></script>
+      <script src="../_static/documentation_options.js?v=24fd20af"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2974,10 +2974,11 @@
 </li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html">tardis.transport.montecarlo.modes.montecarlo_transport module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet"><code class="docutils literal notranslate"><span class="pre">make_r_packet()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport_with_vpackets"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport_with_vpackets()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.set_packet_collection_output"><code class="docutils literal notranslate"><span class="pre">set_packet_collection_output()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.update_packet_progress"><code class="docutils literal notranslate"><span class="pre">update_packet_progress()</span></code></a></li>
 </ul>
@@ -3137,6 +3138,7 @@
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerFull.interaction_type</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.line_absorb_id</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.next_line_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.next_line_id</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.radius"><code class="docutils literal notranslate"><span class="pre">TrackerFull.radius</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.status"><code class="docutils literal notranslate"><span class="pre">TrackerFull.status</span></code></a></li>
 </ul>
@@ -3159,10 +3161,14 @@
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3220,6 +3226,7 @@
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -4432,7 +4439,7 @@ edge labels into the file.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Oct 2026.
+      <span class="lastupdated">Last updated on 27 Oct 2026.
       </span></p>
   </div>
 

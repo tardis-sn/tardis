@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=df0614af"></script>
+      <script src="../../../../../_static/documentation_options.js?v=24fd20af"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2971,10 +2971,11 @@
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html">tardis.transport.montecarlo.modes.montecarlo_transport module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet"><code class="docutils literal notranslate"><span class="pre">make_r_packet()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport_with_vpackets"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport_with_vpackets()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.set_packet_collection_output"><code class="docutils literal notranslate"><span class="pre">set_packet_collection_output()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.update_packet_progress"><code class="docutils literal notranslate"><span class="pre">update_packet_progress()</span></code></a></li>
 </ul>
@@ -3134,6 +3135,7 @@
 <li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerFull.interaction_type</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.line_absorb_id</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.next_line_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.next_line_id</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.radius"><code class="docutils literal notranslate"><span class="pre">TrackerFull.radius</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.status"><code class="docutils literal notranslate"><span class="pre">TrackerFull.status</span></code></a></li>
 </ul>
@@ -3156,10 +3158,14 @@
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3217,6 +3223,7 @@
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -4258,45 +4265,57 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 import numpy as np
 from numba import njit, objmode, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List as TypedList
 
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+)
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
     create_estimators_bulk_list,
     init_estimators_bulk,
 )
 from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
     create_estimators_line_list,
     init_estimators_line,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
+    PacketCollection,
     VPacketCollection,
     consolidate_vpacket_tracker,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
+    InteractionType,
     PacketStatus,
     RPacket,
 )
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
+    TrackerLastInteraction,
+)
 from tardis.transport.montecarlo.progress_bars import update_packets_pbar
-
-if TYPE_CHECKING:
-    from tardis.transport.montecarlo.configuration.base import (
-        MonteCarloConfiguration,
-    )
-    from tardis.transport.montecarlo.packets.packet_collections import (
-        PacketCollection,
-    )
 
 
 <div class="viewcode-block" id="make_r_packet">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet">[docs]</a>
 @njit(**njit_dict_no_parallel)
-def make_r_packet(packet_collection: PacketCollection, packet_index: int):
+def make_r_packet(
+    packet_collection: PacketCollection, packet_index: int
+) -&gt; RPacket:
     &quot;&quot;&quot;
     Build and seed a radiative packet from a packet collection.
 
@@ -4393,7 +4412,7 @@ def create_vpacket_collections(
     spectrum_frequency_grid: np.ndarray,
     montecarlo_configuration: MonteCarloConfiguration,
     number_of_vpackets: int,
-):
+) -&gt; TypedList[VPacketCollection]:
     &quot;&quot;&quot;
     Create per-packet virtual packet collections.
 
@@ -4470,7 +4489,7 @@ def add_vpacket_collection_to_histogram(
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker">[docs]</a>
 @njit(**njit_dict_no_parallel)
 def get_vpacket_tracker(
-    vpacket_collections,
+    vpacket_collections: TypedList[VPacketCollection],
     spectrum_frequency_grid: np.ndarray,
     montecarlo_configuration: MonteCarloConfiguration,
 ) -&gt; VPacketCollection:
@@ -4509,28 +4528,23 @@ def get_vpacket_tracker(
 
 
 
-<div class="viewcode-block" id="montecarlo_transport_with_vpackets">
-<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport_with_vpackets">[docs]</a>
+<div class="viewcode-block" id="montecarlo_transport">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport">[docs]</a>
 @njit(**njit_dict)
-def montecarlo_transport_with_vpackets(
+def montecarlo_transport(
     packet_collection: PacketCollection,
-    geometry_state_numba,
+    geometry_state_numba: (
+        NumbaHomologousRadial1DGeometry | NumbaRadial1DGeometry
+    ),
     time_explosion: float,
-    opacity_state_numba,
+    opacity_state_numba: OpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
-    spectrum_frequency_grid: np.ndarray,
-    trackers,
-    number_of_vpackets: int,
+    trackers: (TypedList[TrackerFull] | TypedList[TrackerLastInteraction]),
     show_progress_bars: bool,
-    packet_propagation_function,
-) -&gt; tuple[
-    np.ndarray,
-    VPacketCollection,
-    type,
-    type,
-]:
+    packet_propagation_function: Callable[..., None],
+) -&gt; tuple[EstimatorsBulk, EstimatorsLine]:
     &quot;&quot;&quot;
-    Run line-only Monte Carlo transport with virtual packet tracking.
+    Run real-packet Monte Carlo transport and record packet histories.
 
     Parameters
     ----------
@@ -4545,12 +4559,8 @@ def montecarlo_transport_with_vpackets(
         Numba opacity state.
     montecarlo_configuration : MonteCarloConfiguration
         Monte Carlo transport configuration.
-    spectrum_frequency_grid : numpy.ndarray
-        Frequency-bin edges for the real- and virtual-packet histograms.
     trackers
         Per-packet trackers.
-    number_of_vpackets : int
-        Number of virtual packets spawned per real packet interaction.
     show_progress_bars : bool
         Whether packet progress bars are enabled.
     packet_propagation_function
@@ -4559,20 +4569,9 @@ def montecarlo_transport_with_vpackets(
     Returns
     -------
     tuple
-        Virtual packet histogram, consolidated virtual packet tracker, bulk
-        estimators, and line estimators.
+        Bulk and line estimators.
     &quot;&quot;&quot;
     no_of_packets = len(packet_collection.initial_nus)
-
-    v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
-    delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
-
-    vpacket_collections = create_vpacket_collections(
-        no_of_packets,
-        spectrum_frequency_grid,
-        montecarlo_configuration,
-        number_of_vpackets,
-    )
 
     main_thread_id = get_thread_id()
     n_threads = get_num_threads()
@@ -4603,7 +4602,6 @@ def montecarlo_transport_with_vpackets(
         r_packet = make_r_packet(packet_collection, packet_index)
         estimators_bulk_thread = estimators_bulk_list_thread[thread_id]
         estimators_line_thread = estimators_line_list_thread[thread_id]
-        vpacket_collection = vpacket_collections[packet_index]
         tracker = trackers[packet_index]
 
         packet_propagation_function(
@@ -4613,21 +4611,12 @@ def montecarlo_transport_with_vpackets(
             opacity_state_numba,
             estimators_bulk_thread,
             estimators_line_thread,
-            vpacket_collection,
             tracker,
             montecarlo_configuration,
         )
         set_packet_collection_output(packet_collection, r_packet, i)
 
         tracker.finalize()
-        vpacket_collection.finalize_arrays()
-
-        add_vpacket_collection_to_histogram(
-            v_packets_energy_hist,
-            vpacket_collection,
-            spectrum_frequency_grid,
-            delta_nu,
-        )
 
     for estimator_thread in estimators_bulk_list_thread:
         estimators_bulk.increment(estimator_thread)
@@ -4635,18 +4624,143 @@ def montecarlo_transport_with_vpackets(
     for estimator_thread in estimators_line_list_thread:
         estimators_line.increment(estimator_thread)
 
+    return estimators_bulk, estimators_line</div>
+
+
+
+<div class="viewcode-block" id="calculate_virtual_packet_spectrum">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum">[docs]</a>
+@njit(**njit_dict)
+def calculate_virtual_packet_spectrum(
+    geometry_state_numba: (
+        NumbaHomologousRadial1DGeometry | NumbaRadial1DGeometry
+    ),
+    time_explosion: float,
+    opacity_state_numba: OpacityStateNumba,
+    montecarlo_configuration: MonteCarloConfiguration,
+    spectrum_frequency_grid: np.ndarray,
+    trackers: TypedList[TrackerFull],
+    number_of_vpackets: int,
+    trace_vpacket_volley_function: Callable[..., None],
+) -&gt; tuple[np.ndarray, VPacketCollection]:
+    &quot;&quot;&quot;Calculate a virtual-packet spectrum from completed real-packet histories.
+
+    Parameters
+    ----------
+    geometry_state_numba
+        Numba geometry object used for real-packet transport.
+    time_explosion : float
+        Time since explosion in seconds. Non-homologous mode accepts but does
+        not use this value.
+    opacity_state_numba
+        Frozen opacity state used for real-packet transport.
+    montecarlo_configuration : MonteCarloConfiguration
+        Monte Carlo transport configuration.
+    spectrum_frequency_grid : numpy.ndarray
+        Frequency-bin edges for the virtual-packet histogram.
+    trackers
+        Completed full-event tracker for each real packet.
+    number_of_vpackets : int
+        Number of virtual packets spawned per launch or interaction.
+    trace_vpacket_volley_function
+        Mode-specific virtual-packet propagation function.
+
+    Returns
+    -------
+    tuple
+        Virtual-packet energy histogram and consolidated logging collection.
+    &quot;&quot;&quot;
+    no_of_packets = len(trackers)
+    vpacket_collections = create_vpacket_collections(
+        no_of_packets,
+        spectrum_frequency_grid,
+        montecarlo_configuration,
+        number_of_vpackets,
+    )
+
+    for i in prange(no_of_packets):
+        packet_idx = np.int64(i)
+        tracker = trackers[packet_idx]
+        vpacket_collection = vpacket_collections[packet_idx]
+        # Offset the configured seed for deterministic parallel packet sampling.
+        vpacket_seed = montecarlo_configuration.MONTECARLO_SEED + packet_idx
+        np.random.seed(vpacket_seed)
+
+        for event_idx in range(tracker.event_id):
+            interaction_type = tracker.interaction_type[event_idx]
+            is_initial_launch = (
+                interaction_type == InteractionType.BOUNDARY
+                and tracker.before_shell_id[event_idx] == -1
+                and tracker.after_shell_id[event_idx] == 0
+            )
+            is_physical_interaction = (
+                interaction_type == InteractionType.LINE
+                or interaction_type == InteractionType.ESCATTERING
+            )
+            if not (is_initial_launch or is_physical_interaction):
+                continue
+
+            r_packet = RPacket(
+                tracker.radius[event_idx],
+                tracker.after_mu[event_idx],
+                tracker.after_nu[event_idx],
+                tracker.after_energy[event_idx],
+                vpacket_seed,
+                packet_idx,
+            )
+            r_packet.current_shell_id = tracker.after_shell_id[event_idx]
+            r_packet.next_line_id = tracker.next_line_id[event_idx]
+
+            if is_initial_launch:
+                last_interaction_in_nu = 0.0
+                last_interaction_in_r = geometry_state_numba.r_inner[0]
+                last_interaction_type = InteractionType.NO_INTERACTION
+                last_interaction_in_id = -1
+                last_interaction_out_id = -1
+                last_interaction_shell_id = -1
+            else:
+                last_interaction_in_nu = tracker.before_nu[event_idx]
+                last_interaction_in_r = tracker.radius[event_idx]
+                last_interaction_type = interaction_type
+                last_interaction_in_id = tracker.line_absorb_id[event_idx]
+                last_interaction_out_id = tracker.line_emit_id[event_idx]
+                last_interaction_shell_id = tracker.before_shell_id[event_idx]
+
+            trace_vpacket_volley_function(
+                r_packet,
+                vpacket_collection,
+                geometry_state_numba,
+                time_explosion,
+                opacity_state_numba,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
+                montecarlo_configuration.SURVIVAL_PROBABILITY,
+                last_interaction_in_nu,
+                last_interaction_in_r,
+                last_interaction_type,
+                last_interaction_in_id,
+                last_interaction_out_id,
+                last_interaction_shell_id,
+            )
+
+        vpacket_collection.finalize_arrays()
+
+    v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
+    delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
+    for vpacket_collection in vpacket_collections:
+        add_vpacket_collection_to_histogram(
+            v_packets_energy_hist,
+            vpacket_collection,
+            spectrum_frequency_grid,
+            delta_nu,
+        )
+
     vpacket_tracker = get_vpacket_tracker(
         vpacket_collections,
         spectrum_frequency_grid,
         montecarlo_configuration,
     )
-
-    return (
-        v_packets_energy_hist,
-        vpacket_tracker,
-        estimators_bulk,
-        estimators_line,
-    )</div>
+    return v_packets_energy_hist, vpacket_tracker</div>
 
 </pre></div>
 
@@ -4658,7 +4772,7 @@ def montecarlo_transport_with_vpackets(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Oct 2026.
+      <span class="lastupdated">Last updated on 27 Oct 2026.
       </span></p>
   </div>
 

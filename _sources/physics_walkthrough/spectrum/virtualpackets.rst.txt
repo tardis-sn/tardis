@@ -42,9 +42,11 @@ Virtual Packet Procedure
 ------------------------
 
 In the virtual packet scheme, a new population of Monte Carlo packets is
-introduced. Every time a real packet is launched or performs a physical
-interaction, a pre-defined number of virtual packets, :math:`N_v`, are
-generated. These propagation of these "virtual packets" is followed in a
+introduced. TARDIS first records the launch and physical-interaction states of
+the real packets. After real-packet transport is complete, these histories are
+replayed against the same frozen geometry and opacity state. At every recorded
+launch or physical interaction, a pre-defined number of virtual packets,
+:math:`N_v`, are generated. The propagation of these "virtual packets" is followed in a
 similar fashion to the real ones with the important distinction that their
 trajectory is never changed. However, the optical depth the virtual packet
 accumulates during its propagation to the ejecta surface due to electron
@@ -61,6 +63,11 @@ to the emergent luminosity in the frequency interval :math:`[\nu, \nu + \Delta
 step (the same duration which is used during the initialization process at the
 photosphere, see :ref:`Propagation <propagation>`), and :math:`\varepsilon` is
 the energy of the virtual packet when it was generated.
+
+Performing this calculation as post-processing keeps virtual-packet random
+sampling separate from real-packet transport. Consequently, changing
+:math:`N_v` changes the sampling noise of the virtual-packet spectrum but not
+the real-packet trajectories, estimators, or spectrum.
 
 .. note::
 

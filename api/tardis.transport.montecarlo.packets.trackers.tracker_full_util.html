@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=df0614af"></script>
+      <script src="../_static/documentation_options.js?v=24fd20af"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2974,10 +2974,11 @@
 </li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html">tardis.transport.montecarlo.modes.montecarlo_transport module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet"><code class="docutils literal notranslate"><span class="pre">make_r_packet()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport_with_vpackets"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport_with_vpackets()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.set_packet_collection_output"><code class="docutils literal notranslate"><span class="pre">set_packet_collection_output()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.update_packet_progress"><code class="docutils literal notranslate"><span class="pre">update_packet_progress()</span></code></a></li>
 </ul>
@@ -3137,6 +3138,7 @@
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerFull.interaction_type</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.line_absorb_id</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.next_line_id"><code class="docutils literal notranslate"><span class="pre">TrackerFull.next_line_id</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.radius"><code class="docutils literal notranslate"><span class="pre">TrackerFull.radius</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.status"><code class="docutils literal notranslate"><span class="pre">TrackerFull.status</span></code></a></li>
 </ul>
@@ -3159,10 +3161,14 @@
 </ul>
 </li>
 <li class="toctree-l12 current"><a class="current reference internal" href="#">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3220,6 +3226,7 @@
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -4265,6 +4272,48 @@
   <section id="module-tardis.transport.montecarlo.packets.trackers.tracker_full_util">
 <span id="tardis-transport-montecarlo-packets-trackers-tracker-full-util-module"></span><h1>tardis.transport.montecarlo.packets.trackers.tracker_full_util module<a class="headerlink" href="#module-tardis.transport.montecarlo.packets.trackers.tracker_full_util" title="Link to this heading"></a></h1>
 <dl class="py function">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df">
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.trackers.tracker_full_util.</span></span><span class="sig-name descname"><span class="pre">event_arrays_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_arrays</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/trackers/tracker_full_util.html#event_arrays_to_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df" title="Link to this definition"></a></dt>
+<dd><p>Build the full-tracker DataFrame from concatenated event arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event_arrays</strong><span class="classifier">tuple</span></dt><dd><p>Event arrays as returned by <code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>Event DataFrame indexed by packet_id and event_id.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events">
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.trackers.tracker_full_util.</span></span><span class="sig-name descname"><span class="pre">find_last_interaction_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trackers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/trackers/tracker_full_util.html#find_last_interaction_events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events" title="Link to this definition"></a></dt>
+<dd><p>Find each packet’s last line, electron-scattering or continuum event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>trackers</strong><span class="classifier">numba.typed.typedlist.List</span></dt><dd><p>List of TrackerFull instances.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple</dt><dd><p>Event index of the last physical interaction per packet (0 for a
+packet without one), and the number of events to take per packet
+(0 for a tracker without events).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list">
 <span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.trackers.tracker_full_util.</span></span><span class="sig-name descname"><span class="pre">generate_tracker_full_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">no_of_packets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/trackers/tracker_full_util.html#generate_tracker_full_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list" title="Link to this definition"></a></dt>
 <dd><p>Generate list of RPacketTracker instances.</p>
@@ -4314,12 +4363,42 @@ indexed by packet_id with columns [‘radius’, ‘shell_id’, ‘last_interac
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.trackers.tracker_full_util.</span></span><span class="sig-name descname"><span class="pre">trackers_full_list_to_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trackers</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/trackers/tracker_full_util.html#trackers_full_list_to_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.trackers.tracker_full_util.</span></span><span class="sig-name descname"><span class="pre">trackers_full_list_to_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trackers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_trackers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/trackers/tracker_full_util.html#trackers_full_list_to_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays" title="Link to this definition"></a></dt>
 <dd><p>Convert a list of TrackerFull instances to concatenated arrays efficiently.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>trackers</strong><span class="classifier">numba.typed.typedlist.List</span></dt><dd><p>List of TrackerFull instances.</p>
+</dd>
+<dt><strong>release_trackers</strong><span class="classifier">bool, optional</span></dt><dd><p>Empty each tracker’s arrays once copied, to lower peak memory. The
+trackers cannot be used afterwards. Default False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple</dt><dd><p>Event arrays as returned by <code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays">
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.trackers.tracker_full_util.</span></span><span class="sig-name descname"><span class="pre">trackers_full_list_to_selected_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trackers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_counts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_trackers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/trackers/tracker_full_util.html#trackers_full_list_to_selected_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays" title="Link to this definition"></a></dt>
+<dd><p>Concatenate a contiguous range of events from each TrackerFull.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>trackers</strong><span class="classifier">numba.typed.typedlist.List</span></dt><dd><p>List of TrackerFull instances.</p>
+</dd>
+<dt><strong>event_starts</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>First event index taken from each tracker.</p>
+</dd>
+<dt><strong>event_counts</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Number of events taken from each tracker.</p>
+</dd>
+<dt><strong>release_trackers</strong><span class="classifier">bool, optional</span></dt><dd><p>Empty each tracker’s arrays once copied, to lower peak memory. The
+trackers cannot be used afterwards. Default False.</p>
 </dd>
 </dl>
 </dd>
@@ -4349,12 +4428,15 @@ indexed by packet_id with columns [‘radius’, ‘shell_id’, ‘last_interac
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.trackers.tracker_full_util.</span></span><span class="sig-name descname"><span class="pre">trackers_full_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trackers_full_list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/trackers/tracker_full_util.html#trackers_full_to_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.trackers.tracker_full_util.</span></span><span class="sig-name descname"><span class="pre">trackers_full_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trackers_full_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_trackers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/trackers/tracker_full_util.html#trackers_full_to_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df" title="Link to this definition"></a></dt>
 <dd><p>Convert a list of RPacketTracker instances to a comprehensive DataFrame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>rpacket_trackers</strong><span class="classifier">numba.typed.typedlist.List</span></dt><dd><p>List of RPacketTracker instances.</p>
+</dd>
+<dt><strong>release_trackers</strong><span class="classifier">bool, optional</span></dt><dd><p>Empty each tracker’s arrays once copied, to lower peak memory. The
+trackers cannot be used afterwards. Default False.</p>
 </dd>
 </dl>
 </dd>
@@ -4363,6 +4445,29 @@ indexed by packet_id with columns [‘radius’, ‘shell_id’, ‘last_interac
 <dt>pd.DataFrame</dt><dd><p>DataFrame containing all event data including line interaction details,
 indexed by packet_id and event_id. Line interaction columns have default
 values (-1 for IDs, NaN for physical quantities) for non-interaction events.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df">
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.trackers.tracker_full_util.</span></span><span class="sig-name descname"><span class="pre">trackers_full_to_last_interaction_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trackers_full_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/trackers/tracker_full_util.html#trackers_full_to_last_interaction_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df" title="Link to this definition"></a></dt>
+<dd><p>Build the last-interaction DataFrame without the full event DataFrame.</p>
+<p>Only the last physical interaction of each packet (or its first event, for
+a packet without one) is converted, so the result matches
+<code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df(trackers_full_to_df(...))</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>trackers_full_list</strong><span class="classifier">numba.typed.typedlist.List</span></dt><dd><p>List of TrackerFull instances.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>Last-interaction DataFrame indexed by packet_id.</p>
 </dd>
 </dl>
 </dd>
@@ -4383,7 +4488,7 @@ values (-1 for IDs, NaN for physical quantities) for non-interaction events.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Oct 2026.
+      <span class="lastupdated">Last updated on 27 Oct 2026.
       </span></p>
   </div>
 
