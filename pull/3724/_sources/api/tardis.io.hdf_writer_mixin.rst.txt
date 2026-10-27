@@ -1,7 +1,0 @@
-tardis.io.hdf\_writer\_mixin module
-===================================
-
-.. automodule:: tardis.io.hdf_writer_mixin
-   :members:
-   :show-inheritance:
-   :undoc-members:
