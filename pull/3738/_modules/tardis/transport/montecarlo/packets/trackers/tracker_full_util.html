@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=f0c7a2cb"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=5c75e3f4"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -3158,10 +3158,14 @@
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3219,6 +3223,7 @@
 <li class="toctree-l12"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -4274,7 +4279,9 @@ from tardis.transport.montecarlo.packets.trackers.tracker_full import (
 <div class="viewcode-block" id="trackers_full_list_to_arrays">
 <a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays">[docs]</a>
 @njit
-def trackers_full_list_to_arrays(trackers) -&gt; tuple:
+def trackers_full_list_to_arrays(
+    trackers: TypedList, release_trackers: bool = False
+) -&gt; tuple:
     &quot;&quot;&quot;
     Convert a list of TrackerFull instances to concatenated arrays efficiently.
 
@@ -4282,6 +4289,42 @@ def trackers_full_list_to_arrays(trackers) -&gt; tuple:
     ----------
     trackers : numba.typed.typedlist.List
         List of TrackerFull instances.
+
+    Returns
+    -------
+    tuple
+        Event arrays as returned by ``trackers_full_list_to_selected_arrays``.
+    &quot;&quot;&quot;
+    event_starts = np.zeros(len(trackers), dtype=np.int64)
+    event_counts = np.empty(len(trackers), dtype=np.int64)
+    for packet_idx, tracker in enumerate(trackers):
+        event_counts[packet_idx] = len(tracker.radius)
+    return trackers_full_list_to_selected_arrays(
+        trackers, event_starts, event_counts, release_trackers
+    )</div>
+
+
+
+<div class="viewcode-block" id="trackers_full_list_to_selected_arrays">
+<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_selected_arrays">[docs]</a>
+@njit
+def trackers_full_list_to_selected_arrays(
+    trackers: TypedList,
+    event_starts: np.ndarray,
+    event_counts: np.ndarray,
+    release_trackers: bool = False,
+) -&gt; tuple:
+    &quot;&quot;&quot;
+    Concatenate a contiguous range of events from each TrackerFull.
+
+    Parameters
+    ----------
+    trackers : numba.typed.typedlist.List
+        List of TrackerFull instances.
+    event_starts : numpy.ndarray
+        First event index taken from each tracker.
+    event_counts : numpy.ndarray
+        Number of events taken from each tracker.
 
     Returns
     -------
@@ -4303,10 +4346,7 @@ def trackers_full_list_to_arrays(trackers) -&gt; tuple:
         - line_absorb_id (np.int64[:]) : Line absorb ID
         - line_emit_id (np.int64[:]) : Line emit ID
     &quot;&quot;&quot;
-    # Calculate total array size
-    total_events = 0
-    for tracker in trackers:
-        total_events += len(tracker.radius)
+    total_events = event_counts.sum()
 
     # Pre-allocate all arrays
     packet_id = np.empty(total_events, dtype=np.int64)
@@ -4328,25 +4368,42 @@ def trackers_full_list_to_arrays(trackers) -&gt; tuple:
     # Concatenate arrays from all trackers
     offset = 0
     for packet_idx, tracker in enumerate(trackers):
-        n_events = len(tracker.radius)
-        end_idx = offset + n_events
+        start = event_starts[packet_idx]
+        stop = start + event_counts[packet_idx]
+        end_idx = offset + event_counts[packet_idx]
 
         # Simple array concatenation
         packet_id[offset:end_idx] = packet_idx
-        event_id[offset:end_idx] = np.arange(n_events, dtype=np.int64)
-        radius[offset:end_idx] = tracker.radius
-        before_shell_id[offset:end_idx] = tracker.before_shell_id
-        after_shell_id[offset:end_idx] = tracker.after_shell_id
-        interaction_type[offset:end_idx] = tracker.interaction_type
-        status[offset:end_idx] = tracker.status
-        before_nu[offset:end_idx] = tracker.before_nu
-        before_mu[offset:end_idx] = tracker.before_mu
-        before_energy[offset:end_idx] = tracker.before_energy
-        after_nu[offset:end_idx] = tracker.after_nu
-        after_mu[offset:end_idx] = tracker.after_mu
-        after_energy[offset:end_idx] = tracker.after_energy
-        line_absorb_id[offset:end_idx] = tracker.line_absorb_id
-        line_emit_id[offset:end_idx] = tracker.line_emit_id
+        event_id[offset:end_idx] = np.arange(start, stop, dtype=np.int64)
+        radius[offset:end_idx] = tracker.radius[start:stop]
+        before_shell_id[offset:end_idx] = tracker.before_shell_id[start:stop]
+        after_shell_id[offset:end_idx] = tracker.after_shell_id[start:stop]
+        interaction_type[offset:end_idx] = tracker.interaction_type[start:stop]
+        status[offset:end_idx] = tracker.status[start:stop]
+        before_nu[offset:end_idx] = tracker.before_nu[start:stop]
+        before_mu[offset:end_idx] = tracker.before_mu[start:stop]
+        before_energy[offset:end_idx] = tracker.before_energy[start:stop]
+        after_nu[offset:end_idx] = tracker.after_nu[start:stop]
+        after_mu[offset:end_idx] = tracker.after_mu[start:stop]
+        after_energy[offset:end_idx] = tracker.after_energy[start:stop]
+        line_absorb_id[offset:end_idx] = tracker.line_absorb_id[start:stop]
+        line_emit_id[offset:end_idx] = tracker.line_emit_id[start:stop]
+
+        if release_trackers:
+            tracker.radius = np.empty(0, dtype=np.float64)
+            tracker.before_shell_id = np.empty(0, dtype=np.int64)
+            tracker.after_shell_id = np.empty(0, dtype=np.int64)
+            tracker.interaction_type = np.empty(0, dtype=np.int64)
+            tracker.status = np.empty(0, dtype=np.int64)
+            tracker.before_nu = np.empty(0, dtype=np.float64)
+            tracker.before_mu = np.empty(0, dtype=np.float64)
+            tracker.before_energy = np.empty(0, dtype=np.float64)
+            tracker.after_nu = np.empty(0, dtype=np.float64)
+            tracker.after_mu = np.empty(0, dtype=np.float64)
+            tracker.after_energy = np.empty(0, dtype=np.float64)
+            tracker.line_absorb_id = np.empty(0, dtype=np.int64)
+            tracker.line_emit_id = np.empty(0, dtype=np.int64)
+            tracker.next_line_id = np.empty(0, dtype=np.int64)
 
         offset = end_idx
 
@@ -4372,7 +4429,9 @@ def trackers_full_list_to_arrays(trackers) -&gt; tuple:
 
 <div class="viewcode-block" id="trackers_full_to_df">
 <a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df">[docs]</a>
-def trackers_full_to_df(trackers_full_list) -&gt; pd.DataFrame:
+def trackers_full_to_df(
+    trackers_full_list: TypedList, release_trackers: bool = False
+) -&gt; pd.DataFrame:
     &quot;&quot;&quot;
     Convert a list of RPacketTracker instances to a comprehensive DataFrame.
 
@@ -4388,7 +4447,28 @@ def trackers_full_to_df(trackers_full_list) -&gt; pd.DataFrame:
         indexed by packet_id and event_id. Line interaction columns have default
         values (-1 for IDs, NaN for physical quantities) for non-interaction events.
     &quot;&quot;&quot;
-    # Use the fast array extraction function
+    return event_arrays_to_df(
+        trackers_full_list_to_arrays(trackers_full_list, release_trackers)
+    )</div>
+
+
+
+<div class="viewcode-block" id="event_arrays_to_df">
+<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.event_arrays_to_df">[docs]</a>
+def event_arrays_to_df(event_arrays: tuple) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Build the full-tracker DataFrame from concatenated event arrays.
+
+    Parameters
+    ----------
+    event_arrays : tuple
+        Event arrays as returned by ``trackers_full_list_to_selected_arrays``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Event DataFrame indexed by packet_id and event_id.
+    &quot;&quot;&quot;
     (
         packet_id,
         event_id,
@@ -4405,7 +4485,7 @@ def trackers_full_to_df(trackers_full_list) -&gt; pd.DataFrame:
         after_energy,
         line_absorb_id,
         line_emit_id,
-    ) = trackers_full_list_to_arrays(trackers_full_list)
+    ) = event_arrays
 
     # Create categorical data types
     interaction_type_dtype = CategoricalDtype(
@@ -4415,19 +4495,24 @@ def trackers_full_to_df(trackers_full_list) -&gt; pd.DataFrame:
         categories=[member.name for member in PacketStatus], ordered=False
     )
 
-    # Convert enum values to their string names and create categorical
-    interaction_type_labels = [
-        InteractionType(int(int_type)).name for int_type in interaction_type
-    ]
-    interaction_type_categorical = pd.Categorical(
-        interaction_type_labels, dtype=interaction_type_dtype
+    # Map enum values (non-contiguous, NO_INTERACTION = -1) to category codes
+    interaction_type_offset = min(InteractionType)
+    interaction_type_codes = np.full(
+        max(InteractionType) - interaction_type_offset + 1, -1, dtype=np.int8
+    )
+    for category_idx, member in enumerate(InteractionType):
+        interaction_type_codes[member - interaction_type_offset] = category_idx
+    interaction_type_categorical = pd.Categorical.from_codes(
+        interaction_type_codes[interaction_type - interaction_type_offset],
+        dtype=interaction_type_dtype,
     )
 
-    # Convert status values to their string names
-    status_labels = [
-        PacketStatus(int(int_status)).name for int_status in status
-    ]
-    status_categorical = pd.Categorical(status_labels, dtype=status_dtype)
+    status_codes = np.full(max(PacketStatus) + 1, -1, dtype=np.int8)
+    for category_idx, member in enumerate(PacketStatus):
+        status_codes[member] = category_idx
+    status_categorical = pd.Categorical.from_codes(
+        status_codes[status], dtype=status_dtype
+    )
 
     # Create comprehensive event DataFrame with specific column order
     event_data = {
@@ -4452,6 +4537,76 @@ def trackers_full_to_df(trackers_full_list) -&gt; pd.DataFrame:
     )
 
     return pd.DataFrame(event_data, index=multi_index)</div>
+
+
+
+<div class="viewcode-block" id="find_last_interaction_events">
+<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.find_last_interaction_events">[docs]</a>
+@njit
+def find_last_interaction_events(trackers: TypedList) -&gt; tuple:
+    &quot;&quot;&quot;
+    Find each packet&#39;s last line, electron-scattering or continuum event.
+
+    Parameters
+    ----------
+    trackers : numba.typed.typedlist.List
+        List of TrackerFull instances.
+
+    Returns
+    -------
+    tuple
+        Event index of the last physical interaction per packet (0 for a
+        packet without one), and the number of events to take per packet
+        (0 for a tracker without events).
+    &quot;&quot;&quot;
+    last_interaction_event_idx = np.zeros(len(trackers), dtype=np.int64)
+    event_counts = np.zeros(len(trackers), dtype=np.int64)
+    for packet_idx, tracker in enumerate(trackers):
+        event_counts[packet_idx] = min(1, len(tracker.interaction_type))
+        for event_idx in range(len(tracker.interaction_type) - 1, -1, -1):
+            interaction_type = tracker.interaction_type[event_idx]
+            if (
+                interaction_type == InteractionType.LINE
+                or interaction_type == InteractionType.ESCATTERING
+                or interaction_type == InteractionType.CONTINUUM_PROCESS
+            ):
+                last_interaction_event_idx[packet_idx] = event_idx
+                break
+    return last_interaction_event_idx, event_counts</div>
+
+
+
+<div class="viewcode-block" id="trackers_full_to_last_interaction_df">
+<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df">[docs]</a>
+def trackers_full_to_last_interaction_df(
+    trackers_full_list: TypedList,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Build the last-interaction DataFrame without the full event DataFrame.
+
+    Only the last physical interaction of each packet (or its first event, for
+    a packet without one) is converted, so the result matches
+    ``tracker_full_df2tracker_last_interaction_df(trackers_full_to_df(...))``.
+
+    Parameters
+    ----------
+    trackers_full_list : numba.typed.typedlist.List
+        List of TrackerFull instances.
+
+    Returns
+    -------
+    pd.DataFrame
+        Last-interaction DataFrame indexed by packet_id.
+    &quot;&quot;&quot;
+    event_starts, event_counts = find_last_interaction_events(
+        trackers_full_list
+    )
+    selected_df = event_arrays_to_df(
+        trackers_full_list_to_selected_arrays(
+            trackers_full_list, event_starts, event_counts
+        )
+    )
+    return tracker_full_df2tracker_last_interaction_df(selected_df)</div>
 
 
 
