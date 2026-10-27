@@ -447,7 +447,7 @@ def test_iip_level_solution_is_seed_independent_after_first_transport(
     plasma = workflow.plasma_solver
     maximum_electron_density = (
         plasma.number_density.multiply(
-            plasma.number_density.index.values, axis=0
+            plasma.number_density.index.to_numpy(), axis=0
         )
         .sum()
         .to_numpy()
@@ -534,7 +534,7 @@ def test_iip_level_equations_close_from_distinct_seeds_after_second_transport(
     plasma = workflow.plasma_solver
     maximum_electron_density = (
         plasma.number_density.multiply(
-            plasma.number_density.index.values, axis=0
+            plasma.number_density.index.to_numpy(), axis=0
         )
         .sum()
         .to_numpy()
@@ -908,7 +908,7 @@ def test_iip_hydrogen_helium_helium_populations_match_ctardis(
     )
     maximum_electron_density = (
         plasma.number_density.multiply(
-            plasma.number_density.index.values, axis=0
+            plasma.number_density.index.to_numpy(), axis=0
         )
         .sum()
         .to_numpy()

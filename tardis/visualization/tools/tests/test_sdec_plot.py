@@ -40,7 +40,10 @@ def make_valid_name(testid):
 def sdec_regression_data(tardis_regression_path):
     # workflow tests for the SDEC plot use the existing regression data from the
     # Simulation since both objects produce the same plot with same config.
-    return tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
+    return (
+        tardis_regression_path
+        / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
+    )
 
 
 class TestSDECPlotter:
@@ -279,7 +282,11 @@ class TestSDECPlotter:
         return plot_data
 
     def test_generate_plot_mpl(
-        self, generate_plot_mpl_hdf, plotter_generate_plot_mpl, regression_data, sdec_regression_data
+        self,
+        generate_plot_mpl_hdf,
+        plotter_generate_plot_mpl,
+        regression_data,
+        sdec_regression_data,
     ):
         fig, plotter = plotter_generate_plot_mpl
         param_idx = plotter._param_idx
@@ -289,7 +296,7 @@ class TestSDECPlotter:
 
         regression_data.fname = regression_file
         # expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
-        expected = pd.HDFStore(sdec_regression_data / regression_file, mode='r')
+        expected = pd.HDFStore(sdec_regression_data / regression_file, mode="r")
 
         # expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
 
@@ -389,7 +396,11 @@ class TestSDECPlotter:
         return plot_data
 
     def test_generate_plot_ply(
-        self, generate_plot_plotly_hdf, plotter_generate_plot_ply, regression_data, sdec_regression_data
+        self,
+        generate_plot_plotly_hdf,
+        plotter_generate_plot_ply,
+        regression_data,
+        sdec_regression_data,
     ):
         fig, plotter = plotter_generate_plot_ply
         param_idx = plotter._param_idx
@@ -399,7 +410,7 @@ class TestSDECPlotter:
 
         regression_data.fname = regression_file
         # expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
-        expected = pd.HDFStore(sdec_regression_data / regression_file, mode='r')
+        expected = pd.HDFStore(sdec_regression_data / regression_file, mode="r")
 
         for item in ["_species_name", "_color_list"]:
             np.testing.assert_array_equal(
@@ -426,10 +437,16 @@ class TestSDECPlotter:
                     ).decode()
                 )
             np.testing.assert_allclose(
-                data.x, expected.get(group + "x").values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_SDEC
+                data.x,
+                expected.get(group + "x").to_numpy().flatten(),
+                atol=0,
+                rtol=RELATIVE_TOLERANCE_SDEC,
             )
             np.testing.assert_allclose(
-                data.y, expected.get(group + "y").values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_SDEC
+                data.y,
+                expected.get(group + "y").to_numpy().flatten(),
+                atol=0,
+                rtol=RELATIVE_TOLERANCE_SDEC,
             )
 
         expected.close()
@@ -549,24 +566,49 @@ class TestSDECPlotter:
         return plotter_from_workflow
 
     def test_calculate_plotting_data_workflow_vs_regression(
-        self, plotter_calculate_plotting_data_from_workflow, sdec_regression_data
+        self,
+        plotter_calculate_plotting_data_from_workflow,
+        sdec_regression_data,
     ):
         param_idx = plotter_calculate_plotting_data_from_workflow._param_idx
-        regression_file = sdec_regression_data / f"test_calculate_plotting_data__plotter_calculate_plotting_data{param_idx}__.h5"
+        regression_file = (
+            sdec_regression_data
+            / f"test_calculate_plotting_data__plotter_calculate_plotting_data{param_idx}__.h5"
+        )
 
         for attribute_type, attribute_name in self.plotting_data_attributes:
-            plot_object = getattr(plotter_calculate_plotting_data_from_workflow, attribute_name)
+            plot_object = getattr(
+                plotter_calculate_plotting_data_from_workflow, attribute_name
+            )
             if attribute_type == "attributes_np":
-                expected = pd.read_hdf(regression_file, key=f"plot_data_hdf/{attribute_name}", mode='r')
+                expected = pd.read_hdf(
+                    regression_file,
+                    key=f"plot_data_hdf/{attribute_name}",
+                    mode="r",
+                )
                 if isinstance(plot_object, astropy.units.quantity.Quantity):
                     plot_object = plot_object.cgs.value
                 # Handle array shape differences
                 if plot_object.ndim > 1:
                     plot_object = plot_object.flatten()
-                np.testing.assert_allclose(plot_object, expected.values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_SDEC)
+                np.testing.assert_allclose(
+                    plot_object,
+                    expected.to_numpy().flatten(),
+                    atol=0,
+                    rtol=RELATIVE_TOLERANCE_SDEC,
+                )
             elif attribute_type == "attributes_df":
-                expected_df = pd.read_hdf(regression_file, key=f"plot_data_hdf/{attribute_name}", mode='r')
-                pd.testing.assert_frame_equal(plot_object, expected_df, atol=0, rtol=RELATIVE_TOLERANCE_SDEC)
+                expected_df = pd.read_hdf(
+                    regression_file,
+                    key=f"plot_data_hdf/{attribute_name}",
+                    mode="r",
+                )
+                pd.testing.assert_frame_equal(
+                    plot_object,
+                    expected_df,
+                    atol=0,
+                    rtol=RELATIVE_TOLERANCE_SDEC,
+                )
 
     @pytest.fixture(scope="class", params=list(enumerate(combinations)))
     def plotter_generate_plot_mpl_from_workflow(
@@ -604,16 +646,29 @@ class TestSDECPlotter:
     ):
         _, plotter = plotter_generate_plot_mpl_from_workflow
         param_idx = plotter._param_idx
-        regression_file = sdec_regression_data / f"test_generate_plot_mpl__plotter_generate_plot_ply{param_idx}__.h5"
+        regression_file = (
+            sdec_regression_data
+            / f"test_generate_plot_mpl__plotter_generate_plot_ply{param_idx}__.h5"
+        )
 
         # Compare species names and color lists
-        expected_species = pd.read_hdf(regression_file, key="plot_data_hdf/_species_name", mode='r')
-        expected_colors = pd.read_hdf(regression_file, key="plot_data_hdf/_color_list", mode='r')
+        expected_species = pd.read_hdf(
+            regression_file, key="plot_data_hdf/_species_name", mode="r"
+        )
+        expected_colors = pd.read_hdf(
+            regression_file, key="plot_data_hdf/_color_list", mode="r"
+        )
 
-        np.testing.assert_array_equal(plotter._species_name, expected_species.values.flatten())
+        np.testing.assert_array_equal(
+            plotter._species_name, expected_species.to_numpy().flatten()
+        )
 
-        color_list = [item for subitem in plotter._color_list for item in subitem]
-        np.testing.assert_array_equal(color_list, expected_colors.values.flatten())
+        color_list = [
+            item for subitem in plotter._color_list for item in subitem
+        ]
+        np.testing.assert_array_equal(
+            color_list, expected_colors.to_numpy().flatten()
+        )
 
     def test_workflow_simulation_data_identical(
         self, plotter, plotter_from_workflow
@@ -648,29 +703,45 @@ class TestSDECPlotter:
             rtol=RELATIVE_TOLERANCE_SDEC,
         )
 
-    def test_mpl_image_workflow(self, plotter_generate_plot_mpl_from_workflow, tmp_path, sdec_regression_data):
+    def test_mpl_image_workflow(
+        self,
+        plotter_generate_plot_mpl_from_workflow,
+        tmp_path,
+        sdec_regression_data,
+    ):
         fig, plotter = plotter_generate_plot_mpl_from_workflow
         param_idx = plotter._param_idx
 
         # Save actual image
-        actual_image_path = tmp_path / f"test_mpl_image_workflow_{param_idx}.png"
+        actual_image_path = (
+            tmp_path / f"test_mpl_image_workflow_{param_idx}.png"
+        )
         fig.figure.savefig(actual_image_path)
 
         # Path to expected image
-        expected_image_path = sdec_regression_data / f"test_mpl_image__plotter_generate_plot_mpl{param_idx}__.png"
+        expected_image_path = (
+            sdec_regression_data
+            / f"test_mpl_image__plotter_generate_plot_mpl{param_idx}__.png"
+        )
 
         # Compare images
-        compare_images(str(expected_image_path), str(actual_image_path), tol=1e-3)
+        compare_images(
+            str(expected_image_path), str(actual_image_path), tol=1e-3
+        )
 
     @pytest.mark.parametrize(
         "attribute", ["_full_species_list", "_species_list", "_keep_colour"]
     )
-    def test_parse_species_list_workflow(self, plotter_from_workflow, attribute, sdec_regression_data):
+    def test_parse_species_list_workflow(
+        self, plotter_from_workflow, attribute, sdec_regression_data
+    ):
         # Parse species list on workflow plotter
         plotter_from_workflow._parse_species_list(self.species_list[0])
 
         # Load expected data from regression files
-        expected_file = sdec_regression_data / f"test_parse_species_list__{attribute}__.npy"
+        expected_file = (
+            sdec_regression_data / f"test_parse_species_list__{attribute}__.npy"
+        )
         expected_data = np.load(expected_file)
 
         actual_data = getattr(plotter_from_workflow, attribute)

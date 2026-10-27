@@ -72,4 +72,4 @@ def test_he_workflow_all_outputs_regression(
     """
     output = getattr(he_workflow_result, output_he)
     expected = regression_data.sync_dataframe(output, key=output_he)
-    assert_allclose(output.to_numpy(), expected.values, rtol=1e-5)
+    assert_allclose(output.to_numpy(), expected.to_numpy(), rtol=1e-5)

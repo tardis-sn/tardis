@@ -106,10 +106,10 @@ def calculate_sobolev_optical_depth_coefficient(
         depth.
     """
     sobolev_optical_depth_coefficient = (
-        (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
+        (lines.wavelength_cm * lines.f_lu).to_numpy()[np.newaxis].T
         * SOBOLEV_COEFFICIENT
         * stimulated_emission_factor
-        * level_number_density.reindex(lines.droplevel(-1).index).values
+        * level_number_density.reindex(lines.droplevel(-1).index).to_numpy()
     )
 
     if np.any(np.isnan(sobolev_optical_depth_coefficient)) or np.any(
