@@ -91,9 +91,8 @@ class SpectrumSolver(HDFWriterMixin):
         plasma: BasePlasma | None = None,
         opacity_state: OpacityState | None = None,
         macro_atom_state: LegacyMacroAtomState | MacroAtomState | None = None,
-        number_of_vpackets: int = 0,
     ) -> None:
-        """Set up the solver to handle real and virtual spectra
+        """Set up the solver to compute the integrated spectrum
 
         Parameters
         ----------
@@ -111,19 +110,10 @@ class SpectrumSolver(HDFWriterMixin):
             Final opacity state.
         macro_atom_state : LegacyMacroAtomState or MacroAtomState, optional
             Final macro-atom state.
-        number_of_vpackets : int, optional
-            Number of virtual packets spawned per real-packet interaction.
-            Requires ``transport`` to have retained full real-packet histories.
         """
         self.transport_state = transport_state
-        if transport is not None:
-            self.solve_virtual_packet_spectrum(
-                transport_state,
-                transport.montecarlo_configuration,
-                transport.rpacket_tracker,
-                number_of_vpackets,
-            )
-            transport.rpacket_tracker = None
+        # A virtual spectrum from an earlier run is stale for this transport
+        self._montecarlo_virtual_luminosity.value[:] = 0.0
         self._integrator = integrator
         self.simulation_state = simulation_state
         self.opacity_state = opacity_state
@@ -148,18 +138,31 @@ class SpectrumSolver(HDFWriterMixin):
             Completed classic or non-homologous transport state.
         montecarlo_configuration : MonteCarloConfiguration
             Configuration used for the completed transport calculation.
-        rpacket_tracker : numba.typed.List, optional
-            Retained full real-packet histories. Required when
-            ``number_of_vpackets`` is positive.
+        rpacket_tracker : numba.typed.List or None
+            Retained full real-packet histories of the completed transport.
         number_of_vpackets : int
             Number of virtual packets spawned per real-packet interaction.
+            Must be positive.
+
+        Raises
+        ------
+        ValueError
+            If ``number_of_vpackets`` is not positive or no real-packet
+            histories were retained.
+        TypeError
+            If ``transport_state`` is not a classic or non-homologous state.
         """
-        self._montecarlo_virtual_luminosity.value[:] = 0.0
-        transport_state.virt_logging = (
-            montecarlo_configuration.ENABLE_VPACKET_TRACKING
-        )
         if number_of_vpackets <= 0:
-            return
+            raise ValueError(
+                "Virtual-packet spectra require number_of_vpackets > 0, got "
+                f"{number_of_vpackets}."
+            )
+        if rpacket_tracker is None:
+            raise ValueError(
+                "Virtual-packet post-processing requires retained full "
+                "real-packet histories; run the final iteration with "
+                "retain_full_trackers=True."
+            )
 
         if isinstance(transport_state, MonteCarloTransportState):
             time_explosion = transport_state.time_explosion.cgs.value
@@ -171,12 +174,6 @@ class SpectrumSolver(HDFWriterMixin):
             raise TypeError(
                 "Virtual-packet spectra are supported only for classic and "
                 "non-homologous Monte Carlo transport states."
-            )
-
-        if rpacket_tracker is None:
-            raise RuntimeError(
-                "Virtual-packet post-processing requires completed "
-                "real-packet histories."
             )
 
         virtual_packet_luminosity, vpacket_tracker = (
@@ -192,6 +189,9 @@ class SpectrumSolver(HDFWriterMixin):
             )
         )
         self._montecarlo_virtual_luminosity.value[:] = virtual_packet_luminosity
+        transport_state.virt_logging = (
+            montecarlo_configuration.ENABLE_VPACKET_TRACKING
+        )
         if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
             transport_state.vpacket_tracker = vpacket_tracker
 

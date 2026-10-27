@@ -572,8 +572,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             plasma=self.plasma,
             opacity_state=self.opacity_state,
             macro_atom_state=self.macro_atom_state,
-            number_of_vpackets=self.no_of_virtual_packets,
         )
+        if self.no_of_virtual_packets > 0:
+            self.spectrum_solver.solve_virtual_packet_spectrum(
+                self.transport.transport_state,
+                self.transport.montecarlo_configuration,
+                self.transport.rpacket_tracker,
+                self.no_of_virtual_packets,
+            )
+            # Memory: the histories are not needed once the spectrum is solved
+            self.transport.rpacket_tracker = None
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "convergence_plots"):

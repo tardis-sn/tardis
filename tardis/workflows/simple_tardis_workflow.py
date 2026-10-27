@@ -470,8 +470,16 @@ class SimpleTARDISWorkflow:
             plasma=self.plasma_solver,
             opacity_state=opacity_states["opacity_state"],
             macro_atom_state=opacity_states["macro_atom_state"],
-            number_of_vpackets=self.virtual_packet_count,
         )
+        if self.virtual_packet_count > 0:
+            self.spectrum_solver.solve_virtual_packet_spectrum(
+                self.transport_state,
+                self.transport_solver.montecarlo_configuration,
+                self.transport_solver.rpacket_tracker,
+                self.virtual_packet_count,
+            )
+            # Memory: the histories are not needed once the spectrum is solved
+            self.transport_solver.rpacket_tracker = None
 
     def run(self) -> None:
         """Run the TARDIS simulation until convergence is reached"""
