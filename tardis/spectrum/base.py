@@ -1,21 +1,35 @@
-from __future__ import annotations
-
 import warnings
-from typing import TYPE_CHECKING
 
 import numpy as np
 from astropy import units as u
 from numba.typed import List as TypedList
 
+from tardis.io.configuration.config_reader import ConfigurationNameSpace
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.model.base import SimulationState
+from tardis.opacities.macro_atom.macroatom_state import (
+    LegacyMacroAtomState,
+    MacroAtomState,
+)
+from tardis.opacities.opacity_state import OpacityState
+from tardis.plasma.base import BasePlasma
 from tardis.spectrum.formal_integral.base import IntegrationError
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.spectrum.virtual_packet import calculate_virtual_packet_spectrum
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
+)
 from tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state import (
     MonteCarloTransportStateNonhomologous,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.solver import (
+    MCTransportSolverNonhomologous,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
     trace_vpacket_volley as trace_vpacket_volley_nonhomologous,
@@ -32,25 +46,6 @@ from tardis.transport.montecarlo.packets.virtual_packet import (
 from tardis.util.base import (
     quantity_linspace,
 )
-
-if TYPE_CHECKING:
-    from tardis.io.configuration.config_reader import ConfigurationNameSpace
-    from tardis.model.base import SimulationState
-    from tardis.opacities.macro_atom.macroatom_state import (
-        LegacyMacroAtomState,
-        MacroAtomState,
-    )
-    from tardis.opacities.opacity_state import OpacityState
-    from tardis.plasma.base import BasePlasma
-    from tardis.spectrum.formal_integral.formal_integral_solver import (
-        FormalIntegralSolver,
-    )
-    from tardis.transport.montecarlo.modes.classic.solver import (
-        MCTransportSolverClassic,
-    )
-    from tardis.transport.montecarlo.modes.nonhomologous.solver import (
-        MCTransportSolverNonhomologous,
-    )
 
 
 class SpectrumSolver(HDFWriterMixin):
@@ -163,9 +158,7 @@ class SpectrumSolver(HDFWriterMixin):
         if isinstance(transport_state, MonteCarloTransportState):
             time_explosion = transport_state.time_explosion.cgs.value
             trace_vpacket_volley = trace_vpacket_volley_classic
-        elif isinstance(
-            transport_state, MonteCarloTransportStateNonhomologous
-        ):
+        elif isinstance(transport_state, MonteCarloTransportStateNonhomologous):
             time_explosion = 0.0
             trace_vpacket_volley = trace_vpacket_volley_nonhomologous
         else:
