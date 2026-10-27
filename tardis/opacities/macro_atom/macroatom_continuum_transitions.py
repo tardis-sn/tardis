@@ -59,7 +59,7 @@ def continuum_transition_recombination_internal(
 
     destinations = [
         (int(first), int(second), int(third))
-        for first, second, third in p_recomb_internal.index.values
+        for first, second, third in p_recomb_internal.index.to_numpy()
     ]
     sources = [("i", -99, -99)] * len(p_recomb_internal.index)
 
@@ -101,7 +101,7 @@ def probability_recombination_emission(
         DataFrame containing unnormalized recombination emission probabilities.
     """
     p_photo_recomb_emission = spontaneous_recombination_coeff.multiply(
-        energies_diff_bound_free.values, axis=0
+        energies_diff_bound_free.to_numpy(), axis=0
     )
 
     return p_photo_recomb_emission
@@ -134,7 +134,7 @@ def continuum_transition_recombination_emission(
 
     destinations = [
         (int(first), int(second), int(third))
-        for first, second, third in p_photo_recomb_emission.index.values
+        for first, second, third in p_photo_recomb_emission.index.to_numpy()
     ]
     sources = [("i", -99, -99)] * len(p_photo_recomb_emission.index)
 
@@ -211,7 +211,7 @@ def continuum_transition_photoionization_internal(
 
     sources = [
         (int(first), int(second), int(third))
-        for first, second, third in p_photoion_internal.index.values
+        for first, second, third in p_photoion_internal.index.to_numpy()
     ]
     destinations = [("i", -99, -99)] * len(p_photoion_internal.index)
 
@@ -385,7 +385,7 @@ def collisional_transition_deexc_to_k_packet(
         (int(first), int(second), int(third))
         for first, second, third in p_coll_down_to_k_packet.index.droplevel(
             "level_number_lower"
-        ).values
+        ).to_numpy()
     ]
     destinations = [("k", -99, -99)] * len(p_coll_down_to_k_packet.index)
 
@@ -428,7 +428,7 @@ def probability_collision_internal_down(
         DataFrame containing collisional de-excitation probabilities.
     """
     p_coll_internal_down = (coll_deexc_coeff * electron_densities).multiply(
-        energies_lower.values, axis=0
+        energies_lower.to_numpy(), axis=0
     )
     return p_coll_internal_down
 
@@ -465,13 +465,13 @@ def collisional_transition_internal_down(
         (int(first), int(second), int(third))
         for first, second, third in coll_deexc_coeff.index.droplevel(
             "level_number_lower"
-        ).values
+        ).to_numpy()
     ]
     destinations = [
         (int(first), int(second), int(third))
         for first, second, third in coll_deexc_coeff.index.droplevel(
             "level_number_upper"
-        ).values
+        ).to_numpy()
     ]
 
     coll_internal_down_metadata = pd.DataFrame(
@@ -512,7 +512,7 @@ def probability_collision_exc_internal(
         DataFrame containing collisional internal up probabilities.
     """
     p_coll_exc_internal = (coll_exc_coeff * electron_densities).multiply(
-        energies_lower.values, axis=0
+        energies_lower.to_numpy(), axis=0
     )
 
     return p_coll_exc_internal
@@ -550,13 +550,13 @@ def collisional_transition_excitation_internal(
         (int(first), int(second), int(third))
         for first, second, third in coll_exc_coeff.index.droplevel(
             "level_number_upper"
-        ).values
+        ).to_numpy()
     ]
     destinations = [
         (int(first), int(second), int(third))
         for first, second, third in coll_exc_coeff.index.droplevel(
             "level_number_lower"
-        ).values
+        ).to_numpy()
     ]
 
     coll_up_internal_metadata = pd.DataFrame(
@@ -635,7 +635,7 @@ def collisional_transition_ionization_internal(
 
     sources = [
         (int(first), int(second), int(third))
-        for first, second, third in coll_ion_coeff.index.values
+        for first, second, third in coll_ion_coeff.index.to_numpy()
     ]
     destinations = [("i", -99, -99)] * len(p_coll_ionization_internal)
 
@@ -681,7 +681,7 @@ def probability_collision_recombination_internal(
     """
     p_coll_ionization_internal = (
         coll_recomb_coeff * electron_densities
-    ).multiply(energies_coll_lower_states.values, axis=0)
+    ).multiply(energies_coll_lower_states.to_numpy(), axis=0)
 
     return p_coll_ionization_internal
 
@@ -719,7 +719,7 @@ def collisional_transition_recombination_internal(
     sources = [("i", -99, -99)] * len(p_coll_recomb_internal)
     destinations = [
         (int(first), int(second), int(third))
-        for first, second, third in coll_recomb_coeff.index.values
+        for first, second, third in coll_recomb_coeff.index.to_numpy()
     ]
 
     coll_recomb_internal = pd.DataFrame(
@@ -762,7 +762,7 @@ def probability_collision_recombination_to_k_packet(
     """
     p_coll_recomb_to_k_packet = (
         coll_recomb_coeff * electron_densities
-    ).multiply(energies_diff_bound_free.values, axis=0)
+    ).multiply(energies_diff_bound_free.to_numpy(), axis=0)
 
     return p_coll_recomb_to_k_packet
 

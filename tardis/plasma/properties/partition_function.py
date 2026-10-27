@@ -49,8 +49,8 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
 
     @staticmethod
     def calculate(excitation_energy, g, beta_rad, levels):
-        exponential = np.exp(np.outer(excitation_energy.values, -beta_rad))
-        level_boltzmann_factor_array = g.values[np.newaxis].T * exponential
+        exponential = np.exp(np.outer(excitation_energy.to_numpy(), -beta_rad))
+        level_boltzmann_factor_array = g.to_numpy()[np.newaxis].T * exponential
         level_boltzmann_factor = pd.DataFrame(
             level_boltzmann_factor_array,
             index=levels,
@@ -213,7 +213,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             electron_distribution = ThermalElectronEnergyDistribution(
                 0 * u.erg,
                 t_electrons * u.K,
-                previous_electron_densities.values * u.g / u.cm**3,
+                previous_electron_densities.to_numpy() * u.g / u.cm**3,
             )
 
             rate_matrix = rate_matrix_solver.solve(
@@ -228,7 +228,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 level_pops.loc[species]
                 * g.loc[species][0]
                 / level_pops.loc[species].iloc[0]
-            ).values
+            ).to_numpy()
         return general_level_boltzmann_factor
 
     def _calculate_classical_nebular(

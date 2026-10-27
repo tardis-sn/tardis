@@ -103,21 +103,21 @@ class ThermalCollisionalRateSolver:
                 self.all_collisional_strengths_index.droplevel(
                     "level_number_upper"
                 )
-            ].energy.values
+            ].energy.to_numpy()
             - self.levels.loc[
                 self.all_collisional_strengths_index.droplevel(
                     "level_number_lower"
                 )
-            ].energy.values
+            ].energy.to_numpy()
         ) * u.erg
 
         self.g_upper = self.levels.loc[
             self.all_collisional_strengths_index.droplevel("level_number_lower")
-        ].g.values
+        ].g.to_numpy()
 
         self.g_lower = self.levels.loc[
             self.all_collisional_strengths_index.droplevel("level_number_upper")
-        ].g.values
+        ].g.to_numpy()
 
         if collisional_strength_approximation == "regemorter":
             self.thermal_collision_strength_approximator = (
@@ -139,18 +139,16 @@ class ThermalCollisionalRateSolver:
             self.delta_energies[np.newaxis].T
             / (temperatures_electron * const.k_B),
         ).value
-        collision_rates_coeff_lu = (
-            (BETA_COLL / np.sqrt(temperatures_electron) * boltzmann_factor)
-            .to("cm3 / s")
-            .value
+        thermal_rates_coeff = (
+            (BETA_COLL / np.sqrt(temperatures_electron)).to("cm3 / s").value
             * thermal_all_collision_strengths
-        )  # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
+        )
+        # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
+        collision_rates_coeff_lu = boltzmann_factor * thermal_rates_coeff
 
         collision_rates_coeff_ul = (
-            (self.g_lower / self.g_upper)[np.newaxis].T
-            / boltzmann_factor
-            * collision_rates_coeff_lu
-        )
+            self.g_lower / self.g_upper
+        )[np.newaxis].T * thermal_rates_coeff
 
         collision_rates_coeff_ul.index = (
             collision_rates_coeff_lu.index.swaplevel(
@@ -221,6 +219,13 @@ class ThermalCollisionalRateSolver:
                     temperatures_electron
                 )
             )
+            # Lines sharing a level pair add to that pair's collision strength.
+            if thermal_collision_strength_approximated.index.has_duplicates:
+                thermal_collision_strength_approximated = (
+                    thermal_collision_strength_approximated.groupby(
+                        level=thermal_collision_strength_approximated.index.names
+                    ).sum()
+                )
 
         return pd.concat(
             [

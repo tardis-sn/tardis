@@ -1,0 +1,17 @@
+---
+name: no_density
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: Velocity and abundances only.
+tardis_model_config_version: v1.0
+datatype:
+  fields:
+    - name: velocity
+      unit: km/s
+      desc: velocities of shell boundaries.
+    - name: H
+      desc: fractional H abundance
+---
+velocity,H
+10000,0.0
+11000,1.0

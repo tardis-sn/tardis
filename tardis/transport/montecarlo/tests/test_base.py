@@ -30,7 +30,7 @@ def test_hdf_transport(
         actual = actual.cgs.value
     path = f"transport/{attr}"
     expected = pd.read_hdf(hdf_file_path, path)
-    assert_almost_equal(actual, expected.values)
+    assert_almost_equal(actual, expected.to_numpy())
 
 
 transport_state_properties = [
@@ -65,4 +65,4 @@ def test_hdf_transport_state(
         actual = actual.cgs.value
     path = f"transport_state/{attr}"
     expected = pd.read_hdf(hdf_file_path, path)
-    assert_almost_equal(actual, expected.values)
+    assert_almost_equal(actual, expected.to_numpy())
