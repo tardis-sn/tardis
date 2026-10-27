@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.modes.classic.solver module
+=======================================================
+
+.. automodule:: tardis.transport.montecarlo.modes.classic.solver
+   :members:
+   :show-inheritance:
+   :undoc-members:

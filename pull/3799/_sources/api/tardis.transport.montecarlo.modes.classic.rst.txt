@@ -1,0 +1,19 @@
+tardis.transport.montecarlo.modes.classic package
+=================================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.transport.montecarlo.modes.classic.packet_propagation
+   tardis.transport.montecarlo.modes.classic.solver
+
+Module contents
+---------------
+
+.. automodule:: tardis.transport.montecarlo.modes.classic
+   :members:
+   :show-inheritance:
+   :undoc-members:

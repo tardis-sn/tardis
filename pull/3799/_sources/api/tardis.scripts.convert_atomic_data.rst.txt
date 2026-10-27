@@ -1,0 +1,7 @@
+tardis.scripts.convert\_atomic\_data module
+===========================================
+
+.. automodule:: tardis.scripts.convert_atomic_data
+   :members:
+   :show-inheritance:
+   :undoc-members:
