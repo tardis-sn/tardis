@@ -73,3 +73,19 @@ class SobolevInputs:
     tau_coefficient: FloatArray
     line_indices: IntArray
     line_index: pd.Index
+
+
+@dataclass(frozen=True)
+class DiluteRadiationInputs:
+    """Fixed dilute radiation field for species without NLTE rates.
+
+    These species use nebular ionization (Mazzali & Lucy 1993) and
+    dilute-LTE excitation at the radiation temperature and dilution factor.
+    """
+
+    radiation_temperature: FloatArray
+    dilution_factor: FloatArray
+    zeta_data: pd.DataFrame
+    level_boltzmann_factor: pd.DataFrame
+    partition_function: pd.DataFrame
+    delta_treatment: float | None
