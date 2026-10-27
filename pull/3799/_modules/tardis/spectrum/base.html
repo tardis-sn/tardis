@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=11080b7d"></script>
+      <script src="../../../_static/documentation_options.js?v=5deee858"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2639,7 +2639,6 @@
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4308,7 +4307,10 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
     FormalIntegralSolver,
 )
 from tardis.spectrum.spectrum import TARDISSpectrum
-from tardis.spectrum.virtual_packet import calculate_virtual_packet_spectrum
+from tardis.spectrum.virtual_packet import (
+    calculate_virtual_packet_spectrum,
+    create_vpacket_collections,
+)
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
@@ -4326,6 +4328,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
+)
+from tardis.transport.montecarlo.packets.packet_collections import (
+    consolidate_vpacket_tracker,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     TrackerFull,
@@ -4386,7 +4391,7 @@ class SpectrumSolver(HDFWriterMixin):
         opacity_state: OpacityState | None = None,
         macro_atom_state: LegacyMacroAtomState | MacroAtomState | None = None,
     ) -&gt; None:
-        &quot;&quot;&quot;Set up the solver to handle real and virtual spectra
+        &quot;&quot;&quot;Set up the solver to compute the integrated spectrum
 
         Parameters
         ----------
@@ -4406,13 +4411,8 @@ class SpectrumSolver(HDFWriterMixin):
             Final macro-atom state.
         &quot;&quot;&quot;
         self.transport_state = transport_state
-        if transport is not None:
-            self.solve_virtual_packet_spectrum(
-                transport_state,
-                transport.montecarlo_configuration,
-                transport.rpacket_tracker,
-            )
-            transport.rpacket_tracker = None
+        # A virtual spectrum from an earlier run is stale for this transport
+        self._montecarlo_virtual_luminosity.value[:] = 0.0
         self._integrator = integrator
         self.simulation_state = simulation_state
         self.opacity_state = opacity_state
@@ -4430,6 +4430,7 @@ class SpectrumSolver(HDFWriterMixin):
         ),
         montecarlo_configuration: MonteCarloConfiguration,
         rpacket_tracker: TypedList[TrackerFull] | None,
+        number_of_vpackets: int,
     ) -&gt; None:
         &quot;&quot;&quot;Compute the virtual spectrum from retained real-packet histories.
 
@@ -4439,18 +4440,31 @@ class SpectrumSolver(HDFWriterMixin):
             Completed classic or non-homologous transport state.
         montecarlo_configuration : MonteCarloConfiguration
             Configuration used for the completed transport calculation.
-        rpacket_tracker : numba.typed.List, optional
-            Retained full real-packet histories. Required when virtual packets
-            are configured.
-        &quot;&quot;&quot;
-        number_of_vpackets = montecarlo_configuration.NUMBER_OF_VPACKETS
+        rpacket_tracker : numba.typed.List or None
+            Retained full real-packet histories of the completed transport.
+        number_of_vpackets : int
+            Number of virtual packets spawned per real-packet interaction.
+            Must be positive.
 
-        self._montecarlo_virtual_luminosity.value[:] = 0.0
-        transport_state.virt_logging = (
-            montecarlo_configuration.ENABLE_VPACKET_TRACKING
-        )
+        Raises
+        ------
+        ValueError
+            If ``number_of_vpackets`` is not positive or no real-packet
+            histories were retained.
+        TypeError
+            If ``transport_state`` is not a classic or non-homologous state.
+        &quot;&quot;&quot;
         if number_of_vpackets &lt;= 0:
-            return
+            raise ValueError(
+                &quot;Virtual-packet spectra require number_of_vpackets &gt; 0, got &quot;
+                f&quot;{number_of_vpackets}.&quot;
+            )
+        if rpacket_tracker is None:
+            raise ValueError(
+                &quot;Virtual-packet post-processing requires retained full &quot;
+                &quot;real-packet histories; run the final iteration with &quot;
+                &quot;retain_full_trackers=True.&quot;
+            )
 
         if isinstance(transport_state, MonteCarloTransportState):
             time_explosion = transport_state.time_explosion.cgs.value
@@ -4464,27 +4478,33 @@ class SpectrumSolver(HDFWriterMixin):
                 &quot;non-homologous Monte Carlo transport states.&quot;
             )
 
-        if rpacket_tracker is None:
-            raise RuntimeError(
-                &quot;Virtual-packet post-processing requires completed &quot;
-                &quot;real-packet histories.&quot;
-            )
-
-        virtual_packet_luminosity, vpacket_tracker = (
-            calculate_virtual_packet_spectrum(
-                transport_state.geometry_state_numba,
-                time_explosion,
-                transport_state.opacity_state_numba,
-                montecarlo_configuration,
-                self.spectrum_frequency_grid.value,
-                rpacket_tracker,
-                number_of_vpackets,
-                trace_vpacket_volley,
-            )
+        vpacket_collections = create_vpacket_collections(
+            len(rpacket_tracker),
+            self.spectrum_frequency_grid.value,
+            montecarlo_configuration,
+            number_of_vpackets,
+        )
+        virtual_packet_luminosity = calculate_virtual_packet_spectrum(
+            transport_state.geometry_state_numba,
+            time_explosion,
+            transport_state.opacity_state_numba,
+            montecarlo_configuration,
+            self.spectrum_frequency_grid.value,
+            rpacket_tracker,
+            vpacket_collections,
+            trace_vpacket_volley,
         )
         self._montecarlo_virtual_luminosity.value[:] = virtual_packet_luminosity
+        transport_state.virt_logging = (
+            montecarlo_configuration.ENABLE_VPACKET_TRACKING
+        )
         if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
-            transport_state.vpacket_tracker = vpacket_tracker</div>
+            transport_state.vpacket_tracker = consolidate_vpacket_tracker(
+                vpacket_collections,
+                self.spectrum_frequency_grid.value,
+                montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+                montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+            )</div>
 
 
     @property

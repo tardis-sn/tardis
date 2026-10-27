@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=11080b7d"></script>
+      <script src="../../../../../_static/documentation_options.js?v=5deee858"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2639,7 +2639,6 @@
 <li class="toctree-l7"><a class="reference internal" href="../../../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="../../../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4300,8 +4299,6 @@ from tardis.transport.montecarlo.interaction_events import (
 
 numba_config_spec = [
     (&quot;ENABLE_FULL_RELATIVITY&quot;, boolean),
-    (&quot;TEMPORARY_V_PACKET_BINS&quot;, int64),
-    (&quot;NUMBER_OF_VPACKETS&quot;, int64),
     (&quot;MONTECARLO_SEED&quot;, int64),
     (&quot;LINE_INTERACTION_TYPE&quot;, int64),
     (&quot;PACKET_SEEDS&quot;, int64[:]),
@@ -4323,8 +4320,6 @@ numba_config_spec = [
 class MonteCarloConfiguration:
     def __init__(self):
         self.ENABLE_FULL_RELATIVITY = False
-        self.TEMPORARY_V_PACKET_BINS = 0
-        self.NUMBER_OF_VPACKETS = 0
         self.MONTECARLO_SEED = 0
         self.LINE_INTERACTION_TYPE = 0
         self.PACKET_SEEDS = np.empty(1, dtype=np.int64)
@@ -4344,7 +4339,7 @@ class MonteCarloConfiguration:
 
 <div class="viewcode-block" id="configuration_initialize">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.configuration_initialize">[docs]</a>
-def configuration_initialize(config, transport, number_of_vpackets):
+def configuration_initialize(config, transport):
     if transport.line_interaction_type == &quot;macroatom&quot;:
         config.LINE_INTERACTION_TYPE = LineInteractionType.MACROATOM
     elif transport.line_interaction_type == &quot;downbranch&quot;:
@@ -4357,8 +4352,6 @@ def configuration_initialize(config, transport, number_of_vpackets):
             f&#39;&quot;downbranch&quot;, or &quot;scatter&quot; but is &#39;
             f&quot;{transport.line_interaction_type}&quot;
         )
-    config.NUMBER_OF_VPACKETS = number_of_vpackets
-    config.TEMPORARY_V_PACKET_BINS = number_of_vpackets
     config.ENABLE_FULL_RELATIVITY = transport.enable_full_relativity
     config.MONTECARLO_SEED = transport.packet_source.base_seed
     config.VPACKET_SPAWN_START_FREQUENCY = transport.vpacket_spawn_range.end.to(

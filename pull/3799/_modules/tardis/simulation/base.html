@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=11080b7d"></script>
+      <script src="../../../_static/documentation_options.js?v=5deee858"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2639,7 +2639,6 @@
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4726,7 +4725,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 <div class="viewcode-block" id="Simulation.iterate">
 <a class="viewcode-back" href="../../../api/tardis.simulation.base.html#tardis.simulation.base.Simulation.iterate">[docs]</a>
     def iterate(
-        self, no_of_packets: int, no_of_virtual_packets: int = 0
+        self, no_of_packets: int, retain_full_trackers: bool = False
     ) -&gt; u.Quantity:
         &quot;&quot;&quot;
         Run one Monte Carlo iteration.
@@ -4735,8 +4734,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         ----------
         no_of_packets : int
             Number of real packets to propagate.
-        no_of_virtual_packets : int, optional
-            Number of virtual packets to spawn per real-packet interaction.
+        retain_full_trackers : bool, optional
+            Keep the full real-packet histories on the transport solver for
+            post-processing, e.g. virtual-packet spectra.
 
         Returns
         -------
@@ -4766,13 +4766,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.macro_atom_state,
             self.plasma,
             no_of_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.iterations_executed,
         )
 
         self.transport.run(
             transport_state,
             show_progress_bars=self.show_progress_bars,
+            retain_full_trackers=retain_full_trackers,
         )
 
         output_energy = (
@@ -4865,11 +4865,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.simulation_state.t_inner,
         )
 
-        # Set up spectrum solver integrator and virtual spectrum
         self.iterate(
-            self.last_no_of_packets, self.no_of_virtual_packets
+            self.last_no_of_packets,
+            retain_full_trackers=self.no_of_virtual_packets &gt; 0,
         )
 
+        # Set up spectrum solver integrator and virtual spectrum
         integrator_settings = self.spectrum_solver.integrator_settings
         formal_integral_solver = FormalIntegralSolver(
             integrator_settings.points,
@@ -4886,6 +4887,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             opacity_state=self.opacity_state,
             macro_atom_state=self.macro_atom_state,
         )
+        if self.no_of_virtual_packets &gt; 0:
+            self.spectrum_solver.solve_virtual_packet_spectrum(
+                self.transport.transport_state,
+                self.transport.montecarlo_configuration,
+                self.transport.rpacket_tracker,
+                self.no_of_virtual_packets,
+            )
+            # Memory: the histories are not needed once the spectrum is solved
+            self.transport.rpacket_tracker = None
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, &quot;convergence_plots&quot;):
