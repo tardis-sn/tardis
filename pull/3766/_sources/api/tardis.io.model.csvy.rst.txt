@@ -9,6 +9,7 @@ Submodules
 
    tardis.io.model.csvy.data
    tardis.io.model.csvy.readers
+   tardis.io.model.csvy.writers
 
 Module contents
 ---------------
