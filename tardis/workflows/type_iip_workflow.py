@@ -733,7 +733,7 @@ class TypeIIPWorkflow:
             line_index,
         )
         rate_matrix_solver = RateMatrix(
-            RadiativeRatesSolver(plasma.lines),
+            RadiativeRatesSolver(plasma.lines.loc[nlte_lines_mask]),
             ThermalCollisionalRateSolver(
                 equilibrium_levels,
                 plasma.lines,

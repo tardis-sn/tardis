@@ -683,3 +683,56 @@ def test_evaluator_aligns_collisional_temperature_scaling_by_transition(
         deexcitation,
         pd.Series([500.0, 800.0], index=reverse_index, name=0),
     )
+
+
+def test_prepare_species_rates_uses_solved_line_amid_duplicate_lines() -> None:
+    """Pair the solved species' line with its own J and beta row.
+
+    Claim: duplicate level pairs of an unsolved species do not change which
+    line-list row supplies the mean intensity and escape probability.
+    Regime: one H I line between two helium lines that share a level pair.
+    Verification: direct Einstein relations with distinct helium intensities,
+    so reading a wrong row changes the rates; exact arithmetic is expected.
+    """
+    line_index = pd.MultiIndex.from_tuples(
+        [(2, 0, 0, 1), (1, 0, 0, 1), (2, 0, 0, 1)],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "level_number_lower",
+            "level_number_upper",
+        ],
+    )
+    levels = pd.DataFrame(
+        {"energy": [0.0, 1.0e-12, 0.0], "g": [2.0, 4.0, 1.0]},
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0, 0), (1, 0, 1), (1, 1, 0)],
+            names=["atomic_number", "ion_number", "level_number"],
+        ),
+    )
+    hydrogen_line = pd.DataFrame(
+        {"A_ul": [2.0], "B_ul": [0.5], "B_lu": [1.0], "nu": [1.0]},
+        index=line_index[[1]],
+    )
+    j_blues = pd.DataFrame([[7.0], [3.0], [11.0]], index=line_index)
+
+    (rates,) = RateMatrix(
+        RadiativeRatesSolver(hydrogen_line), ZeroElectronRateSolver(), levels
+    ).prepare_species_rates(
+        j_blues,
+        ThermalElectronEnergyDistribution(
+            0.0 * u.erg, np.array([1.0e4]) * u.K, np.array([1.0e9]) / u.cm**3
+        ),
+        (1, 0),
+        line_index,
+    )
+
+    upward = (rates.source_level_idx == 0) & (rates.destination_level_idx == 1)
+    downward = (rates.source_level_idx == 1) & (
+        rates.destination_level_idx == 0
+    )
+    # B_lu * J and A_ul + B_ul * J with the H I row's J = 3.
+    npt.assert_array_equal(rates.radiative_rate_coefficient[upward], [3.0])
+    npt.assert_array_equal(rates.radiative_rate_coefficient[downward], [3.5])
+    # Both directions read beta from the H I line's row in the full list.
+    npt.assert_array_equal(rates.beta_line_idx, [1, 1])
