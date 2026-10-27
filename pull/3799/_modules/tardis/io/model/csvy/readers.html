@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=5deee858"></script>
+      <script src="../../../../../_static/documentation_options.js?v=f1332402"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4372,7 +4372,7 @@ def load_csvy(fname: str | Path) -&gt; CSVYData:
             yaml_dict[&quot;datatype&quot;][&quot;fields&quot;][velocity_field_index][&quot;unit&quot;]
         )
         velocity = (
-            (csvy_data[&quot;velocity&quot;].values * velocity_unit).to(&quot;cm/s&quot;).value
+            (csvy_data[&quot;velocity&quot;].to_numpy() * velocity_unit).to(&quot;cm/s&quot;).value
         )
     else:
         raise ValueError(&quot;Velocity information not found in CSVY file&quot;)
@@ -4390,7 +4390,7 @@ def load_csvy(fname: str | Path) -&gt; CSVYData:
             yaml_dict[&quot;datatype&quot;][&quot;fields&quot;][density_field_index][&quot;unit&quot;]
         )
         density = (
-            (csvy_data[&quot;density&quot;].values * density_unit).to(&quot;g/cm^3&quot;).value
+            (csvy_data[&quot;density&quot;].to_numpy() * density_unit).to(&quot;g/cm^3&quot;).value
         )
     else:
         density = None
@@ -4476,7 +4476,6 @@ def load_yaml_from_csvy(fpath: str | Path) -&gt; dict:
                 yaml_dict = yaml.load(&quot;&quot;.join(yaml_lines[1:-1]), YAMLLoader)
                 return yaml_dict
         raise ValueError(f&quot;End {YAML_DELIMITER} not found&quot;)</div>
-
 
 
 

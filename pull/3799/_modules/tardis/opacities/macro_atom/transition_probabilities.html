@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5deee858"></script>
+      <script src="../../../../_static/documentation_options.js?v=f1332402"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4334,7 +4334,7 @@ def normalize_trans_probs(p):
     p_summed = p.groupby(level=0).sum()
     p_summed[p_summed == 0] = 1
     index = p.index.get_level_values(&quot;source_level_idx&quot;)
-    p_norm = p / p_summed.loc[index].values
+    p_norm = p / p_summed.loc[index].to_numpy()
     assert np.all(np.isfinite(p_norm))
     return p_norm
 
@@ -4365,8 +4365,8 @@ class SpMatrixSeriesConverterMixin:
             series.index.get_level_values(1),
         )
         q_indices = (
-            idx2reduced_idx.loc[q_indices[0]].values,
-            idx2reduced_idx.loc[q_indices[1]].values,
+            idx2reduced_idx.loc[q_indices[0]].to_numpy(),
+            idx2reduced_idx.loc[q_indices[1]].to_numpy(),
         )
         max_idx = idx2reduced_idx.max() + 1
         matrix = sp.coo_matrix(
@@ -4434,7 +4434,7 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
             get_ground_state_multi_index(continuum_interaction_species)
         )
         mask = np.logical_or(mask, mask2)
-        idx = ma_ref[mask].references_idx.values
+        idx = ma_ref[mask].references_idx.to_numpy()
         idx2mkv_idx = pd.Series(np.arange(len(idx)), index=idx)
         idx2mkv_idx.loc[&quot;k&quot;] = idx2mkv_idx.max() + 1
 
@@ -4642,10 +4642,12 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         # Prepare the free-bound cooling probabilities
         fb_cooling_probs = (
             cool_rate_fb
-            / cool_rate_fb_tot.values
+            / cool_rate_fb_tot.to_numpy()
             * p_deactivation.loc[(&quot;k&quot;), (&quot;bf&quot;)]
         )
-        continuum_idx = level2continuum_idx.loc[fb_cooling_probs.index].values
+        continuum_idx = level2continuum_idx.loc[
+            fb_cooling_probs.index
+        ].to_numpy()
         fb_cooling_probs.index = pd.MultiIndex.from_product(
             [[&quot;k&quot;], np.ones(len(fb_cooling_probs), dtype=int) * -1],
             names=p_deactivation.index.names,

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=5deee858"></script>
+      <script src="../../../../../_static/documentation_options.js?v=f1332402"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4332,24 +4332,24 @@ class SNECIsotopeProfile:
         &quot;&quot;&quot;
         # Ensure DataFrame index and columns are named
         df = self.isotope_mass_fraction.copy()
-        df.index.name = &#39;cell_id&#39;
-        df.columns.name = &#39;isotope&#39;
+        df.index.name = &quot;cell_id&quot;
+        df.columns.name = &quot;isotope&quot;
 
         # Build the DataArray for isotope mass fractions
         da = xr.DataArray(
-            data=df.values,
-            dims=(&#39;cell_id&#39;, &#39;isotope&#39;),
+            data=df.to_numpy(),
+            dims=(&quot;cell_id&quot;, &quot;isotope&quot;),
             coords={
-                &#39;cell_id&#39;: df.index,
-                &#39;isotope&#39;: df.columns,
+                &quot;cell_id&quot;: df.index,
+                &quot;isotope&quot;: df.columns,
             },
-            name=&#39;isotope_mass_fraction&#39;
+            name=&quot;isotope_mass_fraction&quot;,
         )
 
         # Attach radius and enclosed_mass as coordinates on cell_id
         da = da.assign_coords(
-            radius=(&#39;cell_id&#39;, self.radius.value),
-            enclosed_mass=(&#39;cell_id&#39;, self.enclosed_mass.value)
+            radius=(&quot;cell_id&quot;, self.radius.value),
+            enclosed_mass=(&quot;cell_id&quot;, self.enclosed_mass.value),
         )
 
         return da</div>
@@ -4380,27 +4380,34 @@ def read_snec_isotope_profile(file_path: str) -&gt; SNECIsotopeProfile:
 
         # Read the second and third lines as integer arrays
         second_line = file_handle.readline().strip().replace(&quot;d&quot;, &quot;e&quot;)
-        mass_number = np.array(list(map(float, second_line.split()))).astype(int)
+        mass_number = np.array(list(map(float, second_line.split()))).astype(
+            int
+        )
         third_line = file_handle.readline().strip().replace(&quot;d&quot;, &quot;e&quot;)
-        neutron_number = np.array(list(map(float, third_line.split()))).astype(int)
+        neutron_number = np.array(list(map(float, third_line.split()))).astype(
+            int
+        )
         element_number = mass_number - neutron_number
 
         # Read the remaining lines into a DataFrame
         data = pd.read_csv(file_handle, sep=r&quot;\s+&quot;, header=None)
 
-        enclosed_mass = data.iloc[:, 0].values * u.g
-        radius = data.iloc[:, 1].values * u.cm
+        enclosed_mass = data.iloc[:, 0].to_numpy() * u.g
+        radius = data.iloc[:, 1].to_numpy() * u.cm
 
         isotope_mass_fraction = data.iloc[:, 2:]
         isotope_mass_fraction.columns = pd.MultiIndex.from_arrays(
-            [element_number, mass_number], names=[&quot;element_number&quot;, &quot;mass_number&quot;]
+            [element_number, mass_number],
+            names=[&quot;element_number&quot;, &quot;mass_number&quot;],
         )
 
         # Assert the dimensions match the provided row and column counts
         assert isotope_mass_fraction.shape == (
             row_count,
             column_count,
-        ), f&quot;Data dimensions {isotope_mass_fraction.shape} do not match expected ({row_count}, {column_count - 2})&quot;
+        ), (
+            f&quot;Data dimensions {isotope_mass_fraction.shape} do not match expected ({row_count}, {column_count - 2})&quot;
+        )
 
     return SNECIsotopeProfile(
         enclosed_mass=enclosed_mass,

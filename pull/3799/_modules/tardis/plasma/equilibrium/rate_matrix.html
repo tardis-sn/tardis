@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5deee858"></script>
+      <script src="../../../../_static/documentation_options.js?v=f1332402"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4353,8 +4353,24 @@ class RateMatrix:
         species: tuple[int, int],
         line_index: pd.Index,
     ) -&gt; tuple[BoundBoundMatrixRates, ...]:
-        &quot;&quot;&quot;Prepare fixed transition arrays for every shell of one species.&quot;&quot;&quot;
-        radiative_rates = self.radiative_rate_solver.solve(j_blues)
+        &quot;&quot;&quot;Prepare fixed transition arrays for every shell of one species.
+
+        Rows of ``j_blues`` follow ``line_index``. Only lines of species held
+        by the radiative rate solver are used, so other species in
+        ``line_index`` may have several lines between one level pair.
+        &quot;&quot;&quot;
+        level_names = [&quot;level_number_lower&quot;, &quot;level_number_upper&quot;]
+        solver_species_index = (
+            self.radiative_rate_solver.einstein_coefficients.index.droplevel(
+                level_names
+            ).unique()
+        )
+        solver_line_idx = np.flatnonzero(
+            line_index.droplevel(level_names).isin(solver_species_index)
+        )
+        radiative_rates = self.radiative_rate_solver.solve(
+            j_blues.iloc[solver_line_idx]
+        )
         collisional_rates = self.electron_rate_solver.solve(
             thermal_electron_energy_distribution.temperature
         )
@@ -4401,9 +4417,14 @@ class RateMatrix:
             ],
             names=line_index.names,
         )
-        beta_line_idx = line_index.get_indexer(radiative_line_index).astype(
-            np.int64
+        solver_line_position = line_index[solver_line_idx].get_indexer(
+            radiative_line_index
         )
+        beta_line_idx = np.where(
+            solver_line_position &gt;= 0,
+            solver_line_idx[solver_line_position],
+            -1,
+        ).astype(np.int64)
         beta_line_idx[np.all(radiative_rate_coefficients == 0.0, axis=1)] = -1
         number_of_levels = self.levels.energy.loc[species].count()
 
@@ -4708,7 +4729,7 @@ class AnalyticIonRateMatrix:
                 lte_ion_population, lte_level_population
             )
             level_to_continuum_saha_factor = lte_level_population / (
-                lte_ion_population.values
+                lte_ion_population.to_numpy()
                 * thermal_electron_energy_distribution.number_density.value
             )
 

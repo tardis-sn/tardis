@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=5deee858"></script>
+      <script src="../../../../../_static/documentation_options.js?v=f1332402"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4394,21 +4394,21 @@ class ThermalCollisionalRateSolver:
                 self.all_collisional_strengths_index.droplevel(
                     &quot;level_number_upper&quot;
                 )
-            ].energy.values
+            ].energy.to_numpy()
             - self.levels.loc[
                 self.all_collisional_strengths_index.droplevel(
                     &quot;level_number_lower&quot;
                 )
-            ].energy.values
+            ].energy.to_numpy()
         ) * u.erg
 
         self.g_upper = self.levels.loc[
             self.all_collisional_strengths_index.droplevel(&quot;level_number_lower&quot;)
-        ].g.values
+        ].g.to_numpy()
 
         self.g_lower = self.levels.loc[
             self.all_collisional_strengths_index.droplevel(&quot;level_number_upper&quot;)
-        ].g.values
+        ].g.to_numpy()
 
         if collisional_strength_approximation == &quot;regemorter&quot;:
             self.thermal_collision_strength_approximator = (
@@ -4432,18 +4432,16 @@ class ThermalCollisionalRateSolver:
             self.delta_energies[np.newaxis].T
             / (temperatures_electron * const.k_B),
         ).value
-        collision_rates_coeff_lu = (
-            (BETA_COLL / np.sqrt(temperatures_electron) * boltzmann_factor)
-            .to(&quot;cm3 / s&quot;)
-            .value
+        thermal_rates_coeff = (
+            (BETA_COLL / np.sqrt(temperatures_electron)).to(&quot;cm3 / s&quot;).value
             * thermal_all_collision_strengths
-        )  # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
+        )
+        # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
+        collision_rates_coeff_lu = boltzmann_factor * thermal_rates_coeff
 
         collision_rates_coeff_ul = (
-            (self.g_lower / self.g_upper)[np.newaxis].T
-            / boltzmann_factor
-            * collision_rates_coeff_lu
-        )
+            self.g_lower / self.g_upper
+        )[np.newaxis].T * thermal_rates_coeff
 
         collision_rates_coeff_ul.index = (
             collision_rates_coeff_lu.index.swaplevel(
@@ -4517,6 +4515,13 @@ class ThermalCollisionalRateSolver:
                     temperatures_electron
                 )
             )
+            # Lines sharing a level pair add to that pair&#39;s collision strength.
+            if thermal_collision_strength_approximated.index.has_duplicates:
+                thermal_collision_strength_approximated = (
+                    thermal_collision_strength_approximated.groupby(
+                        level=thermal_collision_strength_approximated.index.names
+                    ).sum()
+                )
 
         return pd.concat(
             [

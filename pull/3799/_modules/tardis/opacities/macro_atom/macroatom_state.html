@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5deee858"></script>
+      <script src="../../../../_static/documentation_options.js?v=f1332402"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4465,7 +4465,7 @@ class MacroAtomState:
         destination_level_id = self.transition_metadata.destination_level_idx
         transition_line_id = self.transition_metadata.transition_line_idx
         macro_block_edge_index = self.macro_block_edge_index
-        line2macro_level_upper = self.line2macro_level_upper.values
+        line2macro_level_upper = self.line2macro_level_upper.to_numpy()
 
         return LegacyMacroAtomState(
             transition_probabilities,
@@ -4500,7 +4500,7 @@ class MacroAtomState:
         legacy_sorting_frame = pd.DataFrame(legacy_state.transition_type)
         legacy_sorting_frame[&quot;transition_line_id&quot;] = lines.iloc[
             legacy_state.transition_line_id
-        ].line_id.values
+        ].line_id.to_numpy()
         legacy_sorting_frame[&quot;match_key&quot;] = legacy_sorting_frame.apply(
             lambda x: (x[&quot;transition_line_id&quot;], x[&quot;transition_type&quot;]), axis=1
         )  # match key uniquely identifies the transition

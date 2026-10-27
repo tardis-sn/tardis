@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=5deee858"></script>
+      <script src="../../../../../_static/documentation_options.js?v=f1332402"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4375,7 +4375,8 @@ FF_OPAC_CONST = (
 <a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.collision_strengths.html#tardis.plasma.equilibrium.rates.collision_strengths.calculate_upsilon_g_2_collisional_rates">[docs]</a>
 def calculate_upsilon_g_2_collisional_rates(yg, t_electrons, delta_energies):
     boltzmann_factor = np.exp(
-        -delta_energies.values[np.newaxis].T / (t_electrons * const.k_B).value
+        -delta_energies.to_numpy()[np.newaxis].T
+        / (t_electrons * const.k_B).value
     )
 
     q_lu = (
@@ -4416,7 +4417,7 @@ class UpsilonCMFGENSolver:
         # can produce upsilon/g or not, depending on how easy it is
         self.upsilon_g_lu_interpolator = PchipInterpolator(
             upsilon_temperatures,
-            self.upsilon_lu_data.values,
+            self.upsilon_lu_data.to_numpy(),
             axis=1,
             extrapolate=True,
         )
@@ -4557,7 +4558,9 @@ class UpsilonRegemorterSolver:
             transition_data.index.get_level_values(&quot;level_number_lower&quot;)
             &lt; transition_data.index.get_level_values(&quot;level_number_upper&quot;)
         )
-        self.transition_data = transition_data.sort_index(kind=SORTING_ALGORITHM)
+        self.transition_data = transition_data.sort_index(
+            kind=SORTING_ALGORITHM
+        )
         self.g_bar = g_bar
 
 <div class="viewcode-block" id="UpsilonRegemorterSolver.solve">
@@ -4595,10 +4598,10 @@ class UpsilonRegemorterSolver:
         .. [2] Hubeny, I. and Mihalas, D., &quot;Theory of Stellar Atmospheres&quot;. 2014.
         &quot;&quot;&quot;
         upsilon_g_lu = (
-            self.transition_data.f_lu.values
+            self.transition_data.f_lu.to_numpy()
             * (
                 HYDROGEN_IONIZATION_ENERGY
-                / (const.h * self.transition_data.nu.values * u.Hz)
+                / (const.h * self.transition_data.nu.to_numpy() * u.Hz)
             )
             ** 2
         )
@@ -4611,7 +4614,7 @@ class UpsilonRegemorterSolver:
         )
 
         u0 = (
-            const.h.cgs.value * self.transition_data.nu.values[np.newaxis].T
+            const.h.cgs.value * self.transition_data.nu.to_numpy()[np.newaxis].T
         ) / (t_electrons.value * const.k_B.cgs.value)
         gamma_component = 0.276 * exp1_times_exp(u0)  # Eq 9.59 in Mihalas
         # choice of transitions between principal quantum numbers g_bar = 0.2, otherwise gbar = 0.7
@@ -4645,7 +4648,7 @@ class CollExcRateCoeff:
     def calculate(self, yg_interp, yg_index, t_electrons, delta_E_yg):
         yg = yg_interp(t_electrons)
         boltzmann_factor = np.exp(
-            -delta_E_yg.values[np.newaxis].T / (t_electrons * K_B)
+            -delta_E_yg.to_numpy()[np.newaxis].T / (t_electrons * K_B)
         )
         q_ij = (
             BETA_COLL.value / np.sqrt(t_electrons) * yg * boltzmann_factor
@@ -4676,10 +4679,10 @@ class CollDeexcRateCoeff:
 
         n_lower_prop = thermal_lte_level_boltzmann_factor.loc[
             level_lower_index
-        ].values
+        ].to_numpy()
         n_upper_prop = thermal_lte_level_boltzmann_factor.loc[
             level_upper_index
-        ].values
+        ].to_numpy()
 
         coll_deexc_coeff = coll_exc_coeff * n_lower_prop / n_upper_prop
         return coll_deexc_coeff</div>
