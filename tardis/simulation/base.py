@@ -580,8 +580,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.transport.rpacket_tracker,
                 self.no_of_virtual_packets,
             )
-            # Memory: the histories are not needed once the spectrum is solved
-            self.transport.rpacket_tracker = None
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "convergence_plots"):
