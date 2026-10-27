@@ -238,9 +238,7 @@ def test_configuration_preserves_line_selection(
         enable_vpacket_tracking=False,
         enable_rpacket_tracking=False,
     )
-    configuration.configuration_initialize(
-        montecarlo_configuration, transport, 0
-    )
+    configuration.configuration_initialize(montecarlo_configuration, transport)
     assert (
         montecarlo_configuration.LINE_INTERACTION_TYPE
         == {"scatter": 0, "downbranch": 1, "macroatom": 2}[line_interaction]
