@@ -95,7 +95,7 @@ class FormalIntegralSolver:
         self.montecarlo_configuration = transport.montecarlo_configuration
 
         # check method selection
-        if self.method in [ # TODO: better way to handle this
+        if self.method in [  # TODO: better way to handle this
             "numba",
             "cuda",
         ]:
@@ -205,7 +205,9 @@ class FormalIntegralSolver:
             The formal integral spectrum
         """
         # check objects and configs
-        check_formal_integral_requirements(simulation_state, opacity_state, transport_solver)
+        check_formal_integral_requirements(
+            simulation_state, opacity_state, transport_solver
+        )
 
         # Convert to numba opacity state for source function and integrator
         opacity_state_numba = self.setup(
@@ -281,7 +283,7 @@ class FormalIntegralSolver:
 
         # The integrators work in plain cgs floats; Numba would otherwise drop
         # the units silently, and pure Python fails on them (issue #2543)
-        luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
+        luminosity_densities, _ = self.integrator.formal_integral(
             simulation_state.t_inner.to_value(u.K),
             frequencies.to_value(u.Hz),
             att_S_ul_interpolated,
@@ -295,8 +297,9 @@ class FormalIntegralSolver:
         luminosity_densities = np.array(luminosity_densities, dtype=np.float64)
         delta_frequency = frequencies[1] - frequencies[0]
 
+        expected_frequencies = np.linspace(frequencies[0], frequencies[-1], len(frequencies))
         assert np.allclose(
-            frequencies.diff(), delta_frequency, atol=0, rtol=1e-12
+            frequencies, expected_frequencies, atol=0, rtol=1e-12
         ), "Frequency grid must be uniform"
 
         luminosity = (
@@ -383,7 +386,7 @@ class FormalIntegralSolver:
         # (as in the MC simulation)
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
-            opacity_state.tau_sobolev.values,
+            opacity_state.tau_sobolev.to_numpy(),
             fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",
         )(r_middle_interpolated)

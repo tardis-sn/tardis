@@ -18,7 +18,7 @@ def test_hdf_density_0(hdf_file_path, simulation_verysimple):
         actual = actual.cgs.value
     path = "simulation_state/density"
     expected = pd.read_hdf(hdf_file_path, path)
-    assert_almost_equal(actual, expected.values)
+    assert_almost_equal(actual, expected.to_numpy())
 
 
 def test_hdf_time_0(hdf_file_path, simulation_verysimple):

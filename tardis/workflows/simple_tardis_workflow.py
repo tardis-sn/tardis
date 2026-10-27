@@ -339,7 +339,7 @@ class SimpleTARDISWorkflow:
                 radiation_field.to_planckian_radiation_field()
             )
             j_blues = planckian_radiation_field.calculate_mean_intensity(
-                self.plasma_solver.atomic_data.lines.nu.values
+                self.plasma_solver.atomic_data.lines.nu.to_numpy()
             )
             update_properties["j_blues"] = pd.DataFrame(
                 j_blues, index=self.plasma_solver.atomic_data.lines.index
@@ -349,7 +349,7 @@ class SimpleTARDISWorkflow:
             == "dilute-blackbody"
         ):
             j_blues = radiation_field.calculate_mean_intensity(
-                self.plasma_solver.atomic_data.lines.nu.values
+                self.plasma_solver.atomic_data.lines.nu.to_numpy()
             )
             update_properties["j_blues"] = pd.DataFrame(
                 j_blues, index=self.plasma_solver.atomic_data.lines.index

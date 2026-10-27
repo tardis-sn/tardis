@@ -124,8 +124,8 @@ class AnalyticPhotoionizationRateSolver:
                 lte_ion_number_density, lte_level_number_density
             )
             # Lucy 2003 Eq 14
-            level_to_continuum_saha_factor = lte_level_number_density.values / (
-                lte_ion_number_density.values
+            level_to_continuum_saha_factor = lte_level_number_density.to_numpy() / (
+                lte_ion_number_density.to_numpy()
                 * electron_energy_distribution.number_density
             )
 
@@ -207,7 +207,9 @@ class EstimatedPhotoionizationRateSolver:
         photoionization_coeff, stimulated_recombination_coeff = (
             EstimatedPhotoionizationCoeffSolver(
                 self.level2continuum_edge_idx
-            ).solve(self.estimators_continuum, self.time_simulation, self.volume)
+            ).solve(
+                self.estimators_continuum, self.time_simulation, self.volume
+            )
         )
         spontaneous_recombination_coeff = (
             self.spontaneous_recombination_rate_coeff_solver.solve(
@@ -297,8 +299,7 @@ class EstimatedPhotoionizationRateSolver:
         )
 
         recombination_rate = (
-            spontaneous_recombination_coeff
-            + stimulated_recombination_coeff
+            spontaneous_recombination_coeff + stimulated_recombination_coeff
         ) * level_to_continuum_saha_factor.loc[
             spontaneous_recombination_coeff.index
         ]

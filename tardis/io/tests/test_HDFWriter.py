@@ -56,7 +56,7 @@ def test_complex_obj_write(tmpdir, attr):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(attr)
     actual.to_hdf(fname, path="test", overwrite=True)
-    expected = pd.read_hdf(fname, key="/test/mock_hdf/property").values
+    expected = pd.read_hdf(fname, key="/test/mock_hdf/property").to_numpy()
 
     assert_array_almost_equal(actual.property, expected)
 
@@ -77,7 +77,7 @@ def test_multi_index_write(tmpdir):
     expected = pd.read_hdf(fname, key="/test/mock_hdf/property")
     expected = pd.MultiIndex.from_frame(expected)
     # These are multiindex objects, so we need to compare the values
-    assert np.all(expected.values == actual.property.values)
+    assert np.all(expected.to_numpy() == actual.property.to_numpy())
 
 
 # Test Quantity Objects
@@ -167,7 +167,7 @@ def test_tardis_version_metadata(tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(1.5)
     actual.to_hdf(fname, path="test", overwrite=True)
-    
+
     metadata = pd.read_hdf(fname, key="/test/mock_hdf/metadata")
     assert "tardis_version" in metadata
     assert metadata["tardis_version"] == __version__
