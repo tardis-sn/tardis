@@ -18,7 +18,10 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
     FormalIntegralSolver,
 )
 from tardis.spectrum.spectrum import TARDISSpectrum
-from tardis.spectrum.virtual_packet import calculate_virtual_packet_spectrum
+from tardis.spectrum.virtual_packet import (
+    calculate_virtual_packet_spectrum,
+    create_vpacket_collections,
+)
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
@@ -179,17 +182,21 @@ class SpectrumSolver(HDFWriterMixin):
                 "non-homologous Monte Carlo transport states."
             )
 
-        virtual_packet_luminosity, vpacket_collections = (
-            calculate_virtual_packet_spectrum(
-                transport_state.geometry_state_numba,
-                time_explosion,
-                transport_state.opacity_state_numba,
-                montecarlo_configuration,
-                self.spectrum_frequency_grid.value,
-                rpacket_tracker,
-                number_of_vpackets,
-                trace_vpacket_volley,
-            )
+        vpacket_collections = create_vpacket_collections(
+            len(rpacket_tracker),
+            self.spectrum_frequency_grid.value,
+            montecarlo_configuration,
+            number_of_vpackets,
+        )
+        virtual_packet_luminosity = calculate_virtual_packet_spectrum(
+            transport_state.geometry_state_numba,
+            time_explosion,
+            transport_state.opacity_state_numba,
+            montecarlo_configuration,
+            self.spectrum_frequency_grid.value,
+            rpacket_tracker,
+            vpacket_collections,
+            trace_vpacket_volley,
         )
         self._montecarlo_virtual_luminosity.value[:] = virtual_packet_luminosity
         transport_state.virt_logging = (

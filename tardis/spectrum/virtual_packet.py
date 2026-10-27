@@ -56,19 +56,18 @@ def create_vpacket_collections(
     numba.typed.List
         Per-packet virtual packet collections.
     """
-    vpacket_collections = TypedList()
-    for i in range(no_of_packets):
-        vpacket_collections.append(
-            VPacketCollection(
-                i,
-                spectrum_frequency_grid,
-                montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-                montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
-                number_of_vpackets,
-                number_of_vpackets,
-            )
+    vpacket_collections = [
+        VPacketCollection(
+            source_rpacket_idx,
+            spectrum_frequency_grid,
+            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+            number_of_vpackets,
+            number_of_vpackets,
         )
-    return vpacket_collections
+        for source_rpacket_idx in range(no_of_packets)
+    ]
+    return TypedList(vpacket_collections)
 
 
 @njit(**njit_dict_no_parallel)
@@ -117,9 +116,9 @@ def calculate_virtual_packet_spectrum(
     montecarlo_configuration: MonteCarloConfiguration,
     spectrum_frequency_grid: npt.NDArray[np.float64],
     trackers: TypedList[TrackerFull],
-    number_of_vpackets: int,
+    vpacket_collections: TypedList[VPacketCollection],
     trace_vpacket_volley_function: Callable[..., None],
-) -> tuple[npt.NDArray[np.float64], TypedList[VPacketCollection]]:
+) -> npt.NDArray[np.float64]:
     """Calculate a virtual-packet spectrum from real-packet histories.
 
     Parameters
@@ -137,25 +136,38 @@ def calculate_virtual_packet_spectrum(
         Frequency-bin edges for the virtual-packet histogram.
     trackers
         Completed full-event tracker for each real packet.
-    number_of_vpackets : int
-        Number of virtual packets spawned per launch or interaction.
+    vpacket_collections : numba.typed.List
+        Unused virtual packet collection for each real packet, in the same
+        order as ``trackers``, e.g. from ``create_vpacket_collections``.
+        Filled and finalized in place.
     trace_vpacket_volley_function
         Mode-specific virtual-packet propagation function.
 
     Returns
     -------
-    v_packets_energy_hist : numpy.ndarray
+    numpy.ndarray
         Virtual-packet energy histogram on ``spectrum_frequency_grid``.
-    vpacket_collections : numba.typed.List
-        Per-packet virtual packet collections.
+
+    Raises
+    ------
+    ValueError
+        If there is not exactly one unused collection per tracker.
     """
     no_of_packets = len(trackers)
-    vpacket_collections = create_vpacket_collections(
-        no_of_packets,
-        spectrum_frequency_grid,
-        montecarlo_configuration,
-        number_of_vpackets,
-    )
+    # The collections are indexed without bounds checks and appended to in
+    # place, so a mismatched or reused list (even one finalized while empty,
+    # whose arrays are truncated below its length) would silently corrupt
+    # the result
+    if len(vpacket_collections) != no_of_packets:
+        raise ValueError(
+            "vpacket_collections must have one collection per tracker."
+        )
+    for vpacket_collection in vpacket_collections:
+        if (
+            vpacket_collection.idx != 0
+            or len(vpacket_collection.nus) != vpacket_collection.length
+        ):
+            raise ValueError("vpacket_collections must be unused.")
 
     for i in prange(no_of_packets):
         # prange yields an unsigned index; cast to int64 so typed-list
@@ -236,4 +248,4 @@ def calculate_virtual_packet_spectrum(
             delta_nu,
         )
 
-    return v_packets_energy_hist, vpacket_collections
+    return v_packets_energy_hist

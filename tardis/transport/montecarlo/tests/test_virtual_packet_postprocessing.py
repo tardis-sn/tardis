@@ -7,6 +7,7 @@ from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.spectrum.virtual_packet import (
     calculate_virtual_packet_spectrum,
+    create_vpacket_collections,
 )
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -77,14 +78,17 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
     montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY = 1.5e14
     montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY = 2.5e14
 
-    energy_histogram, vpacket_collections = calculate_virtual_packet_spectrum(
+    vpacket_collections = create_vpacket_collections(
+        len(trackers), spectrum_frequency_grid, montecarlo_configuration, 4
+    )
+    energy_histogram = calculate_virtual_packet_spectrum(
         geometry,
         0.0,
         opacity_state,
         montecarlo_configuration,
         spectrum_frequency_grid,
         trackers,
-        4,
+        vpacket_collections,
         trace_vpacket_volley,
     )
     vpacket_tracker = consolidate_vpacket_tracker(
