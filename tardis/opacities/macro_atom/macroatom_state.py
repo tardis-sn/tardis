@@ -166,7 +166,7 @@ class MacroAtomState:
         destination_level_id = self.transition_metadata.destination_level_idx
         transition_line_id = self.transition_metadata.transition_line_idx
         macro_block_edge_index = self.macro_block_edge_index
-        line2macro_level_upper = self.line2macro_level_upper.values
+        line2macro_level_upper = self.line2macro_level_upper.to_numpy()
 
         return LegacyMacroAtomState(
             transition_probabilities,
@@ -198,7 +198,7 @@ class MacroAtomState:
         legacy_sorting_frame = pd.DataFrame(legacy_state.transition_type)
         legacy_sorting_frame["transition_line_id"] = lines.iloc[
             legacy_state.transition_line_id
-        ].line_id.values
+        ].line_id.to_numpy()
         legacy_sorting_frame["match_key"] = legacy_sorting_frame.apply(
             lambda x: (x["transition_line_id"], x["transition_type"]), axis=1
         )  # match key uniquely identifies the transition

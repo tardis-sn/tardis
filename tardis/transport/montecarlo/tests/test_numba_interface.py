@@ -61,11 +61,11 @@ def test_transport_solver_keeps_active_opacity_state(
 
     npt.assert_allclose(
         transport_state.opacity_state_numba.electron_density,
-        active_opacity_state.electron_density.values,
+        active_opacity_state.electron_density.to_numpy(),
     )
     npt.assert_allclose(
         transport_state.opacity_state_numba.tau_sobolev,
-        active_opacity_state.tau_sobolev.values,
+        active_opacity_state.tau_sobolev.to_numpy(),
     )
 
 
@@ -103,11 +103,13 @@ def test_opacity_state_to_numba(
         index = ...
 
     npt.assert_allclose(
-        actual.electron_density, plasma.electron_densities.values[index]
+        actual.electron_density, plasma.electron_densities.to_numpy()[index]
     )
-    npt.assert_allclose(actual.line_list_nu, plasma.atomic_data.lines.nu.values)
     npt.assert_allclose(
-        actual.tau_sobolev, plasma.tau_sobolevs.values[:, index]
+        actual.line_list_nu, plasma.atomic_data.lines.nu.to_numpy()
+    )
+    npt.assert_allclose(
+        actual.tau_sobolev, plasma.tau_sobolevs.to_numpy()[:, index]
     )
     if line_interaction_type == "scatter":
         empty = np.zeros(1, dtype=np.int64)
@@ -122,11 +124,11 @@ def test_opacity_state_to_numba(
     else:
         npt.assert_allclose(
             actual.transition_probabilities,
-            macro_atom_state.transition_probabilities.values[:, index],
+            macro_atom_state.transition_probabilities.to_numpy()[:, index],
         )
         npt.assert_allclose(
             actual.line2macro_level_upper,
-            macro_atom_state.line2macro_level_upper.values,
+            macro_atom_state.line2macro_level_upper.to_numpy(),
         )
         npt.assert_allclose(
             actual.macro_block_edge_index,
@@ -134,15 +136,15 @@ def test_opacity_state_to_numba(
         )
         npt.assert_allclose(
             actual.transition_type,
-            macro_atom_state.transition_metadata.transition_type.values,
+            macro_atom_state.transition_metadata.transition_type.to_numpy(),
         )
         npt.assert_allclose(
             actual.destination_level_id,
-            macro_atom_state.transition_metadata.destination_level_idx.values,
+            macro_atom_state.transition_metadata.destination_level_idx.to_numpy(),
         )
         npt.assert_allclose(
             actual.transition_line_id,
-            macro_atom_state.transition_metadata.transition_line_idx.values,
+            macro_atom_state.transition_metadata.transition_line_idx.to_numpy(),
         )
 
 

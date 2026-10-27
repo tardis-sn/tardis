@@ -25,10 +25,10 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
             Planck Mean Optical Depth
     """
     index = plasma.atomic_data.lines.nu.index
-    freqs = plasma.atomic_data.lines.nu.values * u.Hz
+    freqs = plasma.atomic_data.lines.nu.to_numpy() * u.Hz
     order = np.argsort(freqs, kind=SORTING_ALGORITHM)
     freqs = freqs[order]
-    taus = opacity_state.tau_sobolev.values[order]
+    taus = opacity_state.tau_sobolev.to_numpy()[order]
 
     check_bin_size = True
     while check_bin_size:
@@ -73,7 +73,9 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
         / ct
         * (1 - np.exp(-taus.reshape(n_bins, bin_size, -1))).sum(axis=1)
     )
-    kappa_thom = plasma.electron_densities.values * u.cm ** (-3) * const.sigma_T
+    kappa_thom = (
+        plasma.electron_densities.to_numpy() * u.cm ** (-3) * const.sigma_T
+    )
     Bdnu = B(bins_low.reshape(-1, 1), t_rad.reshape(1, -1)) * delta_nu.reshape(
         -1, 1
     )

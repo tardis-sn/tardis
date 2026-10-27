@@ -64,7 +64,9 @@ def test_parse_csv_mass_fractions_ignores_capitalization():
     _, mass_fractions, isotope_mass_fractions = csvy.parse_csv_mass_fractions(
         csv_data
     )
-    npt.assert_allclose(mass_fractions.loc[1].values, [0.5, 0.3])
-    npt.assert_allclose(mass_fractions.loc[2].values, [0.3, 0.3])
-    npt.assert_allclose(mass_fractions.loc[14].values, [0.1, 0.2])
-    npt.assert_allclose(isotope_mass_fractions.loc[(28, 56)].values, [0.1, 0.2])
+    npt.assert_allclose(mass_fractions.loc[1].to_numpy(), [0.5, 0.3])
+    npt.assert_allclose(mass_fractions.loc[2].to_numpy(), [0.3, 0.3])
+    npt.assert_allclose(mass_fractions.loc[14].to_numpy(), [0.1, 0.2])
+    npt.assert_allclose(
+        isotope_mass_fractions.loc[(28, 56)].to_numpy(), [0.1, 0.2]
+    )
