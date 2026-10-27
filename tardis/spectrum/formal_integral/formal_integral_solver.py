@@ -295,8 +295,9 @@ class FormalIntegralSolver:
         luminosity_densities = np.array(luminosity_densities, dtype=np.float64)
         delta_frequency = frequencies[1] - frequencies[0]
 
+        expected_frequencies = np.linspace(frequencies[0], frequencies[-1], len(frequencies))
         assert np.allclose(
-            frequencies.diff(), delta_frequency, atol=0, rtol=1e-12
+            frequencies, expected_frequencies, atol=0, rtol=1e-12
         ), "Frequency grid must be uniform"
 
         luminosity = (
