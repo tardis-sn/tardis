@@ -24,6 +24,9 @@ def trackers_full_list_to_arrays(
     ----------
     trackers : numba.typed.typedlist.List
         List of TrackerFull instances.
+    release_trackers : bool, optional
+        Empty each tracker's arrays once copied, to lower peak memory. The
+        trackers cannot be used afterwards. Default False.
 
     Returns
     -------
@@ -57,6 +60,9 @@ def trackers_full_list_to_selected_arrays(
         First event index taken from each tracker.
     event_counts : numpy.ndarray
         Number of events taken from each tracker.
+    release_trackers : bool, optional
+        Empty each tracker's arrays once copied, to lower peak memory. The
+        trackers cannot be used afterwards. Default False.
 
     Returns
     -------
@@ -121,6 +127,9 @@ def trackers_full_list_to_selected_arrays(
         line_absorb_id[offset:end_idx] = tracker.line_absorb_id[start:stop]
         line_emit_id[offset:end_idx] = tracker.line_emit_id[start:stop]
 
+        # Memory: without this, every tracker and the concatenated copy are
+        # alive together, plus the DataFrame built from the copy. Dropping
+        # each tracker's arrays once copied shrinks that overlap.
         if release_trackers:
             tracker.radius = np.empty(0, dtype=np.float64)
             tracker.before_shell_id = np.empty(0, dtype=np.int64)
@@ -168,6 +177,9 @@ def trackers_full_to_df(
     ----------
     rpacket_trackers : numba.typed.typedlist.List
         List of RPacketTracker instances.
+    release_trackers : bool, optional
+        Empty each tracker's arrays once copied, to lower peak memory. The
+        trackers cannot be used afterwards. Default False.
 
     Returns
     -------
@@ -221,7 +233,12 @@ def event_arrays_to_df(event_arrays: tuple) -> pd.DataFrame:
         categories=[member.name for member in PacketStatus], ordered=False
     )
 
-    # Map enum values (non-contiguous, NO_INTERACTION = -1) to category codes
+    # Memory and speed: building the categoricals from per-event name strings
+    # needs a Python list with one entry per event (millions for a full run)
+    # and a slow enum lookup each time. Mapping the integer values straight to
+    # category codes keeps everything in NumPy and yields the same columns.
+    # The enum values are not contiguous (bit flags, NO_INTERACTION = -1), so
+    # the lookup table is offset by the smallest value.
     interaction_type_offset = min(InteractionType)
     interaction_type_codes = np.full(
         max(InteractionType) - interaction_type_offset + 1, -1, dtype=np.int8
@@ -318,6 +335,10 @@ def trackers_full_to_last_interaction_df(
     pd.DataFrame
         Last-interaction DataFrame indexed by packet_id.
     """
+    # Memory: the full event DataFrame has one row per event (tens of events
+    # per packet) and is discarded when only the last interaction is wanted.
+    # Picking one row per packet first means only that many rows are copied
+    # and converted, and the existing conversion still sets the output format.
     event_starts, event_counts = find_last_interaction_events(
         trackers_full_list
     )

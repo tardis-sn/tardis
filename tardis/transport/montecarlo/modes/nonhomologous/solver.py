@@ -254,6 +254,9 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         refresh_packet_pbar()
 
         if self.enable_rpacket_tracking:
+            # Memory: the trackers are not needed once copied, so free them
+            # during the conversion rather than holding them alongside the
+            # full DataFrame.
             self.transport_state.tracker_full_df = trackers_full_to_df(
                 trackers_list, release_trackers=True
             )
@@ -263,6 +266,9 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
                 )
             )
         elif number_of_vpackets > 0:
+            # Memory: full trackers were needed only to source virtual
+            # packets. Build the last-interaction table straight from them
+            # instead of going through the full event DataFrame.
             self.transport_state.tracker_full_df = None
             self.transport_state.tracker_last_interaction_df = (
                 trackers_full_to_last_interaction_df(trackers_list)

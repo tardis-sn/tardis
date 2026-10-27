@@ -319,7 +319,9 @@ class TrackerFull:
         Change the size of the arrays from length ( or multiple of length ) to
         the actual number of events.
         """
-        # Copy so the unused capacity of each array is released
+        # Memory: the arrays grow by extend_factor, so up to half of each is
+        # unused capacity. A plain slice is a view that keeps that capacity
+        # alive for every packet; copying keeps only the recorded events.
         self.radius = self.radius[: self.event_id].copy()
         self.before_shell_id = self.before_shell_id[: self.event_id].copy()
         self.after_shell_id = self.after_shell_id[: self.event_id].copy()

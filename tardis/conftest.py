@@ -318,6 +318,9 @@ def simulation_tardis_full(atomic_dataset, example_configuration_dir):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_verysimple.yml"
     )  # the config is mutated in other places
+    # The verysimple config leaves virtual packets off, because they make
+    # every packet keep a full event history, which costs several GB per run.
+    # The virtual spectrum regression tests use this fixture, so enable them.
     config.montecarlo.no_of_virtual_packets = 5
     sim = Simulation.from_config(config, atom_data=atomic_data)
     sim.run_convergence()
@@ -328,6 +331,8 @@ def simulation_tardis_full(atomic_dataset, example_configuration_dir):
 @pytest.fixture(scope="session")
 def simulation_verysimple_default(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
+    # Virtual packets are off in the verysimple config to save memory; the
+    # spectrum solver tests compare the virtual spectrum, so enable them here.
     config = deepcopy(config_verysimple)
     config.montecarlo.no_of_virtual_packets = 5
     sim = Simulation.from_config(config, atom_data=atomic_data)
@@ -338,6 +343,8 @@ def simulation_verysimple_default(config_verysimple, atomic_dataset):
 @pytest.fixture(scope="session")
 def simulation_verysimple_vpacket_tracking(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
+    # Virtual packets are off in the verysimple config to save memory; this
+    # fixture exists to test virtual-packet logging, so enable them here.
     config = deepcopy(config_verysimple)
     config.montecarlo.no_of_virtual_packets = 5
     sim = Simulation.from_config(
