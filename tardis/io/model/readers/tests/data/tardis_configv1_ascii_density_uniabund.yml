@@ -39,7 +39,6 @@ montecarlo:
     no_of_packets : 1.0e+5
     iterations: 20
     last_no_of_packets: 1.e+5
-    no_of_virtual_packets: 5
 
     convergence_strategy:
         type: specific

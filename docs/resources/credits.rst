@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_23444617
+.. |CITATION| replace:: kerzendorf_2026_23631067
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.3444617-blue
-                 :target: https://doi.org/10.5281/zenodo.3444617
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.3631067-blue
+                 :target: https://doi.org/10.5281/zenodo.3631067
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_23444617,
+    @software{kerzendorf_2026_23631067,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -106,14 +106,14 @@ The following BibTeX entries are needed for the references:
                       Barna, Barnabás and
                       Gautam, Gaurav and
                       Arya, Atharva and
-                      Smith, Isaac and
                       Shields, Joshua and
+                      Smith, Isaac and
                       Cawley, Kevin and
                       Singhal, Jaladh and
                       Fullard, Andrew and
                       Barbosa, Talytha and
-                      O'Brien, Jack and
                       Yu, Jenny and
+                      O'Brien, Jack and
                       Sondhi, Dhruv and
                       Shields, Josh and
                       Patel, Maryam and
@@ -121,33 +121,33 @@ The following BibTeX entries are needed for the references:
                       Rathi, Shikha and
                       Chitchyan, Sona and
                       Gillanders, James and
+                      Marie Lynn, Haille and
+                      McClellan, Connor and
                       Gupta, Sumit and
                       Savel, Arjun and
                       Singh, Shreyas and
-                      Marie Lynn, Haille and
-                      Eweis, Youssef and
                       Shah, Swayam and
+                      Eweis, Youssef and
                       Reinecke, Martin and
                       Holas, Alexander and
-                      McClellan, Connor and
-                      Bylund, Tomas and
                       Visser, Erin and
+                      Bylund, Tomas and
                       Bentil, Laud and
                       Black, William and
-                      Groneck, Ryan and
-                      Lu, Jing and
                       Kumar, Asish and
                       Dutta, Anirban and
                       Saraf, Shreyans and
+                      Groneck, Ryan and
+                      Lu, Jing and
                       Eguren, Jordi and
                       Bartnik, Matthew and
-                      Srivastava, Sarthak and
                       Kumar, Ansh and
-                      Alam, Arib and
-                      Magee, Mark and
+                      Srivastava, Sarthak and
                       Varma Buddaraju, Rohith and
-                      Kambham, Satwik and
+                      Magee, Mark and
+                      Alam, Arib and
                       Daksh, Ayushi and
+                      Kambham, Satwik and
                       Livneh, Ran and
                       Powers, Cecelia and
                       Roldan, Israel and
@@ -208,11 +208,11 @@ The following BibTeX entries are needed for the references:
                       Sharma, Sampark and
                       Venkat, Shashank and
                       Prasad, Shilpi},
-      title        = {tardis-sn/tardis: TARDIS v2026.10.18},
+      title        = {tardis-sn/tardis: TARDIS v2026.10.25},
       month        = oct,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.10.18},
-      doi          = {10.5281/zenodo.23444617},
-      url          = {https://doi.org/10.5281/zenodo.23444617},
+      version      = {release-2026.10.25},
+      doi          = {10.5281/zenodo.23631067},
+      url          = {https://doi.org/10.5281/zenodo.23631067},
     }

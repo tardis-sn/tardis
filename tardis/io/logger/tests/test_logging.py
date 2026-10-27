@@ -2,112 +2,144 @@ import logging
 
 import pytest
 
-from tardis import run_tardis
-from tardis.io.configuration.config_reader import Configuration
-from tardis.io.logger.logger import LOGGING_LEVELS
-from tardis.simulation import Simulation
+from tardis.io.logger.logger import LogFilter, TARDISLogger
 
-pytestmark = pytest.mark.skip(
-    reason="logging testing slow and disabled for now"
-)
-
-
-def test_logging_simulation(atomic_data_fname, caplog):
-    """
-    Testing the logs for simulations runs
-    """
-    config = Configuration.from_yaml(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
-    )
-    config["atom_data"] = atomic_data_fname
-
-    simulation = Simulation.from_config(config)
-
-    simulation.run_convergence()
-    simulation.run_final()
-
-    for record in caplog.records:
-        assert record.levelno >= logging.INFO
+EMITTED_LEVELS = [
+    logging.DEBUG,
+    logging.INFO,
+    logging.WARNING,
+    logging.ERROR,
+    logging.CRITICAL,
+]
 
 
-# Testing Configuration of Logger via run_tardis() Function
+@pytest.fixture
+def tardis_logger():
+    # setup
+    tardis_logger = TARDISLogger()
+    # pass tardis_logger to the test
+    yield tardis_logger
+    # teardown and reset the logging configuration to a safe default
+    tardis_logger.configure_logging("INFO", {}, specific_log_level=False)
+
+
+@pytest.fixture
+def captured_levels(caplog):
+    def emit_and_capture():
+        caplog.clear()
+        for level in EMITTED_LEVELS:
+            logging.getLogger("tardis").log(level, "test message")
+        return [record.levelno for record in caplog.records]
+
+    return emit_and_capture
+
+
 @pytest.mark.parametrize(
-    ["log_level", "specific_log_level"],
+    ["log_level", "specific_log_level", "expected_levels"],
     [
-        ("Info", False),
-        ("INFO", False),
-        ("INFO", True),
-        ("DEBUG", False),
-        ("DEBUG", True),
-        ("WARNING", True),
-        ("ERROR", True),
-        ("CRITICAL", True),
-        ("NOTSET", False),
+        ("Info", False, EMITTED_LEVELS[1:]),
+        ("INFO", True, [logging.INFO]),
+        ("DEBUG", False, EMITTED_LEVELS),
+        ("DEBUG", True, [logging.DEBUG]),
+        ("WARNING", True, [logging.WARNING]),
+        ("ERROR", False, EMITTED_LEVELS[3:]),
+        ("CRITICAL", True, [logging.CRITICAL]),
     ],
 )
-class TestSimulationLogging:
-    """
-    Class implemented for testing the logging configuration available via run_tardis()
-    Tests Functional Arguments : log_level & specific
-    Tests YAML Parameters : logging_level & specific_logging
-    """
-
-    def test_logging_config(
-        self, atomic_data_fname, caplog, log_level, specific_log_level
+class TestConfigureLoggingLevels:
+    def test_function_arguments(
+        self,
+        tardis_logger,
+        captured_levels,
+        log_level,
+        specific_log_level,
+        expected_levels,
     ):
-        config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
-        )
-        config["atom_data"] = atomic_data_fname
+        tardis_logger.configure_logging(log_level, {}, specific_log_level)
 
-        caplog.clear()
-        run_tardis(
-            config=config,
-            log_level=log_level,
-            specific_log_level=specific_log_level,
-        )
-        for record in caplog.records:
-            if specific_log_level is True:
-                assert record.levelno == LOGGING_LEVELS[log_level.upper()]
-            else:
-                assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
+        assert captured_levels() == expected_levels
 
-    def test_logging_config_yaml(
-        self, atomic_data_fname, caplog, log_level, specific_log_level
+    def test_yaml_configuration(
+        self,
+        tardis_logger,
+        captured_levels,
+        log_level,
+        specific_log_level,
+        expected_levels,
     ):
-        config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
-        )
-        config["atom_data"] = atomic_data_fname
-        config["debug"]["log_level"] = log_level
-        config["debug"]["specific_log_level"] = specific_log_level
+        tardis_config = {
+            "debug": {
+                "log_level": log_level,
+                "specific_log_level": specific_log_level,
+            }
+        }
 
-        caplog.clear()
-        run_tardis(config=config)
-        for record in caplog.records:
-            if specific_log_level is True:
-                assert record.levelno == LOGGING_LEVELS[log_level.upper()]
-            else:
-                assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
+        tardis_logger.configure_logging(None, tardis_config)
 
-    def test_logging_both_specified(
-        self, atomic_data_fname, caplog, log_level, specific_log_level
-    ):
-        config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
-        )
-        config["atom_data"] = atomic_data_fname
-        config["debug"]["log_level"] = log_level
-        config["debug"]["specific_log_level"] = specific_log_level
+        assert captured_levels() == expected_levels
 
-        caplog.clear()
-        run_tardis(
-            config=config,
-            log_level=log_level,
-            specific_log_level=specific_log_level,
-        )
-        for record in caplog.records:
-            if specific_log_level is True:
-                assert record.levelno == LOGGING_LEVELS[log_level.upper()]
-            else:
-                assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
+
+def test_configure_logging_argument_overrides_yaml_log_level(
+    tardis_logger, captured_levels
+):
+    tardis_config = {"debug": {"log_level": "DEBUG"}}
+
+    tardis_logger.configure_logging("ERROR", tardis_config)
+
+    assert captured_levels() == EMITTED_LEVELS[3:]
+
+
+@pytest.mark.parametrize(
+    ["specific_log_level_argument", "specific_log_level_config"],
+    [(True, False), (False, True), (True, True)],
+)
+def test_configure_logging_specific_log_level_either_source(
+    tardis_logger,
+    captured_levels,
+    specific_log_level_argument,
+    specific_log_level_config,
+):
+    tardis_config = {
+        "debug": {
+            "log_level": "Warning",
+            "specific_log_level": specific_log_level_config,
+        }
+    }
+
+    tardis_logger.configure_logging(
+        None, tardis_config, specific_log_level_argument
+    )
+
+    assert captured_levels() == [logging.WARNING]
+
+
+@pytest.mark.parametrize("tardis_config", [{}, {"debug": {}}])
+def test_configure_logging_defaults(
+    tardis_logger, captured_levels, tardis_config
+):
+    tardis_logger.configure_logging(None, tardis_config)
+
+    assert captured_levels() == EMITTED_LEVELS[1:]
+
+
+def test_configure_logging_notset_defers_to_root(tardis_logger):
+    tardis_logger.configure_logging("NOTSET", {})
+
+    assert logging.getLogger("tardis").level == logging.NOTSET
+
+
+def test_configure_logging_replaces_specific_filter(tardis_logger):
+    tardis_logger.configure_logging("DEBUG", {}, specific_log_level=True)
+    tardis_logger.configure_logging("WARNING", {}, specific_log_level=True)
+
+    log_filters = [
+        log_filter
+        for log_filter in logging.getLogger("tardis").filters
+        if isinstance(log_filter, LogFilter)
+    ]
+    assert len(log_filters) == 1
+
+
+def test_configure_logging_invalid_log_level(tardis_logger):
+    with pytest.raises(ValueError, match="log_level"):
+        tardis_logger.configure_logging("LOUD", {})

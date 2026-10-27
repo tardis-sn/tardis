@@ -1,5 +1,18 @@
 ## Changelog
 
+### release-2026.10.25 (2026/10/24 21:46)
+- [3794](https://github.com/tardis-sn/tardis/pull/3794) Pre-release 2026.10.25 (3794) (@tardis-bot)
+- [3782](https://github.com/tardis-sn/tardis/pull/3782) IIP workflow convergence fixes (3782) (@andrewfullard)
+- [3791](https://github.com/tardis-sn/tardis/pull/3791) Fix broken docs: unreachable resonance in nonhomologous example notebook (3791) (@connor-mcclellan)
+- [3779](https://github.com/tardis-sn/tardis/pull/3779) Move csvy writer to IO (3779) (@andrewfullard)
+- [3758](https://github.com/tardis-sn/tardis/pull/3758) Logging fixes (3758) (@andrewfullard)
+- [3688](https://github.com/tardis-sn/tardis/pull/3688) Better distance to line calculation and Sobolev optical depth for nonhomology (3688) (@connor-mcclellan)
+- [3756](https://github.com/tardis-sn/tardis/pull/3756) Fix off-by-one shell assignment in formal integral ray segments (3756) (@andrewfullard)
+- [3780](https://github.com/tardis-sn/tardis/pull/3780) Gamma ray test cleanup (3780) (@andrewfullard)
+- [3777](https://github.com/tardis-sn/tardis/pull/3777) Fix test_montecarlo_transport_weighted depending on later regression data (3777) (@andrewfullard)
+- [3757](https://github.com/tardis-sn/tardis/pull/3757) Fix lower case element names (3757) (@andrewfullard)
+- [3761](https://github.com/tardis-sn/tardis/pull/3761) Add more explicit docs about how importing models works (3761) (@andrewfullard)
+- [3783](https://github.com/tardis-sn/tardis/pull/3783) Post-release 2026.10.18 (3783) (@tardis-bot)
 ### release-2026.10.18 (2026/10/13 17:21)
 - [3764](https://github.com/tardis-sn/tardis/pull/3764) Remove previous plasma implementation (3764) (@andrewfullard)
 - [3778](https://github.com/tardis-sn/tardis/pull/3778) Remove reference notebooks that duplicate code with minimal added value (3778) (@andrewfullard)

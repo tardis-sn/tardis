@@ -6,6 +6,10 @@ If ``virtual_packet_logging`` is set to ``True`` in either the :ref:`spectrum co
 an :ref:`argument to the run_tardis function <optional-input>`, then TARDIS will log information about the
 simulation's :ref:`virtual packets <virtual_packets>`.
 
+The parent-interaction fields are populated from the real-packet histories
+used by virtual-packet spectrum post-processing. Virtual packets spawned at the
+inner boundary retain the ``NO_INTERACTION`` defaults.
+
 After running the simulation, the following information can be retrieved:
 
 .. note::
