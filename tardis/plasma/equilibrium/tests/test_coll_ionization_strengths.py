@@ -25,7 +25,7 @@ def test_solve(collisional_ionization_solver, regression_data):
     assert actual_result.index.equals(
         collisional_ionization_solver.photoionization_cross_sections.index
     )
-    assert np.all(actual_result.values >= 0)
+    assert np.all(actual_result.to_numpy() >= 0)
 
     # Regression data comparison
     expected_result = regression_data.sync_dataframe(

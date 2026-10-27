@@ -86,8 +86,8 @@ def read_blondin_toymodel(fname):
     # cell centres and extrapolate the outermost edge. The other columns stay
     # in their rows as cell values.
     new_velocities = 0.5 * (
-        blondin_csv.velocity.iloc[:-1].values
-        + blondin_csv.velocity.iloc[1:].values
+        blondin_csv.velocity.iloc[:-1].to_numpy()
+        + blondin_csv.velocity.iloc[1:].to_numpy()
     )
     new_velocities = np.hstack(
         (new_velocities, [2 * new_velocities[-1] - new_velocities[-2]])

@@ -45,7 +45,7 @@ def normalize_trans_probs(p):
     p_summed = p.groupby(level=0).sum()
     p_summed[p_summed == 0] = 1
     index = p.index.get_level_values("source_level_idx")
-    p_norm = p / p_summed.loc[index].values
+    p_norm = p / p_summed.loc[index].to_numpy()
     assert np.all(np.isfinite(p_norm))
     return p_norm
 
@@ -76,8 +76,8 @@ class SpMatrixSeriesConverterMixin:
             series.index.get_level_values(1),
         )
         q_indices = (
-            idx2reduced_idx.loc[q_indices[0]].values,
-            idx2reduced_idx.loc[q_indices[1]].values,
+            idx2reduced_idx.loc[q_indices[0]].to_numpy(),
+            idx2reduced_idx.loc[q_indices[1]].to_numpy(),
         )
         max_idx = idx2reduced_idx.max() + 1
         matrix = sp.coo_matrix(
@@ -141,7 +141,7 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
             get_ground_state_multi_index(continuum_interaction_species)
         )
         mask = np.logical_or(mask, mask2)
-        idx = ma_ref[mask].references_idx.values
+        idx = ma_ref[mask].references_idx.to_numpy()
         idx2mkv_idx = pd.Series(np.arange(len(idx)), index=idx)
         idx2mkv_idx.loc["k"] = idx2mkv_idx.max() + 1
 
@@ -325,10 +325,12 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         # Prepare the free-bound cooling probabilities
         fb_cooling_probs = (
             cool_rate_fb
-            / cool_rate_fb_tot.values
+            / cool_rate_fb_tot.to_numpy()
             * p_deactivation.loc[("k"), ("bf")]
         )
-        continuum_idx = level2continuum_idx.loc[fb_cooling_probs.index].values
+        continuum_idx = level2continuum_idx.loc[
+            fb_cooling_probs.index
+        ].to_numpy()
         fb_cooling_probs.index = pd.MultiIndex.from_product(
             [["k"], np.ones(len(fb_cooling_probs), dtype=int) * -1],
             names=p_deactivation.index.names,

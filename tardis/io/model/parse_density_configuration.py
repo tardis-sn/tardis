@@ -159,7 +159,7 @@ def parse_density_from_csvy(
         density_unit = u.Unit(
             csvy_model_config.datatype.fields[density_field_index]["unit"]
         )
-        density_0 = csvy_model_data["density"].values * density_unit
+        density_0 = csvy_model_data["density"].to_numpy() * density_unit
         density_0 = density_0.to("g/cm^3")[1:]
         # Removing as the new architecture removes the 0th shell already
         # density_0 = density_0.insert(0, 0)
