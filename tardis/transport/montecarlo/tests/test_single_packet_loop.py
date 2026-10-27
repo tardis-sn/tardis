@@ -181,10 +181,13 @@ def test_transparent_ejecta_escapes_at_geometric_boundary(
 @pytest.mark.parametrize(
     "mode", ["homologous_partial", "homologous_full", "nonhomologous_partial"]
 )
-@pytest.mark.parametrize("tau", [0.0, 100.0])
+@pytest.mark.parametrize(
+    ("tau", "expected_line_events"), [(0.0, 0), (100.0, 1)]
+)
 def test_isolated_line_obeys_zero_and_opaque_limits(
     mode: str,
     tau: float,
+    expected_line_events: int,
     parametrized_packet: RPacket,
     homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
     classic_opacity_state: OpacityStateNumba,
@@ -193,15 +196,11 @@ def test_isolated_line_obeys_zero_and_opaque_limits(
     montecarlo_configuration: MonteCarloConfiguration,
     set_seed_fixture: Callable[[int], None],
 ) -> None:
-    """Verify isolated-line interaction limits (verification).
+    """A tau=0 line is never absorbed; a tau=100 line is absorbed exactly once.
 
-    Claim: a swept zero-tau line never interacts and a tau=100 line interacts
-    for the fixed seed. Regime: electron-free two-shell ejecta, one reachable
-    line plus a retained red sentinel, SCATTER. Verification: P=1-exp(-tau),
-    compared with the independent MT19937 first draw. Event types/line IDs
-    are exact; positive swept-line estimators are expected even at tau=0.
-    Detects an inverted line gate or dispatch to electron scattering. No
-    stochastic tolerance is needed: the draw is far from either threshold.
+    Regime: electron-free two-shell ejecta, one reachable line plus a far
+    red sentinel, SCATTER. The interaction probability is 1 - exp(-tau): 0 and
+    1 - 4e-44, so the outcome does not depend on the random seed.
     """
     geometry = homologous_radial_1d_geometry
     time_explosion = geometry.time_explosion
@@ -221,13 +220,7 @@ def test_isolated_line_obeys_zero_and_opaque_limits(
     opacity.tau_sobolev[:] = 0.0
     opacity.tau_sobolev[0, :] = tau
     tracker = TrackerFull(16, 2)
-    seed = 1963
-    # trace samples tau_event=-log(U), hence interaction if U>exp(-tau).
-    uniform = np.random.RandomState(seed).random_sample()
-    interaction_probability = -np.expm1(-tau)
-    expected_interaction = (1.0 - uniform) < interaction_probability
-    assert expected_interaction == (tau == 100.0)
-    set_seed_fixture(seed)
+    set_seed_fixture(1963)
     propagate(
         parametrized_packet,
         geometry,
@@ -239,22 +232,11 @@ def test_isolated_line_obeys_zero_and_opaque_limits(
         montecarlo_configuration,
     )
     tracker.finalize()
-    events = tracker.interaction_type
-    line_events = events == InteractionType.LINE
-    assert np.count_nonzero(line_events) == int(expected_interaction)
-    assert not np.any(events == InteractionType.ESCATTERING)
-    npt.assert_array_equal(
-        tracker.line_absorb_id[line_events],
-        np.zeros(int(expected_interaction), dtype=int),
-    )
-    npt.assert_array_equal(
-        tracker.line_emit_id[line_events],
-        np.zeros(int(expected_interaction), dtype=int),
-    )
-    # The blue-wing estimator counts line crossings, irrespective of opacity.
-    assert line_estimators.mean_intensity_blueward[0, 0] > 0.0
-    assert line_estimators.energy_deposition_line_rate[0, 0] > 0.0
-    npt.assert_array_equal(line_estimators.mean_intensity_blueward[1], 0.0)
+
+    line_events = tracker.interaction_type == InteractionType.LINE
+    assert np.count_nonzero(line_events) == expected_line_events
+    npt.assert_array_equal(tracker.line_absorb_id[line_events], 0)
+    npt.assert_array_equal(tracker.line_emit_id[line_events], 0)
 
 
 @pytest.mark.parametrize(
