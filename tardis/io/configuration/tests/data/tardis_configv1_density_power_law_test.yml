@@ -39,7 +39,6 @@ montecarlo:
     no_of_packets : 2.0e+5
     iterations: 30
     last_no_of_packets: 5.0e+5
-    no_of_virtual_packets: 5
 
 spectrum:
     start: 500 angstrom

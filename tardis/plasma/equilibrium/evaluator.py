@@ -7,6 +7,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from scipy.optimize import least_squares, root
+from scipy.special import softmax
 
 from tardis.opacities.sobolevs_from_levels import (
     calculate_sobolev_opacities_from_level_densities,
@@ -18,6 +19,7 @@ from tardis.plasma.equilibrium.inputs import (
     BoundBoundMatrixRates,
     ContinuumCoefficientState,
     ContinuumRateCoefficients,
+    DiluteRadiationInputs,
     LevelEquationRates,
     ShellNumberDensity,
     SobolevInputs,
@@ -36,9 +38,16 @@ from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
 )
-from tardis.plasma.properties.general import BetaElectron, ThermalGElectron
+from tardis.plasma.properties.general import (
+    BetaElectron,
+    BetaRadiation,
+    GElectron,
+    ThermalGElectron,
+)
 from tardis.plasma.properties.ion_population import (
     IonNumberDensity,
+    PhiSahaNebular,
+    RadiationFieldCorrection,
     SahaFactor,
     ThermalPhiSahaLTE,
 )
@@ -296,6 +305,7 @@ class PlasmaEquilibriumEvaluator:
         thermal_balance_arguments: Mapping[str, object] | None = None,
         reference_electron_temperature: u.Quantity | None = None,
         radiation_field: DilutePlanckianRadiationField | None = None,
+        dilute_radiation: DiluteRadiationInputs | None = None,
     ) -> None:
         """Construct an evaluator from fixed scientific inputs.
 
@@ -343,6 +353,12 @@ class PlasmaEquilibriumEvaluator:
             Temperature at which fixed thermal rate coefficients were built.
         radiation_field : DilutePlanckianRadiationField, optional
             Radiation field used by optional thermal-balance calculations.
+        dilute_radiation : DiluteRadiationInputs, optional
+            Radiation field for species without continuum or NLTE rates. When
+            given, they use nebular ionization at the candidate electron
+            temperature and dilute-LTE excitation. Otherwise they use LTE
+            ionization at the candidate electron temperature and keep the
+            excitation of ``shell_number_densities``.
         """
         self.photoionization_cross_sections = photoionization_cross_sections
         self.level2continuum_edge_idx = level2continuum_edge_idx
@@ -401,6 +417,55 @@ class PlasmaEquilibriumEvaluator:
             thermal_balance_arguments or {}
         )
         self.reference_electron_temperature = reference_electron_temperature
+        self.dilute_radiation = dilute_radiation
+
+    def calculate_nebular_ionization_factor(
+        self, electron_temperature: npt.NDArray[np.float64]
+    ) -> pd.DataFrame:
+        """Calculate nebular ionization factors at candidate temperatures.
+
+        Uses the nebular approximation of Mazzali & Lucy (1993) with the
+        fixed dilute radiation field.
+
+        Parameters
+        ----------
+        electron_temperature : numpy.ndarray
+            Electron temperatures in each plasma shell [K].
+
+        Returns
+        -------
+        pandas.DataFrame
+            Ionization factor n_(i+1) n_e / n_i indexed by atomic number and
+            ion number of the upper ion. Columns are shells.
+        """
+        radiation_temperature = self.dilute_radiation.radiation_temperature
+        dilution_factor = self.dilute_radiation.dilution_factor
+        beta_radiation = BetaRadiation(None).calculate(radiation_temperature)
+        radiation_field_correction = RadiationFieldCorrection(
+            delta_treatment=self.dilute_radiation.delta_treatment
+        ).calculate(
+            dilution_factor,
+            self.ionization_data,
+            beta_radiation,
+            electron_temperature,
+            radiation_temperature,
+            BetaElectron(None).calculate(electron_temperature),
+        )
+        nebular_ionization_factor = PhiSahaNebular.calculate(
+            radiation_temperature,
+            dilution_factor,
+            self.dilute_radiation.zeta_data,
+            electron_temperature,
+            radiation_field_correction,
+            GElectron(None).calculate(beta_radiation),
+            beta_radiation,
+            self.dilute_radiation.partition_function,
+            self.ionization_data,
+        )
+        nebular_ionization_factor.columns = (
+            self.elemental_number_density.columns
+        )
+        return nebular_ionization_factor
 
     def calculate_continuum_coefficients(
         self, electron_temperature: npt.NDArray[np.float64]
@@ -635,20 +700,66 @@ class PlasmaEquilibriumEvaluator:
                 bound_bound_rates=bound_bound_rates,
             )[0]
 
-        solution = root(residual, level_seed, options={"xtol": 1e-12})
-        level_solution = solution.x
-        if not np.isfinite(level_solution).all():
-            raise ValueError("Reduced level-population solve did not converge.")
-        if np.any(level_solution < 0.0):
-            # Match iip_plasma's general fallback: scipy root HYBR result is
-            # retained whenever its iterate is physical, while a negative
-            # iterate is rebuilt by the slower bounded solver instead of clipped
-            # or accepted.
-            level_solution = least_squares(
-                residual,
-                level_seed,
-                bounds=(0.0, 1.0),
+        def calculate_physical_level_residual(
+            candidate: npt.NDArray[np.float64],
+        ) -> float:
+            if (
+                not np.isfinite(candidate).all()
+                or np.any(candidate < 0.0)
+                or candidate.sum() <= 0.0
+            ):
+                return np.inf
+            candidate_residual = residual(candidate / candidate.sum())
+            if not np.isfinite(candidate_residual).all():
+                return np.inf
+            return float(np.max(np.abs(candidate_residual)))
+
+        # An empirical per-level floor lets a retry repopulate excited levels
+        # depleted by the previous thermal state while retaining its shape.
+        floored_seed = np.maximum(level_seed, 1e-4)
+        floored_seed /= floored_seed.sum()
+        level_solution = level_seed
+        best_residual = np.inf
+        for seed_idx, trial_seed in enumerate((level_seed, floored_seed)):
+            root_solution = root(
+                residual, trial_seed, options={"xtol": 1e-12}
             ).x
+            root_residual = calculate_physical_level_residual(root_solution)
+            if seed_idx == 0 or root_residual < best_residual:
+                level_solution = root_solution
+                best_residual = root_residual
+            if best_residual <= 1e-10:
+                break
+
+            # Log ratios preserve positive, normalized populations while
+            # solving from this trial seed.
+            def calculate_log_ratio_residual(
+                log_ratios: npt.NDArray[np.float64],
+            ) -> npt.NDArray[np.float64]:
+                return residual(softmax(np.concatenate(([0.0], log_ratios))))[1:]
+
+            minimum_fraction = np.finfo(np.float64).eps
+            initial_log_ratios = np.log(
+                np.maximum(trial_seed[1:], minimum_fraction)
+                / max(trial_seed[0], minimum_fraction)
+            )
+            log_solution = least_squares(
+                calculate_log_ratio_residual,
+                initial_log_ratios,
+                ftol=1e-12,
+                xtol=1e-12,
+                gtol=1e-14,
+                max_nfev=3000,
+            )
+            log_fractions = softmax(
+                np.concatenate(([0.0], log_solution.x))
+            )
+            log_residual = calculate_physical_level_residual(log_fractions)
+            if log_residual < best_residual:
+                level_solution = log_fractions
+                best_residual = log_residual
+            if best_residual <= 1e-10:
+                break
         if not np.isfinite(level_solution).all():
             raise ValueError(
                 "Reduced level-population solve returned nonfinite fractions."
@@ -662,10 +773,6 @@ class PlasmaEquilibriumEvaluator:
                 "Reduced level-population solve returned zero fractions."
             )
 
-        # Legacy iip_plasma accepts a finite, nonnegative root(method='hybr') iterate
-        # even when SciPy reports failure or the level equations are not closed.
-        # This code deliberately preserves that behavior; the residual remains
-        # part of the returned diagnostics but is not an acceptance criterion.
         fractions = level_solution / level_solution.sum()
         level_residual, beta_sobolev, ionized_to_neutral_ratio = (
             self._calculate_level_state(
@@ -679,10 +786,19 @@ class PlasmaEquilibriumEvaluator:
                 bound_bound_rates=bound_bound_rates,
             )
         )
-        if ionized_to_neutral_ratio < 0.0:
+        if (
+            not np.isfinite(ionized_to_neutral_ratio)
+            or ionized_to_neutral_ratio < 0.0
+        ):
             raise ValueError(
-                "Reduced level-population solve returned a negative "
+                "Reduced level-population solve returned an invalid "
                 "ionized-to-neutral ratio."
+            )
+        # Legacy IIP returns a physical iterate at difficult trial points;
+        # the workflow checks final closure before accepting a thermal state.
+        if not np.isfinite(level_residual).all():
+            raise ValueError(
+                "Reduced level-population solve returned a nonfinite residual."
             )
         return (
             fractions,
@@ -843,8 +959,17 @@ class PlasmaEquilibriumEvaluator:
                 thermal_state.level_to_continuum_saha_factor
             ),
         )
+        # The solver applies this factor only to species without continuum
+        # rates.
+        ionization_factor = (
+            thermal_state.lte_ionization_factor
+            if self.dilute_radiation is None
+            else self.calculate_nebular_ionization_factor(
+                trial_electron_distribution.temperature.to_value(u.K)
+            )
+        )
         return self.ion_population_solver.solve(
-            lte_ionization_factor=thermal_state.lte_ionization_factor,
+            lte_ionization_factor=ionization_factor,
             **solver_arguments,
         )
 
@@ -868,6 +993,15 @@ class PlasmaEquilibriumEvaluator:
                 )
             return absolute_levels
 
+        # Dilute-LTE Boltzmann factors give each ion's level distribution;
+        # without them, the fixed input populations keep their distribution.
+        base_population = (
+            state.full_population
+            if self.dilute_radiation is None
+            else self.dilute_radiation.level_boltzmann_factor.loc[
+                self.level_population_index
+            ].set_axis(state.full_population.columns, axis="columns")
+        )
         level_atomic_numbers = self.level_population_index.get_level_values(
             "atomic_number"
         )
@@ -882,14 +1016,14 @@ class PlasmaEquilibriumEvaluator:
                 (level_atomic_numbers == atomic_number)
                 & (level_ion_numbers == ion_number)
             )
-            base_ion_density = state.full_population.iloc[positions].sum()
+            base_ion_density = base_population.iloc[positions].sum()
             nonzero_density = base_ion_density != 0.0
             base_values = base_ion_density.to_numpy()
             safe_base_values = np.where(
                 nonzero_density.to_numpy(), base_values, 1.0
             )
             scaled_values = (
-                state.full_population.iloc[positions].to_numpy()
+                base_population.iloc[positions].to_numpy()
                 / safe_base_values
                 * ion_density.to_numpy()
             )

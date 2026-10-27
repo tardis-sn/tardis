@@ -111,6 +111,7 @@ Mission Statement
     reference/faq
     io/configuration/index
     io/hdf/index
+    workflows/iip_workflow/thermal_balance
     ../CHANGELOG.md 
     resources/research_done_using_TARDIS/research_papers
     resources/zreferences

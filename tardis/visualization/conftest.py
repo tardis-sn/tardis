@@ -4,6 +4,7 @@ from copy import deepcopy
 from tardis.base import run_tardis
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
+
 @pytest.fixture(scope="module")
 def simulation_simple_tracked(config_verysimple, atomic_dataset):
     """
@@ -41,6 +42,7 @@ def simulation_simple_tracked(config_verysimple, atomic_dataset):
     )
     return sim
 
+
 @pytest.fixture(scope="class")
 def workflow_simple_tracked(config_verysimple, atomic_data_fname):
     config = deepcopy(config_verysimple)
@@ -52,7 +54,9 @@ def workflow_simple_tracked(config_verysimple, atomic_data_fname):
     config.montecarlo.no_of_virtual_packets = 1
     config.spectrum.num = 2000
     config.montecarlo.tracking.track_rpacket = True
-    
-    workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
+
+    workflow = StandardTARDISWorkflow(
+        config, enable_virtual_packet_logging=True
+    )
     workflow.run()
     return workflow

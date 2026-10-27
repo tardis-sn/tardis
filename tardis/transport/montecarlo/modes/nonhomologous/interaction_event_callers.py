@@ -47,104 +47,12 @@ def macro_atom_event(
             enable_full_relativity,
         )
     else:
-        # look at the IIP mode continuum interactions for re-implementation
-        # requires a continuum opacity state
+        # A future continuum path needs a separate continuum opacity state
+        # and an event handler adapted from modes.iip.interaction_event_callers
+        # to this mode's radial geometry.
         raise Exception(
             f"Interaction {transition_type} not known or implemented!"
         )
-
-
-@njit(**njit_dict_no_parallel)
-def determine_continuum_macro_activation_idx(
-    opacity_state, nu, chi_bf, chi_ff, chi_bf_contributions, active_continua
-):
-    """
-    Determine the macro atom activation level after a continuum absorption.
-
-    Parameters
-    ----------
-    nu : float
-        Comoving frequency of the r-packet.
-    chi_bf : numpy.ndarray, dtype float
-        Bound-free opacity.
-    chi_bf : numpy.ndarray, dtype float
-        Free-free opacity.
-    chi_bf_contributions : numpy.ndarray, dtype float
-        Cumulative distribution of bound-free opacities at frequency
-        `nu`.
-    active_continua : numpy.ndarray, dtype int
-        Continuum ids for which absorption is possible for frequency `nu`.
-
-    Returns
-    -------
-    float
-        Macro atom activation idx.
-    """
-    fraction_bf = chi_bf / (chi_bf + chi_ff)
-    # TODO: In principle, we can also decide here whether a Thomson
-    # scattering event happens and need one less RNG call.
-    if np.random.random() < fraction_bf:  # Bound-free absorption
-        destination_level_idx = determine_bf_macro_activation_idx(
-            opacity_state, nu, chi_bf_contributions, active_continua
-        )
-    else:  # Free-free absorption (i.e. k-packet creation)
-        destination_level_idx = opacity_state.k_packet_idx
-    return destination_level_idx
-
-
-@njit(**njit_dict_no_parallel)
-def continuum_event(
-    r_packet,
-    geometry,
-    opacity_state,
-    chi_bf_tot,
-    chi_ff,
-    chi_bf_contributions,
-    current_continua,
-    enable_full_relativity,
-):
-    """
-    continuum event handler - activate the macroatom and run the handler
-
-    Parameters
-    ----------
-    r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : NumbaRadial1DGeometry
-    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
-    continuum : tardis.transport.montecarlo.numba_interface.Continuum
-    """
-    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    old_doppler_factor = get_doppler_factor(
-        v, r_packet.mu, enable_full_relativity
-    )
-
-    r_packet.mu = get_random_mu()
-    inverse_doppler_factor = get_inverse_doppler_factor(
-        v, r_packet.mu, enable_full_relativity
-    )
-    comov_energy = r_packet.energy * old_doppler_factor
-    comov_nu = (
-        r_packet.nu * old_doppler_factor
-    )  # make sure frequency should be updated
-    r_packet.energy = comov_energy * inverse_doppler_factor
-    r_packet.nu = comov_nu * inverse_doppler_factor
-
-    destination_level_idx = determine_continuum_macro_activation_idx(
-        opacity_state,
-        comov_nu,
-        chi_bf_tot,
-        chi_ff,
-        chi_bf_contributions,
-        current_continua,
-    )
-
-    macro_atom_event(
-        destination_level_idx,
-        r_packet,
-        geometry,
-        opacity_state,
-        enable_full_relativity,
-    )
 
 
 @njit(**njit_dict_no_parallel)
