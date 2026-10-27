@@ -151,8 +151,6 @@ class TestSDECPlotter:
             nelements,
             _,
         ) = request.param
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         # Parse the same species list as the from_workflow fixture, since
         # both share this reference data
@@ -223,8 +221,6 @@ class TestSDECPlotter:
             observed_spectrum = None
 
         # plotter = SDECPlotter.from_simulation(simulation_simple_tracked)
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         fig = plotter.generate_plot_mpl(
             packets_mode=packets_mode,
@@ -342,8 +338,6 @@ class TestSDECPlotter:
         if distance is None:
             observed_spectrum = None
 
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         fig = plotter.generate_plot_ply(
             packets_mode=packets_mode,
@@ -538,8 +532,6 @@ class TestSDECPlotter:
             nelements,
             _,
         ) = param
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         # we need to parse this
         plotter_from_workflow._parse_species_list(species_list)
@@ -605,8 +597,6 @@ class TestSDECPlotter:
         if distance is None:
             observed_spectrum = None
 
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         fig = plotter_from_workflow.generate_plot_mpl(
             packets_mode=packets_mode,
