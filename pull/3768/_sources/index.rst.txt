@@ -109,9 +109,9 @@ Mission Statement
 
     API <api/modules>
     reference/faq
-    reference/visualization_reference
     io/configuration/index
     io/hdf/index
+    workflows/iip_workflow/thermal_balance
     ../CHANGELOG.md 
     resources/research_done_using_TARDIS/research_papers
     resources/zreferences
