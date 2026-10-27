@@ -419,6 +419,22 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def iterate(
         self, no_of_packets: int, no_of_virtual_packets: int = 0
     ) -> u.Quantity:
+        """
+        Run one Monte Carlo iteration.
+
+        Parameters
+        ----------
+        no_of_packets : int
+            Number of real packets to propagate.
+        no_of_virtual_packets : int, optional
+            Number of virtual packets to spawn per real-packet interaction.
+
+        Returns
+        -------
+        astropy.units.Quantity
+            Emitted luminosity of the iteration within the luminosity
+            frequency bounds.
+        """
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
