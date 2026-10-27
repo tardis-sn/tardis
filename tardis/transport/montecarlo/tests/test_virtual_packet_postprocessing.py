@@ -53,9 +53,7 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
     spectrum_frequency_grid = np.array([1.0e14, 2.0e14, 3.0e14])
     trackers = generate_tracker_full_list(2, 3)
     for packet_idx, tracker in enumerate(trackers):
-        r_packet = RPacket(
-            1.0, 0.5, 1.0e14, 1.0, 1963 + packet_idx
-        )
+        r_packet = RPacket(1.0, 0.5, 1.0e14, 1.0, 1963 + packet_idx)
         r_packet.next_line_id = 0
         tracker.track_boundary_event(r_packet, -1, 0)
 
@@ -76,7 +74,6 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
     montecarlo_configuration.MONTECARLO_SEED = 42
     montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY = 1.5e14
     montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY = 2.5e14
-    montecarlo_configuration.TEMPORARY_V_PACKET_BINS = 4
 
     energy_histogram, vpacket_tracker = calculate_virtual_packet_spectrum(
         geometry,
@@ -109,10 +106,7 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
     expected_initial_mus = np.concatenate(
         [
             mu_min
-            + (
-                np.arange(4)
-                + np.random.RandomState(seed).random_sample(4)
-            )
+            + (np.arange(4) + np.random.RandomState(seed).random_sample(4))
             * mu_bin
             for seed in (42, 43)
         ]

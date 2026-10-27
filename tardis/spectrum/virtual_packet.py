@@ -66,7 +66,7 @@ def create_vpacket_collections(
                 montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
                 montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
                 number_of_vpackets,
-                montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
+                number_of_vpackets,
             )
         )
     return vpacket_collections
@@ -96,12 +96,16 @@ def add_vpacket_collection_to_histogram(
         (vpacket_collection.nus - spectrum_frequency_grid[0]) / delta_nu
     ).astype(np.int64)
 
-    for j, idx in enumerate(v_packets_idx):
-        if (vpacket_collection.nus[j] < spectrum_frequency_grid[0]) or (
-            vpacket_collection.nus[j] > spectrum_frequency_grid[-1]
+    for v_packet_idx, spectrum_idx in enumerate(v_packets_idx):
+        if (
+            vpacket_collection.nus[v_packet_idx] < spectrum_frequency_grid[0]
+        ) or (
+            vpacket_collection.nus[v_packet_idx] > spectrum_frequency_grid[-1]
         ):
             continue
-        v_packets_energy_hist[idx] += vpacket_collection.energies[j]
+        v_packets_energy_hist[spectrum_idx] += vpacket_collection.energies[
+            v_packet_idx
+        ]
 
 
 @njit(**njit_dict_no_parallel)
@@ -192,6 +196,8 @@ def calculate_virtual_packet_spectrum(
     )
 
     for i in prange(no_of_packets):
+        # prange yields an unsigned index; cast to int64 so typed-list
+        # indexing is not an unsafe cast and the seed sum stays integer.
         packet_idx = np.int64(i)
         tracker = trackers[packet_idx]
         vpacket_collection = vpacket_collections[packet_idx]

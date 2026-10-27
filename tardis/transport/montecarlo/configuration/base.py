@@ -10,8 +10,6 @@ from tardis.transport.montecarlo.interaction_events import (
 
 numba_config_spec = [
     ("ENABLE_FULL_RELATIVITY", boolean),
-    ("TEMPORARY_V_PACKET_BINS", int64),
-    ("NUMBER_OF_VPACKETS", int64),
     ("MONTECARLO_SEED", int64),
     ("LINE_INTERACTION_TYPE", int64),
     ("PACKET_SEEDS", int64[:]),
@@ -31,8 +29,6 @@ numba_config_spec = [
 class MonteCarloConfiguration:
     def __init__(self):
         self.ENABLE_FULL_RELATIVITY = False
-        self.TEMPORARY_V_PACKET_BINS = 0
-        self.NUMBER_OF_VPACKETS = 0
         self.MONTECARLO_SEED = 0
         self.LINE_INTERACTION_TYPE = 0
         self.PACKET_SEEDS = np.empty(1, dtype=np.int64)
@@ -49,7 +45,7 @@ class MonteCarloConfiguration:
         self.ENABLE_VPACKET_TRACKING = False
 
 
-def configuration_initialize(config, transport, number_of_vpackets):
+def configuration_initialize(config, transport):
     if transport.line_interaction_type == "macroatom":
         config.LINE_INTERACTION_TYPE = LineInteractionType.MACROATOM
     elif transport.line_interaction_type == "downbranch":
@@ -62,8 +58,6 @@ def configuration_initialize(config, transport, number_of_vpackets):
             f'"downbranch", or "scatter" but is '
             f"{transport.line_interaction_type}"
         )
-    config.NUMBER_OF_VPACKETS = number_of_vpackets
-    config.TEMPORARY_V_PACKET_BINS = number_of_vpackets
     config.ENABLE_FULL_RELATIVITY = transport.enable_full_relativity
     config.MONTECARLO_SEED = transport.packet_source.base_seed
     config.VPACKET_SPAWN_START_FREQUENCY = transport.vpacket_spawn_range.end.to(

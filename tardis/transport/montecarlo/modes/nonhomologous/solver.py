@@ -112,7 +112,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         macro_atom_state,
         plasma,
         no_of_packets,
-        no_of_virtual_packets=0,
         iteration=0,
     ):
         if not plasma.continuum_interaction_species.empty:
@@ -144,9 +143,7 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             self.montecarlo_configuration.ENABLE_FULL_RELATIVITY
         )
 
-        configuration_initialize(
-            self.montecarlo_configuration, self, no_of_virtual_packets
-        )
+        configuration_initialize(self.montecarlo_configuration, self)
 
         return transport_state
 
@@ -154,6 +151,7 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         self,
         transport_state: MonteCarloTransportStateNonhomologous,
         show_progress_bars: bool = True,
+        retain_full_trackers: bool = False,
     ) -> None:
         """
         Run the montecarlo calculation.
@@ -164,14 +162,20 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             Transport state containing all the data needed for the Monte Carlo simulation
         show_progress_bars : bool
             Show progress bars
+        retain_full_trackers : bool, optional
+            Record full real-packet histories and keep them in
+            ``rpacket_tracker`` after transport for post-processing.
 
         """
-        self.run_nonhomologous(transport_state, show_progress_bars)
+        self.run_nonhomologous(
+            transport_state, show_progress_bars, retain_full_trackers
+        )
 
     def run_nonhomologous(
         self,
         transport_state: MonteCarloTransportStateNonhomologous,
         show_progress_bars: bool = True,
+        retain_full_trackers: bool = False,
     ) -> None:
         """
         Run the montecarlo calculation using nonhomologous mode (no continuum).
@@ -182,15 +186,19 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             Transport state containing all the data needed for the Monte Carlo simulation
         show_progress_bars : bool
             Show progress bars
+        retain_full_trackers : bool, optional
+            Record full real-packet histories and keep them in
+            ``rpacket_tracker`` after transport for post-processing.
 
         """
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
+        # Memory: drop the previous run's histories before recording new ones
+        self.rpacket_tracker = None
 
-        number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
         number_of_rpackets = len(transport_state.packet_collection.initial_nus)
 
-        if self.enable_rpacket_tracking or number_of_vpackets > 0:
+        if self.enable_rpacket_tracking or retain_full_trackers:
             trackers_list = generate_tracker_full_list(
                 number_of_rpackets,
                 self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
@@ -216,7 +224,8 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             packet_propagation_function=packet_propagation,
         )
 
-        self.rpacket_tracker = trackers_list if number_of_vpackets > 0 else None
+        if retain_full_trackers:
+            self.rpacket_tracker = trackers_list
 
         # Attach estimators to transport state
         transport_state.estimators_bulk = estimators_bulk
@@ -228,20 +237,19 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         if self.enable_rpacket_tracking:
             # Memory: the trackers are not needed once copied, so free them
             # during the conversion rather than holding them alongside the
-            # full DataFrame. Keep them when the spectrum solver still needs
-            # them to spawn virtual packets.
+            # full DataFrame, unless the caller asked to retain them.
             self.transport_state.tracker_full_df = trackers_full_to_df(
-                trackers_list, release_trackers=number_of_vpackets == 0
+                trackers_list, release_trackers=not retain_full_trackers
             )
             self.transport_state.tracker_last_interaction_df = (
                 tracker_full_df2tracker_last_interaction_df(
                     self.transport_state.tracker_full_df
                 )
             )
-        elif number_of_vpackets > 0:
-            # Memory: full trackers were needed only to source virtual
-            # packets. Build the last-interaction table straight from them
-            # instead of going through the full event DataFrame.
+        elif retain_full_trackers:
+            # Memory: full trackers were recorded only to be retained. Build
+            # the last-interaction table straight from them instead of going
+            # through the full event DataFrame.
             self.transport_state.tracker_full_df = None
             self.transport_state.tracker_last_interaction_df = (
                 trackers_full_to_last_interaction_df(trackers_list)

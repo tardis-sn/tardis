@@ -91,6 +91,7 @@ class SpectrumSolver(HDFWriterMixin):
         plasma: BasePlasma | None = None,
         opacity_state: OpacityState | None = None,
         macro_atom_state: LegacyMacroAtomState | MacroAtomState | None = None,
+        number_of_vpackets: int = 0,
     ) -> None:
         """Set up the solver to handle real and virtual spectra
 
@@ -110,6 +111,9 @@ class SpectrumSolver(HDFWriterMixin):
             Final opacity state.
         macro_atom_state : LegacyMacroAtomState or MacroAtomState, optional
             Final macro-atom state.
+        number_of_vpackets : int, optional
+            Number of virtual packets spawned per real-packet interaction.
+            Requires ``transport`` to have retained full real-packet histories.
         """
         self.transport_state = transport_state
         if transport is not None:
@@ -117,6 +121,7 @@ class SpectrumSolver(HDFWriterMixin):
                 transport_state,
                 transport.montecarlo_configuration,
                 transport.rpacket_tracker,
+                number_of_vpackets,
             )
             transport.rpacket_tracker = None
         self._integrator = integrator
@@ -133,6 +138,7 @@ class SpectrumSolver(HDFWriterMixin):
         ),
         montecarlo_configuration: MonteCarloConfiguration,
         rpacket_tracker: TypedList[TrackerFull] | None,
+        number_of_vpackets: int,
     ) -> None:
         """Compute the virtual spectrum from retained real-packet histories.
 
@@ -143,11 +149,11 @@ class SpectrumSolver(HDFWriterMixin):
         montecarlo_configuration : MonteCarloConfiguration
             Configuration used for the completed transport calculation.
         rpacket_tracker : numba.typed.List, optional
-            Retained full real-packet histories. Required when virtual packets
-            are configured.
+            Retained full real-packet histories. Required when
+            ``number_of_vpackets`` is positive.
+        number_of_vpackets : int
+            Number of virtual packets spawned per real-packet interaction.
         """
-        number_of_vpackets = montecarlo_configuration.NUMBER_OF_VPACKETS
-
         self._montecarlo_virtual_luminosity.value[:] = 0.0
         transport_state.virt_logging = (
             montecarlo_configuration.ENABLE_VPACKET_TRACKING

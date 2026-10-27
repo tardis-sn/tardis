@@ -1149,9 +1149,7 @@ class TypeIIPWorkflow:
             "macro_atom_state": macro_atom_state,
         }
 
-    def solve_montecarlo(
-        self, opacity_states, no_of_real_packets, no_of_virtual_packets=0
-    ):
+    def solve_montecarlo(self, opacity_states, no_of_real_packets):
         """Solve the Monte Carlo process.
 
         Parameters
@@ -1160,8 +1158,6 @@ class TypeIIPWorkflow:
             Opacity and (optionally) Macro Atom states.
         no_of_real_packets : int
             Number of real packets to simulate
-        no_of_virtual_packets : int, optional
-            Number of virtual packets to simulate per interaction, by default 0
 
         """
         opacity_state = opacity_states["opacity_state"]
@@ -1173,7 +1169,6 @@ class TypeIIPWorkflow:
             macro_atom_state,
             self.continuum_opacity_state,
             no_of_real_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.completed_iterations,
         )
 
@@ -1248,7 +1243,6 @@ class TypeIIPWorkflow:
         self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
-            self.virtual_packet_count,
         )
 
         self.initialize_spectrum_solver()

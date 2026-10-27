@@ -399,7 +399,7 @@ class SimpleTARDISWorkflow:
         self,
         opacity_states: dict,
         no_of_real_packets: int,
-        no_of_virtual_packets: int = 0,
+        retain_full_trackers: bool = False,
     ) -> None:
         """Solve the MonteCarlo process
 
@@ -409,8 +409,9 @@ class SimpleTARDISWorkflow:
             Opacity and (optionally) Macro Atom states.
         no_of_real_packets
             Number of real packets to simulate.
-        no_of_virtual_packets
-            Number of virtual packets to simulate per interaction.
+        retain_full_trackers
+            Keep the full real-packet histories on the transport solver for
+            post-processing, e.g. virtual-packet spectra.
 
         """
         opacity_state = opacity_states["opacity_state"]
@@ -422,13 +423,13 @@ class SimpleTARDISWorkflow:
             macro_atom_state,
             self.plasma_solver,
             no_of_real_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.completed_iterations,
         )
 
         self.transport_solver.run(
             self.transport_state,
             show_progress_bars=self.show_progress_bars,
+            retain_full_trackers=retain_full_trackers,
         )
 
         output_energy = self.transport_state.packet_collection.output_energies
@@ -469,6 +470,7 @@ class SimpleTARDISWorkflow:
             plasma=self.plasma_solver,
             opacity_state=opacity_states["opacity_state"],
             macro_atom_state=opacity_states["macro_atom_state"],
+            number_of_vpackets=self.virtual_packet_count,
         )
 
     def run(self) -> None:
@@ -512,7 +514,7 @@ class SimpleTARDISWorkflow:
         self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
-            self.virtual_packet_count,
+            retain_full_trackers=self.virtual_packet_count > 0,
         )
 
         self.initialize_spectrum_solver(self.opacity_states)

@@ -417,7 +417,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         return converged
 
     def iterate(
-        self, no_of_packets: int, no_of_virtual_packets: int = 0
+        self, no_of_packets: int, retain_full_trackers: bool = False
     ) -> u.Quantity:
         """
         Run one Monte Carlo iteration.
@@ -426,8 +426,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         ----------
         no_of_packets : int
             Number of real packets to propagate.
-        no_of_virtual_packets : int, optional
-            Number of virtual packets to spawn per real-packet interaction.
+        retain_full_trackers : bool, optional
+            Keep the full real-packet histories on the transport solver for
+            post-processing, e.g. virtual-packet spectra.
 
         Returns
         -------
@@ -457,13 +458,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.macro_atom_state,
             self.plasma,
             no_of_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.iterations_executed,
         )
 
         self.transport.run(
             transport_state,
             show_progress_bars=self.show_progress_bars,
+            retain_full_trackers=retain_full_trackers,
         )
 
         output_energy = (
@@ -550,11 +551,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.simulation_state.t_inner,
         )
 
-        # Set up spectrum solver integrator and virtual spectrum
         self.iterate(
-            self.last_no_of_packets, self.no_of_virtual_packets
+            self.last_no_of_packets,
+            retain_full_trackers=self.no_of_virtual_packets > 0,
         )
 
+        # Set up spectrum solver integrator and virtual spectrum
         integrator_settings = self.spectrum_solver.integrator_settings
         formal_integral_solver = FormalIntegralSolver(
             integrator_settings.points,
@@ -570,6 +572,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             plasma=self.plasma,
             opacity_state=self.opacity_state,
             macro_atom_state=self.macro_atom_state,
+            number_of_vpackets=self.no_of_virtual_packets,
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)

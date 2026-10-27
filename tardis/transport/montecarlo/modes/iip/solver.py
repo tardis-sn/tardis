@@ -104,7 +104,6 @@ class MCTransportSolverIIP(HDFWriterMixin):
         macro_atom_state: object | None,
         continuum_state: ContinuumOpacityState,
         no_of_packets: int,
-        no_of_virtual_packets: int = 0,
         iteration: int = 0,
     ) -> MonteCarloTransportState:
         """Initialize transport state from explicit opacity inputs."""
@@ -142,9 +141,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
         # IIP mode: full relativity always enabled
         transport_state.enable_full_relativity = True
 
-        configuration_initialize(
-            self.montecarlo_configuration, self, no_of_virtual_packets
-        )
+        configuration_initialize(self.montecarlo_configuration, self)
 
         return transport_state
 
@@ -162,16 +159,10 @@ class MCTransportSolverIIP(HDFWriterMixin):
             Transport state containing all the data needed for the Monte Carlo simulation
         show_progress_bars : bool
             Show progress bars
-
-        Returns
-        -------
-        v_packets_energy_hist : ndarray
-            Histogram of energy from virtual packets
         """
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
 
-        number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
         number_of_rpackets = len(transport_state.packet_collection.initial_nus)
 
         if self.enable_rpacket_tracking:
@@ -236,8 +227,6 @@ class MCTransportSolverIIP(HDFWriterMixin):
             self.transport_state.tracker_last_interaction_df = (
                 trackers_last_interaction_to_df(trackers_list)
             )
-
-        # IIP mode does not currently track virtual packets in montecarlo_transport
 
     @classmethod
     def from_config(
