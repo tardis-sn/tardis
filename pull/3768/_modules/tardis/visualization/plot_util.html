@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=90013c29"></script>
+      <script src="../../../_static/documentation_options.js?v=80631aa0"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4450,7 +4450,7 @@ def extract_and_process_packet_data(
         df_last_emitted = df_last[transport_state.emitted_packet_mask]
 
         # Extract packet collection data for these packets
-        packet_indices = df_last_emitted.index.values
+        packet_indices = df_last_emitted.index.to_numpy()
         packet_nus = u.Quantity(
             transport_state.packet_collection.output_nus[packet_indices], u.Hz
         )
@@ -4458,15 +4458,17 @@ def extract_and_process_packet_data(
         packet_data = {
             &quot;last_interaction_type&quot;: df_last_emitted[
                 &quot;last_interaction_type&quot;
-            ].values,
+            ].to_numpy(),
             &quot;last_line_interaction_in_id&quot;: df_last_emitted[
                 &quot;line_absorb_id&quot;
-            ].values,
+            ].to_numpy(),
             &quot;last_line_interaction_out_id&quot;: df_last_emitted[
                 &quot;line_emit_id&quot;
-            ].values,
-            &quot;last_line_interaction_in_nu&quot;: df_last_emitted[&quot;before_nu&quot;].values,
-            &quot;last_interaction_in_r&quot;: df_last_emitted[&quot;radius&quot;].values,
+            ].to_numpy(),
+            &quot;last_line_interaction_in_nu&quot;: df_last_emitted[
+                &quot;before_nu&quot;
+            ].to_numpy(),
+            &quot;last_interaction_in_r&quot;: df_last_emitted[&quot;radius&quot;].to_numpy(),
             &quot;nus&quot;: packet_nus,
             &quot;energies&quot;: transport_state.packet_collection.output_energies[
                 packet_indices
@@ -4477,7 +4479,7 @@ def extract_and_process_packet_data(
         if include_shell_id:
             packet_data[&quot;last_line_interaction_shell_id&quot;] = df_last_emitted[
                 &quot;shell_id&quot;
-            ].values
+            ].to_numpy()
 
     packet_data[&quot;packets_df&quot;] = pd.DataFrame(packet_data)
     process_line_interactions(packet_data, lines_df)

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=90013c29"></script>
+      <script src="../../../_static/documentation_options.js?v=80631aa0"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4290,10 +4290,10 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
             Planck Mean Optical Depth
     &quot;&quot;&quot;
     index = plasma.atomic_data.lines.nu.index
-    freqs = plasma.atomic_data.lines.nu.values * u.Hz
+    freqs = plasma.atomic_data.lines.nu.to_numpy() * u.Hz
     order = np.argsort(freqs, kind=SORTING_ALGORITHM)
     freqs = freqs[order]
-    taus = opacity_state.tau_sobolev.values[order]
+    taus = opacity_state.tau_sobolev.to_numpy()[order]
 
     check_bin_size = True
     while check_bin_size:
@@ -4338,7 +4338,9 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
         / ct
         * (1 - np.exp(-taus.reshape(n_bins, bin_size, -1))).sum(axis=1)
     )
-    kappa_thom = plasma.electron_densities.values * u.cm ** (-3) * const.sigma_T
+    kappa_thom = (
+        plasma.electron_densities.to_numpy() * u.cm ** (-3) * const.sigma_T
+    )
     Bdnu = B(bins_low.reshape(-1, 1), t_rad.reshape(1, -1)) * delta_nu.reshape(
         -1, 1
     )

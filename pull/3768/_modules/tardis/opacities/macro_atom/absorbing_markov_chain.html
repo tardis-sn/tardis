@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=90013c29"></script>
+      <script src="../../../../_static/documentation_options.js?v=80631aa0"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4327,7 +4327,7 @@ def create_absorbing_probs(
     # This logic fails if any source blocks are dropped. Previous implementation was
     # num_states = len(metadata.source.unique()). Not needed right now but will be
     # needed if we want to do Markov chain reduction for only specific species.
-    num_states = int(metadata.source_level_idx.max()) + 1 
+    num_states = int(metadata.source_level_idx.max()) + 1
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
     # Josh: The expected steps calculation is another linear algebra solve. We don&#39;t need
@@ -4335,8 +4335,8 @@ def create_absorbing_probs(
     # useful for diagnostic purposes in the future.
     # expected_steps_in_cells_from_states = np.zeros((num_cells, num_states))
 
-    rows = metadata[internal_mask].source_level_idx.values
-    cols = metadata[internal_mask].destination_level_idx.values
+    rows = metadata[internal_mask].source_level_idx.to_numpy()
+    cols = metadata[internal_mask].destination_level_idx.to_numpy()
     identity_matrix = scipy.sparse.identity(num_states, format=&quot;csc&quot;)
 
     def solve_cell(cell: int) -&gt; tuple[int, np.ndarray]:

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=90013c29"></script>
+      <script src="../../../../../_static/documentation_options.js?v=80631aa0"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4322,11 +4322,11 @@ def read_cmfgen_density(fname: str):
             elif row_index == 2:
                 quantities = line.split()
 
-    velocity = u.Quantity(df[&quot;velocity&quot;].values, quantities[1]).to(&quot;cm/s&quot;)
-    temperature = u.Quantity(df[&quot;temperature&quot;].values, quantities[2])[1:]
-    mean_density = u.Quantity(df[&quot;densities&quot;].values, quantities[3])[1:]
+    velocity = u.Quantity(df[&quot;velocity&quot;].to_numpy(), quantities[1]).to(&quot;cm/s&quot;)
+    temperature = u.Quantity(df[&quot;temperature&quot;].to_numpy(), quantities[2])[1:]
+    mean_density = u.Quantity(df[&quot;densities&quot;].to_numpy(), quantities[3])[1:]
     electron_densities = u.Quantity(
-        df[&quot;electron_densities&quot;].values, quantities[4]
+        df[&quot;electron_densities&quot;].to_numpy(), quantities[4]
     )[1:]
 
     return (
