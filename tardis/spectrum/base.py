@@ -37,6 +37,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
+from tardis.transport.montecarlo.packets.packet_collections import (
+    consolidate_vpacket_tracker,
+)
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     TrackerFull,
 )
@@ -176,7 +179,7 @@ class SpectrumSolver(HDFWriterMixin):
                 "non-homologous Monte Carlo transport states."
             )
 
-        virtual_packet_luminosity, vpacket_tracker = (
+        virtual_packet_luminosity, vpacket_collections = (
             calculate_virtual_packet_spectrum(
                 transport_state.geometry_state_numba,
                 time_explosion,
@@ -193,7 +196,12 @@ class SpectrumSolver(HDFWriterMixin):
             montecarlo_configuration.ENABLE_VPACKET_TRACKING
         )
         if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
-            transport_state.vpacket_tracker = vpacket_tracker
+            transport_state.vpacket_tracker = consolidate_vpacket_tracker(
+                vpacket_collections,
+                self.spectrum_frequency_grid.value,
+                montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+                montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+            )
 
     @property
     def spectrum_real_packets(self):

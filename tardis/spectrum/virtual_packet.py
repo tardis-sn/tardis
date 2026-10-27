@@ -20,7 +20,6 @@ from tardis.transport.montecarlo.configuration.base import (
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
-    consolidate_vpacket_tracker,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
@@ -108,45 +107,6 @@ def add_vpacket_collection_to_histogram(
         ]
 
 
-@njit(**njit_dict_no_parallel)
-def get_vpacket_tracker(
-    vpacket_collections: TypedList[VPacketCollection],
-    spectrum_frequency_grid: npt.NDArray[np.float64],
-    montecarlo_configuration: MonteCarloConfiguration,
-) -> VPacketCollection:
-    """Consolidate virtual packet tracking output when configured.
-
-    Parameters
-    ----------
-    vpacket_collections : numba.typed.List
-        Per-packet virtual packet collections.
-    spectrum_frequency_grid : numpy.ndarray
-        Frequency-bin edges for the virtual-packet histogram.
-    montecarlo_configuration : MonteCarloConfiguration
-        Monte Carlo transport configuration.
-
-    Returns
-    -------
-    VPacketCollection
-        Consolidated tracker or an empty placeholder collection.
-    """
-    if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
-        return consolidate_vpacket_tracker(
-            vpacket_collections,
-            spectrum_frequency_grid,
-            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
-        )
-    return VPacketCollection(
-        -1,
-        spectrum_frequency_grid,
-        montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-        montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
-        -1,
-        1,
-    )
-
-
 @njit(**njit_dict)
 def calculate_virtual_packet_spectrum(
     geometry_state_numba: (
@@ -159,7 +119,7 @@ def calculate_virtual_packet_spectrum(
     trackers: TypedList[TrackerFull],
     number_of_vpackets: int,
     trace_vpacket_volley_function: Callable[..., None],
-) -> tuple[npt.NDArray[np.float64], VPacketCollection]:
+) -> tuple[npt.NDArray[np.float64], TypedList[VPacketCollection]]:
     """Calculate a virtual-packet spectrum from real-packet histories.
 
     Parameters
@@ -184,8 +144,10 @@ def calculate_virtual_packet_spectrum(
 
     Returns
     -------
-    tuple
-        Virtual-packet energy histogram and consolidated logging collection.
+    v_packets_energy_hist : numpy.ndarray
+        Virtual-packet energy histogram on ``spectrum_frequency_grid``.
+    vpacket_collections : numba.typed.List
+        Per-packet virtual packet collections.
     """
     no_of_packets = len(trackers)
     vpacket_collections = create_vpacket_collections(
@@ -274,9 +236,4 @@ def calculate_virtual_packet_spectrum(
             delta_nu,
         )
 
-    vpacket_tracker = get_vpacket_tracker(
-        vpacket_collections,
-        spectrum_frequency_grid,
-        montecarlo_configuration,
-    )
-    return v_packets_energy_hist, vpacket_tracker
+    return v_packets_energy_hist, vpacket_collections

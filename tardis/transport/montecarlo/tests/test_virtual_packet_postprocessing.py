@@ -14,6 +14,9 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
     trace_vpacket_volley,
 )
+from tardis.transport.montecarlo.packets.packet_collections import (
+    consolidate_vpacket_tracker,
+)
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     RPacket,
@@ -70,12 +73,11 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
         tracker.finalize()
 
     montecarlo_configuration.ENABLE_FULL_RELATIVITY = False
-    montecarlo_configuration.ENABLE_VPACKET_TRACKING = True
     montecarlo_configuration.MONTECARLO_SEED = 42
     montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY = 1.5e14
     montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY = 2.5e14
 
-    energy_histogram, vpacket_tracker = calculate_virtual_packet_spectrum(
+    energy_histogram, vpacket_collections = calculate_virtual_packet_spectrum(
         geometry,
         0.0,
         opacity_state,
@@ -84,6 +86,12 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
         trackers,
         4,
         trace_vpacket_volley,
+    )
+    vpacket_tracker = consolidate_vpacket_tracker(
+        vpacket_collections,
+        spectrum_frequency_grid,
+        montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+        montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
     )
 
     mu_min = -np.sqrt(1.0 - (geometry.r_inner[0] / r_packet.r) ** 2)
