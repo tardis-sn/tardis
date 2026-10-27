@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=24fd20af"></script>
+      <script src="../../../../../_static/documentation_options.js?v=c5a6d265"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4368,21 +4368,21 @@ class ThermalCollisionalRateSolver:
                 self.all_collisional_strengths_index.droplevel(
                     &quot;level_number_upper&quot;
                 )
-            ].energy.values
+            ].energy.to_numpy()
             - self.levels.loc[
                 self.all_collisional_strengths_index.droplevel(
                     &quot;level_number_lower&quot;
                 )
-            ].energy.values
+            ].energy.to_numpy()
         ) * u.erg
 
         self.g_upper = self.levels.loc[
             self.all_collisional_strengths_index.droplevel(&quot;level_number_lower&quot;)
-        ].g.values
+        ].g.to_numpy()
 
         self.g_lower = self.levels.loc[
             self.all_collisional_strengths_index.droplevel(&quot;level_number_upper&quot;)
-        ].g.values
+        ].g.to_numpy()
 
         if collisional_strength_approximation == &quot;regemorter&quot;:
             self.thermal_collision_strength_approximator = (

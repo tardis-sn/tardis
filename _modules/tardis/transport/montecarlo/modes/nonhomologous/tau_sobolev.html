@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=24fd20af"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=c5a6d265"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4321,10 +4321,10 @@ def calculate_sobolev_line_opacity(
     &gt;&gt;&gt; calculate_sobolev_line_opacity(lines_data, level_density_data, time_exp, stim_factor)
     &quot;&quot;&quot;
     sobolev_optical_depth_coefficient = (
-        (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
+        (lines.wavelength_cm * lines.f_lu).to_numpy()[np.newaxis].T
         * SOBOLEV_COEFFICIENT
         * stimulated_emission_factor
-        * level_number_density.reindex(lines.droplevel(-1).index).values
+        * level_number_density.reindex(lines.droplevel(-1).index).to_numpy()
     )
     velocity_gradient = np.abs(velocity_gradient.to(1 / u.s).value)
     tau_sobolevs = np.divide(
@@ -4337,8 +4337,7 @@ def calculate_sobolev_line_opacity(
 
     if np.any(np.isnan(tau_sobolevs)):
         raise ValueError(
-            &quot;Some tau_sobolevs are nan in tau_sobolevs.&quot;
-            &quot; Something went wrong!&quot;
+            &quot;Some tau_sobolevs are nan in tau_sobolevs. Something went wrong!&quot;
         )
 
     return pd.DataFrame(
@@ -4375,10 +4374,10 @@ def calculate_sobolev_optical_depth_coefficient(
         depth.
     &quot;&quot;&quot;
     sobolev_optical_depth_coefficient = (
-        (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
+        (lines.wavelength_cm * lines.f_lu).to_numpy()[np.newaxis].T
         * SOBOLEV_COEFFICIENT
         * stimulated_emission_factor
-        * level_number_density.reindex(lines.droplevel(-1).index).values
+        * level_number_density.reindex(lines.droplevel(-1).index).to_numpy()
     )
 
     if np.any(np.isnan(sobolev_optical_depth_coefficient)) or np.any(

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=24fd20af"></script>
+      <script src="../../../../_static/documentation_options.js?v=c5a6d265"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -5116,7 +5116,7 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
                 solved_matrices[cell] = solved_matrix
 
             ion_population_solution = pd.DataFrame(
-                np.vstack(solved_matrices.values[0]).T,
+                np.vstack(solved_matrices.to_numpy()[0]).T,
                 index=self.rate_matrix_solver.ion_population_index,
                 columns=self.rates_matrices.columns,
             )
@@ -5127,7 +5127,7 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
             electron_population_solution = (
                 ion_population_solution
                 * ion_population_solution.index.get_level_values(&quot;ion_number&quot;)
-                .values[np.newaxis]
+                .to_numpy()[np.newaxis]
                 .T
             ).sum()
 
@@ -5154,7 +5154,7 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
 
             estimated_ion_population = estimated_solution
             new_electron_energy_distribution.number_density = (
-                electron_population_solution.values * u.cm**-3
+                electron_population_solution.to_numpy() * u.cm**-3
             )
         else:
             logger.warning(

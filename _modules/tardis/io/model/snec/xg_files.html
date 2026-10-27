@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=24fd20af"></script>
+      <script src="../../../../../_static/documentation_options.js?v=c5a6d265"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4292,20 +4292,23 @@ class XGData:
         ]
         arr = np.stack(
             [
-                df.drop([&quot;enclosed_mass&quot;, &quot;radius&quot;], axis=1).values
+                df.drop([&quot;enclosed_mass&quot;, &quot;radius&quot;], axis=1).to_numpy()
                 for df in self.data_blocks
             ],
             axis=0,
         )
 
         # Enclosed mass stays 1D
-        enclosed_mass = self.data_blocks[0][&quot;enclosed_mass&quot;].values
+        enclosed_mass = self.data_blocks[0][&quot;enclosed_mass&quot;].to_numpy()
 
         # Radius becomes 2D (time, cell_id)
-        radius_arr = np.stack([df[&quot;radius&quot;].values for df in self.data_blocks], axis=0)
+        radius_arr = np.stack(
+            [df[&quot;radius&quot;].to_numpy() for df in self.data_blocks], axis=0
+        )
 
         data_vars = {
-            col: ((&quot;time&quot;, &quot;cell_id&quot;), arr[:, :, i]) for i, col in enumerate(cols)
+            col: ((&quot;time&quot;, &quot;cell_id&quot;), arr[:, :, i])
+            for i, col in enumerate(cols)
         }
 
         ds = xr.Dataset(
@@ -4342,12 +4345,12 @@ def xg_block_size(path):
                 timestamp_blocks.append(i)
 
     # Ensure all differences between timestamps are consistent
-    assert (
-        len(timestamp_blocks) &gt; 1
-    ), &quot;File must contain at least two &#39;Time&#39; entries to determine block size.&quot;
-    assert np.all(
-        np.diff(timestamp_blocks) == np.diff(timestamp_blocks)[0]
-    ), &quot;Inconsistent block sizes detected in the file.&quot;
+    assert len(timestamp_blocks) &gt; 1, (
+        &quot;File must contain at least two &#39;Time&#39; entries to determine block size.&quot;
+    )
+    assert np.all(np.diff(timestamp_blocks) == np.diff(timestamp_blocks)[0]), (
+        &quot;Inconsistent block sizes detected in the file.&quot;
+    )
 
     return len(timestamp_blocks), np.diff(timestamp_blocks)[0]</div>
 
@@ -4355,7 +4358,9 @@ def xg_block_size(path):
 
 <div class="viewcode-block" id="read_xg_file">
 <a class="viewcode-back" href="../../../../../api/tardis.io.model.snec.xg_files.html#tardis.io.model.snec.xg_files.read_xg_file">[docs]</a>
-def read_xg_file(file_path: str, column_names: list, show_progress: bool = True):
+def read_xg_file(
+    file_path: str, column_names: list, show_progress: bool = True
+) -&gt; XGData:
     &quot;&quot;&quot;
     Reads the timestamps and corresponding data blocks from an .xg file.
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=24fd20af"></script>
+      <script src="../../../_static/documentation_options.js?v=c5a6d265"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4343,7 +4343,7 @@ class PlasmaStateStorerMixin:
         &quot;&quot;&quot;
         self.iterations_w[i, :] = w
         self.iterations_t_rad[i, :] = t_rad
-        self.iterations_electron_densities[i, :] = electron_densities.values
+        self.iterations_electron_densities[i, :] = electron_densities.to_numpy()
         self.iterations_t_inner[i] = t_inner</div>
 
 
@@ -4663,7 +4663,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 radiation_field.to_planckian_radiation_field()
             )
             j_blues = planckian_radiation_field.calculate_mean_intensity(
-                self.plasma.atomic_data.lines.nu.values
+                self.plasma.atomic_data.lines.nu.to_numpy()
             )
             update_properties[&quot;j_blues&quot;] = pd.DataFrame(
                 j_blues, index=self.plasma.atomic_data.lines.index
@@ -4673,7 +4673,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             == &quot;dilute-blackbody&quot;
         ):
             j_blues = radiation_field.calculate_mean_intensity(
-                self.plasma.atomic_data.lines.nu.values
+                self.plasma.atomic_data.lines.nu.to_numpy()
             )
             update_properties[&quot;j_blues&quot;] = pd.DataFrame(
                 j_blues, index=self.plasma.atomic_data.lines.index
