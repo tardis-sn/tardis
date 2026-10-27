@@ -19,7 +19,6 @@ from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
-    PacketCollection,
     VPacketCollection,
     consolidate_vpacket_tracker,
 )
@@ -30,8 +29,6 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     TrackerFull,
 )
-
-VPACKET_SEED_XOR = 0x80000000
 
 
 @njit(**njit_dict_no_parallel)
@@ -148,7 +145,6 @@ def get_vpacket_tracker(
 
 @njit(**njit_dict)
 def calculate_virtual_packet_spectrum(
-    packet_collection: PacketCollection,
     geometry_state_numba: (
         NumbaHomologousRadial1DGeometry | NumbaRadial1DGeometry
     ),
@@ -164,8 +160,6 @@ def calculate_virtual_packet_spectrum(
 
     Parameters
     ----------
-    packet_collection : PacketCollection
-        Real-packet inputs, including the per-packet random seeds.
     geometry_state_numba
         Numba geometry object used for real-packet transport.
     time_explosion : float
@@ -201,9 +195,8 @@ def calculate_virtual_packet_spectrum(
         packet_idx = np.int64(i)
         tracker = trackers[packet_idx]
         vpacket_collection = vpacket_collections[packet_idx]
-        vpacket_seed = (
-            packet_collection.packet_seeds[packet_idx] ^ VPACKET_SEED_XOR
-        )
+        # Offset the configured seed for deterministic parallel packet sampling.
+        vpacket_seed = montecarlo_configuration.MONTECARLO_SEED + packet_idx
         np.random.seed(vpacket_seed)
 
         for event_idx in range(tracker.event_id):
@@ -233,7 +226,7 @@ def calculate_virtual_packet_spectrum(
 
             if is_initial_launch:
                 last_interaction_in_nu = 0.0
-                last_interaction_in_r = 0.0
+                last_interaction_in_r = geometry_state_numba.r_inner[0]
                 last_interaction_type = InteractionType.NO_INTERACTION
                 last_interaction_in_id = -1
                 last_interaction_out_id = -1

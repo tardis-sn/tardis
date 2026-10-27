@@ -12,7 +12,6 @@ from astropy.version import version as astropy_version
 from numba import njit
 
 from tardis import run_tardis
-from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
@@ -319,6 +318,10 @@ def simulation_tardis_full(atomic_dataset, example_configuration_dir):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_verysimple.yml"
     )  # the config is mutated in other places
+    # The verysimple config leaves virtual packets off, because they make
+    # every packet keep a full event history, which costs several GB per run.
+    # The virtual spectrum regression tests use this fixture, so enable them.
+    config.montecarlo.no_of_virtual_packets = 5
     sim = Simulation.from_config(config, atom_data=atomic_data)
     sim.run_convergence()
     sim.run_final()
@@ -328,7 +331,11 @@ def simulation_tardis_full(atomic_dataset, example_configuration_dir):
 @pytest.fixture(scope="session")
 def simulation_verysimple_default(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
-    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    # Virtual packets are off in the verysimple config to save memory; the
+    # spectrum solver tests compare the virtual spectrum, so enable them here.
+    config = deepcopy(config_verysimple)
+    config.montecarlo.no_of_virtual_packets = 5
+    sim = Simulation.from_config(config, atom_data=atomic_data)
     sim.run_final()
     return sim
 
@@ -336,8 +343,12 @@ def simulation_verysimple_default(config_verysimple, atomic_dataset):
 @pytest.fixture(scope="session")
 def simulation_verysimple_vpacket_tracking(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
+    # Virtual packets are off in the verysimple config to save memory; this
+    # fixture exists to test virtual-packet logging, so enable them here.
+    config = deepcopy(config_verysimple)
+    config.montecarlo.no_of_virtual_packets = 5
     sim = Simulation.from_config(
-        config_verysimple, atom_data=atomic_data, virtual_packet_logging=True
+        config, atom_data=atomic_data, virtual_packet_logging=True
     )
     sim.last_no_of_packets = 4000
     sim.run_final()
@@ -396,36 +407,6 @@ def pytest_sessionfinish(session, exitstatus):
         packet_pbar.close()
     if iterations_pbar is not None:
         iterations_pbar.close()
-
-
-@pytest.fixture
-def iip_atom_data(tardis_regression_path):
-    # identical atomic data to that used by C Vogl
-    atom_data = AtomData.from_hdf(
-        tardis_regression_path
-        / "atom_data"
-        / "christians_atomdata_converted_04Dec25.h5"
-    )
-
-    # need to set up macroatom and continuum data for ctardis plasma
-    atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
-
-    atom_data.continuum_data = ContinuumData(
-        atom_data, selected_continuum_species=[(1, 0)]
-    )
-
-    # matching prep in workflow
-    atom_data.continuum_data.photoionization_data.loc[(1, 0, 0), "x_sect"] *= (
-        0.0
-    )
-
-    atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
-
-    atom_data.nlte_data._init_indices()
-
-    atom_data.has_collision_data = False
-
-    return atom_data
 
 
 def _as_regression_dataframe(value: pd.DataFrame | pd.Series) -> pd.DataFrame:

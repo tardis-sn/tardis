@@ -15,20 +15,9 @@ def test_montecarlo_radial1d():
 
 
 def test_montecarlo_transport(
-    montecarlo_transport_config,
+    montecarlo_transport_simulation,
     regression_data,
-    atomic_dataset,
 ):
-    atomic_dataset = deepcopy(atomic_dataset)
-    montecarlo_transport_simulation = Simulation.from_config(
-        montecarlo_transport_config,
-        atom_data=atomic_dataset,
-        virtual_packet_logging=False,
-        legacy_mode_enabled=True,
-    )
-    montecarlo_transport_simulation.run_convergence()
-    montecarlo_transport_simulation.run_final()
-
     expected_hdf_store = regression_data.sync_hdf_store(
         montecarlo_transport_simulation
     )

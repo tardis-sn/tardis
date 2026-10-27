@@ -53,13 +53,7 @@ def parse_radiation_field_state_from_config(
     AssertionError
         If the length of t_radiative or dilution_factor is not compatible with the geometry.
     """
-    (
-        density_time,
-        velocity,
-        density,
-        electron_densities,
-        temperature,
-    ) = parse_structure_from_config(config)
+    temperature = parse_structure_from_config(config).temperature
 
     if temperature is None:
         if config.plasma.initial_t_rad > 0 * u.K:
@@ -120,6 +114,7 @@ def parse_radiation_field_state_from_csvy(
         t_rad_unit = u.Unit(
             csvy_model_config.datatype.fields[t_rad_field_index]["unit"]
         )
+        # t_rad is cell-defined; drop the row inside the innermost edge.
         t_radiative = csvy_model_data["t_rad"].iloc[1:].values * t_rad_unit
 
     elif config.plasma.initial_t_rad > 0 * u.K:

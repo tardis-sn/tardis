@@ -6,6 +6,8 @@ import pandas as pd
 import pandas.testing as pdt
 import pytest
 from astropy import units as u
+from numpy.typing import ArrayLike, NDArray
+from scipy.optimize import root as scipy_root
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -25,21 +27,22 @@ from tardis.transport.montecarlo.estimators import init_estimators_continuum
 class ZeroElectronRateSolver:
     """Return no bound-bound electron rates for focused evaluator tests."""
 
+    all_collisional_strengths_index = pd.MultiIndex.from_tuples(
+        [],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "ion_number_source",
+            "ion_number_destination",
+            "level_number_source",
+            "level_number_destination",
+        ],
+    )
+
     def solve(self, temperatures_electron: u.Quantity) -> pd.DataFrame:
         """Return an empty transition-rate frame."""
-        transition_index = pd.MultiIndex.from_tuples(
-            [],
-            names=[
-                "atomic_number",
-                "ion_number",
-                "ion_number_source",
-                "ion_number_destination",
-                "level_number_source",
-                "level_number_destination",
-            ],
-        )
         return pd.DataFrame(
-            index=transition_index,
+            index=self.all_collisional_strengths_index,
             columns=pd.RangeIndex(len(temperatures_electron)),
             dtype=np.float64,
         )
@@ -129,10 +132,8 @@ def test_evaluator_uses_temperature_dependent_continuum_coefficients(
 ) -> None:
     """Keep fixed estimator coefficients while rebuilding thermal factors."""
     evaluator = toy_evaluator
-    (rates,), _, _, _ = evaluator._calculate_continuum_rate_coefficients(
-        np.array([1.0e4])
-    )
-    (hot_rates,), _, _, _ = evaluator._calculate_continuum_rate_coefficients(
+    (rates,), *_ = evaluator.calculate_continuum_coefficients(np.array([1.0e4]))
+    (hot_rates,), *_ = evaluator.calculate_continuum_coefficients(
         np.array([2.0e4])
     )
     npt.assert_allclose(hot_rates.photoionization, rates.photoionization)
@@ -209,10 +210,10 @@ def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
     )
 
     low_excitation_result = toy_evaluator.evaluate(
-        [1.0e9], [1.0e4], low_excitation_initial_guess
+        np.array([1.0e9]), np.array([1.0e4]), low_excitation_initial_guess
     )
     high_excitation_result = toy_evaluator.evaluate(
-        [1.0e9], [1.0e4], high_excitation_initial_guess
+        np.array([1.0e9]), np.array([1.0e4]), high_excitation_initial_guess
     )
 
     npt.assert_allclose(
@@ -238,22 +239,21 @@ def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
     )
 
 
-def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
+def test_evaluator_refines_physical_level_iterate_when_optimizer_stalls(
     toy_evaluator: PlasmaEquilibriumEvaluator,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Accept a physical population when the level solver stops early.
+    """Refine a physical population when the level solver stops early.
 
-    Claim: A finite, nonnegative, normalized population remains usable when
-    the level solver reports failure.
+    Claim: This stalled physical iterate can be refined to level equilibrium.
     Regime: One shell and two neutral-hydrogen levels at fixed density and
     temperature.
-    Verification: Population conservation and a deliberately nonzero level
-    balance error show that acceptance depends on physical admissibility, not
-    reported convergence.
+    Verification: Replace HYBR's result with a physical but unsolved iterate;
+    the returned population must differ and close the level equations to the
+    workflow's 1e-10 tolerance.
     """
     evaluator = toy_evaluator
-    continuum_rates = evaluator._calculate_continuum_rate_coefficients(
+    continuum_rates = evaluator.calculate_continuum_coefficients(
         np.array([1.0e4])
     )[0][0]
     arguments = (
@@ -281,9 +281,158 @@ def test_evaluator_accepts_physical_level_iterate_when_optimizer_stalls(
     )
     actual = evaluator._calculate_level_solution(*arguments)
 
-    npt.assert_array_equal(actual[0], stalled_fractions)
     assert actual[0].sum() == 1.0
     assert np.all(actual[0] >= 0.0)
+    npt.assert_allclose(actual[3], 0.0, rtol=0.0, atol=1e-10)
+
+
+def test_evaluator_retries_open_level_equations_despite_optimizer_success(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Select a retry by its physical residual, ignoring optimizer status.
+
+    Claim: A near-ground seed that gives an open level solution must be retried
+    from a less concentrated seed when another physical solution closes.
+    Regime: One shell, two neutral-hydrogen levels, fixed 1e9 cm^-3 electron
+    density and 10000 K temperature; the first two optimizers falsely report
+    success and a later retry reports failure despite closing the equations.
+    Verification: This is a control-flow check using the evaluator's physical
+    equations. A separate SciPy root call establishes a closed candidate; the
+    returned population is checked against those equations. The 1e-10
+    tolerance is the workflow's level-closure limit.
+    """
+    evaluator = toy_evaluator
+    electron_density = 1.0e9  # cm^-3
+    electron_temperature = 1.0e4  # K
+    continuum_rates = evaluator.calculate_continuum_coefficients(
+        np.array([electron_temperature])
+    )[0][0]
+    population_geometry = evaluator.shell_number_densities[0]
+    sobolev_inputs = evaluator.sobolev_inputs[0]
+
+    def physical_residual(
+        level_fractions: NDArray[np.float64],
+    ) -> NDArray[np.float64]:
+        return evaluator._calculate_level_state(
+            0,
+            electron_density,
+            electron_temperature,
+            level_fractions,
+            continuum_rates,
+            population_geometry,
+            sobolev_inputs,
+        )[0]
+
+    closed_fractions = scipy_root(
+        physical_residual, np.array([0.5, 0.5]), options={"xtol": 1e-12}
+    ).x
+    stalled_fractions = np.array([0.4, 0.6])
+    assert np.all(closed_fractions >= 0.0)
+    npt.assert_allclose(closed_fractions.sum(), 1.0, rtol=0.0, atol=1e-10)
+    npt.assert_allclose(
+        physical_residual(closed_fractions), 0.0, rtol=0.0, atol=1e-10
+    )
+    assert np.max(np.abs(physical_residual(stalled_fractions))) > 1e-10
+
+    # The synthetic 1e-10 split distinguishes the original 1e-12 excited
+    # fraction from a materially less concentrated retry seed.
+    def controlled_root(
+        _residual: object, seed: ArrayLike, **kwargs: object
+    ) -> SimpleNamespace:
+        del kwargs
+        if np.asarray(seed)[1] > 1e-10:
+            return SimpleNamespace(success=False, x=closed_fractions)
+        return SimpleNamespace(success=True, x=stalled_fractions)
+
+    def controlled_log_solver(
+        _residual: object, log_ratios: ArrayLike, **kwargs: object
+    ) -> SimpleNamespace:
+        del kwargs
+        if np.exp(np.asarray(log_ratios)[0]) > 1e-10:
+            fractions = closed_fractions
+            success = False
+        else:
+            fractions = stalled_fractions
+            success = True
+        return SimpleNamespace(
+            success=success,
+            x=np.log(fractions[1:] / fractions[0]),
+        )
+
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.root", controlled_root
+    )
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.least_squares",
+        controlled_log_solver,
+    )
+    actual = evaluator._calculate_level_solution(
+        0,
+        electron_density,
+        electron_temperature,
+        np.array([1.0 - 1e-12, 1e-12]),
+        continuum_rates,
+        population_geometry,
+        sobolev_inputs,
+    )
+
+    assert np.all(actual[0] >= 0.0)
+    npt.assert_allclose(actual[0].sum(), 1.0, rtol=0.0, atol=1e-15)
+    npt.assert_allclose(
+        physical_residual(actual[0]),
+        0.0,
+        rtol=0.0,
+        atol=1e-10,
+        err_msg="optimizer success hid an open physical level solution",
+    )
+    npt.assert_allclose(actual[3], 0.0, rtol=0.0, atol=1e-10)
+
+
+def test_evaluator_reports_open_level_solution_after_all_retries(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Expose the residual when no retry closes a physical trial iterate.
+
+    Claim: An outer thermal trial can use a physical best-effort population,
+    but its unsolved level balance must remain visible to final validation.
+    Regime: One shell with two neutral-hydrogen levels at fixed density and
+    temperature.
+    Verification: Both optimizers return the same unsolved physical iterate;
+    the evaluator returns its nonzero equation residual.
+    """
+    evaluator = toy_evaluator
+    continuum_rates = evaluator.calculate_continuum_coefficients(
+        np.array([1.0e4])
+    )[0][0]
+    stalled_fractions = np.array([0.4, 0.6])
+
+    def stalled_root(*args: object, **kwargs: object) -> SimpleNamespace:
+        del args, kwargs
+        return SimpleNamespace(success=True, x=stalled_fractions)
+
+    def stalled_log_solver(*args: object, **kwargs: object) -> SimpleNamespace:
+        del args, kwargs
+        return SimpleNamespace(success=True, x=np.array([np.log(1.5)]))
+
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.root", stalled_root
+    )
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.least_squares",
+        stalled_log_solver,
+    )
+    actual = evaluator._calculate_level_solution(
+        0,
+        1.0e9,
+        1.0e4,
+        np.array([0.5, 0.5]),
+        continuum_rates,
+        evaluator.shell_number_densities[0],
+        evaluator.sobolev_inputs[0],
+    )
+    npt.assert_array_equal(actual[0], stalled_fractions)
     assert np.max(np.abs(actual[3])) > 1e-10
 
 
@@ -343,7 +492,7 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         level_initial_guess,
     )
 
-    continuum_rate_coeff = evaluator._calculate_continuum_rate_coefficients(
+    continuum_rate_coeff = evaluator.calculate_continuum_coefficients(
         np.array([1.0e4])
     )[0][0]
 
@@ -390,8 +539,8 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
     Verification: Both values are fixed analytically by independent linear
     balance relations supplied to the evaluator.
     """
-    target_electron_density = 2.0e9
-    target_electron_temperature = 8.0e3
+    target_electron_density = np.array([2.0e9])
+    target_electron_temperature = np.array([8.0e3])
     maximum_electron_density = 1.0e10
     radiation_temperature = 1.0e4
 
@@ -405,11 +554,11 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
             )
             return (
                 pd.DataFrame(
-                    [[8.0e9], [target_electron_density]],
+                    [[8.0e9], target_electron_density],
                     index=ion_index,
                     columns=[0],
                 ),
-                pd.Series([target_electron_density], index=[0]),
+                pd.Series(target_electron_density, index=[0]),
             )
 
     # Use a linear heating relation with an exact zero at 8000 K so the
@@ -438,8 +587,8 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
     )
 
     final_evaluation = toy_evaluator.evaluate(
-        [target_electron_density],
-        [target_electron_temperature],
+        target_electron_density,
+        target_electron_temperature,
         level_initial_guess,
     )
 

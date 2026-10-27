@@ -535,6 +535,13 @@ def export_profile_to_csvy(
     """
     Export a 1D profile to CSVY format for TARDIS.
 
+    The representative velocity of each exported row is written to the CSVY
+    ``velocity`` column, which TARDIS reads as the outer edge of a shell. The
+    resulting shell edges are therefore representative cell velocities (for
+    rebinned data, mass-weighted bin means), not bin boundaries. Density and
+    abundances are written as cell values. See
+    :ref:`model-edge-cell-quantities`.
+
     Parameters
     ----------
     pos_prof : numpy.ndarray
@@ -552,7 +559,10 @@ def export_profile_to_csvy(
     filename : str or pathlib.Path
         Name of the exported file.
     nshells : int
-        Number of shells to export.
+        Number of rows to export. Rows are chosen at evenly spaced indices of
+        the profile arrays without averaging; rebin the profile with
+        `rebin_profile` to the same number of shells first to export bin
+        averages.
     overwrite : bool, optional
         If True, will overwrite existing files. Default: False
 

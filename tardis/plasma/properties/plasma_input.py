@@ -31,7 +31,8 @@ class TRadiative(ProcessingPlasmaProperty):
     outputs = ("t_rad",)
     latex_name = (r"T_{\textrm{rad}}",)
 
-    def calculate(self, dilute_planckian_radiation_field):
+    def calculate(self, dilute_planckian_radiation_field: object) -> object:
+        """Return the radiation-field temperature in cgs units."""
         return dilute_planckian_radiation_field.temperature.cgs.value
 
 
@@ -49,105 +50,70 @@ class DilutionFactor(ProcessingPlasmaProperty):
     outputs = ("w",)
     latex_name = ("W",)
 
-    def calculate(self, dilute_planckian_radiation_field):
+    def calculate(self, dilute_planckian_radiation_field: object) -> object:
+        """Return the radiation-field dilution factor."""
         return dilute_planckian_radiation_field.dilution_factor
 
 
 class AtomicData(Input):
-    """
-    Attributes
-    ----------
-    atomic_data : Object
-    """
+    """Store the atomic-data input."""
 
     outputs = ("atomic_data",)
 
 
 class Abundance(Input):
-    """
-    Attributes
-    ----------
-    abundance : Numpy array, dtype float
-        Fractional abundance of elements
-    """
+    """Store elemental abundances."""
 
     outputs = ("abundance",)
 
 
 class IsotopeAbundance(Input):
-    """
-    Attributes
-    ----------
-    isotope_abundance : Numpy array, dtype float
-        Fractional abundance of isotopes
-    """
+    """Store isotope abundances."""
 
     outputs = ("isotope_abundance",)
 
 
 class TimeExplosion(Input):
-    """
-    Attributes
-    ----------
-    time_explosion : Float
-         Time since explosion in seconds
-    """
+    """Store time since explosion in seconds."""
 
     outputs = ("time_explosion",)
     latex_name = (r"t_{\textrm{exp}}",)
 
 
 class JBlues(Input):
-    """
-    Attributes
-    ----------
-    j_blue_estimators : Numpy array
-    """
+    """Store line blue-wing mean intensities."""
 
     outputs = ("j_blues",)
     latex_name = (r"J_{\textrm{blue}}",)
 
 
 class LinkTRadTElectron(Input):
-    """
-    Attributes
-    ----------
-    link_t_rad_t_electron : Float
-        Value used for estimate of electron temperature.
-        Default is 0.9.
-    """
+    """Store the electron-to-radiation temperature ratio."""
 
     outputs = ("link_t_rad_t_electron",)
     latex_name = (r"T_{\textrm{electron}}/T_{\textrm{rad}}",)
 
 
 class HeliumTreatment(Input):
+    """Store the configured helium treatment."""
+
     outputs = ("helium_treatment",)
 
 
 class ContinuumInteractionSpecies(Input):
-    """
-    Attributes
-    ----------
-    continuum_interaction_species : Pandas MultiIndex, dtype int
-        Atomic and ion numbers of elements for which continuum interactions
-        (radiative/collisional ionization and recombination) are treated
-    """
+    """Store species with enabled continuum interactions."""
 
     outputs = ("continuum_interaction_species",)
 
 
 class NumberDensity(Input):
-    """
-    Attributes
-    ----------
-    number_density : Pandas DataFrame, dtype float
-                     Indexed by atomic number, columns corresponding to zones
-    """
+    """Store elemental number densities by shell."""
 
     outputs = ("number_density",)
     latex_name = ("N_{i}",)
 
 
 class DilutePlanckianRadField(Input):
+    """Store the dilute Planckian radiation field."""
+
     outputs = ("dilute_planckian_radiation_field",)

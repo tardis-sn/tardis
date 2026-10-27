@@ -79,7 +79,7 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
                 "NonhomologousTARDISWorkflow requires explicit radius and "
                 "velocity boundaries. For a specific YAML model, provide "
                 "model.structure.radius start and stop values; for CSVY, "
-                "provide both radius and velocity columns."
+                "provide a radius column and velocity data."
             )
             raise TypeError(geometry_error)
 
@@ -105,6 +105,10 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
             self.simulation_state.geometry.velocity_gradient,
             line_interaction_type,
             configuration.plasma.disable_line_scattering,
+            velocity_over_radius=(
+                self.simulation_state.geometry.v_middle
+                / self.simulation_state.geometry.r_middle
+            ),
         )
 
         # TODO: continuum support

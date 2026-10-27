@@ -5,15 +5,9 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 from astropy import units as u
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis import constants as const
-from tardis.iip_plasma.properties.continuum import (
-    BfHeatingRateCoeff,
-    PhotoIonRateCoeff,
-    SpontRecombRateCoeff,
-    StimRecombRateCoeff,
-    ThermalBalanceTest,
-)
 from tardis.io.atom_data import AtomData
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -76,72 +70,46 @@ def analytic_photoionization_rates(
     gamma, alpha_stim = standard_solver.solve(
         radiation_field, electron_temperature
     )
-
-    iip_j_nu = PhotoIonRateCoeff._calculate_j_nus(
-        photo_data,
-        radiation_field.dilution_factor,
-        radiation_field.temperature_kelvin,
-    )
     standard_j_nu = standard_solver.calculate_mean_intensity_photoionization_df(
         radiation_field
     )
-    iip_gamma = PhotoIonRateCoeff(None).calculate_from_radiation_field_model(
-        photo_data,
-        radiation_field.dilution_factor,
-        radiation_field.temperature_kelvin,
-    )
-    iip_alpha_stim = StimRecombRateCoeff(
-        None
-    ).calculate_from_radiation_field_model(
-        photo_data,
-        radiation_field.dilution_factor,
-        radiation_field.temperature_kelvin,
-        None,
-        electron_temperature.value,
-        pd.DataFrame(
-            np.ones((1, 2)),
-            index=photo_data.index.unique(),
-            columns=[0, 1],
-        ),
-    )
+
     return {
         "standard_j_nu": standard_j_nu,
-        "iip_j_nu": iip_j_nu,
         "gamma": gamma,
-        "iip_gamma": iip_gamma,
         "alpha_stim": alpha_stim,
-        "iip_alpha_stim": iip_alpha_stim,
     }
 
 
 def test_photoionization_mean_intensity_matches_iip(
     analytic_photoionization_rates: dict[str, pd.DataFrame],
+    regression_data: RegressionData,
 ) -> None:
-    npt.assert_allclose(
-        analytic_photoionization_rates["standard_j_nu"].to_numpy(),
-        analytic_photoionization_rates["iip_j_nu"].to_numpy(),
-        rtol=1e-12,
+    actual = pd.DataFrame(
+        analytic_photoionization_rates["standard_j_nu"].to_numpy()
     )
+    expected = regression_data.sync_dataframe(actual, key="allclose_0")
+    npt.assert_allclose(actual.to_numpy(), expected.to_numpy(), rtol=1e-12)
 
 
 def test_photoionization_rate_matches_iip(
     analytic_photoionization_rates: dict[str, pd.DataFrame],
+    regression_data: RegressionData,
 ) -> None:
-    npt.assert_allclose(
-        analytic_photoionization_rates["gamma"].to_numpy(),
-        analytic_photoionization_rates["iip_gamma"].to_numpy(),
-        rtol=2e-7,
-    )
+    actual = pd.DataFrame(analytic_photoionization_rates["gamma"].to_numpy())
+    expected = regression_data.sync_dataframe(actual, key="allclose_0")
+    npt.assert_allclose(actual.to_numpy(), expected.to_numpy(), rtol=2e-7)
 
 
 def test_stimulated_recombination_rate_matches_iip(
     analytic_photoionization_rates: dict[str, pd.DataFrame],
+    regression_data: RegressionData,
 ) -> None:
-    npt.assert_allclose(
-        analytic_photoionization_rates["alpha_stim"].to_numpy(),
-        analytic_photoionization_rates["iip_alpha_stim"].to_numpy(),
-        rtol=2e-6,
+    actual = pd.DataFrame(
+        analytic_photoionization_rates["alpha_stim"].to_numpy()
     )
+    expected = regression_data.sync_dataframe(actual, key="allclose_0")
+    npt.assert_allclose(actual.to_numpy(), expected.to_numpy(), rtol=2e-6)
 
 
 def test_zero_radiation_gives_zero_photoionization_and_stimulated_recombination(
@@ -160,6 +128,7 @@ def test_zero_radiation_gives_zero_photoionization_and_stimulated_recombination(
 
 def test_spontaneous_recombination_is_positive_and_lyman_suppression_is_explicit(
     lyman_photoionization_data: pd.DataFrame,
+    regression_data: RegressionData,
 ) -> None:
     photo_data = lyman_photoionization_data
     temperatures = REFERENCE_RADIATION_TEMPERATURES_K * u.K
@@ -169,19 +138,10 @@ def test_spontaneous_recombination_is_positive_and_lyman_suppression_is_explicit
     assert (standard_alpha.loc[(1, 0, 1)] >= 0).all()
     assert np.all(standard_alpha.loc[(1, 0, 0)] == 0.0)
 
-    phi_lucy = pd.DataFrame(
-        np.ones((2, 2)),
-        index=photo_data.index.unique(),
-        columns=[0, 1],
-    )
-    iip_alpha = SpontRecombRateCoeff(
-        type("IterationState", (), {"niter": 2, "niter_ly": 1})()
-    ).calculate(photo_data, temperatures.value, phi_lucy)
-    assert np.all(iip_alpha.loc[(1, 0, 0)] == 0.0)
+    actual = pd.DataFrame(standard_alpha.loc[(1, 0, 1)].to_numpy())
+    expected = regression_data.sync_dataframe(actual, key="allclose_0")
     npt.assert_allclose(
-        standard_alpha.loc[(1, 0, 1)].to_numpy(),
-        iip_alpha.loc[(1, 0, 1)].to_numpy(),
-        rtol=2e-4,
+        actual.to_numpy().ravel(), expected.to_numpy().ravel(), rtol=2e-4
     )
 
 
@@ -326,6 +286,7 @@ def test_estimated_rates_use_lucy_ion_matrix_coefficients(
 
 def test_bound_free_heating_and_cooling_match_iip_plasma(
     lyman_photoionization_data: pd.DataFrame,
+    regression_data: RegressionData,
 ) -> None:
     photo_data = lyman_photoionization_data
     temperatures = REFERENCE_RADIATION_TEMPERATURES_K
@@ -363,40 +324,24 @@ def test_bound_free_heating_and_cooling_match_iip_plasma(
         level_population_ratio,
         bound_free_heating_estimator=bf_heating_estimator,
     )
-    iip_heating_coeff = BfHeatingRateCoeff(
-        type("IterationState", (), {"niter": 0, "niter_ly": -1})()
-    ).calculate(
-        bf_heating_estimator,
-        level_index,
+    expected_heating = regression_data.sync_dataframe(
+        pd.DataFrame(heating.to_numpy()), key="allclose_0"
     )
-    iip_heating = (
-        iip_heating_coeff * level_population.loc[iip_heating_coeff.index]
-    ).sum()
-
-    thermal_balance = ThermalBalanceTest(None)
-    iip_cooling_coeff = pd.DataFrame(
-        {
-            cell: thermal_balance._calculate_sp_recomb_heating_rate_coeff(
-                temperature, photo_data
-            )
-            for cell, temperature in enumerate(temperatures)
-        }
+    expected_cooling = regression_data.sync_dataframe(
+        pd.DataFrame(cooling.to_numpy()), key="allclose_1"
     )
-    iip_cooling_coeff.loc[(1, 0, 0)] = 0.0
-    iip_cooling = (
-        iip_cooling_coeff
-        * level_population_ratio.loc[iip_cooling_coeff.index]
-        * electron_distribution.number_density.value
-        * ion_population.loc[(1, 1)]
-    ).sum()
-
-    npt.assert_allclose(heating.to_numpy(), iip_heating.to_numpy(), rtol=1e-12)
-    npt.assert_allclose(cooling.to_numpy(), iip_cooling.to_numpy(), rtol=2e-6)
+    npt.assert_allclose(
+        heating.to_numpy(), expected_heating.to_numpy().ravel(), rtol=1e-12
+    )
+    npt.assert_allclose(
+        cooling.to_numpy(), expected_cooling.to_numpy().ravel(), rtol=2e-6
+    )
 
 
 def test_bound_free_non_estimator_rates_match_iip_plasma(
     lyman_photoionization_data: pd.DataFrame,
     radiation_field: DilutePlanckianRadiationField,
+    regression_data: RegressionData,
 ) -> None:
     photo_data = lyman_photoionization_data
     temperatures = REFERENCE_RADIATION_TEMPERATURES_K
@@ -430,33 +375,15 @@ def test_bound_free_non_estimator_rates_match_iip_plasma(
         radiation_field,
     )
 
-    iip_heating_coeff = BfHeatingRateCoeff(
-        None
-    ).calculate_from_radiation_field_model(
-        photo_data,
-        radiation_field.dilution_factor,
-        radiation_field.temperature_kelvin,
+    expected_heating = regression_data.sync_dataframe(
+        pd.DataFrame(heating.to_numpy()), key="allclose_0"
     )
-    iip_heating = (
-        iip_heating_coeff * level_population.loc[iip_heating_coeff.index]
-    ).sum()
-
-    thermal_balance = ThermalBalanceTest(None)
-    iip_cooling_coeff = pd.DataFrame(
-        {
-            cell: thermal_balance._calculate_sp_recomb_heating_rate_coeff(
-                temperature, photo_data
-            )
-            for cell, temperature in enumerate(temperatures)
-        }
+    expected_cooling = regression_data.sync_dataframe(
+        pd.DataFrame(cooling.to_numpy()), key="allclose_1"
     )
-    iip_cooling_coeff.loc[(1, 0, 0)] = 0.0
-    iip_cooling = (
-        iip_cooling_coeff
-        * level_population_ratio.loc[iip_cooling_coeff.index]
-        * electron_distribution.number_density.value
-        * ion_population.loc[(1, 1)]
-    ).sum()
-
-    npt.assert_allclose(heating.to_numpy(), iip_heating.to_numpy(), rtol=2e-2)
-    npt.assert_allclose(cooling.to_numpy(), iip_cooling.to_numpy(), rtol=2e-6)
+    npt.assert_allclose(
+        heating.to_numpy(), expected_heating.to_numpy().ravel(), rtol=2e-2
+    )
+    npt.assert_allclose(
+        cooling.to_numpy(), expected_cooling.to_numpy().ravel(), rtol=2e-6
+    )

@@ -56,7 +56,6 @@ def test_virtual_packet_postprocessing_owned_by_spectrum_solver(
     rpacket_tracker = SimpleNamespace()
     vpacket_tracker = SimpleNamespace()
     transport_state = object.__new__(transport_state_type)
-    transport_state.packet_collection = SimpleNamespace()
     transport_state.geometry_state_numba = SimpleNamespace()
     transport_state.opacity_state_numba = SimpleNamespace()
     transport_state.time_explosion = 123.0 * u.s
@@ -82,9 +81,9 @@ def test_virtual_packet_postprocessing_owned_by_spectrum_solver(
     )
 
     calculate_arguments = calculate_virtual_packet_spectrum.call_args.args
-    assert calculate_arguments[2] == expected_time_explosion
-    assert calculate_arguments[6] is rpacket_tracker
-    assert calculate_arguments[8] is expected_trace_function
+    assert calculate_arguments[1] == expected_time_explosion
+    assert calculate_arguments[5] is rpacket_tracker
+    assert calculate_arguments[7] is expected_trace_function
     np.testing.assert_array_equal(
         solver._montecarlo_virtual_luminosity.value,
         virtual_packet_luminosity,

@@ -42,15 +42,17 @@ def parse_density_from_config(
         Electron densities.
     """
     time_explosion = config.supernova.time_explosion.cgs
-    (
-        density_time,
-        velocity,
-        density,
-        electron_densities,
-        temperature,
-    ) = parse_structure_from_config(config)
+    structure = parse_structure_from_config(config)
+    density_time = structure.density_time
+    velocity = structure.velocity
+    density = structure.density
+    electron_densities = structure.electron_densities
 
     if density is None:
+        # Prepend v = 0 so the density array matches the file-based layout,
+        # whose leading entry is the region inside the innermost edge and is
+        # dropped below. Each shell density is the profile sampled at the
+        # shell velocity midpoint, not averaged over the shell.
         adjusted_velocity = velocity.insert(0, 0)
         v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
         d_conf = config.model.structure.density
@@ -58,7 +60,9 @@ def parse_density_from_config(
             d_conf, v_middle, time_explosion
         )
 
-    density = calculate_density_after_time(density, density_time, time_explosion)
+    density = calculate_density_after_time(
+        density, density_time, time_explosion
+    )
     # Note: This is the number of shells *without* taking in mind the
     #       v boundaries.
     if len(density) == len(velocity):

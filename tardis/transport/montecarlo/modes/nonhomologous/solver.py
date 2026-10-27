@@ -38,6 +38,7 @@ from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
     tracker_full_df2tracker_last_interaction_df,
     trackers_full_to_df,
+    trackers_full_to_last_interaction_df,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import (
     generate_tracker_last_interaction_list,
@@ -131,9 +132,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             macro_atom_state,
             self.line_interaction_type,
         )
-        opacity_state_numba = opacity_state_numba[
-            simulation_state.geometry.r_inner_boundary_index : simulation_state.geometry.r_outer_boundary_index
-        ]
 
         transport_state = MonteCarloTransportStateNonhomologous(
             packet_collection,
@@ -227,13 +225,26 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
 
-        if self.enable_rpacket_tracking or number_of_vpackets > 0:
-            tracker_full_df = trackers_full_to_df(trackers_list)
-            self.transport_state.tracker_full_df = (
-                tracker_full_df if self.enable_rpacket_tracking else None
+        if self.enable_rpacket_tracking:
+            # Memory: the trackers are not needed once copied, so free them
+            # during the conversion rather than holding them alongside the
+            # full DataFrame. Keep them when the spectrum solver still needs
+            # them to spawn virtual packets.
+            self.transport_state.tracker_full_df = trackers_full_to_df(
+                trackers_list, release_trackers=number_of_vpackets == 0
             )
             self.transport_state.tracker_last_interaction_df = (
-                tracker_full_df2tracker_last_interaction_df(tracker_full_df)
+                tracker_full_df2tracker_last_interaction_df(
+                    self.transport_state.tracker_full_df
+                )
+            )
+        elif number_of_vpackets > 0:
+            # Memory: full trackers were needed only to source virtual
+            # packets. Build the last-interaction table straight from them
+            # instead of going through the full event DataFrame.
+            self.transport_state.tracker_full_df = None
+            self.transport_state.tracker_last_interaction_df = (
+                trackers_full_to_last_interaction_df(trackers_list)
             )
         else:
             self.transport_state.tracker_full_df = None

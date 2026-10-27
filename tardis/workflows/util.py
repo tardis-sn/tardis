@@ -52,7 +52,7 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
     freqs = freqs[1 : n_bins * bin_size + 1]
 
     ct = simulation_state.time_explosion * const.c
-    t_rad = simulation_state.radiation_field_state.temperature
+    t_rad = simulation_state.t_radiative
 
     def B(nu, T):
         return (
@@ -89,7 +89,7 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
         (udnu * kappa_tot**-1).sum(axis=0) / (udnu.sum(axis=0))
     ) ** -1
 
-    dr = simulation_state.geometry.r_outer - simulation_state.geometry.r_inner
+    dr = simulation_state.r_outer - simulation_state.r_inner
     dtau = kappa_planck * dr
     planck_integ_tau = np.cumsum(dtau[::-1])[::-1]
     rosseland_integ_tau = np.cumsum((kappa_rosseland * dr)[::-1])[::-1]

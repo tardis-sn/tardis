@@ -1,18 +1,26 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z
+from radioactivedecay.utils import elem_to_Z
+
+from tardis.util.base import is_element_symbol, reformat_element_symbol
 
 
 def read_csv_isotope_mass_fractions(
-    fname, delimiter=r"\s+", skip_columns=0, skip_rows=None
-):
+    fname: str | Path,
+    delimiter: str = r"\s+",
+    skip_columns: int = 0,
+    skip_rows: list[int] | None = None,
+) -> tuple[pd.Index, pd.DataFrame, pd.DataFrame]:
     """
     A generic parser for a TARDIS composition stored as a CSV file
 
     The parser can read in both elemental and isotopic mass fractions. The first
     column is always expected to contain a running index, labelling the grid
-    cells. The parser also allows for additional information to be stored in
+    cells. Element symbols are case-insensitive (e.g. "si" or "Si"). The
+    parser also allows for additional information to be stored in
     the first skip_columns columns. These will be ignored if skip_columns > 0.
     Note that the first column, containing the cell index is not taken into
     account here.
@@ -38,9 +46,9 @@ def read_csv_isotope_mass_fractions(
 
     Returns
     -------
-    index : np.ndarray
+    index : pandas.Index
     mass_fractions : pandas.DataFrame
-    isotope_mass_fraction : pandas.MultiIndex
+    isotope_mass_fraction : pandas.DataFrame
     """
     if skip_rows is None:
         skip_rows = [1]
@@ -63,8 +71,8 @@ def read_csv_isotope_mass_fractions(
     )
 
     for element_symbol_string in df.index[skip_columns:]:
-        if element_symbol_string in Z_DICT.values():
-            z = elem_to_Z(element_symbol_string)
+        if is_element_symbol(element_symbol_string):
+            z = elem_to_Z(reformat_element_symbol(element_symbol_string))
             mass_fractions.loc[z, :] = df.loc[element_symbol_string].tolist()
         else:
             nuc = Nuclide(element_symbol_string)

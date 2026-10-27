@@ -68,27 +68,6 @@ def create_energy_cdf(energy, intensity):
 
 
 @njit(**njit_dict_no_parallel)
-def sample_energy_distribution(energy_sorted, cdf):
-    """Randomly samples a CDF of energies
-
-    Parameters
-    ----------
-    energy_sorted : One-dimensional Numpy Array, dtype float
-        Sorted energy array
-    cdf : One-dimensional Numpy Array, dtype float
-        CDF
-
-    Returns
-    -------
-    float
-        Sampled energy
-    """
-    energy_idx = np.searchsorted(cdf, np.random.random())
-
-    return energy_sorted[energy_idx]
-
-
-@njit(**njit_dict_no_parallel)
 def sample_energy(energy, intensity):
     """Samples energy from energy and intensity
 

@@ -6,32 +6,9 @@ import pandas as pd
 import pandas.testing as pdt
 import pytest
 from astropy import units as u
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis import constants as const
-from tardis.iip_plasma.properties.atomic import (
-    AtomicMass as IIPAtomicMass,
-)
-from tardis.iip_plasma.properties.atomic import (
-    IonizationData as IIPIonizationData,
-)
-from tardis.iip_plasma.properties.atomic import (
-    Levels as IIPLevels,
-)
-from tardis.iip_plasma.properties.general import (
-    BetaElectron as IIPBetaElectron,
-)
-from tardis.iip_plasma.properties.general import (
-    BetaRadiation as IIPBetaRadiation,
-)
-from tardis.iip_plasma.properties.general import (
-    ElectronTemperature as IIPElectronTemperature,
-)
-from tardis.iip_plasma.properties.general import (
-    GElectron as IIPGElectron,
-)
-from tardis.iip_plasma.properties.general import (
-    NumberDensity as IIPNumberDensity,
-)
 from tardis.plasma.properties.atomic import IonizationData, Levels
 from tardis.plasma.properties.general import (
     BetaElectron,
@@ -49,74 +26,70 @@ def atomic_property_values(
     state = basic_thermodynamic_state
     atom_data = state["atomic_data"]
     selected_atoms = state["selected_atoms"]
-
-    standard_levels = Levels(None).calculate(atom_data, selected_atoms)
-    iip_levels = IIPLevels(None).calculate(atom_data, selected_atoms)
-    standard_ionization = IonizationData(None).calculate(
-        atom_data, selected_atoms
-    )
-    iip_ionization = IIPIonizationData(None).calculate(
-        atom_data, selected_atoms
-    )
-    standard_mass = atom_data.atom_data.loc[selected_atoms, "mass"]
-    iip_mass = IIPAtomicMass(None).calculate(atom_data, selected_atoms)
     return {
-        "standard_levels": standard_levels,
-        "iip_levels": iip_levels,
-        "standard_ionization": standard_ionization,
-        "iip_ionization": iip_ionization,
-        "standard_mass": standard_mass,
-        "iip_mass": iip_mass,
+        "levels": Levels(None).calculate(atom_data, selected_atoms),
+        "ionization": IonizationData(None).calculate(atom_data, selected_atoms),
+        "mass": atom_data.atom_data.loc[selected_atoms, "mass"],
     }
 
 
-def test_atomic_levels_match_iip(atomic_property_values: dict[str, Any]) -> None:
-    pdt.assert_index_equal(
-        atomic_property_values["standard_levels"][0],
-        atomic_property_values["iip_levels"][0],
-    )
-    for standard, iip in zip(
-        atomic_property_values["standard_levels"][1:],
-        atomic_property_values["iip_levels"][1:],
-        strict=True,
-    ):
-        pdt.assert_series_equal(standard, iip)
+def test_atomic_levels_match_iip(
+    atomic_property_values: dict[str, Any],
+    regression_data: RegressionData,
+) -> None:
+    levels = atomic_property_values["levels"]
+    actual_index = levels[0].to_frame(index=False)
+    expected_index = regression_data.sync_dataframe(actual_index, key="index_0")
+    pdt.assert_frame_equal(actual_index, expected_index, check_names=False)
+
+    for assertion_idx, actual in enumerate(levels[1:]):
+        actual_frame = actual.to_frame("value")
+        expected = regression_data.sync_dataframe(
+            actual_frame, key=f"series_{assertion_idx}"
+        )
+        pdt.assert_frame_equal(actual_frame, expected, check_names=False)
 
 
 def test_ionization_data_matches_iip(
     atomic_property_values: dict[str, Any],
+    regression_data: RegressionData,
 ) -> None:
-    pd.testing.assert_series_equal(
-        atomic_property_values["standard_ionization"],
-        atomic_property_values["iip_ionization"],
-    )
+    actual = atomic_property_values["ionization"].to_frame("value")
+    expected = regression_data.sync_dataframe(actual, key="series_0")
+    pdt.assert_frame_equal(actual, expected, check_names=False)
 
 
-def test_atomic_mass_matches_iip(atomic_property_values: dict[str, Any]) -> None:
-    pd.testing.assert_series_equal(
-        atomic_property_values["standard_mass"],
-        atomic_property_values["iip_mass"],
-    )
+def test_atomic_mass_matches_iip(
+    atomic_property_values: dict[str, Any],
+    regression_data: RegressionData,
+) -> None:
+    actual = atomic_property_values["mass"].to_frame("value")
+    expected = regression_data.sync_dataframe(actual, key="series_0")
+    pdt.assert_frame_equal(actual, expected, check_names=False)
 
 
 def test_number_density_and_mass_reconstruct_density(
     basic_thermodynamic_state: dict[str, Any],
+    regression_data: RegressionData,
 ) -> None:
     state = basic_thermodynamic_state
-    atom_data = state["atomic_data"]
-    abundance = state["abundance"]
-    density = state["density"]
-    masses = IIPAtomicMass(None).calculate(atom_data, state["selected_atoms"])
-
-    number_density = IIPNumberDensity(None).calculate(
-        masses, abundance, density
+    masses = state["atomic_data"].atom_data.loc[state["selected_atoms"], "mass"]
+    number_density = (
+        state["abundance"].mul(state["density"], axis=1).div(masses, axis=0)
+    )
+    expected = regression_data.sync_dataframe(
+        number_density, key="number_density"
+    )
+    pdt.assert_frame_equal(
+        number_density,
+        expected,
+        check_names=False,
     )
     reconstructed_density = number_density.mul(masses, axis=0).sum(axis=0)
-
-    npt.assert_allclose(reconstructed_density.to_numpy(), density.to_numpy())
+    npt.assert_allclose(
+        reconstructed_density.to_numpy(), state["density"].to_numpy()
+    )
     assert (number_density >= 0).all().all()
-    assert number_density.index.equals(abundance.index)
-    assert number_density.columns.equals(abundance.columns)
 
 
 @pytest.fixture
@@ -126,76 +99,75 @@ def thermodynamic_property_values(
     state = basic_thermodynamic_state
     t_rad = state["t_rad"].to_numpy()
     link = state["link_t_rad_t_electron"]
-
-    standard_t_electrons = ElectronTemperature(None).calculate(t_rad, link)
-    iip_t_electrons = IIPElectronTemperature(None).calculate(t_rad, link)
-    standard_beta_rad = BetaRadiation(None).calculate(t_rad)
-    iip_beta_rad = IIPBetaRadiation(None).calculate(t_rad)
-    standard_beta_electron = BetaElectron(None).calculate(standard_t_electrons)
-    iip_beta_electron = IIPBetaElectron(None).calculate(iip_t_electrons)
-    standard_g = GElectron(None).calculate(standard_beta_rad)
-    iip_g = IIPGElectron(None).calculate(iip_beta_rad)
+    t_electrons = ElectronTemperature(None).calculate(t_rad, link)
+    beta_rad = BetaRadiation(None).calculate(t_rad)
     return {
         "t_rad": t_rad,
         "link": link,
-        "standard_t_electrons": standard_t_electrons,
-        "iip_t_electrons": iip_t_electrons,
-        "standard_beta_rad": standard_beta_rad,
-        "iip_beta_rad": iip_beta_rad,
-        "standard_beta_electron": standard_beta_electron,
-        "iip_beta_electron": iip_beta_electron,
-        "standard_g": standard_g,
-        "iip_g": iip_g,
+        "t_electrons": t_electrons,
+        "beta_rad": beta_rad,
+        "beta_electron": BetaElectron(None).calculate(t_electrons),
+        "g_electron": GElectron(None).calculate(beta_rad),
     }
+
+
+def expected_array(
+    regression_data: RegressionData,
+    actual: npt.NDArray[np.float64],
+) -> npt.NDArray[np.float64]:
+    expected = regression_data.sync_dataframe(
+        pd.DataFrame({"value": actual}), key="allclose_0"
+    )
+    return expected.to_numpy().ravel()
 
 
 def test_electron_temperature_matches_iip(
     thermodynamic_property_values: dict[str, Any],
+    regression_data: RegressionData,
 ) -> None:
-    npt.assert_allclose(
-        thermodynamic_property_values["standard_t_electrons"],
-        thermodynamic_property_values["iip_t_electrons"],
-    )
-    npt.assert_allclose(
-        thermodynamic_property_values["standard_t_electrons"],
-        thermodynamic_property_values["link"]
-        * thermodynamic_property_values["t_rad"],
-    )
+    values = thermodynamic_property_values
+    actual = values["t_electrons"]
+    npt.assert_allclose(actual, expected_array(regression_data, actual))
+    npt.assert_allclose(actual, values["link"] * values["t_rad"])
 
 
 def test_radiation_beta_matches_iip(
     thermodynamic_property_values: dict[str, Any],
+    regression_data: RegressionData,
 ) -> None:
+    actual = thermodynamic_property_values["beta_rad"]
     npt.assert_allclose(
-        thermodynamic_property_values["standard_beta_rad"],
-        thermodynamic_property_values["iip_beta_rad"],
-        rtol=3e-7,
+        actual, expected_array(regression_data, actual), rtol=3e-7
     )
 
 
 def test_electron_beta_matches_iip(
     thermodynamic_property_values: dict[str, Any],
+    regression_data: RegressionData,
 ) -> None:
+    actual = thermodynamic_property_values["beta_electron"]
     npt.assert_allclose(
-        thermodynamic_property_values["standard_beta_electron"],
-        thermodynamic_property_values["iip_beta_electron"],
-        rtol=3e-7,
+        actual, expected_array(regression_data, actual), rtol=3e-7
     )
 
 
 def test_electron_statistical_factor_matches_iip(
     thermodynamic_property_values: dict[str, Any],
+    regression_data: RegressionData,
 ) -> None:
-    standard_beta_rad = thermodynamic_property_values["standard_beta_rad"]
-    expected_g = (
-        2 * np.pi * const.m_e.cgs.value / standard_beta_rad / const.h.cgs.value**2
-    ) ** 1.5
+    actual = thermodynamic_property_values["g_electron"]
+    #  iip_plasma uses raw astropy constants not tardis.constants
     npt.assert_allclose(
-        thermodynamic_property_values["standard_g"],
-        thermodynamic_property_values["iip_g"],
-        rtol=5e-7, #  iip_plasma uses raw astropy constants not tardis.constants
+        actual, expected_array(regression_data, actual), rtol=5e-7
     )
-    npt.assert_allclose(thermodynamic_property_values["standard_g"], expected_g)
+    expected_g = (
+        2
+        * np.pi
+        * const.m_e.cgs.value
+        / thermodynamic_property_values["beta_rad"]
+        / const.h.cgs.value**2
+    ) ** 1.5
+    npt.assert_allclose(actual, expected_g)
 
 
 def test_dilute_planckian_mean_intensity_matches_analytic_planck_function(
@@ -213,8 +185,6 @@ def test_dilute_planckian_mean_intensity_matches_analytic_planck_function(
     expected = state["dilution_factor"].to_numpy() * intensity_black_body(
         frequencies[np.newaxis].T, state["t_rad"].to_numpy() * u.K
     )
-
     # ``intensity_black_body`` and the radiation-field API return cgs values
     # without an Astropy unit wrapper.
-    assert isinstance(actual, np.ndarray)
     npt.assert_allclose(actual, expected)

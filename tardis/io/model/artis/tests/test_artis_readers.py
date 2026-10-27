@@ -16,7 +16,7 @@ from tardis.io.model.parse_composition_configuration import (
     parse_composition_from_config,
 )
 from tardis.io.model.parse_geometry_configuration import (
-    parse_geometry_from_config,
+    parse_homologous_geometry_from_config,
 )
 from tardis.io.model.readers.base import (
     read_density_file,
@@ -188,7 +188,7 @@ def test_artis_isotopes_reach_composition(artis_data_dir):
     config.model.abundances.filename = "artis_abundances.dat"
     config.model.abundances.filetype = "artis"
     time_explosion = config.supernova.time_explosion.cgs
-    geometry = parse_geometry_from_config(config, time_explosion)
+    geometry = parse_homologous_geometry_from_config(config, time_explosion)
 
     composition, electron_densities = parse_composition_from_config(
         None, config, time_explosion, geometry

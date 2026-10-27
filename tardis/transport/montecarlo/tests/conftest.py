@@ -1,9 +1,12 @@
 from copy import deepcopy
+from pathlib import Path
 
 import numpy as np
 import pytest
 from astropy import units as u
 
+from tardis.io.atom_data import AtomData
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model.geometry.radial1d import (
     NumbaRadial1DGeometry,
 )
@@ -12,7 +15,6 @@ from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
-from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.configuration.base import (
@@ -45,6 +47,31 @@ def montecarlo_transport_config(
 
     del config_montecarlo_1e5_verysimple["config_dirname"]
     return config_montecarlo_1e5_verysimple
+
+
+@pytest.fixture(scope="session")
+def montecarlo_transport_simulation(
+    example_configuration_dir: Path, atomic_dataset: AtomData
+) -> Simulation:
+    """Simulate using the verysimple configuration"""
+    atomic_dataset = deepcopy(atomic_dataset)
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
+    config.montecarlo.last_no_of_packets = 1e5
+    config.montecarlo.no_of_virtual_packets = 0
+    config.montecarlo.iterations = 1
+    config.plasma.line_interaction_type = "macroatom"
+    del config["config_dirname"]
+    simulation = Simulation.from_config(
+        config,
+        atom_data=atomic_dataset,
+        virtual_packet_logging=False,
+        legacy_mode_enabled=True,
+    )
+    simulation.run_convergence()
+    simulation.run_final()
+    return simulation
 
 
 @pytest.fixture(scope="package")
@@ -245,16 +272,13 @@ def radial_1d_geometry(
 
 @pytest.fixture
 def classic_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
-    return OpacityStateNumba(*opacity_state_args)
+    return OpacityStateNumba(*opacity_state_args[:10])
 
 
 @pytest.fixture
-def iip_opacity_state(opacity_state_args: tuple) -> OpacityStateNumbaIIP:
-    no_of_shells = opacity_state_args[3].shape[1]
-    return OpacityStateNumbaIIP(
-        *opacity_state_args,
-        np.ones((no_of_shells, 1, 1)),
-    )
+def iip_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
+    """Opacity state for a IIP model"""
+    return OpacityStateNumba(*opacity_state_args[:10])
 
 
 @pytest.fixture

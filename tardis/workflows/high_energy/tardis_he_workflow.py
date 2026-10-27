@@ -186,6 +186,7 @@ class TARDISHEWorkflow:
             escape_energy_cosi,
             packets_escaped,
             gamma_ray_deposited_energy,
+            gamma_ray_deposition_estimator,
             total_deposited_energy,
             positron_energy,
         ) = run_gamma_ray_loop(
@@ -209,6 +210,7 @@ class TARDISHEWorkflow:
             escape_energy_cosi=escape_energy_cosi,
             packets_escaped=packets_escaped,
             gamma_ray_deposited_energy=gamma_ray_deposited_energy,
+            gamma_ray_deposition_estimator=gamma_ray_deposition_estimator,
             total_deposited_energy=total_deposited_energy,
             positron_energy=positron_energy,
         )
@@ -223,6 +225,7 @@ class TARDISHEWorkflowResult(HDFWriterMixin):
         "escape_energy_cosi",
         "packets_escaped",
         "gamma_ray_deposited_energy",
+        "gamma_ray_deposition_estimator",
         "total_deposited_energy",
         "positron_energy",
     ]
@@ -232,5 +235,6 @@ class TARDISHEWorkflowResult(HDFWriterMixin):
     escape_energy_cosi: pd.DataFrame
     packets_escaped: pd.DataFrame
     gamma_ray_deposited_energy: pd.DataFrame
+    gamma_ray_deposition_estimator: pd.DataFrame
     total_deposited_energy: pd.DataFrame
     positron_energy: pd.DataFrame

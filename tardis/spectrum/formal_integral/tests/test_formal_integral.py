@@ -1,6 +1,10 @@
+from types import SimpleNamespace
+
 import numpy as np
 import numpy.testing as ntest
+import pandas as pd
 import pytest
+from astropy import units as u
 
 from tardis.spectrum.formal_integral.base import (
     check_formal_integral_requirements,
@@ -12,6 +16,10 @@ from tardis.spectrum.formal_integral.formal_integral_numba import (
 from tardis.spectrum.formal_integral.formal_integral_numba import (
     intensity_black_body as intensity_black_body_numba,
 )
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
+from tardis.spectrum.formal_integral.source_function import SourceFunctionState
 
 
 @pytest.mark.parametrize(
@@ -46,6 +54,30 @@ def test_check_formal_integral_requirements(
         )
 
 
+def test_interpolate_integrator_quantities_uses_active_shells() -> None:
+    solver = FormalIntegralSolver(points=10, interpolate_shells=-1)
+    source_function_state = SourceFunctionState(
+        att_S_ul=np.ones((2, 2)),
+        Jred_lu=np.ones((2, 2)),
+        Jblue_lu=np.ones((2, 2)),
+        e_dot_u=pd.DataFrame(),
+    )
+    opacity_state = SimpleNamespace(tau_sobolev=pd.DataFrame(np.ones((2, 2))))
+
+    result = solver.interpolate_integrator_quantities(
+        r_inner_original=np.array([1.0, 2.0]),
+        r_outer_original=np.array([2.0, 3.0]),
+        r_inner_interpolated=np.array([1.0, 1.5, 2.0]),
+        r_outer_interpolated=np.array([1.5, 2.0, 2.5]),
+        source_function_state=source_function_state,
+        opacity_state=opacity_state,
+        electron_densities=pd.Series([10.0, 20.0]),
+    )
+
+    assert result[5].shape == (2, 3)
+    assert result[6].shape == (3,)
+
+
 @pytest.mark.parametrize(
     ["nu", "temperature", "expected"],
     [
@@ -65,6 +97,17 @@ def test_intensity_black_body(nu, temperature, expected):
     # TODO: check if cuda
     # actual_cuda = intensity_black_body_cuda(nu, temperature)
     # assert np.isclose(actual_cuda, expected)
+
+
+def test_intensity_black_body_rejects_quantities() -> None:
+    """
+    The black body takes plain cgs floats; callers must strip units first.
+
+    Under Numba the units are dropped silently, but with Numba disabled the
+    Planck exponent is not dimensionless (issue #2543).
+    """
+    with pytest.raises(u.UnitTypeError, match="dimensionless"):
+        intensity_black_body(1e15 * u.Hz, 1e4 * u.K)
 
 
 @pytest.mark.parametrize(

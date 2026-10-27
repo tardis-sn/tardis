@@ -1,4 +1,7 @@
+import logging
+
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from astropy import units as u
 
@@ -10,21 +13,64 @@ from tardis.plasma.equilibrium.rates.collision_strengths import (
     UpsilonRegemorterSolver,
 )
 
+logger = logging.getLogger(__name__)
+
 BETA_COLL = (
     (const.h**4 / (8 * const.k_B * const.m_e**3 * np.pi**3)) ** 0.5
 ).cgs
 
 
 class ThermalCollisionalRateSolver:
+    """Solve thermal electron-collision bound-bound rate coefficients."""
+
     def __init__(
         self,
-        levels,
-        radiative_transitions,
-        thermal_collisional_strengths_temperatures,
-        thermal_collisional_strengths,
-        collision_strengths_type,
-        collisional_strength_approximation="regemorter",
-    ):
+        levels: pd.DataFrame,
+        radiative_transitions: pd.DataFrame,
+        thermal_collisional_strengths_temperatures: npt.ArrayLike,
+        thermal_collisional_strengths: pd.DataFrame,
+        collision_strengths_type: str,
+        collisional_strength_approximation: str = "regemorter",
+    ) -> None:
+        """Initialize thermal collisional rates for the supplied levels.
+
+        Collision strengths whose lower or upper level is absent from
+        ``levels`` are dropped, because their energies and statistical
+        weights are undefined.
+
+        Parameters
+        ----------
+        levels : pandas.DataFrame
+            Level energies and statistical weights.
+        radiative_transitions : pandas.DataFrame
+            Radiative line data.
+        thermal_collisional_strengths_temperatures : array-like
+            Temperatures of the tabulated collision strengths [K].
+        thermal_collisional_strengths : pandas.DataFrame
+            Tabulated collision strengths indexed by transition.
+        collision_strengths_type : str
+            Collision-strength format, ``"cmfgen"`` or ``"chianti"``.
+        collisional_strength_approximation : str, optional
+            Approximation for transitions without collision strengths.
+        """
+        lower_level_index = thermal_collisional_strengths.index.droplevel(
+            "level_number_upper"
+        )
+        upper_level_index = thermal_collisional_strengths.index.droplevel(
+            "level_number_lower"
+        )
+        defined_transition_mask = lower_level_index.isin(
+            levels.index
+        ) & upper_level_index.isin(levels.index)
+        if not defined_transition_mask.all():
+            logger.warning(
+                "Dropping %d collision strengths whose levels are absent "
+                "from the level data.",
+                (~defined_transition_mask).sum(),
+            )
+            thermal_collisional_strengths = thermal_collisional_strengths.loc[
+                defined_transition_mask
+            ]
         self.levels = levels
         self.collision_strengths_type = collision_strengths_type
         if self.collision_strengths_type == "cmfgen":

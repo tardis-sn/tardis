@@ -2,65 +2,28 @@ from typing import Any
 
 import numpy as np
 import numpy.testing as npt
+import pandas as pd
 import pandas.testing as pdt
 import pytest
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
-from tardis.iip_plasma.properties.atomic import AtomicMass, Levels
-from tardis.iip_plasma.properties.general import (
-    NumberDensity,
-)
-from tardis.iip_plasma.properties.ion_population import (
-    IonNumberDensity as IIPIonNumberDensity,
-)
-from tardis.iip_plasma.properties.ion_population import (
-    PhiSahaElectrons,
-    PhiSahaLTE,
-)
-from tardis.iip_plasma.properties.level_population import (
-    LevelNumberDensity as IIPLevelNumberDensity,
-)
-from tardis.iip_plasma.properties.level_population import PhiLucy
-from tardis.iip_plasma.properties.partition_function import (
-    LevelBoltzmannFactorDiluteLTE as IIPLevelBoltzmannFactorDiluteLTE,
-)
-from tardis.iip_plasma.properties.partition_function import (
-    LevelBoltzmannFactorLTE as IIPLevelBoltzmannFactorLTE,
-)
-from tardis.iip_plasma.properties.partition_function import (
-    LevelBoltzmannFactorLTETe,
-)
-from tardis.iip_plasma.properties.partition_function import (
-    PartitionFunction as IIPPartitionFunction,
-)
 from tardis.plasma.properties.atomic import (
-    IonizationData as StandardIonizationData,
-)
-from tardis.plasma.properties.atomic import Levels as StandardLevels
-from tardis.plasma.properties.general import (
-    BetaElectron as StandardBetaElectron,
+    IonizationData,
+    Levels,
 )
 from tardis.plasma.properties.general import (
-    BetaRadiation as StandardBetaRadiation,
-)
-from tardis.plasma.properties.general import (
-    GElectron as StandardGElectron,
-)
-from tardis.plasma.properties.general import (
+    BetaElectron,
+    BetaRadiation,
+    GElectron,
     ThermalGElectron,
 )
 from tardis.plasma.properties.ion_population import (
-    IonNumberDensity as StandardIonNumberDensity,
-)
-from tardis.plasma.properties.ion_population import (
-    PhiSahaLTE as StandardPhiSahaLTE,
-)
-from tardis.plasma.properties.ion_population import (
+    IonNumberDensity,
+    PhiSahaLTE,
     SahaFactor,
     ThermalPhiSahaLTE,
 )
-from tardis.plasma.properties.level_population import (
-    LevelNumberDensity as StandardLevelNumberDensity,
-)
+from tardis.plasma.properties.level_population import LevelNumberDensity
 from tardis.plasma.properties.partition_function import (
     LevelBoltzmannFactorDiluteLTE,
     LevelBoltzmannFactorLTE,
@@ -77,37 +40,28 @@ def lte_equilibrium_inputs(
     state = basic_thermodynamic_state
     atom_data = state["atomic_data"]
     selected_atoms = state["selected_atoms"]
-    levels, excitation_energy, metastability, g = StandardLevels(
-        None
-    ).calculate(atom_data, selected_atoms)
-    iip_levels, iip_excitation_energy, iip_metastability, iip_g = Levels(
-        None
-    ).calculate(atom_data, selected_atoms)
+    levels, excitation_energy, metastability, g = Levels(None).calculate(
+        atom_data, selected_atoms
+    )
 
     t_rad = state["t_rad"].to_numpy()
     t_electrons = t_rad * state["link_t_rad_t_electron"]
-    beta_rad = StandardBetaRadiation(None).calculate(t_rad)
-    beta_electron = StandardBetaElectron(None).calculate(t_electrons)
-    g_electron = StandardGElectron(None).calculate(beta_rad)
+    beta_rad = BetaRadiation(None).calculate(t_rad)
+    beta_electron = BetaElectron(None).calculate(t_electrons)
+    g_electron = GElectron(None).calculate(beta_rad)
     thermal_g_electron = ThermalGElectron(None).calculate(beta_electron)
 
-    masses = AtomicMass(None).calculate(atom_data, selected_atoms)
-    number_density = NumberDensity(None).calculate(
-        masses, state["abundance"], state["density"]
+    atomic_mass = atom_data.atom_data.loc[selected_atoms, "mass"]
+    number_density = state["abundance"].mul(state["density"], axis=1).div(
+        atomic_mass, axis=0
     )
-    ionization_data = StandardIonizationData(None).calculate(
-        atom_data, selected_atoms
-    )
+    ionization_data = IonizationData(None).calculate(atom_data, selected_atoms)
 
     return {
         "levels": levels,
         "excitation_energy": excitation_energy,
         "metastability": metastability,
         "g": g,
-        "iip_levels": iip_levels,
-        "iip_excitation_energy": iip_excitation_energy,
-        "iip_metastability": iip_metastability,
-        "iip_g": iip_g,
         "beta_rad": beta_rad,
         "beta_electron": beta_electron,
         "g_electron": g_electron,
@@ -120,22 +74,21 @@ def lte_equilibrium_inputs(
 
 def test_boltzmann_factors_and_partition_functions_match_iip(
     lte_equilibrium_inputs: dict[str, Any],
+    regression_data: RegressionData,
 ) -> None:
     inputs = lte_equilibrium_inputs
-
     standard_rad_bf = LevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
         inputs["g"],
         inputs["beta_rad"],
         inputs["levels"],
     )
-    iip_rad_bf = IIPLevelBoltzmannFactorLTE(None).calculate(
-        inputs["iip_excitation_energy"],
-        inputs["iip_g"],
-        inputs["beta_rad"],
-        inputs["iip_levels"],
+    expected_rad_bf = regression_data.sync_dataframe(
+        standard_rad_bf, key="frame_0"
     )
-    pdt.assert_frame_equal(standard_rad_bf, iip_rad_bf, rtol=1e-12, atol=0.0)
+    pdt.assert_frame_equal(
+        standard_rad_bf, expected_rad_bf, rtol=1e-12, atol=0.0
+    )
 
     standard_thermal_bf = ThermalLevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
@@ -143,14 +96,11 @@ def test_boltzmann_factors_and_partition_functions_match_iip(
         inputs["beta_electron"],
         inputs["levels"],
     )
-    iip_thermal_bf = LevelBoltzmannFactorLTETe(None).calculate(
-        inputs["iip_excitation_energy"],
-        inputs["iip_g"],
-        inputs["beta_electron"],
-        inputs["iip_levels"],
+    expected_thermal_bf = regression_data.sync_dataframe(
+        standard_thermal_bf, key="frame_1"
     )
     pdt.assert_frame_equal(
-        standard_thermal_bf, iip_thermal_bf, rtol=1e-12, atol=0.0
+        standard_thermal_bf, expected_thermal_bf, rtol=1e-12, atol=0.0
     )
 
     standard_dilute_bf = LevelBoltzmannFactorDiluteLTE(None).calculate(
@@ -161,31 +111,30 @@ def test_boltzmann_factors_and_partition_functions_match_iip(
         inputs["w"],
         inputs["metastability"],
     )
-    iip_dilute_bf = IIPLevelBoltzmannFactorDiluteLTE(None).calculate(
-        inputs["iip_levels"],
-        inputs["iip_g"],
-        inputs["iip_excitation_energy"],
-        inputs["beta_rad"],
-        inputs["w"],
-        inputs["iip_metastability"],
+    expected_dilute_bf = regression_data.sync_dataframe(
+        standard_dilute_bf, key="frame_2"
     )
     pdt.assert_frame_equal(
-        standard_dilute_bf, iip_dilute_bf, rtol=1e-12, atol=0.0
+        standard_dilute_bf, expected_dilute_bf, rtol=1e-12, atol=0.0
     )
 
     standard_partition = PartitionFunction(None).calculate(standard_rad_bf)
-    iip_partition = IIPPartitionFunction(None).calculate(iip_rad_bf)
+    expected_partition = regression_data.sync_dataframe(
+        standard_partition, key="frame_3"
+    )
     pdt.assert_frame_equal(
-        standard_partition, iip_partition, rtol=1e-12, atol=0.0
+        standard_partition, expected_partition, rtol=1e-12, atol=0.0
     )
 
     standard_thermal_partition = ThermalLTEPartitionFunction(None).calculate(
         standard_thermal_bf
     )
-    iip_thermal_partition = IIPPartitionFunction(None).calculate(iip_thermal_bf)
+    expected_thermal_partition = regression_data.sync_dataframe(
+        standard_thermal_partition, key="frame_4"
+    )
     pdt.assert_frame_equal(
         standard_thermal_partition,
-        iip_thermal_partition,
+        expected_thermal_partition,
         rtol=1e-12,
         atol=0.0,
     )
@@ -226,6 +175,7 @@ def test_dilute_lte_correction_only_changes_non_metastable_levels(
 
 def test_saha_factors_and_phi_ik_match_iip(
     lte_equilibrium_inputs: dict[str, Any],
+    regression_data: RegressionData,
 ) -> None:
     inputs = lte_equilibrium_inputs
     standard_rad_bf = LevelBoltzmannFactorLTE(None).calculate(
@@ -235,19 +185,14 @@ def test_saha_factors_and_phi_ik_match_iip(
         inputs["levels"],
     )
     standard_partition = PartitionFunction(None).calculate(standard_rad_bf)
-    standard_phi = StandardPhiSahaLTE(None).calculate(
+    standard_phi = PhiSahaLTE(None).calculate(
         inputs["g_electron"],
         inputs["beta_rad"],
         standard_partition,
         inputs["ionization_data"],
     )
-    iip_phi = PhiSahaLTE(None).calculate(
-        inputs["g_electron"],
-        inputs["beta_rad"],
-        standard_partition,
-        inputs["ionization_data"],
-    )
-    pdt.assert_frame_equal(standard_phi, iip_phi, rtol=1e-12, atol=0.0)
+    expected_phi = regression_data.sync_dataframe(standard_phi, key="frame_0")
+    pdt.assert_frame_equal(standard_phi, expected_phi, rtol=1e-12, atol=0.0)
 
     standard_thermal_bf = ThermalLevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
@@ -264,27 +209,27 @@ def test_saha_factors_and_phi_ik_match_iip(
         standard_thermal_partition,
         inputs["ionization_data"],
     )
-    iip_thermal_phi = PhiSahaElectrons(None).calculate(
-        inputs["thermal_g_electron"],
-        inputs["beta_electron"],
-        standard_thermal_partition,
-        inputs["ionization_data"],
+    expected_thermal_phi = regression_data.sync_dataframe(
+        standard_thermal_phi, key="frame_1"
     )
     pdt.assert_frame_equal(
-        standard_thermal_phi, iip_thermal_phi, rtol=1e-12, atol=0.0
+        standard_thermal_phi, expected_thermal_phi, rtol=1e-12, atol=0.0
     )
 
     standard_phi_ik = SahaFactor(None).calculate(
         standard_thermal_phi, standard_thermal_bf, standard_thermal_partition
     )
-    iip_phi_lucy = PhiLucy(None).calculate(
-        iip_thermal_phi, standard_thermal_bf, standard_thermal_partition
+    expected_phi_ik = regression_data.sync_dataframe(
+        standard_phi_ik, key="frame_2"
     )
-    pdt.assert_frame_equal(standard_phi_ik, iip_phi_lucy, rtol=1e-12, atol=0.0)
+    pdt.assert_frame_equal(
+        standard_phi_ik, expected_phi_ik, rtol=1e-12, atol=0.0
+    )
 
 
 def test_lte_ion_and_level_populations_conserve_elements(
     lte_equilibrium_inputs: dict[str, Any],
+    regression_data: RegressionData,
 ) -> None:
     inputs = lte_equilibrium_inputs
     level_bf = LevelBoltzmannFactorLTE(None).calculate(
@@ -294,32 +239,37 @@ def test_lte_ion_and_level_populations_conserve_elements(
         inputs["levels"],
     )
     partition = PartitionFunction(None).calculate(level_bf)
-    phi = StandardPhiSahaLTE(None).calculate(
+    phi = PhiSahaLTE(None).calculate(
         inputs["g_electron"],
         inputs["beta_rad"],
         partition,
         inputs["ionization_data"],
     )
 
-    standard_ions, standard_electrons = StandardIonNumberDensity(
-        None
-    ).calculate(phi, partition, inputs["number_density"])
-    iip_ions, iip_electrons = IIPIonNumberDensity(None).calculate(
+    standard_ions, standard_electrons = IonNumberDensity(None).calculate(
         phi, partition, inputs["number_density"]
     )
-    pdt.assert_frame_equal(standard_ions, iip_ions, rtol=1e-12, atol=0.0)
-    # Both legacy ion solvers stop when their electron-density iteration
-    # changes by less than 5%; this is a solver-parity check, not a
-    # conservation tolerance.
-    npt.assert_allclose(standard_electrons, iip_electrons, rtol=5e-2)
+    expected_ions = regression_data.sync_dataframe(standard_ions, key="frame_0")
+    pdt.assert_frame_equal(
+        standard_ions, expected_ions, rtol=1e-12, atol=0.0
+    )
+    standard_electron_frame = pd.DataFrame({"value": standard_electrons})
+    expected_electrons = regression_data.sync_dataframe(
+        standard_electron_frame, key="allclose_0"
+    )
+    npt.assert_allclose(
+        standard_electron_frame.to_numpy(),
+        expected_electrons.to_numpy(),
+        rtol=5e-2,
+    )
 
-    standard_levels = StandardLevelNumberDensity(None).calculate(
+    standard_levels = LevelNumberDensity(None).calculate(
         level_bf, standard_ions, inputs["levels"], partition
     )
-    iip_levels = IIPLevelNumberDensity(None).calculate(
-        level_bf, iip_ions, inputs["levels"], partition
+    expected_levels = regression_data.sync_dataframe(standard_levels, key="frame_1")
+    pdt.assert_frame_equal(
+        standard_levels, expected_levels, rtol=1e-12, atol=0.0
     )
-    pdt.assert_frame_equal(standard_levels, iip_levels, rtol=1e-12, atol=0.0)
 
     ion_by_element = standard_ions.groupby(level="atomic_number").sum()
     pdt.assert_index_equal(ion_by_element.index, inputs["number_density"].index)

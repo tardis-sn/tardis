@@ -475,11 +475,32 @@ def reformat_element_symbol(element_string):
     return element_string[0].upper() + element_string[1:].lower()
 
 
-def is_valid_nuclide_or_elem(input_nuclide):
+def is_element_symbol(input_string: str | int) -> bool:
+    """
+    Check whether the string is an element symbol, ignoring capitalization.
+
+    Parameters
+    ----------
+    input_string : str or int
+        Element symbol string, e.g. "Si", "si" or "SI".
+
+    Returns
+    -------
+    bool
+        Bool indicating if the input is a valid element symbol.
+    """
+    return (
+        isinstance(input_string, str)
+        and input_string != ""
+        and reformat_element_symbol(input_string) in Z_DICT.values()
+    )
+
+
+def is_valid_nuclide_or_elem(input_nuclide: str | int) -> bool:
     """
     Parses nuclide string into symbol - mass number format and returns
     whether the nuclide is either contained in the decay dataset or is a
-    raw element string.
+    raw element string. Element symbols are matched case-insensitively.
 
     Parameters
     ----------
@@ -496,7 +517,7 @@ def is_valid_nuclide_or_elem(input_nuclide):
         parse_nuclide(input_nuclide, DEFAULTDATA.nuclides, "ICRP-107")
         is_nuclide = True
     except:
-        is_nuclide = input_nuclide in Z_DICT.values()
+        is_nuclide = is_element_symbol(input_nuclide)
 
     return is_nuclide
 

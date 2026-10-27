@@ -21,12 +21,34 @@ class ContinuumRateCoefficients:
 
 
 @dataclass(frozen=True)
+class ContinuumCoefficientState:
+    """Candidate-temperature continuum coefficients for all active levels."""
+
+    photoionization: pd.DataFrame
+    stimulated_recombination: pd.DataFrame
+    spontaneous_recombination: pd.DataFrame
+    collisional_ionization: pd.DataFrame
+
+
+@dataclass(frozen=True)
 class LevelEquationRates:
     """Density-specific rates used by one reduced level residual."""
 
     ionization: FloatArray
     recombination: FloatArray
     ionization_loss_matrix: FloatArray
+
+
+@dataclass(frozen=True)
+class BoundBoundMatrixRates:
+    """Array inputs for one shell's bound-bound rate matrix."""
+
+    number_of_levels: int
+    source_level_idx: IntArray
+    destination_level_idx: IntArray
+    radiative_rate_coefficient: FloatArray
+    collisional_rate: FloatArray
+    beta_line_idx: IntArray
 
 
 @dataclass(frozen=True)
@@ -51,3 +73,19 @@ class SobolevInputs:
     tau_coefficient: FloatArray
     line_indices: IntArray
     line_index: pd.Index
+
+
+@dataclass(frozen=True)
+class DiluteRadiationInputs:
+    """Fixed dilute radiation field for species without NLTE rates.
+
+    These species use nebular ionization (Mazzali & Lucy 1993) and
+    dilute-LTE excitation at the radiation temperature and dilution factor.
+    """
+
+    radiation_temperature: FloatArray
+    dilution_factor: FloatArray
+    zeta_data: pd.DataFrame
+    level_boltzmann_factor: pd.DataFrame
+    partition_function: pd.DataFrame
+    delta_treatment: float | None

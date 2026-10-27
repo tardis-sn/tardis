@@ -182,7 +182,6 @@ class SpectrumSolver(HDFWriterMixin):
 
         virtual_packet_luminosity, vpacket_tracker = (
             calculate_virtual_packet_spectrum(
-                transport_state.packet_collection,
                 transport_state.geometry_state_numba,
                 time_explosion,
                 transport_state.opacity_state_numba,
