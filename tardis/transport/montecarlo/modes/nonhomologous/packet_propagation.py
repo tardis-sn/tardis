@@ -13,6 +13,9 @@ from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
 )
+from tardis.transport.geometry.calculate_distances import (
+    calculate_projected_velocity_gradient,
+)
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
@@ -122,6 +125,9 @@ def packet_propagation(
         r_packet, from_shell_id=-1, to_shell_id=0
     )
 
+    next_untraversed_line_id = 0
+    line_search_direction = 0
+
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
@@ -140,7 +146,13 @@ def packet_propagation(
         if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
             opacity_electron *= doppler_factor
 
-        distance, interaction_type, delta_shell = trace_packet(
+        (
+            distance,
+            interaction_type,
+            delta_shell,
+            next_untraversed_line_id,
+            line_search_direction,
+        ) = trace_packet(
             r_packet,
             geometry,
             opacity_state,
@@ -148,9 +160,21 @@ def packet_propagation(
             opacity_electron,
             montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             montecarlo_configuration.DISABLE_LINE_SCATTERING,
+            next_untraversed_line_id,
+            line_search_direction,
         )
 
         if interaction_type == InteractionType.BOUNDARY:
+            next_shell_id = r_packet.current_shell_id + delta_shell
+            if 0 <= next_shell_id < len(geometry.r_inner):
+                if delta_shell == 1:
+                    edge_velocity = geometry.v_outer[r_packet.current_shell_id]
+                    next_edge_velocity = geometry.v_inner[next_shell_id]
+                else:
+                    edge_velocity = geometry.v_inner[r_packet.current_shell_id]
+                    next_edge_velocity = geometry.v_outer[next_shell_id]
+                if edge_velocity != next_edge_velocity:
+                    line_search_direction = 0
             move_r_packet(
                 r_packet,
                 distance,
@@ -171,6 +195,7 @@ def packet_propagation(
             )
 
         elif interaction_type == InteractionType.LINE:
+            absorbed_line_id = r_packet.next_line_id
             move_r_packet(
                 r_packet,
                 distance,
@@ -188,6 +213,25 @@ def packet_propagation(
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+            emitted_line_id = r_packet.next_line_id - 1
+            outgoing_velocity = geometry.get_velocity(
+                r_packet.r, r_packet.current_shell_id
+            )
+            outgoing_gradient = calculate_projected_velocity_gradient(
+                r_packet.r,
+                r_packet.mu,
+                outgoing_velocity,
+                geometry.velocity_gradient[r_packet.current_shell_id],
+            )
+            outgoing_direction = 1 if outgoing_gradient >= 0.0 else -1
+            if (
+                emitted_line_id != absorbed_line_id
+                or outgoing_direction != line_search_direction
+            ):
+                next_untraversed_line_id = (
+                    emitted_line_id + outgoing_direction
+                )
+                line_search_direction = outgoing_direction
             rpacket_tracker.track_line_interaction_after(r_packet)
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(
@@ -258,7 +302,7 @@ def set_packet_props_partial_relativity(
 def set_packet_props_full_relativity(
     r_packet: RPacket, time_explosion: float
 ) -> None:
-
+    """Reject full-relativity packet initialization in nonhomologous mode."""
     raise NotImplementedError("Full relativity not supported for non-homology.")
 
 

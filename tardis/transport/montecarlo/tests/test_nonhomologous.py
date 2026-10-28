@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from decimal import Decimal, localcontext
+
 import astropy.units as u
 import numpy as np
 import numpy.testing as npt
@@ -7,14 +10,26 @@ import pytest
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.opacities.tau_sobolev import (
     calculate_sobolev_line_opacity as classic_calculate_sobolev_line_opacity,
 )
 from tardis.transport.geometry.calculate_distances import (
+    calculate_comoving_frequency_nonhomologous,
+    calculate_distance_boundary,
     calculate_distance_line_nonhomologous,
+    calculate_projected_gradient_zero_distances,
+    get_line_id_range_nonhomologous,
 )
 from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
+    CLOSE_LINE_THRESHOLD,
+)
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.interaction_event_callers import (
     line_scatter_event as nonhomologous_line_scatter_event,
@@ -31,6 +46,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
 from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
     OpacitySolver as NonhomologousOpacitySolver,
 )
+from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
+    trace_packet as nonhomologous_trace_packet,
+)
 from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
     calculate_beta_sobolev,
     calculate_beta_sobolev_directional,
@@ -45,11 +63,14 @@ from tardis.transport.montecarlo.nonhomologous_grid import (
 )
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
+    move_r_packet,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
+    InteractionType,
     PacketStatus,
     RPacket,
 )
+from tardis.transport.montecarlo.utils import MonteCarloException
 
 
 @pytest.mark.parametrize(
@@ -424,6 +445,921 @@ def test_nonhomologous_distance_rejects_sign_reversed_root() -> None:
         distance,
         expected_scaled_projected_position * shell_width,
         rtol=1.0e-8,
+    )
+
+
+def test_nonhomologous_line_reappears_after_gradient_reversal(
+    classic_opacity_state: OpacityStateNumba,
+    line_estimators: EstimatorsLine,
+) -> None:
+    """Verify two physical resonances on opposite sides of a gradient zero.
+
+    Claim
+    -----
+    One line can be crossed twice when the projected velocity reverses.
+
+    Regime
+    ------
+    Piecewise-linear radial velocity, nonradial ray, and negligible opacity.
+
+    Verification
+    ------------
+    The unsquared projected-velocity equation fixes both resonance positions;
+    its derivative independently fixes the two estimator contributions.
+    """
+    impact_parameter = 1.0e14  # cm
+    first_x = 0.25 * impact_parameter
+    second_x = 1.25 * impact_parameter
+    velocity_intercept = 2.0e7  # cm / s
+    first_radius = np.hypot(first_x, impact_parameter)
+    second_radius = np.hypot(second_x, impact_parameter)
+    velocity_gradient = velocity_intercept * (
+        second_x / second_radius - first_x / first_radius
+    ) / (first_x - second_x)
+
+    inner_radius = 0.9 * impact_parameter
+    outer_radius = 1.7 * impact_parameter
+    geometry = NumbaRadial1DGeometry(
+        np.asarray([inner_radius]),
+        np.asarray([outer_radius]),
+        np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
+        np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
+    )
+    packet = RPacket(
+        r=impact_parameter,
+        mu=0.0,
+        nu=1.0e15,
+        energy=1.0,
+        seed=1963,
+    )
+    packet.current_shell_id = 0
+    first_projected_velocity = (
+        velocity_gradient * first_x
+        + velocity_intercept * first_x / first_radius
+    )
+    line_frequency = packet.nu * (
+        1.0 - first_projected_velocity / C_SPEED_OF_LIGHT
+    )
+    classic_opacity_state.line_list_nu = np.asarray([line_frequency, 1.0e14])
+
+    boundary_distance, _ = calculate_distance_boundary(
+        packet.r, packet.mu, inner_radius, outer_radius
+    )
+    first_zero, _, zero_count = calculate_projected_gradient_zero_distances(
+        packet, geometry, boundary_distance
+    )
+    turning_radius = (
+        -velocity_intercept * impact_parameter**2 / velocity_gradient
+    ) ** (1.0 / 3.0)
+    expected_zero = np.sqrt(turning_radius**2 - impact_parameter**2)
+    assert zero_count == 1
+    npt.assert_allclose(first_zero, expected_zero, rtol=0.0, atol=100.0)
+
+    first_distance = calculate_distance_line_nonhomologous(
+        packet, geometry, line_frequency, 0.0, first_zero
+    )
+    second_distance = calculate_distance_line_nonhomologous(
+        packet, geometry, line_frequency, first_zero, boundary_distance
+    )
+    # A frequency ULP near 1e15 Hz maps to less than 100 cm at these gradients.
+    npt.assert_allclose(
+        [first_distance, second_distance],
+        [first_x, second_x],
+        rtol=0.0,
+        atol=100.0,
+    )
+
+    _, interaction_type, _, _, _ = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        line_estimators,
+        1.0e-30,
+        False,
+        True,
+        0,
+        0,
+    )
+    assert interaction_type == InteractionType.BOUNDARY
+
+    first_gradient = velocity_gradient + (
+        velocity_intercept * impact_parameter**2 / first_radius**3
+    )
+    second_gradient = velocity_gradient + (
+        velocity_intercept * impact_parameter**2 / second_radius**3
+    )
+    assert first_gradient > 0.0 > second_gradient
+    expected_energy = line_frequency / packet.nu
+    expected_deposition = 2.0 * expected_energy
+    expected_blueward = (
+        expected_energy
+        / packet.nu
+        * (1.0 / abs(first_gradient) + 1.0 / abs(second_gradient))
+    )
+    npt.assert_allclose(
+        line_estimators.energy_deposition_line_rate[0, 0],
+        expected_deposition,
+        rtol=1.0e-10,
+    )
+    npt.assert_allclose(
+        line_estimators.mean_intensity_blueward[0, 0],
+        expected_blueward,
+        rtol=1.0e-10,
+    )
+
+
+@pytest.mark.parametrize("frequency_ulp_shift", [0, 1])
+def test_nonhomologous_line_at_projected_gradient_zero_is_singular(
+    classic_opacity_state: OpacityStateNumba,
+    line_estimators: EstimatorsLine,
+    frequency_ulp_shift: int,
+) -> None:
+    """A line within rounding uncertainty of a turning point is unresolved.
+
+    The quartic can split a tangent resonance into two apparent crossings, one
+    on either side of the analytic projected-gradient zero. The line search
+    must identify the represented extremum before accepting either root. A
+    frequency one ULP away is also unresolved at this ill-conditioned point.
+    """
+    impact_parameter = 1.0e14  # cm
+    first_x = 0.25 * impact_parameter
+    second_x = 1.25 * impact_parameter
+    velocity_intercept = 2.0e7  # cm / s
+    first_radius = np.hypot(first_x, impact_parameter)
+    second_radius = np.hypot(second_x, impact_parameter)
+    velocity_gradient = velocity_intercept * (
+        second_x / second_radius - first_x / first_radius
+    ) / (first_x - second_x)
+    inner_radius = 0.9 * impact_parameter
+    outer_radius = 1.7 * impact_parameter
+    geometry = NumbaRadial1DGeometry(
+        np.asarray([inner_radius]),
+        np.asarray([outer_radius]),
+        np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
+        np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
+    )
+    packet = RPacket(
+        r=impact_parameter,
+        mu=0.0,
+        nu=1.0e15,
+        energy=1.0,
+        seed=1963,
+    )
+    packet.current_shell_id = 0
+    boundary_distance, _ = calculate_distance_boundary(
+        packet.r, packet.mu, inner_radius, outer_radius
+    )
+    zero_distance, _, zero_count = calculate_projected_gradient_zero_distances(
+        packet, geometry, boundary_distance
+    )
+    assert zero_count == 1
+    turning_frequency = calculate_comoving_frequency_nonhomologous(
+        packet, geometry, zero_distance
+    )
+    if frequency_ulp_shift:
+        turning_frequency = np.nextafter(turning_frequency, np.inf)
+    classic_opacity_state.line_list_nu = np.asarray(
+        [turning_frequency, 1.0e14]
+    )
+
+    with pytest.raises(
+        MonteCarloException,
+        match="Sobolev optical depth is unresolved",
+    ):
+        nonhomologous_trace_packet(
+            packet,
+            geometry,
+            classic_opacity_state,
+            line_estimators,
+            1.0e-30,
+            False,
+            True,
+            0,
+            0,
+        )
+
+    # A Thomson event before the extremum still takes precedence.
+    distance, interaction_type, _, _, _ = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        line_estimators,
+        1.0e-3,
+        False,
+        True,
+        0,
+        0,
+    )
+    assert interaction_type == InteractionType.ESCATTERING
+    assert distance < zero_distance
+
+
+def test_nonhomologous_line_below_projected_frequency_minimum_is_bounded(
+    classic_opacity_state: OpacityStateNumba,
+    line_estimators: EstimatorsLine,
+) -> None:
+    """A below-minimum line is unresolved nearby and missed farther away.
+
+    The represented velocity field has a positive-to-negative projected
+    gradient reversal, so its comoving frequency has a minimum. Decimal
+    arithmetic independently places the chosen line below that minimum. The
+    near line is within the float64 conditioning band; the farther line is
+    outside it and cannot contribute an estimator.
+    """
+    impact_parameter = 1.0e14  # cm
+    first_x = 0.25 * impact_parameter
+    second_x = 1.25 * impact_parameter
+    velocity_intercept = 2.0e7  # cm / s
+    first_radius = np.hypot(first_x, impact_parameter)
+    second_radius = np.hypot(second_x, impact_parameter)
+    velocity_gradient = velocity_intercept * (
+        second_x / second_radius - first_x / first_radius
+    ) / (first_x - second_x)
+    inner_radius = 0.9 * impact_parameter
+    outer_radius = 1.7 * impact_parameter
+    geometry = NumbaRadial1DGeometry(
+        np.asarray([inner_radius]),
+        np.asarray([outer_radius]),
+        np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
+        np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
+    )
+    packet = RPacket(
+        r=impact_parameter,
+        mu=0.0,
+        nu=1.0e15,
+        energy=1.0,
+        seed=1963,
+    )
+    packet.current_shell_id = 0
+    boundary_distance, _ = calculate_distance_boundary(
+        packet.r, packet.mu, inner_radius, outer_radius
+    )
+    zero_distance, _, zero_count = calculate_projected_gradient_zero_distances(
+        packet, geometry, boundary_distance
+    )
+    assert zero_count == 1
+    turning_frequency = calculate_comoving_frequency_nonhomologous(
+        packet, geometry, zero_distance
+    )
+    unreachable_frequency = np.nextafter(turning_frequency, -np.inf)
+
+    with localcontext() as decimal_context:
+        decimal_context.prec = 60
+        radius = Decimal(float(impact_parameter))
+        gradient = Decimal(float(geometry.velocity_gradient[0]))
+        intercept = Decimal(float(geometry.v_inner[0])) - gradient * Decimal(
+            float(geometry.r_inner[0])
+        )
+        turning_radius = (
+            -intercept * radius**2 / gradient
+        ) ** (Decimal(1) / Decimal(3))
+        turning_x = (turning_radius**2 - radius**2).sqrt()
+        minimum_frequency = Decimal(float(packet.nu)) * (
+            Decimal(1)
+            - (
+                gradient * turning_x
+                + intercept * turning_x / turning_radius
+            )
+            / Decimal(float(C_SPEED_OF_LIGHT))
+        )
+        assert Decimal(float(unreachable_frequency)) < minimum_frequency
+
+    classic_opacity_state.line_list_nu = np.asarray(
+        [unreachable_frequency, 1.0e14]
+    )
+    with pytest.raises(
+        MonteCarloException,
+        match="Sobolev optical depth is unresolved",
+    ):
+        nonhomologous_trace_packet(
+            packet,
+            geometry,
+            classic_opacity_state,
+            line_estimators,
+            1.0e-30,
+            False,
+            True,
+            0,
+            0,
+        )
+    assert line_estimators.energy_deposition_line_rate[0, 0] == 0.0
+    assert line_estimators.mean_intensity_blueward[0, 0] == 0.0
+
+    classic_opacity_state.line_list_nu[0] = turning_frequency - 8.0
+    _, interaction_type, _, _, _ = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        line_estimators,
+        1.0e-30,
+        False,
+        True,
+        0,
+        0,
+    )
+    assert interaction_type == InteractionType.BOUNDARY
+    assert line_estimators.energy_deposition_line_rate[0, 0] == 0.0
+    assert line_estimators.mean_intensity_blueward[0, 0] == 0.0
+
+
+def test_nonhomologous_search_resolves_two_close_lines(
+    classic_opacity_state: OpacityStateNumba,
+    line_estimators: EstimatorsLine,
+) -> None:
+    """Keep two distinct nearby lines in a monotonic projected flow.
+
+    Claim
+    -----
+    The line search counts each of two resolvably close resonances once.
+
+    Regime
+    ------
+    Positive projected gradient in a genuinely nonhomologous shell.
+
+    Verification
+    ------------
+    Construct both rest frequencies from the unsquared ray equation at known
+    distances; their local Doppler factors set independent energy estimates.
+    """
+    inner_radius = 1.0e14  # cm
+    outer_radius = 2.0e14  # cm
+    velocity_gradient = 8.0e-7  # s^-1
+    velocity_intercept = 2.0e7  # cm / s
+    geometry = NumbaRadial1DGeometry(
+        np.asarray([inner_radius]),
+        np.asarray([outer_radius]),
+        np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
+        np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
+    )
+    packet = RPacket(
+        r=1.25e14,
+        mu=0.1,
+        nu=1.0e15,
+        energy=1.0,
+        seed=1963,
+    )
+    packet.current_shell_id = 0
+    first_distance = 1.0e12  # cm
+    second_distance = first_distance + 1.0e7  # cm
+    initial_x = packet.r * packet.mu
+    impact_parameter_squared = packet.r**2 * (1.0 - packet.mu**2)
+    x_positions = initial_x + np.asarray([first_distance, second_distance])
+    resonance_radii = np.sqrt(x_positions**2 + impact_parameter_squared)
+    projected_velocities = (
+        velocity_gradient * x_positions
+        + velocity_intercept * x_positions / resonance_radii
+    )
+    line_frequencies = packet.nu * (
+        1.0 - projected_velocities / C_SPEED_OF_LIGHT
+    )
+    assert line_frequencies[0] > line_frequencies[1]
+    classic_opacity_state.line_list_nu = line_frequencies
+
+    solved_distances = np.asarray(
+        [
+            calculate_distance_line_nonhomologous(
+                packet, geometry, line_frequency
+            )
+            for line_frequency in line_frequencies
+        ]
+    )
+    npt.assert_allclose(
+        solved_distances,
+        [first_distance, second_distance],
+        rtol=0.0,
+        atol=100.0,
+    )
+
+    _, interaction_type, _, _, _ = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        line_estimators,
+        1.0e-30,
+        False,
+        True,
+        0,
+        0,
+    )
+    assert interaction_type == InteractionType.BOUNDARY
+    npt.assert_allclose(
+        line_estimators.energy_deposition_line_rate[:, 0],
+        line_frequencies / packet.nu,
+        rtol=1.0e-10,
+    )
+
+
+def test_nonhomologous_thomson_scatter_keeps_same_direction_line_frontier(
+    classic_opacity_state: OpacityStateNumba,
+    line_estimators: EstimatorsLine,
+    bulk_estimators: EstimatorsBulk,
+    set_seed_fixture: Callable[[int], None],
+) -> None:
+    """Carry a crossed line through an elastic scattering on a monotonic ray.
+
+    Claim
+    -----
+    Thomson scattering preserves the comoving frequency at the event and the
+    next lower-frequency line remains reachable without revisiting the first.
+
+    Regime
+    ------
+    Positive projected gradient for both sampled directions in one shell.
+
+    Verification
+    ------------
+    Use analytic projected velocities to place one line before scattering and
+    the second line a known distance after it; verify both estimator channels.
+    """
+    inner_radius = 1.0e14  # cm
+    outer_radius = 2.0e14  # cm
+    velocity_gradient = 8.0e-7  # s^-1
+    velocity_intercept = 2.0e7  # cm / s
+    geometry = NumbaRadial1DGeometry(
+        np.asarray([inner_radius]),
+        np.asarray([outer_radius]),
+        np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
+        np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
+    )
+    packet = RPacket(r=1.25e14, mu=0.1, nu=1.0e15, energy=1.0, seed=42)
+    packet.current_shell_id = 0
+    first_line_distance = 1.0e12  # cm
+    electron_distance = 2.0e12  # cm
+    next_line_distance = 1.0e12  # cm after Thomson scattering
+
+    initial_x = packet.r * packet.mu
+    initial_b_squared = packet.r**2 * (1.0 - packet.mu**2)
+    first_line_x = initial_x + first_line_distance
+    first_line_radius = np.sqrt(first_line_x**2 + initial_b_squared)
+    first_line_projected_velocity = (
+        velocity_gradient * first_line_x
+        + velocity_intercept * first_line_x / first_line_radius
+    )
+    first_line_frequency = packet.nu * (
+        1.0 - first_line_projected_velocity / C_SPEED_OF_LIGHT
+    )
+
+    electron_x = initial_x + electron_distance
+    electron_radius = np.sqrt(electron_x**2 + initial_b_squared)
+    electron_mu = electron_x / electron_radius
+    electron_velocity = velocity_gradient * electron_radius + velocity_intercept
+    comov_frequency_at_electron = packet.nu * (
+        1.0 - electron_velocity * electron_mu / C_SPEED_OF_LIGHT
+    )
+    seed = 42
+    first_random, direction_random = np.random.RandomState(seed).random_sample(2)
+    sampled_outgoing_mu = 2.0 * direction_random - 1.0
+    outgoing_lab_frequency = comov_frequency_at_electron / (
+        1.0 - electron_velocity * sampled_outgoing_mu / C_SPEED_OF_LIGHT
+    )
+    outgoing_x = electron_radius * sampled_outgoing_mu + next_line_distance
+    outgoing_b_squared = electron_radius**2 * (1.0 - sampled_outgoing_mu**2)
+    next_line_radius = np.sqrt(outgoing_x**2 + outgoing_b_squared)
+    next_line_projected_velocity = (
+        velocity_gradient * outgoing_x
+        + velocity_intercept * outgoing_x / next_line_radius
+    )
+    next_line_frequency = outgoing_lab_frequency * (
+        1.0 - next_line_projected_velocity / C_SPEED_OF_LIGHT
+    )
+    assert first_line_frequency > next_line_frequency
+    classic_opacity_state.line_list_nu = np.asarray(
+        [first_line_frequency, next_line_frequency]
+    )
+    classic_opacity_state.tau_sobolev[1, 0] = 1.0e6
+
+    set_seed_fixture(seed)
+    electron_opacity = -np.log(first_random) / electron_distance
+    (
+        traced_distance,
+        first_event,
+        _,
+        next_untraversed_line_id,
+        line_search_direction,
+    ) = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        line_estimators,
+        electron_opacity,
+        False,
+        False,
+        0,
+        0,
+    )
+    assert first_event == InteractionType.ESCATTERING
+    npt.assert_allclose(traced_distance, electron_distance, rtol=1.0e-12)
+    assert (next_untraversed_line_id, line_search_direction) == (1, 1)
+    first_line_energy = line_estimators.energy_deposition_line_rate[0, 0]
+    npt.assert_allclose(
+        first_line_energy,
+        first_line_frequency / packet.nu,
+        rtol=1.0e-10,
+    )
+
+    move_r_packet(packet, traced_distance, geometry, bulk_estimators, False)
+    incoming_mu = packet.mu
+    incoming_lab_frequency = packet.nu
+    nonhomologous_thomson_scatter(packet, geometry, False)
+    npt.assert_allclose(packet.mu, sampled_outgoing_mu, rtol=0.0, atol=1.0e-15)
+    npt.assert_allclose(
+        packet.nu * (1.0 - electron_velocity * packet.mu / C_SPEED_OF_LIGHT),
+        incoming_lab_frequency
+        * (1.0 - electron_velocity * incoming_mu / C_SPEED_OF_LIGHT),
+        rtol=1.0e-14,
+    )
+
+    (
+        second_distance,
+        second_event,
+        _,
+        next_untraversed_line_id,
+        line_search_direction,
+    ) = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        line_estimators,
+        1.0e-30,
+        False,
+        False,
+        next_untraversed_line_id,
+        line_search_direction,
+    )
+    assert second_event == InteractionType.LINE
+    assert packet.next_line_id == 1
+    assert (next_untraversed_line_id, line_search_direction) == (2, 1)
+    npt.assert_allclose(second_distance, next_line_distance, rtol=0.0, atol=100.0)
+    npt.assert_allclose(
+        line_estimators.energy_deposition_line_rate[:, 0],
+        [first_line_energy, packet.energy * next_line_frequency / packet.nu],
+        rtol=1.0e-10,
+    )
+
+
+def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
+    classic_opacity_state: OpacityStateNumba,
+    line_estimators: EstimatorsLine,
+    bulk_estimators: EstimatorsBulk,
+) -> None:
+    """Allow a crossed line after emission at a higher rest frequency.
+
+    Claim
+    -----
+    A new emitted frequency begins a new line traversal history, so a line
+    crossed before the emission can be crossed again later on the same ray.
+
+    Regime
+    ------
+    Positive projected gradient and a frequency-changing line emission.
+
+    Verification
+    ------------
+    The unsquared ray equation sets both resonances at prescribed distances;
+    the packet is moved and re-emitted with the production routines.
+    """
+    inner_radius = 1.0e14  # cm
+    outer_radius = 2.0e14  # cm
+    velocity_gradient = 8.0e-7  # s^-1
+    velocity_intercept = 2.0e7  # cm / s
+    geometry = NumbaRadial1DGeometry(
+        np.asarray([inner_radius]),
+        np.asarray([outer_radius]),
+        np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
+        np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
+    )
+    initial_radius = 1.25e14  # cm
+    initial_mu = 0.1
+    absorbed_frequency = 1.0e15  # Hz
+    first_line_distance = 1.0e12  # cm
+    repeated_line_distance = 3.0e12  # cm after emission
+    initial_x = initial_radius * initial_mu
+    impact_parameter_squared = initial_radius**2 * (1.0 - initial_mu**2)
+    first_x = initial_x + first_line_distance
+    first_radius = np.sqrt(first_x**2 + impact_parameter_squared)
+    first_mu = first_x / first_radius
+    first_velocity = velocity_gradient * first_radius + velocity_intercept
+    incoming_lab_frequency = absorbed_frequency / (
+        1.0 - first_velocity * first_mu / C_SPEED_OF_LIGHT
+    )
+    packet = RPacket(
+        r=initial_radius,
+        mu=initial_mu,
+        nu=incoming_lab_frequency,
+        energy=1.0,
+        seed=1963,
+    )
+    packet.current_shell_id = 0
+
+    repeated_x = first_x + repeated_line_distance
+    repeated_radius = np.sqrt(repeated_x**2 + impact_parameter_squared)
+    repeated_mu = repeated_x / repeated_radius
+    repeated_velocity = velocity_gradient * repeated_radius + velocity_intercept
+    emitted_frequency = absorbed_frequency * (
+        1.0 - first_velocity * first_mu / C_SPEED_OF_LIGHT
+    ) / (1.0 - repeated_velocity * repeated_mu / C_SPEED_OF_LIGHT)
+    initial_velocity = velocity_gradient * initial_radius + velocity_intercept
+    initial_comov_frequency = incoming_lab_frequency * (
+        1.0 - initial_velocity * initial_mu / C_SPEED_OF_LIGHT
+    )
+    assert emitted_frequency > initial_comov_frequency > absorbed_frequency
+    classic_opacity_state.line_list_nu = np.asarray(
+        [emitted_frequency, absorbed_frequency]
+    )
+    classic_opacity_state.tau_sobolev[1, 0] = 1.0e6
+
+    (
+        first_distance,
+        first_event,
+        _,
+        next_untraversed_line_id,
+        line_search_direction,
+    ) = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        line_estimators,
+        1.0e-30,
+        False,
+        False,
+        0,
+        0,
+    )
+    assert first_event == InteractionType.LINE
+    assert packet.next_line_id == 1
+    npt.assert_allclose(first_distance, first_line_distance, rtol=0.0, atol=100.0)
+    assert (next_untraversed_line_id, line_search_direction) == (2, 1)
+    first_deposition = line_estimators.energy_deposition_line_rate[1, 0]
+
+    move_r_packet(packet, first_distance, geometry, bulk_estimators, False)
+    nonhomologous_line_emission(
+        packet,
+        0,
+        geometry,
+        classic_opacity_state,
+        False,
+    )
+    # A new line is emitted at the packet position; it is already traversed.
+    next_untraversed_line_id = 1
+    line_search_direction = 1
+
+    (
+        second_distance,
+        second_event,
+        _,
+        next_untraversed_line_id,
+        line_search_direction,
+    ) = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        line_estimators,
+        1.0e-30,
+        False,
+        False,
+        next_untraversed_line_id,
+        line_search_direction,
+    )
+    assert second_event == InteractionType.LINE
+    assert packet.next_line_id == 1
+    assert (next_untraversed_line_id, line_search_direction) == (2, 1)
+    npt.assert_allclose(
+        second_distance, repeated_line_distance, rtol=0.0, atol=100.0
+    )
+    npt.assert_allclose(
+        line_estimators.energy_deposition_line_rate[1, 0] - first_deposition,
+        packet.energy * absorbed_frequency / packet.nu,
+        rtol=1.0e-10,
+    )
+    assert line_estimators.energy_deposition_line_rate[0, 0] == 0.0
+
+
+@pytest.mark.parametrize(
+    ("projected_gradient", "expected_line_ids"),
+    [
+        (1.0e-6, (0, 1, 2)),
+        (-1.0e-6, (2, 1, 0)),
+    ],
+)
+@pytest.mark.parametrize(
+    "end_frequency",
+    [1.0e15, np.nextafter(1.0e15, np.inf)],
+)
+def test_nonhomologous_range_uses_projected_gradient_direction(
+    projected_gradient: float,
+    expected_line_ids: tuple[int, int, int],
+    end_frequency: float,
+) -> None:
+    """Order candidate lines by the known gradient when endpoints round close.
+
+    Claim
+    -----
+    The sign of the projected gradient fixes line-list traversal direction.
+
+    Regime
+    ------
+    Equal or one-ULP-separated endpoint frequencies near 1e15 Hz.
+
+    Verification
+    ------------
+    A descending line list has known integer order for each gradient sign.
+    """
+    start_frequency = 1.0e15  # Hz
+    line_frequencies = np.asarray(
+        [start_frequency + 5.0, start_frequency, start_frequency - 5.0]
+    )
+    line_id_step = 1 if projected_gradient > 0.0 else -1
+
+    start_line_id, stop_line_id, returned_step = get_line_id_range_nonhomologous(
+        line_frequencies,
+        start_frequency,
+        end_frequency,
+        line_id_step,
+    )
+
+    assert returned_step == line_id_step
+    assert tuple(range(start_line_id, stop_line_id, returned_step)) == (
+        expected_line_ids
+    )
+
+
+def test_nonhomologous_zero_finder_keeps_representable_near_start_reversal() -> None:
+    """Keep a sign-changing zero even inside the shell-width distance cutoff.
+
+    Claim
+    -----
+    A representable projected-gradient reversal partitions the ray.
+
+    Regime
+    ------
+    Positive radial velocity and a zero about 5 cm from the packet start,
+    inside a 10 cm shell-width cutoff. This test does not assert that a line
+    frequency can resolve the very small spectral excursion there.
+
+    Verification
+    ------------
+    Reconstruct the linear field from its edge values and solve the analytic
+    cubic with ``numpy.cbrt``; check gradient signs on either side.
+    """
+    inner_radius = 1.0e14  # cm
+    outer_radius = 1.1e15  # cm
+    packet_radius = 1.25e14  # cm
+    packet_direction_cosine = 0.95
+    velocity_intercept = 2.0e7  # cm / s
+    projected_start = packet_radius * packet_direction_cosine
+    impact_parameter_squared = packet_radius**2 * (
+        1.0 - packet_direction_cosine**2
+    )
+    target_zero_distance = 5.0  # cm
+    target_turning_x = projected_start + target_zero_distance
+    target_turning_radius = np.sqrt(
+        target_turning_x**2 + impact_parameter_squared
+    )
+    velocity_gradient = (
+        -velocity_intercept
+        * impact_parameter_squared
+        / target_turning_radius**3
+    )
+    inner_velocity = velocity_gradient * inner_radius + velocity_intercept
+    outer_velocity = velocity_gradient * outer_radius + velocity_intercept
+    geometry = NumbaRadial1DGeometry(
+        np.asarray([inner_radius]),
+        np.asarray([outer_radius]),
+        np.asarray([inner_velocity]),
+        np.asarray([outer_velocity]),
+    )
+    packet = RPacket(
+        r=packet_radius,
+        mu=packet_direction_cosine,
+        nu=1.0e15,
+        energy=1.0,
+        seed=1963,
+    )
+    packet.current_shell_id = 0
+
+    represented_gradient = (outer_velocity - inner_velocity) / (
+        outer_radius - inner_radius
+    )
+    represented_intercept = inner_velocity - represented_gradient * inner_radius
+    turning_radius = np.cbrt(
+        -represented_intercept * impact_parameter_squared / represented_gradient
+    )
+    expected_zero_distance = (
+        np.sqrt(turning_radius**2 - impact_parameter_squared)
+        - projected_start
+    )
+    distance_cutoff = CLOSE_LINE_THRESHOLD * (outer_radius - inner_radius)
+    assert 100.0 * np.spacing(projected_start) < expected_zero_distance
+    assert expected_zero_distance < distance_cutoff
+
+    radius_after_zero = np.sqrt(
+        (projected_start + 20.0) ** 2 + impact_parameter_squared
+    )
+    gradient_at_start = represented_gradient + (
+        represented_intercept * impact_parameter_squared / packet_radius**3
+    )
+    gradient_after_zero = represented_gradient + (
+        represented_intercept * impact_parameter_squared / radius_after_zero**3
+    )
+    assert gradient_at_start > 0.0 > gradient_after_zero
+
+    boundary_distance, _ = calculate_distance_boundary(
+        packet.r, packet.mu, inner_radius, outer_radius
+    )
+    first_zero, _, zero_count = calculate_projected_gradient_zero_distances(
+        packet, geometry, boundary_distance
+    )
+    assert zero_count == 1
+    npt.assert_allclose(first_zero, expected_zero_distance, rtol=0.0, atol=1.0)
+
+
+def test_nonhomologous_zero_finder_resolves_near_tangent_pair() -> None:
+    """Resolve two ray-coordinate zeros despite a small radial separation.
+
+    Claim
+    -----
+    A sign-changing pair near the impact parameter has two forward zeros.
+
+    Regime
+    ------
+    The turning radius lies about 0.5 cm above a 1e14 cm impact parameter,
+    below the old 1 cm radial cutoff, but the zeros are about 2e7 cm apart
+    along the ray. Their spectral excursion at 1e15 Hz is below 1e-9 Hz,
+    far below the 0.125 Hz frequency spacing; this is a geometric test only.
+
+    Verification
+    ------------
+    Reconstruct the represented linear field from its edge values and solve
+    its cubic with ``numpy.cbrt``. One radius ULP near 1e14 cm is 0.015625 cm;
+    its amplification by ``r/x`` near the zeros motivates 2e5 cm tolerance.
+    """
+    impact_parameter = 1.0e14  # cm
+    inner_radius = impact_parameter - 1.0e8  # cm
+    outer_radius = 2.0 * impact_parameter  # cm
+    velocity_intercept = -2.0e7  # cm / s
+    target_turning_radius = impact_parameter + 0.5  # cm
+    velocity_gradient = (
+        -velocity_intercept
+        * impact_parameter**2
+        / target_turning_radius**3
+    )
+    inner_velocity = velocity_gradient * inner_radius + velocity_intercept
+    outer_velocity = velocity_gradient * outer_radius + velocity_intercept
+    geometry = NumbaRadial1DGeometry(
+        np.asarray([inner_radius]),
+        np.asarray([outer_radius]),
+        np.asarray([inner_velocity]),
+        np.asarray([outer_velocity]),
+    )
+    initial_x = -2.0e7  # cm
+    packet_radius = np.sqrt(impact_parameter**2 + initial_x**2)
+    packet = RPacket(
+        r=packet_radius,
+        mu=initial_x / packet_radius,
+        nu=1.0e15,
+        energy=1.0,
+        seed=1963,
+    )
+    packet.current_shell_id = 0
+
+    represented_gradient = (outer_velocity - inner_velocity) / (
+        outer_radius - inner_radius
+    )
+    represented_intercept = outer_velocity - represented_gradient * outer_radius
+    represented_impact_squared = packet.r**2 * (1.0 - packet.mu**2)
+    turning_radius = np.cbrt(
+        -represented_intercept * represented_impact_squared
+        / represented_gradient
+    )
+    turning_x = np.sqrt(turning_radius**2 - represented_impact_squared)
+    projected_start = packet.r * packet.mu
+    expected_zeros = np.asarray(
+        [-turning_x - projected_start, turning_x - projected_start]
+    )
+    radial_cutoff = CLOSE_LINE_THRESHOLD * (outer_radius - inner_radius)
+    assert turning_radius - np.sqrt(represented_impact_squared) < radial_cutoff
+    assert expected_zeros[1] - expected_zeros[0] > 1.0e7
+
+    sample_x = np.asarray([initial_x, 0.0, -initial_x])
+    sample_radius = np.sqrt(sample_x**2 + represented_impact_squared)
+    sample_gradient = represented_gradient + (
+        represented_intercept * represented_impact_squared / sample_radius**3
+    )
+    assert sample_gradient[0] > 0.0
+    assert sample_gradient[1] < 0.0
+    assert sample_gradient[2] > 0.0
+
+    boundary_distance, _ = calculate_distance_boundary(
+        packet.r, packet.mu, inner_radius, outer_radius
+    )
+    first_zero, second_zero, zero_count = (
+        calculate_projected_gradient_zero_distances(
+            packet, geometry, boundary_distance
+        )
+    )
+    assert zero_count == 2
+    npt.assert_allclose(
+        [first_zero, second_zero], expected_zeros, rtol=0.0, atol=2.0e5
     )
 
 

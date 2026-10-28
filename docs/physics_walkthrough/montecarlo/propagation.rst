@@ -269,6 +269,33 @@ the plasma properties will be updated, and the accumulation of optical depth wil
 
 .. note:: While it would make physical sense for the accumulation of optical depth to continue between cells until the packet eventually interacts, due to the exponential nature of optical depth and interaction probabilities, both continuing and restarting the accumulation of optical depth between cells can be mathematically shown to yield the same overall statistical results. Restarting the optical depth accumulation is computationally easier, and hence it is the method employed by TARDIS.
 
+For nonhomologous real-packet transport, the radial velocity varies linearly
+within each shell. The frequency drift along a straight packet path is set by
+the projected velocity gradient
+
+.. math::
+
+    G = \mu^2 \frac{dv}{dr} + (1-\mu^2)\frac{v}{r},
+    \qquad
+    \frac{d\nu_{\mathrm{CMF}}}{ds} = -\frac{\nu_{\mathrm{lab}}}{c}G.
+
+The line search divides the path at analytic zeros where :math:`G` reverses
+sign. Within each interval the comoving frequency moves in one direction, so
+a line resonance contributes optical depth and estimators once. The same line
+can resonate again after a genuine reversal. An exact resonance at a shell
+edge uses the opacity and estimators of the shell the packet is leaving.
+Across an edge, line-traversal history is retained only when the represented
+edge velocities are equal; a velocity jump is not treated as a continuous
+Sobolev resonance.
+The Sobolev depth is singular for a resonance at :math:`G=0`; the transport
+raises an exception at that point. Lines within a conservative float64 rounding
+estimate around an analytic zero raise an unresolved-resonance exception. That
+region can include a line with no exact resonance in the represented velocity
+field.
+Zeros whose comoving-frequency excursion is below floating-point resolution
+still separate the geometric intervals, but line re-encounters within such an
+excursion are numerically unresolved.
+
 Performing an Interaction
 -------------------------
 

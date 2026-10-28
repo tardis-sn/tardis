@@ -62,7 +62,9 @@ def trace_packet(
     opacity_electron: float,
     enable_full_relativity: bool,
     disable_line_scattering: bool,
-) -> tuple[float, InteractionType, int]:
+    next_untraversed_line_id: int,
+    line_search_direction: int,
+) -> tuple[float, InteractionType, int, int, int]:
     """
     Traces the RPacket through the ejecta and stops when an interaction happens.
 
@@ -84,11 +86,16 @@ def trace_packet(
         Flag to enable full relativistic calculations
     disable_line_scattering : bool
         Flag to disable line scattering
+    next_untraversed_line_id : int
+        First line ID not yet processed in the active search direction.
+    line_search_direction : int
+        Active line-ID step, or zero when no frontier is active.
 
     Returns
     -------
-    tuple[float, InteractionType, int]
-        (distance, interaction_type, delta_shell)
+    tuple[float, InteractionType, int, int, int]
+        Distance, interaction type, shell step, next untraversed line ID,
+        and active line-search direction.
     """
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
@@ -126,24 +133,103 @@ def trace_packet(
         comov_nu_end = calculate_comoving_frequency_nonhomologous(
             r_packet, numba_radial_1d_geometry, interval_end
         )
+        zero_frequency_uncertainty = 0.0
+        if interval_end != distance_boundary:
+            zero_radius, zero_mu = calculate_packet_position(
+                r_packet.r, r_packet.mu, interval_end
+            )
+            zero_x = r_packet.r * r_packet.mu + interval_end
+            velocity_intercept = (
+                numba_radial_1d_geometry.v_outer[r_packet.current_shell_id]
+                - dvdr * r_outer
+            )
+            projected_terms = abs(dvdr * zero_x) + abs(
+                velocity_intercept * zero_x / zero_radius
+            )
+            zero_velocity = numba_radial_1d_geometry.get_velocity(
+                zero_radius, r_packet.current_shell_id
+            )
+            # Gamma_32 estimates accumulated float64 roundoff, including
+            # cancellation between the two terms of projected velocity.
+            unit_roundoff = 0.5 * np.finfo(np.float64).eps
+            gamma_32 = 32.0 * unit_roundoff / (1.0 - 32.0 * unit_roundoff)
+            zero_frequency_uncertainty = gamma_32 * abs(r_packet.nu) * (
+                1.0
+                + (abs(zero_velocity * zero_mu) + projected_terms)
+                / C_SPEED_OF_LIGHT
+            )
+        midpoint_distance = interval_start + 0.5 * (
+            interval_end - interval_start
+        )
+        midpoint_radius, midpoint_mu = calculate_packet_position(
+            r_packet.r, r_packet.mu, midpoint_distance
+        )
+        midpoint_velocity = numba_radial_1d_geometry.get_velocity(
+            midpoint_radius, r_packet.current_shell_id
+        )
+        midpoint_gradient = calculate_projected_velocity_gradient(
+            midpoint_radius, midpoint_mu, midpoint_velocity, dvdr
+        )
+        if midpoint_gradient == 0.0:
+            # A tangent zero at the midpoint need not reverse the direction.
+            quarter_distance = interval_start + 0.25 * (
+                interval_end - interval_start
+            )
+            quarter_radius, quarter_mu = calculate_packet_position(
+                r_packet.r, r_packet.mu, quarter_distance
+            )
+            quarter_velocity = numba_radial_1d_geometry.get_velocity(
+                quarter_radius, r_packet.current_shell_id
+            )
+            midpoint_gradient = calculate_projected_velocity_gradient(
+                quarter_radius, quarter_mu, quarter_velocity, dvdr
+            )
+        line_id_step = 1 if midpoint_gradient >= 0.0 else -1
         (
             start_line_id,
             stop_line_id,
-            line_id_step,
+            _,
         ) = get_line_id_range_nonhomologous(
             opacity_state.line_list_nu,
             comov_nu_start,
             comov_nu_end,
+            line_id_step,
         )
+        if line_search_direction == line_id_step:
+            if line_id_step == 1:
+                start_line_id = max(start_line_id, next_untraversed_line_id)
+            else:
+                start_line_id = min(start_line_id, next_untraversed_line_id)
+        else:
+            line_search_direction = line_id_step
+            next_untraversed_line_id = start_line_id
 
         for cur_line_id in range(start_line_id, stop_line_id, line_id_step):
-            distance_trace = calculate_distance_line_nonhomologous(
-                r_packet,
-                numba_radial_1d_geometry,
-                opacity_state.line_list_nu[cur_line_id],
-                interval_start,
-                interval_end,
+            line_frequency = opacity_state.line_list_nu[cur_line_id]
+            is_gradient_zero_resonance = (
+                interval_end != distance_boundary
+                and abs(line_frequency - comov_nu_end)
+                <= zero_frequency_uncertainty
             )
+            if is_gradient_zero_resonance:
+                # The quartic can split or miss roots inside this conservative
+                # rounding estimate, including when the true line is absent.
+                distance_trace = interval_end
+            elif (
+                interval_end == distance_boundary
+                and line_frequency == comov_nu_end
+            ):
+                # The upstream shell owns an exactly represented edge
+                # resonance, even when the quartic root rounds outside it.
+                distance_trace = distance_boundary
+            else:
+                distance_trace = calculate_distance_line_nonhomologous(
+                    r_packet,
+                    numba_radial_1d_geometry,
+                    line_frequency,
+                    interval_start,
+                    interval_end,
+                )
             if distance_trace > interval_end:
                 continue
 
@@ -162,8 +248,10 @@ def trace_packet(
                     distance_electron,
                     InteractionType.ESCATTERING,
                     delta_shell,
+                    next_untraversed_line_id,
+                    line_search_direction,
                 )
-            if distance_boundary <= distance_trace:
+            if distance_boundary < distance_trace:
                 update_line_ids(
                     r_packet,
                     opacity_state.line_list_nu,
@@ -173,6 +261,13 @@ def trace_packet(
                     distance_boundary,
                     InteractionType.BOUNDARY,
                     delta_shell,
+                    next_untraversed_line_id,
+                    line_search_direction,
+                )
+            if is_gradient_zero_resonance:
+                raise MonteCarloException(
+                    "Sobolev optical depth is unresolved near a zero "
+                    "projected velocity gradient."
                 )
 
             # Line interaction
@@ -228,11 +323,18 @@ def trace_packet(
             estimators_line.energy_deposition_line_rate[
                 cur_line_id, r_packet.current_shell_id
             ] += energy
+            next_untraversed_line_id = cur_line_id + line_id_step
 
             if tau_trace_combined > tau_event and not disable_line_scattering:
                 r_packet.next_line_id = cur_line_id
                 r_packet.prev_line_id = cur_line_id - 1
-                return distance_trace, InteractionType.LINE, delta_shell
+                return (
+                    distance_trace,
+                    InteractionType.LINE,
+                    delta_shell,
+                    next_untraversed_line_id,
+                    line_search_direction,
+                )
 
             tau_trace_line_combined += tau_trace_line
             distance_electron = (
@@ -254,6 +356,8 @@ def trace_packet(
                 distance_electron,
                 InteractionType.ESCATTERING,
                 delta_shell,
+                next_untraversed_line_id,
+                line_search_direction,
             )
         interval_start = interval_end
 
@@ -262,4 +366,10 @@ def trace_packet(
         opacity_state.line_list_nu,
         comov_nu_end,
     )
-    return distance_boundary, InteractionType.BOUNDARY, delta_shell
+    return (
+        distance_boundary,
+        InteractionType.BOUNDARY,
+        delta_shell,
+        next_untraversed_line_id,
+        line_search_direction,
+    )
