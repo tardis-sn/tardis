@@ -178,13 +178,24 @@ def static_packet():
 
 
 @pytest.fixture
-def line_search_geometry() -> NumbaRadial1DGeometry:
+def line_search_velocity_parameters() -> tuple[float, float]:
+    """Return slope (s^-1) and intercept (cm/s) of the monotonic test flow."""
+    return 8.0e-7, 2.0e7
+
+
+@pytest.fixture
+def line_search_geometry(
+    line_search_velocity_parameters: tuple[float, float],
+) -> NumbaRadial1DGeometry:
     """Return a nonhomologous shell with positive projected velocity gradient."""
+    velocity_gradient, velocity_intercept = line_search_velocity_parameters
+    inner_radius = np.array([1.0e14])
+    outer_radius = np.array([2.0e14])
     return NumbaRadial1DGeometry(
-        np.array([1.0e14]),
-        np.array([2.0e14]),
-        np.array([1.0e8]),
-        np.array([1.8e8]),
+        inner_radius,
+        outer_radius,
+        velocity_gradient * inner_radius + velocity_intercept,
+        velocity_gradient * outer_radius + velocity_intercept,
     )
 
 

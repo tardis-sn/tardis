@@ -440,11 +440,12 @@ def get_line_id_range_nonhomologous(
     comov_nu_start: float,
     comov_nu_end: float,
 ) -> tuple[int, int, int]:
-    """Return directional line-list bounds for one monotonic path interval.
+    """Return directional candidate line-list bounds for a monotonic interval.
 
-    The transport line list is ordered by descending frequency. The returned
-    range conservatively includes both interval endpoint frequencies; the
-    distance bounds reject a resonance at the packet's interval start.
+    The transport line list is ordered by descending frequency. Both endpoint
+    frequencies are included, with padding for numerical uncertainty. The
+    caller excludes previously processed lines and checks resonance distances
+    against the spatial interval.
     """
     line_count = len(line_list_nu)
     frequency_tolerance = CLOSE_LINE_THRESHOLD * max(
