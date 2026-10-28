@@ -86,20 +86,13 @@ class _CommonPacketPropagationPatcher:
         self.monkeypatch = monkeypatch
         self.interaction_queue = []
         self.trace_inputs: list[tuple[object, object]] = []
-        self.absorbed_line_id: int | None = None
 
     def trace_packet(
         self, *args: object, **kwargs: object
     ) -> tuple[object, ...]:
         assert self.interaction_queue
         self.trace_inputs.append((args[-2], args[-1]))
-        interaction = self.interaction_queue.pop(0)
-        if (
-            self.absorbed_line_id is not None
-            and interaction[1] == InteractionType.LINE
-        ):
-            args[0].next_line_id = self.absorbed_line_id
-        return interaction
+        return self.interaction_queue.pop(0)
 
     def __call__(self, module, interactions) -> None:
         self.interaction_queue = list(interactions)
@@ -365,7 +358,6 @@ def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
         (1.0e12, InteractionType.BOUNDARY, 1, 1, 1),
     ]
     patch_common_classic_hooks(nonhomologous_propagation, interactions)
-    patch_common_classic_hooks.absorbed_line_id = 1
 
     nonhomologous_propagation.packet_propagation(
         parametrized_packet,

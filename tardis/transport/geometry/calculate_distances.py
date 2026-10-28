@@ -339,7 +339,7 @@ def calculate_distance_line_nonhomologous(
     return distance
 
 
-@njit(fastmath=False, error_model="numpy", parallel=False)
+@njit(**njit_dict_no_parallel)
 def calculate_projected_gradient_zero_distances(
     rpacket: RPacket,
     geometry: NumbaRadial1DGeometry,
@@ -382,18 +382,14 @@ def calculate_projected_gradient_zero_distances(
     if turning_radius_cubed <= 0.0:
         return first_distance, second_distance, zero_count
 
-    # Refine Numba's cbrt approximation: a radius error is amplified when
-    # converting a near-tangent zero to its ray coordinate.
-    turning_radius = np.cbrt(turning_radius_cubed)
-    turning_radius = (
-        2.0 * turning_radius
-        + turning_radius_cubed / (turning_radius * turning_radius)
-    ) / 3.0
+    turning_radius = turning_radius_cubed ** (1.0 / 3.0)
+    shell_width = geometry.r_outer[shell_id] - geometry.r_inner[shell_id]
+    distance_tolerance = CLOSE_LINE_THRESHOLD * shell_width
     impact_parameter = math.sqrt(impact_parameter_squared)
 
     # A zero at the impact parameter only touches zero and does not reverse
     # the monotonic line-list traversal direction.
-    if turning_radius <= impact_parameter:
+    if turning_radius <= impact_parameter + distance_tolerance:
         return first_distance, second_distance, zero_count
 
     turning_x_squared = (
@@ -404,13 +400,17 @@ def calculate_projected_gradient_zero_distances(
     negative_x_distance = -turning_x - initial_x
     positive_x_distance = turning_x - initial_x
 
-    # Keep every representably distinct forward reversal. A shell-width
-    # tolerance can suppress a zero several coordinate ULPs from an endpoint.
-    if 0.0 < negative_x_distance < distance_boundary:
+    if (
+        negative_x_distance > distance_tolerance
+        and negative_x_distance < distance_boundary - distance_tolerance
+    ):
         first_distance = negative_x_distance
         zero_count = 1
 
-    if 0.0 < positive_x_distance < distance_boundary:
+    if (
+        positive_x_distance > distance_tolerance
+        and positive_x_distance < distance_boundary - distance_tolerance
+    ):
         if zero_count == 0:
             first_distance = positive_x_distance
         else:
@@ -439,31 +439,12 @@ def get_line_id_range_nonhomologous(
     line_list_nu: npt.NDArray[np.float64],
     comov_nu_start: float,
     comov_nu_end: float,
-    line_id_step: int,
 ) -> tuple[int, int, int]:
     """Return directional line-list bounds for one monotonic path interval.
 
     The transport line list is ordered by descending frequency. The returned
     range conservatively includes both interval endpoint frequencies; the
-    distance bounds reject a resonance at the packet's interval start. The
-    supplied direction comes from the projected velocity gradient rather
-    than rounded endpoint frequencies.
-
-    Parameters
-    ----------
-    line_list_nu : numpy.ndarray
-        Line frequencies in descending order, in Hz.
-    comov_nu_start : float
-        Comoving frequency at the interval start, in Hz.
-    comov_nu_end : float
-        Comoving frequency at the interval end, in Hz.
-    line_id_step : int
-        ``+1`` for decreasing comoving frequency, ``-1`` for increasing.
-
-    Returns
-    -------
-    tuple[int, int, int]
-        Start ID, exclusive stop ID, and step for ``range``.
+    distance bounds reject a resonance at the packet's interval start.
     """
     line_count = len(line_list_nu)
     frequency_tolerance = CLOSE_LINE_THRESHOLD * max(
@@ -494,7 +475,7 @@ def get_line_id_range_nonhomologous(
             upper_idx = middle_idx
     minimum_frequency_stop_line_id = lower_idx
 
-    if line_id_step == 1:
+    if comov_nu_end < comov_nu_start:
         return (
             maximum_frequency_line_id,
             minimum_frequency_stop_line_id,

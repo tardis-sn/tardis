@@ -282,19 +282,14 @@ the projected velocity gradient
 The line search divides the path at analytic zeros where :math:`G` reverses
 sign. Within each interval the comoving frequency moves in one direction, so
 a line resonance contributes optical depth and estimators once. The same line
-can resonate again after a genuine reversal. An exact resonance at a shell
-edge uses the opacity and estimators of the shell the packet is leaving.
-Across an edge, line-traversal history is retained only when the represented
-edge velocities are equal; a velocity jump is not treated as a continuous
-Sobolev resonance.
-The Sobolev depth is singular for a resonance at :math:`G=0`; the transport
-raises an exception at that point. Lines within a conservative float64 rounding
-estimate around an analytic zero raise an unresolved-resonance exception. That
-region can include a line with no exact resonance in the represented velocity
-field.
-Zeros whose comoving-frequency excursion is below floating-point resolution
-still separate the geometric intervals, but line re-encounters within such an
-excursion are numerically unresolved.
+can resonate again after a genuine reversal. The search remembers processed
+lines between traces, including crossings that do not cause scattering, so
+coherent emission cannot immediately replay the emitted line. Emission into
+a different line begins a new frequency history. Across a shell edge, history
+is retained when the represented velocity is continuous and the gradient
+direction agrees. The resonance solver's existing distance cutoff limits
+resolution of very close crossings; this traversal history does not extend
+that numerical resolution.
 
 Performing an Interaction
 -------------------------

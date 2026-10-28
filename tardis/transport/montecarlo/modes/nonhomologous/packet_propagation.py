@@ -195,7 +195,6 @@ def packet_propagation(
             )
 
         elif interaction_type == InteractionType.LINE:
-            absorbed_line_id = r_packet.next_line_id
             move_r_packet(
                 r_packet,
                 distance,
@@ -224,14 +223,8 @@ def packet_propagation(
                 geometry.velocity_gradient[r_packet.current_shell_id],
             )
             outgoing_direction = 1 if outgoing_gradient >= 0.0 else -1
-            if (
-                emitted_line_id != absorbed_line_id
-                or outgoing_direction != line_search_direction
-            ):
-                next_untraversed_line_id = (
-                    emitted_line_id + outgoing_direction
-                )
-                line_search_direction = outgoing_direction
+            next_untraversed_line_id = emitted_line_id + outgoing_direction
+            line_search_direction = outgoing_direction
             rpacket_tracker.track_line_interaction_after(r_packet)
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(
@@ -302,7 +295,7 @@ def set_packet_props_partial_relativity(
 def set_packet_props_full_relativity(
     r_packet: RPacket, time_explosion: float
 ) -> None:
-    """Reject full-relativity packet initialization in nonhomologous mode."""
+
     raise NotImplementedError("Full relativity not supported for non-homology.")
 
 
