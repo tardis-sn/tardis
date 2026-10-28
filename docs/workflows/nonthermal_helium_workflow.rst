@@ -109,6 +109,51 @@ preserve the Type IIP workflow. Helium is Case A unless ``(2, 0)`` is supplied
 explicitly. This selection is scientific input and should be recorded with a
 run rather than chosen to optimize agreement with a comparison model.
 
+In either case, the reduced level system replaces one kinetic equation with
+the dimensionless normalization constraint ``sum(level_fractions) - 1``.
+Recombination sources must not enter that constraint. Case A retains direct
+ground-state recombination in the total recombination coefficient used to
+eliminate the ionized-to-neutral ratio.
+
+Level-balance acceptance
+------------------------
+
+A finite, nonnegative nonlinear-solver iterate is a recovery seed, not proof
+of statistical equilibrium. The reduced level solve checks the net kinetic
+flow against each level's gross inflow plus outflow. Its configurable
+``level_residual_tolerance`` defaults to ``1e-8``. An absolute summation
+allowance of 64 machine epsilons times the species' total gross turnover
+prevents roundoff in trace channels from defining the acceptance threshold.
+Uniformly scaling all rates therefore leaves the closure test unchanged.
+The population-normalization constraint is checked separately in
+dimensionless form.
+
+A stalled positive root, as well as an unphysical endpoint, triggers bounded
+recovery from the best feasible candidate. Fractions are normalized and
+checked again before caching. Terminal equilibrium validation also checks
+``relative_level_residual`` at the final absolute level populations, Sobolev
+escape probabilities, electron density and ion-stage ratio. This final
+diagnostic includes the ground-state kinetic equation; only the reduced root
+uses normalization in its place. Charge balance
+or stability of successive population iterates cannot substitute for kinetic
+closure. Runs which previously accepted an unclosed state can consequently
+fail with a level- and shell-specific residual diagnostic instead of reporting
+success.
+
+Line-intensity fallbacks
+-----------------------
+
+The nonthermal workflow retains packet-estimated bound--bound intensities only
+inside the open wavelength interval 2500--10000 Angstrom. Outside that interval
+it uses the dilute Planck intensity of the updated radiation field. Lines with
+zero packet estimates use the estimator solver's epsilon-scaled Planck
+fallback, including outside the optical interval. These are approximations,
+not measured ultraviolet or infrared intensities.
+
+The bolometric radiation-field damping factor scales the measured packet
+intensities once. Planck and epsilon fallbacks are evaluated in the final target
+radiation field and receive no additional damping factor.
+
 Python orchestration
 --------------------
 
