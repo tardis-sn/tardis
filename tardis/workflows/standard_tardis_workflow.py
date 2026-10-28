@@ -250,7 +250,7 @@ class StandardTARDISWorkflow(
         self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
-            retain_full_trackers=self.virtual_packet_count > 0,
+            record_full_histories=self.virtual_packet_count > 0,
         )
         self.store_plasma_state(
             self.completed_iterations,

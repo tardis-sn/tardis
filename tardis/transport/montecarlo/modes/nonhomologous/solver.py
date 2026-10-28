@@ -4,14 +4,10 @@ import logging
 from typing import Self
 
 from numba import cuda, set_num_threads
-from numba.typed import List as TypedList
 
 import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
-from tardis.io.configuration.config_reader import (
-    Configuration,
-    ConfigurationNameSpace,
-)
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.transport.montecarlo.configuration.base import (
@@ -31,14 +27,10 @@ from tardis.transport.montecarlo.modes.nonhomologous.packet_propagation import (
     packet_propagation,
 )
 from tardis.transport.montecarlo.packet_source.base import BasePacketSource
-from tardis.transport.montecarlo.packets.trackers.tracker_full import (
-    TrackerFull,
-)
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
     tracker_full_df2tracker_last_interaction_df,
     trackers_full_to_df,
-    trackers_full_to_last_interaction_df,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import (
     generate_tracker_last_interaction_list,
@@ -67,12 +59,10 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
     def __init__(
         self,
         radfield_prop_solver: MCRadiationFieldPropertiesSolver,
-        vpacket_spawn_range: ConfigurationNameSpace,
         enable_full_relativity: bool,
         line_interaction_type: str,
         spectrum_method: str,
         packet_source: BasePacketSource,
-        enable_virtual_packet_logging: bool = False,
         enable_rpacket_tracking: bool = False,
         nthreads: int = 1,
         debug_packets: bool = False,
@@ -82,21 +72,16 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
     ) -> None:
         self.radfield_prop_solver = radfield_prop_solver
         # inject different packets
-        self.vpacket_spawn_range = vpacket_spawn_range
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
         self.spectrum_method = spectrum_method
 
         self.use_gpu = use_gpu
 
-        self.enable_vpacket_tracking = enable_virtual_packet_logging
         self.enable_rpacket_tracking = enable_rpacket_tracking
         self.montecarlo_configuration = montecarlo_configuration
 
         self.packet_source = packet_source
-
-        # Setting up the Tracking array for storing all the RPacketTracker instances
-        self.rpacket_tracker: TypedList[TrackerFull] | None = None
 
         # Set number of threads
         self.nthreads = nthreads
@@ -151,7 +136,7 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         self,
         transport_state: MonteCarloTransportStateNonhomologous,
         show_progress_bars: bool = True,
-        retain_full_trackers: bool = False,
+        record_full_histories: bool = False,
     ) -> None:
         """
         Run the montecarlo calculation.
@@ -162,20 +147,21 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             Transport state containing all the data needed for the Monte Carlo simulation
         show_progress_bars : bool
             Show progress bars
-        retain_full_trackers : bool, optional
-            Record full real-packet histories and keep them in
-            ``rpacket_tracker`` after transport for post-processing.
+        record_full_histories : bool, optional
+            Record full real-packet histories in
+            ``transport_state.tracker_full_df`` even without r-packet
+            tracking, e.g. for virtual-packet post-processing.
 
         """
         self.run_nonhomologous(
-            transport_state, show_progress_bars, retain_full_trackers
+            transport_state, show_progress_bars, record_full_histories
         )
 
     def run_nonhomologous(
         self,
         transport_state: MonteCarloTransportStateNonhomologous,
         show_progress_bars: bool = True,
-        retain_full_trackers: bool = False,
+        record_full_histories: bool = False,
     ) -> None:
         """
         Run the montecarlo calculation using nonhomologous mode (no continuum).
@@ -186,19 +172,19 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             Transport state containing all the data needed for the Monte Carlo simulation
         show_progress_bars : bool
             Show progress bars
-        retain_full_trackers : bool, optional
-            Record full real-packet histories and keep them in
-            ``rpacket_tracker`` after transport for post-processing.
+        record_full_histories : bool, optional
+            Record full real-packet histories in
+            ``transport_state.tracker_full_df`` even without r-packet
+            tracking, e.g. for virtual-packet post-processing.
 
         """
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
-        # Memory: drop the previous run's histories before recording new ones
-        self.rpacket_tracker = None
 
         number_of_rpackets = len(transport_state.packet_collection.initial_nus)
 
-        if self.enable_rpacket_tracking or retain_full_trackers:
+        full_tracking = self.enable_rpacket_tracking or record_full_histories
+        if full_tracking:
             trackers_list = generate_tracker_full_list(
                 number_of_rpackets,
                 self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
@@ -224,9 +210,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             packet_propagation_function=packet_propagation,
         )
 
-        if retain_full_trackers:
-            self.rpacket_tracker = trackers_list
-
         # Attach estimators to transport state
         transport_state.estimators_bulk = estimators_bulk
         transport_state.estimators_line = estimators_line
@@ -234,25 +217,17 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
 
-        if self.enable_rpacket_tracking:
+        if full_tracking:
             # Memory: the trackers are not needed once copied, so free them
             # during the conversion rather than holding them alongside the
-            # full DataFrame, unless the caller asked to retain them.
+            # full DataFrame.
             self.transport_state.tracker_full_df = trackers_full_to_df(
-                trackers_list, release_trackers=not retain_full_trackers
+                trackers_list, release_trackers=True
             )
             self.transport_state.tracker_last_interaction_df = (
                 tracker_full_df2tracker_last_interaction_df(
                     self.transport_state.tracker_full_df
                 )
-            )
-        elif retain_full_trackers:
-            # Memory: full trackers were recorded only to be retained. Build
-            # the last-interaction table straight from them instead of going
-            # through the full event DataFrame.
-            self.transport_state.tracker_full_df = None
-            self.transport_state.tracker_last_interaction_df = (
-                trackers_full_to_last_interaction_df(trackers_list)
             )
         else:
             self.transport_state.tracker_full_df = None
@@ -265,7 +240,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         cls,
         config: Configuration,
         packet_source: BasePacketSource,
-        enable_virtual_packet_logging: bool = False,
     ) -> Self:
         """
         Create a new MontecarloTransport instance from a Configuration object.
@@ -273,7 +247,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
-        virtual_packet_logging : bool
 
         Returns
         -------
@@ -330,17 +303,12 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
 
         return cls(
             radfield_prop_solver=radfield_prop_solver,
-            vpacket_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,
             line_interaction_type=config.plasma.line_interaction_type,
             spectrum_method=config.spectrum.method,
             packet_source=packet_source,
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
-            enable_virtual_packet_logging=(
-                config.spectrum.virtual.virtual_packet_logging
-                | enable_virtual_packet_logging
-            ),
             enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
             nthreads=config.montecarlo.nthreads,
             use_gpu=use_gpu,

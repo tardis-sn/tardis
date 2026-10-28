@@ -214,8 +214,6 @@ def opacity_state_args(request) -> tuple:
 def montecarlo_configuration() -> MonteCarloConfiguration:
     config = MonteCarloConfiguration()
     config.LINE_INTERACTION_TYPE = 0
-    config.SURVIVAL_PROBABILITY = 0.0
-    config.VPACKET_TAU_RUSSIAN = 10.0
     return config
 
 

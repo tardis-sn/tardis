@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+from tardis.transport.montecarlo.packets.trackers import (
+    interaction_type_to_categorical,
+)
 
 from tardis.util.base import (
     element_symbol2atomic_number,
@@ -16,6 +18,9 @@ from tardis.util.base import (
     roman_to_int,
     species_string_to_tuple,
 )
+
+
+VPACKET_TRACKER_HDF_KEY = "/simulation/spectrum_solver/vpacket_tracker_df"
 
 
 def axis_label_in_latex(label_text, unit, only_text=True):
@@ -154,18 +159,27 @@ def extract_and_process_packet_data(
     lines_df = lines.reset_index().set_index("line_id")
 
     if packets_mode == "virtual":
-        vpacket_tracker = transport_state.vpacket_tracker
+        vpacket_tracker_df = simulation.spectrum_solver.vpacket_tracker_to_df()
+        vpacket_nus = u.Quantity(vpacket_tracker_df["nus"].to_numpy(), "Hz")
         packet_data = {
-            "last_interaction_type": vpacket_tracker.last_interaction_type,
-            "last_line_interaction_in_id": vpacket_tracker.last_interaction_in_id,
-            "last_line_interaction_out_id": vpacket_tracker.last_interaction_out_id,
-            "last_line_interaction_in_nu": vpacket_tracker.last_interaction_in_nu,
-            "last_interaction_in_r": vpacket_tracker.last_interaction_in_r,
-            "nus": u.Quantity(vpacket_tracker.nus, "Hz"),
-            "energies": u.Quantity(vpacket_tracker.energies, "erg"),
-            "lambdas": u.Quantity(vpacket_tracker.nus, "Hz").to(
-                "angstrom", u.spectral()
+            "last_interaction_type": vpacket_tracker_df[
+                "last_interaction_type"
+            ].to_numpy(),
+            "last_line_interaction_in_id": vpacket_tracker_df[
+                "line_absorb_id"
+            ].to_numpy(),
+            "last_line_interaction_out_id": vpacket_tracker_df[
+                "line_emit_id"
+            ].to_numpy(),
+            "last_line_interaction_in_nu": vpacket_tracker_df[
+                "before_nu"
+            ].to_numpy(),
+            "last_interaction_in_r": vpacket_tracker_df["radius"].to_numpy(),
+            "nus": vpacket_nus,
+            "energies": u.Quantity(
+                vpacket_tracker_df["energies"].to_numpy(), "erg"
             ),
+            "lambdas": vpacket_nus.to("angstrom", u.spectral()),
         }
     else:
         df_last = transport_state.tracker_last_interaction_df
@@ -308,28 +322,29 @@ def extract_and_process_packet_data_hdf(hdf, packets_mode):
         hdf["/simulation/plasma/lines"].reset_index().set_index("line_id")
     )
     if packets_mode == "virtual":
-        packet_prefix = "/simulation/transport/transport_state/virt_packet"
+        vpacket_tracker_df = hdf[VPACKET_TRACKER_HDF_KEY]
         packet_data = {
-            "last_interaction_type": hdf[
-                f"{packet_prefix}_last_interaction_type"
-            ],
-            "last_line_interaction_in_id": hdf[
-                f"{packet_prefix}_last_interaction_in_id"
-            ],
-            "last_line_interaction_out_id": hdf[
-                f"{packet_prefix}_last_interaction_out_id"
-            ],
+            # Stored as InteractionType codes; HDF cannot hold categoricals
+            "last_interaction_type": interaction_type_to_categorical(
+                vpacket_tracker_df["last_interaction_type"]
+            ),
+            "last_line_interaction_in_id": vpacket_tracker_df[
+                "line_absorb_id"
+            ].to_numpy(),
+            "last_line_interaction_out_id": vpacket_tracker_df[
+                "line_emit_id"
+            ].to_numpy(),
             "last_line_interaction_in_nu": u.Quantity(
-                hdf[f"{packet_prefix}_last_interaction_in_nu"].to_numpy(), "Hz"
+                vpacket_tracker_df["before_nu"].to_numpy(), "Hz"
             ),
             "last_interaction_in_r": u.Quantity(
-                hdf[f"{packet_prefix}_last_interaction_in_r"].to_numpy(), "cm"
+                vpacket_tracker_df["radius"].to_numpy(), "cm"
             ),
             "packet_nus": u.Quantity(
-                hdf[f"{packet_prefix}_nus"].to_numpy(), "Hz"
+                vpacket_tracker_df["nus"].to_numpy(), "Hz"
             ),
             "packet_energies": u.Quantity(
-                hdf[f"{packet_prefix}_energies"].to_numpy(), "erg"
+                vpacket_tracker_df["energies"].to_numpy(), "erg"
             ),
         }
     else:  # real packets

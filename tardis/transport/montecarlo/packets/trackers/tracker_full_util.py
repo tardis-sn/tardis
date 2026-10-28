@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from numba import njit
 from numba.typed import List as TypedList
@@ -83,6 +84,7 @@ def trackers_full_list_to_selected_arrays(
         - after_energy (np.float64[:]) : Energy after interaction
         - line_absorb_id (np.int64[:]) : Line absorb ID
         - line_emit_id (np.int64[:]) : Line emit ID
+        - next_line_id (np.int64[:]) : Next line ID after the event
     """
     total_events = event_counts.sum()
 
@@ -102,6 +104,7 @@ def trackers_full_list_to_selected_arrays(
     after_energy = np.empty(total_events, dtype=np.float64)
     line_absorb_id = np.empty(total_events, dtype=np.int64)
     line_emit_id = np.empty(total_events, dtype=np.int64)
+    next_line_id = np.empty(total_events, dtype=np.int64)
 
     # Concatenate arrays from all trackers
     offset = 0
@@ -126,6 +129,7 @@ def trackers_full_list_to_selected_arrays(
         after_energy[offset:end_idx] = tracker.after_energy[start:stop]
         line_absorb_id[offset:end_idx] = tracker.line_absorb_id[start:stop]
         line_emit_id[offset:end_idx] = tracker.line_emit_id[start:stop]
+        next_line_id[offset:end_idx] = tracker.next_line_id[start:stop]
 
         # Memory: without this, every tracker and the concatenated copy are
         # alive together, plus the DataFrame built from the copy. Dropping
@@ -164,7 +168,88 @@ def trackers_full_list_to_selected_arrays(
         after_energy,
         line_absorb_id,
         line_emit_id,
+        next_line_id,
     )
+
+
+def interaction_type_to_categorical(
+    interaction_type: npt.ArrayLike,
+) -> pd.Categorical:
+    """
+    Convert ``InteractionType`` codes to a categorical of their names.
+
+    Parameters
+    ----------
+    interaction_type : array-like
+        ``InteractionType`` integer codes.
+
+    Returns
+    -------
+    pandas.Categorical
+        Interaction type names, with every ``InteractionType`` as a category.
+    """
+    interaction_type_dtype = CategoricalDtype(
+        categories=[member.name for member in InteractionType], ordered=False
+    )
+    # Memory and speed: building the categoricals from per-event name strings
+    # needs a Python list with one entry per event (millions for a full run)
+    # and a slow enum lookup each time. Mapping the integer values straight to
+    # category codes keeps everything in NumPy and yields the same columns.
+    # The enum values are not contiguous (bit flags, NO_INTERACTION = -1), so
+    # the lookup table is offset by the smallest value.
+    interaction_type_offset = min(InteractionType)
+    interaction_type_codes = np.full(
+        max(InteractionType) - interaction_type_offset + 1, -1, dtype=np.int8
+    )
+    for category_idx, member in enumerate(InteractionType):
+        interaction_type_codes[member - interaction_type_offset] = category_idx
+    return pd.Categorical.from_codes(
+        interaction_type_codes[
+            np.asarray(interaction_type) - interaction_type_offset
+        ],
+        dtype=interaction_type_dtype,
+    )
+
+
+def interaction_type_to_codes(interaction_type: npt.ArrayLike) -> np.ndarray:
+    """
+    Convert interaction type names to ``InteractionType`` codes.
+
+    Parameters
+    ----------
+    interaction_type : array-like
+        Interaction type names, e.g. a ``tracker_full_df`` column.
+
+    Returns
+    -------
+    numpy.ndarray
+        ``InteractionType`` integer codes.
+
+    Raises
+    ------
+    ValueError
+        If a name is not an ``InteractionType`` member.
+    """
+    name_to_code = {member.name: member.value for member in InteractionType}
+    if isinstance(getattr(interaction_type, "dtype", None), CategoricalDtype):
+        # Memory and speed: decode through the few categories instead of
+        # building one Python object per event
+        categorical = pd.Categorical(interaction_type)
+        if not set(categorical.categories) <= name_to_code.keys():
+            raise ValueError("Unknown interaction type name in tracker data.")
+        if (categorical.codes < 0).any():
+            raise ValueError("Missing interaction type in tracker data.")
+        category_codes = np.array(
+            [name_to_code[name] for name in categorical.categories],
+            dtype=np.int64,
+        )
+        return category_codes[categorical.codes]
+    codes = pd.Series(np.asarray(interaction_type, dtype=object)).map(
+        name_to_code
+    )
+    if codes.isna().any():
+        raise ValueError("Unknown interaction type name in tracker data.")
+    return codes.to_numpy(dtype=np.int64)
 
 
 def trackers_full_to_df(
@@ -223,31 +308,14 @@ def event_arrays_to_df(event_arrays: tuple) -> pd.DataFrame:
         after_energy,
         line_absorb_id,
         line_emit_id,
+        next_line_id,
     ) = event_arrays
 
-    # Create categorical data types
-    interaction_type_dtype = CategoricalDtype(
-        categories=[member.name for member in InteractionType], ordered=False
-    )
     status_dtype = CategoricalDtype(
         categories=[member.name for member in PacketStatus], ordered=False
     )
-
-    # Memory and speed: building the categoricals from per-event name strings
-    # needs a Python list with one entry per event (millions for a full run)
-    # and a slow enum lookup each time. Mapping the integer values straight to
-    # category codes keeps everything in NumPy and yields the same columns.
-    # The enum values are not contiguous (bit flags, NO_INTERACTION = -1), so
-    # the lookup table is offset by the smallest value.
-    interaction_type_offset = min(InteractionType)
-    interaction_type_codes = np.full(
-        max(InteractionType) - interaction_type_offset + 1, -1, dtype=np.int8
-    )
-    for category_idx, member in enumerate(InteractionType):
-        interaction_type_codes[member - interaction_type_offset] = category_idx
-    interaction_type_categorical = pd.Categorical.from_codes(
-        interaction_type_codes[interaction_type - interaction_type_offset],
-        dtype=interaction_type_dtype,
+    interaction_type_categorical = interaction_type_to_categorical(
+        interaction_type
     )
 
     status_codes = np.full(max(PacketStatus) + 1, -1, dtype=np.int8)
@@ -270,8 +338,11 @@ def event_arrays_to_df(event_arrays: tuple) -> pd.DataFrame:
         "after_nu": after_nu,
         "after_mu": after_mu,
         "after_energy": after_energy,
-        "line_absorb_id": pd.array(line_absorb_id, dtype="int64"),
-        "line_emit_id": pd.array(line_emit_id, dtype="int64"),
+        "line_absorb_id": line_absorb_id,
+        "line_emit_id": line_emit_id,
+        # Line list position the packet resumes from, needed to replay the
+        # packet history for virtual packets
+        "next_line_id": next_line_id,
     }
 
     # Create multi-index with packet_id and event_id
@@ -279,75 +350,9 @@ def event_arrays_to_df(event_arrays: tuple) -> pd.DataFrame:
         [packet_id, event_id], names=["packet_id", "event_id"]
     )
 
-    return pd.DataFrame(event_data, index=multi_index)
-
-
-@njit
-def find_last_interaction_events(trackers: TypedList) -> tuple:
-    """
-    Find each packet's last line, electron-scattering or continuum event.
-
-    Parameters
-    ----------
-    trackers : numba.typed.typedlist.List
-        List of TrackerFull instances.
-
-    Returns
-    -------
-    tuple
-        Event index of the last physical interaction per packet (0 for a
-        packet without one), and the number of events to take per packet
-        (0 for a tracker without events).
-    """
-    last_interaction_event_idx = np.zeros(len(trackers), dtype=np.int64)
-    event_counts = np.zeros(len(trackers), dtype=np.int64)
-    for packet_idx, tracker in enumerate(trackers):
-        event_counts[packet_idx] = min(1, len(tracker.interaction_type))
-        for event_idx in range(len(tracker.interaction_type) - 1, -1, -1):
-            interaction_type = tracker.interaction_type[event_idx]
-            if (
-                interaction_type == InteractionType.LINE
-                or interaction_type == InteractionType.ESCATTERING
-                or interaction_type == InteractionType.CONTINUUM_PROCESS
-            ):
-                last_interaction_event_idx[packet_idx] = event_idx
-                break
-    return last_interaction_event_idx, event_counts
-
-
-def trackers_full_to_last_interaction_df(
-    trackers_full_list: TypedList,
-) -> pd.DataFrame:
-    """
-    Build the last-interaction DataFrame without the full event DataFrame.
-
-    Only the last physical interaction of each packet (or its first event, for
-    a packet without one) is converted, so the result matches
-    ``tracker_full_df2tracker_last_interaction_df(trackers_full_to_df(...))``.
-
-    Parameters
-    ----------
-    trackers_full_list : numba.typed.typedlist.List
-        List of TrackerFull instances.
-
-    Returns
-    -------
-    pd.DataFrame
-        Last-interaction DataFrame indexed by packet_id.
-    """
-    # Memory: the full event DataFrame has one row per event (tens of events
-    # per packet) and is discarded when only the last interaction is wanted.
-    # Picking one row per packet first means only that many rows are copied
-    # and converted, and the existing conversion still sets the output format.
-    event_starts, event_counts = find_last_interaction_events(
-        trackers_full_list
-    )
-    selected_df = event_arrays_to_df(
-        trackers_full_list_to_selected_arrays(
-            trackers_full_list, event_starts, event_counts
-        )
-    )
-    return tracker_full_df2tracker_last_interaction_df(selected_df)
+    # Memory: the event arrays are only referenced here, so wrap them rather
+    # than copying; otherwise the arrays and the DataFrame coexist at peak
+    return pd.DataFrame(event_data, index=multi_index, copy=False)
 
 
 def tracker_full_df2tracker_last_interaction_df(
@@ -432,8 +437,11 @@ def tracker_full_df2tracker_last_interaction_df(
         inplace=True,
     )
 
-    # Drop after_shell_id column
-    last_interaction_df = last_interaction_df.drop(columns=["after_shell_id"])
+    # next_line_id only serves replaying full histories, so the last
+    # interaction table keeps the TrackerLastInteraction columns
+    last_interaction_df = last_interaction_df.drop(
+        columns=["after_shell_id", "next_line_id"]
+    )
 
     # Handle packets that had no physics interactions - add them with NO_INTERACTION
     packets_with_interactions = set(last_interaction_df.index)

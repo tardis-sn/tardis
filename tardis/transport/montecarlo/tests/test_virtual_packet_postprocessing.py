@@ -8,6 +8,7 @@ from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.spectrum.virtual_packet import (
     calculate_virtual_packet_spectrum,
     create_vpacket_collections,
+    tracker_full_df_to_event_arrays,
 )
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -24,6 +25,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
+    trackers_full_to_df,
 )
 
 
@@ -75,11 +77,18 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
 
     montecarlo_configuration.ENABLE_FULL_RELATIVITY = False
     montecarlo_configuration.MONTECARLO_SEED = 42
-    montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY = 1.5e14
-    montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY = 2.5e14
+    vpacket_spawn_start_frequency = 1.5e14
+    vpacket_spawn_end_frequency = 2.5e14
 
+    tracker_events = tracker_full_df_to_event_arrays(
+        trackers_full_to_df(trackers)
+    )
     vpacket_collections = create_vpacket_collections(
-        len(trackers), spectrum_frequency_grid, montecarlo_configuration, 4
+        len(tracker_events.packet_id),
+        spectrum_frequency_grid,
+        vpacket_spawn_start_frequency,
+        vpacket_spawn_end_frequency,
+        4,
     )
     energy_histogram = calculate_virtual_packet_spectrum(
         geometry,
@@ -87,15 +96,17 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
         opacity_state,
         montecarlo_configuration,
         spectrum_frequency_grid,
-        trackers,
+        tracker_events,
         vpacket_collections,
+        10.0,
+        0.0,
         trace_vpacket_volley,
     )
     vpacket_tracker = consolidate_vpacket_tracker(
         vpacket_collections,
         spectrum_frequency_grid,
-        montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-        montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+        vpacket_spawn_start_frequency,
+        vpacket_spawn_end_frequency,
     )
 
     mu_min = -np.sqrt(1.0 - (geometry.r_inner[0] / r_packet.r) ** 2)

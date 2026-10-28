@@ -112,7 +112,6 @@ class SimpleTARDISWorkflow:
         self.transport_solver = MCTransportSolverClassic.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
-            enable_virtual_packet_logging=self.enable_virtual_packet_logging,
         )
 
         # Luminosity filter frequencies
@@ -155,6 +154,8 @@ class SimpleTARDISWorkflow:
         # spectrum settings
         self.integrated_spectrum_settings = configuration.spectrum.integrated
         self.spectrum_solver = SpectrumSolver.from_config(configuration)
+        if self.enable_virtual_packet_logging:
+            self.spectrum_solver.virtual_packet_logging = True
 
         # Convergence settings
         self.consecutive_converges_count = 0
@@ -399,7 +400,7 @@ class SimpleTARDISWorkflow:
         self,
         opacity_states: dict,
         no_of_real_packets: int,
-        retain_full_trackers: bool = False,
+        record_full_histories: bool = False,
     ) -> None:
         """Solve the MonteCarlo process
 
@@ -409,9 +410,10 @@ class SimpleTARDISWorkflow:
             Opacity and (optionally) Macro Atom states.
         no_of_real_packets
             Number of real packets to simulate.
-        retain_full_trackers
-            Keep the full real-packet histories on the transport solver for
-            post-processing, e.g. virtual-packet spectra.
+        record_full_histories
+            Record the full real-packet histories in
+            ``tracker_full_df`` on the transport state even without r-packet
+            tracking, e.g. for virtual-packet spectra.
 
         """
         opacity_state = opacity_states["opacity_state"]
@@ -429,7 +431,7 @@ class SimpleTARDISWorkflow:
         self.transport_solver.run(
             self.transport_state,
             show_progress_bars=self.show_progress_bars,
-            retain_full_trackers=retain_full_trackers,
+            record_full_histories=record_full_histories,
         )
 
         output_energy = self.transport_state.packet_collection.output_energies
@@ -475,11 +477,9 @@ class SimpleTARDISWorkflow:
             self.spectrum_solver.solve_virtual_packet_spectrum(
                 self.transport_state,
                 self.transport_solver.montecarlo_configuration,
-                self.transport_solver.rpacket_tracker,
+                self.transport_state.tracker_full_df,
                 self.virtual_packet_count,
             )
-            # Memory: the histories are not needed once the spectrum is solved
-            self.transport_solver.rpacket_tracker = None
 
     def run(self) -> None:
         """Run the TARDIS simulation until convergence is reached"""
@@ -522,7 +522,7 @@ class SimpleTARDISWorkflow:
         self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
-            retain_full_trackers=self.virtual_packet_count > 0,
+            record_full_histories=self.virtual_packet_count > 0,
         )
 
         self.initialize_spectrum_solver(self.opacity_states)

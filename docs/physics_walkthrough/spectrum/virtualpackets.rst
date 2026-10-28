@@ -70,6 +70,14 @@ sampling separate from real-packet transport. Consequently, changing
 :math:`N_v` changes the sampling noise of the virtual-packet spectrum but not
 the real-packet trajectories, estimators, or spectrum.
 
+The histories are read from the full real-packet tracking DataFrame
+(``transport_state.tracker_full_df``), so the virtual spectrum can also be
+recomputed later from a saved copy of that DataFrame with
+``SpectrumSolver.solve_virtual_packet_spectrum``. This also needs the run's
+transport state (geometry and opacity), Monte Carlo configuration and
+spectrum settings. When saving the DataFrame to HDF, use ``format="table"``,
+which supports its categorical columns.
+
 .. note::
 
     TARDIS is a time-independent radiative transfer scheme. Thus, :math:`\Delta

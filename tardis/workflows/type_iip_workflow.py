@@ -83,7 +83,6 @@ class TypeIIPWorkflow:
     """Coordinate Type IIP plasma, transport, and thermal-balance solves."""
 
     show_progress_bars = Environment.allows_widget_display()
-    enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
 
@@ -239,7 +238,6 @@ class TypeIIPWorkflow:
         self.transport_solver = MCTransportSolverIIP.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
-            enable_virtual_packet_logging=self.enable_virtual_packet_logging,
         )
 
         # Luminosity filter frequencies

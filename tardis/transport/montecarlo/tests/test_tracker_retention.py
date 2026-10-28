@@ -20,21 +20,23 @@ def tracker_simulation(
     return Simulation.from_config(config, atom_data=deepcopy(atomic_dataset))
 
 
-def test_retain_full_trackers_only_for_requested_run(
+def test_record_full_histories_only_for_requested_run(
     tracker_simulation: Simulation,
 ) -> None:
     transport = tracker_simulation.transport
 
     tracker_simulation.iterate(NUMBER_OF_RPACKETS)
-    assert transport.rpacket_tracker is None
-
-    tracker_simulation.iterate(NUMBER_OF_RPACKETS, retain_full_trackers=True)
-    assert len(transport.rpacket_tracker) == NUMBER_OF_RPACKETS
     assert transport.transport_state.tracker_full_df is None
+
+    tracker_simulation.iterate(NUMBER_OF_RPACKETS, record_full_histories=True)
+    tracker_full_df = transport.transport_state.tracker_full_df
+    assert tracker_full_df.index.get_level_values("packet_id").nunique() == (
+        NUMBER_OF_RPACKETS
+    )
     assert (
         len(transport.transport_state.tracker_last_interaction_df)
         == NUMBER_OF_RPACKETS
     )
 
     tracker_simulation.iterate(NUMBER_OF_RPACKETS)
-    assert transport.rpacket_tracker is None
+    assert transport.transport_state.tracker_full_df is None

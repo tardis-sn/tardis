@@ -417,7 +417,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         return converged
 
     def iterate(
-        self, no_of_packets: int, retain_full_trackers: bool = False
+        self, no_of_packets: int, record_full_histories: bool = False
     ) -> u.Quantity:
         """
         Run one Monte Carlo iteration.
@@ -426,9 +426,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         ----------
         no_of_packets : int
             Number of real packets to propagate.
-        retain_full_trackers : bool, optional
-            Keep the full real-packet histories on the transport solver for
-            post-processing, e.g. virtual-packet spectra.
+        record_full_histories : bool, optional
+            Record the full real-packet histories in
+            ``tracker_full_df`` on the transport state even without r-packet
+            tracking, e.g. for virtual-packet spectra.
 
         Returns
         -------
@@ -464,7 +465,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.transport.run(
             transport_state,
             show_progress_bars=self.show_progress_bars,
-            retain_full_trackers=retain_full_trackers,
+            record_full_histories=record_full_histories,
         )
 
         output_energy = (
@@ -553,7 +554,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.iterate(
             self.last_no_of_packets,
-            retain_full_trackers=self.no_of_virtual_packets > 0,
+            record_full_histories=self.no_of_virtual_packets > 0,
         )
 
         # Set up spectrum solver integrator and virtual spectrum
@@ -577,7 +578,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.spectrum_solver.solve_virtual_packet_spectrum(
                 self.transport.transport_state,
                 self.transport.montecarlo_configuration,
-                self.transport.rpacket_tracker,
+                self.transport.transport_state.tracker_full_df,
                 self.no_of_virtual_packets,
             )
 
@@ -765,7 +766,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             transport = MCTransportSolverClassic.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
-                enable_virtual_packet_logging=virtual_packet_logging,
             )
         if opacity is None:
             opacity = OpacitySolver(
@@ -814,6 +814,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         last_no_of_packets = int(last_no_of_packets)
 
         spectrum_solver = SpectrumSolver.from_config(config)
+        if virtual_packet_logging:
+            spectrum_solver.virtual_packet_logging = True
 
         return cls(
             iterations=config.montecarlo.iterations,

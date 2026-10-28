@@ -1,12 +1,26 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import numpy as np
-from astropy import units as u
-from numba import boolean, float64, int64
+from numba import boolean, int64
 from numba.experimental import jitclass
 
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.interaction_events import (
     LineInteractionType,
 )
+
+if TYPE_CHECKING:
+    from tardis.transport.montecarlo.modes.classic.solver import (
+        MCTransportSolverClassic,
+    )
+    from tardis.transport.montecarlo.modes.iip.solver import (
+        MCTransportSolverIIP,
+    )
+    from tardis.transport.montecarlo.modes.nonhomologous.solver import (
+        MCTransportSolverNonhomologous,
+    )
 
 numba_config_spec = [
     ("ENABLE_FULL_RELATIVITY", boolean),
@@ -15,13 +29,8 @@ numba_config_spec = [
     ("PACKET_SEEDS", int64[:]),
     ("DISABLE_ELECTRON_SCATTERING", boolean),
     ("DISABLE_LINE_SCATTERING", boolean),
-    ("SURVIVAL_PROBABILITY", float64),
-    ("VPACKET_TAU_RUSSIAN", float64),
     ("INITIAL_TRACKING_ARRAY_LENGTH", int64),
     ("LEGACY_MODE_ENABLED", boolean),
-    ("VPACKET_SPAWN_START_FREQUENCY", float64),
-    ("VPACKET_SPAWN_END_FREQUENCY", float64),
-    ("ENABLE_VPACKET_TRACKING", boolean),
 ]
 
 
@@ -34,18 +43,19 @@ class MonteCarloConfiguration:
         self.PACKET_SEEDS = np.empty(1, dtype=np.int64)
         self.DISABLE_ELECTRON_SCATTERING = False
         self.DISABLE_LINE_SCATTERING = False
-        self.SURVIVAL_PROBABILITY = 0.0
-        self.VPACKET_TAU_RUSSIAN = 10.0
 
         self.INITIAL_TRACKING_ARRAY_LENGTH = 0
         self.LEGACY_MODE_ENABLED = False
 
-        self.VPACKET_SPAWN_START_FREQUENCY = 0
-        self.VPACKET_SPAWN_END_FREQUENCY = 1e200
-        self.ENABLE_VPACKET_TRACKING = False
 
-
-def configuration_initialize(config, transport):
+def configuration_initialize(
+    config: MonteCarloConfiguration,
+    transport: (
+        MCTransportSolverClassic
+        | MCTransportSolverNonhomologous
+        | MCTransportSolverIIP
+    ),
+) -> None:
     if transport.line_interaction_type == "macroatom":
         config.LINE_INTERACTION_TYPE = LineInteractionType.MACROATOM
     elif transport.line_interaction_type == "downbranch":
@@ -60,13 +70,6 @@ def configuration_initialize(config, transport):
         )
     config.ENABLE_FULL_RELATIVITY = transport.enable_full_relativity
     config.MONTECARLO_SEED = transport.packet_source.base_seed
-    config.VPACKET_SPAWN_START_FREQUENCY = transport.vpacket_spawn_range.end.to(
-        u.Hz, equivalencies=u.spectral()
-    ).value
-    config.VPACKET_SPAWN_END_FREQUENCY = transport.vpacket_spawn_range.start.to(
-        u.Hz, equivalencies=u.spectral()
-    ).value
-    config.ENABLE_VPACKET_TRACKING = transport.enable_vpacket_tracking
     montecarlo_globals.ENABLE_RPACKET_TRACKING = (
         transport.enable_rpacket_tracking
     )

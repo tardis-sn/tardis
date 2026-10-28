@@ -1,8 +1,10 @@
 import warnings
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
+import pandas as pd
 from astropy import units as u
-from numba.typed import List as TypedList
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
@@ -21,6 +23,7 @@ from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.spectrum.virtual_packet import (
     calculate_virtual_packet_spectrum,
     create_vpacket_collections,
+    tracker_full_df_to_event_arrays,
 )
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -41,10 +44,11 @@ from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
+    VPacketCollection,
     consolidate_vpacket_tracker,
 )
-from tardis.transport.montecarlo.packets.trackers.tracker_full import (
-    TrackerFull,
+from tardis.transport.montecarlo.packets.trackers import (
+    interaction_type_to_categorical,
 )
 from tardis.transport.montecarlo.packets.virtual_packet import (
     trace_vpacket_volley as trace_vpacket_volley_classic,
@@ -74,7 +78,34 @@ class SpectrumSolver(HDFWriterMixin):
         ),
         spectrum_frequency_grid: u.Quantity,
         integrator_settings: ConfigurationNameSpace | None,
+        virtual_packet_logging: bool = False,
+        vpacket_spawn_start_frequency: u.Quantity = 0.0 * u.Hz,
+        vpacket_spawn_end_frequency: u.Quantity = 1e200 * u.Hz,
+        vpacket_tau_russian: float = 10.0,
+        vpacket_survival_probability: float = 0.0,
     ) -> None:
+        """
+        Initialize the spectrum solver.
+
+        Parameters
+        ----------
+        transport_state : MonteCarloTransportState or MonteCarloTransportStateNonhomologous, optional
+            Transport state used to compute the real-packet spectra.
+        spectrum_frequency_grid : astropy.units.Quantity
+            Frequency-bin edges for the real- and virtual-packet histograms.
+        integrator_settings : ConfigurationNameSpace, optional
+            Formal integral settings.
+        virtual_packet_logging : bool, optional
+            Keep the escaping virtual packets in ``vpacket_tracker``.
+        vpacket_spawn_start_frequency : astropy.units.Quantity, optional
+            Lowest real-packet frequency that spawns virtual packets.
+        vpacket_spawn_end_frequency : astropy.units.Quantity, optional
+            Highest real-packet frequency that spawns virtual packets.
+        vpacket_tau_russian : float, optional
+            Optical depth above which virtual packets are Russian-rouletted.
+        vpacket_survival_probability : float, optional
+            Probability that a Russian-rouletted virtual packet survives.
+        """
         self.transport_state = transport_state
         self.spectrum_frequency_grid = spectrum_frequency_grid
         self._montecarlo_virtual_luminosity = u.Quantity(
@@ -83,6 +114,12 @@ class SpectrumSolver(HDFWriterMixin):
         self._integrator = None
         self.integrator_settings = integrator_settings
         self._spectrum_integrated = None
+        self.virtual_packet_logging = virtual_packet_logging
+        self.vpacket_spawn_start_frequency = vpacket_spawn_start_frequency
+        self.vpacket_spawn_end_frequency = vpacket_spawn_end_frequency
+        self.vpacket_tau_russian = vpacket_tau_russian
+        self.vpacket_survival_probability = vpacket_survival_probability
+        self.vpacket_tracker: VPacketCollection | None = None
 
     def setup_optional_spectra(
         self,
@@ -120,6 +157,7 @@ class SpectrumSolver(HDFWriterMixin):
         self.transport_state = transport_state
         # A virtual spectrum from an earlier run is stale for this transport
         self._montecarlo_virtual_luminosity.value[:] = 0.0
+        self.vpacket_tracker = None
         self._integrator = integrator
         self.simulation_state = simulation_state
         self.opacity_state = opacity_state
@@ -133,10 +171,10 @@ class SpectrumSolver(HDFWriterMixin):
             MonteCarloTransportState | MonteCarloTransportStateNonhomologous
         ),
         montecarlo_configuration: MonteCarloConfiguration,
-        rpacket_tracker: TypedList[TrackerFull] | None,
+        tracker_full_df: pd.DataFrame | None,
         number_of_vpackets: int,
     ) -> None:
-        """Compute the virtual spectrum from retained real-packet histories.
+        """Compute the virtual spectrum from full real-packet histories.
 
         Parameters
         ----------
@@ -144,8 +182,10 @@ class SpectrumSolver(HDFWriterMixin):
             Completed classic or non-homologous transport state.
         montecarlo_configuration : MonteCarloConfiguration
             Configuration used for the completed transport calculation.
-        rpacket_tracker : numba.typed.List or None
-            Retained full real-packet histories of the completed transport.
+        tracker_full_df : pandas.DataFrame or None
+            Full real-packet histories of the completed transport, e.g.
+            ``transport_state.tracker_full_df`` or one loaded from disk. Must
+            include the ``next_line_id`` column.
         number_of_vpackets : int
             Number of virtual packets spawned per real-packet interaction.
             Must be positive.
@@ -153,8 +193,8 @@ class SpectrumSolver(HDFWriterMixin):
         Raises
         ------
         ValueError
-            If ``number_of_vpackets`` is not positive or no real-packet
-            histories were retained.
+            If ``number_of_vpackets`` is not positive, or the full real-packet
+            histories are missing or lack a needed column.
         TypeError
             If ``transport_state`` is not a classic or non-homologous state.
         """
@@ -163,12 +203,13 @@ class SpectrumSolver(HDFWriterMixin):
                 "Virtual-packet spectra require number_of_vpackets > 0, got "
                 f"{number_of_vpackets}."
             )
-        if rpacket_tracker is None:
+        if tracker_full_df is None:
             raise ValueError(
-                "Virtual-packet post-processing requires retained full "
-                "real-packet histories; run the final iteration with "
-                "retain_full_trackers=True."
+                "Virtual-packet post-processing requires full real-packet "
+                "histories; run the final iteration with "
+                "record_full_histories=True."
             )
+        tracker_events = tracker_full_df_to_event_arrays(tracker_full_df)
 
         if isinstance(transport_state, MonteCarloTransportState):
             time_explosion = transport_state.time_explosion.cgs.value
@@ -182,10 +223,17 @@ class SpectrumSolver(HDFWriterMixin):
                 "non-homologous Monte Carlo transport states."
             )
 
+        vpacket_spawn_start_frequency = (
+            self.vpacket_spawn_start_frequency.to_value(u.Hz)
+        )
+        vpacket_spawn_end_frequency = self.vpacket_spawn_end_frequency.to_value(
+            u.Hz
+        )
         vpacket_collections = create_vpacket_collections(
-            len(rpacket_tracker),
+            len(tracker_events.packet_id),
             self.spectrum_frequency_grid.value,
-            montecarlo_configuration,
+            vpacket_spawn_start_frequency,
+            vpacket_spawn_end_frequency,
             number_of_vpackets,
         )
         virtual_packet_luminosity = calculate_virtual_packet_spectrum(
@@ -194,21 +242,109 @@ class SpectrumSolver(HDFWriterMixin):
             transport_state.opacity_state_numba,
             montecarlo_configuration,
             self.spectrum_frequency_grid.value,
-            rpacket_tracker,
+            tracker_events,
             vpacket_collections,
+            self.vpacket_tau_russian,
+            self.vpacket_survival_probability,
             trace_vpacket_volley,
         )
         self._montecarlo_virtual_luminosity.value[:] = virtual_packet_luminosity
-        transport_state.virt_logging = (
-            montecarlo_configuration.ENABLE_VPACKET_TRACKING
-        )
-        if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
-            transport_state.vpacket_tracker = consolidate_vpacket_tracker(
+        if self.virtual_packet_logging:
+            self.vpacket_tracker = consolidate_vpacket_tracker(
                 vpacket_collections,
                 self.spectrum_frequency_grid.value,
-                montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-                montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+                vpacket_spawn_start_frequency,
+                vpacket_spawn_end_frequency,
             )
+
+    def vpacket_tracker_to_df(self) -> pd.DataFrame:
+        """
+        Convert the logged virtual packets to a DataFrame.
+
+        The interaction columns share their names and dtypes with the
+        real-packet ``tracker_last_interaction_df``; each row describes the
+        real-packet event that spawned the virtual packet.
+
+        Returns
+        -------
+        pandas.DataFrame
+            One row per escaping virtual packet, indexed by ``vpacket_id``,
+            with columns ``last_interaction_type``, ``radius``, ``shell_id``,
+            ``before_nu``, ``line_absorb_id`` and ``line_emit_id`` for the
+            spawning event, and ``nus``, ``energies``, ``initial_mus`` and
+            ``initial_rs`` for the virtual packet.
+
+        Raises
+        ------
+        ValueError
+            If no virtual packets were logged.
+        """
+        if self.vpacket_tracker is None:
+            raise ValueError(
+                "No virtual packets were logged; enable virtual_packet_logging "
+                "and run with no_of_virtual_packets > 0."
+            )
+        return self._vpacket_tracker_df(
+            interaction_type_to_categorical(
+                self.vpacket_tracker.last_interaction_type
+            )
+        )
+
+    def _vpacket_tracker_df(
+        self, last_interaction_type: npt.ArrayLike
+    ) -> pd.DataFrame:
+        """
+        Build the logged virtual packet DataFrame.
+
+        Parameters
+        ----------
+        last_interaction_type : array-like
+            Interaction type column, as names or ``InteractionType`` codes.
+
+        Returns
+        -------
+        pandas.DataFrame
+            One row per escaping virtual packet, indexed by ``vpacket_id``.
+        """
+        vpacket_tracker = self.vpacket_tracker
+        return pd.DataFrame(
+            {
+                "last_interaction_type": last_interaction_type,
+                "radius": vpacket_tracker.last_interaction_in_r,
+                "shell_id": vpacket_tracker.last_interaction_shell_id,
+                "before_nu": vpacket_tracker.last_interaction_in_nu,
+                "line_absorb_id": pd.array(
+                    vpacket_tracker.last_interaction_in_id, dtype="int64"
+                ),
+                "line_emit_id": pd.array(
+                    vpacket_tracker.last_interaction_out_id, dtype="int64"
+                ),
+                "nus": vpacket_tracker.nus,
+                "energies": vpacket_tracker.energies,
+                "initial_mus": vpacket_tracker.initial_mus,
+                "initial_rs": vpacket_tracker.initial_rs,
+            },
+            index=pd.RangeIndex(len(vpacket_tracker.nus), name="vpacket_id"),
+        )
+
+    def get_properties(self) -> dict[str, Any]:
+        """
+        Get properties for HDF storage, adding logged virtual packets.
+
+        Returns
+        -------
+        dict
+            Property names and values; includes ``vpacket_tracker_df`` when
+            virtual packets were logged.
+        """
+        properties = super().get_properties()
+        if self.vpacket_tracker is not None:
+            # The default fixed HDF format cannot store categoricals, so the
+            # interaction type is written as InteractionType codes
+            properties["vpacket_tracker_df"] = self._vpacket_tracker_df(
+                self.vpacket_tracker.last_interaction_type
+            )
+        return properties
 
     @property
     def spectrum_real_packets(self):
@@ -343,8 +479,20 @@ class SpectrumSolver(HDFWriterMixin):
             num=config.spectrum.num + 1,
         )
 
+        # The spawn range is given in wavelength, so its end is the lowest
+        # spawning frequency
+        vpacket_spawn_range = config.montecarlo.virtual_spectrum_spawn_range
         return cls(
             transport_state=None,
             spectrum_frequency_grid=spectrum_frequency_grid,
             integrator_settings=config.spectrum.integrated,
+            virtual_packet_logging=config.spectrum.virtual.virtual_packet_logging,
+            vpacket_spawn_start_frequency=vpacket_spawn_range.end.to(
+                u.Hz, equivalencies=u.spectral()
+            ),
+            vpacket_spawn_end_frequency=vpacket_spawn_range.start.to(
+                u.Hz, equivalencies=u.spectral()
+            ),
+            vpacket_tau_russian=config.spectrum.virtual.tau_russian,
+            vpacket_survival_probability=config.spectrum.virtual.survival_probability,
         )
