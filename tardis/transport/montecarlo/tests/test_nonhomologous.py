@@ -1,5 +1,3 @@
-from collections.abc import Callable
-
 import astropy.units as u
 import numpy as np
 import numpy.testing as npt
@@ -441,9 +439,13 @@ def test_nonhomologous_distance_rejects_sign_reversed_root() -> None:
     )
 
 
+@pytest.mark.parametrize(
+    "line_search_packet", [{"r": 1.0e14, "mu": 0.0}], indirect=True
+)
 def test_nonhomologous_line_reappears_after_gradient_reversal(
     classic_opacity_state: OpacityStateNumba,
     line_estimators: EstimatorsLine,
+    line_search_packet: RPacket,
 ) -> None:
     """Verify two physical resonances on opposite sides of a gradient zero.
 
@@ -478,14 +480,7 @@ def test_nonhomologous_line_reappears_after_gradient_reversal(
         np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
         np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
     )
-    packet = RPacket(
-        r=impact_parameter,
-        mu=0.0,
-        nu=1.0e15,
-        energy=1.0,
-        seed=1963,
-    )
-    packet.current_shell_id = 0
+    packet = line_search_packet
     first_projected_velocity = (
         velocity_gradient * first_x
         + velocity_intercept * first_x / first_radius
@@ -514,7 +509,8 @@ def test_nonhomologous_line_reappears_after_gradient_reversal(
     second_distance = calculate_distance_line_nonhomologous(
         packet, geometry, line_frequency, first_zero, boundary_distance
     )
-    # A frequency ULP near 1e15 Hz maps to less than 100 cm at these gradients.
+    # Adjacent representable frequencies near 1e15 Hz correspond to less than
+    # 100 cm in resonance position at these gradients.
     npt.assert_allclose(
         [first_distance, second_distance],
         [first_x, second_x],
@@ -564,6 +560,8 @@ def test_nonhomologous_line_reappears_after_gradient_reversal(
 def test_nonhomologous_search_resolves_two_close_lines(
     classic_opacity_state: OpacityStateNumba,
     line_estimators: EstimatorsLine,
+    line_search_geometry: NumbaRadial1DGeometry,
+    line_search_packet: RPacket,
 ) -> None:
     """Keep two distinct nearby lines in a monotonic projected flow.
 
@@ -580,24 +578,10 @@ def test_nonhomologous_search_resolves_two_close_lines(
     Construct both rest frequencies from the unsquared ray equation at known
     distances; their local Doppler factors set independent energy estimates.
     """
-    inner_radius = 1.0e14  # cm
-    outer_radius = 2.0e14  # cm
     velocity_gradient = 8.0e-7  # s^-1
     velocity_intercept = 2.0e7  # cm / s
-    geometry = NumbaRadial1DGeometry(
-        np.asarray([inner_radius]),
-        np.asarray([outer_radius]),
-        np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
-        np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
-    )
-    packet = RPacket(
-        r=1.25e14,
-        mu=0.1,
-        nu=1.0e15,
-        energy=1.0,
-        seed=1963,
-    )
-    packet.current_shell_id = 0
+    geometry = line_search_geometry
+    packet = line_search_packet
     first_distance = 1.0e12  # cm
     second_distance = first_distance + 1.0e7  # cm
     initial_x = packet.r * packet.mu
@@ -648,158 +632,12 @@ def test_nonhomologous_search_resolves_two_close_lines(
     )
 
 
-def test_nonhomologous_thomson_scatter_keeps_same_direction_line_frontier(
-    classic_opacity_state: OpacityStateNumba,
-    line_estimators: EstimatorsLine,
-    bulk_estimators: EstimatorsBulk,
-    set_seed_fixture: Callable[[int], None],
-) -> None:
-    """Carry a crossed line through an elastic scattering on a monotonic ray.
-
-    Claim
-    -----
-    Thomson scattering preserves the comoving frequency at the event and the
-    next lower-frequency line remains reachable without revisiting the first.
-
-    Regime
-    ------
-    Positive projected gradient for both sampled directions in one shell.
-
-    Verification
-    ------------
-    Use analytic projected velocities to place one line before scattering and
-    the second line a known distance after it; verify both estimator channels.
-    """
-    inner_radius = 1.0e14  # cm
-    outer_radius = 2.0e14  # cm
-    velocity_gradient = 8.0e-7  # s^-1
-    velocity_intercept = 2.0e7  # cm / s
-    geometry = NumbaRadial1DGeometry(
-        np.asarray([inner_radius]),
-        np.asarray([outer_radius]),
-        np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
-        np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
-    )
-    packet = RPacket(r=1.25e14, mu=0.1, nu=1.0e15, energy=1.0, seed=42)
-    packet.current_shell_id = 0
-    first_line_distance = 1.0e12  # cm
-    electron_distance = 2.0e12  # cm
-    next_line_distance = 1.0e12  # cm after Thomson scattering
-
-    initial_x = packet.r * packet.mu
-    initial_b_squared = packet.r**2 * (1.0 - packet.mu**2)
-    first_line_x = initial_x + first_line_distance
-    first_line_radius = np.sqrt(first_line_x**2 + initial_b_squared)
-    first_line_projected_velocity = (
-        velocity_gradient * first_line_x
-        + velocity_intercept * first_line_x / first_line_radius
-    )
-    first_line_frequency = packet.nu * (
-        1.0 - first_line_projected_velocity / C_SPEED_OF_LIGHT
-    )
-
-    electron_x = initial_x + electron_distance
-    electron_radius = np.sqrt(electron_x**2 + initial_b_squared)
-    electron_mu = electron_x / electron_radius
-    electron_velocity = velocity_gradient * electron_radius + velocity_intercept
-    comov_frequency_at_electron = packet.nu * (
-        1.0 - electron_velocity * electron_mu / C_SPEED_OF_LIGHT
-    )
-    seed = 42
-    first_random, direction_random = np.random.RandomState(seed).random_sample(2)
-    sampled_outgoing_mu = 2.0 * direction_random - 1.0
-    outgoing_lab_frequency = comov_frequency_at_electron / (
-        1.0 - electron_velocity * sampled_outgoing_mu / C_SPEED_OF_LIGHT
-    )
-    outgoing_x = electron_radius * sampled_outgoing_mu + next_line_distance
-    outgoing_b_squared = electron_radius**2 * (1.0 - sampled_outgoing_mu**2)
-    next_line_radius = np.sqrt(outgoing_x**2 + outgoing_b_squared)
-    next_line_projected_velocity = (
-        velocity_gradient * outgoing_x
-        + velocity_intercept * outgoing_x / next_line_radius
-    )
-    next_line_frequency = outgoing_lab_frequency * (
-        1.0 - next_line_projected_velocity / C_SPEED_OF_LIGHT
-    )
-    assert first_line_frequency > next_line_frequency
-    classic_opacity_state.line_list_nu = np.asarray(
-        [first_line_frequency, next_line_frequency]
-    )
-    classic_opacity_state.tau_sobolev[1, 0] = 1.0e6
-
-    set_seed_fixture(seed)
-    electron_opacity = -np.log(first_random) / electron_distance
-    (
-        traced_distance,
-        first_event,
-        _,
-        next_untraversed_line_id,
-        line_search_direction,
-    ) = nonhomologous_trace_packet(
-        packet,
-        geometry,
-        classic_opacity_state,
-        line_estimators,
-        electron_opacity,
-        False,
-        False,
-        0,
-        0,
-    )
-    assert first_event == InteractionType.ESCATTERING
-    npt.assert_allclose(traced_distance, electron_distance, rtol=1.0e-12)
-    assert (next_untraversed_line_id, line_search_direction) == (1, 1)
-    first_line_energy = line_estimators.energy_deposition_line_rate[0, 0]
-    npt.assert_allclose(
-        first_line_energy,
-        first_line_frequency / packet.nu,
-        rtol=1.0e-10,
-    )
-
-    move_r_packet(packet, traced_distance, geometry, bulk_estimators, False)
-    incoming_mu = packet.mu
-    incoming_lab_frequency = packet.nu
-    nonhomologous_thomson_scatter(packet, geometry, False)
-    npt.assert_allclose(packet.mu, sampled_outgoing_mu, rtol=0.0, atol=1.0e-15)
-    npt.assert_allclose(
-        packet.nu * (1.0 - electron_velocity * packet.mu / C_SPEED_OF_LIGHT),
-        incoming_lab_frequency
-        * (1.0 - electron_velocity * incoming_mu / C_SPEED_OF_LIGHT),
-        rtol=1.0e-14,
-    )
-
-    (
-        second_distance,
-        second_event,
-        _,
-        next_untraversed_line_id,
-        line_search_direction,
-    ) = nonhomologous_trace_packet(
-        packet,
-        geometry,
-        classic_opacity_state,
-        line_estimators,
-        1.0e-30,
-        False,
-        False,
-        next_untraversed_line_id,
-        line_search_direction,
-    )
-    assert second_event == InteractionType.LINE
-    assert packet.next_line_id == 1
-    assert (next_untraversed_line_id, line_search_direction) == (2, 1)
-    npt.assert_allclose(second_distance, next_line_distance, rtol=0.0, atol=100.0)
-    npt.assert_allclose(
-        line_estimators.energy_deposition_line_rate[:, 0],
-        [first_line_energy, packet.energy * next_line_frequency / packet.nu],
-        rtol=1.0e-10,
-    )
-
-
 def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
     classic_opacity_state: OpacityStateNumba,
     line_estimators: EstimatorsLine,
     bulk_estimators: EstimatorsBulk,
+    line_search_geometry: NumbaRadial1DGeometry,
+    line_search_packet: RPacket,
 ) -> None:
     """Allow a crossed line after emission at a higher rest frequency.
 
@@ -817,18 +655,12 @@ def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
     The unsquared ray equation sets both resonances at prescribed distances;
     the packet is moved and re-emitted with the production routines.
     """
-    inner_radius = 1.0e14  # cm
-    outer_radius = 2.0e14  # cm
     velocity_gradient = 8.0e-7  # s^-1
     velocity_intercept = 2.0e7  # cm / s
-    geometry = NumbaRadial1DGeometry(
-        np.asarray([inner_radius]),
-        np.asarray([outer_radius]),
-        np.asarray([velocity_gradient * inner_radius + velocity_intercept]),
-        np.asarray([velocity_gradient * outer_radius + velocity_intercept]),
-    )
-    initial_radius = 1.25e14  # cm
-    initial_mu = 0.1
+    geometry = line_search_geometry
+    packet = line_search_packet
+    initial_radius = packet.r
+    initial_mu = packet.mu
     absorbed_frequency = 1.0e15  # Hz
     first_line_distance = 1.0e12  # cm
     repeated_line_distance = 3.0e12  # cm after emission
@@ -841,14 +673,7 @@ def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
     incoming_lab_frequency = absorbed_frequency / (
         1.0 - first_velocity * first_mu / C_SPEED_OF_LIGHT
     )
-    packet = RPacket(
-        r=initial_radius,
-        mu=initial_mu,
-        nu=incoming_lab_frequency,
-        energy=1.0,
-        seed=1963,
-    )
-    packet.current_shell_id = 0
+    packet.nu = incoming_lab_frequency
 
     repeated_x = first_x + repeated_line_distance
     repeated_radius = np.sqrt(repeated_x**2 + impact_parameter_squared)

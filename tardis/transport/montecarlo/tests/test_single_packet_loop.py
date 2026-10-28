@@ -19,11 +19,9 @@ from tardis.transport.montecarlo.configuration.base import (
 )
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     EstimatorsBulk,
-    init_estimators_bulk,
 )
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
-    init_estimators_line,
 )
 from tardis.transport.montecarlo.modes.classic import (
     packet_propagation as classic_propagation,
@@ -123,6 +121,47 @@ def recording_tracker() -> _RecordingTracker:
 @pytest.fixture
 def patch_common_classic_hooks(monkeypatch):
     return _CommonPacketPropagationPatcher(monkeypatch)
+
+
+@pytest.fixture
+def different_line_emission(
+    patch_common_classic_hooks: _CommonPacketPropagationPatcher,
+) -> _CommonPacketPropagationPatcher:
+    """Advance the mocked trace past line 1, then emit line 0."""
+    interactions = [
+        (1.0e12, InteractionType.LINE, 1, 2, 1),
+        (1.0e12, InteractionType.BOUNDARY, 1, 1, 1),
+        (1.0e12, InteractionType.BOUNDARY, 1, 1, 1),
+    ]
+    patch_common_classic_hooks(nonhomologous_propagation, interactions)
+    return patch_common_classic_hooks
+
+
+@pytest.fixture
+def coherent_packet_loop(
+    monkeypatch: pytest.MonkeyPatch,
+    recording_tracker: _RecordingTracker,
+    montecarlo_configuration: MonteCarloConfiguration,
+) -> Callable[..., None]:
+    """Use real coherent scattering with radial emission and one line event."""
+    recording_tracker.max_line_events = 1
+    montecarlo_configuration.LINE_INTERACTION_TYPE = 0
+    montecarlo_configuration.DISABLE_LINE_SCATTERING = False
+    monkeypatch.setattr(nonhomologous_callers, "get_random_mu", lambda: 1.0)
+    monkeypatch.setattr(
+        nonhomologous_propagation,
+        "line_scatter_event",
+        getattr(
+            nonhomologous_callers.line_scatter_event,
+            "py_func",
+            nonhomologous_callers.line_scatter_event,
+        ),
+    )
+    return getattr(
+        nonhomologous_propagation.packet_propagation,
+        "py_func",
+        nonhomologous_propagation.packet_propagation,
+    )
 
 
 @pytest.mark.parametrize(
@@ -338,7 +377,7 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
 )
 def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
     python_numba_disabled: None,
-    patch_common_classic_hooks: _CommonPacketPropagationPatcher,
+    different_line_emission: _CommonPacketPropagationPatcher,
     parametrized_packet: RPacket,
     radial_1d_geometry: NumbaRadial1DGeometry,
     classic_opacity_state: OpacityStateNumba,
@@ -347,18 +386,13 @@ def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
     recording_tracker: _RecordingTracker,
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> None:
-    """A different emitted line seeds a fresh directional cursor.
+    """Start the next line search just after the line chosen for emission.
 
-    This test checks packet-loop state transfer; direct transport tests check
-    physical line positions and estimator contributions.
+    The mocked trace has advanced past line 1, then the line handler emits
+    line 0. The next trace must receive line 1 as its first unprocessed line,
+    instead of retaining the old position after line 1. This checks how the
+    loop passes search state; physical crossings are tested separately.
     """
-    interactions = [
-        (1.0e12, InteractionType.LINE, 1, 2, 1),
-        (1.0e12, InteractionType.BOUNDARY, 1, 1, 1),
-        (1.0e12, InteractionType.BOUNDARY, 1, 1, 1),
-    ]
-    patch_common_classic_hooks(nonhomologous_propagation, interactions)
-
     nonhomologous_propagation.packet_propagation(
         parametrized_packet,
         radial_1d_geometry,
@@ -371,7 +405,7 @@ def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
     )
 
     assert parametrized_packet.status == PacketStatus.EMITTED
-    assert patch_common_classic_hooks.trace_inputs[1] == (1, 1)
+    assert different_line_emission.trace_inputs[1] == (1, 1)
 
 
 @pytest.mark.parametrize(
@@ -380,8 +414,12 @@ def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
     indirect=True,
 )
 def test_nonhomologous_packet_loop_retains_coherent_line_cursor(
-    monkeypatch: pytest.MonkeyPatch,
+    coherent_packet_loop: Callable[..., None],
+    line_search_packet: RPacket,
+    line_search_geometry: NumbaRadial1DGeometry,
     classic_opacity_state: OpacityStateNumba,
+    bulk_estimators: EstimatorsBulk,
+    line_estimators: EstimatorsLine,
     recording_tracker: _RecordingTracker,
     montecarlo_configuration: MonteCarloConfiguration,
     set_seed_fixture: Callable[[int], None],
@@ -392,14 +430,10 @@ def test_nonhomologous_packet_loop_retains_coherent_line_cursor(
     Regime: One nonhomologous shell with positive projected gradient.
     Verification: An analytic first resonance and one line estimator entry.
     """
-    geometry = NumbaRadial1DGeometry(
-        np.array([1.0e14]),
-        np.array([2.0e14]),
-        np.array([1.0e8]),
-        np.array([1.8e8]),
-    )
-    initial_radius = 1.25e14
-    initial_mu = 0.1
+    packet = line_search_packet
+    geometry = line_search_geometry
+    initial_radius = packet.r
+    initial_mu = packet.mu
     first_resonance_distance = 1.0e12
     resonance_radius = np.sqrt(
         initial_radius**2
@@ -418,38 +452,11 @@ def test_nonhomologous_packet_loop_retains_coherent_line_cursor(
     initial_comoving_frequency = lab_frequency * (
         1.0 - initial_velocity * initial_mu / const.c.cgs.value
     )
-    packet = RPacket(
-        r=initial_radius,
-        mu=initial_mu,
-        nu=initial_comoving_frequency,
-        energy=1.0,
-        seed=1963,
-    )
+    packet.nu = initial_comoving_frequency
     classic_opacity_state.electron_density[:] = 1.0e-6
-    bulk_estimators = init_estimators_bulk(1)
-    line_estimators = init_estimators_line((1, 1))
-    recording_tracker.max_line_events = 1
-    montecarlo_configuration.LINE_INTERACTION_TYPE = 0
-    montecarlo_configuration.DISABLE_LINE_SCATTERING = False
     set_seed_fixture(1963)
 
-    # Keep the real event physics and tracer; control only the angle draw.
-    monkeypatch.setattr(nonhomologous_callers, "get_random_mu", lambda: 1.0)
-    monkeypatch.setattr(
-        nonhomologous_propagation,
-        "line_scatter_event",
-        getattr(
-            nonhomologous_callers.line_scatter_event,
-            "py_func",
-            nonhomologous_callers.line_scatter_event,
-        ),
-    )
-    packet_loop = getattr(
-        nonhomologous_propagation.packet_propagation,
-        "py_func",
-        nonhomologous_propagation.packet_propagation,
-    )
-    packet_loop(
+    coherent_packet_loop(
         packet,
         geometry,
         0.0,

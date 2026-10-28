@@ -142,12 +142,15 @@ def trace_packet(
             comov_nu_start,
             comov_nu_end,
         )
+        # Padded frequency bounds can include a line already processed.
+        # Keep the search past it while frequency drifts in the same direction.
         if line_search_direction == line_id_step:
             if line_id_step == 1:
                 start_line_id = max(start_line_id, next_untraversed_line_id)
             else:
                 start_line_id = min(start_line_id, next_untraversed_line_id)
         else:
+            # Initialize a new packet or allow lines again after a reversal.
             line_search_direction = line_id_step
             next_untraversed_line_id = start_line_id
 

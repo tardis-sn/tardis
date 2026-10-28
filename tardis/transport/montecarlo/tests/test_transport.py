@@ -12,10 +12,11 @@ from tardis.model.geometry.radial1d_homologous import (
 )
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
     init_estimators_bulk,
 )
 from tardis.transport.montecarlo.estimators.estimators_line import (
-    init_estimators_line,
+    EstimatorsLine,
 )
 from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
     trace_packet as homologous_trace_packet,
@@ -596,8 +597,26 @@ def test_nonhomologous_trace_packet_no_line_fallthrough(
     )
 
 
+@pytest.fixture
+def shell_gradient_reversal_geometry() -> NumbaRadial1DGeometry:
+    """Return continuous shells with equal and opposite velocity gradients."""
+    return NumbaRadial1DGeometry(
+        np.array([1.0e14, 1.5e14]),
+        np.array([1.5e14, 2.0e14]),
+        np.array([1.0e8, 1.4e8]),
+        np.array([1.4e8, 1.0e8]),
+    )
+
+
+@pytest.mark.parametrize(
+    "line_search_packet", [{"r": 1.1e14, "mu": 1.0}], indirect=True
+)
 def test_nonhomologous_shell_gradient_reversal_revisits_line(
+    line_search_packet: RPacket,
+    shell_gradient_reversal_geometry: NumbaRadial1DGeometry,
     classic_opacity_state: OpacityStateNumba,
+    bulk_estimators: EstimatorsBulk,
+    line_estimators: EstimatorsLine,
     set_seed_fixture: Callable[[int], None],
 ) -> None:
     """A continuous shell edge can reverse drift and expose a line again.
@@ -607,18 +626,11 @@ def test_nonhomologous_shell_gradient_reversal_revisits_line(
     Verification: Both shell profiles reach the same projected velocity at
     radii 1.25e14 and 1.75e14 cm.
     """
-    geometry = NumbaRadial1DGeometry(
-        np.array([1.0e14, 1.5e14]),
-        np.array([1.5e14, 2.0e14]),
-        np.array([1.0e8, 1.4e8]),
-        np.array([1.4e8, 1.0e8]),
-    )
-    packet = RPacket(r=1.1e14, mu=1.0, nu=1.0e15, energy=1.0, seed=1963)
-    packet.current_shell_id = 0
+    geometry = shell_gradient_reversal_geometry
+    packet = line_search_packet
+    estimators = line_estimators
     line_frequency = packet.nu * (1.0 - 1.2e8 / const.c.cgs.value)
     classic_opacity_state.line_list_nu = np.array([line_frequency])
-    estimators = init_estimators_line((1, 2))
-    bulk_estimators = init_estimators_bulk(2)
     set_seed_fixture(1963)
 
     (

@@ -342,11 +342,10 @@ they are not instructions to run tests under the user's current restriction.
 4. Test same-sign preservation using exactly shared velocity edges, and test
    sign-change reset separately. For an allowed velocity jump, assert only
    that the cursor clears; do not claim a continuous-resonance result.
-5. Use narrow event tests with an actual line or Thomson event, packet move,
-   and subsequent real trace. Verify same-sign persistence, sign-change
-   reset, and a new history after emission into a different line. Check event
-   and estimator outcomes as scientific evidence; keep exact cursor-ID checks
-   as separate orchestration assertions.
+5. Retain the physical line-emission test and its separate packet-loop state
+   transfer check. Same-sign Thomson cursor preservation is checked statically
+   below; it does not need a second large integration scenario. Keep exact
+   cursor-ID checks separate from physical estimator evidence.
 6. Test one monotonic ray with two distinct, resolvably close line frequencies.
    In the positive-gradient shell from the red case, derive frequencies from
    the unsquared `w(s)` at `s_1 = 1e12` and `s_2 = s_1 + 1e7` cm. Their
@@ -384,7 +383,7 @@ geometric square root without obscuring the centimeter-scale replay event.
 | `test_nonhomologous_line_reappears_after_gradient_reversal` | One line, two well-separated roots with finite local `G` | Unsquared `w(x)` roots, analytic gradients and estimator equations above | Cursor incorrectly retained across a reversal; keep | Verification |
 | `test_nonhomologous_shell_gradient_reversal_revisits_line` | Two velocity-continuous shells with opposite radial gradients | Both profiles reach the same projected velocity at independently prescribed radii | Cursor incorrectly retained when entering a new shell with reversed drift; keep | Verification |
 | `test_nonhomologous_search_resolves_two_close_lines` | Positive `G`, two distinct resolvable frequencies | Analytic positions and two estimator contributions | Off-by-one cursor hides the next physical line; keep | Verification |
-| `test_nonhomologous_thomson_scatter_keeps_same_direction_line_frontier` | Actual elastic event between traces, same gradient sign | Prescribed positions, Doppler energy relation and contributions | Frontier lost after normal scattering; keep focused physical assertions | Verification; cursor IDs are orchestration |
+| `test_nonhomologous_thomson_scatter_keeps_same_direction_line_frontier` | Actual elastic event between traces, same gradient sign | Prescribed positions, Doppler energy relation and contributions | Removed after PR review; existing Thomson/dispatch tests plus the static state-transfer check below are sufficient for this fix | Previously verification and orchestration |
 | `test_nonhomologous_frequency_changing_emission_starts_new_line_history` and `test_nonhomologous_packet_loop_reseeds_after_different_line_emission` | Different emitted line, new frequency history | Analytic positions with manually reseeded cursor; separate mocked packet-loop transfer | Old history hides a physical crossing; useful layered coverage, not end-to-end macro-atom verification | Verification plus orchestration |
 | `test_nonhomologous_range_uses_projected_gradient_direction` | Equal or one-ULP-separated endpoints, supplied direction | Known integer order of descending line IDs | Removed with the precision-case helper API extension | Helper-contract verification |
 | Shell-edge ownership tests in `test_transport.py` | Exact resonance/edge coincidence with different shell opacities | Chosen upstream convention and estimator channels | Removed from replay fix with the new ownership convention | Convention verification |
@@ -451,14 +450,45 @@ invalid-input defense is needed.
 
 ## Validation and handoff
 
-The audit and subsequent simplification each used three subagents for
-production, tests, and independent scope review. The simplified production
+The audit and initial simplification each used three subagents for
+production, tests, and independent scope review. At that stage the production
 change relative to `b0bf479057` is 77 inserted and 6 deleted lines in the tracer
 and packet loop. `calculate_distances.py` is identical to that parent, verified
-with `git diff --exit-code`. Seven new focused behavior tests remain; 722 test
-lines and the superseded numerical policies were removed from the attempted
+with `git diff --exit-code`. Seven new focused behavior tests remained; 722
+test lines and the superseded numerical policies were removed from the attempted
 implementation. Existing untracked work, dependencies, CI, scientific
 assumptions, and regression references were preserved.
+
+### PR #3802 comment follow-up
+
+The [review comments](https://github.com/tardis-sn/tardis/pull/3802)
+requested clearer direction and cursor explanations, fixture-based setup,
+plainer test wording, and reconsideration of the heavyweight Thomson test.
+The follow-up adds comments explaining redshift/blueshift and the cursor
+clamp, reuses scenario fixtures, and preserves the retained physical inputs,
+analytic expectations, and tolerances. Six focused new tests remain after
+removing the additional Thomson integration scenario.
+
+The Thomson decision is based on this one-time static consistency check:
+
+- Both tracer returns for electron scattering carry the current cursor and
+  direction without assigning a new crossing.
+- The packet loop's electron-scattering branch does not modify either scalar.
+- `thomson_scatter` preserves the comoving frequency and cannot access the
+  loop-owned cursor.
+- The next trace keeps the frontier for matching drift direction and resets
+  it when the direction reverses.
+
+Existing Thomson interaction and packet-loop dispatch tests remain. This
+checks the cursor wiring relevant to this fix; it does not claim a new
+validation of all Thomson-scattering physics. No new transport behavior is
+introduced by the comment follow-up, and no tests or documentation builds
+were run for it.
+
+Follow-up static validation: Ruff on the two production modules, three test
+modules, and their shared `conftest.py` reported the same 88 legacy diagnostics
+as `1a72ddf3b6`, with no new diagnostics. Comparing parsed syntax trees confirms
+both production modules changed only in comments. `git diff --check` passed.
 
 The user instructed that no documentation build or test suite be run for this
 audit. That restriction was retained during implementation: no tests ran after

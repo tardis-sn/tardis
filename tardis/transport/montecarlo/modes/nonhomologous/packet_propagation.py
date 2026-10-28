@@ -222,6 +222,8 @@ def packet_propagation(
                 outgoing_velocity,
                 geometry.velocity_gradient[r_packet.current_shell_id],
             )
+            # Line IDs increase toward lower frequencies: +1 is redshift,
+            # -1 is blueshift.
             outgoing_direction = 1 if outgoing_gradient >= 0.0 else -1
             next_untraversed_line_id = emitted_line_id + outgoing_direction
             line_search_direction = outgoing_direction

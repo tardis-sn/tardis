@@ -178,6 +178,33 @@ def static_packet():
 
 
 @pytest.fixture
+def line_search_geometry() -> NumbaRadial1DGeometry:
+    """Return a nonhomologous shell with positive projected velocity gradient."""
+    return NumbaRadial1DGeometry(
+        np.array([1.0e14]),
+        np.array([2.0e14]),
+        np.array([1.0e8]),
+        np.array([1.8e8]),
+    )
+
+
+@pytest.fixture
+def line_search_packet(request: pytest.FixtureRequest) -> RPacket:
+    """Return a unit-energy packet for the nonhomologous line-search tests."""
+    params = getattr(request, "param", {})
+    packet = RPacket(
+        r=params.get("r", 1.25e14),
+        mu=params.get("mu", 0.1),
+        nu=1.0e15,
+        energy=1.0,
+        seed=1963,
+        index=0,
+    )
+    packet.current_shell_id = 0
+    return packet
+
+
+@pytest.fixture
 def opacity_state_args(request) -> tuple:
     params = getattr(request, "param", {})
     line_list_nu = np.array(params.get("line_list_nu", [3.999e14, 3.998e14]))
