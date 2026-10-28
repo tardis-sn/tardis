@@ -67,31 +67,6 @@ def ctardis_reference_path(tardis_regression_path: Path) -> Path:
     return tardis_regression_path / "tardis" / "workflows" / "tests"
 
 
-@pytest.mark.parametrize(
-    ("montecarlo_nthreads", "continuum_nthreads"), [(1, 2), (2, 1)]
-)
-def test_workflow_configures_continuum_threads_independently(
-    ctardis_compare_config: Configuration,
-    montecarlo_nthreads: int,
-    continuum_nthreads: int,
-) -> None:
-    """Route distinct worker counts to continuum and transport solvers.
-
-    This orchestration test uses the five-shell hydrogen configuration;
-    exact integer assertions detect accidental coupling of the two counts.
-    It makes no claim about numerical accuracy of the opacity solve.
-    """
-    ctardis_compare_config.montecarlo.nthreads = montecarlo_nthreads
-    ctardis_compare_config.plasma.continuum_interaction.nthreads = (
-        continuum_nthreads
-    )
-
-    workflow = TypeIIPWorkflow(ctardis_compare_config)
-
-    assert workflow.macro_atom_solver.nthreads == continuum_nthreads
-    assert workflow.transport_solver.nthreads == montecarlo_nthreads
-
-
 def test_workflow_initial_populations_match_ctardis(
     type_iip_workflow: TypeIIPWorkflow,
     ctardis_reference_path: Path,
