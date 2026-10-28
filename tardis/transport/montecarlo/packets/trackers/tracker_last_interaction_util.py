@@ -5,8 +5,10 @@ from numba.typed import List as TypedList
 from pandas.api.types import CategoricalDtype
 
 from tardis.transport.montecarlo.packets.radiative_packet import (
-    InteractionType,
     PacketStatus,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
+    interaction_type_to_categorical,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
     TrackerLastInteraction,
@@ -60,10 +62,6 @@ def trackers_last_interaction_to_df(tracker_list):
         - line_absorb_id: Line ID for absorbed line interactions (-1 for non-line)
         - line_emit_id: Line ID for emitted line interactions (-1 for non-line)
     """
-    # Create categorical dtypes from enums for better performance and type safety
-    interaction_type_dtype = CategoricalDtype(
-        categories=[member.name for member in InteractionType], ordered=False
-    )
     status_dtype = CategoricalDtype(
         categories=[member.name for member in PacketStatus], ordered=False
     )
@@ -73,17 +71,8 @@ def trackers_last_interaction_to_df(tracker_list):
         tracker.interaction_type for tracker in tracker_list
     ])
 
-    # Convert enum values to their string names and create categorical
-    # Handle NO_INTERACTION (-1) specifically
-    interaction_type_labels = []
-    for int_type in interaction_type_raw:
-        if int_type == -1:  # NO_INTERACTION
-            interaction_type_labels.append("NO_INTERACTION")
-        else:
-            interaction_type_labels.append(InteractionType(int_type).name)
-
-    last_interaction_type = pd.Categorical(
-        interaction_type_labels, dtype=interaction_type_dtype
+    last_interaction_type = interaction_type_to_categorical(
+        interaction_type_raw
     )
 
     # Create status categorical (all IN_PROCESS for last interaction trackers)

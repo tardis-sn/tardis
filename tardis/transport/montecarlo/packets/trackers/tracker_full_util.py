@@ -172,6 +172,26 @@ def trackers_full_list_to_selected_arrays(
     )
 
 
+INTERACTION_TYPE_DTYPE = CategoricalDtype(
+    categories=[member.name for member in InteractionType], ordered=False
+)
+# InteractionType value of each INTERACTION_TYPE_DTYPE category position
+INTERACTION_TYPE_CATEGORY_VALUES = np.array(
+    [member.value for member in InteractionType], dtype=np.int64
+)
+# Category position of each InteractionType value. The enum values are not
+# contiguous (bit flags, NO_INTERACTION = -1), so the table is offset by the
+# smallest value.
+INTERACTION_TYPE_VALUE_OFFSET = min(InteractionType)
+INTERACTION_TYPE_VALUE_CATEGORY_IDX = np.full(
+    max(InteractionType) - INTERACTION_TYPE_VALUE_OFFSET + 1, -1, dtype=np.int8
+)
+for _category_idx, _member in enumerate(InteractionType):
+    INTERACTION_TYPE_VALUE_CATEGORY_IDX[
+        _member - INTERACTION_TYPE_VALUE_OFFSET
+    ] = _category_idx
+
+
 def interaction_type_to_categorical(
     interaction_type: npt.ArrayLike,
 ) -> pd.Categorical:
@@ -188,26 +208,13 @@ def interaction_type_to_categorical(
     pandas.Categorical
         Interaction type names, with every ``InteractionType`` as a category.
     """
-    interaction_type_dtype = CategoricalDtype(
-        categories=[member.name for member in InteractionType], ordered=False
-    )
-    # Memory and speed: building the categoricals from per-event name strings
-    # needs a Python list with one entry per event (millions for a full run)
-    # and a slow enum lookup each time. Mapping the integer values straight to
-    # category codes keeps everything in NumPy and yields the same columns.
-    # The enum values are not contiguous (bit flags, NO_INTERACTION = -1), so
-    # the lookup table is offset by the smallest value.
-    interaction_type_offset = min(InteractionType)
-    interaction_type_codes = np.full(
-        max(InteractionType) - interaction_type_offset + 1, -1, dtype=np.int8
-    )
-    for category_idx, member in enumerate(InteractionType):
-        interaction_type_codes[member - interaction_type_offset] = category_idx
+    # Memory and speed: mapping the integer values straight to category codes
+    # keeps everything in NumPy instead of building one name string per event
     return pd.Categorical.from_codes(
-        interaction_type_codes[
-            np.asarray(interaction_type) - interaction_type_offset
+        INTERACTION_TYPE_VALUE_CATEGORY_IDX[
+            np.asarray(interaction_type) - INTERACTION_TYPE_VALUE_OFFSET
         ],
-        dtype=interaction_type_dtype,
+        dtype=INTERACTION_TYPE_DTYPE,
     )
 
 
@@ -218,7 +225,8 @@ def interaction_type_to_codes(interaction_type: npt.ArrayLike) -> np.ndarray:
     Parameters
     ----------
     interaction_type : array-like
-        Interaction type names, e.g. a ``tracker_full_df`` column.
+        Interaction type names, as strings or a categorical with any
+        category order, e.g. a ``tracker_full_df`` column.
 
     Returns
     -------
@@ -228,28 +236,12 @@ def interaction_type_to_codes(interaction_type: npt.ArrayLike) -> np.ndarray:
     Raises
     ------
     ValueError
-        If a name is not an ``InteractionType`` member.
+        If a name is missing or not an ``InteractionType`` member.
     """
-    name_to_code = {member.name: member.value for member in InteractionType}
-    if isinstance(getattr(interaction_type, "dtype", None), CategoricalDtype):
-        # Memory and speed: decode through the few categories instead of
-        # building one Python object per event
-        categorical = pd.Categorical(interaction_type)
-        if not set(categorical.categories) <= name_to_code.keys():
-            raise ValueError("Unknown interaction type name in tracker data.")
-        if (categorical.codes < 0).any():
-            raise ValueError("Missing interaction type in tracker data.")
-        category_codes = np.array(
-            [name_to_code[name] for name in categorical.categories],
-            dtype=np.int64,
-        )
-        return category_codes[categorical.codes]
-    codes = pd.Series(np.asarray(interaction_type, dtype=object)).map(
-        name_to_code
-    )
-    if codes.isna().any():
-        raise ValueError("Unknown interaction type name in tracker data.")
-    return codes.to_numpy(dtype=np.int64)
+    categorical = pd.Categorical(interaction_type, dtype=INTERACTION_TYPE_DTYPE)
+    if (categorical.codes < 0).any():
+        raise ValueError("Unknown or missing interaction type in tracker data.")
+    return INTERACTION_TYPE_CATEGORY_VALUES[categorical.codes]
 
 
 def trackers_full_to_df(
@@ -402,7 +394,8 @@ def tracker_full_df2tracker_last_interaction_df(
             {
                 "event_id": np.full(len(all_packet_ids), 0),
                 "last_interaction_type": pd.Categorical(
-                    ["NO_INTERACTION"] * len(all_packet_ids)
+                    ["NO_INTERACTION"] * len(all_packet_ids),
+                    dtype=INTERACTION_TYPE_DTYPE,
                 ),
                 "status": pd.Categorical(["IN_PROCESS"] * len(all_packet_ids)),
                 "radius": np.full(len(all_packet_ids), np.nan),
@@ -454,7 +447,8 @@ def tracker_full_df2tracker_last_interaction_df(
         no_interaction_data = {
             "event_id": np.full(len(packets_without_interactions), 0),
             "last_interaction_type": pd.Categorical(
-                ["NO_INTERACTION"] * len(packets_without_interactions)
+                ["NO_INTERACTION"] * len(packets_without_interactions),
+                dtype=INTERACTION_TYPE_DTYPE,
             ),
             "status": pd.Categorical(
                 ["IN_PROCESS"] * len(packets_without_interactions)
