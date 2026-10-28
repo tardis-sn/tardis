@@ -80,6 +80,13 @@ properties:
     default: {}
     additionalProperties: false
     properties:
+      nthreads:
+        type: integer
+        minimum: 1
+        default: 1
+        description: Maximum number of worker threads for continuum macro-atom
+          opacity calculations, including the absorbing Markov chain solve.
+          Independent of montecarlo.nthreads and not limited by NUMBA_NUM_THREADS.
       species:
         type: array
         default: []

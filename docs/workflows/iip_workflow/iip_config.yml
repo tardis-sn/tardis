@@ -35,6 +35,7 @@ plasma:
   initial_t_inner: 8000 K
   # nlte_species[(1, 0)]
   continuum_interaction:
+      nthreads: 1 # Keep low to limit memory use in many-element simulations.
       species:
           - H I
           # - H II
