@@ -1,0 +1,18 @@
+tardis.visualization.sdec package
+=================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.visualization.sdec.util
+
+Module contents
+---------------
+
+.. automodule:: tardis.visualization.sdec
+   :members:
+   :show-inheritance:
+   :undoc-members:
