@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=c5a6d265"></script>
+      <script src="../../../_static/documentation_options.js?v=a45c90a3"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4445,7 +4445,7 @@
 <tr class="row-even"><td><p>additionalProperties</p></td>
 <td colspan="2"><p>False</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="13"><ul class="simple">
+<tr class="row-odd"><td rowspan="17"><ul class="simple">
 <li><p>continuum_interaction</p></li>
 </ul>
 </td>
@@ -4456,6 +4456,21 @@
 <td colspan="2"></td>
 </tr>
 <tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>nthreads</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Maximum number of worker threads for continuum macro-atom opacity calculations, including the absorbing Markov chain solve. Independent of montecarlo.nthreads and not limited by NUMBA_NUM_THREADS.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>1</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>species</p></li>
@@ -4601,7 +4616,7 @@ normal operations.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Oct 2026.
+      <span class="lastupdated">Last updated on 29 Oct 2026.
       </span></p>
   </div>
 
