@@ -9,6 +9,7 @@ from scipy.interpolate import interp1d
 
 from tardis import constants as const
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 from tardis.opacities.continuum.continuum_state import ContinuumOpacityState
 from tardis.opacities.continuum.macro_atom_state import (
@@ -87,7 +88,9 @@ class TypeIIPWorkflow:
     log_level = None
     specific_log_level = None
 
-    def __init__(self, configuration, csvy=False):
+    def __init__(
+        self, configuration: Configuration, csvy: bool = False
+    ) -> None:
         """Initialize a TARDIS workflow for Type IIP supernovae.
 
         Notes
@@ -98,7 +101,7 @@ class TypeIIPWorkflow:
 
         Parameters
         ----------
-        configuration : Configuration
+        configuration : tardis.io.configuration.config_reader.Configuration
             Configuration object for the simulation
         csvy : bool, optional
             Set true if the configuration uses CSVY, by default False
@@ -232,7 +235,7 @@ class TypeIIPWorkflow:
                 factory.continuum_interaction_species_multi_index.tolist()
             ),
             line_interaction_type=line_interaction_type,
-            nthreads=configuration.montecarlo.nthreads,
+            nthreads=continuum_interactions.nthreads,
         )
 
         self.transport_state = None
