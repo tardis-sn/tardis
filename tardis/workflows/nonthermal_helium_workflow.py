@@ -85,6 +85,9 @@ from tardis.workflows.high_energy.tardis_he_workflow import (
     TARDISHEWorkflow,
     TARDISHEWorkflowResult,
 )
+from tardis.workflows.nonthermal_helium_diagnostics import (
+    canonicalize_underflowed_populations,
+)
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 logger = logging.getLogger(__name__)
@@ -393,7 +396,22 @@ class CoupledPlasmaState:
 
 @dataclass(frozen=True)
 class NonthermalCouplingResult:
-    """Converged plasma, nonthermal, and iteration diagnostic state."""
+    """Converged plasma and retained raw equilibrium diagnostics.
+
+    Attributes
+    ----------
+    plasma_state : CoupledPlasmaState
+        Accepted coupling state, including allocation-underflow corrections.
+        These same populations are committed to the optical plasma.
+    nonthermal_state : NonthermalPlasmaState
+        Frozen rates used by the terminal equilibrium solve.
+    equilibrium_solution : PlasmaEquilibriumSolution
+        Raw terminal evaluator result, retained without mutation. It may
+        contain a subnormal parent with all-zero levels that was canonicalized
+        to zero in `plasma_state`.
+    convergence_history : pandas.DataFrame
+        Component changes for each nonthermal coupling iteration.
+    """
 
     plasma_state: CoupledPlasmaState
     nonthermal_state: NonthermalPlasmaState
@@ -428,8 +446,10 @@ class NonthermalHeliumPlasmaSolver:
     last_input_state : CoupledPlasmaState or None
         Input to the latest completed equilibrium solve.
     last_candidate_state : CoupledPlasmaState or None
-        Unrelaxed output of the latest completed equilibrium solve. A failed
-        coupling attempt does not commit this candidate to the optical plasma.
+        Unrelaxed output of the latest completed equilibrium solve, after
+        allocation-underflow canonicalization. Raw evaluator tables are not
+        mutated. A failed coupling attempt does not commit this candidate to
+        the optical plasma.
     last_ion_relaxation_history : pandas.DataFrame
         Factors, counters, candidate changes, and adjustment reasons indexed
         by iteration, atomic number, and shell for the latest coupling attempt.
@@ -620,6 +640,15 @@ class NonthermalHeliumPlasmaSolver:
         self._check_finite_level_populations(
             current.level_number_density, "initial"
         )
+        initial_levels, initial_ions = canonicalize_underflowed_populations(
+            current.level_number_density, current.ion_number_density
+        )
+        current = CoupledPlasmaState(
+            current.electron_density,
+            current.electron_temperature,
+            initial_ions,
+            initial_levels,
+        )
         plasma = optical_workflow.plasma_solver
         shell_columns = plasma.number_density.columns
         logger.info(
@@ -725,6 +754,18 @@ class NonthermalHeliumPlasmaSolver:
             self._check_finite_level_populations(
                 candidate.level_number_density, "candidate"
             )
+            candidate_levels, candidate_ions = (
+                canonicalize_underflowed_populations(
+                    candidate.level_number_density, candidate.ion_number_density
+                )
+            )
+            candidate = CoupledPlasmaState(
+                candidate.electron_density,
+                candidate.electron_temperature,
+                candidate_ions,
+                candidate_levels,
+            )
+            self.last_candidate_state = candidate
             relaxation = self.settings.relaxation
             ion_factors = ion_controller.update(candidate.ion_number_density)
             ion_relaxation_rows.append(
@@ -771,6 +812,9 @@ class NonthermalHeliumPlasmaSolver:
             )
             relaxed_levels = (candidate_fractions * relaxed_ion_totals).mask(
                 relaxed_ion_totals == 0.0, 0.0
+            )
+            relaxed_levels, relaxed_ions = canonicalize_underflowed_populations(
+                relaxed_levels, relaxed_ions
             )
             self._check_finite_level_populations(relaxed_levels, "relaxed")
             relaxed_state = CoupledPlasmaState(
@@ -1421,7 +1465,26 @@ class NonthermalHeliumOpticalWorkflow(StandardTARDISWorkflow):
         bound_bound_species_filter: tuple[int, int] | None,
         maximum_electron_density: npt.NDArray[np.float64],
     ) -> PlasmaEquilibriumEvaluator:
-        """Build one helium evaluator from analytic or packet rates."""
+        """Build one helium evaluator from the current adjacent-ion budget.
+
+        Parameters
+        ----------
+        plasma_state : tardis.workflows.nonthermal_helium_workflow.CoupledPlasmaState
+            Current shell-aligned ion and absolute level populations. He I
+            plus He II sets the reduced population budget; He III is excluded.
+        fixed_rates : tardis.plasma.equilibrium.inputs.FixedRateState, optional
+            Frozen nonthermal excitation and ionization rates.
+        bound_bound_species_filter : tuple[int, int], optional
+            Atomic and ion number restricting bound-bound data, or all species
+            when None.
+        maximum_electron_density : numpy.ndarray
+            Fully ionized electron-density bounds [cm^-3].
+
+        Returns
+        -------
+        tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluator
+            Evaluator with fixed analytic or packet rates and current geometry.
+        """
         plasma = self.plasma_solver
         shell_columns = plasma_state.ion_number_density.columns
         shell_positions = plasma.number_density.columns.get_indexer(
@@ -1444,9 +1507,15 @@ class NonthermalHeliumOpticalWorkflow(StandardTARDISWorkflow):
             (level_index.get_level_values("atomic_number") == 2)
             & (level_index.get_level_values("ion_number") == 0)
         )
+        adjacent_ion_number_density = plasma_state.ion_number_density.loc[
+            [
+                equilibrium_species,
+                (equilibrium_species[0], equilibrium_species[1] + 1),
+            ]
+        ].sum(axis=0)
         shell_number_densities = tuple(
             ShellNumberDensity(
-                float(plasma.number_density.loc[2, shell]),
+                float(adjacent_ion_number_density.loc[shell]),
                 plasma_state.level_number_density[shell].to_numpy(
                     dtype=np.float64
                 ),

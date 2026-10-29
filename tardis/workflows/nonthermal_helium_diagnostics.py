@@ -8,6 +8,64 @@ import numpy as np
 import pandas as pd
 
 
+def canonicalize_underflowed_populations(
+    levels: pd.DataFrame, ions: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Zero orphan subnormal parents whose represented levels are exactly zero.
+
+    Parameters
+    ----------
+    levels : pandas.DataFrame
+        Level number densities in cm^-3, with atomic/ion/level row labels.
+    ions : pandas.DataFrame
+        Parent ion densities in cm^-3, with atomic/ion row labels.
+
+    Returns
+    -------
+    levels, ions : tuple of pandas.DataFrame
+        Populations with only allocation-underflowed parents zeroed, without
+        changing caller-owned tables. The level
+        table is unchanged, since every affected level is already zero. The
+        ion table is copied only when a correction is necessary.
+
+    Notes
+    -----
+    Binary64 subnormals lie below `finfo(float64).tiny`, the smallest normal
+    number, and extend down to `nextafter(0, 1)`. Under round-to-nearest-even,
+    a level share rounds to zero only up to half that smallest subnormal.
+    Thus normalized nonnegative allocation among N represented levels can
+    vanish entirely only for a parent at most floor(N/2) subnormal quanta.
+    Only an all-zero distribution within that bound is canonicalized; nonzero
+    subnormal levels, missing parents and contaminated data are not repaired.
+    This is representability handling, not an astrophysical abundance floor.
+    """
+    # Nullable missing values are not evidence of an exactly zero level.
+    level_groups = (
+        levels.eq(0.0)
+        .fillna(False)
+        .groupby(level=["atomic_number", "ion_number"])
+    )
+    zero_levels = level_groups.all()
+    # Do not halve the smallest subnormal first: that already rounds to zero.
+    allocation_bound = (level_groups.size() // 2) * np.nextafter(0.0, 1.0)
+    aligned_ions = ions.reindex(
+        index=zero_levels.index, columns=zero_levels.columns
+    )
+    underflowed = (
+        (
+            zero_levels
+            & (aligned_ions > 0.0)
+            & (aligned_ions < np.finfo(np.float64).tiny)
+            & aligned_ions.le(allocation_bound, axis="index")
+        )
+        .reindex(index=ions.index, columns=ions.columns, fill_value=False)
+        .fillna(False)
+    )
+    if underflowed.to_numpy().any():
+        ions = ions.mask(underflowed, 0.0)
+    return levels, ions
+
+
 def diagnose_level_relaxation(
     current_levels: pd.DataFrame,
     candidate_levels: pd.DataFrame,
@@ -39,7 +97,9 @@ def diagnose_level_relaxation(
         predicted nonfinite count after selective relaxation, and whether that
         update creates nonfinite levels from finite inputs. ``classification``
         distinguishes missing parents, contaminated inputs/candidates, and
-        finite zero distributions with a positive ion total. Sums ending in
+        finite zero distributions with a positive ion total. Input/candidate
+        columns describe the raw snapshots; ``*_underflow_repaired`` flags
+        parents zeroed for the projected production update. Sums ending in
         ``skipna`` deliberately reproduce pandas' all-missing-to-zero sum;
         ``strict`` sums remain NaN if any level is nonfinite. This audit can
         identify a propagation mechanism, not reconstruct the first corrupt
@@ -85,6 +145,21 @@ def diagnose_level_relaxation(
             groups.isin(ions.index), len(columns)
         )
 
+    current_levels, current_ions = canonicalize_underflowed_populations(
+        current_levels, current_ions
+    )
+    candidate_levels, candidate_ions = canonicalize_underflowed_populations(
+        candidate_levels, candidate_ions
+    )
+    for name, levels, ions in (
+        ("input", current_levels, current_ions),
+        ("candidate", candidate_levels, candidate_ions),
+    ):
+        sanitized_ions = ions.reindex(index=groups, columns=columns)
+        report[f"{name}_underflow_repaired"] = (
+            report[f"{name}_ion_density"] > 0.0
+        ) & (sanitized_ions.to_numpy().ravel() == 0.0)
+        totals[name] = levels.groupby(level=ion_names).transform("sum")
     relaxed_ions = (
         relaxation * candidate_ions + (1.0 - relaxation) * current_ions
     )
@@ -99,9 +174,6 @@ def diagnose_level_relaxation(
             columns=columns,
         )
         relaxed_ions = factors * candidate_ions + (1 - factors) * current_ions
-    report["relaxed_ion_density"] = (
-        relaxed_ions.reindex(index=groups, columns=columns).to_numpy().ravel()
-    )
     fractions = candidate_levels.div(
         totals["candidate"].where(totals["candidate"] != 0.0)
     ).mask(
@@ -115,6 +187,25 @@ def diagnose_level_relaxation(
     )
     projected = (fractions * aligned_relaxed_ions).mask(
         aligned_relaxed_ions == 0.0, 0.0
+    )
+    projected, canonical_relaxed_ions = canonicalize_underflowed_populations(
+        projected, relaxed_ions
+    )
+    report["relaxed_underflow_repaired"] = (
+        (
+            (relaxed_ions.reindex(index=groups, columns=columns) > 0.0)
+            & (
+                canonical_relaxed_ions.reindex(index=groups, columns=columns)
+                == 0.0
+            )
+        )
+        .to_numpy()
+        .ravel()
+    )
+    report["relaxed_ion_density"] = (
+        canonical_relaxed_ions.reindex(index=groups, columns=columns)
+        .to_numpy()
+        .ravel()
     )
     projected_bad = pd.DataFrame(
         ~np.isfinite(projected.to_numpy(dtype=float)),
@@ -145,6 +236,9 @@ def diagnose_level_relaxation(
             (report["input_level_sum_skipna"] == 0.0)
             & (report["candidate_level_sum_skipna"] == 0.0)
             & (report["relaxed_ion_density"] > 0.0),
+            report["input_underflow_repaired"]
+            | report["candidate_underflow_repaired"]
+            | report["relaxed_underflow_repaired"],
         ],
         [
             "missing_parent_ion",
@@ -153,6 +247,7 @@ def diagnose_level_relaxation(
             "nonfinite_candidate",
             "nonfinite_input",
             "positive_ion_without_level_distribution",
+            "underflow_repaired",
         ],
         default="finite",
     )

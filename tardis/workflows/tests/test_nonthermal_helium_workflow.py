@@ -152,6 +152,136 @@ class FakePlasma:
             setattr(self, name, value)
 
 
+@pytest.mark.parametrize(
+    ("relaxation", "represented_candidate"),
+    [(0.5, False), (0.75, False), (1.0, False), (0.25, True)],
+)
+@pytest.mark.parametrize("converged_input", [False, True])
+@pytest.mark.parametrize("initial_parent", [0.0, np.nextafter(0.0, 1.0)])
+def test_coupling_canonicalizes_underflowed_nickel_parent(
+    relaxation: float,
+    converged_input: bool,
+    initial_parent: float,
+    represented_candidate: bool,
+) -> None:
+    """An unrepresentable Ni IX distribution stays zero across coupling updates.
+
+    Regime: all 26 Ni IX levels and the old parent are zero; the evaluator
+    returns the smallest binary64 subnormal parent but zero levels, shell 36.
+    The exact zero limiting state is the oracle, not a population tolerance.
+    A second case returns a represented subnormal parent of 26 quanta with
+    one quantum in every level: it must survive direct acceptance, but a
+    quarter-step reconstruction underflows all its levels and must repair
+    the relaxed parent. Both next-input and direct converged-commit paths
+    must repair parent and
+    levels without mutating evaluator output or changing representable nuclei
+    or charge sums in a gas dominated by He and Ni VIII.
+    """
+    plasma = FakePlasma()
+    for frame in (
+        plasma.ion_number_density,
+        plasma.level_number_density,
+        plasma.number_density,
+    ):
+        frame.columns = pd.Index([36])
+    plasma.electron_densities.index = pd.Index([36])
+    plasma.number_density.loc[28] = 1.0e4
+    plasma.ion_number_density.loc[(28, 7), :] = 1.0e4
+    plasma.ion_number_density.loc[(28, 8), :] = initial_parent
+    plasma.level_number_density.loc[(28, 7, 0), :] = 1.0e4
+    for level_number in range(26):
+        plasma.level_number_density.loc[(28, 8, level_number), :] = 0.0
+    if converged_input:
+        plasma.electron_densities[:] = 4.0e8
+        plasma.t_electrons[:] = 8000.0
+        plasma.ion_number_density.loc[(2, 0), :] = 6.0e8
+        plasma.ion_number_density.loc[(2, 1), :] = 4.0e8
+        plasma.level_number_density.loc[(2, 0, 0), :] = 4.0e8
+    states: list[CoupledPlasmaState] = []
+    evaluations: list[SimpleNamespace] = []
+
+    class UnderflowEquilibriumSolver(FixedEquilibriumSolver):
+        def solve(
+            self, *args: object, **kwargs: object
+        ) -> PlasmaEquilibriumSolution:
+            solution = super().solve(*args, **kwargs)
+            evaluation = solution.evaluation
+            evaluation.ion_population.loc[(28, 7), :] = 1.0e4
+            quantum = np.nextafter(0.0, 1.0)
+            evaluation.ion_population.loc[(28, 8), :] = (
+                26 * quantum if represented_candidate else quantum
+            )
+            evaluation.absolute_level_population.loc[(28, 7, 0), :] = 1.0e4
+            for level_number in range(26):
+                evaluation.absolute_level_population.loc[
+                    (28, 8, level_number), :
+                ] = quantum if represented_candidate else 0.0
+            evaluations.append(evaluation)
+            return solution
+
+    def evaluator_factory(
+        state: CoupledPlasmaState, *args: object
+    ) -> SimpleNamespace:
+        del args
+        states.append(state)
+        return SimpleNamespace()
+
+    coupling = NonthermalHeliumPlasmaSolver(
+        FakeNonthermalSolver(),
+        evaluator_factory,
+        equilibrium_solver=UnderflowEquilibriumSolver(),
+        settings=NonthermalCouplingSettings(
+            relaxation=relaxation,
+            adaptive_ion_relaxation=False,
+            maximum_iterations=60,
+        ),
+    )
+    coupling.deposition_state = DepositionState(
+        1.0 * u.s,
+        0,
+        pd.Index([36]),
+        np.ones(1) * u.erg / u.s / u.cm**3,
+        np.zeros(1) * u.erg / u.s / u.cm**3,
+        np.ones(1) * u.erg / u.s / u.cm**3,
+    )
+    result = coupling.solve(
+        SimpleNamespace(
+            plasma_solver=plasma,
+            simulation_state=SimpleNamespace(t_radiative=np.array([1.0e4])),
+        )
+    )
+    # Fixed-rate comparison requires a previous iteration even at equilibrium.
+    assert len(states) == (2 if converged_input else len(evaluations))
+    quantum = np.nextafter(0.0, 1.0)
+    for state in [*states, coupling.last_candidate_state, result.plasma_state]:
+        is_candidate = (
+            state is coupling.last_candidate_state
+            or state is result.plasma_state
+        )
+        expected_parent = (
+            26 * quantum if represented_candidate and is_candidate else 0.0
+        )
+        npt.assert_equal(
+            state.ion_number_density.loc[(28, 8), 36], expected_parent
+        )
+        npt.assert_array_equal(
+            state.level_number_density.loc[(28, 8), 36],
+            quantum if represented_candidate and is_candidate else 0.0,
+        )
+        nickel = state.ion_number_density.loc[28, 36]
+        npt.assert_equal(nickel.sum(), 1.0e4)
+        npt.assert_equal(nickel.multiply(nickel.index).sum(), 7.0e4)
+    npt.assert_equal(
+        plasma.ion_number_density.loc[(28, 8), 36],
+        26 * quantum if represented_candidate else 0.0,
+    )
+    for evaluation in evaluations:
+        npt.assert_equal(
+            evaluation.ion_population.loc[(28, 8), 36],
+            26 * quantum if represented_candidate else quantum,
+        )
+
+
 @pytest.mark.parametrize("stage", ["initial", "candidate", "relaxed"])
 def test_nonthermal_rejects_nonfinite_levels_at_first_boundary(
     stage: str,
@@ -1231,17 +1361,11 @@ def test_specialized_optical_workflow_uses_continuum_macro_atom() -> None:
     )
 
 
-def test_helium_evaluator_constructs_nebular_background(
+@pytest.fixture
+def helium_optical_workflow(
     tardis_regression_path: Path,
-) -> None:
-    """Build a real helium evaluator without running high-energy or optical MC.
-
-    This is orchestration verification on the three-shell H/He fixture. The
-    hydrogen background must receive the radiation-field nebular factor,
-    independently evaluated through the initial plasma graph, rather than
-    thermal LTE. Dilute excitation tables and physical shell labels must also
-    reach the evaluator. rtol=1e-12 allows roundoff in identical physical inputs.
-    """
+) -> NonthermalHeliumOpticalWorkflow:
+    """Construct the three-shell H/He optical owner without Monte Carlo."""
     config = Configuration.from_yaml(
         "tardis/workflows/tests/data/iip_hydrogen_helium.yml"
     )
@@ -1252,12 +1376,26 @@ def test_helium_evaluator_constructs_nebular_background(
     )
     # The classic bootstrap has no continuum; the specialized owner adds He I.
     config.plasma.continuum_interaction.species = []
-    workflow = NonthermalHeliumOpticalWorkflow(
+    return NonthermalHeliumOpticalWorkflow(
         config,
         continuum_interaction_species=("He I",),
         show_progress_bars=False,
         log_level="ERROR",
     )
+
+
+def test_helium_evaluator_constructs_nebular_background(
+    helium_optical_workflow: NonthermalHeliumOpticalWorkflow,
+) -> None:
+    """Build a real helium evaluator without running high-energy or optical MC.
+
+    This is orchestration verification on the three-shell H/He fixture. The
+    hydrogen background must receive the radiation-field nebular factor,
+    independently evaluated through the initial plasma graph, rather than
+    thermal LTE. Dilute excitation tables and physical shell labels must also
+    reach the evaluator. rtol=1e-12 allows roundoff in identical physical inputs.
+    """
+    workflow = helium_optical_workflow
     state = workflow._current_plasma_state()
     evaluator = workflow.build_helium_evaluator(state, FixedRateState(), (2, 0))
     background = evaluator.dilute_radiation
@@ -1282,6 +1420,88 @@ def test_helium_evaluator_constructs_nebular_background(
         rtol=1e-12,
         atol=0.0,
     )
+
+
+def test_helium_evaluator_initializes_current_adjacent_ion_budget(
+    helium_optical_workflow: NonthermalHeliumOpticalWorkflow,
+) -> None:
+    """Exclude prescribed He III from the reduced adjacent-ion density budget.
+
+    Claim: current He I + He II, not stale elemental or ion totals, sets the
+    reduced geometry. Regime: conserved three-stage helium in three shells,
+    including a He III-free limit and reversed shell order. Verification uses
+    N_He - prescribed He III independently of the pair sum; rtol=1e-14 allows
+    addition/subtraction roundoff only.
+    """
+    workflow = helium_optical_workflow
+    original = workflow._current_plasma_state()
+    total_helium = workflow.plasma_solver.number_density.loc[2]
+    for shell_order in (
+        original.ion_number_density.columns,
+        total_helium.index[::-1],
+    ):
+        for he_iii_fraction in (
+            np.array([0.1, 0.25, 0.4]),
+            np.array([0.3, 0.45, 0.6]),
+            np.zeros(3),
+        ):
+            current_ions = original.ion_number_density.copy(deep=True)
+            prescribed_he_iii = total_helium * he_iii_fraction
+            current_ions.loc[(2, 0)] = total_helium * 0.2
+            current_ions.loc[(2, 1)] = total_helium * (0.8 - he_iii_fraction)
+            current_ions.loc[(2, 2)] = prescribed_he_iii
+            state = CoupledPlasmaState(
+                original.electron_density,
+                original.electron_temperature,
+                current_ions.loc[:, shell_order],
+                original.level_number_density.loc[:, shell_order],
+            )
+            evaluator = workflow.build_helium_evaluator(
+                state, FixedRateState(), (2, 0)
+            )
+            npt.assert_allclose(
+                [
+                    geometry.species_number_density
+                    for geometry in evaluator.shell_number_densities
+                ],
+                (total_helium - prescribed_he_iii).loc[shell_order],
+                rtol=1e-14,
+                atol=0.0,
+                err_msg="Reduced He I/He II geometry includes an unrelated ion stage.",
+            )
+
+
+def test_helium_evaluator_preserves_current_population_geometry(
+    helium_optical_workflow: NonthermalHeliumOpticalWorkflow,
+) -> None:
+    """Preserve caller-owned populations and level ordering during construction."""
+    workflow = helium_optical_workflow
+    state = workflow._current_plasma_state()
+    original_ions = state.ion_number_density.copy(deep=True)
+    original_levels = state.level_number_density.copy(deep=True)
+    evaluator = workflow.build_helium_evaluator(state, FixedRateState(), (2, 0))
+
+    pdt.assert_frame_equal(state.ion_number_density, original_ions)
+    pdt.assert_frame_equal(state.level_number_density, original_levels)
+    pdt.assert_frame_equal(
+        workflow.plasma_solver.ion_number_density, original_ions
+    )
+    pdt.assert_frame_equal(
+        workflow.plasma_solver.level_number_density, original_levels
+    )
+    expected_positions = np.flatnonzero(
+        (original_levels.index.get_level_values("atomic_number") == 2)
+        & (original_levels.index.get_level_values("ion_number") == 0)
+    )
+    for shell, geometry in zip(
+        original_levels.columns, evaluator.shell_number_densities, strict=True
+    ):
+        npt.assert_array_equal(
+            geometry.level_number_density, original_levels[shell]
+        )
+        npt.assert_array_equal(
+            geometry.species_level_positions, expected_positions
+        )
 
 
 def test_specialized_optical_workflow_enables_continuum_transport() -> None:
