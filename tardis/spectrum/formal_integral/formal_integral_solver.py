@@ -7,7 +7,7 @@ from scipy.interpolate import interp1d
 from tardis.model.geometry.radial1d_homologous import (
     HomologousRadial1DGeometry,
 )
-from tardis.spectrum.base import TARDISSpectrum
+from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.spectrum.formal_integral.base import (
     check_formal_integral_requirements,
 )

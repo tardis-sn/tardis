@@ -44,8 +44,9 @@ Virtual Packet Procedure
 In the virtual packet scheme, a new population of Monte Carlo packets is
 introduced. TARDIS first records the launch and physical-interaction states of
 the real packets. After real-packet transport is complete, these histories are
-replayed against the same frozen geometry and opacity state. At every recorded
-launch or physical interaction, a pre-defined number of virtual packets,
+passed to the ``SpectrumSolver`` and replayed against the same frozen geometry
+and opacity state. At every recorded launch or physical interaction, a
+pre-defined number of virtual packets,
 :math:`N_v`, are generated. The propagation of these "virtual packets" is followed in a
 similar fashion to the real ones with the important distinction that their
 trajectory is never changed. However, the optical depth the virtual packet
@@ -68,6 +69,14 @@ Performing this calculation as post-processing keeps virtual-packet random
 sampling separate from real-packet transport. Consequently, changing
 :math:`N_v` changes the sampling noise of the virtual-packet spectrum but not
 the real-packet trajectories, estimators, or spectrum.
+
+The histories are read from the full real-packet tracking DataFrame
+(``transport_state.tracker_full_df``), so the virtual spectrum can also be
+recomputed later from a saved copy of that DataFrame with
+``SpectrumSolver.solve_virtual_packet_spectrum``. This also needs the run's
+transport state (geometry and opacity), Monte Carlo configuration and
+spectrum settings. When saving the DataFrame to HDF, use ``format="table"``,
+which supports its categorical columns.
 
 .. note::
 

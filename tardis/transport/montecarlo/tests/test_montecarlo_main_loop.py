@@ -67,8 +67,9 @@ def test_montecarlo_transport_vpacket_log(
     montecarlo_transport_simulation.run_final()
 
     transport = montecarlo_transport_simulation.transport
+    spectrum_solver = montecarlo_transport_simulation.spectrum_solver
 
-    assert transport.montecarlo_configuration.ENABLE_VPACKET_TRACKING is True
+    assert spectrum_solver.virtual_packet_logging is True
 
     expected_hdf_store = regression_data.sync_hdf_store(
         montecarlo_transport_simulation
@@ -86,11 +87,8 @@ def test_montecarlo_transport_vpacket_log(
     expected_j_estimator = expected_hdf_store[
         "/simulation/transport/transport_state/j_estimator"
     ]
-    expected_vpacket_log_nus = expected_hdf_store[
-        "/simulation/transport/transport_state/virt_packet_nus"
-    ]
-    expected_vpacket_log_energies = expected_hdf_store[
-        "/simulation/transport/transport_state/virt_packet_energies"
+    expected_vpacket_tracker_df = expected_hdf_store[
+        "/simulation/spectrum_solver/vpacket_tracker_df"
     ]
 
     transport_state = transport.transport_state
@@ -99,8 +97,7 @@ def test_montecarlo_transport_vpacket_log(
     actual_nu = transport_state.packet_collection.output_nus
     actual_nu_bar_estimator = transport_state.nu_bar_estimator
     actual_j_estimator = transport_state.j_estimator
-    actual_vpacket_log_nus = transport_state.vpacket_tracker.nus
-    actual_vpacket_log_energies = transport_state.vpacket_tracker.energies
+    actual_vpacket_tracker_df = spectrum_solver.vpacket_tracker_to_df()
 
     expected_hdf_store.close()
     # Compare
@@ -116,11 +113,14 @@ def test_montecarlo_transport_vpacket_log(
     npt.assert_allclose(actual_energy, expected_energy, rtol=1e-12, atol=1e-15)
     npt.assert_allclose(actual_nu, expected_nu, rtol=1e-12, atol=1e-15)
     npt.assert_allclose(
-        actual_vpacket_log_nus, expected_vpacket_log_nus, rtol=1e-12, atol=1e-15
+        actual_vpacket_tracker_df["nus"],
+        expected_vpacket_tracker_df["nus"],
+        rtol=1e-12,
+        atol=1e-15,
     )
     npt.assert_allclose(
-        actual_vpacket_log_energies,
-        expected_vpacket_log_energies,
+        actual_vpacket_tracker_df["energies"],
+        expected_vpacket_tracker_df["energies"],
         rtol=1e-12,
         atol=1e-15,
     )

@@ -416,7 +416,27 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         return converged
 
-    def iterate(self, no_of_packets, no_of_virtual_packets=0):
+    def iterate(
+        self, no_of_packets: int, record_full_histories: bool = False
+    ) -> u.Quantity:
+        """
+        Run one Monte Carlo iteration.
+
+        Parameters
+        ----------
+        no_of_packets : int
+            Number of real packets to propagate.
+        record_full_histories : bool, optional
+            Record the full real-packet histories in
+            ``tracker_full_df`` on the transport state even without r-packet
+            tracking, e.g. for virtual-packet spectra.
+
+        Returns
+        -------
+        astropy.units.Quantity
+            Emitted luminosity of the iteration within the luminosity
+            frequency bounds.
+        """
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
@@ -439,13 +459,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.macro_atom_state,
             self.plasma,
             no_of_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.iterations_executed,
         )
 
-        v_packets_energy_hist = self.transport.run(
+        self.transport.run(
             transport_state,
             show_progress_bars=self.show_progress_bars,
+            record_full_histories=record_full_histories,
         )
 
         output_energy = (
@@ -487,9 +507,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
-        return emitted_luminosity, v_packets_energy_hist
+        return emitted_luminosity
 
-    def run_convergence(self):
+    def run_convergence(self) -> None:
         """
         run the simulation
         """
@@ -506,9 +526,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.plasma.electron_densities,
                 self.simulation_state.t_inner,
             )
-            emitted_luminosity, v_packets_energy_hist = self.iterate(
-                self.no_of_packets
-            )
+            emitted_luminosity = self.iterate(self.no_of_packets)
             self.converged = self.advance_state(emitted_luminosity)
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
@@ -522,7 +540,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
         )
 
-    def run_final(self):
+    def run_final(self) -> None:
         """
         run the last iteration of the simulation
         """
@@ -534,11 +552,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.simulation_state.t_inner,
         )
 
-        # Set up spectrum solver integrator and virtual spectrum
-        emitted_luminosity, v_packets_energy_hist = self.iterate(
-            self.last_no_of_packets, self.no_of_virtual_packets
+        self.iterate(
+            self.last_no_of_packets,
+            record_full_histories=self.no_of_virtual_packets > 0,
         )
 
+        # Set up spectrum solver integrator and virtual spectrum
         integrator_settings = self.spectrum_solver.integrator_settings
         formal_integral_solver = FormalIntegralSolver(
             integrator_settings.points,
@@ -548,14 +567,20 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.spectrum_solver.setup_optional_spectra(
             self.transport.transport_state,
-            v_packets_energy_hist,
-            formal_integral_solver,
-            self.simulation_state,
-            self.transport,
-            self.plasma,
+            integrator=formal_integral_solver,
+            simulation_state=self.simulation_state,
+            transport=self.transport,
+            plasma=self.plasma,
             opacity_state=self.opacity_state,
             macro_atom_state=self.macro_atom_state,
         )
+        if self.no_of_virtual_packets > 0:
+            self.spectrum_solver.solve_virtual_packet_spectrum(
+                self.transport.transport_state,
+                self.transport.montecarlo_configuration,
+                self.transport.transport_state.tracker_full_df,
+                self.no_of_virtual_packets,
+            )
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "convergence_plots"):
@@ -741,7 +766,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             transport = MCTransportSolverClassic.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
-                enable_virtual_packet_logging=virtual_packet_logging,
             )
         if opacity is None:
             opacity = OpacitySolver(
@@ -790,6 +814,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         last_no_of_packets = int(last_no_of_packets)
 
         spectrum_solver = SpectrumSolver.from_config(config)
+        if virtual_packet_logging:
+            spectrum_solver.virtual_packet_logging = True
 
         return cls(
             iterations=config.montecarlo.iterations,

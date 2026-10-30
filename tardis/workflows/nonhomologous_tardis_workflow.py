@@ -124,7 +124,6 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
         self.transport_solver = MCTransportSolverNonhomologous.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
-            enable_virtual_packet_logging=self.enable_virtual_packet_logging,
         )
 
     def get_convergence_estimates(self) -> tuple[dict, object]:

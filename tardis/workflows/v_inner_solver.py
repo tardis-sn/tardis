@@ -447,7 +447,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
 
         self.plasma_solver.update(**update_properties)
 
-    def run(self):
+    def run(self) -> None:
         """Run the TARDIS simulation until convergence is reached"""
         self.converged = False
         while self.completed_iterations < self.total_iterations - 1:
@@ -469,9 +469,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
                     self.simulation_state.geometry.v_inner_boundary,
                 )
 
-            virtual_packet_energies = self.solve_montecarlo(
-                self.opacity_states, self.real_packet_count
-            )
+            self.solve_montecarlo(self.opacity_states, self.real_packet_count)
 
             (
                 estimated_values,
@@ -496,10 +494,10 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
         self.opacity_states = self.solve_opacity()
-        virtual_packet_energies = self.solve_montecarlo(
+        self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
-            self.virtual_packet_count,
+            record_full_histories=self.virtual_packet_count > 0,
         )
         if self.store_iteration_properties:
             self.store_plasma_state(
@@ -528,7 +526,4 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
             -self.simulation_state.no_of_shells :
         ]
 
-        self.initialize_spectrum_solver(
-            self.opacity_states,
-            virtual_packet_energies,
-        )
+        self.initialize_spectrum_solver(self.opacity_states)

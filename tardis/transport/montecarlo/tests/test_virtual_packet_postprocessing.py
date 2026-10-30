@@ -5,14 +5,19 @@ import pytest
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.spectrum.virtual_packet import (
+    calculate_virtual_packet_spectrum,
+    create_vpacket_collections,
+    tracker_full_df_to_event_arrays,
+)
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
-from tardis.transport.montecarlo.modes.montecarlo_transport import (
-    calculate_virtual_packet_spectrum,
-)
 from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
     trace_vpacket_volley,
+)
+from tardis.transport.montecarlo.packets.packet_collections import (
+    consolidate_vpacket_tracker,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
@@ -20,6 +25,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
+    trackers_full_to_df,
 )
 
 
@@ -53,9 +59,7 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
     spectrum_frequency_grid = np.array([1.0e14, 2.0e14, 3.0e14])
     trackers = generate_tracker_full_list(2, 3)
     for packet_idx, tracker in enumerate(trackers):
-        r_packet = RPacket(
-            1.0, 0.5, 1.0e14, 1.0, 1963 + packet_idx
-        )
+        r_packet = RPacket(1.0, 0.5, 1.0e14, 1.0, 1963 + packet_idx)
         r_packet.next_line_id = 0
         tracker.track_boundary_event(r_packet, -1, 0)
 
@@ -72,21 +76,37 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
         tracker.finalize()
 
     montecarlo_configuration.ENABLE_FULL_RELATIVITY = False
-    montecarlo_configuration.ENABLE_VPACKET_TRACKING = True
     montecarlo_configuration.MONTECARLO_SEED = 42
-    montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY = 1.5e14
-    montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY = 2.5e14
-    montecarlo_configuration.TEMPORARY_V_PACKET_BINS = 4
+    vpacket_spawn_start_frequency = 1.5e14
+    vpacket_spawn_end_frequency = 2.5e14
 
-    energy_histogram, vpacket_tracker = calculate_virtual_packet_spectrum(
+    tracker_events = tracker_full_df_to_event_arrays(
+        trackers_full_to_df(trackers)
+    )
+    vpacket_collections = create_vpacket_collections(
+        len(tracker_events.packet_id),
+        spectrum_frequency_grid,
+        vpacket_spawn_start_frequency,
+        vpacket_spawn_end_frequency,
+        4,
+    )
+    energy_histogram = calculate_virtual_packet_spectrum(
         geometry,
         0.0,
         opacity_state,
         montecarlo_configuration,
         spectrum_frequency_grid,
-        trackers,
-        4,
+        tracker_events,
+        vpacket_collections,
+        10.0,
+        0.0,
         trace_vpacket_volley,
+    )
+    vpacket_tracker = consolidate_vpacket_tracker(
+        vpacket_collections,
+        spectrum_frequency_grid,
+        vpacket_spawn_start_frequency,
+        vpacket_spawn_end_frequency,
     )
 
     mu_min = -np.sqrt(1.0 - (geometry.r_inner[0] / r_packet.r) ** 2)
@@ -109,10 +129,7 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
     expected_initial_mus = np.concatenate(
         [
             mu_min
-            + (
-                np.arange(4)
-                + np.random.RandomState(seed).random_sample(4)
-            )
+            + (np.arange(4) + np.random.RandomState(seed).random_sample(4))
             * mu_bin
             for seed in (42, 43)
         ]
