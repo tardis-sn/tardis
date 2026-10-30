@@ -269,6 +269,28 @@ the plasma properties will be updated, and the accumulation of optical depth wil
 
 .. note:: While it would make physical sense for the accumulation of optical depth to continue between cells until the packet eventually interacts, due to the exponential nature of optical depth and interaction probabilities, both continuing and restarting the accumulation of optical depth between cells can be mathematically shown to yield the same overall statistical results. Restarting the optical depth accumulation is computationally easier, and hence it is the method employed by TARDIS.
 
+For nonhomologous real-packet transport, the radial velocity varies linearly
+within each shell. The frequency drift along a straight packet path is set by
+the projected velocity gradient
+
+.. math::
+
+    G = \mu^2 \frac{dv}{dr} + (1-\mu^2)\frac{v}{r},
+    \qquad
+    \frac{d\nu_{\mathrm{CMF}}}{ds} = -\frac{\nu_{\mathrm{lab}}}{c}G.
+
+The line search divides the path at analytic zeros where :math:`G` reverses
+sign. Within each interval the comoving frequency moves in one direction, so
+a line resonance contributes optical depth and estimators once. The same line
+can resonate again after a genuine reversal. The search remembers processed
+lines between traces, including crossings that do not cause scattering, so
+coherent emission cannot immediately replay the emitted line. Emission into
+a different line begins a new frequency history. Across a shell edge, history
+is retained when the represented velocity is continuous and the gradient
+direction agrees. The resonance solver's existing distance cutoff limits
+resolution of very close crossings; this traversal history does not extend
+that numerical resolution.
+
 Performing an Interaction
 -------------------------
 

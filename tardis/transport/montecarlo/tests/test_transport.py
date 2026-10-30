@@ -1,13 +1,22 @@
+from collections.abc import Callable
+
 import numpy as np
+import numpy.testing as npt
 import pytest
 
+from tardis import constants as const
 from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
     init_estimators_bulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
 )
 from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
     trace_packet as homologous_trace_packet,
@@ -22,6 +31,7 @@ from tardis.transport.montecarlo.packets.movement import (
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
+    RPacket,
 )
 
 RTOL = 1.0e-12
@@ -512,7 +522,7 @@ def test_nonhomologous_trace_packet(
 ) -> None:
     set_seed_fixture(1963)
 
-    distance, interaction_type, delta_shell = nonhomologous_trace_packet(
+    distance, interaction_type, delta_shell, _, _ = nonhomologous_trace_packet(
         parametrized_packet,
         radial_1d_geometry,
         classic_opacity_state,
@@ -520,6 +530,8 @@ def test_nonhomologous_trace_packet(
         opacity_electron,
         False,
         False,
+        0,
+        0,
     )
 
     assert interaction_type == expected_interaction_type
@@ -561,7 +573,7 @@ def test_nonhomologous_trace_packet_no_line_fallthrough(
     # Start beyond the available line list to lock in the no-line fallthrough.
     set_seed_fixture(1963)
 
-    distance, interaction_type, delta_shell = nonhomologous_trace_packet(
+    distance, interaction_type, delta_shell, _, _ = nonhomologous_trace_packet(
         parametrized_packet,
         radial_1d_geometry,
         classic_opacity_state,
@@ -569,6 +581,8 @@ def test_nonhomologous_trace_packet_no_line_fallthrough(
         1.0e-12,
         False,
         False,
+        0,
+        0,
     )
 
     assert interaction_type == InteractionType.ESCATTERING
@@ -580,4 +594,89 @@ def test_nonhomologous_trace_packet_no_line_fallthrough(
         distance,
         line_estimators.mean_intensity_blueward,
         rtol=RTOL,
+    )
+
+
+@pytest.fixture
+def shell_gradient_reversal_geometry() -> NumbaRadial1DGeometry:
+    """Return continuous shells with equal and opposite velocity gradients."""
+    return NumbaRadial1DGeometry(
+        np.array([1.0e14, 1.5e14]),
+        np.array([1.5e14, 2.0e14]),
+        np.array([1.0e8, 1.4e8]),
+        np.array([1.4e8, 1.0e8]),
+    )
+
+
+@pytest.mark.parametrize(
+    "line_search_packet", [{"r": 1.1e14, "mu": 1.0}], indirect=True
+)
+def test_nonhomologous_shell_gradient_reversal_revisits_line(
+    line_search_packet: RPacket,
+    shell_gradient_reversal_geometry: NumbaRadial1DGeometry,
+    classic_opacity_state: OpacityStateNumba,
+    bulk_estimators: EstimatorsBulk,
+    line_estimators: EstimatorsLine,
+    set_seed_fixture: Callable[[int], None],
+) -> None:
+    """A continuous shell edge can reverse drift and expose a line again.
+
+    Claim: The same line contributes once on each side of a gradient reversal.
+    Regime: Radial ray through two velocity-continuous, linear shells.
+    Verification: Both shell profiles reach the same projected velocity at
+    radii 1.25e14 and 1.75e14 cm.
+    """
+    geometry = shell_gradient_reversal_geometry
+    packet = line_search_packet
+    estimators = line_estimators
+    line_frequency = packet.nu * (1.0 - 1.2e8 / const.c.cgs.value)
+    classic_opacity_state.line_list_nu = np.array([line_frequency])
+    set_seed_fixture(1963)
+
+    (
+        first_boundary_distance,
+        first_event,
+        first_shell_step,
+        next_untraversed_line_id,
+        line_search_direction,
+    ) = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        estimators,
+        1.0e-30,
+        False,
+        True,
+        0,
+        0,
+    )
+    assert first_event == InteractionType.BOUNDARY
+    npt.assert_allclose(first_boundary_distance, 4.0e13, rtol=0.0, atol=1.0)
+    npt.assert_allclose(
+        estimators.energy_deposition_line_rate[0, 0],
+        line_frequency / packet.nu,
+        rtol=1.0e-12,
+    )
+
+    move_r_packet(packet, first_boundary_distance, geometry, bulk_estimators, False)
+    move_packet_across_shell_boundary(packet, first_shell_step, 2)
+    assert packet.current_shell_id == 1
+
+    second_boundary_distance, second_event, _, _, _ = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        classic_opacity_state,
+        estimators,
+        1.0e-30,
+        False,
+        True,
+        next_untraversed_line_id,
+        line_search_direction,
+    )
+    assert second_event == InteractionType.BOUNDARY
+    npt.assert_allclose(second_boundary_distance, 5.0e13, rtol=0.0, atol=1.0)
+    npt.assert_allclose(
+        estimators.energy_deposition_line_rate[0, 1],
+        line_frequency / packet.nu,
+        rtol=1.0e-12,
     )

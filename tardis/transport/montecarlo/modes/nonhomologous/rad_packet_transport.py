@@ -62,7 +62,9 @@ def trace_packet(
     opacity_electron: float,
     enable_full_relativity: bool,
     disable_line_scattering: bool,
-) -> tuple[float, InteractionType, int]:
+    next_untraversed_line_id: int,
+    line_search_direction: int,
+) -> tuple[float, InteractionType, int, int, int]:
     """
     Traces the RPacket through the ejecta and stops when an interaction happens.
 
@@ -84,11 +86,16 @@ def trace_packet(
         Flag to enable full relativistic calculations
     disable_line_scattering : bool
         Flag to disable line scattering
+    next_untraversed_line_id : int
+        First line ID not yet processed in the active search direction.
+    line_search_direction : int
+        Active line-ID step, or zero when no frontier is active.
 
     Returns
     -------
-    tuple[float, InteractionType, int]
-        (distance, interaction_type, delta_shell)
+    tuple[float, InteractionType, int, int, int]
+        Distance, interaction type, shell step, next untraversed line ID,
+        and active line-search direction.
     """
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
@@ -135,6 +142,17 @@ def trace_packet(
             comov_nu_start,
             comov_nu_end,
         )
+        # The line ID range can include the current line in either search direction.
+        # Exclude it if it was already processed and the search direction is unchanged.
+        if line_search_direction == line_id_step:
+            if line_id_step == 1:
+                start_line_id = max(start_line_id, next_untraversed_line_id)
+            else:
+                start_line_id = min(start_line_id, next_untraversed_line_id)
+        else:
+            # Initialize a new packet or allow lines again after a reversal.
+            line_search_direction = line_id_step
+            next_untraversed_line_id = start_line_id
 
         for cur_line_id in range(start_line_id, stop_line_id, line_id_step):
             distance_trace = calculate_distance_line_nonhomologous(
@@ -162,6 +180,8 @@ def trace_packet(
                     distance_electron,
                     InteractionType.ESCATTERING,
                     delta_shell,
+                    next_untraversed_line_id,
+                    line_search_direction,
                 )
             if distance_boundary <= distance_trace:
                 update_line_ids(
@@ -173,6 +193,8 @@ def trace_packet(
                     distance_boundary,
                     InteractionType.BOUNDARY,
                     delta_shell,
+                    next_untraversed_line_id,
+                    line_search_direction,
                 )
 
             # Line interaction
@@ -228,11 +250,18 @@ def trace_packet(
             estimators_line.energy_deposition_line_rate[
                 cur_line_id, r_packet.current_shell_id
             ] += energy
+            next_untraversed_line_id = cur_line_id + line_id_step
 
             if tau_trace_combined > tau_event and not disable_line_scattering:
                 r_packet.next_line_id = cur_line_id
                 r_packet.prev_line_id = cur_line_id - 1
-                return distance_trace, InteractionType.LINE, delta_shell
+                return (
+                    distance_trace,
+                    InteractionType.LINE,
+                    delta_shell,
+                    next_untraversed_line_id,
+                    line_search_direction,
+                )
 
             tau_trace_line_combined += tau_trace_line
             distance_electron = (
@@ -254,6 +283,8 @@ def trace_packet(
                 distance_electron,
                 InteractionType.ESCATTERING,
                 delta_shell,
+                next_untraversed_line_id,
+                line_search_direction,
             )
         interval_start = interval_end
 
@@ -262,4 +293,10 @@ def trace_packet(
         opacity_state.line_list_nu,
         comov_nu_end,
     )
-    return distance_boundary, InteractionType.BOUNDARY, delta_shell
+    return (
+        distance_boundary,
+        InteractionType.BOUNDARY,
+        delta_shell,
+        next_untraversed_line_id,
+        line_search_direction,
+    )
