@@ -86,15 +86,15 @@ class ContinuumOpacityState:
         photo_ion_idx : pandas.DataFrame
             Photoionization macro-atom transition indices.
         ion_number_density : pandas.DataFrame
-            Accepted ion populations.
+            Accepted ion number densities.
         level_number_density : pandas.DataFrame
-            Accepted level populations.
+            Accepted level number densities.
         electron_densities : pandas.Series
             Accepted electron densities.
         t_electrons : numpy.typing.ArrayLike
             Accepted electron temperatures.
         level_to_continuum_saha_factor : pandas.DataFrame
-            LTE bound-level population per next-ion and electron population.
+            LTE bound-level number density per next-ion and electron number density.
         radiative_recombination_rate : pandas.DataFrame
             Accepted radiative recombination coefficients.
 
@@ -140,7 +140,7 @@ class ContinuumOpacityState:
             ],
             names=["atomic_number", "ion_number"],
         )
-        stimulated_recombination_population = (
+        stimulated_recombination_number_density = (
             level_to_continuum_saha_factor.loc[
                 photo_ion_cross_sections.index
             ].to_numpy()
@@ -149,7 +149,7 @@ class ContinuumOpacityState:
         )
         chi_bf = (
             level_number_density.loc[photo_ion_cross_sections.index]
-            - stimulated_recombination_population * boltzmann_factor
+            - stimulated_recombination_number_density * boltzmann_factor
         ).multiply(photo_ion_cross_sections.x_sect.to_numpy(), axis=0)
 
         ff_cooling_factor = (

@@ -72,13 +72,13 @@ class ThermalBalanceSolver:
     def solve(
         self,
         thermal_electron_distribution: ThermalElectronEnergyDistribution,
-        level_population: pd.DataFrame,
-        ion_population: pd.DataFrame,
+        level_number_density: pd.DataFrame,
+        ion_number_density: pd.DataFrame,
         collisional_ionization_rate_coefficient: pd.DataFrame,
         collisional_deexcitation_rate_coefficient: pd.DataFrame,
         collisional_excitation_rate_coefficient: pd.DataFrame,
         free_free_heating_estimator: pd.DataFrame,
-        level_population_ratio: pd.DataFrame,
+        level_number_density_ratio: pd.DataFrame,
         radiation_field: DilutePlanckianRadiationField | None = None,
         bound_free_heating_estimator: pd.DataFrame | None = None,
         stimulated_recombination_estimator: pd.DataFrame | None = None,
@@ -91,9 +91,9 @@ class ThermalBalanceSolver:
         ----------
         thermal_electron_distribution : ThermalElectronEnergyDistribution
             Electron energy, temperature, and density.
-        level_population : pd.DataFrame
+        level_number_density : pd.DataFrame
             Level number density.
-        ion_population : pd.DataFrame
+        ion_number_density : pd.DataFrame
             Ion number density.
         collisional_ionization_rate_coefficient : pd.DataFrame
             Collisional ionization rate coefficient.
@@ -103,8 +103,8 @@ class ThermalBalanceSolver:
             Collisional excitation rate coefficient.
         free_free_heating_estimator : pd.DataFrame
             Montecarlo estimator for free-free heating.
-        level_population_ratio : pd.DataFrame
-            Level population to ion population ratio. Lucy 03, equation 14.
+        level_number_density_ratio : pd.DataFrame
+            Level number density to ion number density ratio. Lucy 03, equation 14.
         radiation_field : RadiationField, optional
             Radiation field for mean intensity calculation.
         bound_free_heating_estimator : pd.DataFrame, optional
@@ -120,10 +120,10 @@ class ThermalBalanceSolver:
         electron_density = thermal_electron_distribution.number_density
 
         bound_free_heating, free_bound_cooling = self.bound_free_solver.solve(
-            level_population,
-            ion_population,
+            level_number_density,
+            ion_number_density,
             thermal_electron_distribution,
-            level_population_ratio,
+            level_number_density_ratio,
             radiation_field,
             bound_free_heating_estimator,
             stimulated_recombination_estimator,
@@ -132,16 +132,16 @@ class ThermalBalanceSolver:
         free_free_heating, free_free_cooling = self.free_free_solver.solve(
             free_free_heating_estimator,
             thermal_electron_distribution,
-            ion_population,
+            ion_number_density,
         )
 
         collisional_ionization_heating, collisional_ionization_cooling = (
             self.collisional_ionization_solver.solve(
                 electron_density,
-                ion_population,
-                level_population,
+                ion_number_density,
+                level_number_density,
                 collisional_ionization_rate_coefficient,
-                level_population_ratio,
+                level_number_density_ratio,
             )
         )
 
@@ -150,7 +150,7 @@ class ThermalBalanceSolver:
                 electron_density,
                 collisional_deexcitation_rate_coefficient,
                 collisional_excitation_rate_coefficient,
-                level_population,
+                level_number_density,
             )
         )
 
@@ -173,8 +173,8 @@ class ThermalBalanceSolver:
         ) / total_cooling
 
         return (
-            pd.Series(total_heating_rate, index=level_population.columns),
-            pd.Series(fractional_heating_rate, index=level_population.columns),
+            pd.Series(total_heating_rate, index=level_number_density.columns),
+            pd.Series(fractional_heating_rate, index=level_number_density.columns),
         )
 
 
@@ -205,7 +205,7 @@ class ElectronThermalBalanceSolver:
         radiation_temperature : numpy.ndarray
             Radiation temperature in each shell [K].
         level_initial_guess : pandas.DataFrame
-            Frozen normalized level populations used during optimization.
+            Frozen normalized level number densities used during optimization.
         maximum_electron_density : numpy.ndarray
             Maximum electron number density in each shell [cm^-3].
         """
@@ -404,7 +404,7 @@ class ElectronThermalBalanceSolver:
         -------
         tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation
             Equilibrium state rebuilt using the candidate's converged level
-            populations as the terminal seed.
+            number densities as the terminal seed.
         """
         electron_density = self.maximum_electron_density * candidate[::2]
         electron_temperature = np.asarray(
@@ -418,13 +418,13 @@ class ElectronThermalBalanceSolver:
         return self.evaluator.evaluate(
             electron_density,
             electron_temperature,
-            seed_evaluation.normalized_population,
+            seed_evaluation.fractional_number_density,
         )
 
     @staticmethod
     def validate_evaluation(evaluation: PlasmaEquilibriumEvaluation) -> None:
         """
-        Validate population, charge, level, and thermal closure.
+        Validate number density, charge, level, and thermal closure.
 
         Parameters
         ----------
@@ -434,29 +434,29 @@ class ElectronThermalBalanceSolver:
         Raises
         ------
         RuntimeError
-            If populations or derived states are invalid, or if any closure
+            If number densities or derived states are invalid, or if any closure
             residual exceeds its declared tolerance.
         """
         failures = []
-        population_fields = {
-            "normalized_population": evaluation.normalized_population,
-            "absolute_level_population": evaluation.absolute_level_population,
-            "ion_population": evaluation.ion_population,
+        number_density_fields = {
+            "fractional_number_density": evaluation.fractional_number_density,
+            "absolute_level_number_density": evaluation.absolute_level_number_density,
+            "ion_number_density": evaluation.ion_number_density,
             "electron_density": evaluation.charge_solved_electron_density,
         }
-        for field_name, population in population_fields.items():
-            if population is None:
+        for field_name, number_density in number_density_fields.items():
+            if number_density is None:
                 failures.append(f"{field_name} is missing")
                 continue
-            population_values = np.asarray(population, dtype=np.float64)
-            if not np.isfinite(population_values).all():
+            number_density_values = np.asarray(number_density, dtype=np.float64)
+            if not np.isfinite(number_density_values).all():
                 failures.append(f"{field_name} is nonfinite")
-            if (population_values < 0.0).any():
+            if (number_density_values < 0.0).any():
                 failures.append(f"{field_name} is negative")
 
-        normalized_totals = evaluation.normalized_population.sum(axis=0)
+        normalized_totals = evaluation.fractional_number_density.sum(axis=0)
         if not np.allclose(normalized_totals, 1.0, rtol=1e-12, atol=0.0):
-            failures.append("normalized_population does not sum to one")
+            failures.append("fractional_number_density does not sum to one")
 
         for field_name, state in {
             "tau_sobolev": evaluation.tau_sobolev,

@@ -44,14 +44,14 @@ from tardis.plasma.properties.general import (
     GElectron,
     ThermalGElectron,
 )
-from tardis.plasma.properties.ion_population import (
+from tardis.plasma.properties.ion_number_density import (
     IonNumberDensity,
     PhiSahaNebular,
     RadiationFieldCorrection,
     SahaFactor,
     ThermalPhiSahaLTE,
 )
-from tardis.plasma.properties.level_population import LevelNumberDensity
+from tardis.plasma.properties.level_number_density import LevelNumberDensity
 from tardis.plasma.properties.partition_function import (
     ThermalLevelBoltzmannFactorLTE,
     ThermalLTEPartitionFunction,
@@ -67,13 +67,13 @@ class PlasmaEquilibriumEvaluation:
     """Fixed-density and terminal equilibrium outputs."""
 
     trial_electron_density: pd.Series
-    normalized_population: pd.DataFrame
+    fractional_number_density: pd.DataFrame
     diagnostic_ion_ratio: pd.Series
     trial_beta_sobolev: pd.DataFrame
     trial_level_residual: pd.DataFrame
     charge_solved_electron_density: pd.Series | None
-    absolute_level_population: pd.DataFrame
-    ion_population: pd.DataFrame | None
+    absolute_level_number_density: pd.DataFrame
+    ion_number_density: pd.DataFrame | None
     tau_sobolev: pd.DataFrame
     beta_sobolev: pd.DataFrame
     level_residual: pd.DataFrame
@@ -83,11 +83,11 @@ class PlasmaEquilibriumEvaluation:
     fractional_heating: pd.Series | None
     continuum_coefficients: ContinuumCoefficientState
     level_to_continuum_saha_factor: pd.DataFrame
-    lte_ion_population: pd.DataFrame
-    lte_level_population: pd.DataFrame
+    lte_ion_number_density: pd.DataFrame
+    lte_level_number_density: pd.DataFrame
 
 
-def calculate_lte_populations(
+def calculate_lte_number_densities(
     thermal_saha_factor: pd.DataFrame,
     thermal_partition_function: pd.DataFrame,
     elemental_number_density: pd.DataFrame,
@@ -95,7 +95,7 @@ def calculate_lte_populations(
     thermal_level_boltzmann_factor: pd.DataFrame,
     levels: pd.DataFrame | pd.MultiIndex,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Calculate LTE ion and level populations at an explicit density.
+    """Calculate LTE ion and level number densities at an explicit density.
 
     Parameters
     ----------
@@ -114,12 +114,12 @@ def calculate_lte_populations(
 
     Returns
     -------
-    ion_population : pandas.DataFrame
-        LTE ion populations by shell.
-    level_population : pandas.DataFrame
-        LTE level populations by shell.
+    ion_number_density : pandas.DataFrame
+        LTE ion number densities by shell.
+    level_number_density : pandas.DataFrame
+        LTE level number densities by shell.
     """
-    ion_population, _ = IonNumberDensity.calculate_with_n_electron(
+    ion_number_density, _ = IonNumberDensity.calculate_with_n_electron(
         thermal_saha_factor,
         thermal_partition_function,
         elemental_number_density,
@@ -128,17 +128,17 @@ def calculate_lte_populations(
         1e-20,
     )
     level_index = levels.index if isinstance(levels, pd.DataFrame) else levels
-    level_population = LevelNumberDensity(None).calculate(
+    level_number_density = LevelNumberDensity(None).calculate(
         thermal_level_boltzmann_factor,
-        ion_population,
+        ion_number_density,
         level_index,
         thermal_partition_function,
     )
-    level_population.columns = elemental_number_density.columns
-    return ion_population, level_population
+    level_number_density.columns = elemental_number_density.columns
+    return ion_number_density, level_number_density
 
 
-def calculate_nlte_level_population_residual(
+def calculate_nlte_level_number_density_residual(
     level_fractions: npt.NDArray[np.float64],
     level_rates: LevelEquationRates,
     rate_matrix_solver: RateMatrix,
@@ -263,12 +263,12 @@ class IntermediateThermalState:
 
 @dataclass(frozen=True)
 class SolvedLevelState:
-    """Level-population outputs solved at the trial electron density."""
+    """Level number-density outputs solved at the trial electron density."""
 
     fractions: tuple[npt.NDArray[np.float64], ...]
     ionized_to_neutral_ratios: tuple[float, ...]
-    full_population: pd.DataFrame
-    normalized_population: pd.DataFrame
+    full_number_density: pd.DataFrame
+    fractional_number_density: pd.DataFrame
     trial_escape_probability: pd.DataFrame
     trial_level_residual: pd.DataFrame
     hydrogen_index: pd.MultiIndex
@@ -295,12 +295,12 @@ class PlasmaEquilibriumEvaluator:
         j_blues: pd.DataFrame,
         shell_number_densities: tuple[ShellNumberDensity, ...],
         sobolev_inputs: tuple[SobolevInputs, ...],
-        level_population_index: pd.MultiIndex,
+        level_number_density_index: pd.MultiIndex,
         hydrogen_species: tuple[int, int],
         elemental_number_density: pd.DataFrame,
         maximum_electron_density: npt.ArrayLike,
-        ion_population_solver: object | None = None,
-        ion_population_arguments: Mapping[str, object] | None = None,
+        ion_number_density_solver: object | None = None,
+        ion_number_density_arguments: Mapping[str, object] | None = None,
         thermal_balance_solver: object | None = None,
         thermal_balance_arguments: Mapping[str, object] | None = None,
         reference_electron_temperature: u.Quantity | None = None,
@@ -333,18 +333,18 @@ class PlasmaEquilibriumEvaluator:
             Per-shell absolute number densities, level number densities and species level positions.
         sobolev_inputs : tuple[SobolevInputs, ...]
             Per-shell Sobolev line inputs.
-        level_population_index : pandas.MultiIndex
-            Complete level-population index used for returned absolute levels.
+        level_number_density_index : pandas.MultiIndex
+            Complete level number-density index used for returned absolute levels.
         hydrogen_species : tuple[int, int]
             Atomic and ion number of the reduced NLTE species.
         elemental_number_density : pandas.DataFrame
             Elemental number density indexed by atomic number and shell.
         maximum_electron_density : array-like
             Maximum electron density used by the charge residual.
-        ion_population_solver : IonPopulationSolver, optional
+        ion_number_density_solver : IonNumberDensitySolver, optional
             Existing authoritative charge solver.
-        ion_population_arguments : mapping, optional
-            Fixed keyword arguments for ``ion_population_solver.solve``.
+        ion_number_density_arguments : mapping, optional
+            Fixed keyword arguments for ``ion_number_density_solver.solve``.
         thermal_balance_solver : ThermalBalanceSolver, optional
             Existing thermal-rate owner.
         thermal_balance_arguments : mapping, optional
@@ -404,14 +404,14 @@ class PlasmaEquilibriumEvaluator:
         self.j_blues = j_blues.copy(deep=True)
         self.shell_number_densities = shell_number_densities
         self.sobolev_inputs = sobolev_inputs
-        self.level_population_index = level_population_index
+        self.level_number_density_index = level_number_density_index
         self.hydrogen_species = hydrogen_species
         self.elemental_number_density = elemental_number_density.copy(deep=True)
         self.maximum_electron_density = np.asarray(
             maximum_electron_density, dtype=np.float64
         )
-        self.ion_population_solver = ion_population_solver
-        self.ion_population_arguments = deepcopy(ion_population_arguments or {})
+        self.ion_number_density_solver = ion_number_density_solver
+        self.ion_number_density_arguments = deepcopy(ion_number_density_arguments or {})
         self.thermal_balance_solver = thermal_balance_solver
         self.thermal_balance_arguments = deepcopy(
             thermal_balance_arguments or {}
@@ -609,7 +609,7 @@ class PlasmaEquilibriumEvaluator:
         electron_temperature: float,
         level_fractions: npt.NDArray[np.float64],
         continuum_rates: ContinuumRateCoefficients,
-        population_geometry: ShellNumberDensity,
+        number_density_geometry: ShellNumberDensity,
         sobolev_inputs: SobolevInputs,
         level_density: npt.NDArray[np.float64] | None = None,
         bound_bound_rates: BoundBoundMatrixRates | None = None,
@@ -639,14 +639,14 @@ class PlasmaEquilibriumEvaluator:
                 np.array([electron_density]) / u.cm**3,
             )
         residual, beta_sobolev, ionized_to_neutral_ratio = (
-            calculate_nlte_level_population_residual(
+            calculate_nlte_level_number_density_residual(
                 level_fractions,
                 level_rates,
                 self.rate_matrix_solver,
                 shell_j_blues,
                 electron_distribution,
                 self.hydrogen_species,
-                population_geometry,
+                number_density_geometry,
                 sobolev_inputs,
                 level_density,
                 bound_bound_rates,
@@ -661,7 +661,7 @@ class PlasmaEquilibriumEvaluator:
         electron_temperature: float,
         level_seed: npt.NDArray[np.float64],
         continuum_rates: ContinuumRateCoefficients,
-        population_geometry: ShellNumberDensity,
+        number_density_geometry: ShellNumberDensity,
         sobolev_inputs: SobolevInputs,
         bound_bound_rates: BoundBoundMatrixRates | None = None,
     ) -> tuple[
@@ -695,7 +695,7 @@ class PlasmaEquilibriumEvaluator:
                 electron_temperature,
                 level_fractions,
                 continuum_rates,
-                population_geometry,
+                number_density_geometry,
                 sobolev_inputs,
                 bound_bound_rates=bound_bound_rates,
             )[0]
@@ -731,7 +731,7 @@ class PlasmaEquilibriumEvaluator:
             if best_residual <= 1e-10:
                 break
 
-            # Log ratios preserve positive, normalized populations while
+            # Log ratios preserve positive, normalized number densities while
             # solving from this trial seed.
             def calculate_log_ratio_residual(
                 log_ratios: npt.NDArray[np.float64],
@@ -762,15 +762,15 @@ class PlasmaEquilibriumEvaluator:
                 break
         if not np.isfinite(level_solution).all():
             raise ValueError(
-                "Reduced level-population solve returned nonfinite fractions."
+                "Reduced level number-density solve returned nonfinite fractions."
             )
         if np.any(level_solution < 0.0):
             raise ValueError(
-                "Reduced level-population solve returned negative fractions."
+                "Reduced level number-density solve returned negative fractions."
             )
         if level_solution.sum() <= 0.0:
             raise ValueError(
-                "Reduced level-population solve returned zero fractions."
+                "Reduced level number-density solve returned zero fractions."
             )
 
         fractions = level_solution / level_solution.sum()
@@ -781,7 +781,7 @@ class PlasmaEquilibriumEvaluator:
                 electron_temperature,
                 fractions,
                 continuum_rates,
-                population_geometry,
+                number_density_geometry,
                 sobolev_inputs,
                 bound_bound_rates=bound_bound_rates,
             )
@@ -791,14 +791,14 @@ class PlasmaEquilibriumEvaluator:
             or ionized_to_neutral_ratio < 0.0
         ):
             raise ValueError(
-                "Reduced level-population solve returned an invalid "
+                "Reduced level-number density solve returned an invalid "
                 "ionized-to-neutral ratio."
             )
         # Legacy IIP returns a physical iterate at difficult trial points;
         # the workflow checks final closure before accepting a thermal state.
         if not np.isfinite(level_residual).all():
             raise ValueError(
-                "Reduced level-population solve returned a nonfinite residual."
+                "Reduced level-number density solve returned a nonfinite residual."
             )
         return (
             fractions,
@@ -809,7 +809,7 @@ class PlasmaEquilibriumEvaluator:
 
     def _hydrogen_index(self) -> pd.MultiIndex:
         """Return the level index for the reduced NLTE species."""
-        level_index = self.level_population_index
+        level_index = self.level_number_density_index
         return level_index[
             (
                 level_index.get_level_values("atomic_number")
@@ -833,14 +833,14 @@ class PlasmaEquilibriumEvaluator:
         ionized_to_neutral_ratios: list[float] = []
         trial_escape_probabilities: list[npt.NDArray[np.float64]] = []
         trial_residuals: list[npt.NDArray[np.float64]] = []
-        full_population = pd.DataFrame(
+        full_number_density = pd.DataFrame(
             np.column_stack(
                 [
                     geometry.level_number_density
                     for geometry in self.shell_number_densities
                 ]
             ),
-            index=self.level_population_index,
+            index=self.level_number_density_index,
             columns=self.elemental_number_density.columns,
         )
         electron_distribution = ThermalElectronEnergyDistribution(
@@ -858,7 +858,7 @@ class PlasmaEquilibriumEvaluator:
         )
         for shell_idx, (
             continuum_rates,
-            population_geometry,
+            number_density_geometry,
             sobolev_inputs,
         ) in enumerate(
             zip(
@@ -868,9 +868,9 @@ class PlasmaEquilibriumEvaluator:
                 strict=True,
             )
         ):
-            if len(level_seed) == len(self.level_population_index):
+            if len(level_seed) == len(self.level_number_density_index):
                 seed = level_seed.iloc[
-                    population_geometry.species_level_positions, shell_idx
+                    number_density_geometry.species_level_positions, shell_idx
                 ].to_numpy(dtype=float)
             else:
                 seed = level_seed.iloc[:, shell_idx].to_numpy(dtype=float)
@@ -881,7 +881,7 @@ class PlasmaEquilibriumEvaluator:
                 electron_temperature[shell_idx],
                 seed,
                 continuum_rates,
-                population_geometry,
+                number_density_geometry,
                 sobolev_inputs,
                 prepared_bound_bound_rates[shell_idx],
             )
@@ -895,7 +895,7 @@ class PlasmaEquilibriumEvaluator:
         return SolvedLevelState(
             tuple(fractions),
             tuple(ionized_to_neutral_ratios),
-            full_population,
+            full_number_density,
             pd.DataFrame(
                 np.asarray(fractions).T, index=hydrogen_index, columns=columns
             ),
@@ -913,18 +913,18 @@ class PlasmaEquilibriumEvaluator:
             prepared_bound_bound_rates,
         )
 
-    def _solve_charge_population(
+    def _solve_charge_number_density(
         self,
         state: SolvedLevelState,
         thermal_state: IntermediateThermalState,
         trial_electron_distribution: ThermalElectronEnergyDistribution,
-        ion_population_arguments: dict[str, object],
+        ion_number_density_arguments: dict[str, object],
     ) -> tuple[pd.DataFrame | None, pd.Series | None]:
         """Solve optional charge conservation from the trial level state."""
-        if self.ion_population_solver is None:
+        if self.ion_number_density_solver is None:
             return None, None
 
-        estimated_levels = state.full_population.copy(deep=True)
+        estimated_levels = state.full_number_density.copy(deep=True)
         for shell_idx, shell_number_density in enumerate(
             self.shell_number_densities
         ):
@@ -939,7 +939,7 @@ class PlasmaEquilibriumEvaluator:
             trial_electron_distribution.number_density.to_value("cm^-3"),
             index=self.elemental_number_density.columns,
         )
-        lte_ion_population, lte_level_population = calculate_lte_populations(
+        lte_ion_number_density, lte_level_number_density = calculate_lte_number_densities(
             thermal_state.lte_ionization_factor,
             thermal_state.thermal_partition_function,
             self.elemental_number_density,
@@ -947,12 +947,12 @@ class PlasmaEquilibriumEvaluator:
             thermal_state.thermal_level_boltzmann_factor,
             self.levels,
         )
-        solver_arguments = deepcopy(ion_population_arguments)
+        solver_arguments = deepcopy(ion_number_density_arguments)
         solver_arguments.update(
             thermal_electron_energy_distribution=trial_electron_distribution,
-            estimated_level_population=estimated_levels,
-            lte_level_population=lte_level_population,
-            lte_ion_population=lte_ion_population,
+            estimated_level_number_density=estimated_levels,
+            lte_level_number_density=lte_level_number_density,
+            lte_ion_number_density=lte_ion_number_density,
             partition_function=thermal_state.thermal_partition_function,
             boltzmann_factor=thermal_state.thermal_level_boltzmann_factor,
             level_to_continuum_saha_factor=(
@@ -968,7 +968,7 @@ class PlasmaEquilibriumEvaluator:
                 trial_electron_distribution.temperature.to_value(u.K)
             )
         )
-        return self.ion_population_solver.solve(
+        return self.ion_number_density_solver.solve(
             lte_ionization_factor=ionization_factor,
             **solver_arguments,
         )
@@ -976,69 +976,69 @@ class PlasmaEquilibriumEvaluator:
     def _build_absolute_levels(
         self,
         state: SolvedLevelState,
-        ion_population: pd.DataFrame | None,
+        ion_number_density: pd.DataFrame | None,
     ) -> pd.DataFrame:
-        """Build absolute level populations from normalized shell solutions."""
-        absolute_levels = state.full_population.copy(deep=True)
-        if ion_population is None:
-            for shell_idx, population_geometry in enumerate(
+        """Build absolute level number densities from normalized shell solutions."""
+        absolute_levels = state.full_number_density.copy(deep=True)
+        if ion_number_density is None:
+            for shell_idx, number_density_geometry in enumerate(
                 self.shell_number_densities
             ):
                 absolute_levels.iloc[
-                    population_geometry.species_level_positions, shell_idx
+                    number_density_geometry.species_level_positions, shell_idx
                 ] = (
-                    population_geometry.hydrogen_number_density
+                    number_density_geometry.hydrogen_number_density
                     / (1.0 + state.ionized_to_neutral_ratios[shell_idx])
                     * state.fractions[shell_idx]
                 )
             return absolute_levels
 
         # Dilute-LTE Boltzmann factors give each ion's level distribution;
-        # without them, the fixed input populations keep their distribution.
-        base_population = (
-            state.full_population
+        # without them, the fixed input number densities keep their distribution.
+        base_number_density = (
+            state.full_number_density
             if self.dilute_radiation is None
             else self.dilute_radiation.level_boltzmann_factor.loc[
-                self.level_population_index
-            ].set_axis(state.full_population.columns, axis="columns")
+                self.level_number_density_index
+            ].set_axis(state.full_number_density.columns, axis="columns")
         )
-        level_atomic_numbers = self.level_population_index.get_level_values(
+        level_atomic_numbers = self.level_number_density_index.get_level_values(
             "atomic_number"
         )
-        level_ion_numbers = self.level_population_index.get_level_values(
+        level_ion_numbers = self.level_number_density_index.get_level_values(
             "ion_number"
         )
         for (
             atomic_number,
             ion_number,
-        ), ion_density in ion_population.iterrows():
+        ), ion_density in ion_number_density.iterrows():
             positions = np.flatnonzero(
                 (level_atomic_numbers == atomic_number)
                 & (level_ion_numbers == ion_number)
             )
-            base_ion_density = base_population.iloc[positions].sum()
+            base_ion_density = base_number_density.iloc[positions].sum()
             nonzero_density = base_ion_density != 0.0
             base_values = base_ion_density.to_numpy()
             safe_base_values = np.where(
                 nonzero_density.to_numpy(), base_values, 1.0
             )
             scaled_values = (
-                base_population.iloc[positions].to_numpy()
+                base_number_density.iloc[positions].to_numpy()
                 / safe_base_values
                 * ion_density.to_numpy()
             )
             scaled_values[:, ~nonzero_density.to_numpy()] = (
-                state.full_population.iloc[positions].to_numpy()[
+                state.full_number_density.iloc[positions].to_numpy()[
                     :, ~nonzero_density.to_numpy()
                 ]
             )
             absolute_levels.iloc[positions] = scaled_values
 
-        hydrogen_ion_population = ion_population.loc[self.hydrogen_species]
+        hydrogen_ion_number_density = ion_number_density.loc[self.hydrogen_species]
         absolute_levels.iloc[
-            self.level_population_index.get_indexer(state.hydrogen_index)
-        ] = state.normalized_population.multiply(
-            hydrogen_ion_population, axis=1
+            self.level_number_density_index.get_indexer(state.hydrogen_index)
+        ] = state.fractional_number_density.multiply(
+            hydrogen_ion_number_density, axis=1
         ).to_numpy()
         return absolute_levels
 
@@ -1089,7 +1089,7 @@ class PlasmaEquilibriumEvaluator:
         residuals = []
         for shell_idx, (
             continuum_rates,
-            population_geometry,
+            number_density_geometry,
             sobolev_inputs,
         ) in enumerate(
             zip(
@@ -1106,7 +1106,7 @@ class PlasmaEquilibriumEvaluator:
                     electron_temperature[shell_idx],
                     state.fractions[shell_idx],
                     continuum_rates,
-                    population_geometry,
+                    number_density_geometry,
                     sobolev_inputs,
                     absolute_levels.iloc[:, shell_idx].to_numpy(dtype=float),
                     state.bound_bound_rates[shell_idx],
@@ -1122,7 +1122,7 @@ class PlasmaEquilibriumEvaluator:
         self,
         final_electron_distribution: ThermalElectronEnergyDistribution,
         absolute_levels: pd.DataFrame,
-        ion_population: pd.DataFrame | None,
+        ion_number_density: pd.DataFrame | None,
         thermal_state: IntermediateThermalState,
     ) -> tuple[pd.Series | None, pd.Series | None]:
         """Calculate optional thermal-balance output."""
@@ -1177,12 +1177,12 @@ class PlasmaEquilibriumEvaluator:
         )
         solver_arguments.update(
             thermal_electron_distribution=final_electron_distribution,
-            level_population=absolute_levels,
-            ion_population=ion_population,
+            level_number_density=absolute_levels,
+            ion_number_density=ion_number_density,
             collisional_ionization_rate_coefficient=(
                 thermal_state.collisional_ionization_rate_coefficient
             ),
-            level_population_ratio=thermal_state.level_to_continuum_saha_factor,
+            level_number_density_ratio=thermal_state.level_to_continuum_saha_factor,
         )
         solver = deepcopy(self.thermal_balance_solver)
         return solver.solve(**solver_arguments)
@@ -1203,7 +1203,7 @@ class PlasmaEquilibriumEvaluator:
             Electron temperatures in each plasma shell [K]. The array must
             use the plasma's shell ordering and contain unitless float values.
         level_seed : pandas.DataFrame
-            Initial normalized level populations.
+            Initial fractional level number densities.
         """
         trial_density = pd.Series(
             np.asarray(trial_electron_density, dtype=np.float64),
@@ -1241,11 +1241,11 @@ class PlasmaEquilibriumEvaluator:
             level_seed,
             thermal_state,
         )
-        ion_population, solved_density = self._solve_charge_population(
+        ion_number_density, solved_density = self._solve_charge_number_density(
             level_state,
             thermal_state,
             trial_electron_distribution,
-            self.ion_population_arguments,
+            self.ion_number_density_arguments,
         )
 
         final_density = (
@@ -1262,9 +1262,9 @@ class PlasmaEquilibriumEvaluator:
             final_density.to_numpy() / u.cm**3,
         )
         absolute_levels = self._build_absolute_levels(
-            level_state, ion_population
+            level_state, ion_number_density
         )
-        lte_ion_population, lte_level_population = calculate_lte_populations(
+        lte_ion_number_density, lte_level_number_density = calculate_lte_number_densities(
             thermal_state.lte_ionization_factor,
             thermal_state.thermal_partition_function,
             self.elemental_number_density,
@@ -1275,11 +1275,11 @@ class PlasmaEquilibriumEvaluator:
 
         charge_residual = None
         electron_residual = None
-        if ion_population is not None and solved_density is not None:
-            charges = ion_population.index.get_level_values(
+        if ion_number_density is not None and solved_density is not None:
+            charges = ion_number_density.index.get_level_values(
                 "ion_number"
             ).to_numpy()
-            charge_density = ion_population.multiply(charges, axis=0).sum()
+            charge_density = ion_number_density.multiply(charges, axis=0).sum()
             charge_residual = (
                 charge_density - solved_density
             ) / self.maximum_electron_density
@@ -1291,7 +1291,7 @@ class PlasmaEquilibriumEvaluator:
         total_heating, fractional_heating = self._calculate_heating(
             final_electron_distribution,
             absolute_levels,
-            ion_population,
+            ion_number_density,
             thermal_state,
         )
         final_residual = self._calculate_final_residual(
@@ -1304,7 +1304,7 @@ class PlasmaEquilibriumEvaluator:
 
         return PlasmaEquilibriumEvaluation(
             trial_density,
-            level_state.normalized_population,
+            level_state.fractional_number_density,
             pd.Series(
                 level_state.ionized_to_neutral_ratios,
                 index=trial_density.index,
@@ -1313,7 +1313,7 @@ class PlasmaEquilibriumEvaluator:
             level_state.trial_level_residual,
             solved_density,
             absolute_levels,
-            ion_population,
+            ion_number_density,
             final_tau,
             final_escape_probabilities,
             final_residual,
@@ -1323,6 +1323,6 @@ class PlasmaEquilibriumEvaluator:
             fractional_heating,
             thermal_state.continuum_coefficients,
             thermal_state.level_to_continuum_saha_factor,
-            lte_ion_population,
-            lte_level_population,
+            lte_ion_number_density,
+            lte_level_number_density,
         )

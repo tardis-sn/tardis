@@ -34,7 +34,7 @@ ion species number densities, we recalculate the electron density by weighting t
 ion number (e.g. neutral ion number densities don't contribute at all to the electron number density, once ionized contribute with a
 factor of 1, twice ionized contribute with a factor of two, ....).
 
-Finally, we calculate the level populations (`LTEPlasma.calculate_level_populations`) by using the calculated ion species number densities:
+Finally, we calculate the level number densities (`LTEPlasma.calculate_level_number_densities`) by using the calculated ion species number densities:
 
 .. math::
     N_{i, j, k} = \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k}
