@@ -1,7 +1,0 @@
-tardis.plasma.properties.hydrogen\_continuum module
-===================================================
-
-.. automodule:: tardis.plasma.properties.hydrogen_continuum
-   :members:
-   :show-inheritance:
-   :undoc-members:
