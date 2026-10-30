@@ -45,7 +45,7 @@ def grotrian_figure(grotrian_plot):
     return grotrian_plot.display()
 
 @pytest.fixture(scope="module")
-def grotrian_widget(simulation_simple_tracked, monkeysession):
+def grotrian_widget(simulation_simple_tracked):
     """Creates a GrotrianWidget from the tracked simulation fixture.
 
     Returns
@@ -54,10 +54,12 @@ def grotrian_widget(simulation_simple_tracked, monkeysession):
         A GrotrianWidget instance with display() called.
     """
     widget = GrotrianWidget.from_simulation(simulation_simple_tracked)
-    monkeysession.setattr(
-        "tardis.util.environment.Environment.is_notebook", lambda: True
-    )
-    widget.display()
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(
+            "tardis.util.environment.Environment.is_notebook",
+            lambda: True,
+        )
+        widget.display()
     return widget
 
 
