@@ -189,7 +189,7 @@ class OpacityState:
             )
             destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.to_numpy()
             transition_line_id = macro_atom_state.transition_metadata.transition_line_idx.to_numpy()
-        return OpacityStateNumba(
+        opacity_state_numba = OpacityStateNumba(
             self.electron_density.to_numpy(),
             self.t_electrons,
             self.line_list_nu.to_numpy(),
