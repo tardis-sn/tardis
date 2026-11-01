@@ -1,0 +1,20 @@
+tardis.util package
+===================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.util.base
+   tardis.util.environment
+   tardis.util.panel_init
+
+Module contents
+---------------
+
+.. automodule:: tardis.util
+   :members:
+   :show-inheritance:
+   :undoc-members:
