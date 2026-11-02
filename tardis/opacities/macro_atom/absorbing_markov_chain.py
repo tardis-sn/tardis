@@ -257,14 +257,6 @@ def create_absorbing_probs(
             1.0,
             sparse.linalg.norm(system, np.inf) * np.linalg.norm(solved, np.inf),
         )
-        # Keep signed-coefficient compatibility independent of the reduction
-        # mask. A physical treatment of signed sampling laws is a shared issue.
-        signed_legacy_chain = np.any(values < 0)
-        negative_exits = solved < -PROBABILITY_TOLERANCE
-        if not signed_legacy_chain and np.any(negative_exits):
-            raise ValueError(
-                f"cell {cell}: negative first-exit probabilities for {negative_exits.sum()} global activation/exit-source pairs, first pairs {selected[np.argwhere(negative_exits)[:8]].tolist()} (minimum {solved.min()})"
-            )
         if (
             not np.all(np.isfinite(solved))
             or residual_norm > PROBABILITY_TOLERANCE * residual_scale

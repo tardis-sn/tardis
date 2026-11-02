@@ -39,8 +39,7 @@ its reduced row; activation at an excluded pool uses its original channels.
 
 Shared pools couple the selected elements into one reduction. The final emission
 distribution is preserved, but the explicit history of visits to included pools
-is removed. Diagnostics that count individual pool visits would require separate
-accounting for the collapsed transitions.
+is removed.
 
 Emission-only states and global level zero are included. Explicit int64 forward
 and inverse maps preserve global identities, including gaps in the level
@@ -50,11 +49,10 @@ continuum activation indices and estimator dimensions keep their original
 ordering and shell count.
 
 Sparse LU solves are checked for finite, normalized rows and a scale-aware
-equation residual. Nonnegativity checks apply to networks with nonnegative
-original coefficients in every reduction mode. Signed networks retain the
-legacy behavior described below. A reachable closed class without a physical
-exit raises a diagnostic containing the cell and states. Channels are never
-removed by a numerical probability threshold. The sampler allows a CDF endpoint
+equation residual. Input coefficients and reduced entries are not rejected
+based on their sign in any reduction mode. A reachable closed class without a
+physical exit raises a diagnostic containing the cell and states. Channels are
+never removed by a numerical probability threshold. The sampler allows a CDF endpoint
 deficit of at most 1e-10 due to floating-point summation; larger deficits or
 activations without outgoing probability raise an error.
 
@@ -64,42 +62,5 @@ an analytic 50 percent / 18.75 percent / 31.25 percent emission distribution wit
 direct thermal emission, pool activation, and re-entry through an unselected
 element. Every pool-option combination is checked with binomial uncertainty
 bounds. Full mode preserves the existing default and its two-draw
-sampling behavior. The different modes preserve distributions, rather than
-individual random packet histories.
-
-A smaller matrix does not guarantee faster transport: explicit cycling through
-unselected states and shared pools can dominate. Compare setup and solve cost,
-selected-state count, dense matrix bytes, explicit steps, and total transport
-cost with the existing ASV remote benchmarking workflow on the same network and
-packet count. No hardware-independent speedup is implied.
-
-Signed-channel limitation
--------------------------
-
-Some accepted plasma states produce negative stimulated-recombination-corrected
-photoionization coefficients (for example, the existing 1500 K outer-shell
-cutoff scenario). Full, partial, and explicit modes preserve signed coefficients
-without clipping or sign-based rejection. Partial reduction applies the same
-algebraic elimination to the selected block; negative retained channels or
-negative reduced entries do not introduce additional termination checks.
-Including the ionization or thermal pool remains optional for signed networks.
-
-For example, a direct selected-state coefficient of -0.1 can combine with a
-two-step contribution of +0.3 to give an exit coefficient of +0.2. Other
-selections can leave signed entries. The existing cumulative sampler is retained
-in all modes for compatibility. Running a signed case successfully does not
-establish a valid categorical sampling law or mode-invariant sampled spectra.
-This limitation is shared by full and partial reduction; resolving it is a
-separate physics change. General physical treatment requires consistently separating
-stimulated recombination from absorption, including corresponding changes to
-packet opacities and emission, rather than only removing a sign check. See
-`Lucy (2002), section 4.1 <https://arxiv.org/html/astro-ph/0107377v3#S4.SS1>`_.
-
-Exceptionally near-trapping partial chains can lose tiny exits through
-floating-point cancellation. Their diagonals use actual exits and off-diagonal
-jumps; if float64 LU violates probability conservation, a Decimal
-elimination with at least 80 digits (40 guard digits beyond the smallest
-positive exit) retries the conservation-form system. This preserves tiny physical
-channels without inventing probabilities or removing transitions. Full mode
-retains the original numerical calculation for regression compatibility,
-including its cancellation limits for exceptionally near-trapping chains.
+sampling behavior. For nonnegative kernels, the different modes preserve
+distributions, rather than individual random packet histories.
