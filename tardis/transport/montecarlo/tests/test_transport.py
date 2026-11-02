@@ -11,6 +11,9 @@ from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.transport.geometry.calculate_distances import (
+    calculate_comoving_frequency_nonhomologous,
+)
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     EstimatorsBulk,
     init_estimators_bulk,
@@ -23,6 +26,9 @@ from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
     trace_packet as nonhomologous_trace_packet,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
+    update_line_ids,
 )
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
@@ -522,7 +528,14 @@ def test_nonhomologous_trace_packet(
 ) -> None:
     set_seed_fixture(1963)
 
-    distance, interaction_type, delta_shell, _, _ = nonhomologous_trace_packet(
+    update_line_ids(
+        parametrized_packet,
+        classic_opacity_state.line_list_nu,
+        calculate_comoving_frequency_nonhomologous(
+            parametrized_packet, radial_1d_geometry, 0.0
+        ),
+    )
+    distance, interaction_type, delta_shell = nonhomologous_trace_packet(
         parametrized_packet,
         radial_1d_geometry,
         classic_opacity_state,
@@ -530,8 +543,6 @@ def test_nonhomologous_trace_packet(
         opacity_electron,
         False,
         False,
-        0,
-        0,
     )
 
     assert interaction_type == expected_interaction_type
@@ -573,7 +584,14 @@ def test_nonhomologous_trace_packet_no_line_fallthrough(
     # Start beyond the available line list to lock in the no-line fallthrough.
     set_seed_fixture(1963)
 
-    distance, interaction_type, delta_shell, _, _ = nonhomologous_trace_packet(
+    update_line_ids(
+        parametrized_packet,
+        classic_opacity_state.line_list_nu,
+        calculate_comoving_frequency_nonhomologous(
+            parametrized_packet, radial_1d_geometry, 0.0
+        ),
+    )
+    distance, interaction_type, delta_shell = nonhomologous_trace_packet(
         parametrized_packet,
         radial_1d_geometry,
         classic_opacity_state,
@@ -581,8 +599,6 @@ def test_nonhomologous_trace_packet_no_line_fallthrough(
         1.0e-12,
         False,
         False,
-        0,
-        0,
     )
 
     assert interaction_type == InteractionType.ESCATTERING
@@ -633,22 +649,21 @@ def test_nonhomologous_shell_gradient_reversal_revisits_line(
     classic_opacity_state.line_list_nu = np.array([line_frequency])
     set_seed_fixture(1963)
 
-    (
-        first_boundary_distance,
-        first_event,
-        first_shell_step,
-        next_untraversed_line_id,
-        line_search_direction,
-    ) = nonhomologous_trace_packet(
+    update_line_ids(
         packet,
-        geometry,
-        classic_opacity_state,
-        estimators,
-        1.0e-30,
-        False,
-        True,
-        0,
-        0,
+        classic_opacity_state.line_list_nu,
+        calculate_comoving_frequency_nonhomologous(packet, geometry, 0.0),
+    )
+    first_boundary_distance, first_event, first_shell_step = (
+        nonhomologous_trace_packet(
+            packet,
+            geometry,
+            classic_opacity_state,
+            estimators,
+            1.0e-30,
+            False,
+            True,
+        )
     )
     assert first_event == InteractionType.BOUNDARY
     npt.assert_allclose(first_boundary_distance, 4.0e13, rtol=0.0, atol=1.0)
@@ -662,7 +677,7 @@ def test_nonhomologous_shell_gradient_reversal_revisits_line(
     move_packet_across_shell_boundary(packet, first_shell_step, 2)
     assert packet.current_shell_id == 1
 
-    second_boundary_distance, second_event, _, _, _ = nonhomologous_trace_packet(
+    second_boundary_distance, second_event, _ = nonhomologous_trace_packet(
         packet,
         geometry,
         classic_opacity_state,
@@ -670,8 +685,6 @@ def test_nonhomologous_shell_gradient_reversal_revisits_line(
         1.0e-30,
         False,
         True,
-        next_untraversed_line_id,
-        line_search_direction,
     )
     assert second_event == InteractionType.BOUNDARY
     npt.assert_allclose(second_boundary_distance, 5.0e13, rtol=0.0, atol=1.0)

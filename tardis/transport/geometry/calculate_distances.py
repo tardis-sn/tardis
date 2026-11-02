@@ -439,6 +439,7 @@ def get_line_id_range_nonhomologous(
     line_list_nu: npt.NDArray[np.float64],
     comov_nu_start: float,
     comov_nu_end: float,
+    minimum_frequency_padding: float,
 ) -> tuple[int, int, int]:
     """Return directional candidate line-list bounds for a monotonic interval.
 
@@ -446,10 +447,27 @@ def get_line_id_range_nonhomologous(
     frequencies are included, with padding for numerical uncertainty. The
     caller excludes previously processed lines and checks resonance distances
     against the spatial interval.
+
+    Parameters
+    ----------
+    line_list_nu : numpy.ndarray
+        Line frequencies in descending order.
+    comov_nu_start : float
+        Comoving frequency at the interval start, in Hz.
+    comov_nu_end : float
+        Comoving frequency at the interval end, in Hz.
+    minimum_frequency_padding : float
+        Minimum padding in Hz, used to admit the starting close-frequency band.
+
+    Returns
+    -------
+    tuple[int, int, int]
+        Start line ID, exclusive stop line ID, and directional ID step.
     """
     line_count = len(line_list_nu)
-    frequency_tolerance = CLOSE_LINE_THRESHOLD * max(
-        abs(comov_nu_start), abs(comov_nu_end)
+    frequency_tolerance = max(
+        CLOSE_LINE_THRESHOLD * max(abs(comov_nu_start), abs(comov_nu_end)),
+        minimum_frequency_padding,
     )
     minimum_frequency = min(comov_nu_start, comov_nu_end) - frequency_tolerance
     maximum_frequency = max(comov_nu_start, comov_nu_end) + frequency_tolerance

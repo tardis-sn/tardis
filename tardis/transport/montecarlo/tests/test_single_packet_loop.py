@@ -83,14 +83,21 @@ class _CommonPacketPropagationPatcher:
     def __init__(self, monkeypatch: pytest.MonkeyPatch) -> None:
         self.monkeypatch = monkeypatch
         self.interaction_queue = []
-        self.trace_inputs: list[tuple[object, object]] = []
+        self.trace_inputs: list[tuple[int, int]] = []
 
     def trace_packet(
-        self, *args: object, **kwargs: object
+        self, r_packet: RPacket, *args: object, **kwargs: object
     ) -> tuple[object, ...]:
         assert self.interaction_queue
-        self.trace_inputs.append((args[-2], args[-1]))
+        self.trace_inputs.append((r_packet.next_line_id, r_packet.prev_line_id))
         return self.interaction_queue.pop(0)
+
+    def line_scatter_event(
+        self, r_packet: RPacket, *args: object, **kwargs: object
+    ) -> None:
+        # The mocked handler emits ID 0, excluding it in both directions.
+        r_packet.next_line_id = 1
+        r_packet.prev_line_id = -1
 
     def __call__(self, module, interactions) -> None:
         self.interaction_queue = list(interactions)
@@ -104,7 +111,7 @@ class _CommonPacketPropagationPatcher:
         self.monkeypatch.setattr(
             module,
             "line_scatter_event",
-            lambda packet, *args, **kwargs: setattr(packet, "next_line_id", 1),
+            self.line_scatter_event,
         )
         self.monkeypatch.setattr(
             module,
@@ -127,11 +134,11 @@ def patch_common_classic_hooks(monkeypatch):
 def different_line_emission(
     patch_common_classic_hooks: _CommonPacketPropagationPatcher,
 ) -> _CommonPacketPropagationPatcher:
-    """Advance the mocked trace past line 1, then emit line 0."""
+    """Trace a line event, then let the shared handler emit line 0."""
     interactions = [
-        (1.0e12, InteractionType.LINE, 1, 2, 1),
-        (1.0e12, InteractionType.BOUNDARY, 1, 1, 1),
-        (1.0e12, InteractionType.BOUNDARY, 1, 1, 1),
+        (1.0e12, InteractionType.LINE, 1),
+        (1.0e12, InteractionType.BOUNDARY, 1),
+        (1.0e12, InteractionType.BOUNDARY, 1),
     ]
     patch_common_classic_hooks(nonhomologous_propagation, interactions)
     return patch_common_classic_hooks
@@ -334,10 +341,10 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
 ) -> None:
     # Force the nonhomologous loop through one selected interaction, then an
     # outer boundary, so this characterizes dispatch bookkeeping directly.
-    interactions = [(1.0e12, first_interaction, 1, 0, 0)]
+    interactions = [(1.0e12, first_interaction, 1)]
     if first_interaction != InteractionType.BOUNDARY:
-        interactions.append((1.0e12, InteractionType.BOUNDARY, 1, 0, 0))
-    interactions.append((1.0e12, InteractionType.BOUNDARY, 1, 0, 0))
+        interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
+    interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
     patch_common_classic_hooks(nonhomologous_propagation, interactions)
 
     nonhomologous_propagation.packet_propagation(
@@ -388,10 +395,10 @@ def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
 ) -> None:
     """Start the next line search just after the line chosen for emission.
 
-    The mocked trace has advanced past line 1, then the line handler emits
-    line 0. The next trace must receive line 1 as its first unprocessed line,
-    instead of retaining the old position after line 1. This checks how the
-    loop passes search state; physical crossings are tested separately.
+    The mocked line handler emits line 0. The next trace must see line 1 as
+    its redward cursor and -1 as its blueward cursor, preserving the handler's
+    exclusion of the emitted ID in both directions. This checks loop wiring;
+    physical crossings and emission are tested separately.
     """
     nonhomologous_propagation.packet_propagation(
         parametrized_packet,
@@ -405,7 +412,7 @@ def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
     )
 
     assert parametrized_packet.status == PacketStatus.EMITTED
-    assert different_line_emission.trace_inputs[1] == (1, 1)
+    assert different_line_emission.trace_inputs[1] == (1, -1)
 
 
 @pytest.mark.parametrize(

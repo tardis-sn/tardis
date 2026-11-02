@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 import astropy.units as u
 import numpy as np
 import numpy.testing as npt
@@ -13,9 +15,11 @@ from tardis.opacities.tau_sobolev import (
     calculate_sobolev_line_opacity as classic_calculate_sobolev_line_opacity,
 )
 from tardis.transport.geometry.calculate_distances import (
+    calculate_comoving_frequency_nonhomologous,
     calculate_distance_boundary,
     calculate_distance_line_nonhomologous,
     calculate_projected_gradient_zero_distances,
+    get_line_id_range_nonhomologous,
 )
 from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
@@ -41,6 +45,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
     trace_packet as nonhomologous_trace_packet,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
+    update_line_ids,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
     calculate_beta_sobolev,
@@ -607,7 +614,12 @@ def test_nonhomologous_line_reappears_after_gradient_reversal(
         atol=100.0,
     )
 
-    _, interaction_type, _, _, _ = nonhomologous_trace_packet(
+    update_line_ids(
+        packet,
+        classic_opacity_state.line_list_nu,
+        calculate_comoving_frequency_nonhomologous(packet, geometry, 0.0),
+    )
+    _, interaction_type, _ = nonhomologous_trace_packet(
         packet,
         geometry,
         classic_opacity_state,
@@ -615,8 +627,6 @@ def test_nonhomologous_line_reappears_after_gradient_reversal(
         1.0e-30,
         False,
         True,
-        0,
-        0,
     )
     assert interaction_type == InteractionType.BOUNDARY
 
@@ -672,7 +682,12 @@ def test_nonhomologous_search_resolves_two_close_lines(
         atol=100.0,
     )
 
-    _, interaction_type, _, _, _ = nonhomologous_trace_packet(
+    update_line_ids(
+        packet,
+        classic_opacity_state.line_list_nu,
+        calculate_comoving_frequency_nonhomologous(packet, geometry, 0.0),
+    )
+    _, interaction_type, _ = nonhomologous_trace_packet(
         packet,
         geometry,
         classic_opacity_state,
@@ -680,8 +695,6 @@ def test_nonhomologous_search_resolves_two_close_lines(
         1.0e-30,
         False,
         True,
-        0,
-        0,
     )
     assert interaction_type == InteractionType.BOUNDARY
     npt.assert_allclose(
@@ -711,13 +724,10 @@ def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
     emitted_frequency, absorbed_frequency = classic_opacity_state.line_list_nu
     assert emitted_frequency > initial_comov_frequency > absorbed_frequency
 
-    (
-        first_distance,
-        first_event,
-        _,
-        next_untraversed_line_id,
-        line_search_direction,
-    ) = nonhomologous_trace_packet(
+    update_line_ids(
+        packet, classic_opacity_state.line_list_nu, initial_comov_frequency
+    )
+    first_distance, first_event, _ = nonhomologous_trace_packet(
         packet,
         geometry,
         classic_opacity_state,
@@ -725,13 +735,10 @@ def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
         1.0e-30,
         False,
         False,
-        0,
-        0,
     )
     assert first_event == InteractionType.LINE
     assert packet.next_line_id == 1
     npt.assert_allclose(first_distance, first_line_distance, rtol=0.0, atol=100.0)
-    assert (next_untraversed_line_id, line_search_direction) == (2, 1)
     first_deposition = line_estimators.energy_deposition_line_rate[1, 0]
 
     move_r_packet(packet, first_distance, geometry, bulk_estimators, False)
@@ -742,17 +749,10 @@ def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
         classic_opacity_state,
         False,
     )
-    # A new line is emitted at the packet position; it is already traversed.
-    next_untraversed_line_id = 1
-    line_search_direction = 1
+    # Emission excludes its own ID and makes line 1 eligible on the new flight.
+    assert (packet.next_line_id, packet.prev_line_id) == (1, -1)
 
-    (
-        second_distance,
-        second_event,
-        _,
-        next_untraversed_line_id,
-        line_search_direction,
-    ) = nonhomologous_trace_packet(
+    second_distance, second_event, _ = nonhomologous_trace_packet(
         packet,
         geometry,
         classic_opacity_state,
@@ -760,12 +760,9 @@ def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
         1.0e-30,
         False,
         False,
-        next_untraversed_line_id,
-        line_search_direction,
     )
     assert second_event == InteractionType.LINE
     assert packet.next_line_id == 1
-    assert (next_untraversed_line_id, line_search_direction) == (2, 1)
     npt.assert_allclose(
         second_distance, repeated_line_distance, rtol=0.0, atol=100.0
     )
@@ -775,6 +772,430 @@ def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
         rtol=1.0e-10,
     )
     assert line_estimators.energy_deposition_line_rate[0, 0] == 0.0
+
+
+@pytest.fixture(params=[1, -1], ids=["redshift", "blueshift"])
+def blend_line_id_step(request: pytest.FixtureRequest) -> int:
+    """Select the drift sign in a finite-gradient radial blend scenario."""
+    return request.param
+
+
+@pytest.fixture
+def blend_velocity_parameters(blend_line_id_step: int) -> tuple[float, float]:
+    """Return a linear positive-velocity field with abs(G)=8e-7 s^-1."""
+    return (8.0e-7, 2.0e7) if blend_line_id_step == 1 else (-8.0e-7, 2.6e8)
+
+
+@pytest.fixture
+def blend_packet(line_search_packet: RPacket) -> RPacket:
+    """Launch the shared unit-energy packet on a radial outgoing ray."""
+    line_search_packet.mu = 1.0
+    return line_search_packet
+
+
+@pytest.fixture
+def blend_geometry(
+    blend_velocity_parameters: tuple[float, float],
+) -> NumbaRadial1DGeometry:
+    """Return one shell for the common blend velocity field."""
+    gradient, intercept = blend_velocity_parameters
+    inner = np.array([1.0e14])
+    outer = np.array([2.0e14])
+    return NumbaRadial1DGeometry(
+        inner, outer, gradient * inner + intercept, gradient * outer + intercept
+    )
+
+
+@pytest.fixture
+def blend_resonance_distance(request: pytest.FixtureRequest) -> float:
+    """Prescribe an independent radial resonance position, in centimeters."""
+    return getattr(request, "param", 0.0)
+
+
+@pytest.fixture
+def blend_opacity_state(
+    classic_opacity_state: OpacityStateNumba,
+    blend_packet: RPacket,
+    blend_velocity_parameters: tuple[float, float],
+    blend_resonance_distance: float,
+) -> OpacityStateNumba:
+    """Give three transition IDs the frequency of one analytic resonance."""
+    gradient, intercept = blend_velocity_parameters
+    resonance_velocity = (
+        gradient * (blend_packet.r + blend_resonance_distance) + intercept
+    )
+    frequency = blend_packet.nu * (1.0 - resonance_velocity / C_SPEED_OF_LIGHT)
+    classic_opacity_state.line_list_nu = np.full(3, frequency)
+    classic_opacity_state.tau_sobolev = np.zeros((3, 2))
+    classic_opacity_state.sobolev_optical_depth_coefficient = np.zeros((3, 2))
+    return classic_opacity_state
+
+
+@pytest.fixture
+def blend_estimators() -> EstimatorsLine:
+    """Keep a separate estimator channel for every blend member and shell."""
+    return EstimatorsLine(np.zeros((3, 2)), np.zeros((3, 2)))
+
+
+@pytest.fixture
+def blend_trace(
+    monkeypatch: pytest.MonkeyPatch,
+    blend_packet: RPacket,
+    blend_geometry: NumbaRadial1DGeometry,
+    blend_opacity_state: OpacityStateNumba,
+) -> Callable[..., tuple[float, InteractionType, int]]:
+    """Initialize the real tracer's history and fix event optical depth to one."""
+    update_line_ids(
+        blend_packet,
+        blend_opacity_state.line_list_nu,
+        calculate_comoving_frequency_nonhomologous(
+            blend_packet, blend_geometry, 0.0
+        ),
+    )
+    monkeypatch.setattr(np.random, "random", lambda: np.exp(-1.0))
+    return getattr(
+        nonhomologous_trace_packet, "py_func", nonhomologous_trace_packet
+    )
+
+
+def test_nonhomologous_emission_processes_eligible_blend_at_zero_distance(
+    blend_line_id_step: int,
+    blend_velocity_parameters: tuple[float, float],
+    blend_packet: RPacket,
+    blend_geometry: NumbaRadial1DGeometry,
+    blend_opacity_state: OpacityStateNumba,
+    blend_estimators: EstimatorsLine,
+    blend_trace: Callable[..., tuple[float, InteractionType, int]],
+) -> None:
+    """Exclude the emitting ID but process its directional twin at zero distance."""
+    gradient, _ = blend_velocity_parameters
+    blend_opacity_state.sobolev_optical_depth_coefficient[:] = 2.0 * abs(
+        gradient
+    )
+    nonhomologous_line_emission(
+        blend_packet, 1, blend_geometry, blend_opacity_state, False
+    )
+    eligible_line_id = 1 + blend_line_id_step
+    expected_energy = (
+        blend_packet.energy
+        * blend_opacity_state.line_list_nu[eligible_line_id]
+        / blend_packet.nu
+    )
+
+    distance, event, _ = blend_trace(
+        blend_packet,
+        blend_geometry,
+        blend_opacity_state,
+        blend_estimators,
+        1.0e-30,
+        False,
+        False,
+    )
+
+    assert event == InteractionType.LINE
+    assert distance == 0.0
+    assert blend_packet.next_line_id == eligible_line_id
+    expected_deposition = np.zeros(3)
+    expected_deposition[eligible_line_id] = expected_energy
+    npt.assert_allclose(
+        blend_estimators.energy_deposition_line_rate[:, 0],
+        expected_deposition,
+        rtol=1.0e-10,
+        atol=0.0,
+    )
+    npt.assert_allclose(
+        blend_estimators.mean_intensity_blueward[:, 0],
+        expected_deposition / (blend_packet.nu * abs(gradient)),
+        rtol=1.0e-10,
+        atol=0.0,
+    )
+
+
+@pytest.mark.parametrize("blend_resonance_distance", [1.0e12], indirect=True)
+def test_nonhomologous_blend_members_share_resonance_contributions(
+    blend_velocity_parameters: tuple[float, float],
+    blend_resonance_distance: float,
+    blend_packet: RPacket,
+    blend_geometry: NumbaRadial1DGeometry,
+    blend_opacity_state: OpacityStateNumba,
+    blend_estimators: EstimatorsLine,
+    blend_trace: Callable[..., tuple[float, InteractionType, int]],
+) -> None:
+    """Each equal-frequency member contributes once at the prescribed resonance."""
+    gradient, _ = blend_velocity_parameters
+    line_frequency = blend_opacity_state.line_list_nu[0]
+    expected_energy = blend_packet.energy * line_frequency / blend_packet.nu
+    solved_distance = calculate_distance_line_nonhomologous(
+        blend_packet, blend_geometry, line_frequency
+    )
+    npt.assert_allclose(
+        solved_distance, blend_resonance_distance, rtol=0.0, atol=100.0
+    )
+
+    _, event, _ = blend_trace(
+        blend_packet,
+        blend_geometry,
+        blend_opacity_state,
+        blend_estimators,
+        1.0e-30,
+        False,
+        True,
+    )
+
+    assert event == InteractionType.BOUNDARY
+    npt.assert_allclose(
+        blend_estimators.energy_deposition_line_rate[:, 0],
+        np.full(3, expected_energy),
+        rtol=1.0e-10,
+    )
+    npt.assert_allclose(
+        blend_estimators.mean_intensity_blueward[:, 0],
+        np.full(3, expected_energy / (blend_packet.nu * abs(gradient))),
+        rtol=1.0e-10,
+    )
+
+
+@pytest.mark.parametrize("blend_resonance_distance", [1.0e12], indirect=True)
+def test_nonhomologous_blend_optical_depth_accumulates_in_order(
+    blend_line_id_step: int,
+    blend_velocity_parameters: tuple[float, float],
+    blend_resonance_distance: float,
+    blend_packet: RPacket,
+    blend_geometry: NumbaRadial1DGeometry,
+    blend_opacity_state: OpacityStateNumba,
+    blend_estimators: EstimatorsLine,
+    blend_trace: Callable[..., tuple[float, InteractionType, int]],
+) -> None:
+    """Depths 0.25 then 2 cross event depth one in the second member."""
+    gradient, _ = blend_velocity_parameters
+    depths = np.array([0.25, 2.0, 2.0])[::blend_line_id_step]
+    blend_opacity_state.sobolev_optical_depth_coefficient[:, 0] = depths * abs(
+        gradient
+    )
+    expected_energy = (
+        blend_packet.energy
+        * blend_opacity_state.line_list_nu[0]
+        / blend_packet.nu
+    )
+
+    distance, event, _ = blend_trace(
+        blend_packet,
+        blend_geometry,
+        blend_opacity_state,
+        blend_estimators,
+        1.0e-30,
+        False,
+        False,
+    )
+
+    assert event == InteractionType.LINE
+    assert blend_packet.next_line_id == 1
+    npt.assert_allclose(
+        distance, blend_resonance_distance, rtol=0.0, atol=100.0
+    )
+    expected_deposition = np.full(3, expected_energy)
+    expected_deposition[2 if blend_line_id_step == 1 else 0] = 0.0
+    npt.assert_allclose(
+        blend_estimators.energy_deposition_line_rate[:, 0],
+        expected_deposition,
+        rtol=1.0e-10,
+        atol=0.0,
+    )
+    npt.assert_allclose(
+        blend_estimators.mean_intensity_blueward[:, 0],
+        expected_deposition / (blend_packet.nu * abs(gradient)),
+        rtol=1.0e-10,
+        atol=0.0,
+    )
+
+
+@pytest.mark.parametrize(
+    "blend_resonance_distance", [2.5e13 - 200.0], indirect=True
+)
+def test_processed_line_survives_monotonic_boundary_return(
+    blend_velocity_parameters: tuple[float, float],
+    blend_packet: RPacket,
+    blend_opacity_state: OpacityStateNumba,
+    blend_estimators: EstimatorsLine,
+    bulk_estimators: EstimatorsBulk,
+    blend_trace: Callable[..., tuple[float, InteractionType, int]],
+) -> None:
+    """A blend passed 200 cm upstream is not replayed across a continuous edge."""
+    gradient, intercept = blend_velocity_parameters
+    inner = np.array([1.0e14, 1.5e14])
+    outer = np.array([1.5e14, 2.0e14])
+    geometry = NumbaRadial1DGeometry(
+        inner, outer, gradient * inner + intercept, gradient * outer + intercept
+    )
+    expected_energy = (
+        blend_packet.energy
+        * blend_opacity_state.line_list_nu[0]
+        / blend_packet.nu
+    )
+    distance, event, shell_step = blend_trace(
+        blend_packet,
+        geometry,
+        blend_opacity_state,
+        blend_estimators,
+        1.0e-30,
+        False,
+        True,
+    )
+    assert event == InteractionType.BOUNDARY
+    move_r_packet(blend_packet, distance, geometry, bulk_estimators, False)
+    move_packet_across_shell_boundary(blend_packet, shell_step, 2)
+
+    _, second_event, _ = blend_trace(
+        blend_packet,
+        geometry,
+        blend_opacity_state,
+        blend_estimators,
+        1.0e-30,
+        False,
+        True,
+    )
+
+    assert second_event == InteractionType.BOUNDARY
+    npt.assert_allclose(
+        blend_estimators.energy_deposition_line_rate[:, 0],
+        np.full(3, expected_energy),
+        rtol=1.0e-10,
+    )
+    npt.assert_allclose(
+        blend_estimators.mean_intensity_blueward[:, 0],
+        np.full(3, expected_energy / (blend_packet.nu * abs(gradient))),
+        rtol=1.0e-10,
+    )
+    npt.assert_array_equal(
+        blend_estimators.energy_deposition_line_rate[:, 1], 0.0
+    )
+    npt.assert_array_equal(blend_estimators.mean_intensity_blueward[:, 1], 0.0)
+
+
+@pytest.mark.parametrize("blend_line_id_step", [1], indirect=True)
+@pytest.mark.parametrize("blend_resonance_distance", [1.0e12], indirect=True)
+def test_equal_frequency_different_line_emission_restarts_blend_search(
+    blend_velocity_parameters: tuple[float, float],
+    blend_packet: RPacket,
+    blend_geometry: NumbaRadial1DGeometry,
+    blend_opacity_state: OpacityStateNumba,
+    blend_estimators: EstimatorsLine,
+    bulk_estimators: EstimatorsBulk,
+    blend_trace: Callable[..., tuple[float, InteractionType, int]],
+) -> None:
+    """Absorb in ID 1, emit in equal-frequency ID 0, then encounter ID 1 again."""
+    gradient, _ = blend_velocity_parameters
+    blend_opacity_state.sobolev_optical_depth_coefficient[1, 0] = 2.0 * abs(
+        gradient
+    )
+    distance, event, _ = blend_trace(
+        blend_packet,
+        blend_geometry,
+        blend_opacity_state,
+        blend_estimators,
+        1.0e-30,
+        False,
+        False,
+    )
+    assert event == InteractionType.LINE
+    assert blend_packet.next_line_id == 1
+    move_r_packet(
+        blend_packet, distance, blend_geometry, bulk_estimators, False
+    )
+    nonhomologous_line_emission(
+        blend_packet, 0, blend_geometry, blend_opacity_state, False
+    )
+    before_deposition = blend_estimators.energy_deposition_line_rate[
+        :, 0
+    ].copy()
+    before_blueward = blend_estimators.mean_intensity_blueward[:, 0].copy()
+    expected_energy = (
+        blend_packet.energy
+        * blend_opacity_state.line_list_nu[1]
+        / blend_packet.nu
+    )
+
+    distance, event, _ = blend_trace(
+        blend_packet,
+        blend_geometry,
+        blend_opacity_state,
+        blend_estimators,
+        1.0e-30,
+        False,
+        False,
+    )
+
+    assert event == InteractionType.LINE
+    assert distance == 0.0
+    assert blend_packet.next_line_id == 1
+    expected_deposition = np.array([0.0, expected_energy, 0.0])
+    npt.assert_allclose(
+        blend_estimators.energy_deposition_line_rate[:, 0] - before_deposition,
+        expected_deposition,
+        rtol=1.0e-10,
+        atol=0.0,
+    )
+    npt.assert_allclose(
+        blend_estimators.mean_intensity_blueward[:, 0] - before_blueward,
+        expected_deposition / (blend_packet.nu * abs(gradient)),
+        rtol=1.0e-10,
+        atol=0.0,
+    )
+
+
+@pytest.mark.parametrize(
+    "frequency_offset", [0.0, 9.75], ids=["blend", "close-lines"]
+)
+def test_nonhomologous_cursor_initialization_includes_start_band(
+    line_search_packet: RPacket,
+    frequency_offset: float,
+) -> None:
+    """Include exact twins and ordinary lines within the 10 Hz lab-frame band."""
+    frequency = 0.95e15
+    frequencies = np.array(
+        [
+            frequency + 1.0e5,
+            frequency + frequency_offset,
+            frequency - frequency_offset,
+            frequency - 1.0e5,
+        ]
+    )
+
+    update_line_ids(line_search_packet, frequencies, frequency)
+
+    assert line_search_packet.next_line_id == 1
+    assert line_search_packet.prev_line_id == 2
+
+    # At v_parallel = 0.05c the CMF-scaled 9.5 Hz padding is insufficient;
+    # the ordinary 9.75 Hz offset belongs to the 10 Hz lab-frame close band.
+    start_line_id, stop_line_id, line_id_step = get_line_id_range_nonhomologous(
+        frequencies, frequency, frequency - 1.0e4, 10.0
+    )
+    assert (start_line_id, stop_line_id, line_id_step) == (1, 3, 1)
+
+
+@pytest.mark.parametrize(
+    ("active_line_id_step", "expected_ids"),
+    [(1, (2, 1)), (-1, (1, 0))],
+)
+def test_nonhomologous_cursor_refresh_preserves_active_direction(
+    line_search_packet: RPacket,
+    active_line_id_step: int,
+    expected_ids: tuple[int, int],
+) -> None:
+    """Refresh the opposite cursor without replacing processed-line history."""
+    frequencies = np.array([1.001e15, 1.0e15, 0.999e15])
+    line_search_packet.next_line_id = 2
+    line_search_packet.prev_line_id = 0
+
+    update_line_ids(
+        line_search_packet, frequencies, 1.0e15, active_line_id_step
+    )
+
+    assert (
+        line_search_packet.next_line_id,
+        line_search_packet.prev_line_id,
+    ) == expected_ids
 
 
 def test_nonhomologous_calculate_beta_sobolevs(
