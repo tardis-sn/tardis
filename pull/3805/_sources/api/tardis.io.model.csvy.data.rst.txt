@@ -1,7 +1,0 @@
-tardis.io.model.csvy.data module
-================================
-
-.. automodule:: tardis.io.model.csvy.data
-   :members:
-   :show-inheritance:
-   :undoc-members:
