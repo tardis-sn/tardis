@@ -1,7 +1,0 @@
-tardis.energy\_input.transport.gamma\_packet\_loop module
-=========================================================
-
-.. automodule:: tardis.energy_input.transport.gamma_packet_loop
-   :members:
-   :show-inheritance:
-   :undoc-members:
