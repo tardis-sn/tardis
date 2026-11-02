@@ -952,6 +952,7 @@ def test_nonhomologous_blend_members_share_resonance_contributions(
         blend_estimators.mean_intensity_blueward[:, 0],
         np.full(3, expected_energy / (blend_packet.nu * abs(gradient))),
         rtol=1.0e-10,
+        atol=0.0,
     )
 
 
@@ -966,9 +967,10 @@ def test_nonhomologous_blend_optical_depth_accumulates_in_order(
     blend_estimators: EstimatorsLine,
     blend_trace: Callable[..., tuple[float, InteractionType, int]],
 ) -> None:
-    """Depths 0.25 then 2 cross event depth one in the second member."""
+    """Depths 0.6 then 0.6 cross event depth one in the second member."""
     gradient, _ = blend_velocity_parameters
-    depths = np.array([0.25, 2.0, 2.0])[::blend_line_id_step]
+    # Neither of the first two depths can select a line without accumulation.
+    depths = np.array([0.6, 0.6, 2.0])[::blend_line_id_step]
     blend_opacity_state.sobolev_optical_depth_coefficient[:, 0] = depths * abs(
         gradient
     )
@@ -1065,6 +1067,7 @@ def test_processed_line_survives_monotonic_boundary_return(
         blend_estimators.mean_intensity_blueward[:, 0],
         np.full(3, expected_energy / (blend_packet.nu * abs(gradient))),
         rtol=1.0e-10,
+        atol=0.0,
     )
     npt.assert_array_equal(
         blend_estimators.energy_deposition_line_rate[:, 1], 0.0
@@ -1088,6 +1091,11 @@ def test_equal_frequency_different_line_emission_restarts_blend_search(
     blend_opacity_state.sobolev_optical_depth_coefficient[1, 0] = 2.0 * abs(
         gradient
     )
+    expected_energy = (
+        blend_packet.energy
+        * blend_opacity_state.line_list_nu[1]
+        / blend_packet.nu
+    )
     distance, event, _ = blend_trace(
         blend_packet,
         blend_geometry,
@@ -1099,6 +1107,19 @@ def test_equal_frequency_different_line_emission_restarts_blend_search(
     )
     assert event == InteractionType.LINE
     assert blend_packet.next_line_id == 1
+    expected_first_deposition = np.array([expected_energy, expected_energy, 0.0])
+    npt.assert_allclose(
+        blend_estimators.energy_deposition_line_rate[:, 0],
+        expected_first_deposition,
+        rtol=1.0e-10,
+        atol=0.0,
+    )
+    npt.assert_allclose(
+        blend_estimators.mean_intensity_blueward[:, 0],
+        expected_first_deposition / (blend_packet.nu * abs(gradient)),
+        rtol=1.0e-10,
+        atol=0.0,
+    )
     move_r_packet(
         blend_packet, distance, blend_geometry, bulk_estimators, False
     )

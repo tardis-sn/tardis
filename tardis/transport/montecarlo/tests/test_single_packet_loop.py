@@ -131,10 +131,10 @@ def patch_common_classic_hooks(monkeypatch):
 
 
 @pytest.fixture
-def different_line_emission(
+def emitted_line_cursors(
     patch_common_classic_hooks: _CommonPacketPropagationPatcher,
 ) -> _CommonPacketPropagationPatcher:
-    """Trace a line event, then let the shared handler emit line 0."""
+    """Record trace-entry cursors after the shared handler emits line 0."""
     interactions = [
         (1.0e12, InteractionType.LINE, 1),
         (1.0e12, InteractionType.BOUNDARY, 1),
@@ -382,9 +382,9 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
 @pytest.mark.parametrize(
     "radial_1d_geometry", [{"negative_velocity_gradient": True}], indirect=True
 )
-def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
+def test_nonhomologous_packet_loop_preserves_emitted_line_cursors(
     python_numba_disabled: None,
-    different_line_emission: _CommonPacketPropagationPatcher,
+    emitted_line_cursors: _CommonPacketPropagationPatcher,
     parametrized_packet: RPacket,
     radial_1d_geometry: NumbaRadial1DGeometry,
     classic_opacity_state: OpacityStateNumba,
@@ -393,7 +393,7 @@ def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
     recording_tracker: _RecordingTracker,
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> None:
-    """Start the next line search just after the line chosen for emission.
+    """Preserve the emitted line's directional exclusions at the next trace.
 
     The mocked line handler emits line 0. The next trace must see line 1 as
     its redward cursor and -1 as its blueward cursor, preserving the handler's
@@ -412,7 +412,7 @@ def test_nonhomologous_packet_loop_reseeds_after_different_line_emission(
     )
 
     assert parametrized_packet.status == PacketStatus.EMITTED
-    assert different_line_emission.trace_inputs[1] == (1, -1)
+    assert emitted_line_cursors.trace_inputs[1] == (1, -1)
 
 
 @pytest.mark.parametrize(
