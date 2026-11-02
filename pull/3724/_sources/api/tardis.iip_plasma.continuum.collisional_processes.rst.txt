@@ -1,7 +1,0 @@
-tardis.iip\_plasma.continuum.collisional\_processes module
-==========================================================
-
-.. automodule:: tardis.iip_plasma.continuum.collisional_processes
-   :members:
-   :show-inheritance:
-   :undoc-members:
