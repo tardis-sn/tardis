@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2026.10.25'
-doi: 10.5281/zenodo.23631067
+title: 'tardis-sn/tardis: TARDIS v2026.11.02'
+doi: 10.5281/zenodo.23888045
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -141,13 +141,13 @@ authors:
   family-names: Gillanders
   affiliation: University of Oxford
   orcid: https://orcid.org/0000-0002-8094-6108
-- given-names: Haille
-  family-names: Marie Lynn
-  affiliation:
 - given-names: Connor
   family-names: McClellan
   affiliation: University of Virginia
   orcid: https://orcid.org/0000-0002-6040-8281
+- given-names: Haille
+  family-names: Marie Lynn
+  affiliation:
 - given-names: Sumit
   family-names: Gupta
   affiliation:
@@ -411,7 +411,7 @@ authors:
 - given-names: Shilpi
   family-names: Prasad
   affiliation:
-version: release-2026.10.25
-date-released: 2026-10-25
+version: release-2026.11.02
+date-released: 2026-11-02
 repository-code: https://github.com/tardis-sn/tardis
 license: bsd-3-clause
