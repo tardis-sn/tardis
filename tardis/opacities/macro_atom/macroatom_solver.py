@@ -816,6 +816,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         selected_continuum_transitions: np.ndarray = np.array([]),
         line_interaction_type: str = "macroatom",
         nthreads: int = 1,
+        markov_chain_mode: str = "full",
+        markov_chain_elements: tuple[str, ...] = (),
     ) -> None:
         """
         Initialize the ContinuumMacroAtomSolver.
@@ -838,6 +840,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         nthreads
             Maximum number of worker threads for shell-independent opacity
             calculations.
+        markov_chain_mode : str
+            Full, element-selected partial, or explicit sampling.
+        markov_chain_elements : tuple of str
+            Element symbols selected independently of enabled continuum physics.
         """
         super().__init__(
             lines=lines,
@@ -870,6 +876,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         # )
         self.ionization_energies = ionization_energies
         self.nthreads = nthreads
+        self.markov_chain_mode = markov_chain_mode
+        self.markov_chain_elements = tuple(markov_chain_elements)
 
     def solve(
         self,
@@ -1019,6 +1027,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             photo_ion_block_idx,
             k_packet_idx,
+            macro_level_to_reduced_idx=self.macro_level_to_reduced_idx,
+            reduced_to_macro_level_idx=self.reduced_to_macro_level_idx,
         )
 
     def set_static_properties(
@@ -1320,13 +1330,20 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         )
         # normalized_probabilities = probabilities_df  # Useful for debugging
 
-        (
-            absorbing_probability_matrix,
-            deactivating_probs,
-        ) = create_absorbing_probs(
+        chain_result = create_absorbing_probs(
             normalized_probabilities,
             macro_atom_transition_metadata,
+            mode=self.markov_chain_mode,
+            elements=self.markov_chain_elements,
             max_workers=self.nthreads,
+        )
+        absorbing_probability_matrix = chain_result.matrix
+        deactivating_probs = chain_result.residual_probabilities
+        self.macro_level_to_reduced_idx = (
+            chain_result.macro_level_to_reduced_idx
+        )
+        self.reduced_to_macro_level_idx = (
+            chain_result.reduced_to_macro_level_idx
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
@@ -1648,13 +1665,20 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df, macro_atom_transition_metadata
         )
-        (
-            absorbing_probability_matrix,
-            deactivating_probs,
-        ) = create_absorbing_probs(
+        chain_result = create_absorbing_probs(
             normalized_probabilities,
             macro_atom_transition_metadata,
+            mode=self.markov_chain_mode,
+            elements=self.markov_chain_elements,
             max_workers=self.nthreads,
+        )
+        absorbing_probability_matrix = chain_result.matrix
+        deactivating_probs = chain_result.residual_probabilities
+        self.macro_level_to_reduced_idx = (
+            chain_result.macro_level_to_reduced_idx
+        )
+        self.reduced_to_macro_level_idx = (
+            chain_result.reduced_to_macro_level_idx
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata

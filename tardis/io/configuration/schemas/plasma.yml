@@ -80,6 +80,22 @@ properties:
     default: {}
     additionalProperties: false
     properties:
+      markov_chain:
+        type: object
+        default: {}
+        additionalProperties: false
+        properties:
+          mode:
+            type: string
+            enum: [full, partial, explicit]
+            default: full
+            description: Macro-atom internal-transition reduction for Type IIP transport.
+          elements:
+            type: array
+            items:
+              type: string
+            default: []
+            description: Element symbols reduced in partial mode; empty in other modes.
       nthreads:
         type: integer
         minimum: 1

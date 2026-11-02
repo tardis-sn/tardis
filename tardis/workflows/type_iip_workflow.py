@@ -236,6 +236,10 @@ class TypeIIPWorkflow:
             ),
             line_interaction_type=line_interaction_type,
             nthreads=continuum_interactions.nthreads,
+            markov_chain_mode=continuum_interactions.markov_chain.mode,
+            markov_chain_elements=tuple(
+                continuum_interactions.markov_chain.elements
+            ),
         )
 
         self.transport_state = None

@@ -64,3 +64,34 @@ The NLTE configuration currently allows setting ``coronal_approximation``, which
 This is useful for debugging with :term:`chianti` for example. Furthermore, one can enable 'classical_nebular' to set all
 :math:`\beta_\textrm{Sobolev}` to 1. Both options are used for checking with other codes and should not be enabled in
 normal operations.
+
+Type IIP macro-atom reduction
+--------------------------------
+
+The ``plasma.continuum_interaction.markov_chain`` section controls how Type IIP
+transport samples internal macro-atom transitions. Existing configurations use
+``mode: full``, which reduces the whole chain. ``mode: explicit`` samples every
+original transition and provides a reference for comparisons. Both modes require
+an empty ``elements`` list.
+
+Use ``mode: partial`` with one or more element symbols to reduce internal jumps
+between selected atomic states:
+
+.. code-block:: yaml
+
+    plasma:
+      continuum_interaction:
+        species: [H I]
+        markov_chain:
+          mode: partial
+          elements: [H]
+
+For a multi-element selection, use ``elements: [H, He, Fe]`` when those elements
+are present in the assembled network. Duplicate symbols are harmless. A symbol
+selects all represented ions and levels of that element. This list is independent
+of continuum ``species`` and ``nlte.species``: selecting an element does not
+enable additional continuum processes or change its equilibrium treatment.
+
+The synthetic thermal and ionization pools remain explicit in partial mode.
+See :doc:`../../../physics_walkthrough/montecarlo/partial_absorbing_chain` for the
+probability contract and scientific verification.
