@@ -101,5 +101,4 @@ selected states are then collapsed, including paths through the enabled pools.
 Pool emission/cooling and jumps to unselected states remain explicit exit
 channels. These options require ``mode: partial``; full mode already includes
 both pools, and explicit mode reduces neither.
-See :doc:`../../../physics_walkthrough/montecarlo/partial_absorbing_chain` for the
-probability contract and scientific verification.
+See :doc:`../../../physics_walkthrough/montecarlo/partial_absorbing_chain` for more.
