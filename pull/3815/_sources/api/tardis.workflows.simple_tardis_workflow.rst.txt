@@ -1,0 +1,7 @@
+tardis.workflows.simple\_tardis\_workflow module
+================================================
+
+.. automodule:: tardis.workflows.simple_tardis_workflow
+   :members:
+   :show-inheritance:
+   :undoc-members:

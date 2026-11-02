@@ -1,0 +1,7 @@
+tardis.workflows.workflow\_logger module
+========================================
+
+.. automodule:: tardis.workflows.workflow_logger
+   :members:
+   :show-inheritance:
+   :undoc-members:
