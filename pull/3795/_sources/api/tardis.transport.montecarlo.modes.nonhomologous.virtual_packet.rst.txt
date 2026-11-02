@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.modes.nonhomologous.virtual\_packet module
-======================================================================
-
-.. automodule:: tardis.transport.montecarlo.modes.nonhomologous.virtual_packet
-   :members:
-   :show-inheritance:
-   :undoc-members:

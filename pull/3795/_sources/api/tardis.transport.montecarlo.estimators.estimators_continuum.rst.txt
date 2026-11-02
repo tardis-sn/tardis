@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.estimators.estimators\_continuum module
-===================================================================
-
-.. automodule:: tardis.transport.montecarlo.estimators.estimators_continuum
-   :members:
-   :show-inheritance:
-   :undoc-members:
