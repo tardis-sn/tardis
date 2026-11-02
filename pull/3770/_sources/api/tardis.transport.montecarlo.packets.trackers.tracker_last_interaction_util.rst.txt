@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.packets.trackers.tracker\_last\_interaction\_util module
-====================================================================================
-
-.. automodule:: tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util
-   :members:
-   :show-inheritance:
-   :undoc-members:
