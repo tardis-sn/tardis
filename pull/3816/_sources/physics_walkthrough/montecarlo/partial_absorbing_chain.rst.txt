@@ -48,6 +48,9 @@ and numerical probabilities are rebuilt consistently on every opacity solve;
 continuum activation indices and estimator dimensions keep their original
 ordering and shell count.
 
+Before recalculating the matrix, the workflow releases the previous iteration's
+matrix references from both the macro-atom state and the Numba transport state.
+
 Sparse LU solves are checked for finite, normalized rows and a scale-aware
 equation residual. Input coefficients and reduced entries are not rejected
 based on their sign in any reduction mode. A reachable closed class without a
