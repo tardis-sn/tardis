@@ -18,7 +18,9 @@ from tardis.opacities.continuum.macro_atom_state import (
 from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.tau_sobolev import (
     SOBOLEV_COEFFICIENT,
     calculate_beta_sobolev,
@@ -1127,7 +1129,7 @@ class TypeIIPWorkflow:
         norm_factor *= np.sqrt(t_electrons)
         return norm_factor
 
-    def solve_opacity(self):
+    def solve_opacity(self) -> dict[str, OpacityState | MacroAtomState]:
         """Solve the opacity state and any associated objects.
 
         Returns
@@ -1144,6 +1146,16 @@ class TypeIIPWorkflow:
             beta_sobolev=self._beta_sobolev,
         )
         continuum_rates = self.continuum_macro_atom_state
+
+        # Release both owners of the previous matrix before rebuilding it.
+        if hasattr(self, "opacity_states"):
+            self.opacity_states[
+                "macro_atom_state"
+            ].absorbing_probability_matrix = None
+        if self.transport_state is not None:
+            self.transport_state.continuum_state_numba.absorbing_markov_probabilities = np.empty(
+                (0, 0, 0), dtype=np.float64
+            )
 
         macro_atom_state = self.macro_atom_solver.solve(
             self.plasma_solver.j_blues,

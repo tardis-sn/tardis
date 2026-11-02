@@ -1,4 +1,13 @@
-"""First-exit probabilities for full and element-selected macro-atom chains."""
+"""Calculate absorption probabilities using absorbing Markov chain theory.
+
+This module implements the mathematical framework of absorbing Markov chains
+to compute probabilities of photon absorption in each cell and the expected
+number of steps before absorption from each source state.
+
+References
+----------
+    Absorbing Markov chain theory: https://en.wikipedia.org/wiki/Absorbing_Markov_chain
+"""
 
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
@@ -68,12 +77,11 @@ def create_absorbing_probs(
     Notes
     -----
     The solve is ``(I-Q) B = diag(r)``, where r is the sum of actual remaining
-    channels. Zero residual rows stay zero. No rate threshold removes a channel.
+    channels. Zero residual rows stay zero.
     The matrix selects the source of the first retained transition, which can
-    itself be internal. It is not necessarily a final emission state.
-    Signed coefficients and reduced entries are preserved without clipping or
-    sign-based rejection, matching legacy full mode. The usual probabilistic
-    interpretation applies to nonnegative kernels.
+    itself be internal. It is not necessarily a final emission state because
+    only requested physical blocks are blocks are processed out of the matrix,
+    and the not-requested blocks retain full internal transition probability tables.
     """
     if mode not in ("full", "partial", "explicit"):
         raise ValueError("markov_chain.mode must be full, partial, or explicit")
