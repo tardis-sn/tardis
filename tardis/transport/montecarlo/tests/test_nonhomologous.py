@@ -439,7 +439,8 @@ def test_opaque_line_interacts_in_shell_without_radial_velocity_gradient() -> No
     """An optically thick line still interacts where dv/dr = 0.
 
     In a constant-velocity shell the radial Sobolev optical depth is infinite,
-    but along an oblique ray the projected gradient (v/r)(1 - mu^2) is finite.
+    but along an oblique ray the projected gradient of mu^2 dv/dr + (1 - mu^2)
+    simplifies to (v/r)(1 - mu^2) and should be finite.
     Transport must therefore use tau = coefficient / |projected gradient|, which
     reaches the packet only through OpacityState.to_numba.
     """
@@ -474,8 +475,8 @@ def test_opaque_line_interacts_in_shell_without_radial_velocity_gradient() -> No
         opacity_state,
         EstimatorsLine(np.zeros((2, 2)), np.zeros((2, 2))),
         0.0,  # electron opacity
-        False,  # full relativity
-        False,  # disable line scattering
+        False,  # enable full relativity?
+        False,  # disable line scattering?
     )
 
     assert interaction_type == InteractionType.LINE
