@@ -1,7 +1,0 @@
-tardis.iip\_plasma.standard\_plasmas module
-===========================================
-
-.. automodule:: tardis.iip_plasma.standard_plasmas
-   :members:
-   :show-inheritance:
-   :undoc-members:
