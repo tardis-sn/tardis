@@ -1,7 +1,3 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 import numpy as np
 from numba import boolean, int64
 from numba.experimental import jitclass
@@ -10,17 +6,15 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.interaction_events import (
     LineInteractionType,
 )
-
-if TYPE_CHECKING:
-    from tardis.transport.montecarlo.modes.classic.solver import (
-        MCTransportSolverClassic,
-    )
-    from tardis.transport.montecarlo.modes.iip.solver import (
-        MCTransportSolverIIP,
-    )
-    from tardis.transport.montecarlo.modes.nonhomologous.solver import (
-        MCTransportSolverNonhomologous,
-    )
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
+)
+from tardis.transport.montecarlo.modes.iip.solver import (
+    MCTransportSolverIIP,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.solver import (
+    MCTransportSolverNonhomologous,
+)
 
 numba_config_spec = [
     ("ENABLE_FULL_RELATIVITY", boolean),
@@ -36,6 +30,8 @@ numba_config_spec = [
 
 @jitclass(numba_config_spec)
 class MonteCarloConfiguration:
+    """Stores Monte Carlo configuration options"""
+
     def __init__(self):
         self.ENABLE_FULL_RELATIVITY = False
         self.MONTECARLO_SEED = 0
@@ -56,6 +52,20 @@ def configuration_initialize(
         | MCTransportSolverIIP
     ),
 ) -> None:
+    """Set configuration options based on a transport object
+
+    Parameters
+    ----------
+    config : MonteCarloConfiguration
+        The configuration storage class
+    transport : MCTransportSolverClassic  |  MCTransportSolverNonhomologous  |  MCTransportSolverIIP
+        A valid transport state
+
+    Raises
+    ------
+    ValueError
+        Line interaction type not found
+    """
     if transport.line_interaction_type == "macroatom":
         config.LINE_INTERACTION_TYPE = LineInteractionType.MACROATOM
     elif transport.line_interaction_type == "downbranch":
