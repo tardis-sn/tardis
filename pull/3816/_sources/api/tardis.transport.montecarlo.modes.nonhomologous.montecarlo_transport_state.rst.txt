@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.modes.nonhomologous.montecarlo\_transport\_state module
+===================================================================================
+
+.. automodule:: tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state
+   :members:
+   :show-inheritance:
+   :undoc-members:
