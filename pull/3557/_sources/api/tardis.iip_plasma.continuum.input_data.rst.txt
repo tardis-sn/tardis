@@ -1,7 +1,0 @@
-tardis.iip\_plasma.continuum.input\_data module
-===============================================
-
-.. automodule:: tardis.iip_plasma.continuum.input_data
-   :members:
-   :show-inheritance:
-   :undoc-members:
