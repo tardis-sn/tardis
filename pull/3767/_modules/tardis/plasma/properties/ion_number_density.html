@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=3ab9438c"></script>
+      <script src="../../../../_static/documentation_options.js?v=e86c54a7"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4732,6 +4732,25 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     def update_he_number_density(
         self, helium_population, n_electron, number_density
     ):
+        &quot;&quot;&quot;Update helium level populations for the current electron density.
+
+        Parameters
+        ----------
+        helium_population : pandas.DataFrame
+            Helium level populations indexed by ion and level number, with
+            columns for zones.
+        n_electron : pandas.Series or numpy.ndarray
+            Trial electron number density for each zone.
+        number_density : pandas.DataFrame
+            Elemental number densities indexed by atomic number, with columns
+            for zones.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Updated helium level populations normalized to the helium number
+            density in each zone.
+        &quot;&quot;&quot;
         helium_population_updated = helium_population.copy()
         he_one_number_density = helium_population_updated.loc[0].mul(n_electron)
         he_three_number_density = helium_population_updated.loc[2].mul(
@@ -4897,7 +4916,7 @@ class SahaFactor(ProcessingPlasmaProperty):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Oct 2026.
+      <span class="lastupdated">Last updated on 02 Nov 2026.
       </span></p>
   </div>
 
