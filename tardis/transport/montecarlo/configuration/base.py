@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 import numpy as np
 from numba import boolean, int64
 from numba.experimental import jitclass
@@ -6,15 +8,18 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.interaction_events import (
     LineInteractionType,
 )
-from tardis.transport.montecarlo.modes.classic.solver import (
-    MCTransportSolverClassic,
-)
-from tardis.transport.montecarlo.modes.iip.solver import (
-    MCTransportSolverIIP,
-)
-from tardis.transport.montecarlo.modes.nonhomologous.solver import (
-    MCTransportSolverNonhomologous,
-)
+
+# prevent circular import
+if TYPE_CHECKING:
+    from tardis.transport.montecarlo.modes.classic.solver import (
+        MCTransportSolverClassic,
+    )
+    from tardis.transport.montecarlo.modes.iip.solver import (
+        MCTransportSolverIIP,
+    )
+    from tardis.transport.montecarlo.modes.nonhomologous.solver import (
+        MCTransportSolverNonhomologous,
+    )
 
 numba_config_spec = [
     ("ENABLE_FULL_RELATIVITY", boolean),
