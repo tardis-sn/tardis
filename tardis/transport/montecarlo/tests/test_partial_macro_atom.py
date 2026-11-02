@@ -1,4 +1,7 @@
-"""Compiled-path verification of independent hybrid macro-atom visits."""
+"""
+Test file primarily to test the partial absorbing markov chain implementation.
+Checks hybrid blocks against the fully expliict macro atom.
+"""
 
 import numpy as np
 import numpy.typing as npt
@@ -108,11 +111,13 @@ def two_visit_state(request: pytest.FixtureRequest) -> tuple:
 
 
 def test_compiled_reentry_emission_distribution(two_visit_state: tuple) -> None:
-    """Exact tree law is 1/2, 3/16, 5/16 with thermal emission and re-entry.
+    """Check emission outcomes when packets leave and return to reduced states.
 
-    Tolerance is six binomial standard deviations per channel (60000 packets),
-    giving a conservative familywise stochastic bound across all modes and pool selections.
-    Reusing the first reduced random number suppresses one channel entirely.
+    Packets can emit from the thermal pool, or pass through the ionization
+    pool and helium before returning to hydrogen. Every reduction mode and
+    pool selection should give the same emission mix: 50%, 18.75%, and 31.25%
+    across the three channels. Also check packets starting in either pool.
+    Allow for the random variation expected from a finite sample of packets.
     """
     opacity, continuum = two_visit_state
     count = 60000

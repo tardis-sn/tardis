@@ -146,11 +146,16 @@ def macro_atom_interaction_iip(
         reduced_idx = continuum_state.macro_level_to_reduced_idx[
             activation_level_idx
         ]
+
         if reduced_idx >= 0:
+            # This tells us we're in the reduced block and should take one step
+            # and see what state we leave the reduced block from. See absorbing_markov_chain.py
             probability_event = np.random.random()
             cumulative_probability = 0.0
             selected_idx = -1
             last_positive_idx = -1
+
+            # Step through the probability block
             for exit_idx, state_probability in enumerate(
                 continuum_state.absorbing_markov_probabilities[
                     current_shell_id, reduced_idx
@@ -160,8 +165,10 @@ def macro_atom_interaction_iip(
                     last_positive_idx = exit_idx
                 cumulative_probability += state_probability
                 if cumulative_probability > probability_event:
+                    # Found the deactivating state. Break out of the cumulative probability loop.
                     selected_idx = exit_idx
                     break
+
             if selected_idx < 0:
                 if (
                     last_positive_idx >= 0
@@ -170,12 +177,16 @@ def macro_atom_interaction_iip(
                     selected_idx = last_positive_idx
                 else:
                     raise MacroAtomError(
-                        "MacroAtom first-exit probabilities are not normalized or activation has no outgoing probability"
+                        "MacroAtom first-exit probabilities are not normalized or activation has no outgoing probability "
+                        f"(starting reduced state {reduced_idx}, global activation level {activation_level_idx}, cell {current_shell_id})"
                     )
             activation_level_idx = continuum_state.reduced_to_macro_level_idx[
                 selected_idx
             ]
+            # End of reduced block handling.
 
+        # You necessarily are now either going to deactivate OR are in a block with internal transitions.
+        # Below is largely the same behavior as the classic macro atom interaction.
         block_start_idx = opacity_state.macro_block_edge_index[
             activation_level_idx
         ]
@@ -186,6 +197,7 @@ def macro_atom_interaction_iip(
         cumulative_probability = 0.0
         selected_transition_idx = -1
         last_positive_idx = -1
+
         for transition_idx in range(block_start_idx, block_end_idx):
             transition_probability = opacity_state.transition_probabilities[
                 transition_idx, current_shell_id
@@ -196,6 +208,7 @@ def macro_atom_interaction_iip(
             if cumulative_probability > probability_event:
                 selected_transition_idx = transition_idx
                 break
+
         if selected_transition_idx < 0:
             if (
                 last_positive_idx >= 0
@@ -204,13 +217,17 @@ def macro_atom_interaction_iip(
                 selected_transition_idx = last_positive_idx
             else:
                 raise MacroAtomError(
-                    "MacroAtom residual block is not normalized or activation has no outgoing probability"
+                    "MacroAtom residual block is not normalized or activation has no outgoing probability "
+                    f"(global activation level {activation_level_idx}, cell {current_shell_id}, transition rows {block_start_idx}:{block_end_idx})"
                 )
         transition_type = opacity_state.transition_type[selected_transition_idx]
+
         if transition_type < 0:
+            # We've found a deactivating transition so we'll break out of the function and return that transition.
             return opacity_state.transition_line_id[
                 selected_transition_idx
             ], transition_type
+        # Otherwise, we've found an internal transition and need to go back to the top of the while loop.
         activation_level_idx = opacity_state.destination_level_id[
             selected_transition_idx
         ]

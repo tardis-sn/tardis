@@ -316,7 +316,8 @@ def solve_cell(
     if mode == "full":
         rhs = 1 - q_totals
     # For near-trapping self-loops, form the diagonal from physical exits
-    # and off-diagonal jumps.
+    # and off-diagonal jumps. Helps prevent losing individually unlikely
+    # transitions that are amplified in blocks that are sampled many times.
     near_trapping = q_matrix.diagonal() > 0.99
     if mode != "full" and np.any(near_trapping):
         off_diagonal = q_matrix.copy()
@@ -374,30 +375,61 @@ def solve_near_trapping_chain(
     exit_rates: npt.NDArray[np.float64],
     active: npt.NDArray[np.bool_],
 ) -> npt.NDArray[np.float64]:
-    """Resolve exceptional cancellation in a transient sparse LU solve.
+    """Recover first-exit coefficients when tiny exits destabilize float64 LU.
+
+    Nearly closed cycles can amplify small retained exit coefficients, so losing
+    those coefficients through cancellation can corrupt the final branching
+    ratios. Rebuild the system using the actual exits and solve it with dense
+    Decimal arithmetic, rather than subtracting nearly equal float64 values.
+    The partial-mode caller uses this fallback when sparse LU fails or its
+    active rows do not sum to one within 32 float64 machine epsilons. Full mode
+    keeps its existing sparse calculation.
 
     Parameters
     ----------
     internal_matrix : scipy.sparse.spmatrix
-        Selected internal probabilities Q.
+        Square matrix Q of eliminated internal coefficients, in compact
+        selected-state order. For each active state, its row sum plus the
+        corresponding retained exit mass must equal one.
     exit_rates : numpy.ndarray
-        Actual retained channel sums, without subtracting from one.
+        Float64 vector r of retained channel sums for the selected states.
+        These are normalized coefficients, not dimensional rates. Supply the
+        actual channel sums rather than deriving them as one minus Q's row
+        sums. At least one entry must be positive.
     active : numpy.ndarray
-        States having original outgoing probability.
+        Boolean vector marking states with positive total outgoing mass in the
+        original network. Inactive states are assumed to have zero outgoing
+        coefficients and zero retained exit mass.
 
     Returns
     -------
     numpy.ndarray
-        First-exit matrix evaluated with at least 80-digit elimination, then rounded
-        to float64. Precision also resolves the smallest positive exit with 40
-        guard digits. Used only if LU violates probability normalization.
+        Float64 matrix B with the same shape as Q. Entry B[i, j] is the
+        first-exit coefficient for retaining a channel from selected state j
+        after activation at selected state i. Inactive rows are zero. The
+        result is converted to float64 only after high-precision elimination
+        and back substitution.
+
+    Raises
+    ------
+    ValueError
+        If elimination encounters a zero pivot and cannot solve the selected
+        system, as for a closed class with no exit.
 
     Notes
     -----
-    The conservation-form diagonal is the sum of off-diagonal internal jumps
-    and actual exits. This preserves tiny exits in multi-state near-closed
-    cycles, where even a long residence time must give total exit probability
-    one. Inactive rows represent no physical activation and stay zero.
+    Solve ``A B = diag(r)`` with off-diagonal entries ``A[i, j] = -Q[i, j]``
+    and active diagonals ``A[i, i] = r[i] + sum(Q[i, j] for j != i)``.
+    Row conservation makes this equivalent to ``I-Q`` for normalized active
+    states, while avoiding cancellation in ``1-Q[i, i]``. Inactive diagonals
+    are set to one.
+
+    Gaussian elimination uses partial row pivoting. Decimal precision is
+    ``max(80, 40 - floor(log10(r_min)))``, where r_min is the smallest positive
+    exit coefficient. This increases arithmetic precision but cannot recover
+    information already lost from the supplied float64 coefficients. Dense
+    storage and high-precision arithmetic make this an exceptional fallback,
+    rather than the normal solver.
     """
     size = len(exit_rates)
     with localcontext() as context:

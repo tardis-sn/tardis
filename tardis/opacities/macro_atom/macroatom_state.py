@@ -143,9 +143,11 @@ class MacroAtomState:
         k_packet_idx:
             Int describing the index location of the k_packet block
         macro_level_to_reduced_idx : numpy.ndarray, optional
-            Global-to-compact index map; -1 denotes an explicit state.
+            Full transition index to markov-chain reduced index.
+            Tells the MC RT step how to leave and enter the absorbing matrix.
         reduced_to_macro_level_idx : numpy.ndarray, optional
             Inverse map from compact matrix indices to global macro levels.
+            Tells the MC RT step how to leave and enter the absorbing matrix.
         """
         self.transition_probabilities = transition_probabilities
         self.transition_metadata = transition_metadata
