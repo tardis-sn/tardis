@@ -672,7 +672,7 @@ class GrotrianPlot:
 
         ### Draw the scale lines
         for number_density, width, y_pos in zip(
-            number_density_ticks, width_ticks, y_positions
+            number_density_ticks, width_ticks, y_positions, strict=True
         ):
             self.fig.add_shape(
                 type="line",

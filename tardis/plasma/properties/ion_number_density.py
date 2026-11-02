@@ -429,6 +429,25 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     def update_he_number_density(
         self, helium_population, n_electron, number_density
     ):
+        """Update helium level populations for the current electron density.
+
+        Parameters
+        ----------
+        helium_population : pandas.DataFrame
+            Helium level populations indexed by ion and level number, with
+            columns for zones.
+        n_electron : pandas.Series or numpy.ndarray
+            Trial electron number density for each zone.
+        number_density : pandas.DataFrame
+            Elemental number densities indexed by atomic number, with columns
+            for zones.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Updated helium level populations normalized to the helium number
+            density in each zone.
+        """
         helium_population_updated = helium_population.copy()
         he_one_number_density = helium_population_updated.loc[0].mul(n_electron)
         he_three_number_density = helium_population_updated.loc[2].mul(
