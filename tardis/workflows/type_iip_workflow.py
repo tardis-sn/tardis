@@ -240,6 +240,8 @@ class TypeIIPWorkflow:
             markov_chain_elements=tuple(
                 continuum_interactions.markov_chain.elements
             ),
+            markov_chain_include_thermal_pool=continuum_interactions.markov_chain.include_thermal_pool,
+            markov_chain_include_ionization_pool=continuum_interactions.markov_chain.include_ionization_pool,
         )
 
         self.transport_state = None

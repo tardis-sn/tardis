@@ -21,8 +21,8 @@ def pool_network() -> tuple[pd.DataFrame, pd.DataFrame]:
         9: (1, 1, 1),
         12: (26, 1, 0),
     }
-    sources = [0, 0, 2, 2, 2, 4, 4, 5, 5, 6, 6, 6, 9, 12, 12]
-    destinations = [2, -1, 4, 9, -1, 0, -1, 6, -1, 0, 12, -1, -1, 6, -1]
+    sources = [0, 0, 2, 2, 2, 4, 4, 4, 5, 5, 6, 6, 6, 9, 12, 12]
+    destinations = [2, -1, 4, 9, -1, 0, 5, -1, 6, -1, 0, 12, -1, -1, 6, -1]
     metadata = pd.DataFrame(
         {
             "source_level_idx": sources,
@@ -42,7 +42,8 @@ def pool_network() -> tuple[pd.DataFrame, pd.DataFrame]:
                 0.3,
                 0.2,
                 0.5,
-                0.5,
+                0.4,
+                0.1,
                 0.5,
                 0.3,
                 0.7,
@@ -59,7 +60,8 @@ def pool_network() -> tuple[pd.DataFrame, pd.DataFrame]:
                 0.2,
                 0.1,
                 0.7,
-                0.8,
+                0.7,
+                0.1,
                 0.2,
                 0.6,
                 0.4,
@@ -76,34 +78,52 @@ def pool_network() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 @pytest.mark.parametrize(
-    "mode,elements",
+    "mode,elements,include_thermal_pool,include_ionization_pool",
     [
-        ("full", []),
-        ("partial", ["H"]),
-        ("partial", ["He"]),
-        ("partial", ["Fe", "He", "H", "H"]),
-        ("explicit", []),
+        ("full", [], False, False),
+        ("partial", ["H"], False, False),
+        ("partial", ["H"], True, False),
+        ("partial", ["H"], False, True),
+        ("partial", ["H"], True, True),
+        ("partial", ["He"], False, False),
+        ("partial", ["Fe", "He", "H", "H"], True, True),
+        ("explicit", [], False, False),
     ],
 )
 def test_final_emission_law(
     pool_network: tuple[pd.DataFrame, pd.DataFrame],
     mode: str,
     elements: list[str],
+    include_thermal_pool: bool,
+    include_ionization_pool: bool,
 ) -> None:
     """Selection preserves every eventual emission channel in a mixed network.
 
     Regime: two cells, multiple ions, gapped indices including zero, an
     emission-only destination, zero residual/internal rows, and pool re-entry.
+    Either shared pool can be reduced independently; exits from included pools
+    to unselected elements and every physical emission remain represented.
     Verify the mask and maps directly, then compare final channel probabilities
     with a dense solve of the original network. The reference never uses the
     reduced matrix. A 2e-14 tolerance allows floating-point LU roundoff.
     """
     probabilities, metadata = pool_network
     result = create_absorbing_probs(
-        probabilities, metadata, mode=mode, elements=elements, max_workers=2
+        probabilities,
+        metadata,
+        mode=mode,
+        elements=elements,
+        include_thermal_pool=include_thermal_pool,
+        include_ionization_pool=include_ionization_pool,
+        max_workers=2,
     )
     serial = create_absorbing_probs(
-        probabilities, metadata, mode=mode, elements=elements
+        probabilities,
+        metadata,
+        mode=mode,
+        elements=elements,
+        include_thermal_pool=include_thermal_pool,
+        include_ionization_pool=include_ionization_pool,
     )
     np.testing.assert_array_equal(result.matrix, serial.matrix)
 
@@ -117,7 +137,11 @@ def test_final_emission_law(
         else np.unique(
             metadata.loc[
                 metadata.source.map(
-                    lambda level: level[0] in selected_elements
+                    lambda level: (
+                        level[0] in selected_elements
+                        or (include_thermal_pool and level[0] == "k")
+                        or (include_ionization_pool and level[0] == "i")
+                    )
                 ),
                 "source_level_idx",
             ]
@@ -209,3 +233,109 @@ def test_asymmetric_near_trapping_cycle_preserves_tiny_exit_ratio() -> None:
         / denominator
     )
     np.testing.assert_allclose(result.matrix[0], expected, rtol=0, atol=1e-14)
+
+
+@pytest.mark.parametrize(
+    "mode,include_ionization_pool",
+    [
+        ("partial", True),
+        ("partial", False),
+        ("full", False),
+        ("explicit", False),
+    ],
+)
+@pytest.mark.parametrize("indirect_rate", [0.6, 0.1])
+def test_signed_coefficients_preserve_algebraic_emission_law(
+    mode: str,
+    include_ionization_pool: bool,
+    indirect_rate: float,
+) -> None:
+    """Preserve full-mode signed-coefficient compatibility in every mode.
+
+    Claim: direct H0->i=-0.1 and indirect H0->H1->i=0.3 combine to
+    +0.2; the remaining first-exit masses are 0.5 at H0 and 0.3 at H1.
+    Regime: net signed internal coefficients, a shared ionization pool, and
+    explicit He re-entry. These are algebraic coefficients, not path weights.
+    Verification: exact geometric-series final emissions with a 2e-14
+    float64 LU tolerance. Excluding i exposes a negative retained channel;
+    reducing the indirect path to 0.05 leaves a negative reduced exit mass.
+    Both are retained without rejection or clipping, like full mode. This
+    verifies algebraic compatibility, not a categorical sampling law.
+    """
+    levels = [(1, 0, 0), (1, 0, 1), ("i", -99, -99), (2, 0, 0)]
+    sources = [0, 0, 0, 0, 1, 1, 2, 3, 3]
+    destinations = [2, 1, 3, -1, 2, -1, -1, 0, -1]
+    metadata = pd.DataFrame(
+        {
+            "source_level_idx": sources,
+            "destination_level_idx": destinations,
+            "transition_type": [1 if idx >= 0 else -1 for idx in destinations],
+            "source": [levels[idx] for idx in sources],
+        }
+    )
+    probabilities = pd.DataFrame(
+        [-0.1, indirect_rate, 0.1, 1 - indirect_rate, 0.5, 0.5, 1, 0.25, 0.75]
+    )
+    options = {
+        "mode": mode,
+        "elements": ["H"] if mode == "partial" else [],
+        "include_ionization_pool": include_ionization_pool,
+    }
+    result = create_absorbing_probs(probabilities, metadata, **options)
+    # Compose the algebraic kernels, then sum explicit He returns. Signed
+    # entries are not frequencies that the ordinary CDF sampler can reproduce.
+    retained = np.zeros((4, 8))
+    emission = 4
+    for transition, row in metadata.iterrows():
+        destination = row.destination_level_idx
+        if destination < 0:
+            destination = emission
+            emission += 1
+        retained[row.source_level_idx, destination] += (
+            result.residual_probabilities.iloc[transition, 0]
+        )
+    retained /= retained.sum(axis=1, keepdims=True)
+    selected = result.reduced_to_macro_level_idx
+    composed = retained.copy()
+    composed[selected] = result.matrix[0] @ retained[selected]
+    actual = np.linalg.solve(np.eye(4) - composed[:, :4], composed[:, 4:])
+    first_emission = (
+        np.array(
+            [
+                1 - indirect_rate,
+                indirect_rate / 2,
+                indirect_rate / 2 - 0.1,
+                0.075,
+            ]
+        )
+        / 0.975
+    )
+    expected = np.vstack(
+        [
+            first_emission,
+            [0, 0.5, 0.5, 0],
+            [0, 0, 1, 0],
+            0.25 * first_emission + [0, 0, 0, 0.75],
+        ]
+    )
+    np.testing.assert_allclose(actual, expected, rtol=0, atol=2e-14)
+    if mode == "partial" and include_ionization_pool:
+        np.testing.assert_allclose(
+            result.matrix[0],
+            [
+                [
+                    1.1 - indirect_rate,
+                    indirect_rate / 2,
+                    indirect_rate / 2 - 0.1,
+                ],
+                [0, 0.5, 0.5],
+                [0, 0, 1],
+            ],
+            rtol=0,
+            atol=2e-14,
+        )
+    else:
+        # In explicit mode, or partial mode with i outside the selection, the
+        # original -0.1 H0->i coefficient must survive unchanged.
+        if mode != "full":
+            assert result.residual_probabilities.iloc[0, 0] == -0.1

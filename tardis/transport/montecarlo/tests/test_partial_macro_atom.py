@@ -35,25 +35,37 @@ def sample_emissions(
     return outcomes
 
 
-@pytest.fixture(params=["full", "partial", "explicit"])
+@pytest.fixture(
+    params=[
+        ("full", False, False),
+        ("partial", False, False),
+        ("partial", True, False),
+        ("partial", False, True),
+        ("partial", True, True),
+        ("explicit", False, False),
+    ]
+)
 def two_visit_state(request: pytest.FixtureRequest) -> tuple:
-    """A selected H block exits through k/i and returns to a second H block."""
+    """H visits k/i, with thermal emission and re-entry through unselected He."""
+    mode, include_thermal_pool, include_ionization_pool = request.param
     metadata = pd.DataFrame(
         {
-            "source_level_idx": [0, 0, 1, 2, 3, 3, 4, 5],
-            "destination_level_idx": [1, -1, 2, 5, 4, -1, -1, 3],
-            "transition_type": [1, -1, 11, 22, 1, -7, -21, 3],
+            "source_level_idx": [0, 0, 1, 2, 2, 3, 3, 4, 5, 6],
+            "destination_level_idx": [1, -1, 2, 5, -1, 4, -1, -1, 6, 3],
+            "transition_type": [1, -1, 11, 22, -21, 1, -7, -1, 3, 1],
             "source": [(1, 0, 0)] * 2
-            + [(1, 0, 1), ("k", -99, -99)]
+            + [(1, 0, 1), ("k", -99, -99), ("k", -99, -99)]
             + [(1, 1, 0)] * 2
-            + [(1, 1, 1), ("i", -99, -99)],
+            + [(1, 1, 1), ("i", -99, -99), (2, 0, 0)],
         }
     )
     result = create_absorbing_probs(
-        pd.DataFrame([0.5, 0.5, 1.0, 1.0, 0.5, 0.5, 1.0, 1.0]),
+        pd.DataFrame([0.5, 0.5, 1.0, 0.75, 0.25, 0.5, 0.5, 1.0, 1.0, 1.0]),
         metadata,
-        mode=request.param,
-        elements=["H"] if request.param == "partial" else [],
+        mode=mode,
+        elements=["H"] if mode == "partial" else [],
+        include_thermal_pool=include_thermal_pool,
+        include_ionization_pool=include_ionization_pool,
     )
     residual = result.residual_probabilities.to_numpy(copy=True)
     totals = np.bincount(metadata.source_level_idx, weights=residual[:, 0])
@@ -70,10 +82,10 @@ def two_visit_state(request: pytest.FixtureRequest) -> tuple:
         np.ones((1, 1)),
         residual,
         np.array([0], dtype=np.int64),
-        np.array([0, 2, 3, 4, 6, 7, 8], dtype=np.int64),
+        np.array([0, 2, 3, 5, 7, 8, 9, 10], dtype=np.int64),
         metadata.transition_type.to_numpy(dtype=np.int64, copy=True),
         metadata.destination_level_idx.to_numpy(dtype=np.int64),
-        np.array([0, 0, 0, 0, 0, 1, 2, 0], dtype=np.int64),
+        np.array([0, 0, 0, 0, 2, 0, 1, 2, 0, 0], dtype=np.int64),
     )
     continuum = ContinuumOpacityStateNumba(
         np.ones(1),
@@ -96,28 +108,31 @@ def two_visit_state(request: pytest.FixtureRequest) -> tuple:
 
 
 def test_compiled_reentry_emission_distribution(two_visit_state: tuple) -> None:
-    """Exact tree law is 1/2, 1/4, 1/4, requiring independent reduced visits.
+    """Exact tree law is 1/2, 3/16, 5/16 with thermal emission and re-entry.
 
     Tolerance is six binomial standard deviations per channel (60000 packets),
-    giving a conservative familywise stochastic bound across three modes.
+    giving a conservative familywise stochastic bound across all modes and pool selections.
     Reusing the first reduced random number suppresses one channel entirely.
     """
     opacity, continuum = two_visit_state
     count = 60000
-    expected = np.array([0.5, 0.25, 0.25])
+    expected = np.array([0.5, 0.1875, 0.3125])
     actual = sample_emissions(opacity, continuum, 0, count, 1741) / count
     assert np.all(
         np.abs(actual - expected)
         <= 6 * np.sqrt(expected * (1 - expected) / count)
     ), actual
-    # Both global pool indices must enter the same downstream emission law.
-    for activation in (2, 5):
+    # A k activation can emit directly; i goes through He before re-entering H.
+    for activation, pool_expected in (
+        (2, np.array([0.0, 0.375, 0.625])),
+        (5, np.array([0.0, 0.5, 0.5])),
+    ):
         pool_outcomes = (
             sample_emissions(opacity, continuum, activation, 20000, 972) / 20000
         )
         np.testing.assert_allclose(
             pool_outcomes,
-            [0.0, 0.5, 0.5],
+            pool_expected,
             atol=6 * np.sqrt(0.25 / 20000),
             rtol=0,
         )

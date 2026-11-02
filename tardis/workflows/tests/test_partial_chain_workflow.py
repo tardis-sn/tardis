@@ -27,30 +27,43 @@ def partial_chain_config(tardis_regression_path: Path) -> Configuration:
 
 
 @pytest.mark.parametrize(
-    "mode,elements",
+    "mode,elements,include_thermal_pool,include_ionization_pool",
     [
-        ("full", []),
-        ("partial", ["H"]),
-        ("partial", ["He"]),
-        ("partial", ["H", "He"]),
-        ("explicit", []),
+        ("full", [], False, False),
+        ("partial", ["H"], False, False),
+        ("partial", ["H"], True, False),
+        ("partial", ["H"], False, True),
+        ("partial", ["H"], True, True),
+        ("partial", ["He"], False, False),
+        ("partial", ["H", "He"], True, True),
+        ("explicit", [], False, False),
     ],
 )
 def test_coupled_workflow_thermal_closure(
-    partial_chain_config: Configuration, mode: str, elements: list[str]
+    partial_chain_config: Configuration,
+    mode: str,
+    elements: list[str],
+    include_thermal_pool: bool,
+    include_ionization_pool: bool,
 ) -> None:
     """Each mode closes the same thermal equations through two transport steps.
 
-    Regime: 20000 packets, mixed H/He, one plasma update and final transport.
+    Regime: the fixture's 200000 packets, mixed H/He, one plasma update and
+    final transport. Retain the physical fixture's packet count because smaller
+    development samples can trigger the known nonlinear thermal-solver basin.
     Independent verification: the accepted physical balance residual is tested
     against the solver's predeclared closure criteria, rather than just finite
     output. Cross-mode stochastic comparisons are separate validation evidence.
     """
     config = partial_chain_config
-    config.montecarlo.no_of_packets = 20000
-    config.montecarlo.last_no_of_packets = 20000
     config.plasma.continuum_interaction.markov_chain.mode = mode
     config.plasma.continuum_interaction.markov_chain.elements = elements
+    config.plasma.continuum_interaction.markov_chain.include_thermal_pool = (
+        include_thermal_pool
+    )
+    config.plasma.continuum_interaction.markov_chain.include_ionization_pool = (
+        include_ionization_pool
+    )
     workflow = TypeIIPWorkflow(config)
     workflow.show_progress_bars = False
     workflow.run()
@@ -87,10 +100,18 @@ def test_coupled_workflow_thermal_closure(
             workflow.simulation_state.geometry.no_of_shells_active,
         )
     if mode == "partial":
-        pool_levels = metadata.loc[
-            metadata.source.map(lambda level: level[0] in ("i", "k")),
-            "source_level_idx",
-        ]
-        assert not set(continuum.reduced_to_macro_level_idx).intersection(
-            pool_levels
-        )
+        selected = set(continuum.reduced_to_macro_level_idx)
+        for pool, included in (
+            ("k", include_thermal_pool),
+            ("i", include_ionization_pool),
+        ):
+            pool_levels = set(
+                metadata.loc[
+                    metadata.source.map(lambda level: level[0] == pool),
+                    "source_level_idx",
+                ]
+            )
+            if included:
+                assert pool_levels <= selected
+            else:
+                assert pool_levels.isdisjoint(selected)

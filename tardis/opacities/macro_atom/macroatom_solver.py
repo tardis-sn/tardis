@@ -818,6 +818,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         nthreads: int = 1,
         markov_chain_mode: str = "full",
         markov_chain_elements: tuple[str, ...] = (),
+        markov_chain_include_thermal_pool: bool = False,
+        markov_chain_include_ionization_pool: bool = False,
     ) -> None:
         """
         Initialize the ContinuumMacroAtomSolver.
@@ -844,6 +846,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Full, element-selected partial, or explicit sampling.
         markov_chain_elements : tuple of str
             Element symbols selected independently of enabled continuum physics.
+        markov_chain_include_thermal_pool : bool
+            Include the shared thermal state in partial reduction.
+        markov_chain_include_ionization_pool : bool
+            Include the shared ionization state in partial reduction.
         """
         super().__init__(
             lines=lines,
@@ -878,6 +884,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         self.nthreads = nthreads
         self.markov_chain_mode = markov_chain_mode
         self.markov_chain_elements = tuple(markov_chain_elements)
+        self.markov_chain_include_thermal_pool = (
+            markov_chain_include_thermal_pool
+        )
+        self.markov_chain_include_ionization_pool = (
+            markov_chain_include_ionization_pool
+        )
 
     def solve(
         self,
@@ -1335,6 +1347,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata,
             mode=self.markov_chain_mode,
             elements=self.markov_chain_elements,
+            include_thermal_pool=self.markov_chain_include_thermal_pool,
+            include_ionization_pool=self.markov_chain_include_ionization_pool,
             max_workers=self.nthreads,
         )
         absorbing_probability_matrix = chain_result.matrix
@@ -1670,6 +1684,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata,
             mode=self.markov_chain_mode,
             elements=self.markov_chain_elements,
+            include_thermal_pool=self.markov_chain_include_thermal_pool,
+            include_ionization_pool=self.markov_chain_include_ionization_pool,
             max_workers=self.nthreads,
         )
         absorbing_probability_matrix = chain_result.matrix

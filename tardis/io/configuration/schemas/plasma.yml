@@ -96,6 +96,14 @@ properties:
               type: string
             default: []
             description: Element symbols reduced in partial mode; empty in other modes.
+          include_thermal_pool:
+            type: boolean
+            default: false
+            description: Include the shared thermal k state in partial reduction.
+          include_ionization_pool:
+            type: boolean
+            default: false
+            description: Include the shared ionization i state in partial reduction.
       nthreads:
         type: integer
         minimum: 1

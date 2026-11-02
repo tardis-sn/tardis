@@ -32,6 +32,8 @@ def create_absorbing_probs(
     *,
     mode: str = "full",
     elements: Sequence[str] = (),
+    include_thermal_pool: bool = False,
+    include_ionization_pool: bool = False,
     max_workers: int = 1,
 ) -> AbsorbingChainResult:
     """Eliminate internal transitions within the selected state set.
@@ -39,16 +41,21 @@ def create_absorbing_probs(
     Parameters
     ----------
     transition_probabilities : pandas.DataFrame
-        Normalized original channel probabilities; columns are cells.
+        Normalized original channel coefficients; columns are cells. Signed
+        coefficients retain the legacy full-mode behavior in every mode.
     metadata : pandas.DataFrame
         Transition source tuples, global source/destination indices, and types.
     mode : {'full', 'partial', 'explicit'}
         Full eliminates all internal jumps. Partial eliminates only jumps with
-        both endpoints in selected elements; synthetic i/k pools stay explicit.
+        both endpoints selected, optionally including either shared pool.
         Explicit retains every original transition.
     elements : sequence of str
         Element symbols, required only in partial mode. All represented ions
         and levels of each selected element are included.
+    include_thermal_pool : bool, optional
+        Include the shared k state in partial reduction. Defaults to False.
+    include_ionization_pool : bool, optional
+        Include the shared i state in partial reduction. Defaults to False.
     max_workers : int
         Maximum number of cell-independent sparse LU workers.
 
@@ -64,12 +71,20 @@ def create_absorbing_probs(
     channels. Zero residual rows stay zero. No rate threshold removes a channel.
     The matrix selects the source of the first retained transition, which can
     itself be internal. It is not necessarily a final emission state.
+    Signed coefficients and reduced entries are preserved without clipping or
+    sign-based rejection, matching legacy full mode. The usual probabilistic
+    interpretation applies to nonnegative kernels.
     """
     if mode not in ("full", "partial", "explicit"):
         raise ValueError("markov_chain.mode must be full, partial, or explicit")
     if (mode == "partial") != bool(elements):
         raise ValueError(
             "markov_chain.elements must be nonempty only in partial mode"
+        )
+    if mode != "partial" and (include_thermal_pool or include_ionization_pool):
+        raise ValueError(
+            "markov_chain pool selection requires mode='partial'; full mode "
+            "already includes both pools and explicit mode reduces neither"
         )
     try:
         atomic_numbers = sorted(
@@ -102,6 +117,14 @@ def create_absorbing_probs(
             raise ValueError(
                 f"markov_chain.elements absent from assembled macro-atom network: {sorted(absent)}"
             )
+        if include_thermal_pool:
+            selected_rows = (
+                selected_rows | (metadata.source == ("k", -99, -99)).to_numpy()
+            )
+        if include_ionization_pool:
+            selected_rows = (
+                selected_rows | (metadata.source == ("i", -99, -99)).to_numpy()
+            )
         selected = np.unique(sources[selected_rows])
     else:
         selected = np.empty(0, dtype=np.int64)
@@ -125,11 +148,9 @@ def create_absorbing_probs(
         values = transition_probabilities.iloc[:, cell].to_numpy()
         totals = np.bincount(sources, weights=values, minlength=global_size)
         active = totals > 0
-        if not np.all(np.isfinite(values)) or (
-            mode != "full" and np.any(values < -PROBABILITY_TOLERANCE)
-        ):
+        if not np.all(np.isfinite(values)):
             raise ValueError(
-                f"cell {cell}: nonfinite or negative channel probabilities at transitions {metadata.index[~np.isfinite(values) | (values < -PROBABILITY_TOLERANCE)].tolist()}; partial/explicit sampling requires nonnegative original channels; use full mode for signed stimulated-recombination coefficients"
+                f"cell {cell}: nonfinite channel coefficients at transitions {metadata.index[~np.isfinite(values)].tolist()}"
             )
         if not np.allclose(
             totals[active], 1, rtol=0, atol=PROBABILITY_TOLERANCE
@@ -236,13 +257,16 @@ def create_absorbing_probs(
             1.0,
             sparse.linalg.norm(system, np.inf) * np.linalg.norm(solved, np.inf),
         )
-        signed_legacy_chain = mode == "full" and np.any(values < 0)
+        # Keep signed-coefficient compatibility independent of the reduction
+        # mask. A physical treatment of signed sampling laws is a shared issue.
+        signed_legacy_chain = np.any(values < 0)
+        negative_exits = solved < -PROBABILITY_TOLERANCE
+        if not signed_legacy_chain and np.any(negative_exits):
+            raise ValueError(
+                f"cell {cell}: negative first-exit probabilities for {negative_exits.sum()} global activation/exit-source pairs, first pairs {selected[np.argwhere(negative_exits)[:8]].tolist()} (minimum {solved.min()})"
+            )
         if (
             not np.all(np.isfinite(solved))
-            or (
-                not signed_legacy_chain
-                and np.any(solved < -PROBABILITY_TOLERANCE)
-            )
             or residual_norm > PROBABILITY_TOLERANCE * residual_scale
             or not np.allclose(
                 solved[active[selected]].sum(axis=1),
