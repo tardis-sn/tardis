@@ -280,16 +280,24 @@ the projected velocity gradient
     \frac{d\nu_{\mathrm{CMF}}}{ds} = -\frac{\nu_{\mathrm{lab}}}{c}G.
 
 The line search divides the path at analytic zeros where :math:`G` reverses
-sign. Within each interval the comoving frequency moves in one direction, so
-a line resonance contributes optical depth and estimators once. The same line
-can resonate again after a genuine reversal. The search remembers processed
-lines between traces, including crossings that do not cause scattering, so
-coherent emission cannot immediately replay the emitted line. Emission into
-a different line begins a new frequency history. Across a shell edge, history
-is retained when the represented velocity is continuous and the gradient
-direction agrees. The resonance solver's existing distance cutoff limits
-resolution of very close crossings; this traversal history does not extend
-that numerical resolution.
+sign. The packet retains the next eligible line ID in each frequency direction,
+so a processed transition contributes once while frequency drifts monotonically
+between line emissions. This history survives electron scattering and continuous
+shell crossings when the drift direction agrees. A reversal can make earlier
+lines eligible again. Each line emission starts a new outgoing history and
+excludes the emitted transition itself. Emission into another transition can
+make the absorbed line eligible again even if both rest frequencies are equal.
+
+Transitions with identical frequencies keep their separate optical depths and
+estimator contributions. At the start of a trace, eligible lines satisfying
+:math:`|\nu_{\mathrm{CMF}}-\nu_{\mathrm{line}}|/\nu_{\mathrm{lab}} < 10^{-14}`
+are processed at zero distance, following the homologous close-line convention.
+Cursor eligibility excludes the emitting line before this rule is applied.
+The rule also approximates sufficiently close distinct frequencies as coincident
+at trace entry. Other roots retain the distance solver's existing spatial cutoff;
+the frequency convention does not extend that solver's resolution.
+Search direction is inferred from the interval endpoint frequencies; monotonic
+replay prevention assumes those endpoints resolve the direction of drift.
 
 Performing an Interaction
 -------------------------
