@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=f54d8791"></script>
+      <script src="../../../../_static/documentation_options.js?v=70b8958b"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -485,10 +485,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html#signed-channel-limitation">Signed-channel limitation</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -5130,6 +5127,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         nthreads: int = 1,
         markov_chain_mode: str = &quot;full&quot;,
         markov_chain_elements: tuple[str, ...] = (),
+        markov_chain_include_thermal_pool: bool = False,
+        markov_chain_include_ionization_pool: bool = False,
     ) -&gt; None:
         &quot;&quot;&quot;
         Initialize the ContinuumMacroAtomSolver.
@@ -5156,6 +5155,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Full, element-selected partial, or explicit sampling.
         markov_chain_elements : tuple of str
             Element symbols selected independently of enabled continuum physics.
+        markov_chain_include_thermal_pool : bool
+            Include the shared thermal state in partial reduction.
+        markov_chain_include_ionization_pool : bool
+            Include the shared ionization state in partial reduction.
         &quot;&quot;&quot;
         super().__init__(
             lines=lines,
@@ -5190,6 +5193,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         self.nthreads = nthreads
         self.markov_chain_mode = markov_chain_mode
         self.markov_chain_elements = tuple(markov_chain_elements)
+        self.markov_chain_include_thermal_pool = (
+            markov_chain_include_thermal_pool
+        )
+        self.markov_chain_include_ionization_pool = (
+            markov_chain_include_ionization_pool
+        )
 
 <div class="viewcode-block" id="ContinuumMacroAtomSolver.solve">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.solve">[docs]</a>
@@ -5653,6 +5662,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata,
             mode=self.markov_chain_mode,
             elements=self.markov_chain_elements,
+            include_thermal_pool=self.markov_chain_include_thermal_pool,
+            include_ionization_pool=self.markov_chain_include_ionization_pool,
             max_workers=self.nthreads,
         )
         absorbing_probability_matrix = chain_result.matrix
@@ -5988,6 +5999,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata,
             mode=self.markov_chain_mode,
             elements=self.markov_chain_elements,
+            include_thermal_pool=self.markov_chain_include_thermal_pool,
+            include_ionization_pool=self.markov_chain_include_ionization_pool,
             max_workers=self.nthreads,
         )
         absorbing_probability_matrix = chain_result.matrix

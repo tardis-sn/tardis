@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=f54d8791"></script>
+      <script src="../../../_static/documentation_options.js?v=70b8958b"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -490,10 +490,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html#signed-channel-limitation">Signed-channel limitation</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -4459,7 +4456,7 @@
 <tr class="row-even"><td><p>additionalProperties</p></td>
 <td colspan="4"><p>False</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="29"><ul class="simple">
+<tr class="row-odd"><td rowspan="35"><ul class="simple">
 <li><p>continuum_interaction</p></li>
 </ul>
 </td>
@@ -4471,7 +4468,7 @@
 </tr>
 <tr class="row-odd"><td colspan="5"><p>properties</p></td>
 </tr>
-<tr class="row-even"><td rowspan="12"><ul class="simple">
+<tr class="row-even"><td rowspan="18"><ul class="simple">
 <li><p>markov_chain</p></li>
 </ul>
 </td>
@@ -4513,6 +4510,30 @@
 <tr class="row-even"><td><p>items</p></td>
 <td><p>type</p></td>
 <td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>include_thermal_pool</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Include the shared thermal k state in partial reduction.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>include_ionization_pool</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Include the shared ionization i state in partial reduction.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
 <td colspan="3"><p>False</p></td>
@@ -4676,6 +4697,8 @@ between selected atomic states:</p>
 <span class="w">    </span><span class="nt">markov_chain</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">partial</span>
 <span class="w">      </span><span class="nt">elements</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">H</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">include_thermal_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">include_ionization_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </pre></div>
 </div>
 <p>For a multi-element selection, use <code class="docutils literal notranslate"><span class="pre">elements:</span> <span class="pre">[H,</span> <span class="pre">He,</span> <span class="pre">Fe]</span></code> when those elements
@@ -4683,7 +4706,13 @@ are present in the assembled network. Duplicate symbols are harmless. A symbol
 selects all represented ions and levels of that element. This list is independent
 of continuum <code class="docutils literal notranslate"><span class="pre">species</span></code> and <code class="docutils literal notranslate"><span class="pre">nlte.species</span></code>: selecting an element does not
 enable additional continuum processes or change its equilibrium treatment.</p>
-<p>The synthetic thermal and ionization pools remain explicit in partial mode.
+<p>Both pool options default to <code class="docutils literal notranslate"><span class="pre">false</span></code>. Set <code class="docutils literal notranslate"><span class="pre">include_thermal_pool:</span> <span class="pre">true</span></code> to
+include the shared thermal state, <code class="docutils literal notranslate"><span class="pre">include_ionization_pool:</span> <span class="pre">true</span></code> to include
+the shared ionization state, or enable both. Internal transitions between any
+selected states are then collapsed, including paths through the enabled pools.
+Pool emission/cooling and jumps to unselected states remain explicit exit
+channels. These options require <code class="docutils literal notranslate"><span class="pre">mode:</span> <span class="pre">partial</span></code>; full mode already includes
+both pools, and explicit mode reduces neither.
 See <a class="reference internal" href="../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html"><span class="doc">Element-selected absorbing chains</span></a> for the
 probability contract and scientific verification.</p>
 </section>

@@ -85,6 +85,8 @@ between selected atomic states:
         markov_chain:
           mode: partial
           elements: [H]
+          include_thermal_pool: true
+          include_ionization_pool: false
 
 For a multi-element selection, use ``elements: [H, He, Fe]`` when those elements
 are present in the assembled network. Duplicate symbols are harmless. A symbol
@@ -92,6 +94,12 @@ selects all represented ions and levels of that element. This list is independen
 of continuum ``species`` and ``nlte.species``: selecting an element does not
 enable additional continuum processes or change its equilibrium treatment.
 
-The synthetic thermal and ionization pools remain explicit in partial mode.
+Both pool options default to ``false``. Set ``include_thermal_pool: true`` to
+include the shared thermal state, ``include_ionization_pool: true`` to include
+the shared ionization state, or enable both. Internal transitions between any
+selected states are then collapsed, including paths through the enabled pools.
+Pool emission/cooling and jumps to unselected states remain explicit exit
+channels. These options require ``mode: partial``; full mode already includes
+both pools, and explicit mode reduces neither.
 See :doc:`../../../physics_walkthrough/montecarlo/partial_absorbing_chain` for the
 probability contract and scientific verification.
