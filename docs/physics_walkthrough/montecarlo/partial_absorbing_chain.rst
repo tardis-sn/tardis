@@ -59,11 +59,3 @@ never removed by a numerical probability threshold. The sampler allows a CDF end
 deficit of at most 1e-10 due to floating-point summation; larger deficits or
 activations without outgoing probability raise an error.
 
-Exact small-network tests compare eventual channel distributions with an
-independent dense solve of the unreduced network. Compiled sampling tests check
-an analytic 50 percent / 18.75 percent / 31.25 percent emission distribution with
-direct thermal emission, pool activation, and re-entry through an unselected
-element. Every pool-option combination is checked with binomial uncertainty
-bounds. Full mode preserves the existing default and its two-draw
-sampling behavior. For nonnegative kernels, the different modes preserve
-distributions, rather than individual random packet histories.

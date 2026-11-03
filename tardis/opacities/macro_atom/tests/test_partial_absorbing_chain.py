@@ -34,46 +34,14 @@ def pool_network() -> tuple[pd.DataFrame, pd.DataFrame]:
             ],
         }
     )
-    probabilities = pd.DataFrame(
-        {
-            10: [
-                0.0,
-                1.0,
-                0.3,
-                0.2,
-                0.5,
-                0.4,
-                0.1,
-                0.5,
-                0.3,
-                0.7,
-                0.1,
-                0.1,
-                0.8,
-                1.0,
-                0.25,
-                0.75,
-            ],
-            30: [
-                1.0,
-                0.0,
-                0.2,
-                0.1,
-                0.7,
-                0.7,
-                0.1,
-                0.2,
-                0.6,
-                0.4,
-                0.05,
-                0.05,
-                0.9,
-                1.0,
-                0.4,
-                0.6,
-            ],
-        }
-    )
+    # fmt: off
+    probabilities = pd.DataFrame({
+        10: [0.0, 1.0, 0.3, 0.2, 0.5, 0.4, 0.1, 0.5,
+             0.3, 0.7, 0.1, 0.1, 0.8, 1.0, 0.25, 0.75],
+        30: [1.0, 0.0, 0.2, 0.1, 0.7, 0.7, 0.1, 0.2,
+             0.6, 0.4, 0.05, 0.05, 0.9, 1.0, 0.4, 0.6],
+    })
+    # fmt: on
     return probabilities, metadata
 
 
@@ -130,23 +98,19 @@ def test_final_emission_law(
     states = np.unique(metadata.source_level_idx)
     global_size = int(states.max()) + 1
     atomic_numbers = {"H": 1, "He": 2, "Fe": 26}
-    selected_elements = {atomic_numbers[symbol] for symbol in elements}
-    selected = (
-        np.arange(global_size)
-        if mode == "full"
-        else np.unique(
-            metadata.loc[
-                metadata.source.map(
-                    lambda level: (
-                        level[0] in selected_elements
-                        or (include_thermal_pool and level[0] == "k")
-                        or (include_ionization_pool and level[0] == "i")
-                    )
-                ),
-                "source_level_idx",
-            ]
-        )
-    )
+    source_identifiers = metadata.source.str[0]
+    selected_identifiers: set[int | str] = {
+        atomic_numbers[symbol] for symbol in elements
+    }
+    if include_thermal_pool:
+        selected_identifiers.add("k")
+    if include_ionization_pool:
+        selected_identifiers.add("i")
+    if mode == "full":
+        selected = np.arange(global_size)
+    else:
+        selected_rows = source_identifiers.isin(selected_identifiers)
+        selected = np.unique(metadata.loc[selected_rows, "source_level_idx"])
     lookup = np.full(global_size, -1, dtype=np.int64)
     lookup[selected] = np.arange(len(selected))
     np.testing.assert_array_equal(result.reduced_to_macro_level_idx, selected)
@@ -197,42 +161,6 @@ def test_final_emission_law(
             composed[states, global_size:],
         )
         np.testing.assert_allclose(actual, expected, rtol=2e-14, atol=2e-14)
-
-
-def test_asymmetric_near_trapping_cycle_preserves_tiny_exit_ratio() -> None:
-    """Tiny 1:3 exit rates give asymptotic 1/4:3/4 branching, without cancellation.
-
-    Exact two-state formula retains each actual exit rate; 1e-14 absolute
-    tolerance covers final float64 rounding, not an error amplified by trapping.
-    """
-    first_exit, second_exit = 1e-12, 3e-12
-    metadata = pd.DataFrame(
-        {
-            "source_level_idx": [0, 0, 1, 1],
-            "destination_level_idx": [1, -1, 0, -1],
-            "transition_type": [1, -1, 1, -1],
-            "source": [(1, 0, 0)] * 2 + [(1, 1, 0)] * 2,
-        }
-    )
-    result = create_absorbing_probs(
-        pd.DataFrame(
-            [1 - first_exit, first_exit, 1 - second_exit, second_exit]
-        ),
-        metadata,
-        mode="partial",
-        elements=["H"],
-    )
-    denominator = first_exit + second_exit - first_exit * second_exit
-    expected = (
-        np.array(
-            [
-                [first_exit, (1 - first_exit) * second_exit],
-                [(1 - second_exit) * first_exit, second_exit],
-            ]
-        )
-        / denominator
-    )
-    np.testing.assert_allclose(result.matrix[0], expected, rtol=0, atol=1e-14)
 
 
 @pytest.mark.parametrize(

@@ -1,20 +1,19 @@
 """Calculate first-exit probabilities for reduced macro-atom chains.
 
-This module eliminates selected internal transitions independently in each cell
-and computes the source-state probabilities for the first retained transition.
-It does not calculate expected step counts or visit counts, though the formalism
-does allow for that. It would require an additional potentially expensive linear
-algebra solve so it has been omitted.
+This module eliminates internal transitions for selected blocks independently in each cell
+and computes the source-state probabilities for retained transitions.
+
+Effectively this compresses the macro atom evaluation by internal reducing probability chains
+to equivalent single appropriate probability steps.
 
 References
 ----------
     Absorbing Markov chain theory: https://en.wikipedia.org/wiki/Absorbing_Markov_chain
 """
 
+from collections import deque
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
-from decimal import Decimal, localcontext
-from functools import partial
 from typing import NamedTuple
 
 import numpy as np
@@ -25,7 +24,8 @@ from scipy.sparse.linalg import splu
 
 from tardis.util.base import element_symbol2atomic_number
 
-# LU/CDF arithmetic tolerance, not a tolerance for discarding physical channels.
+# LU/CDF arithmetic tolerance. All probabilities at this stage are normalized so this a tolerance
+# of 1e-10 is small enough that we should effectively never notice the error in a simulation.
 PROBABILITY_TOLERANCE = 1e-10
 
 
@@ -61,10 +61,15 @@ def create_absorbing_probs(
 
     Parameters
     ----------
-    transition_probabilities : pandas.DataFrame
-        Normalized original channel coefficients; columns are cells.
-    metadata : pandas.DataFrame
-        Transition source tuples, global source/destination indices, and types.
+    transition_probabilities : pd.DataFrame
+        DataFrame with transition probabilities between states for each cell.
+        Rows represent transitions, columns represent cells.
+    metadata : pd.DataFrame
+        Metadata about transitions including source_level_idx,
+        destination_level_idx, and transition_type. Values >= 0 for
+        transition_type indicate internal transitions transitions that are not accompanied
+        by reemission of the r-packet, and an end to the interaction handler chain.
+        Negative values indicate deactivation, or reemitting from an absorbing state.
     mode : {'full', 'partial', 'explicit'}
         Full eliminates all internal jumps. Partial eliminates only jumps with
         both endpoints selected (e.g., internal transitions for a requested element),
@@ -83,7 +88,7 @@ def create_absorbing_probs(
     Returns
     -------
     AbsorbingChainResult
-        Cell-by-activation-by-exit-source matrix, residual channel probabilities,
+        Cell-by-activation-by-exit-source matrix, containing deactivation probabilities,
         and explicit global-to-reduced and reduced-to-global int64 maps.
 
     Notes
@@ -130,10 +135,10 @@ def create_absorbing_probs(
     if mode == "full":
         selected = np.arange(global_size, dtype=np.int64)
     elif mode == "partial":
-        selected_rows = metadata.source.map(
-            lambda level: level[0] in atomic_numbers
-        ).to_numpy()
-        represented = {level[0] for level in metadata.source}
+        # Source tuples start with an atomic number or a shared-pool label.
+        source_identifiers = metadata.source.str[0]
+        selected_rows = source_identifiers.isin(atomic_numbers).to_numpy()
+        represented = set(source_identifiers)
         absent = set(atomic_numbers) - represented
         if absent:
             raise ValueError(
@@ -165,37 +170,59 @@ def create_absorbing_probs(
         (transition_probabilities.shape[1], len(selected), len(selected))
     )
 
-    cell_solver = partial(
-        solve_cell,
-        transition_probabilities=transition_probabilities,
-        transition_index=metadata.index,
-        sources=sources,
-        destinations=destinations,
-        internal=internal,
-        global_size=global_size,
-        selected=selected,
-        eliminated=eliminated,
-        residual=residual,
-        rows=rows,
-        columns=columns,
-        mode=mode,
-    )
-
     if max_workers > 1 and len(matrices) > 1:
         with ThreadPoolExecutor(
             max_workers=min(max_workers, len(matrices))
         ) as executor:
-            for cell, solved in executor.map(cell_solver, range(len(matrices))):
-                matrices[cell] = solved
+            futures = deque(
+                executor.submit(
+                    solve_cell,
+                    cell,
+                    transition_probabilities,
+                    metadata.index,
+                    sources,
+                    destinations,
+                    internal,
+                    global_size,
+                    selected,
+                    eliminated,
+                    residual,
+                    rows,
+                    columns,
+                    mode,
+                )
+                for cell in range(len(matrices))
+            )
+            try:
+                # Release each future after copying its matrix into the result.
+                while futures:
+                    cell, solved = futures.popleft().result()
+                    matrices[cell] = solved
+            finally:
+                for future in futures:
+                    future.cancel()
     else:
         for cell in range(len(matrices)):
-            _, matrices[cell] = cell_solver(cell)
+            _, matrices[cell] = solve_cell(
+                cell,
+                transition_probabilities,
+                metadata.index,
+                sources,
+                destinations,
+                internal,
+                global_size,
+                selected,
+                eliminated,
+                residual,
+                rows,
+                columns,
+                mode,
+            )
     return AbsorbingChainResult(matrices, residual, lookup, selected)
 
 
 def solve_cell(
     cell: int,
-    *,
     transition_probabilities: pd.DataFrame,
     transition_index: pd.Index,
     sources: npt.NDArray[np.int64],
@@ -258,8 +285,10 @@ def solve_cell(
         raise ValueError(
             f"cell {cell}: original outgoing probabilities are not normalized"
         )
-    # Reverse reachability from positive physical deactivation channels detects
-    # closed communicating classes even in explicit mode, before MC can trap.
+    # Start with states that have a positive probability of deactivation.
+    # Follow internal jumps with positive probability backward to find all states
+    # that can reach deactivation. An active state left unmarked has no such exit
+    # path and could trap a packet forever. Check this even in explicit mode.
     reachable = (
         np.bincount(
             sources[~internal],
@@ -315,40 +344,12 @@ def solve_cell(
     rhs = exit_rates
     if mode == "full":
         rhs = 1 - q_totals
-    # For near-trapping self-loops, form the diagonal from physical exits
-    # and off-diagonal jumps. Helps prevent losing individually unlikely
-    # transitions that are amplified in blocks that are sampled many times.
-    near_trapping = q_matrix.diagonal() > 0.99
-    if mode != "full" and np.any(near_trapping):
-        off_diagonal = q_matrix.copy()
-        off_diagonal.setdiag(0)
-        stable_diagonal = (
-            np.asarray(off_diagonal.sum(axis=1)).ravel() + exit_rates
-        )
-        diagonal = system.diagonal()
-        diagonal[near_trapping] = stable_diagonal[near_trapping]
-        system.setdiag(diagonal)
-        rhs = rhs.copy()
-        rhs[near_trapping] = exit_rates[near_trapping]
     try:
         solved = splu(system, permc_spec="MMD_AT_PLUS_A").solve(np.diag(rhs))
     except RuntimeError as error:
-        if mode == "full":
-            raise ValueError(
-                f"cell {cell}: closed selected chain at states {selected}"
-            ) from error
-        solved = solve_near_trapping_chain(
-            q_matrix, exit_rates, active[selected]
-        )
-    if mode != "full" and not np.allclose(
-        solved[active[selected]].sum(axis=1),
-        1,
-        rtol=0,
-        atol=32 * np.finfo(np.float64).eps,
-    ):
-        solved = solve_near_trapping_chain(
-            q_matrix, exit_rates, active[selected]
-        )
+        raise ValueError(
+            f"cell {cell}: closed selected chain at states {selected}"
+        ) from error
     residual_norm = np.max(np.abs(system @ solved - np.diag(rhs)))
     residual_scale = max(
         1.0,
@@ -368,133 +369,3 @@ def solve_cell(
             f"cell {cell}: invalid absorbing solve for states {selected}; residual {residual_norm}"
         )
     return cell, solved
-
-
-def solve_near_trapping_chain(
-    internal_matrix: sparse.spmatrix,
-    exit_rates: npt.NDArray[np.float64],
-    active: npt.NDArray[np.bool_],
-) -> npt.NDArray[np.float64]:
-    """Recover first-exit coefficients when tiny exits destabilize float64 LU.
-
-    Nearly closed cycles can amplify small retained exit coefficients, so losing
-    those coefficients through cancellation can corrupt the final branching
-    ratios. Rebuild the system using the actual exits and solve it with dense
-    Decimal arithmetic, rather than subtracting nearly equal float64 values.
-    The partial-mode caller uses this fallback when sparse LU fails or its
-    active rows do not sum to one within 32 float64 machine epsilons. Full mode
-    keeps its existing sparse calculation.
-
-    Parameters
-    ----------
-    internal_matrix : scipy.sparse.spmatrix
-        Square matrix Q of eliminated internal coefficients, in compact
-        selected-state order. For each active state, its row sum plus the
-        corresponding retained exit mass must equal one.
-    exit_rates : numpy.ndarray
-        Float64 vector r of retained channel sums for the selected states.
-        These are normalized coefficients, not dimensional rates. Supply the
-        actual channel sums rather than deriving them as one minus Q's row
-        sums. At least one entry must be positive.
-    active : numpy.ndarray
-        Boolean vector marking states with positive total outgoing mass in the
-        original network. Inactive states are assumed to have zero outgoing
-        coefficients and zero retained exit mass.
-
-    Returns
-    -------
-    numpy.ndarray
-        Float64 matrix B with the same shape as Q. Entry B[i, j] is the
-        first-exit coefficient for retaining a channel from selected state j
-        after activation at selected state i. Inactive rows are zero. The
-        result is converted to float64 only after high-precision elimination
-        and back substitution.
-
-    Raises
-    ------
-    ValueError
-        If elimination encounters a zero pivot and cannot solve the selected
-        system, as for a closed class with no exit.
-
-    Notes
-    -----
-    Solve ``A B = diag(r)`` with off-diagonal entries ``A[i, j] = -Q[i, j]``
-    and active diagonals ``A[i, i] = r[i] + sum(Q[i, j] for j != i)``.
-    Row conservation makes this equivalent to ``I-Q`` for normalized active
-    states, while avoiding cancellation in ``1-Q[i, i]``. Inactive diagonals
-    are set to one.
-
-    Gaussian elimination uses partial row pivoting. Decimal precision is
-    ``max(80, 40 - floor(log10(r_min)))``, where r_min is the smallest positive
-    exit coefficient. This increases arithmetic precision but cannot recover
-    information already lost from the supplied float64 coefficients. Dense
-    storage and high-precision arithmetic make this an exceptional fallback,
-    rather than the normal solver.
-    """
-    size = len(exit_rates)
-    with localcontext() as context:
-        positive_exit_rates = exit_rates[exit_rates > 0]
-        context.prec = max(
-            80, 40 - int(np.floor(np.log10(positive_exit_rates.min())))
-        )
-        zero = Decimal(0)
-        one = Decimal(1)
-        dense = internal_matrix.toarray()
-        system = [
-            [
-                -Decimal(float(dense[row, column])) if row != column else zero
-                for column in range(size)
-            ]
-            for row in range(size)
-        ]
-        rhs = [[zero for _ in range(size)] for _ in range(size)]
-        for row in range(size):
-            rate = Decimal(float(exit_rates[row]))
-            system[row][row] = (
-                sum(
-                    (
-                        -system[row][column]
-                        for column in range(size)
-                        if row != column
-                    ),
-                    rate,
-                )
-                if active[row]
-                else one
-            )
-            rhs[row][row] = rate
-        for pivot_idx in range(size):
-            pivot_row = max(
-                range(pivot_idx, size),
-                key=lambda row: abs(system[row][pivot_idx]),
-            )
-            if not system[pivot_row][pivot_idx]:
-                raise ValueError(
-                    "Closed selected chain in high-precision solve"
-                )
-            system[pivot_idx], system[pivot_row] = (
-                system[pivot_row],
-                system[pivot_idx],
-            )
-            rhs[pivot_idx], rhs[pivot_row] = rhs[pivot_row], rhs[pivot_idx]
-            pivot = system[pivot_idx][pivot_idx]
-            for row in range(pivot_idx + 1, size):
-                factor = system[row][pivot_idx] / pivot
-                for column in range(pivot_idx + 1, size):
-                    system[row][column] -= factor * system[pivot_idx][column]
-                for column in range(size):
-                    rhs[row][column] -= factor * rhs[pivot_idx][column]
-        solved = [[zero for _ in range(size)] for _ in range(size)]
-        for row in range(size - 1, -1, -1):
-            for channel in range(size):
-                solved[row][channel] = (
-                    rhs[row][channel]
-                    - sum(
-                        (
-                            system[row][column] * solved[column][channel]
-                            for column in range(row + 1, size)
-                        ),
-                        zero,
-                    )
-                ) / system[row][row]
-        return np.asarray(solved, dtype=np.float64)
