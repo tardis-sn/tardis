@@ -84,13 +84,13 @@ def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
     for matrix in matrices.to_numpy().flat:
         right_hand_side = np.zeros(matrix.shape[0])
         right_hand_side[0] = 1.0
-        population = np.linalg.solve(matrix, right_hand_side)
+        number_density = np.linalg.solve(matrix, right_hand_side)
         # The null-space residual is roundoff-sized for the normalized solve.
         npt.assert_allclose(
-            matrix @ population, right_hand_side, rtol=1e-12, atol=1e-15
+            matrix @ number_density, right_hand_side, rtol=1e-12, atol=1e-15
         )
-        npt.assert_allclose(population.sum(), 1.0, rtol=1e-12)
-        assert np.all(population >= 0.0)
+        npt.assert_allclose(number_density.sum(), 1.0, rtol=1e-12)
+        assert np.all(number_density >= 0.0)
 
 
 def test_rate_matrix_solver(
@@ -156,14 +156,14 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
         columns=[columns[0]],
     ).reindex(columns=columns, method="ffill")
     level_index = mock_photoionization_cross_sections.index
-    lte_level_population = pd.DataFrame(
+    lte_level_number_density = pd.DataFrame(
         1.0e5, index=level_index, columns=columns
     )
     ion_index = pd.MultiIndex.from_tuples(
         [(1, 0), (1, 1)],
         names=["atomic_number", "ion_number"],
     )
-    lte_ion_population = pd.DataFrame(1.0e5, index=ion_index, columns=columns)
+    lte_ion_number_density = pd.DataFrame(1.0e5, index=ion_index, columns=columns)
     boltzmann_factor = pd.DataFrame(
         np.repeat(
             mock_boltzmann_factor.iloc[:, :1].to_numpy(),
@@ -181,10 +181,10 @@ def test_ion_rate_matrix_preserves_electron_density_rate_powers(
     rate_matrices = rate_matrix_solver.solve(
         radiation_field,
         electron_distribution,
-        lte_level_population,
-        1.4 * lte_level_population,
-        lte_ion_population,
-        3.0 * lte_ion_population,
+        lte_level_number_density,
+        1.4 * lte_level_number_density,
+        lte_ion_number_density,
+        3.0 * lte_ion_number_density,
         partition_function,
         boltzmann_factor,
         level_to_continuum_saha_factor=level_to_continuum_saha_factor,
@@ -255,7 +255,7 @@ def test_ion_rate_matrix_solver(
         0, collisional_simulation_state.t_radiative, 1e6 / u.cm**3
     )
 
-    lte_level_population = pd.DataFrame(
+    lte_level_number_density = pd.DataFrame(
         data=np.ones((2, 20)) * 1e5,
         index=pd.MultiIndex.from_tuples(
             [(1, 0, 0), (1, 0, 1)],
@@ -263,7 +263,7 @@ def test_ion_rate_matrix_solver(
         ),
     )
 
-    lte_ion_population = pd.DataFrame(
+    lte_ion_number_density = pd.DataFrame(
         data=np.ones((2, 20)) * 1e5,
         index=pd.MultiIndex.from_tuples(
             [(1, 0), (1, 1)],
@@ -271,8 +271,8 @@ def test_ion_rate_matrix_solver(
         ),
     )
 
-    level_population = lte_level_population.copy() * 1.4
-    ion_population = lte_ion_population.copy() * 3.0
+    level_number_density = lte_level_number_density.copy() * 1.4
+    ion_number_density = lte_ion_number_density.copy() * 3.0
     partition_function = pd.DataFrame(
         1.0,
         index=mock_boltzmann_factor.index,
@@ -282,10 +282,10 @@ def test_ion_rate_matrix_solver(
     actual = rate_matrix_solver.solve(
         rad_field,
         electron_dist,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
+        lte_level_number_density,
+        level_number_density,
+        lte_ion_number_density,
+        ion_number_density,
         partition_function,
         mock_boltzmann_factor,
     )
@@ -293,17 +293,17 @@ def test_ion_rate_matrix_solver(
         for matrix in actual.to_numpy().flat:
             right_hand_side = np.zeros(matrix.shape[0])
             right_hand_side[1] = 1.0
-            population = np.linalg.solve(matrix, right_hand_side)
+            number_density = np.linalg.solve(matrix, right_hand_side)
             npt.assert_allclose(
-                matrix @ population,
+                matrix @ number_density,
                 right_hand_side,
                 rtol=1e-12,
                 atol=1e-15,
             )
-            npt.assert_allclose(population.sum(), 1.0, rtol=1e-12)
-            assert np.all(population >= 0.0)
+            npt.assert_allclose(number_density.sum(), 1.0, rtol=1e-12)
+            assert np.all(number_density >= 0.0)
         pdt.assert_index_equal(
-            rate_matrix_solver.ion_population_index,
+            rate_matrix_solver.ion_number_density_index,
             pd.MultiIndex.from_tuples(
                 [(1, 0), (1, 1)],
                 names=["atomic_number", "ion_number"],

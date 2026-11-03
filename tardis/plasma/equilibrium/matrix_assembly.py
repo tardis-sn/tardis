@@ -53,7 +53,7 @@ def sum_duplicate_rates(rates: pd.DataFrame) -> pd.DataFrame:
 def normalize_rate_matrices(
     matrices: npt.NDArray[np.float64],
 ) -> npt.NDArray[np.float64]:
-    """Add balance diagonals and the population-normalization row."""
+    """Add balance diagonals and the number density-normalization row."""
     for matrix in matrices:
         np.fill_diagonal(matrix, -np.sum(matrix, axis=0))
     matrices[:, 1, :] = 1.0

@@ -9,7 +9,7 @@ atom_data: christians_atomdata_converted_04Dec25.h5
 model:
   structure:
     type: file
-    filename: iip_population_cutoff_density.dat
+    filename: iip_number_density_cutoff.dat
     filetype: simple_ascii
     v_inner_boundary: 3001 km/s
     v_outer_boundary: 10650 km/s

@@ -66,7 +66,7 @@ def radiation_field():
 
 
 @pytest.fixture()
-def level_population(regression_data):
+def level_number_density(regression_data):
     df = pd.read_csv(
         regression_data.regression_data_path
         / "testdata"
@@ -80,7 +80,7 @@ def level_population(regression_data):
 
 
 @pytest.fixture()
-def ion_population(regression_data):
+def ion_number_density(regression_data):
     df = pd.read_csv(
         regression_data.regression_data_path
         / "testdata"
@@ -94,7 +94,7 @@ def ion_population(regression_data):
 
 
 @pytest.fixture()
-def level_population_ratio(regression_data):
+def level_number_density_ratio(regression_data):
     df = pd.read_csv(
         regression_data.regression_data_path
         / "testdata"
@@ -190,21 +190,21 @@ def ctardis_lines(regression_data):
 
 def test_bound_free_thermal_rates_solve(
     nlte_atom_data,
-    level_population,
-    ion_population,
+    level_number_density,
+    ion_number_density,
     thermal_electron_distribution,
     radiation_field,
-    level_population_ratio,
+    level_number_density_ratio,
     regression_data,
 ):
     rates = BoundFreeThermalRates(
         nlte_atom_data.photoionization_data.query("atomic_number == 1")
     )
     actual_heating, actual_cooling = rates.solve(
-        level_population,
-        ion_population,
+        level_number_density,
+        ion_number_density,
         thermal_electron_distribution,
-        level_population_ratio,
+        level_number_density_ratio,
         radiation_field,
     )
 
@@ -234,10 +234,10 @@ def test_bound_free_thermal_rates_solve(
 )
 def test_bound_free_thermal_rates_solve_with_estimators(
     nlte_atom_data,
-    level_population,
-    ion_population,
+    level_number_density,
+    ion_number_density,
     thermal_electron_distribution,
-    level_population_ratio,
+    level_number_density_ratio,
     bound_free_heating_estimator,
     stimulated_recombination_estimator,
     heating_rate,
@@ -248,10 +248,10 @@ def test_bound_free_thermal_rates_solve_with_estimators(
         nlte_atom_data.photoionization_data.query("atomic_number == 1")
     )
     actual_heating, actual_cooling = rates.solve(
-        level_population,
-        ion_population,
+        level_number_density,
+        ion_number_density,
         thermal_electron_distribution,
-        level_population_ratio,
+        level_number_density_ratio,
         bound_free_heating_estimator=bound_free_heating_estimator,
         stimulated_recombination_estimator=stimulated_recombination_estimator,
     )
@@ -277,13 +277,13 @@ def test_bound_free_thermal_rates_solve_with_estimators(
 
 
 def test_free_free_thermal_rates_heating_factor(
-    ion_population,
+    ion_number_density,
     thermal_electron_distribution,
     regression_data,
 ):
     rates = FreeFreeThermalRates()
     actual_factor = rates.heating_factor(
-        ion_population,
+        ion_number_density,
         thermal_electron_distribution.number_density.cgs.value,
     )
     expected_factor = REFERENCE_FREE_FREE_HEATING_FACTOR
@@ -315,7 +315,7 @@ def test_free_free_thermal_rates_heating_factor(
 )
 def test_free_free_thermal_rates_solve(
     thermal_electron_distribution,
-    ion_population,
+    ion_number_density,
     ff_heating_estimator,
     expected_heating_rate,
     expected_cooling_rate,
@@ -325,7 +325,7 @@ def test_free_free_thermal_rates_solve(
     actual_heating_rate, actual_cooling_rate = rates.solve(
         ff_heating_estimator,
         thermal_electron_distribution,
-        ion_population,
+        ion_number_density,
     )
 
     # Original parametrized assertions
@@ -364,10 +364,10 @@ def test_free_free_thermal_rates_solve(
 def test_collisional_ionization_thermal_rates_solve(
     nlte_atom_data,
     thermal_electron_distribution,
-    ion_population,
-    level_population,
+    ion_number_density,
+    level_number_density,
     collisional_ionization_rate_coefficient,
-    level_population_ratio,
+    level_number_density_ratio,
     heating_rate,
     cooling_rate,
     regression_data,
@@ -377,10 +377,10 @@ def test_collisional_ionization_thermal_rates_solve(
     )
     actual_heating, actual_cooling = rates.solve(
         thermal_electron_distribution.number_density,
-        ion_population,
-        level_population,
+        ion_number_density,
+        level_number_density,
         collisional_ionization_rate_coefficient,
-        level_population_ratio,
+        level_number_density_ratio,
     )
 
     # Original parametrized assertions
@@ -417,7 +417,7 @@ def test_collisional_bound_thermal_rates_solve(
     thermal_electron_distribution,
     collisional_deexcitation_rate_coefficient,
     collisional_excitation_rate_coefficient,
-    level_population,
+    level_number_density,
     heating_rate,
     cooling_rate,
     regression_data,
@@ -427,7 +427,7 @@ def test_collisional_bound_thermal_rates_solve(
         thermal_electron_distribution.number_density,
         collisional_deexcitation_rate_coefficient,
         collisional_excitation_rate_coefficient,
-        level_population,
+        level_number_density,
     )
 
     # Original parametrized assertions
@@ -477,14 +477,14 @@ def test_adiabatic_thermal_rates_solve(
 def test_thermal_balance_solver(
     thermal_electron_distribution,
     radiation_field,
-    level_population,
-    ion_population,
+    level_number_density,
+    ion_number_density,
     collisional_ionization_rate_coefficient,
     collisional_deexcitation_rate_coefficient,
     collisional_excitation_rate_coefficient,
     stimulated_recombination_estimator,
     bound_free_heating_estimator,
-    level_population_ratio,
+    level_number_density_ratio,
     ctardis_lines,
     nlte_atom_data,
     regression_data,
@@ -510,13 +510,13 @@ def test_thermal_balance_solver(
     actual_total_heating_rate, actual_fractional_heating_rate = (
         thermal_balance_solver.solve(
             thermal_electron_distribution,
-            level_population,
-            ion_population,
+            level_number_density,
+            ion_number_density,
             collisional_ionization_rate_coefficient,
             collisional_deexcitation_rate_coefficient,
             collisional_excitation_rate_coefficient,
             ff_heating_estimator,
-            level_population_ratio,
+            level_number_density_ratio,
             radiation_field,
             bound_free_heating_estimator,
             stimulated_recombination_estimator,
@@ -562,14 +562,14 @@ def test_thermal_balance_solver(
 def test_thermal_balance_process_terms_have_consistent_signs_and_scales(
     thermal_electron_distribution: ThermalElectronEnergyDistribution,
     radiation_field: DilutePlanckianRadiationField,
-    level_population: pd.DataFrame,
-    ion_population: pd.DataFrame,
+    level_number_density: pd.DataFrame,
+    ion_number_density: pd.DataFrame,
     collisional_ionization_rate_coefficient: pd.DataFrame,
     collisional_deexcitation_rate_coefficient: pd.DataFrame,
     collisional_excitation_rate_coefficient: pd.DataFrame,
     stimulated_recombination_estimator: pd.DataFrame,
     bound_free_heating_estimator: pd.DataFrame,
-    level_population_ratio: pd.DataFrame,
+    level_number_density_ratio: pd.DataFrame,
     ctardis_lines: pd.DataFrame,
     nlte_atom_data: AtomData,
 ) -> None:
@@ -577,10 +577,10 @@ def test_thermal_balance_process_terms_have_consistent_signs_and_scales(
         "atomic_number == 1"
     )
     bound_free = BoundFreeThermalRates(photoionization_data).solve(
-        level_population,
-        ion_population,
+        level_number_density,
+        ion_number_density,
         thermal_electron_distribution,
-        level_population_ratio,
+        level_number_density_ratio,
         radiation_field,
         bound_free_heating_estimator,
         stimulated_recombination_estimator,
@@ -588,22 +588,22 @@ def test_thermal_balance_process_terms_have_consistent_signs_and_scales(
     free_free = FreeFreeThermalRates().solve(
         REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
         thermal_electron_distribution,
-        ion_population,
+        ion_number_density,
     )
     collisional_ionization = CollisionalIonizationThermalRates(
         photoionization_data
     ).solve(
         thermal_electron_distribution.number_density,
-        ion_population,
-        level_population,
+        ion_number_density,
+        level_number_density,
         collisional_ionization_rate_coefficient,
-        level_population_ratio,
+        level_number_density_ratio,
     )
     collisional_bound = CollisionalBoundThermalRates(ctardis_lines).solve(
         thermal_electron_distribution.number_density,
         collisional_deexcitation_rate_coefficient,
         collisional_excitation_rate_coefficient,
-        level_population,
+        level_number_density,
     )
 
     # Lucy 2003 Eqs. 32, 47, 58, and 59 define these terms as positive
@@ -631,10 +631,10 @@ def test_thermal_balance_process_terms_have_consistent_signs_and_scales(
 
 def test_thermal_balance_process_density_scaling(
     thermal_electron_distribution: ThermalElectronEnergyDistribution,
-    ion_population: pd.DataFrame,
-    level_population: pd.DataFrame,
+    ion_number_density: pd.DataFrame,
+    level_number_density: pd.DataFrame,
     collisional_ionization_rate_coefficient: pd.DataFrame,
-    level_population_ratio: pd.DataFrame,
+    level_number_density_ratio: pd.DataFrame,
     collisional_deexcitation_rate_coefficient: pd.DataFrame,
     collisional_excitation_rate_coefficient: pd.DataFrame,
     ctardis_lines: pd.DataFrame,
@@ -653,17 +653,17 @@ def test_thermal_balance_process_density_scaling(
     )
     ionization_low = collisional_ionization.solve(
         thermal_electron_distribution.number_density,
-        ion_population,
-        level_population,
+        ion_number_density,
+        level_number_density,
         collisional_ionization_rate_coefficient,
-        level_population_ratio,
+        level_number_density_ratio,
     )
     ionization_high = collisional_ionization.solve(
         doubled_distribution.number_density,
-        ion_population,
-        level_population,
+        ion_number_density,
+        level_number_density,
         collisional_ionization_rate_coefficient,
-        level_population_ratio,
+        level_number_density_ratio,
     )
     assert_allclose(
         ionization_high[0].to_numpy(),
@@ -680,12 +680,12 @@ def test_thermal_balance_process_density_scaling(
     free_free_low = free_free.solve(
         REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
         thermal_electron_distribution,
-        ion_population,
+        ion_number_density,
     )
     free_free_high = free_free.solve(
         REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
         doubled_distribution,
-        ion_population,
+        ion_number_density,
     )
     assert_allclose(
         free_free_high[0].to_numpy(),
@@ -703,13 +703,13 @@ def test_thermal_balance_process_density_scaling(
         thermal_electron_distribution.number_density,
         collisional_deexcitation_rate_coefficient,
         collisional_excitation_rate_coefficient,
-        level_population,
+        level_number_density,
     )
     collisional_bound_high = collisional_bound.solve(
         doubled_distribution.number_density,
         collisional_deexcitation_rate_coefficient,
         collisional_excitation_rate_coefficient,
-        level_population,
+        level_number_density,
     )
     assert_allclose(
         collisional_bound_high[0].to_numpy(),
@@ -726,14 +726,14 @@ def test_thermal_balance_process_density_scaling(
 def test_thermal_balance_reconstructs_net_and_fractional_rates(
     thermal_electron_distribution: ThermalElectronEnergyDistribution,
     radiation_field: DilutePlanckianRadiationField,
-    level_population: pd.DataFrame,
-    ion_population: pd.DataFrame,
+    level_number_density: pd.DataFrame,
+    ion_number_density: pd.DataFrame,
     collisional_ionization_rate_coefficient: pd.DataFrame,
     collisional_deexcitation_rate_coefficient: pd.DataFrame,
     collisional_excitation_rate_coefficient: pd.DataFrame,
     stimulated_recombination_estimator: pd.DataFrame,
     bound_free_heating_estimator: pd.DataFrame,
-    level_population_ratio: pd.DataFrame,
+    level_number_density_ratio: pd.DataFrame,
     ctardis_lines: pd.DataFrame,
     nlte_atom_data: AtomData,
 ) -> None:
@@ -753,22 +753,22 @@ def test_thermal_balance_reconstructs_net_and_fractional_rates(
         collisional_bound_solver,
     ).solve(
         thermal_electron_distribution,
-        level_population,
-        ion_population,
+        level_number_density,
+        ion_number_density,
         collisional_ionization_rate_coefficient,
         collisional_deexcitation_rate_coefficient,
         collisional_excitation_rate_coefficient,
         REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
-        level_population_ratio,
+        level_number_density_ratio,
         radiation_field,
         bound_free_heating_estimator,
         stimulated_recombination_estimator,
     )
     bound_free = bound_free_solver.solve(
-        level_population,
-        ion_population,
+        level_number_density,
+        ion_number_density,
         thermal_electron_distribution,
-        level_population_ratio,
+        level_number_density_ratio,
         radiation_field,
         bound_free_heating_estimator,
         stimulated_recombination_estimator,
@@ -776,20 +776,20 @@ def test_thermal_balance_reconstructs_net_and_fractional_rates(
     free_free = free_free_solver.solve(
         REFERENCE_FREE_FREE_HEATING_ESTIMATOR,
         thermal_electron_distribution,
-        ion_population,
+        ion_number_density,
     )
     collisional_ionization = collisional_ionization_solver.solve(
         thermal_electron_distribution.number_density,
-        ion_population,
-        level_population,
+        ion_number_density,
+        level_number_density,
         collisional_ionization_rate_coefficient,
-        level_population_ratio,
+        level_number_density_ratio,
     )
     collisional_bound = collisional_bound_solver.solve(
         thermal_electron_distribution.number_density,
         collisional_deexcitation_rate_coefficient,
         collisional_excitation_rate_coefficient,
-        level_population,
+        level_number_density,
     )
     heating = sum(
         term[0]
@@ -831,7 +831,7 @@ def test_thermal_balance_reconstructs_net_and_fractional_rates(
 
 
 def test_free_free_thermal_root_is_stable_to_bracket_perturbations(
-    ion_population: pd.DataFrame,
+    ion_number_density: pd.DataFrame,
 ) -> None:
     estimator = REFERENCE_FREE_FREE_HEATING_ESTIMATOR
     rates = FreeFreeThermalRates()
@@ -846,7 +846,7 @@ def test_free_free_thermal_root_is_stable_to_bracket_perturbations(
         heating, cooling = rates.solve(
             estimator,
             distribution,
-            ion_population.iloc[:, :1],
+            ion_number_density.iloc[:, :1],
         )
         return heating.iloc[0] - cooling.iloc[0]
 

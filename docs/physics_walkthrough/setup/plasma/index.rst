@@ -63,7 +63,7 @@ Plasma Calculations
 
 In the next step the line and level tables are purged of entries that are not represented in the abundance fractions are saved in `BasePlasma.levels` and `BasePlasma.lines`. Finally, the function `BasePlasma.update_t_rad` is called at the end of initialization to update the plasma conditions to a new :math:`T_\textrm{radiation field}` (with the give t_rad). This function is the same in the other plasma classes and does the main part of the calculation. In the case of `BasePlasma` this is only setting `BasePlasma.beta_rad` to :math:`\frac{1}{k_\textrm{B}T_\textrm{rad}}`.
 
-The next more complex class is `LTEPlasma` which will calculate the ionization balance and level populations in Local Thermal Equilibrium conditions (LTE). The :class:`NebularPlasma`-class inherits from `LTEPlasma` and uses a more complex description of the BasePlasma.
+The next more complex class is `LTEPlasma` which will calculate the ionization balance and level number densities in Local Thermal Equilibrium conditions (LTE). The :class:`NebularPlasma`-class inherits from `LTEPlasma` and uses a more complex description of the BasePlasma.
 
 .. toctree::
     :maxdepth: 2

@@ -98,14 +98,14 @@ class TestPlasma:
         "f_lu",
         "metastability",
     ]
-    ion_population_properties = [
+    ion_number_density_properties = [
         "delta",
         "previous_electron_densities",
         "phi",
         "ion_number_density",
         "electron_densities",
     ]
-    level_population_properties = ["level_number_density"]
+    level_number_density_properties = ["level_number_density"]
     radiative_properties = [
         "stimulated_emission_factor",
         "previous_beta_sobolev",
@@ -120,8 +120,8 @@ class TestPlasma:
         general_properties
         + partiton_properties
         + atomic_properties
-        + ion_population_properties
-        + level_population_properties
+        + ion_number_density_properties
+        + level_number_density_properties
         + radiative_properties
         + j_blues_properties
         + helium_nlte_properties

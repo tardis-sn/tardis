@@ -27,7 +27,7 @@ def mock_electron_distribution():
 
 
 @pytest.fixture
-def mock_level_to_ion_population_factor():
+def mock_level_to_ion_number_density_factor():
     """Fixture for mock Saha factor."""
     index = pd.MultiIndex.from_tuples(
         [(1, 0, 0), (1, 0, 1)],
@@ -54,7 +54,7 @@ def test_collisional_ionization_rate_solver_init(
 def test_collisional_ionization_rate_solver_solve(
     mock_photoionization_cross_sections,
     mock_electron_distribution,
-    mock_level_to_ion_population_factor,
+    mock_level_to_ion_number_density_factor,
     mock_boltzmann_factor,
     regression_data,
 ):
@@ -70,7 +70,7 @@ def test_collisional_ionization_rate_solver_solve(
 
     actual_ionization_rates, actual_recombination_rates = solver.solve(
         mock_electron_distribution,
-        mock_level_to_ion_population_factor,
+        mock_level_to_ion_number_density_factor,
         partition_function,
         mock_boltzmann_factor,
         approximation="seaton",
@@ -97,7 +97,7 @@ def test_collisional_ionization_rate_solver_solve(
 def test_collisional_ionization_rate_solver_invalid_approximation(
     mock_photoionization_cross_sections,
     mock_electron_distribution,
-    mock_level_to_ion_population_factor,
+    mock_level_to_ion_number_density_factor,
     mock_boltzmann_factor,
 ):
     """Test that an invalid approximation raises a ValueError."""
@@ -109,7 +109,7 @@ def test_collisional_ionization_rate_solver_invalid_approximation(
     ):
         solver.solve(
             mock_electron_distribution,
-            mock_level_to_ion_population_factor,
+            mock_level_to_ion_number_density_factor,
             1.0,  # Simple partition function for testing
             mock_boltzmann_factor,
             approximation="invalid_approx",
@@ -119,7 +119,7 @@ def test_collisional_ionization_rate_solver_invalid_approximation(
 def test_collisional_ionization_uses_estimated_level_fractions(
     mock_photoionization_cross_sections: pd.DataFrame,
     mock_electron_distribution: MockElectronDistribution,
-    mock_level_to_ion_population_factor: pd.DataFrame,
+    mock_level_to_ion_number_density_factor: pd.DataFrame,
     mock_boltzmann_factor: pd.DataFrame,
 ) -> None:
     """Weight estimated collisional ionization by current level fractions."""
@@ -129,8 +129,8 @@ def test_collisional_ionization_uses_estimated_level_fractions(
     ion_index = pd.MultiIndex.from_tuples(
         [(1, 0), (1, 1)], names=["atomic_number", "ion_number"]
     )
-    ion_population = pd.DataFrame([[4.0, 4.0], [6.0, 6.0]], index=ion_index)
-    level_population = pd.DataFrame(
+    ion_number_density = pd.DataFrame([[4.0, 4.0], [6.0, 6.0]], index=ion_index)
+    level_number_density = pd.DataFrame(
         [[1.0, 3.0], [3.0, 1.0]], index=mock_boltzmann_factor.index
     )
     partition_function = pd.DataFrame(
@@ -139,15 +139,15 @@ def test_collisional_ionization_uses_estimated_level_fractions(
 
     estimated_ionization, estimated_recombination = solver.solve(
         mock_electron_distribution,
-        mock_level_to_ion_population_factor,
+        mock_level_to_ion_number_density_factor,
         partition_function,
         mock_boltzmann_factor,
-        level_population,
-        ion_population,
+        level_number_density,
+        ion_number_density,
     )
     lte_ionization, lte_recombination = solver.solve(
         mock_electron_distribution,
-        mock_level_to_ion_population_factor,
+        mock_level_to_ion_number_density_factor,
         partition_function,
         mock_boltzmann_factor,
     )

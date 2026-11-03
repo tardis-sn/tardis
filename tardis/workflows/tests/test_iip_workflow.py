@@ -12,7 +12,7 @@ from tardisbase.testing.regression_data.regression_data import RegressionData
 from tardis import constants as const
 from tardis.conftest import assert_regression_dataframe
 from tardis.io.configuration.config_reader import Configuration
-from tardis.plasma.equilibrium.evaluator import calculate_lte_populations
+from tardis.plasma.equilibrium.evaluator import calculate_lte_number_densities
 from tardis.plasma.equilibrium.thermal_balance import (
     ElectronThermalBalanceSolver,
 )
@@ -67,11 +67,11 @@ def ctardis_reference_path(tardis_regression_path: Path) -> Path:
     return tardis_regression_path / "tardis" / "workflows" / "tests"
 
 
-def test_workflow_initial_populations_match_ctardis(
+def test_workflow_initial_number_densities_match_ctardis(
     type_iip_workflow: TypeIIPWorkflow,
     ctardis_reference_path: Path,
 ) -> None:
-    """Compare standard initial plasma populations with C-TARDIS data."""
+    """Compare standard initial plasma number densities with C-TARDIS data."""
     # The implementations are independent; tolerances capture initialization
     # parity rather than require identical nonlinear iterates.
     plasma = type_iip_workflow.plasma_solver
@@ -181,7 +181,7 @@ def test_type_iip_workflow_initial_plasma_regression(
 ) -> None:
     """Compare the standard dilute-LTE bootstrap with legacy IIP outputs.
 
-    Claim: Initial populations, continuum opacity, and Sobolev quantities
+    Claim: Initial number densities, continuum opacity, and Sobolev quantities
     retain observable legacy parity before the first Monte Carlo estimators.
     Regime: The five-shell Type IIP comparison configuration.
     Verification: Stored IIP outputs are independent of the standard plasma
@@ -292,7 +292,7 @@ def test_thermal_balance_uses_joint_solution_without_local_retry(
     Verification: Record calls at the SciPy optimizer boundary and require the
     accepted plasma candidate to equal the joint result.
     """
-    evaluation = SimpleNamespace(normalized_population=pd.DataFrame([[1.0]]))
+    evaluation = SimpleNamespace(fractional_number_density=pd.DataFrame([[1.0]]))
     solver = ElectronThermalBalanceSolver(
         SimpleNamespace(evaluate=lambda *_: evaluation),
         np.array([1.0e4]),
@@ -339,13 +339,13 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
     electron and heating limits independently of the workflow implementation.
     """
     failed_evaluation = SimpleNamespace(
-        normalized_population=pd.DataFrame([[1.0, 1.0]]),
+        fractional_number_density=pd.DataFrame([[1.0, 1.0]]),
         electron_residual=pd.Series([0.7, 0.0]),
         fractional_heating=pd.Series([0.06, 0.0]),
         total_heating=pd.Series([1.0e-8, 0.0]),
     )
     closed_evaluation = SimpleNamespace(
-        normalized_population=pd.DataFrame([[1.0, 1.0]]),
+        fractional_number_density=pd.DataFrame([[1.0, 1.0]]),
         electron_residual=pd.Series([0.0, 0.0]),
         fractional_heating=pd.Series([0.0, 0.0]),
         total_heating=pd.Series([0.0, 0.0]),
@@ -421,16 +421,16 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
 def test_iip_level_solution_is_seed_independent_after_first_transport(
     type_iip_workflow: TypeIIPWorkflow,
 ) -> None:
-    """Close the same IIP level equations from two initial populations.
+    """Close the same IIP level equations from two initial number densities.
 
     Claim: A fixed shell equilibrium is independent of the initial level
-    population and closes the level equations.
+    number density and closes the level equations.
     Regime: Pure-hydrogen comparison model, first Monte Carlo estimators, and
     the shell-3 thermal candidate that exposed seed sensitivity after #3704.
     Verification: Seed independence is a metamorphic relation; the direct
-    level-equation residual prevents two matching but unsolved populations from
+    level-equation residual prevents two matching but unsolved number densities from
     passing. The 1e-10 residual tolerance matches the workflow's declared
-    level-closure limit; 1e-8 relative and 1e-10 absolute population
+    level-closure limit; 1e-8 relative and 1e-10 absolute number density
     tolerances allow the 1e-12-step inner solve to amplify small changes in
     weakly populated excited levels.
     """
@@ -476,15 +476,15 @@ def test_iip_level_solution_is_seed_independent_after_first_transport(
     accepted_result = evaluator.evaluate(
         electron_densities,
         temperatures,
-        initial_result.normalized_population,
+        initial_result.fractional_number_density,
     )
 
     np.testing.assert_allclose(
-        initial_result.normalized_population[shell_idx],
-        accepted_result.normalized_population[shell_idx],
+        initial_result.fractional_number_density[shell_idx],
+        accepted_result.fractional_number_density[shell_idx],
         rtol=1e-8,
         atol=1e-10,
-        err_msg="the IIP level equilibrium depends on its initial population",
+        err_msg="the IIP level equilibrium depends on its initial number density",
     )
     np.testing.assert_allclose(
         initial_result.trial_level_residual[shell_idx],
@@ -507,7 +507,7 @@ def test_iip_level_equations_close_from_distinct_seeds_after_second_transport(
 ) -> None:
     """Close second-transport hydrogen level equations from distinct seeds.
 
-    Claim: Both initial populations lead to a physical solution of the fixed
+    Claim: Both initial number densities lead to a physical solution of the fixed
     shell-23 level equations.
     Regime: Pure-hydrogen comparison model, two 100000-packet transport steps,
     and the second thermal candidate that exposed the near-ground seed trap.
@@ -745,21 +745,21 @@ def test_iip_hydrogen_helium_hydrogen_levels_follow_nlte_rate_equations(
     hydrogen_helium_workflow: TypeIIPWorkflow,
     hydrogen_helium_dilute_lte_level_fraction: pd.DataFrame,
 ) -> None:
-    """Solve H I level populations from the NLTE rate equations.
+    """Solve H I level number densities from the NLTE rate equations.
 
-    Claim: H I is the only species whose level populations are solved from
-    the NLTE rate equations, and those populations close the equations
+    Claim: H I is the only species whose level number densities are solved from
+    the NLTE rate equations, and those number densities close the equations
     instead of following dilute-LTE excitation.
     Regime: Accepted final thermal-balance state of the hydrogen-helium model.
     Verification: The plasma H I level fractions must equal the solved NLTE
     fractions, the level equations must close at the workflow's 1e-10 limit,
     and at least one H I level must depart from its directly evaluated
     dilute-LTE fraction by more than 10 %. The 1e-12 relative tolerance allows
-    only floating-point differences in the population rebuild.
+    only floating-point differences in the number density rebuild.
     """
     plasma = hydrogen_helium_workflow.plasma_solver
     evaluation = hydrogen_helium_workflow._thermal_balance_evaluation
-    nlte_species = evaluation.normalized_population.index.droplevel(
+    nlte_species = evaluation.fractional_number_density.index.droplevel(
         "level_number"
     ).unique()
     assert nlte_species.tolist() == [(1, 0)]
@@ -770,7 +770,7 @@ def test_iip_hydrogen_helium_hydrogen_levels_follow_nlte_rate_equations(
     )
     pd.testing.assert_frame_equal(
         hydrogen_level_fraction,
-        evaluation.normalized_population.loc[(1, 0)],
+        evaluation.fractional_number_density.loc[(1, 0)],
         rtol=1e-12,
         atol=0.0,
         check_names=False,
@@ -780,14 +780,14 @@ def test_iip_hydrogen_helium_hydrogen_levels_follow_nlte_rate_equations(
         0.0,
         rtol=0.0,
         atol=1e-10,
-        err_msg="the H I level populations do not close the NLTE equations",
+        err_msg="the H I level number densities do not close the NLTE equations",
     )
     departure_from_dilute_lte = (
         hydrogen_level_fraction
         / hydrogen_helium_dilute_lte_level_fraction.loc[(1, 0)]
     )
     assert (np.abs(departure_from_dilute_lte - 1.0) > 0.1).to_numpy().any(), (
-        "H I level populations follow dilute-LTE excitation"
+        "H I level number densities follow dilute-LTE excitation"
     )
 
 
@@ -802,7 +802,7 @@ def test_iip_hydrogen_helium_helium_ionization_is_nebular(
     T_e, with n_e set by charge conservation.
     Regime: Accepted final thermal-balance state of the hydrogen-helium model.
     Verification: The plasma graph evaluates the nebular factor independently
-    of the equilibrium evaluator that solves the ion populations. The 2e-8
+    of the equilibrium evaluator that solves the ion number densities. The 2e-8
     relative tolerance is the workflow's electron-density closure limit.
     """
     plasma = hydrogen_helium_workflow.plasma_solver
@@ -827,7 +827,7 @@ def test_iip_hydrogen_helium_helium_excitation_is_dilute_lte(
 ) -> None:
     """Excite helium in dilute LTE at the accepted radiation field.
 
-    Claim: He I and He II level populations follow the C-TARDIS dilute-LTE
+    Claim: He I and He II level number densities follow the C-TARDIS dilute-LTE
     excitation at the radiation temperature and dilution factor used for
     the final thermal-balance solve.
     Regime: Accepted final thermal-balance state of the hydrogen-helium model.
@@ -851,11 +851,11 @@ def test_iip_hydrogen_helium_helium_excitation_is_dilute_lte(
         )
 
 
-def test_iip_hydrogen_helium_helium_populations_match_ctardis(
+def test_iip_hydrogen_helium_helium_number_densities_match_ctardis(
     hydrogen_helium_config: Configuration,
     ctardis_reference_path: Path,
 ) -> None:
-    """Reproduce C-TARDIS helium populations in its radiation field.
+    """Reproduce C-TARDIS helium number densities in its radiation field.
 
     Claim: At the radiation field, electron temperature, and electron density
     of a C-TARDIS run of the same hydrogen-helium model, the equilibrium
@@ -920,7 +920,7 @@ def test_iip_hydrogen_helium_helium_populations_match_ctardis(
         workflow._thermal_balance_level_initial_guess,
     )
 
-    helium_ion_density = evaluation.ion_population.loc[2]
+    helium_ion_density = evaluation.ion_number_density.loc[2]
     ionization_ratio = (
         helium_ion_density.loc[1]
         * evaluation.charge_solved_electron_density
@@ -940,8 +940,8 @@ def test_iip_hydrogen_helium_helium_populations_match_ctardis(
     )
     for species in ((2, 0), (2, 1)):
         level_fraction = (
-            evaluation.absolute_level_population.loc[species]
-            / evaluation.ion_population.loc[species]
+            evaluation.absolute_level_number_density.loc[species]
+            / evaluation.ion_number_density.loc[species]
         )
         ctardis_level_fraction = (
             ctardis_level_density.loc[species]
@@ -984,19 +984,19 @@ def test_solve_montecarlo(
     )
 
 
-def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
+def test_iip_outer_shell_number_density_cutoff_second_iteration_opacity(
     tardis_regression_path: Path,
 ) -> None:
     """Evaluate finite outer-shell opacity at the 1500 K thermal floor.
 
-    Claim: A zero LTE hydrogen-ion population produces the stimulated-
+    Claim: A zero LTE hydrogen-ion number density produces the stimulated-
     recombination correction in ``chi_bf`` without invalid opacity values.
     Regime: Second opacity iteration in shells forced to the 1500 K floor.
     Verification: The expected opacity is evaluated directly from the
-    bound-free population equation, independently of continuum-state assembly.
+    bound-free number density equation, independently of continuum-state assembly.
     """
     config = Configuration.from_yaml(
-        "tardis/workflows/tests/data/iip_population_cutoff.yml"
+        "tardis/workflows/tests/data/iip_number_density_cutoff.yml"
     )
     config.atom_data = (
         tardis_regression_path
@@ -1038,7 +1038,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         level_boltzmann_factor,
     ) = evaluator.calculate_continuum_coefficients(forced_t_electrons)
 
-    lte_ion_population, _ = calculate_lte_populations(
+    lte_ion_number_density, _ = calculate_lte_number_densities(
         plasma_solver.thermal_phi_lte,
         partition_function,
         plasma_solver.number_density,
@@ -1052,7 +1052,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         coefficient_state,
         level_to_continuum_saha_factor,
     )
-    assert lte_ion_population.loc[(1, 1)].iloc[-1] == 0.0
+    assert lte_ion_number_density.loc[(1, 1)].iloc[-1] == 0.0
 
     workflow.completed_iterations = 1
     opacity_states = workflow.solve_opacity()
@@ -1066,7 +1066,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         ],
         names=["atomic_number", "ion_number"],
     )
-    stimulated_recombination_population = (
+    stimulated_recombination_number_density = (
         level_to_continuum_saha_factor.loc[cross_sections.index].to_numpy()
         * plasma_solver.ion_number_density.loc[upper_ion_index].to_numpy()
         * plasma_solver.electron_densities.to_numpy()
@@ -1079,7 +1079,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     # chi_bf = [n_l - n_e n_(ion+1) Phi_lu exp(-h nu / k_B T_e)] sigma_bf.
     expected_chi_bf = (
         plasma_solver.level_number_density.loc[cross_sections.index]
-        - stimulated_recombination_population * boltzmann_factor
+        - stimulated_recombination_number_density * boltzmann_factor
     ).multiply(cross_sections.x_sect.to_numpy(), axis=0)
     pd.testing.assert_frame_equal(
         continuum_state.chi_bf,

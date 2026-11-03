@@ -94,7 +94,7 @@ def toy_evaluator() -> PlasmaEquilibriumEvaluator:
         ZeroElectronRateSolver(),
         levels,
     )
-    population_geometry = ShellNumberDensity(
+    number_density_geometry = ShellNumberDensity(
         1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
     )
     sobolev_inputs = SobolevInputs(
@@ -118,7 +118,7 @@ def toy_evaluator() -> PlasmaEquilibriumEvaluator:
         ionization_data,
         rate_matrix_solver,
         pd.DataFrame([1.0], index=line_index),
-        (population_geometry,),
+        (number_density_geometry,),
         (sobolev_inputs,),
         level_index,
         (1, 0),
@@ -151,7 +151,7 @@ def test_evaluator_solves_reduced_levels_and_rebuilds_sobolev_state(
     """Evaluate a small fixed candidate without a plasma object."""
     evaluator = toy_evaluator
     estimators = evaluator.estimators_continuum
-    level_index = evaluator.level_population_index
+    level_index = evaluator.level_number_density_index
 
     result = evaluator.evaluate(
         np.array([1.0e9]),  # Trial electron density (cm⁻³).
@@ -159,8 +159,8 @@ def test_evaluator_solves_reduced_levels_and_rebuilds_sobolev_state(
         pd.DataFrame([[0.5], [0.5]], index=level_index, columns=[0]),
     )
 
-    npt.assert_allclose(result.normalized_population[0].sum(), 1.0)
-    assert np.all(result.normalized_population[0] >= 0.0)
+    npt.assert_allclose(result.fractional_number_density[0].sum(), 1.0)
+    assert np.all(result.fractional_number_density[0] >= 0.0)
     assert result.diagnostic_ion_ratio.iloc[0] >= 0.0
     npt.assert_allclose(result.beta_sobolev.to_numpy(), [[1.0]])
     npt.assert_allclose(result.trial_level_residual.to_numpy()[0], [0.0])
@@ -192,16 +192,16 @@ def test_evaluator_solves_reduced_levels_and_rebuilds_sobolev_state(
 def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
     toy_evaluator: PlasmaEquilibriumEvaluator,
 ) -> None:
-    """Find the same two-level equilibrium from distinct initial populations.
+    """Find the same two-level equilibrium from distinct initial number densities.
 
-    Claim: A unique level equilibrium does not depend on its initial population.
+    Claim: A unique level equilibrium does not depend on its initial number density.
     Regime: One shell, two neutral-hydrogen levels, fixed electron density and
     temperature, and two normalized initial guesses on opposite sides of the
     root.
     Verification: Initial-guess independence is a metamorphic relation; both
-    solutions must also conserve population and close the level equations.
+    solutions must also conserve number density and close the level equations.
     """
-    level_index = toy_evaluator.level_population_index
+    level_index = toy_evaluator.level_number_density_index
     low_excitation_initial_guess = pd.DataFrame(
         [[0.9], [0.1]], index=level_index, columns=[0]
     )
@@ -217,18 +217,18 @@ def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
     )
 
     npt.assert_allclose(
-        low_excitation_result.normalized_population,
-        high_excitation_result.normalized_population,
+        low_excitation_result.fractional_number_density,
+        high_excitation_result.fractional_number_density,
         rtol=1e-12,
         atol=1e-12,
-        err_msg="the equilibrium depends on the initial level population",
+        err_msg="the equilibrium depends on the initial level number density",
     )
     npt.assert_allclose(
-        low_excitation_result.normalized_population.sum(axis=0),
+        low_excitation_result.fractional_number_density.sum(axis=0),
         1.0,
         rtol=0.0,
         atol=1e-15,
-        err_msg="the equilibrium populations do not sum to one",
+        err_msg="the equilibrium number densities do not sum to one",
     )
     npt.assert_allclose(
         low_excitation_result.level_residual,
@@ -243,13 +243,13 @@ def test_evaluator_refines_physical_level_iterate_when_optimizer_stalls(
     toy_evaluator: PlasmaEquilibriumEvaluator,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Refine a physical population when the level solver stops early.
+    """Refine a physical number density when the level solver stops early.
 
     Claim: This stalled physical iterate can be refined to level equilibrium.
     Regime: One shell and two neutral-hydrogen levels at fixed density and
     temperature.
     Verification: Replace HYBR's result with a physical but unsolved iterate;
-    the returned population must differ and close the level equations to the
+    the returned number density must differ and close the level equations to the
     workflow's 1e-10 tolerance.
     """
     evaluator = toy_evaluator
@@ -268,7 +268,7 @@ def test_evaluator_refines_physical_level_iterate_when_optimizer_stalls(
     stalled_fractions = np.array([0.4, 0.6])
 
     # Replace SciPy's root finder with a controlled stopped result. The
-    # SimpleNamespace supplies only the status and population returned by
+    # SimpleNamespace supplies only the status and number density returned by
     # SciPy, keeping this check focused on the evaluator's acceptance rule.
     def stalled_root(*args: object, **kwargs: object) -> SimpleNamespace:
         del args, kwargs
@@ -299,7 +299,7 @@ def test_evaluator_retries_open_level_equations_despite_optimizer_success(
     success and a later retry reports failure despite closing the equations.
     Verification: This is a control-flow check using the evaluator's physical
     equations. A separate SciPy root call establishes a closed candidate; the
-    returned population is checked against those equations. The 1e-10
+    returned number density is checked against those equations. The 1e-10
     tolerance is the workflow's level-closure limit.
     """
     evaluator = toy_evaluator
@@ -308,7 +308,7 @@ def test_evaluator_retries_open_level_equations_despite_optimizer_success(
     continuum_rates = evaluator.calculate_continuum_coefficients(
         np.array([electron_temperature])
     )[0][0]
-    population_geometry = evaluator.shell_number_densities[0]
+    number_density_geometry = evaluator.shell_number_densities[0]
     sobolev_inputs = evaluator.sobolev_inputs[0]
 
     def physical_residual(
@@ -320,7 +320,7 @@ def test_evaluator_retries_open_level_equations_despite_optimizer_success(
             electron_temperature,
             level_fractions,
             continuum_rates,
-            population_geometry,
+            number_density_geometry,
             sobolev_inputs,
         )[0]
 
@@ -373,7 +373,7 @@ def test_evaluator_retries_open_level_equations_despite_optimizer_success(
         electron_temperature,
         np.array([1.0 - 1e-12, 1e-12]),
         continuum_rates,
-        population_geometry,
+        number_density_geometry,
         sobolev_inputs,
     )
 
@@ -395,7 +395,7 @@ def test_evaluator_reports_open_level_solution_after_all_retries(
 ) -> None:
     """Expose the residual when no retry closes a physical trial iterate.
 
-    Claim: An outer thermal trial can use a physical best-effort population,
+    Claim: An outer thermal trial can use a physical best-effort number density,
     but its unsolved level balance must remain visible to final validation.
     Regime: One shell with two neutral-hydrogen levels at fixed density and
     temperature.
@@ -441,7 +441,7 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
 ) -> None:
     """Use final charge density for closure without mutating inputs."""
     evaluator = toy_evaluator
-    level_index = evaluator.level_population_index
+    level_index = evaluator.level_number_density_index
     estimators = evaluator.estimators_continuum
 
     class ChargeSolver:
@@ -474,7 +474,7 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
             return density, density
 
     charge_solver = ChargeSolver()
-    evaluator.ion_population_solver = charge_solver
+    evaluator.ion_number_density_solver = charge_solver
     evaluator.thermal_balance_solver = ThermalSolver()
     level_initial_guess = pd.DataFrame(
         [[0.5], [0.5]], index=level_index, columns=[0]
@@ -500,11 +500,11 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         0,
         2.0e9,  # Final electron density (cm⁻³).
         1.0e4,  # Shell electron temperature (K).
-        first_result.normalized_population[0].to_numpy(),
+        first_result.fractional_number_density[0].to_numpy(),
         continuum_rate_coeff,
         evaluator.shell_number_densities[0],
         evaluator.sobolev_inputs[0],
-        first_result.absolute_level_population.iloc[:, 0].to_numpy(),
+        first_result.absolute_level_number_density.iloc[:, 0].to_numpy(),
     )[0]
     npt.assert_allclose(
         first_result.level_residual[0].to_numpy(), expected_final_residual
@@ -518,8 +518,8 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
     npt.assert_allclose(first_result.electron_residual.to_numpy(), [1.0])
     npt.assert_allclose(first_result.fractional_heating.to_numpy(), [2.0e9])
     pdt.assert_frame_equal(
-        first_result.absolute_level_population,
-        second_result.absolute_level_population,
+        first_result.absolute_level_number_density,
+        second_result.absolute_level_number_density,
     )
     pdt.assert_frame_equal(
         first_result.level_residual, second_result.level_residual
@@ -545,7 +545,7 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
     radiation_temperature = 1.0e4
 
     # Prescribe the ion and electron densities at the analytic charge root,
-    # independent of the full ion-population calculation.
+    # independent of the full ion-number density calculation.
     class ChargeSolver:
         def solve(self, **kwargs: object) -> tuple[pd.DataFrame, pd.Series]:
             del kwargs
@@ -578,11 +578,11 @@ def test_evaluator_closes_at_known_one_shell_thermal_root(
             )
             return fractional_heating, fractional_heating
 
-    toy_evaluator.ion_population_solver = ChargeSolver()
+    toy_evaluator.ion_number_density_solver = ChargeSolver()
     toy_evaluator.thermal_balance_solver = ThermalSolver()
     level_initial_guess = pd.DataFrame(
         [[0.5], [0.5]],
-        index=toy_evaluator.level_population_index,
+        index=toy_evaluator.level_number_density_index,
         columns=[0],
     )
 
