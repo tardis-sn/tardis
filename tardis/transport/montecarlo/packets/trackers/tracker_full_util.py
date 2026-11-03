@@ -11,9 +11,6 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
 )
-from tardis.transport.montecarlo.packets.trackers import (
-    interaction_type_to_codes,
-)
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     TrackerFull,
 )
