@@ -51,6 +51,22 @@ def test_parse_density_from_csvy_density_section_with_yaml_velocity():
     assert len(density) == csvy_data.model_config.velocity.num
 
 
+def test_parse_density_from_csvy_power_law_with_yaml_velocity() -> None:
+    # The two shells span 10000-12000 and 12000-14000 km/s, so the power law
+    # is evaluated at the 11000 and 13000 km/s midpoints (GH #3621).
+    csvy_path = DATA_PATH / "density_section_power_law_yaml_velocity.csvy"
+    csvy_data = load_csvy(csvy_path)
+
+    density = parse_density_from_csvy(
+        csvy_data.model_config, csvy_data.raw_csv_data, 1 * u.day
+    )
+
+    npt.assert_allclose(
+        density.to("g/cm^3").value,
+        2e-13 * (np.array([11000.0, 13000.0]) / 10000.0) ** -6,
+    )
+
+
 V_MIDDLE = [1e9, 2e9] * u.cm / u.s
 
 

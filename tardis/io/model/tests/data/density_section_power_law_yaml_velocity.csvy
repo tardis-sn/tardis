@@ -1,0 +1,20 @@
+---
+name: csvy_density_section_power_law_yaml_velocity
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: Power-law density section with velocity given in the YAML section.
+tardis_model_config_version: v1.0
+
+velocity:
+  start: 10000 km/s
+  stop: 14000 km/s
+  num: 2
+density:
+  type: power_law
+  rho_0: 2e-13 g/cm^3
+  v_0: 10000 km/s
+  exponent: -6
+abundance:
+  type: uniform
+  H: 1.0
+---
