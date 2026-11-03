@@ -23,7 +23,6 @@ from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.spectrum.virtual_packet import (
     calculate_virtual_packet_spectrum,
     create_vpacket_collections,
-    tracker_full_df_to_event_arrays,
 )
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -49,6 +48,9 @@ from tardis.transport.montecarlo.packets.packet_collections import (
 )
 from tardis.transport.montecarlo.packets.trackers import (
     interaction_type_to_categorical,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
+    tracker_full_df_to_event_arrays,
 )
 from tardis.transport.montecarlo.packets.virtual_packet import (
     trace_vpacket_volley as trace_vpacket_volley_classic,
@@ -102,9 +104,10 @@ class SpectrumSolver(HDFWriterMixin):
         vpacket_spawn_end_frequency : astropy.units.Quantity, optional
             Highest real-packet frequency that spawns virtual packets.
         vpacket_tau_russian : float, optional
-            Optical depth above which virtual packets are Russian-rouletted.
+            Optical depth above which virtual packets survive based on
+            vpacket_survival_probability.
         vpacket_survival_probability : float, optional
-            Probability that a Russian-rouletted virtual packet survives.
+            Probability that a vpacket_tau_russian virtual packet survives.
         """
         self.transport_state = transport_state
         self.spectrum_frequency_grid = spectrum_frequency_grid
@@ -257,13 +260,21 @@ class SpectrumSolver(HDFWriterMixin):
                 vpacket_spawn_end_frequency,
             )
 
-    def vpacket_tracker_to_df(self) -> pd.DataFrame:
+    def vpacket_tracker_to_df(
+        self, last_interaction_type: npt.ArrayLike | None = None
+    ) -> pd.DataFrame:
         """
         Convert the logged virtual packets to a DataFrame.
 
         The interaction columns share their names and dtypes with the
         real-packet ``tracker_last_interaction_df``; each row describes the
         real-packet event that spawned the virtual packet.
+
+        Parameters
+        ----------
+        last_interaction_type : array-like, optional
+            Interaction type column to use instead of categorical interaction
+            type names. Used for HDF output, which cannot store categoricals.
 
         Returns
         -------
@@ -284,47 +295,29 @@ class SpectrumSolver(HDFWriterMixin):
                 "No virtual packets were logged; enable virtual_packet_logging "
                 "and run with no_of_virtual_packets > 0."
             )
-        return self._vpacket_tracker_df(
-            interaction_type_to_categorical(
+        if last_interaction_type is None:
+            last_interaction_type = interaction_type_to_categorical(
                 self.vpacket_tracker.last_interaction_type
             )
-        )
 
-    def _vpacket_tracker_df(
-        self, last_interaction_type: npt.ArrayLike
-    ) -> pd.DataFrame:
-        """
-        Build the logged virtual packet DataFrame.
-
-        Parameters
-        ----------
-        last_interaction_type : array-like
-            Interaction type column, as names or ``InteractionType`` codes.
-
-        Returns
-        -------
-        pandas.DataFrame
-            One row per escaping virtual packet, indexed by ``vpacket_id``.
-        """
-        vpacket_tracker = self.vpacket_tracker
         return pd.DataFrame(
             {
                 "last_interaction_type": last_interaction_type,
-                "radius": vpacket_tracker.last_interaction_in_r,
-                "shell_id": vpacket_tracker.last_interaction_shell_id,
-                "before_nu": vpacket_tracker.last_interaction_in_nu,
+                "radius": self.vpacket_tracker.last_interaction_in_r,
+                "shell_id": self.vpacket_tracker.last_interaction_shell_id,
+                "before_nu": self.vpacket_tracker.last_interaction_in_nu,
                 "line_absorb_id": pd.array(
-                    vpacket_tracker.last_interaction_in_id, dtype="int64"
+                    self.vpacket_tracker.last_interaction_in_id, dtype="int64"
                 ),
                 "line_emit_id": pd.array(
-                    vpacket_tracker.last_interaction_out_id, dtype="int64"
+                    self.vpacket_tracker.last_interaction_out_id, dtype="int64"
                 ),
-                "nus": vpacket_tracker.nus,
-                "energies": vpacket_tracker.energies,
-                "initial_mus": vpacket_tracker.initial_mus,
-                "initial_rs": vpacket_tracker.initial_rs,
+                "nus": self.vpacket_tracker.nus,
+                "energies": self.vpacket_tracker.energies,
+                "initial_mus": self.vpacket_tracker.initial_mus,
+                "initial_rs": self.vpacket_tracker.initial_rs,
             },
-            index=pd.RangeIndex(len(vpacket_tracker.nus), name="vpacket_id"),
+            index=pd.RangeIndex(len(self.vpacket_tracker.nus), name="vpacket_id"),
         )
 
     def get_properties(self) -> dict[str, Any]:
@@ -341,7 +334,7 @@ class SpectrumSolver(HDFWriterMixin):
         if self.vpacket_tracker is not None:
             # The default fixed HDF format cannot store categoricals, so the
             # interaction type is written as InteractionType codes
-            properties["vpacket_tracker_df"] = self._vpacket_tracker_df(
+            properties["vpacket_tracker_df"] = self.vpacket_tracker_to_df(
                 self.vpacket_tracker.last_interaction_type
             )
         return properties

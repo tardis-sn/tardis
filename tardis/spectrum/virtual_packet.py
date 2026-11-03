@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import NamedTuple
 
 import numpy as np
 import numpy.typing as npt
-import pandas as pd
 from numba import njit, prange
 from numba.typed import List as TypedList
 
@@ -27,120 +25,9 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     RPacket,
 )
-from tardis.transport.montecarlo.packets.trackers import (
-    interaction_type_to_codes,
+from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
+    TrackerEventArrays,
 )
-
-TRACKER_FULL_DF_COLUMNS = [
-    "interaction_type",
-    "radius",
-    "before_shell_id",
-    "after_shell_id",
-    "before_nu",
-    "after_nu",
-    "after_mu",
-    "after_energy",
-    "line_absorb_id",
-    "line_emit_id",
-    "next_line_id",
-]
-
-
-class TrackerEventArrays(NamedTuple):
-    """
-    Real-packet event histories as flat arrays for virtual-packet replay.
-
-    Events of packet ``packet_id[i]`` occupy
-    ``event_offsets[i]:event_offsets[i + 1]`` in every per-event array, in
-    event order.
-    """
-
-    packet_id: npt.NDArray[np.int64]
-    event_offsets: npt.NDArray[np.int64]
-    interaction_type: npt.NDArray[np.int64]
-    radius: npt.NDArray[np.float64]
-    before_shell_id: npt.NDArray[np.int64]
-    after_shell_id: npt.NDArray[np.int64]
-    before_nu: npt.NDArray[np.float64]
-    after_nu: npt.NDArray[np.float64]
-    after_mu: npt.NDArray[np.float64]
-    after_energy: npt.NDArray[np.float64]
-    line_absorb_id: npt.NDArray[np.int64]
-    line_emit_id: npt.NDArray[np.int64]
-    next_line_id: npt.NDArray[np.int64]
-
-
-def tracker_full_df_to_event_arrays(
-    tracker_full_df: pd.DataFrame,
-) -> TrackerEventArrays:
-    """
-    Extract the event arrays needed to replay real-packet histories.
-
-    Parameters
-    ----------
-    tracker_full_df : pandas.DataFrame
-        Full real-packet tracking DataFrame indexed by ``packet_id`` and
-        ``event_id``, e.g. ``transport_state.tracker_full_df`` or one loaded
-        from disk.
-
-    Returns
-    -------
-    TrackerEventArrays
-        Flat event arrays grouped by packet.
-
-    Raises
-    ------
-    ValueError
-        If the ``packet_id`` index level or a column needed to replay the
-        histories is missing.
-    """
-    if "packet_id" not in tracker_full_df.index.names:
-        raise ValueError(
-            "tracker_full_df must be indexed by packet_id and event_id."
-        )
-    missing_columns = [
-        column
-        for column in TRACKER_FULL_DF_COLUMNS
-        if column not in tracker_full_df.columns
-    ]
-    if missing_columns:
-        raise ValueError(
-            "tracker_full_df is missing columns needed for virtual packets: "
-            f"{missing_columns}."
-        )
-    # Events of a packet must be contiguous and in order for replay
-    if not tracker_full_df.index.is_monotonic_increasing:
-        tracker_full_df = tracker_full_df.sort_index()
-
-    packet_id, event_counts = np.unique(
-        tracker_full_df.index.get_level_values("packet_id").to_numpy(),
-        return_counts=True,
-    )
-    event_offsets = np.zeros(len(packet_id) + 1, dtype=np.int64)
-    np.cumsum(event_counts, out=event_offsets[1:])
-    return TrackerEventArrays(
-        packet_id=packet_id.astype(np.int64),
-        event_offsets=event_offsets,
-        interaction_type=interaction_type_to_codes(
-            tracker_full_df["interaction_type"]
-        ),
-        radius=tracker_full_df["radius"].to_numpy(dtype=np.float64),
-        before_shell_id=tracker_full_df["before_shell_id"].to_numpy(
-            dtype=np.int64
-        ),
-        after_shell_id=tracker_full_df["after_shell_id"].to_numpy(
-            dtype=np.int64
-        ),
-        before_nu=tracker_full_df["before_nu"].to_numpy(dtype=np.float64),
-        after_nu=tracker_full_df["after_nu"].to_numpy(dtype=np.float64),
-        after_mu=tracker_full_df["after_mu"].to_numpy(dtype=np.float64),
-        after_energy=tracker_full_df["after_energy"].to_numpy(dtype=np.float64),
-        line_absorb_id=tracker_full_df["line_absorb_id"].to_numpy(
-            dtype=np.int64
-        ),
-        line_emit_id=tracker_full_df["line_emit_id"].to_numpy(dtype=np.int64),
-        next_line_id=tracker_full_df["next_line_id"].to_numpy(dtype=np.int64),
-    )
 
 
 @njit(**njit_dict_no_parallel)
@@ -260,9 +147,9 @@ def calculate_virtual_packet_spectrum(
         of ``tracker_events.packet_id``, e.g. from
         ``create_vpacket_collections``. Filled and finalized in place.
     tau_russian : float
-        Optical depth above which virtual packets are Russian-rouletted.
+        Optical depth above which virtual packets survive by survival_probability.
     survival_probability : float
-        Probability that a Russian-rouletted virtual packet survives.
+        Probability that a tau_russian virtual packet survives.
     trace_vpacket_volley_function
         Mode-specific virtual-packet propagation function.
 

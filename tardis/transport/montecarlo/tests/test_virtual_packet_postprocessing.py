@@ -8,7 +8,6 @@ from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.spectrum.virtual_packet import (
     calculate_virtual_packet_spectrum,
     create_vpacket_collections,
-    tracker_full_df_to_event_arrays,
 )
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -25,6 +24,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
+    tracker_full_df_to_event_arrays,
     trackers_full_to_df,
 )
 
