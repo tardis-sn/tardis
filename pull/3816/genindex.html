@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ebcf08da"></script>
+      <script src="_static/documentation_options.js?v=8b3c6fb1"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1390,8 +1390,8 @@
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell"><code class="docutils literal notranslate"><span class="pre">solve_cell()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_near_trapping_chain"><code class="docutils literal notranslate"><span class="pre">solve_near_trapping_chain()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -8430,7 +8430,9 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell">solve_cell() (in module tardis.opacities.macro_atom.absorbing_markov_chain)</a>
+      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full">solve_cell_full() (in module tardis.opacities.macro_atom.absorbing_markov_chain)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial">solve_cell_partial() (in module tardis.opacities.macro_atom.absorbing_markov_chain)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance">solve_charge_balance() (tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
 </li>
@@ -8445,8 +8447,6 @@
       <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_element_populations_at_electron_density">solve_element_populations_at_electron_density() (tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_multiple_shells">solve_multiple_shells() (tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver method)</a>
-</li>
-      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_near_trapping_chain">solve_near_trapping_chain() (in module tardis.opacities.macro_atom.absorbing_markov_chain)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.EstimatedIonRateMatrix.solve_prepared">solve_prepared() (tardis.plasma.equilibrium.rate_matrix.EstimatedIonRateMatrix method)</a>
 </li>
@@ -10846,7 +10846,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Nov 2026.
+      <span class="lastupdated">Last updated on 03 Nov 2026.
       </span></p>
   </div>
 

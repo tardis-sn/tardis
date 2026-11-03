@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=ebcf08da"></script>
+      <script src="../../../../_static/documentation_options.js?v=8b3c6fb1"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1390,8 +1390,8 @@
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell"><code class="docutils literal notranslate"><span class="pre">solve_cell()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_near_trapping_chain"><code class="docutils literal notranslate"><span class="pre">solve_near_trapping_chain()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -4276,11 +4276,11 @@
   <h1>Source code for tardis.opacities.macro_atom.absorbing_markov_chain</h1><div class="highlight"><pre>
 <span></span>&quot;&quot;&quot;Calculate first-exit probabilities for reduced macro-atom chains.
 
-This module eliminates selected internal transitions independently in each cell
-and computes the source-state probabilities for the first retained transition.
-It does not calculate expected step counts or visit counts, though the formalism
-does allow for that. It would require an additional potentially expensive linear
-algebra solve so it has been omitted.
+This module eliminates internal transitions for selected blocks independently in each cell
+and computes the source-state probabilities for retained transitions.
+
+Effectively this compresses the macro atom evaluation by internal reducing probability chains
+to equivalent single appropriate probability steps.
 
 References
 ----------
@@ -4289,8 +4289,6 @@ References
 
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
-from decimal import Decimal, localcontext
-from functools import partial
 from typing import NamedTuple
 
 import numpy as np
@@ -4300,9 +4298,6 @@ from scipy import sparse
 from scipy.sparse.linalg import splu
 
 from tardis.util.base import element_symbol2atomic_number
-
-# LU/CDF arithmetic tolerance, not a tolerance for discarding physical channels.
-PROBABILITY_TOLERANCE = 1e-10
 
 
 <div class="viewcode-block" id="AbsorbingChainResult">
@@ -4326,7 +4321,6 @@ class AbsorbingChainResult(NamedTuple):
 def create_absorbing_probs(
     transition_probabilities: pd.DataFrame,
     metadata: pd.DataFrame,
-    *,
     mode: str = &quot;full&quot;,
     elements: Sequence[str] = (),
     include_thermal_pool: bool = False,
@@ -4342,10 +4336,15 @@ def create_absorbing_probs(
 
     Parameters
     ----------
-    transition_probabilities : pandas.DataFrame
-        Normalized original channel coefficients; columns are cells.
-    metadata : pandas.DataFrame
-        Transition source tuples, global source/destination indices, and types.
+    transition_probabilities : pd.DataFrame
+        DataFrame with transition probabilities between states for each cell.
+        Rows represent transitions, columns represent cells.
+    metadata : pd.DataFrame
+        Metadata about transitions including source_level_idx,
+        destination_level_idx, and transition_type. Values &gt;= 0 for
+        transition_type indicate internal transitions transitions that are not accompanied
+        by reemission of the r-packet, and an end to the interaction handler chain.
+        Negative values indicate deactivation, or reemitting from an absorbing state.
     mode : {&#39;full&#39;, &#39;partial&#39;, &#39;explicit&#39;}
         Full eliminates all internal jumps. Partial eliminates only jumps with
         both endpoints selected (e.g., internal transitions for a requested element),
@@ -4364,7 +4363,7 @@ def create_absorbing_probs(
     Returns
     -------
     AbsorbingChainResult
-        Cell-by-activation-by-exit-source matrix, residual channel probabilities,
+        Cell-by-activation-by-exit-source matrix, containing deactivation probabilities,
         and explicit global-to-reduced and reduced-to-global int64 maps.
 
     Notes
@@ -4411,10 +4410,10 @@ def create_absorbing_probs(
     if mode == &quot;full&quot;:
         selected = np.arange(global_size, dtype=np.int64)
     elif mode == &quot;partial&quot;:
-        selected_rows = metadata.source.map(
-            lambda level: level[0] in atomic_numbers
-        ).to_numpy()
-        represented = {level[0] for level in metadata.source}
+        # Source tuples start with an atomic number or a shared-pool label.
+        source_identifiers = metadata.source.str[0]
+        selected_rows = source_identifiers.isin(atomic_numbers).to_numpy()
+        represented = set(source_identifiers)
         absent = set(atomic_numbers) - represented
         if absent:
             raise ValueError(
@@ -4446,345 +4445,128 @@ def create_absorbing_probs(
         (transition_probabilities.shape[1], len(selected), len(selected))
     )
 
-    cell_solver = partial(
-        solve_cell,
-        transition_probabilities=transition_probabilities,
-        transition_index=metadata.index,
-        sources=sources,
-        destinations=destinations,
-        internal=internal,
-        global_size=global_size,
-        selected=selected,
-        eliminated=eliminated,
-        residual=residual,
-        rows=rows,
-        columns=columns,
-        mode=mode,
-    )
+    if mode == &quot;explicit&quot;:
+        return AbsorbingChainResult(matrices, residual, lookup, selected)
 
-    if max_workers &gt; 1 and len(matrices) &gt; 1:
-        with ThreadPoolExecutor(
-            max_workers=min(max_workers, len(matrices))
-        ) as executor:
-            for cell, solved in executor.map(cell_solver, range(len(matrices))):
+    internal_matrices = (
+        sparse.coo_matrix(
+            (
+                transition_probabilities.iloc[:, cell].to_numpy()[eliminated],
+                (rows, columns),
+            ),
+            shape=(len(selected), len(selected)),
+        )
+        for cell in range(len(matrices))
+    )
+    if mode == &quot;full&quot;:
+        if max_workers &gt; 1 and len(matrices) &gt; 1:
+            with ThreadPoolExecutor(
+                max_workers=min(max_workers, len(matrices))
+            ) as executor:
+                for cell, solved in enumerate(
+                    executor.map(
+                        solve_cell_full,
+                        internal_matrices,
+                        buffersize=max_workers,
+                    )
+                ):
+                    matrices[cell] = solved
+        else:
+            for cell, solved in enumerate(
+                map(solve_cell_full, internal_matrices)
+            ):
                 matrices[cell] = solved
-    else:
-        for cell in range(len(matrices)):
-            _, matrices[cell] = cell_solver(cell)
+    elif mode == &quot;partial&quot;:
+        exit_rates = (
+            np.bincount(
+                sources,
+                weights=residual.iloc[:, cell].to_numpy(),
+                minlength=global_size,
+            )[selected]
+            for cell in range(len(matrices))
+        )
+        if max_workers &gt; 1 and len(matrices) &gt; 1:
+            with ThreadPoolExecutor(
+                max_workers=min(max_workers, len(matrices))
+            ) as executor:
+                for cell, solved in enumerate(
+                    executor.map(
+                        solve_cell_partial,
+                        internal_matrices,
+                        exit_rates,
+                        buffersize=max_workers,
+                    )
+                ):
+                    matrices[cell] = solved
+        else:
+            for cell, solved in enumerate(
+                map(
+                    solve_cell_partial,
+                    internal_matrices,
+                    exit_rates,
+                    strict=True,
+                )
+            ):
+                matrices[cell] = solved
     return AbsorbingChainResult(matrices, residual, lookup, selected)</div>
 
 
 
-<div class="viewcode-block" id="solve_cell">
-<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell">[docs]</a>
-def solve_cell(
-    cell: int,
-    *,
-    transition_probabilities: pd.DataFrame,
-    transition_index: pd.Index,
-    sources: npt.NDArray[np.int64],
-    destinations: npt.NDArray[np.int64],
-    internal: npt.NDArray[np.bool_],
-    global_size: int,
-    selected: npt.NDArray[np.int64],
-    eliminated: npt.NDArray[np.bool_],
-    residual: pd.DataFrame,
-    rows: npt.NDArray[np.int64],
-    columns: npt.NDArray[np.int64],
-    mode: str,
-) -&gt; tuple[int, npt.NDArray[np.float64]]:
-    &quot;&quot;&quot;Check one cell&#39;s physical exits and solve its selected first-exit law.
-
-    Parameters
-    ----------
-    cell : int
-        Positional cell column to solve.
-    transition_probabilities : pandas.DataFrame
-        Normalized original channel coefficients for all cells.
-    transition_index : pandas.Index
-        Original transition labels for diagnostics.
-    sources, destinations : numpy.ndarray
-        Global source and destination indices for every original channel.
-    internal : numpy.ndarray
-        Mask identifying original internal transitions.
-    global_size : int
-        Number of global level indices, including gaps.
-    selected : numpy.ndarray
-        Global states in compact matrix order.
-    eliminated : numpy.ndarray
-        Mask of selected-to-selected internal channels to eliminate.
-    residual : pandas.DataFrame
-        Original channels with eliminated coefficients set to zero.
-    rows, columns : numpy.ndarray
-        Compact source and destination indices for eliminated channels.
-    mode : {&#39;full&#39;, &#39;partial&#39;, &#39;explicit&#39;}
-        Reduction mode, including legacy full-mode numerical behavior.
-
-    Returns
-    -------
-    tuple[int, numpy.ndarray]
-        Cell position and its first-exit matrix; explicit mode returns an
-        empty matrix after checking the original channels.
-
-    Notes
-    -----
-    Shared input tables and index arrays are read without modification so
-    cells can be solved independently in parallel.
-    &quot;&quot;&quot;
-    values = transition_probabilities.iloc[:, cell].to_numpy()
-    totals = np.bincount(sources, weights=values, minlength=global_size)
-    active = totals &gt; 0
-    if not np.all(np.isfinite(values)):
-        raise ValueError(
-            f&quot;cell {cell}: nonfinite channel coefficients at transitions {transition_index[~np.isfinite(values)].tolist()}&quot;
-        )
-    if not np.allclose(totals[active], 1, rtol=0, atol=PROBABILITY_TOLERANCE):
-        raise ValueError(
-            f&quot;cell {cell}: original outgoing probabilities are not normalized&quot;
-        )
-    # Reverse reachability from positive physical deactivation channels detects
-    # closed communicating classes even in explicit mode, before MC can trap.
-    reachable = (
-        np.bincount(
-            sources[~internal],
-            weights=values[~internal],
-            minlength=global_size,
-        )
-        &gt; 0
-    )
-    positive_internal = internal &amp; (values &gt; 0)
-    graph = sparse.csr_matrix(
-        (
-            np.ones(positive_internal.sum()),
-            (destinations[positive_internal], sources[positive_internal]),
-        ),
-        shape=(global_size, global_size),
-    )
-    pending = np.flatnonzero(reachable).tolist()
-    while pending:
-        destination = pending.pop()
-        for source in graph.indices[
-            graph.indptr[destination] : graph.indptr[destination + 1]
-        ]:
-            if not reachable[source]:
-                reachable[source] = True
-                pending.append(source)
-    trapped = np.flatnonzero(active &amp; ~reachable)
-    if len(trapped):
-        raise ValueError(
-            f&quot;cell {cell}: closed or non-emitting communicating class reachable from states {trapped}&quot;
-        )
-    if not len(selected):
-        return cell, np.zeros((0, 0), dtype=np.float64)
-    q_matrix = sparse.coo_matrix(
-        (values[eliminated], (rows, columns)),
-        shape=(len(selected), len(selected)),
-    )
-    exit_rates = np.bincount(
-        sources,
-        weights=residual.iloc[:, cell].to_numpy(),
-        minlength=global_size,
-    )[selected]
-    q_totals = np.asarray(q_matrix.sum(axis=1)).ravel()
-    if not np.allclose(
-        q_totals + exit_rates,
-        totals[selected],
-        rtol=0,
-        atol=PROBABILITY_TOLERANCE,
-    ):
-        raise ValueError(
-            f&quot;cell {cell}: eliminated and residual channels do not partition the original rates&quot;
-        )
-    system = (sparse.eye(len(selected), format=&quot;csc&quot;) - q_matrix).tocsc()
-    rhs = exit_rates
-    if mode == &quot;full&quot;:
-        rhs = 1 - q_totals
-    # For near-trapping self-loops, form the diagonal from physical exits
-    # and off-diagonal jumps. Helps prevent losing individually unlikely
-    # transitions that are amplified in blocks that are sampled many times.
-    near_trapping = q_matrix.diagonal() &gt; 0.99
-    if mode != &quot;full&quot; and np.any(near_trapping):
-        off_diagonal = q_matrix.copy()
-        off_diagonal.setdiag(0)
-        stable_diagonal = (
-            np.asarray(off_diagonal.sum(axis=1)).ravel() + exit_rates
-        )
-        diagonal = system.diagonal()
-        diagonal[near_trapping] = stable_diagonal[near_trapping]
-        system.setdiag(diagonal)
-        rhs = rhs.copy()
-        rhs[near_trapping] = exit_rates[near_trapping]
-    try:
-        solved = splu(system, permc_spec=&quot;MMD_AT_PLUS_A&quot;).solve(np.diag(rhs))
-    except RuntimeError as error:
-        if mode == &quot;full&quot;:
-            raise ValueError(
-                f&quot;cell {cell}: closed selected chain at states {selected}&quot;
-            ) from error
-        solved = solve_near_trapping_chain(
-            q_matrix, exit_rates, active[selected]
-        )
-    if mode != &quot;full&quot; and not np.allclose(
-        solved[active[selected]].sum(axis=1),
-        1,
-        rtol=0,
-        atol=32 * np.finfo(np.float64).eps,
-    ):
-        solved = solve_near_trapping_chain(
-            q_matrix, exit_rates, active[selected]
-        )
-    residual_norm = np.max(np.abs(system @ solved - np.diag(rhs)))
-    residual_scale = max(
-        1.0,
-        sparse.linalg.norm(system, np.inf) * np.linalg.norm(solved, np.inf),
-    )
-    if (
-        not np.all(np.isfinite(solved))
-        or residual_norm &gt; PROBABILITY_TOLERANCE * residual_scale
-        or not np.allclose(
-            solved[active[selected]].sum(axis=1),
-            1,
-            rtol=0,
-            atol=PROBABILITY_TOLERANCE,
-        )
-    ):
-        raise ValueError(
-            f&quot;cell {cell}: invalid absorbing solve for states {selected}; residual {residual_norm}&quot;
-        )
-    return cell, solved</div>
-
-
-
-<div class="viewcode-block" id="solve_near_trapping_chain">
-<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_near_trapping_chain">[docs]</a>
-def solve_near_trapping_chain(
+<div class="viewcode-block" id="solve_cell_full">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full">[docs]</a>
+def solve_cell_full(
     internal_matrix: sparse.spmatrix,
-    exit_rates: npt.NDArray[np.float64],
-    active: npt.NDArray[np.bool_],
 ) -&gt; npt.NDArray[np.float64]:
-    &quot;&quot;&quot;Recover first-exit coefficients when tiny exits destabilize float64 LU.
-
-    Nearly closed cycles can amplify small retained exit coefficients, so losing
-    those coefficients through cancellation can corrupt the final branching
-    ratios. Rebuild the system using the actual exits and solve it with dense
-    Decimal arithmetic, rather than subtracting nearly equal float64 values.
-    The partial-mode caller uses this fallback when sparse LU fails or its
-    active rows do not sum to one within 32 float64 machine epsilons. Full mode
-    keeps its existing sparse calculation.
+    &quot;&quot;&quot;Solve one cell&#39;s full reduction using the legacy exit calculation.
 
     Parameters
     ----------
     internal_matrix : scipy.sparse.spmatrix
-        Square matrix Q of eliminated internal coefficients, in compact
-        selected-state order. For each active state, its row sum plus the
-        corresponding retained exit mass must equal one.
-    exit_rates : numpy.ndarray
-        Float64 vector r of retained channel sums for the selected states.
-        These are normalized coefficients, not dimensional rates. Supply the
-        actual channel sums rather than deriving them as one minus Q&#39;s row
-        sums. At least one entry must be positive.
-    active : numpy.ndarray
-        Boolean vector marking states with positive total outgoing mass in the
-        original network. Inactive states are assumed to have zero outgoing
-        coefficients and zero retained exit mass.
+        Square matrix Q of this cell&#39;s internal transition coefficients,
+        including all global states. Supply COO format to preserve the legacy
+        row-summation order.
 
     Returns
     -------
     numpy.ndarray
-        Float64 matrix B with the same shape as Q. Entry B[i, j] is the
-        first-exit coefficient for retaining a channel from selected state j
-        after activation at selected state i. Inactive rows are zero. The
-        result is converted to float64 only after high-precision elimination
-        and back substitution.
-
-    Raises
-    ------
-    ValueError
-        If elimination encounters a zero pivot and cannot solve the selected
-        system, as for a closed class with no exit.
-
-    Notes
-    -----
-    Solve ``A B = diag(r)`` with off-diagonal entries ``A[i, j] = -Q[i, j]``
-    and active diagonals ``A[i, i] = r[i] + sum(Q[i, j] for j != i)``.
-    Row conservation makes this equivalent to ``I-Q`` for normalized active
-    states, while avoiding cancellation in ``1-Q[i, i]``. Inactive diagonals
-    are set to one.
-
-    Gaussian elimination uses partial row pivoting. Decimal precision is
-    ``max(80, 40 - floor(log10(r_min)))``, where r_min is the smallest positive
-    exit coefficient. This increases arithmetic precision but cannot recover
-    information already lost from the supplied float64 coefficients. Dense
-    storage and high-precision arithmetic make this an exceptional fallback,
-    rather than the normal solver.
+        Activation-by-exit-source matrix for this cell. Exit coefficients are
+        calculated as one minus each row sum of Q.
     &quot;&quot;&quot;
-    size = len(exit_rates)
-    with localcontext() as context:
-        positive_exit_rates = exit_rates[exit_rates &gt; 0]
-        context.prec = max(
-            80, 40 - int(np.floor(np.log10(positive_exit_rates.min())))
-        )
-        zero = Decimal(0)
-        one = Decimal(1)
-        dense = internal_matrix.toarray()
-        system = [
-            [
-                -Decimal(float(dense[row, column])) if row != column else zero
-                for column in range(size)
-            ]
-            for row in range(size)
-        ]
-        rhs = [[zero for _ in range(size)] for _ in range(size)]
-        for row in range(size):
-            rate = Decimal(float(exit_rates[row]))
-            system[row][row] = (
-                sum(
-                    (
-                        -system[row][column]
-                        for column in range(size)
-                        if row != column
-                    ),
-                    rate,
-                )
-                if active[row]
-                else one
-            )
-            rhs[row][row] = rate
-        for pivot_idx in range(size):
-            pivot_row = max(
-                range(pivot_idx, size),
-                key=lambda row: abs(system[row][pivot_idx]),
-            )
-            if not system[pivot_row][pivot_idx]:
-                raise ValueError(
-                    &quot;Closed selected chain in high-precision solve&quot;
-                )
-            system[pivot_idx], system[pivot_row] = (
-                system[pivot_row],
-                system[pivot_idx],
-            )
-            rhs[pivot_idx], rhs[pivot_row] = rhs[pivot_row], rhs[pivot_idx]
-            pivot = system[pivot_idx][pivot_idx]
-            for row in range(pivot_idx + 1, size):
-                factor = system[row][pivot_idx] / pivot
-                for column in range(pivot_idx + 1, size):
-                    system[row][column] -= factor * system[pivot_idx][column]
-                for column in range(size):
-                    rhs[row][column] -= factor * rhs[pivot_idx][column]
-        solved = [[zero for _ in range(size)] for _ in range(size)]
-        for row in range(size - 1, -1, -1):
-            for channel in range(size):
-                solved[row][channel] = (
-                    rhs[row][channel]
-                    - sum(
-                        (
-                            system[row][column] * solved[column][channel]
-                            for column in range(row + 1, size)
-                        ),
-                        zero,
-                    )
-                ) / system[row][row]
-        return np.asarray(solved, dtype=np.float64)</div>
+    exit_rates = 1 - np.asarray(internal_matrix.sum(axis=1)).ravel()
+    system = (
+        sparse.eye(internal_matrix.shape[0], format=&quot;csc&quot;) - internal_matrix
+    ).tocsc()
+    return splu(system, permc_spec=&quot;MMD_AT_PLUS_A&quot;).solve(np.diag(exit_rates))</div>
+
+
+
+<div class="viewcode-block" id="solve_cell_partial">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial">[docs]</a>
+def solve_cell_partial(
+    internal_matrix: sparse.spmatrix,
+    exit_rates: npt.NDArray[np.float64],
+) -&gt; npt.NDArray[np.float64]:
+    &quot;&quot;&quot;Solve one cell&#39;s partial reduction from a specified subset of probabilities.
+
+    Parameters
+    ----------
+    internal_matrix : scipy.sparse.spmatrix
+        Square matrix Q of this cell&#39;s eliminated internal coefficients,
+        in compact selected-state order.
+    exit_rates : numpy.ndarray
+        One-dimensional sums of this cell&#39;s retained channel coefficients,
+        in the same selected-state order.
+
+    Returns
+    -------
+    numpy.ndarray
+        Activation-by-exit-source matrix B satisfying
+        ``(I-Q) B = diag(exit_rates)`` for this cell.
+    &quot;&quot;&quot;
+    system = (
+        sparse.eye(internal_matrix.shape[0], format=&quot;csc&quot;) - internal_matrix
+    ).tocsc()
+    return splu(system, permc_spec=&quot;MMD_AT_PLUS_A&quot;).solve(np.diag(exit_rates))</div>
 
 </pre></div>
 
@@ -4796,7 +4578,7 @@ def solve_near_trapping_chain(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Nov 2026.
+      <span class="lastupdated">Last updated on 03 Nov 2026.
       </span></p>
   </div>
 

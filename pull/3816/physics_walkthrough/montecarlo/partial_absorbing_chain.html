@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=ebcf08da"></script>
+      <script src="../../_static/documentation_options.js?v=8b3c6fb1"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1395,8 +1395,8 @@
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell"><code class="docutils literal notranslate"><span class="pre">solve_cell()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_near_trapping_chain"><code class="docutils literal notranslate"><span class="pre">solve_near_trapping_chain()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -4322,21 +4322,13 @@ continuum activation indices and estimator dimensions keep their original
 ordering and shell count.</p>
 <p>Before recalculating the matrix, the workflow releases the previous iteration’s
 matrix references from both the macro-atom state and the Numba transport state.</p>
-<p>Sparse LU solves are checked for finite, normalized rows and a scale-aware
-equation residual. Input coefficients and reduced entries are not rejected
-based on their sign in any reduction mode. A reachable closed class without a
-physical exit raises a diagnostic containing the cell and states. Channels are
-never removed by a numerical probability threshold. The sampler allows a CDF endpoint
+<p>The reduction uses an ordinary sparse LU solve without numerical acceptance
+or reachability checks. Input coefficients and reduced entries are not rejected
+based on their sign in any reduction mode. Sparse factorization failures
+propagate from the solver. Channels are never removed by a numerical probability
+threshold. The sampler allows a CDF endpoint
 deficit of at most 1e-10 due to floating-point summation; larger deficits or
 activations without outgoing probability raise an error.</p>
-<p>Exact small-network tests compare eventual channel distributions with an
-independent dense solve of the unreduced network. Compiled sampling tests check
-an analytic 50 percent / 18.75 percent / 31.25 percent emission distribution with
-direct thermal emission, pool activation, and re-entry through an unselected
-element. Every pool-option combination is checked with binomial uncertainty
-bounds. Full mode preserves the existing default and its two-draw
-sampling behavior. For nonnegative kernels, the different modes preserve
-distributions, rather than individual random packet histories.</p>
 </section>
 
 
@@ -4351,7 +4343,7 @@ distributions, rather than individual random packet histories.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Nov 2026.
+      <span class="lastupdated">Last updated on 03 Nov 2026.
       </span></p>
   </div>
 
