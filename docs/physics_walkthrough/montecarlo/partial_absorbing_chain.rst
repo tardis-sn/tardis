@@ -51,11 +51,11 @@ ordering and shell count.
 Before recalculating the matrix, the workflow releases the previous iteration's
 matrix references from both the macro-atom state and the Numba transport state.
 
-Sparse LU solves are checked for finite, normalized rows and a scale-aware
-equation residual. Input coefficients and reduced entries are not rejected
-based on their sign in any reduction mode. A reachable closed class without a
-physical exit raises a diagnostic containing the cell and states. Channels are
-never removed by a numerical probability threshold. The sampler allows a CDF endpoint
+The reduction uses an ordinary sparse LU solve without numerical acceptance
+or reachability checks. Input coefficients and reduced entries are not rejected
+based on their sign in any reduction mode. Sparse factorization failures
+propagate from the solver. Channels are never removed by a numerical probability
+threshold. The sampler allows a CDF endpoint
 deficit of at most 1e-10 due to floating-point summation; larger deficits or
 activations without outgoing probability raise an error.
 
