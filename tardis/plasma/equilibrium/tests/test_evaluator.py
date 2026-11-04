@@ -659,15 +659,19 @@ def test_evaluator_aligns_collisional_temperature_scaling_by_transition(
             [100.0, 200.0], index=reverse_index, columns=[0]
         ),
     }
+    candidate_temperature = np.array([2.0e4]) * u.K
     state = SimpleNamespace(
         collisional_ionization_rate_coefficient=pd.DataFrame(columns=[0]),
         level_to_continuum_saha_factor=pd.DataFrame(columns=[0]),
+        collisional_rate_coefficients=ElectronRateSolver().solve(
+            candidate_temperature
+        ),
     )
 
     excitation, deexcitation = toy_evaluator._calculate_heating(
         ThermalElectronEnergyDistribution(
             0.0 * u.erg,
-            np.array([2.0e4]) * u.K,
+            candidate_temperature,
             np.array([1.0e9]) / u.cm**3,
         ),
         pd.DataFrame([[1.0]], columns=[0]),
