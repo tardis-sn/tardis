@@ -203,7 +203,7 @@ class StandardTARDISWorkflow(
                 item_type=item_type,
             )
 
-    def run(self):
+    def run(self) -> None:
         """Run the TARDIS simulation until convergence is reached"""
         self.converged = False
         while self.completed_iterations < self.total_iterations - 1:
@@ -220,9 +220,7 @@ class StandardTARDISWorkflow(
 
             self.opacity_states = self.solve_opacity()
 
-            virtual_packet_energies = self.solve_montecarlo(
-                self.opacity_states, self.real_packet_count
-            )
+            self.solve_montecarlo(self.opacity_states, self.real_packet_count)
 
             (
                 estimated_values,
@@ -249,10 +247,10 @@ class StandardTARDISWorkflow(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
         self.opacity_states = self.solve_opacity()
-        virtual_packet_energies = self.solve_montecarlo(
+        self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
-            self.virtual_packet_count,
+            record_full_histories=self.virtual_packet_count > 0,
         )
         self.store_plasma_state(
             self.completed_iterations,
@@ -268,7 +266,4 @@ class StandardTARDISWorkflow(
                 export_convergence_plots=self.export_convergence_plots,
                 last=True,
             )
-        self.initialize_spectrum_solver(
-            self.opacity_states,
-            virtual_packet_energies,
-        )
+        self.initialize_spectrum_solver(self.opacity_states)

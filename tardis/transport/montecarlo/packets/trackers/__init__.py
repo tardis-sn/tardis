@@ -10,10 +10,11 @@ from tardis.transport.montecarlo.packets.trackers.tracker_full import (
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
+    interaction_type_to_categorical,
+    interaction_type_to_codes,
     tracker_full_df2tracker_last_interaction_df,
     trackers_full_list_to_arrays,
     trackers_full_to_df,
-    trackers_full_to_last_interaction_df,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
     TrackerLastInteraction,
@@ -34,9 +35,10 @@ __all__ = [
     "TrackerLastInteraction",
     "generate_tracker_full_list",
     "generate_tracker_last_interaction_list",
+    "interaction_type_to_categorical",
+    "interaction_type_to_codes",
     "tracker_full_df2tracker_last_interaction_df",
     "trackers_full_list_to_arrays",
     "trackers_full_to_df",
-    "trackers_full_to_last_interaction_df",
     "trackers_last_interaction_to_df",
 ]

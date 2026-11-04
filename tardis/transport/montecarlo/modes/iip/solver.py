@@ -1,10 +1,12 @@
 import logging
+from typing import Self
 
 from astropy import units as u
 from numba import cuda, set_num_threads
 
 import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.opacities.continuum.continuum_state import ContinuumOpacityState
@@ -22,6 +24,7 @@ from tardis.transport.montecarlo.modes.iip.montecarlo_transport import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
+from tardis.transport.montecarlo.packet_source.base import BasePacketSource
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
     tracker_full_df2tracker_last_interaction_df,
@@ -56,39 +59,32 @@ class MCTransportSolverIIP(HDFWriterMixin):
 
     def __init__(
         self,
-        radfield_prop_solver,
-        spectrum_frequency_grid,
-        vpacket_spawn_range,
-        enable_full_relativity,
-        line_interaction_type,
-        spectrum_method,
-        packet_source,
-        enable_virtual_packet_logging=False,
-        enable_rpacket_tracking=False,
-        nthreads=1,
-        debug_packets=False,
-        logger_buffer=1,
-        use_gpu=False,
-        montecarlo_configuration=None,
-    ):
+        radfield_prop_solver: MCRadiationFieldPropertiesSolver,
+        spectrum_frequency_grid: u.Quantity,
+        enable_full_relativity: bool,
+        line_interaction_type: str,
+        spectrum_method: str,
+        packet_source: BasePacketSource,
+        enable_rpacket_tracking: bool = False,
+        nthreads: int = 1,
+        debug_packets: bool = False,
+        logger_buffer: int = 1,
+        use_gpu: bool = False,
+        montecarlo_configuration: MonteCarloConfiguration | None = None,
+    ) -> None:
         self.radfield_prop_solver = radfield_prop_solver
         # inject different packets
         self.spectrum_frequency_grid = spectrum_frequency_grid
-        self.vpacket_spawn_range = vpacket_spawn_range
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
         self.spectrum_method = spectrum_method
 
         self.use_gpu = use_gpu
 
-        self.enable_vpacket_tracking = enable_virtual_packet_logging
         self.enable_rpacket_tracking = enable_rpacket_tracking
         self.montecarlo_configuration = montecarlo_configuration
 
         self.packet_source = packet_source
-
-        # Setting up the Tracking array for storing all the RPacketTracker instances
-        self.rpacket_tracker = None
 
         # Set number of threads
         self.nthreads = nthreads
@@ -104,7 +100,6 @@ class MCTransportSolverIIP(HDFWriterMixin):
         macro_atom_state: object | None,
         continuum_state: ContinuumOpacityState,
         no_of_packets: int,
-        no_of_virtual_packets: int = 0,
         iteration: int = 0,
     ) -> MonteCarloTransportState:
         """Initialize transport state from explicit opacity inputs."""
@@ -142,9 +137,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
         # IIP mode: full relativity always enabled
         transport_state.enable_full_relativity = True
 
-        configuration_initialize(
-            self.montecarlo_configuration, self, no_of_virtual_packets
-        )
+        configuration_initialize(self.montecarlo_configuration, self)
 
         return transport_state
 
@@ -162,16 +155,10 @@ class MCTransportSolverIIP(HDFWriterMixin):
             Transport state containing all the data needed for the Monte Carlo simulation
         show_progress_bars : bool
             Show progress bars
-
-        Returns
-        -------
-        v_packets_energy_hist : ndarray
-            Histogram of energy from virtual packets
         """
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
 
-        number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
         number_of_rpackets = len(transport_state.packet_collection.initial_nus)
 
         if self.enable_rpacket_tracking:
@@ -237,19 +224,16 @@ class MCTransportSolverIIP(HDFWriterMixin):
                 trackers_last_interaction_to_df(trackers_list)
             )
 
-        # IIP mode does not currently track virtual packets in montecarlo_transport
-
     @classmethod
     def from_config(
-        cls, config, packet_source, enable_virtual_packet_logging=False
-    ):
+        cls, config: Configuration, packet_source: BasePacketSource
+    ) -> Self:
         """
         Create a new MontecarloTransport instance from a Configuration object.
 
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
-        virtual_packet_logging : bool
 
         Returns
         -------
@@ -312,17 +296,12 @@ class MCTransportSolverIIP(HDFWriterMixin):
         return cls(
             radfield_prop_solver=radfield_prop_solver,
             spectrum_frequency_grid=spectrum_frequency_grid,
-            vpacket_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,
             line_interaction_type=config.plasma.line_interaction_type,
             spectrum_method=config.spectrum.method,
             packet_source=packet_source,
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
-            enable_virtual_packet_logging=(
-                config.spectrum.virtual.virtual_packet_logging
-                | enable_virtual_packet_logging
-            ),
             enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
             nthreads=config.montecarlo.nthreads,
             use_gpu=use_gpu,
