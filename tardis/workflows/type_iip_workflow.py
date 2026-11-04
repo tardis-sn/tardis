@@ -18,7 +18,9 @@ from tardis.opacities.continuum.macro_atom_state import (
 from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.tau_sobolev import (
     SOBOLEV_COEFFICIENT,
     calculate_beta_sobolev,
@@ -236,6 +238,12 @@ class TypeIIPWorkflow:
             ),
             line_interaction_type=line_interaction_type,
             nthreads=continuum_interactions.nthreads,
+            markov_chain_mode=continuum_interactions.markov_chain.mode,
+            markov_chain_elements=tuple(
+                continuum_interactions.markov_chain.elements
+            ),
+            markov_chain_include_thermal_pool=continuum_interactions.markov_chain.include_thermal_pool,
+            markov_chain_include_ionization_pool=continuum_interactions.markov_chain.include_ionization_pool,
         )
 
         self.transport_state = None
@@ -1121,7 +1129,7 @@ class TypeIIPWorkflow:
         norm_factor *= np.sqrt(t_electrons)
         return norm_factor
 
-    def solve_opacity(self):
+    def solve_opacity(self) -> dict[str, OpacityState | MacroAtomState]:
         """Solve the opacity state and any associated objects.
 
         Returns
@@ -1138,6 +1146,16 @@ class TypeIIPWorkflow:
             beta_sobolev=self._beta_sobolev,
         )
         continuum_rates = self.continuum_macro_atom_state
+
+        # Release both owners of the previous matrix before rebuilding it.
+        if hasattr(self, "opacity_states"):
+            self.opacity_states[
+                "macro_atom_state"
+            ].absorbing_probability_matrix = None
+        if self.transport_state is not None:
+            self.transport_state.continuum_state_numba.absorbing_markov_probabilities = np.empty(
+                (0, 0, 0), dtype=np.float64
+            )
 
         macro_atom_state = self.macro_atom_solver.solve(
             self.plasma_solver.j_blues,

@@ -91,14 +91,12 @@ def test_create_absorbing_probs_matches_full_diagonal_solve() -> None:
         )
     )
 
-    actual_matrix, actual_deactivating_probs = create_absorbing_probs(
-        transition_probabilities, metadata
-    )
+    result = create_absorbing_probs(transition_probabilities, metadata)
     expected_matrix, expected_deactivating_probs = (
         _create_absorbing_probs_reference(transition_probabilities, metadata)
     )
 
-    np.testing.assert_allclose(actual_matrix, expected_matrix, rtol=1e-14)
+    np.testing.assert_allclose(result.matrix, expected_matrix, rtol=1e-14)
     pd.testing.assert_frame_equal(
-        actual_deactivating_probs, expected_deactivating_probs
+        result.residual_probabilities, expected_deactivating_probs
     )

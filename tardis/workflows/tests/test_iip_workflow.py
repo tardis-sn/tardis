@@ -984,8 +984,22 @@ def test_solve_montecarlo(
     )
 
 
+@pytest.mark.parametrize(
+    "mode,include_thermal_pool,include_ionization_pool",
+    [
+        ("full", False, False),
+        ("partial", False, False),
+        ("partial", True, False),
+        ("partial", False, True),
+        ("partial", True, True),
+        ("explicit", False, False),
+    ],
+)
 def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     tardis_regression_path: Path,
+    mode: str,
+    include_thermal_pool: bool,
+    include_ionization_pool: bool,
 ) -> None:
     """Evaluate finite outer-shell opacity at the 1500 K thermal floor.
 
@@ -994,6 +1008,8 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     Regime: Second opacity iteration in shells forced to the 1500 K floor.
     Verification: The expected opacity is evaluated directly from the
     bound-free population equation, independently of continuum-state assembly.
+    All reduction modes retain legacy signed-coefficient compatibility and
+    complete ten transport packets; completion is not probability validation.
     """
     config = Configuration.from_yaml(
         "tardis/workflows/tests/data/iip_population_cutoff.yml"
@@ -1002,6 +1018,16 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         tardis_regression_path
         / "atom_data"
         / "christians_atomdata_converted_04Dec25.h5"
+    )
+    config.plasma.continuum_interaction.markov_chain.mode = mode
+    config.plasma.continuum_interaction.markov_chain.elements = (
+        ["H"] if mode == "partial" else []
+    )
+    config.plasma.continuum_interaction.markov_chain.include_thermal_pool = (
+        include_thermal_pool
+    )
+    config.plasma.continuum_interaction.markov_chain.include_ionization_pool = (
+        include_ionization_pool
     )
     workflow = TypeIIPWorkflow(config)
     workflow.show_progress_bars = False

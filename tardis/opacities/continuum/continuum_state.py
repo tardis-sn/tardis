@@ -269,6 +269,8 @@ class ContinuumOpacityState:
             photo_ion_activation_idx,
             np.int64(macro_atom_state.k_packet_idx),
             macro_atom_state.absorbing_probability_matrix,
+            macro_atom_state.macro_level_to_reduced_idx,
+            macro_atom_state.reduced_to_macro_level_idx,
         )
 
     @property
