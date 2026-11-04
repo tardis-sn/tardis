@@ -171,3 +171,30 @@ def test_tardis_version_metadata(tmpdir):
     metadata = pd.read_hdf(fname, key="/test/mock_hdf/metadata")
     assert "tardis_version" in metadata
     assert metadata["tardis_version"] == __version__
+
+
+class MockVirtualPacketHDF(HDFWriterMixin):
+    hdf_properties = ["property"]
+    vpacket_hdf_properties = ["virtual_property"]
+
+    def __init__(self, virt_logging: bool) -> None:
+        self.virt_logging = virt_logging
+        self.property = 1.5
+        self.virtual_property = 4.2e7
+
+
+def test_full_hdf_properties_does_not_mutate_hdf_properties() -> None:
+    logging_instance = MockVirtualPacketHDF(virt_logging=True)
+
+    assert logging_instance.full_hdf_properties == [
+        "property",
+        "virtual_property",
+    ]
+    assert logging_instance.full_hdf_properties == [
+        "property",
+        "virtual_property",
+    ]
+    assert MockVirtualPacketHDF.hdf_properties == ["property"]
+
+    non_logging_instance = MockVirtualPacketHDF(virt_logging=False)
+    assert non_logging_instance.full_hdf_properties == ["property"]

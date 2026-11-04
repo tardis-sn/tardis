@@ -191,10 +191,11 @@ class HDFWriterMixin:
         List[str]
             List of all HDF property names.
         """
+        full_hdf_properties = self.optional_hdf_properties + self.hdf_properties
         if hasattr(self, "virt_logging") and self.virt_logging:
-            self.hdf_properties.extend(self.vpacket_hdf_properties)
+            full_hdf_properties += self.vpacket_hdf_properties
 
-        return self.optional_hdf_properties + self.hdf_properties
+        return full_hdf_properties
 
     @staticmethod
     def convert_to_snake_case(s: str) -> str:
