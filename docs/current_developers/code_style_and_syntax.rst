@@ -114,6 +114,25 @@ improve readability and maintainability, and they enable static type checking.
 
 .. _reference-numpy-array-typing:
 
+Whitespace
+----------
+
+Whitespace should be used to separate blocks of conceptually-linked variables
+and to separate statement blocks (such as loops or if) from variable definitions 
+or calculations to improve readability.
+
+.. code-block:: python
+    
+    levels = plasma.levels
+    lines = plasma.lines
+
+    for level in levels:
+        energy = calculate_level_energy(level, lines)
+
+    normalized_energy = energy / energy.max()
+
+    return normalized_energy
+
 Reference: NumPy Array Typing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
