@@ -18,6 +18,7 @@ Submodules
    tardis.spectrum.base
    tardis.spectrum.luminosity
    tardis.spectrum.spectrum
+   tardis.spectrum.virtual_packet
 
 Module contents
 ---------------

@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.modes.classic.packet\_propagation module
+====================================================================
+
+.. automodule:: tardis.transport.montecarlo.modes.classic.packet_propagation
+   :members:
+   :show-inheritance:
+   :undoc-members:
