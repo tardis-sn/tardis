@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5a86926e"></script>
+      <script src="../../../../_static/documentation_options.js?v=d86ba211"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -485,6 +485,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -1381,7 +1382,16 @@
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.macro_level_to_reduced_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.reduced_to_macro_level_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.residual_probabilities</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -3854,7 +3864,10 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../io/configuration/components/plasma.html">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#continuum-interaction">Continuum Interaction</a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#nlte">NLTE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#nlte">NLTE</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#type-iip-macro-atom-reduction">Type IIP macro-atom reduction</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../io/configuration/components/models/index.html">Models</a><ul>
@@ -4278,13 +4291,15 @@ from tardis.transport.montecarlo import njit_dict_no_parallel
 <div class="viewcode-block" id="MacroAtomError">
 <a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomError">[docs]</a>
 class MacroAtomError(ValueError):
-    pass</div>
+    &quot;&quot;&quot;Report invalid macro-atom probability or activation state.&quot;&quot;&quot;</div>
 
 
 
 <div class="viewcode-block" id="MacroAtomTransitionType">
 <a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType">[docs]</a>
 class MacroAtomTransitionType(IntEnum):
+    &quot;&quot;&quot;Identify internal jumps and negative-code deactivation processes.&quot;&quot;&quot;
+
     # Bound bound transition block
     INTERNAL_UP = 1
     INTERNAL_DOWN = 0
@@ -4324,8 +4339,9 @@ def macro_atom_interaction(
     activation_level_id: int,
     current_shell_id: int,
     opacity_state: OpacityStateNumba,
-):
-    &quot;&quot;&quot;
+) -&gt; tuple[int, int]:
+    &quot;&quot;&quot;Sample original macro-atom transitions until a deactivation occurs.
+
     Parameters
     ----------
     activation_level_id
@@ -4335,6 +4351,8 @@ def macro_atom_interaction(
 
     Returns
     -------
+    tuple[int, int]
+        Emission channel identifier and negative transition type.
     &quot;&quot;&quot;
     current_transition_type = 0
     while current_transition_type &gt;= 0:
@@ -4384,14 +4402,19 @@ def macro_atom_interaction_iip(
     current_shell_id: int,
     opacity_state: OpacityStateNumba,
     continuum_state: ContinuumOpacityStateNumba,
-):
-    &quot;&quot;&quot;
+) -&gt; tuple[int, int]:
+    &quot;&quot;&quot;Alternate independent reduced visits and explicit retained transitions.
+
     Parameters
     ----------
-    activation_level_idx
-        Activation level idx of the macro atom.
-    current_shell_id
-    opacity_state
+    activation_level_idx : int
+        Global activation level, including valid level zero and i/k pools.
+    current_shell_id : int
+        Active shell index.
+    opacity_state : OpacityStateNumba
+        Residual probabilities and original channel metadata.
+    continuum_state : ContinuumOpacityStateNumba
+        First-exit matrices and forward/inverse level maps.
 
     Returns
     -------
@@ -4400,63 +4423,101 @@ def macro_atom_interaction_iip(
     emission_process : int,
         Type of process emission defined by MacroAtomTransitionType in this file.
     &quot;&quot;&quot;
-    # Do a single jump to the absorbing state, which we deactivate from
-    absorbing_state_probability = 0.0
-    probability_event = np.random.random()
-
-    for to_state_index, state_probability in enumerate(
-        continuum_state.absorbing_markov_probabilities[
-            current_shell_id, activation_level_idx
+    while True:
+        if activation_level_idx &lt; 0 or activation_level_idx &gt;= len(
+            continuum_state.macro_level_to_reduced_idx
+        ):
+            raise MacroAtomError(
+                &quot;MacroAtom activation lies outside the global level map&quot;
+            )
+        reduced_idx = continuum_state.macro_level_to_reduced_idx[
+            activation_level_idx
         ]
-    ):
-        absorbing_state_probability += state_probability
 
-        if absorbing_state_probability &gt; probability_event:
-            absorbing_activation_level_idx = to_state_index
-            break
-    else:
-        raise MacroAtomError(
-            &quot;MacroAtom failed to select an absorbing state. The absorbing Markov&quot;
-            &quot;chain probabilities matrix may not be normalized or may contain only zeros. \n&quot;
-            f&quot;Attempted to activate from {activation_level_idx}.&quot;
-        )
+        if reduced_idx &gt;= 0:
+            # This tells us we&#39;re in the reduced block and should take one step
+            # and see what state we leave the reduced block from. See absorbing_markov_chain.py
+            probability_event = np.random.random()
+            cumulative_probability = 0.0
+            selected_idx = -1
+            last_positive_idx = -1
 
-    # Handle second prob call for emission process from that state
-    block_start_idx = opacity_state.macro_block_edge_index[
-        absorbing_activation_level_idx
-    ]
-    block_end_idx = opacity_state.macro_block_edge_index[
-        absorbing_activation_level_idx + 1
-    ]
-    emission_transition_probability = 0.0
-    probability_emission_event = np.random.random()
+            # Step through the probability block
+            for exit_idx, state_probability in enumerate(
+                continuum_state.absorbing_markov_probabilities[
+                    current_shell_id, reduced_idx
+                ]
+            ):
+                if state_probability &gt; 0:
+                    last_positive_idx = exit_idx
+                cumulative_probability += state_probability
+                if cumulative_probability &gt; probability_event:
+                    # Found the deactivating state. Break out of the cumulative probability loop.
+                    selected_idx = exit_idx
+                    break
 
-    for deactivation_channel_idx in range(block_start_idx, block_end_idx):
-        deactivation_probability = opacity_state.transition_probabilities[
-            deactivation_channel_idx, current_shell_id
+            if selected_idx &lt; 0:
+                if (
+                    last_positive_idx &gt;= 0
+                    and abs(cumulative_probability - 1.0) &lt;= 1e-10
+                ):
+                    selected_idx = last_positive_idx
+                else:
+                    raise MacroAtomError(
+                        &quot;MacroAtom first-exit probabilities are not normalized or activation has no outgoing probability &quot;
+                        f&quot;(starting reduced state {reduced_idx}, global activation level {activation_level_idx}, cell {current_shell_id})&quot;
+                    )
+            activation_level_idx = continuum_state.reduced_to_macro_level_idx[
+                selected_idx
+            ]
+            # End of reduced block handling.
+
+        # You necessarily are now either going to deactivate OR are in a block with internal transitions.
+        # Below is largely the same behavior as the classic macro atom interaction.
+        block_start_idx = opacity_state.macro_block_edge_index[
+            activation_level_idx
         ]
-        emission_transition_probability += deactivation_probability
+        block_end_idx = opacity_state.macro_block_edge_index[
+            activation_level_idx + 1
+        ]
+        probability_event = np.random.random()
+        cumulative_probability = 0.0
+        selected_transition_idx = -1
+        last_positive_idx = -1
 
-        if emission_transition_probability &gt; probability_emission_event:
-            emission_process = opacity_state.transition_type[
-                deactivation_channel_idx
+        for transition_idx in range(block_start_idx, block_end_idx):
+            transition_probability = opacity_state.transition_probabilities[
+                transition_idx, current_shell_id
             ]
-            emission_line_id = opacity_state.transition_line_id[
-                deactivation_channel_idx
-            ]
-            break
+            if transition_probability &gt; 0:
+                last_positive_idx = transition_idx
+            cumulative_probability += transition_probability
+            if cumulative_probability &gt; probability_event:
+                selected_transition_idx = transition_idx
+                break
 
-    else:
-        raise MacroAtomError(
-            &quot;MacroAtom ran out of the block. This should not happen as &quot;
-            &quot;the sum of probabilities is normalized to 1 and &quot;
-            &quot;the probability_event should be less than 1. \n&quot;
-            f&quot;block indices are {block_start_idx}, {block_end_idx}&quot;
-        )
-    return (
-        emission_line_id,
-        emission_process,
-    )</div>
+        if selected_transition_idx &lt; 0:
+            if (
+                last_positive_idx &gt;= 0
+                and abs(cumulative_probability - 1.0) &lt;= 1e-10
+            ):
+                selected_transition_idx = last_positive_idx
+            else:
+                raise MacroAtomError(
+                    &quot;MacroAtom residual block is not normalized or activation has no outgoing probability &quot;
+                    f&quot;(global activation level {activation_level_idx}, cell {current_shell_id}, transition rows {block_start_idx}:{block_end_idx})&quot;
+                )
+        transition_type = opacity_state.transition_type[selected_transition_idx]
+
+        if transition_type &lt; 0:
+            # We&#39;ve found a deactivating transition so we&#39;ll break out of the function and return that transition.
+            return opacity_state.transition_line_id[
+                selected_transition_idx
+            ], transition_type
+        # Otherwise, we&#39;ve found an internal transition and need to go back to the top of the while loop.
+        activation_level_idx = opacity_state.destination_level_id[
+            selected_transition_idx
+        ]</div>
 
 </pre></div>
 
@@ -4468,7 +4529,7 @@ def macro_atom_interaction_iip(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Nov 2026.
+      <span class="lastupdated">Last updated on 04 Nov 2026.
       </span></p>
   </div>
 

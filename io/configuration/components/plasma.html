@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5a86926e"></script>
+      <script src="../../../_static/documentation_options.js?v=d86ba211"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -490,6 +490,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -1386,7 +1387,16 @@
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.macro_level_to_reduced_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.reduced_to_macro_level_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.residual_probabilities</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -3859,7 +3869,10 @@
 </li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#continuum-interaction">Continuum Interaction</a></li>
-<li class="toctree-l5"><a class="reference internal" href="#nlte">NLTE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#nlte">NLTE</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#type-iip-macro-atom-reduction">Type IIP macro-atom reduction</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="models/index.html">Models</a><ul>
@@ -4273,285 +4286,355 @@
 <table class="docutils align-default" id="plasma-yml">
 <tbody>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="3"><p><em>object</em></p></td>
+<td colspan="5"><p><em>object</em></p></td>
 </tr>
-<tr class="row-even"><td colspan="4"><p>properties</p></td>
+<tr class="row-even"><td colspan="6"><p>properties</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>initial_t_inner</p></li>
 </ul>
 </td>
-<td colspan="3"><p>initial temperature of the inner boundary black body. If set to -1 K  will result in automatic calculation of boundary</p></td>
+<td colspan="5"><p>initial temperature of the inner boundary black body. If set to -1 K  will result in automatic calculation of boundary</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>quantity</em></p></td>
+<td colspan="4"><p><em>quantity</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>-1 K</p></td>
+<td colspan="4"><p>-1 K</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>initial_t_rad</p></li>
 </ul>
 </td>
-<td colspan="3"><p>initial radiative temperature in all cells. If set to -1 K will result in automtatic calculation of the initial temperatures</p></td>
+<td colspan="5"><p>initial radiative temperature in all cells. If set to -1 K will result in automtatic calculation of the initial temperatures</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>quantity</em></p></td>
+<td colspan="4"><p><em>quantity</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td colspan="2"><p>-1 K</p></td>
+<td colspan="4"><p>-1 K</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>disable_electron_scattering</p></li>
 </ul>
 </td>
-<td colspan="3"><p>disable electron scattering process in montecarlo part - non-physical only for tests</p></td>
+<td colspan="5"><p>disable electron scattering process in montecarlo part - non-physical only for tests</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>boolean</em></p></td>
+<td colspan="4"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>False</p></td>
+<td colspan="4"><p>False</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>disable_line_scattering</p></li>
 </ul>
 </td>
-<td colspan="3"><p>disable line scattering process in montecarlo part - non-physical only for tests</p></td>
+<td colspan="5"><p>disable line scattering process in montecarlo part - non-physical only for tests</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>boolean</em></p></td>
+<td colspan="4"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td colspan="2"><p>False</p></td>
+<td colspan="4"><p>False</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p><strong>ionization</strong></p></li>
 </ul>
 </td>
-<td colspan="3"><p>ionization treatment mode</p></td>
+<td colspan="5"><p>ionization treatment mode</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>enum</p></td>
-<td colspan="2"><p>nebular, lte</p></td>
+<td colspan="4"><p>nebular, lte</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p><strong>excitation</strong></p></li>
 </ul>
 </td>
-<td colspan="3"><p>excitation treatment mode</p></td>
+<td colspan="5"><p>excitation treatment mode</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-even"><td><p>enum</p></td>
-<td colspan="2"><p>lte, dilute-lte</p></td>
+<td colspan="4"><p>lte, dilute-lte</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p><strong>radiative_rates_type</strong></p></li>
 </ul>
 </td>
-<td colspan="3"><p>radiative rates treatment mode</p></td>
+<td colspan="5"><p>radiative rates treatment mode</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>enum</p></td>
-<td colspan="2"><p>dilute-blackbody, detailed, blackbody</p></td>
+<td colspan="4"><p>dilute-blackbody, detailed, blackbody</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p><strong>line_interaction_type</strong></p></li>
 </ul>
 </td>
-<td colspan="3"><p>line interaction mode</p></td>
+<td colspan="5"><p>line interaction mode</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-even"><td><p>enum</p></td>
-<td colspan="2"><p>scatter, downbranch, macroatom</p></td>
+<td colspan="4"><p>scatter, downbranch, macroatom</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>w_epsilon</p></li>
 </ul>
 </td>
-<td colspan="3"><p>w to use when j_blues get numerically 0. - avoids numerical complications</p></td>
+<td colspan="5"><p>w to use when j_blues get numerically 0. - avoids numerical complications</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>number</em></p></td>
+<td colspan="4"><p><em>number</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>1e-10</p></td>
+<td colspan="4"><p>1e-10</p></td>
 </tr>
 <tr class="row-even"><td rowspan="2"><ul class="simple">
 <li><p>delta_treatment</p></li>
 </ul>
 </td>
-<td colspan="3"><p>In the saha calculation set delta equals to the number given in this configuration item. if set to None (default), normal delta treatment (as described in Mazzali &amp; Lucy 1993) will be applied</p></td>
+<td colspan="5"><p>In the saha calculation set delta equals to the number given in this configuration item. if set to None (default), normal delta treatment (as described in Mazzali &amp; Lucy 1993) will be applied</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>number</em></p></td>
+<td colspan="4"><p><em>number</em></p></td>
 </tr>
 <tr class="row-even"><td rowspan="13"><ul class="simple">
 <li><p>nlte</p></li>
 </ul>
 </td>
 <td><p>type</p></td>
-<td colspan="2"><p><em>object</em></p></td>
+<td colspan="4"><p><em>object</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"></td>
+<td colspan="4"></td>
 </tr>
-<tr class="row-even"><td colspan="3"><p>properties</p></td>
+<tr class="row-even"><td colspan="5"><p>properties</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>species</p></li>
 </ul>
 </td>
-<td colspan="2"><p>Species that are requested to be NLTE treated in the format  [‘Si 2’, ‘Ca 1’, etc.]</p></td>
+<td colspan="4"><p>Species that are requested to be NLTE treated in the format  [‘Si 2’, ‘Ca 1’, etc.]</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td><p><em>array</em></p></td>
+<td colspan="3"><p><em>array</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td></td>
+<td colspan="3"></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>coronal_approximation</p></li>
 </ul>
 </td>
-<td colspan="2"><p>set all jblues=0.0</p></td>
+<td colspan="4"><p>set all jblues=0.0</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td><p><em>boolean</em></p></td>
+<td colspan="3"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td><p>False</p></td>
+<td colspan="3"><p>False</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>classical_nebular</p></li>
 </ul>
 </td>
-<td colspan="2"><p>sets all beta_sobolevs to 1</p></td>
+<td colspan="4"><p>sets all beta_sobolevs to 1</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td><p><em>boolean</em></p></td>
+<td colspan="3"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td><p>False</p></td>
+<td colspan="3"><p>False</p></td>
 </tr>
 <tr class="row-even"><td><p>additionalProperties</p></td>
-<td colspan="2"><p>False</p></td>
+<td colspan="4"><p>False</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="17"><ul class="simple">
+<tr class="row-odd"><td rowspan="35"><ul class="simple">
 <li><p>continuum_interaction</p></li>
 </ul>
 </td>
 <td><p>type</p></td>
-<td colspan="2"><p><em>object</em></p></td>
+<td colspan="4"><p><em>object</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
+<td colspan="4"></td>
+</tr>
+<tr class="row-odd"><td colspan="5"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="18"><ul class="simple">
+<li><p>markov_chain</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="3"></td>
+</tr>
+<tr class="row-even"><td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>mode</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Macro-atom internal-transition reduction for Type IIP transport.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>enum</p></td>
+<td colspan="2"><p>full, partial, explicit</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>full</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>elements</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Element symbols reduced in partial mode; empty in other modes.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
 <td colspan="2"></td>
 </tr>
-<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+<tr class="row-even"><td><p>items</p></td>
+<td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>include_thermal_pool</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Include the shared thermal k state in partial reduction.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>include_ionization_pool</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Include the shared ionization i state in partial reduction.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="3"><p>False</p></td>
 </tr>
 <tr class="row-even"><td rowspan="4"><ul class="simple">
 <li><p>nthreads</p></li>
 </ul>
 </td>
-<td colspan="2"><p>Maximum number of worker threads for continuum macro-atom opacity calculations, including the absorbing Markov chain solve. Independent of montecarlo.nthreads and not limited by NUMBA_NUM_THREADS.</p></td>
+<td colspan="4"><p>Maximum number of worker threads for continuum macro-atom opacity calculations, including the absorbing Markov chain solve. Independent of montecarlo.nthreads and not limited by NUMBA_NUM_THREADS.</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td><p><em>integer</em></p></td>
+<td colspan="3"><p><em>integer</em></p></td>
 </tr>
 <tr class="row-even"><td><p>minimum</p></td>
-<td><p>1</p></td>
+<td colspan="3"><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td><p>1</p></td>
+<td colspan="3"><p>1</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>species</p></li>
 </ul>
 </td>
-<td colspan="2"><p>Species that are requested to be treated with IIP continuum interactions (radiative/collisional ionization and recombination) in the format [‘Si II’, ‘Ca I’, etc.]</p></td>
+<td colspan="4"><p>Species that are requested to be treated with IIP continuum interactions (radiative/collisional ionization and recombination) in the format [‘Si II’, ‘Ca I’, etc.]</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td><p><em>array</em></p></td>
+<td colspan="3"><p><em>array</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td></td>
+<td colspan="3"></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>enable_adiabatic_cooling</p></li>
 </ul>
 </td>
-<td colspan="2"><p>enables adiabatic cooling of the electron gas</p></td>
+<td colspan="4"><p>enables adiabatic cooling of the electron gas</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td><p><em>boolean</em></p></td>
+<td colspan="3"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td><p>False</p></td>
+<td colspan="3"><p>False</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>enable_two_photon_decay</p></li>
 </ul>
 </td>
-<td colspan="2"><p>enables two photon decay processes</p></td>
+<td colspan="4"><p>enables two photon decay processes</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td><p><em>boolean</em></p></td>
+<td colspan="3"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td><p>False</p></td>
+<td colspan="3"><p>False</p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="2"><p>False</p></td>
+<td colspan="4"><p>False</p></td>
 </tr>
 <tr class="row-even"><td rowspan="4"><ul class="simple">
 <li><p>helium_treatment</p></li>
 </ul>
 </td>
-<td colspan="3"><p>none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.</p></td>
+<td colspan="5"><p>none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-even"><td><p>enum</p></td>
-<td colspan="2"><p>none, recomb-nlte, numerical-nlte</p></td>
+<td colspan="4"><p>none, recomb-nlte, numerical-nlte</p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>none</p></td>
+<td colspan="4"><p>none</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>heating_rate_data_file</p></li>
 </ul>
 </td>
-<td colspan="3"><p>Path to file containing heating rate/light curve data.</p></td>
+<td colspan="5"><p>Path to file containing heating rate/light curve data.</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td colspan="2"><p>none</p></td>
+<td colspan="4"><p>none</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>link_t_rad_t_electron</p></li>
 </ul>
 </td>
-<td colspan="3"><p>Value used for estimating the electron temperature from radiation temperature.</p></td>
+<td colspan="5"><p>Value used for estimating the electron temperature from radiation temperature.</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>number</em></p></td>
+<td colspan="4"><p><em>number</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>0.9</p></td>
+<td colspan="4"><p>0.9</p></td>
 </tr>
 <tr class="row-even"><td><p>additionalProperties</p></td>
-<td colspan="3"><p>False</p></td>
+<td colspan="5"><p>False</p></td>
 </tr>
 </tbody>
 </table>
@@ -4601,6 +4684,39 @@ causes problems with the code (so <span class="math notranslate nohighlight">\(J
 This is useful for debugging with <a class="reference internal" href="../../../resources/zreferences.html#term-Chianti"><span class="xref std std-term">chianti</span></a> for example. Furthermore, one can enable ‘classical_nebular’ to set all
 <span class="math notranslate nohighlight">\(\beta_\textrm{Sobolev}\)</span> to 1. Both options are used for checking with other codes and should not be enabled in
 normal operations.</p>
+<section id="type-iip-macro-atom-reduction">
+<h3>Type IIP macro-atom reduction<a class="headerlink" href="#type-iip-macro-atom-reduction" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">plasma.continuum_interaction.markov_chain</span></code> section controls how Type IIP
+transport samples internal macro-atom transitions. Existing configurations use
+<code class="docutils literal notranslate"><span class="pre">mode:</span> <span class="pre">full</span></code>, which reduces the whole chain. <code class="docutils literal notranslate"><span class="pre">mode:</span> <span class="pre">explicit</span></code> samples every
+original transition and provides a reference for comparisons. Both modes require
+an empty <code class="docutils literal notranslate"><span class="pre">elements</span></code> list.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">mode:</span> <span class="pre">partial</span></code> with one or more element symbols to reduce internal jumps
+between selected atomic states:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">plasma</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">continuum_interaction</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">species</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">H I</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">markov_chain</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">partial</span>
+<span class="w">      </span><span class="nt">elements</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">H</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">include_thermal_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">include_ionization_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>For a multi-element selection, use <code class="docutils literal notranslate"><span class="pre">elements:</span> <span class="pre">[H,</span> <span class="pre">He,</span> <span class="pre">Fe]</span></code> when those elements
+are present in the assembled network. Duplicate symbols are harmless. A symbol
+selects all represented ions and levels of that element. This list is independent
+of continuum <code class="docutils literal notranslate"><span class="pre">species</span></code> and <code class="docutils literal notranslate"><span class="pre">nlte.species</span></code>: selecting an element does not
+enable additional continuum processes or change its equilibrium treatment.</p>
+<p>Both pool options default to <code class="docutils literal notranslate"><span class="pre">false</span></code>. Set <code class="docutils literal notranslate"><span class="pre">include_thermal_pool:</span> <span class="pre">true</span></code> to
+include the shared thermal state, <code class="docutils literal notranslate"><span class="pre">include_ionization_pool:</span> <span class="pre">true</span></code> to include
+the shared ionization state, or enable both. Internal transitions between any
+selected states are then collapsed, including paths through the enabled pools.
+Pool emission/cooling and jumps to unselected states remain explicit exit
+channels. These options require <code class="docutils literal notranslate"><span class="pre">mode:</span> <span class="pre">partial</span></code>; full mode already includes
+both pools, and explicit mode reduces neither.
+See <a class="reference internal" href="../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html"><span class="doc">Element-selected absorbing chains</span></a> for more.</p>
+</section>
 </section>
 </section>
 
@@ -4616,7 +4732,7 @@ normal operations.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Nov 2026.
+      <span class="lastupdated">Last updated on 04 Nov 2026.
       </span></p>
   </div>
 

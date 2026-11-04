@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5a86926e"></script>
+      <script src="_static/documentation_options.js?v=d86ba211"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -485,6 +485,7 @@
 <li class="toctree-l3"><a class="reference internal" href="physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -1381,7 +1382,16 @@
 <li class="toctree-l7"><a class="reference internal" href="api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.macro_level_to_reduced_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.reduced_to_macro_level_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.residual_probabilities</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -3854,7 +3864,10 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="io/configuration/components/plasma.html">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="io/configuration/components/plasma.html#continuum-interaction">Continuum Interaction</a></li>
-<li class="toctree-l5"><a class="reference internal" href="io/configuration/components/plasma.html#nlte">NLTE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="io/configuration/components/plasma.html#nlte">NLTE</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="io/configuration/components/plasma.html#type-iip-macro-atom-reduction">Type IIP macro-atom reduction</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="io/configuration/components/models/index.html">Models</a><ul>
@@ -4295,6 +4308,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.absolute_level_population">absolute_level_population (tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation attribute)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult">AbsorbingChainResult (class in tardis.opacities.macro_atom.absorbing_markov_chain)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.Abundance">Abundance (class in tardis.plasma.properties.plasma_input)</a>
 </li>
@@ -6734,6 +6749,8 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.macro_atom_interaction_iip">macro_atom_interaction_iip() (in module tardis.transport.montecarlo.macro_atom)</a>
 </li>
+      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx">macro_level_to_reduced_idx (tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult attribute)</a>
+</li>
       <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.LineInteractionType.MACROATOM">MACROATOM (tardis.transport.montecarlo.interaction_events.LineInteractionType attribute)</a>
 
       <ul>
@@ -6793,6 +6810,8 @@
 </li>
       </ul></li>
       <li><a href="api/tardis.io.util.html#tardis.io.util.MockRegexPattern.match">match() (tardis.io.util.MockRegexPattern method)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix">matrix (tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult attribute)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.max_levels">max_levels (tardis.visualization.widgets.grotrian.GrotrianPlot property)</a>
 </li>
@@ -8083,10 +8102,10 @@
 </li>
       <li><a href="api/tardis.io.model.readers.cmfgen_deprecated.html#tardis.io.model.readers.cmfgen_deprecated.read_cmfgen_density">read_cmfgen_density() (in module tardis.io.model.readers.cmfgen_deprecated)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.cmfgen.html#tardis.io.model.readers.cmfgen.read_cmfgen_model">read_cmfgen_model() (in module tardis.io.model.readers.cmfgen)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_csv_composition">read_csv_composition() (in module tardis.io.model.readers.generic_readers)</a>
 </li>
       <li><a href="api/tardis.io.model.readers.util.html#tardis.io.model.readers.util.read_csv_isotope_mass_fractions">read_csv_isotope_mass_fractions() (in module tardis.io.model.readers.util)</a>
@@ -8127,6 +8146,8 @@
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.recreate_legacy_macro_atom_state">recreate_legacy_macro_atom_state() (tardis.opacities.macro_atom.macroatom_state.MacroAtomState method)</a>
 </li>
+      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx">reduced_to_macro_level_idx (tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult attribute)</a>
+</li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.reformat_element_symbol">reformat_element_symbol() (in module tardis.util.base)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.refresh_packet_pbar">refresh_packet_pbar() (in module tardis.transport.montecarlo.progress_bars)</a>
@@ -8158,6 +8179,8 @@
       <li><a href="api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.reset_selected_plot_wavelength_range">reset_selected_plot_wavelength_range() (tardis.visualization.widgets.grotrian.GrotrianPlot method)</a>
 </li>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.PlasmaStateStorerMixin.reshape_plasma_state_store">reshape_plasma_state_store() (tardis.simulation.base.PlasmaStateStorerMixin method)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities">residual_probabilities (tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult attribute)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.util.html#tardis.io.atom_data.util.resolve_atom_data_fname">resolve_atom_data_fname() (in module tardis.io.atom_data.util)</a>
 </li>
@@ -8407,6 +8430,10 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full">solve_cell_full() (in module tardis.opacities.macro_atom.absorbing_markov_chain)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial">solve_cell_partial() (in module tardis.opacities.macro_atom.absorbing_markov_chain)</a>
+</li>
       <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_charge_balance">solve_charge_balance() (tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.collisional_ionization_rates.html#tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver.solve_coefficients">solve_coefficients() (tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver method)</a>
@@ -10819,7 +10846,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Nov 2026.
+      <span class="lastupdated">Last updated on 04 Nov 2026.
       </span></p>
   </div>
 

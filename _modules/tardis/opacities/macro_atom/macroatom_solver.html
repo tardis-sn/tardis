@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5a86926e"></script>
+      <script src="../../../../_static/documentation_options.js?v=d86ba211"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -485,6 +485,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -1381,7 +1382,16 @@
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.macro_level_to_reduced_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.reduced_to_macro_level_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.residual_probabilities</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -3854,7 +3864,10 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../io/configuration/components/plasma.html">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#continuum-interaction">Continuum Interaction</a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#nlte">NLTE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#nlte">NLTE</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#type-iip-macro-atom-reduction">Type IIP macro-atom reduction</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../io/configuration/components/models/index.html">Models</a><ul>
@@ -5114,6 +5127,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         selected_continuum_transitions: np.ndarray = np.array([]),
         line_interaction_type: str = &quot;macroatom&quot;,
         nthreads: int = 1,
+        markov_chain_mode: str = &quot;full&quot;,
+        markov_chain_elements: tuple[str, ...] = (),
+        markov_chain_include_thermal_pool: bool = False,
+        markov_chain_include_ionization_pool: bool = False,
     ) -&gt; None:
         &quot;&quot;&quot;
         Initialize the ContinuumMacroAtomSolver.
@@ -5136,6 +5153,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         nthreads
             Maximum number of worker threads for shell-independent opacity
             calculations.
+        markov_chain_mode : str
+            Full, element-selected partial, or explicit sampling.
+        markov_chain_elements : tuple of str
+            Element symbols selected independently of enabled continuum physics.
+        markov_chain_include_thermal_pool : bool
+            Include the shared thermal state in partial reduction.
+        markov_chain_include_ionization_pool : bool
+            Include the shared ionization state in partial reduction.
         &quot;&quot;&quot;
         super().__init__(
             lines=lines,
@@ -5168,6 +5193,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         # )
         self.ionization_energies = ionization_energies
         self.nthreads = nthreads
+        self.markov_chain_mode = markov_chain_mode
+        self.markov_chain_elements = tuple(markov_chain_elements)
+        self.markov_chain_include_thermal_pool = (
+            markov_chain_include_thermal_pool
+        )
+        self.markov_chain_include_ionization_pool = (
+            markov_chain_include_ionization_pool
+        )
 
 <div class="viewcode-block" id="ContinuumMacroAtomSolver.solve">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.solve">[docs]</a>
@@ -5319,6 +5352,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             photo_ion_block_idx,
             k_packet_idx,
+            macro_level_to_reduced_idx=self.macro_level_to_reduced_idx,
+            reduced_to_macro_level_idx=self.reduced_to_macro_level_idx,
         )</div>
 
 
@@ -5624,13 +5659,22 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         )
         # normalized_probabilities = probabilities_df  # Useful for debugging
 
-        (
-            absorbing_probability_matrix,
-            deactivating_probs,
-        ) = create_absorbing_probs(
+        chain_result = create_absorbing_probs(
             normalized_probabilities,
             macro_atom_transition_metadata,
+            mode=self.markov_chain_mode,
+            elements=self.markov_chain_elements,
+            include_thermal_pool=self.markov_chain_include_thermal_pool,
+            include_ionization_pool=self.markov_chain_include_ionization_pool,
             max_workers=self.nthreads,
+        )
+        absorbing_probability_matrix = chain_result.matrix
+        deactivating_probs = chain_result.residual_probabilities
+        self.macro_level_to_reduced_idx = (
+            chain_result.macro_level_to_reduced_idx
+        )
+        self.reduced_to_macro_level_idx = (
+            chain_result.reduced_to_macro_level_idx
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
@@ -5952,13 +5996,22 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df, macro_atom_transition_metadata
         )
-        (
-            absorbing_probability_matrix,
-            deactivating_probs,
-        ) = create_absorbing_probs(
+        chain_result = create_absorbing_probs(
             normalized_probabilities,
             macro_atom_transition_metadata,
+            mode=self.markov_chain_mode,
+            elements=self.markov_chain_elements,
+            include_thermal_pool=self.markov_chain_include_thermal_pool,
+            include_ionization_pool=self.markov_chain_include_ionization_pool,
             max_workers=self.nthreads,
+        )
+        absorbing_probability_matrix = chain_result.matrix
+        deactivating_probs = chain_result.residual_probabilities
+        self.macro_level_to_reduced_idx = (
+            chain_result.macro_level_to_reduced_idx
+        )
+        self.reduced_to_macro_level_idx = (
+            chain_result.reduced_to_macro_level_idx
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
@@ -6155,7 +6208,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Nov 2026.
+      <span class="lastupdated">Last updated on 04 Nov 2026.
       </span></p>
   </div>
 
