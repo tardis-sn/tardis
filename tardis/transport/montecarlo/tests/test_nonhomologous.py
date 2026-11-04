@@ -500,7 +500,13 @@ def test_nonhomologous_distance_preserves_near_line_center_root(
     line_search_packet: RPacket,
     distance_solver_geometry: NumbaRadial1DGeometry,
 ) -> None:
-    """Select the physical member of a close quartic root pair."""
+    """Claim: The distance solver selects the physical near-line-center root.
+
+    Regime: A tangential ray in a narrow linear-velocity shell, where squaring
+    the resonance equation produces a nearby nonphysical root.
+    Verification: The distance matches the reference physical root
+    0.14167578672128847 times the 1e12 cm shell width.
+    """
     shell_width = 1.0e12
     geometry, packet = distance_solver_geometry, line_search_packet
     line_velocity = 0.0566704
@@ -526,7 +532,13 @@ def test_nonhomologous_distance_rejects_sign_reversed_root(
     line_search_packet: RPacket,
     distance_solver_geometry: NumbaRadial1DGeometry,
 ) -> None:
-    """Select a root constructed from the unsquared resonance equation."""
+    """Claim: Squaring the resonance equation must not select a spurious root.
+
+    Regime: A tangential ray in a linear-velocity shell with a closer,
+    sign-reversed quartic root.
+    Verification: Construct the line frequency from the unsquared equation
+    at a prescribed projected position and recover that position as distance.
+    """
     shell_width = 1.0e12
     shell_velocity_difference = 2.5e5
     geometry, packet = distance_solver_geometry, line_search_packet
@@ -579,10 +591,13 @@ def test_nonhomologous_line_reappears_after_gradient_reversal(
         NumbaRadial1DGeometry, NDArray[np.float64], NDArray[np.float64], float
     ],
 ) -> None:
-    """Cross one line twice on a nonradial ray with a gradient reversal.
+    """Claim: A line contributes again after an interior gradient reversal.
 
-    The fixture provides analytic roots and gradients from the unsquared ray
-    equation, independently of the distance solver and estimator updates.
+    Regime: A nonradial ray in a linear-velocity shell with two resonances
+    and negligible electron opacity; line scattering is disabled.
+    Verification: The unsquared ray equation fixes both resonance positions
+    and gradients independently of the solver. Compare the turning point,
+    both distances, and the summed energy and blueward estimator contributions.
     """
     geometry, positions, gradients, expected_zero = gradient_reversal_setup
     packet = line_search_packet
@@ -657,10 +672,12 @@ def test_nonhomologous_search_resolves_two_close_lines(
     line_search_packet: RPacket,
     close_line_setup: tuple[NDArray[np.float64], NDArray[np.float64]],
 ) -> None:
-    """Count two nearby physical lines once each on a monotonic ray.
+    """Claim: Two nearby distinct lines each contribute on a monotonic ray.
 
-    The fixture derives both frequencies at prescribed distances from the
-    unsquared equation; local Doppler factors set the expected energies.
+    Regime: A nonradial ray in a positive-gradient shell, with resonances
+    separated by 1e7 cm, negligible electron opacity, and no line scattering.
+    Verification: Frequencies derived from the unsquared ray equation must
+    recover the prescribed distances and separate Doppler-weighted energies.
     """
     geometry, packet = line_search_geometry, line_search_packet
     positions, line_frequencies = close_line_setup
@@ -712,10 +729,13 @@ def test_nonhomologous_frequency_changing_emission_starts_new_line_history(
     line_search_packet: RPacket,
     frequency_changing_emission_setup: tuple[float, float, float],
 ) -> None:
-    """Allow a previously crossed line after emission at a higher frequency.
+    """Claim: Emission at a higher rest frequency starts a new line history.
 
-    Analytic input frequencies place both crossings at prescribed distances;
-    the test moves and re-emits the packet with the production routines.
+    Regime: Two lines in a monotonic nonhomologous flow, with absorption in
+    the lower-frequency line followed by emission in the higher-frequency one.
+    Verification: The unsquared ray equation prescribes crossings at 1e12 cm
+    and 3e12 cm after emission. Check both events, the emitted cursor pair,
+    and the repeated line's new Doppler-weighted energy contribution.
     """
     geometry, packet = line_search_geometry, line_search_packet
     first_line_distance, repeated_line_distance, initial_comov_frequency = (
@@ -867,7 +887,14 @@ def test_nonhomologous_emission_processes_eligible_blend_at_zero_distance(
     blend_estimators: EstimatorsLine,
     blend_trace: Callable[..., tuple[float, InteractionType, int]],
 ) -> None:
-    """Exclude the emitting ID but process its directional twin at zero distance."""
+    """Claim: Emission excludes its own ID while leaving a blend twin eligible.
+
+    Regime: A radial ray with finite redward or blueward drift, three
+    equal-frequency transitions, and emission in the middle transition.
+    Verification: The directional twin scatters at exactly zero distance and
+    receives the analytic comoving energy and blueward contributions; all
+    other transition channels remain zero.
+    """
     gradient, _ = blend_velocity_parameters
     blend_opacity_state.sobolev_optical_depth_coefficient[:] = 2.0 * abs(
         gradient
@@ -921,7 +948,14 @@ def test_nonhomologous_blend_members_share_resonance_contributions(
     blend_estimators: EstimatorsLine,
     blend_trace: Callable[..., tuple[float, InteractionType, int]],
 ) -> None:
-    """Each equal-frequency member contributes once at the prescribed resonance."""
+    """Claim: Every blend member contributes once at the common resonance.
+
+    Regime: Three equal-frequency transitions on a radial ray in either drift
+    direction, with finite gradient and line scattering disabled.
+    Verification: The prescribed frequency gives a resonance at 1e12 cm.
+    Each channel receives E_comov and E_comov / (nu_lab * abs(G)), and the
+    trace reaches the boundary.
+    """
     gradient, _ = blend_velocity_parameters
     line_frequency = blend_opacity_state.line_list_nu[0]
     expected_energy = blend_packet.energy * line_frequency / blend_packet.nu
@@ -967,7 +1001,14 @@ def test_nonhomologous_blend_optical_depth_accumulates_in_order(
     blend_estimators: EstimatorsLine,
     blend_trace: Callable[..., tuple[float, InteractionType, int]],
 ) -> None:
-    """Depths 0.6 then 0.6 cross event depth one in the second member."""
+    """Claim: Blend optical depths accumulate in directional traversal order.
+
+    Regime: A radial ray in either drift direction meets three transitions
+    at 1e12 cm, with ordered depths 0.6, 0.6, and 2 and event depth one.
+    Verification: Neither of the first two depths suffices alone; their sum
+    selects the second member. Only the first two channels receive analytic
+    energy and blueward contributions.
+    """
     gradient, _ = blend_velocity_parameters
     # Neither of the first two depths can select a line without accumulation.
     depths = np.array([0.6, 0.6, 2.0])[::blend_line_id_step]
@@ -1022,7 +1063,14 @@ def test_processed_line_survives_monotonic_boundary_return(
     bulk_estimators: EstimatorsBulk,
     blend_trace: Callable[..., tuple[float, InteractionType, int]],
 ) -> None:
-    """A blend passed 200 cm upstream is not replayed across a continuous edge."""
+    """Claim: A continuous boundary return preserves processed-line history.
+
+    Regime: A radial ray with unchanged drift sign crosses a blend 200 cm
+    before a velocity-continuous shell edge, within the next trace's close
+    band. Line scattering is disabled and electron opacity is negligible.
+    Verification: Each transition receives one analytic energy and blueward
+    contribution upstream and exactly zero contribution downstream.
+    """
     gradient, intercept = blend_velocity_parameters
     inner = np.array([1.0e14, 1.5e14])
     outer = np.array([1.5e14, 2.0e14])
@@ -1086,7 +1134,14 @@ def test_equal_frequency_different_line_emission_restarts_blend_search(
     bulk_estimators: EstimatorsBulk,
     blend_trace: Callable[..., tuple[float, InteractionType, int]],
 ) -> None:
-    """Absorb in ID 1, emit in equal-frequency ID 0, then encounter ID 1 again."""
+    """Claim: Different-ID emission resets history even at equal rest frequency.
+
+    Regime: A radial redshifting ray absorbs in ID 1 and emits in
+    equal-frequency ID 0. ID 1 has depth two and each trace has event depth one.
+    Verification: Both flights select ID 1; the second does so at zero
+    distance. Compare each flight's analytic energy and blueward contributions
+    and require no new contribution from emitting ID 0 on the second flight.
+    """
     gradient, _ = blend_velocity_parameters
     blend_opacity_state.sobolev_optical_depth_coefficient[1, 0] = 2.0 * abs(
         gradient
@@ -1171,7 +1226,14 @@ def test_nonhomologous_cursor_initialization_includes_start_band(
     line_search_packet: RPacket,
     frequency_offset: float,
 ) -> None:
-    """Include exact twins and ordinary lines within the 10 Hz lab-frame band."""
+    """Claim: Cursor initialization and range admission include the close band.
+
+    Regime: A 1e15 Hz lab frequency and 0.95e15 Hz comoving frequency, with
+    exact twins or lines offset by 9.75 Hz inside the 10 Hz starting band.
+    Verification: Exact cursor IDs include both starting candidates. The
+    padded redward range admits the candidate 9.75 Hz above the start that
+    comoving-frequency padding would exclude. This verifies bookkeeping.
+    """
     frequency = 0.95e15
     frequencies = np.array(
         [
@@ -1204,7 +1266,14 @@ def test_nonhomologous_cursor_refresh_preserves_active_direction(
     active_line_id_step: int,
     expected_ids: tuple[int, int],
 ) -> None:
-    """Refresh the opposite cursor without replacing processed-line history."""
+    """Claim: Refreshing the opposite cursor preserves the active exclusion.
+
+    Regime: Three descending line frequencies with hand-seeded cursors that
+    exclude the central line, tested for each active search direction.
+    Verification: Compare the exact cursor pair with independently prescribed
+    IDs: the active cursor stays fixed and the opposite one includes the
+    central line. This verifies cursor bookkeeping.
+    """
     frequencies = np.array([1.001e15, 1.0e15, 0.999e15])
     line_search_packet.next_line_id = 2
     line_search_packet.prev_line_id = 0
@@ -1305,9 +1374,12 @@ def test_nonhomologous_move_packet_across_shell_boundary_emitted(
     no_of_shells: int,
     static_packet: RPacket,
 ) -> None:
-    """
-    Analogous to
-    tardis/transport/montecarlo/tests/test_montecarlo.py@test_move_packet_across_shell_boundary_emitted
+    """Claim: Crossing beyond the outermost shell marks the packet as emitted.
+
+    Regime: Prescribed shell IDs and outward steps whose destination is at
+    or beyond the number of shells.
+    Verification: The packet status is exactly EMITTED after the crossing.
+    This verifies boundary bookkeeping.
     """
     packet = static_packet
     packet.current_shell_id = current_shell_id
@@ -1325,9 +1397,12 @@ def test_nonhomologous_move_packet_across_shell_boundary_reabsorbed(
     no_of_shells: int,
     static_packet: RPacket,
 ) -> None:
-    """
-    Analogous to
-    tardis/transport/montecarlo/tests/test_montecarlo.py@test_move_packet_across_shell_boundary_reabsorbed
+    """Claim: Crossing inside the innermost shell marks the packet as reabsorbed.
+
+    Regime: Prescribed shell IDs and inward steps with a negative destination
+    shell ID.
+    Verification: The packet status is exactly REABSORBED after the crossing.
+    This verifies boundary bookkeeping.
     """
     packet = static_packet
     packet.current_shell_id = current_shell_id
@@ -1345,9 +1420,12 @@ def test_nonhomologous_move_packet_across_shell_boundary_increment(
     no_of_shells: int,
     static_packet: RPacket,
 ) -> None:
-    """
-    Analogous to
-    tardis/transport/montecarlo/tests/test_montecarlo.py@test_move_packet_across_shell_boundary_increment
+    """Claim: An internal crossing updates the shell ID by the requested step.
+
+    Regime: Prescribed shell IDs and steps whose destination remains inside
+    the shell array, including a zero step.
+    Verification: The final shell ID equals the initial ID plus the step.
+    This verifies boundary bookkeeping.
     """
     packet = static_packet
     packet.current_shell_id = current_shell_id

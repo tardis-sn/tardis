@@ -526,6 +526,14 @@ def test_nonhomologous_trace_packet(
     expected_prev_line_id: int,
     regression_data,
 ) -> None:
+    """Claim: The tracer selects the expected event and directional cursors.
+
+    Regime: Seeded, first-order nonhomologous transport across prescribed
+    velocity gradients and line and electron opacity cases.
+    Verification: Check event type, shell step, and exact cursor IDs, then
+    compare distance and both line estimator arrays with stored regression
+    data. This provides regression evidence for existing transport results.
+    """
     set_seed_fixture(1963)
 
     update_line_ids(
@@ -581,6 +589,13 @@ def test_nonhomologous_trace_packet_no_line_fallthrough(
     set_seed_fixture,
     regression_data,
 ) -> None:
+    """Claim: An exhausted redward line search still permits electron scattering.
+
+    Regime: A seeded nonhomologous trace starting redward of the available
+    lines, with a distant outer boundary and finite electron opacity.
+    Verification: The tracer returns ESCATTERING with the exhausted cursor
+    pair (2, 1); distance and blueward estimators match stored regression data.
+    """
     # Start beyond the available line list to lock in the no-line fallthrough.
     set_seed_fixture(1963)
 

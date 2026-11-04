@@ -339,6 +339,14 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
     first_interaction: InteractionType,
     regression_data,
 ) -> None:
+    """Claim: Nonhomologous propagation dispatches and records each event type.
+
+    Regime: Numba-disabled propagation with mocked boundary, line, or electron
+    events followed by escape; interaction physics is mocked.
+    Verification: Check the dispatched event, final boundary, and emitted
+    status, then compare packet state and estimators with regression data.
+    This provides orchestration and regression evidence.
+    """
     # Force the nonhomologous loop through one selected interaction, then an
     # outer boundary, so this characterizes dispatch bookkeeping directly.
     interactions = [(1.0e12, first_interaction, 1)]
@@ -393,12 +401,13 @@ def test_nonhomologous_packet_loop_preserves_emitted_line_cursors(
     recording_tracker: _RecordingTracker,
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> None:
-    """Preserve the emitted line's directional exclusions at the next trace.
+    """Claim: The packet loop preserves the emitted line's directional cursors.
 
-    The mocked line handler emits line 0. The next trace must see line 1 as
-    its redward cursor and -1 as its blueward cursor, preserving the handler's
-    exclusion of the emitted ID in both directions. This checks loop wiring;
-    physical crossings and emission are tested separately.
+    Regime: Numba-disabled propagation in a negative-gradient shell, with a
+    mocked line event, emission in ID 0, and subsequent boundary events.
+    Verification: The next trace receives the exact cursor pair (1, -1)
+    assigned by the emission handler, and the packet escapes. This verifies
+    orchestration; physical crossings and emission are tested separately.
     """
     nonhomologous_propagation.packet_propagation(
         parametrized_packet,
