@@ -268,12 +268,9 @@ class ContinuumOpacityState:
             *continuum_arrays,
             photo_ion_activation_idx,
             np.int64(macro_atom_state.k_packet_idx),
-            (
-                np.empty((0, 0, 0), dtype=np.float64)
-                if getattr(macro_atom_state, "transition_mode", "absorbing")
-                == "direct"
-                else macro_atom_state.absorbing_probability_matrix
-            ),
+            macro_atom_state.absorbing_probability_matrix,
+            macro_atom_state.macro_level_to_reduced_idx,
+            macro_atom_state.reduced_to_macro_level_idx,
         )
 
     @property

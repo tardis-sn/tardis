@@ -31,7 +31,7 @@ from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_state import OpacityState
 from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
-    macro_atom_interaction,
+    macro_atom_interaction_iip,
 )
 
 
@@ -296,17 +296,19 @@ def test_direct_continuum_macro_atom_retains_internal_transitions(
 
     Verification
     ------------
-    Independently sum probabilities by source and reject any absorbing solve.
+    Independently sum probabilities by source and reject any factorization.
     """
 
     def reject_absorbing_solve(*args: object, **kwargs: object) -> None:
-        raise AssertionError("Direct mode called the absorbing-chain solver")
+        raise AssertionError(
+            "Explicit mode called an absorbing-chain factorization"
+        )
 
     monkeypatch.setattr(
-        "tardis.opacities.macro_atom.macroatom_solver.create_absorbing_probs",
+        "tardis.opacities.macro_atom.absorbing_markov_chain.splu",
         reject_absorbing_solve,
     )
-    continuum_macro_atom_solver.transition_mode = "direct"
+    continuum_macro_atom_solver.markov_chain_mode = "explicit"
     for _ in range(2):
         state = continuum_macro_atom_solver.solve(
             continuum_solver_input_data["mean_intensities_blue_wing"],
@@ -321,7 +323,20 @@ def test_direct_continuum_macro_atom_retains_internal_transitions(
         active_totals = totals.loc[(totals != 0.0).any(axis=1)]
         np.testing.assert_allclose(active_totals, 1.0, rtol=1e-12, atol=1e-12)
         assert (state.transition_metadata.transition_type.to_numpy() >= 0).any()
-        assert state.absorbing_probability_matrix is None
+        assert state.absorbing_probability_matrix.shape == (5, 0, 0)
+        np.testing.assert_array_equal(state.macro_level_to_reduced_idx, -1)
+        assert state.reduced_to_macro_level_idx.size == 0
+        np.testing.assert_array_equal(
+            state.transition_probabilities.to_numpy() == 0.0,
+            state.normalized_deactivating_probs.to_numpy() == 0.0,
+        )
+        pd.testing.assert_frame_equal(
+            state.transition_probabilities,
+            state.normalized_deactivating_probs,
+            rtol=1e-12,
+            atol=0.0,
+            check_exact=False,
+        )
         assert continuum_macro_atom_solver.line_interaction_type == "macroatom"
 
 
@@ -345,7 +360,7 @@ def test_direct_continuum_macro_atom_compiles_for_transport(
     ------------
     Convert the Python opacity state and observe a deactivating transition.
     """
-    continuum_macro_atom_solver.transition_mode = "direct"
+    continuum_macro_atom_solver.markov_chain_mode = "explicit"
     inputs = continuum_solver_input_data
     macro_state = continuum_macro_atom_solver.solve(
         inputs["mean_intensities_blue_wing"],
@@ -383,15 +398,23 @@ def test_direct_continuum_macro_atom_compiles_for_transport(
         continuum_state, np.full(shell_count, 6000.0), macro_state
     )
 
-    assert continuum_numba.absorbing_markov_probabilities.shape == (0, 0, 0)
+    assert continuum_numba.absorbing_markov_probabilities.shape == (
+        shell_count,
+        0,
+        0,
+    )
     assert numba_state.transition_probabilities.shape == (
         len(macro_state.transition_metadata),
         shell_count,
     )
-    _, transition_type = macro_atom_interaction(
-        int(numba_state.line2macro_level_upper[0]), 0, numba_state
+    _, transition_type = macro_atom_interaction_iip(
+        int(numba_state.line2macro_level_upper[0]),
+        0,
+        numba_state,
+        continuum_numba,
     )
     assert transition_type < 0
+    assert macro_atom_interaction_iip.nopython_signatures
 
 
 class TestContinuumMacroAtomSolver:

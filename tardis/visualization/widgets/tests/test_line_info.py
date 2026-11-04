@@ -153,17 +153,19 @@ class TestLineInfoWidgetEvents:
             None,  # No selection of wavelength range
         ],
     )
-    def liw_with_selection(self, simulation_simple_tracked, request, monkeysession):
+    def liw_with_selection(self, simulation_simple_tracked, request):
         """
         Makes different wavelength range selection on figure (specified by
         params) after creating a LineInfoWidget object.
         """
         liw = LineInfoWidget.from_simulation(simulation_simple_tracked)
-        monkeysession.setattr(
-            "tardis.util.environment.Environment.is_notebook", lambda: True
-        )
         # To attach event listeners to component widgets of line_info_widget
-        _ = liw.display()
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(
+                "tardis.util.environment.Environment.is_notebook",
+                lambda: True,
+            )
+            _ = liw.display()
 
         selection_range = request.param
 

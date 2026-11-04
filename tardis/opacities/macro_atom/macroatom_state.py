@@ -1,6 +1,7 @@
 from typing import Self
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
@@ -9,7 +10,7 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 class LegacyMacroAtomState(HDFWriterMixin):
-    """Legacy line-only macro-atom probabilities and transition metadata."""
+    """Store legacy macro-atom transition arrays for transport and HDF output."""
 
     hdf_name = "macro_atom_state"
 
@@ -29,7 +30,7 @@ class LegacyMacroAtomState(HDFWriterMixin):
         destination_level_id: pd.Series,
         transition_line_id: pd.Series,
         macro_block_edge_index: pd.DataFrame | pd.Series,
-        line2macro_level_upper: pd.Series | np.ndarray,
+        line2macro_level_upper: np.ndarray | pd.Series,
     ) -> None:
         """
         Initialize a LegacyMacroAtomState object.
@@ -99,7 +100,7 @@ class LegacyMacroAtomState(HDFWriterMixin):
 
 
 class MacroAtomState:
-    """Normalized macro-atom transitions and optional absorbing-chain data."""
+    """Carry original rates, residual channels, and reduced-state identities."""
 
     hdf_name = "macro_atom_state"
 
@@ -120,7 +121,8 @@ class MacroAtomState:
         absorbing_probability_matrix: np.ndarray | None = None,
         photo_ion_block_idx: int = -99,
         k_packet_idx: int = -99,
-        transition_mode: str = "absorbing",
+        macro_level_to_reduced_idx: npt.NDArray[np.int64] | None = None,
+        reduced_to_macro_level_idx: npt.NDArray[np.int64] | None = None,
     ) -> None:
         """
         Initialize a MacroAtomState object.
@@ -141,9 +143,12 @@ class MacroAtomState:
             Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
         k_packet_idx:
             Int describing the index location of the k_packet block
-        transition_mode
-            ``"absorbing"`` for the reduced transition matrix or ``"direct"``
-            for explicit packet-by-packet internal transitions.
+        macro_level_to_reduced_idx : numpy.ndarray, optional
+            Full transition index to markov-chain reduced index.
+            Tells the MC RT step how to leave and enter the absorbing matrix.
+        reduced_to_macro_level_idx : numpy.ndarray, optional
+            Inverse map from compact matrix indices to global macro levels.
+            Tells the MC RT step how to leave and enter the absorbing matrix.
         """
         self.transition_probabilities = transition_probabilities
         self.transition_metadata = transition_metadata
@@ -154,7 +159,22 @@ class MacroAtomState:
         self.absorbing_probability_matrix = absorbing_probability_matrix
         self.photo_ion_block_idx = photo_ion_block_idx
         self.k_packet_idx = k_packet_idx
-        self.transition_mode = transition_mode
+        if (
+            macro_level_to_reduced_idx is None
+            and absorbing_probability_matrix is not None
+        ):
+            macro_level_to_reduced_idx = np.arange(
+                absorbing_probability_matrix.shape[1], dtype=np.int64
+            )
+        if (
+            reduced_to_macro_level_idx is None
+            and absorbing_probability_matrix is not None
+        ):
+            reduced_to_macro_level_idx = np.arange(
+                absorbing_probability_matrix.shape[1], dtype=np.int64
+            )
+        self.macro_level_to_reduced_idx = macro_level_to_reduced_idx
+        self.reduced_to_macro_level_idx = reduced_to_macro_level_idx
 
     def to_legacy_format(self) -> LegacyMacroAtomState:
         """

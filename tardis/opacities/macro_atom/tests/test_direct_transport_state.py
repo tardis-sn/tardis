@@ -33,8 +33,8 @@ def test_direct_continuum_event_follows_internal_transition() -> None:
     """An internal jump followed by certain line emission has a known frequency.
 
     Regime: two macro levels in one static shell, with deterministic 0->1
-    internal transition and 1->line deactivation. The absent absorbing matrix
-    must select direct traversal. Verification uses unit branch probabilities
+    internal transition and 1->line deactivation. Empty reduction maps retain
+    explicit traversal. Verification uses unit branch probabilities
     and the prescribed emitted frequency 2e14 Hz, not a saved implementation
     output. Relative tolerance 1e-14 allows floating-point frame transforms.
     This also compiles the actual IIP event handler with split Numba states.
@@ -51,13 +51,14 @@ def test_direct_continuum_event_follows_internal_transition() -> None:
         dtype=np.int64,
     )
     macro_state = SimpleNamespace(
-        transition_mode="direct",
         transition_probabilities=pd.DataFrame([[1.0], [1.0]]),
-        normalized_deactivating_probs=None,
+        normalized_deactivating_probs=pd.DataFrame([[1.0], [1.0]]),
         line2macro_level_upper=pd.Series([0], dtype=np.int64),
         macro_block_edge_index=np.array([0, 1, 2], dtype=np.int64),
         transition_metadata=metadata,
-        absorbing_probability_matrix=None,
+        absorbing_probability_matrix=np.empty((1, 0, 0)),
+        macro_level_to_reduced_idx=np.full(3, -1, dtype=np.int64),
+        reduced_to_macro_level_idx=np.empty(0, dtype=np.int64),
         photo_ion_block_idx=-1,
         k_packet_idx=2,
     )
@@ -86,7 +87,7 @@ def test_direct_continuum_event_follows_internal_transition() -> None:
         macro_state, "macroatom", continuum_processes_enabled=True
     )
     continuum_numba = continuum.to_numba(np.array([8000.0]), macro_state)
-    assert continuum_numba.absorbing_markov_probabilities.shape == (0, 0, 0)
+    assert continuum_numba.absorbing_markov_probabilities.shape == (1, 0, 0)
     packet = RPacket(0.0, 0.0, 1e14, 1.0, 123)
     macro_atom_event(0, packet, 1e6, lines_numba, False, continuum_numba)
     assert macro_atom_event.nopython_signatures

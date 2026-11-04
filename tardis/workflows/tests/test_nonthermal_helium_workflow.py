@@ -1376,12 +1376,100 @@ def helium_optical_workflow(
     )
     # The classic bootstrap has no continuum; the specialized owner adds He I.
     config.plasma.continuum_interaction.species = []
+    config.montecarlo.nthreads = 1
+    config.plasma.continuum_interaction.nthreads = 2
     return NonthermalHeliumOpticalWorkflow(
         config,
         continuum_interaction_species=("He I",),
         show_progress_bars=False,
         log_level="ERROR",
     )
+
+
+def test_helium_workflow_uses_explicit_continuum_mode(
+    helium_optical_workflow: NonthermalHeliumOpticalWorkflow,
+) -> None:
+    """Keep continuum traversal explicit despite the global full-mode default.
+
+    Orchestration claim: the actual workflow factory chooses the upstream
+    explicit continuum path and independent opacity-worker limit, not optical
+    Monte Carlo threads. The fixture specifies two opacity workers and one
+    transport worker; exact comparisons detect default-full regressions.
+    """
+    workflow = helium_optical_workflow
+    solver = workflow.macro_atom_solver
+    assert (
+        workflow.configuration.plasma.continuum_interaction.markov_chain.mode
+        == "full"
+    )
+    assert solver.markov_chain_mode == "explicit"
+    assert solver.markov_chain_elements == ()
+    assert not solver.markov_chain_include_thermal_pool
+    assert not solver.markov_chain_include_ionization_pool
+    assert solver.nthreads == 2
+    assert workflow.configuration.montecarlo.nthreads == 1
+
+
+def test_helium_explicit_transport_refreshes_evaluator_estimators(
+    helium_optical_workflow: NonthermalHeliumOpticalWorkflow,
+) -> None:
+    """Carry two actual transport steps into fixed-estimator helium rates.
+
+    Orchestration verification on the three-shell real-data H/He fixture,
+    without the high-energy workflow or a nonlinear plasma convergence run.
+    Check the Lucy path-length photoionization normalization independently:
+    raw estimator / (h t V), multiplied by the target-intensity damping.
+    rtol=1e-12 permits only arithmetic roundoff in that normalization. This
+    catches stale transport estimators and regression to reduced traversal;
+    it is not an end-to-end nonthermal-population equivalence test.
+    """
+    workflow = helium_optical_workflow
+    previous_estimators = None
+    for iteration in range(2):
+        workflow.completed_iterations = iteration
+        opacity_states = workflow.solve_opacity()
+        macro_state = opacity_states["macro_atom_state"]
+        assert macro_state.absorbing_probability_matrix.shape == (3, 0, 0)
+        npt.assert_array_equal(macro_state.macro_level_to_reduced_idx, -1)
+        workflow.solve_montecarlo(opacity_states, no_of_real_packets=20000)
+        workflow._capture_continuum_estimators()
+        assert workflow._continuum_estimators is not previous_estimators
+        previous_estimators = workflow._continuum_estimators
+
+        state = workflow._current_plasma_state()
+        evaluator = workflow.build_helium_evaluator(
+            state, FixedRateState(), (2, 0)
+        )
+        rate_solver = evaluator.ion_population_solver.rate_matrix_solver.radiative_ionization_rate_solver
+        actual, _, _ = rate_solver.solve_coefficients(
+            state.electron_temperature * u.K
+        )
+        transport = workflow.transport_state
+        volume = transport.geometry_state_numba.volume
+        time = transport.time_of_simulation.value
+        target_intensity = (
+            workflow.simulation_state.dilution_factor
+            * workflow.simulation_state.t_radiative.value**4
+            * const.sigma_sb.cgs.value
+            / np.pi
+        )
+        measured_intensity = transport.estimators_bulk.mean_intensity_total / (
+            4.0 * np.pi * time * volume
+        )
+        damping = target_intensity / measured_intensity
+        expected = (
+            transport.estimators_continuum.photo_ion_estimator
+            / (const.h.cgs.value * time * volume)
+            * damping
+        )
+        # Continuum arrays are reordered by their declared edge identities.
+        edge_positions = workflow.plasma_solver.level2continuum_idx.to_numpy(
+            dtype=int
+        )
+        assert np.any(expected > 0.0)
+        npt.assert_allclose(
+            np.asarray(actual), expected[edge_positions], rtol=1e-12, atol=0.0
+        )
 
 
 def test_helium_evaluator_constructs_nebular_background(

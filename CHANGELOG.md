@@ -1,5 +1,17 @@
 ## Changelog
 
+### release-2026.11.02 (2026/11/02 09:39)
+- [3805](https://github.com/tardis-sn/tardis/pull/3805) Pre-release 2026.11.01 (3805) (@tardis-bot)
+- [3787](https://github.com/tardis-sn/tardis/pull/3787) Resolve issues with fixtures that change with test order (3787) (@andrewfullard)
+- [3803](https://github.com/tardis-sn/tardis/pull/3803) Separate out opacity solve threads from montecarlo threads in iip workflow (3803) (@jvshields)
+- [3768](https://github.com/tardis-sn/tardis/pull/3768) Fix issue 1673, CSVY parsing (3768) (@andrewfullard)
+- [3790](https://github.com/tardis-sn/tardis/pull/3790) Agents.md  update (3790) (@andrewfullard)
+- [3766](https://github.com/tardis-sn/tardis/pull/3766) Convert .values to .to_numpy for dataframes (3766) (@andrewfullard)
+- [3800](https://github.com/tardis-sn/tardis/pull/3800) Fix uniform frequency grid assertion (3800) (@connor-mcclellan)
+- [3796](https://github.com/tardis-sn/tardis/pull/3796) Fix two IIP solver crashes related to duplicate lines and small Boltzmann factors (3796) (@andrewfullard)
+- [3759](https://github.com/tardis-sn/tardis/pull/3759) Clean out old Monte Carlo tests and replace with new ones (3759) (@andrewfullard)
+- [3738](https://github.com/tardis-sn/tardis/pull/3738) Basic post-processing of vpackets (3738) (@andrewfullard)
+- [3795](https://github.com/tardis-sn/tardis/pull/3795) Post-release 2026.10.25 (3795) (@tardis-bot)
 ### release-2026.10.25 (2026/10/24 21:46)
 - [3794](https://github.com/tardis-sn/tardis/pull/3794) Pre-release 2026.10.25 (3794) (@tardis-bot)
 - [3782](https://github.com/tardis-sn/tardis/pull/3782) IIP workflow convergence fixes (3782) (@andrewfullard)

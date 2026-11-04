@@ -140,13 +140,15 @@ class TestShellInfoWidget:
     select_ion_idx = 3
 
     @pytest.fixture(scope="class")
-    def shell_info_widget(self, base_shell_info, monkeysession):
+    def shell_info_widget(self, base_shell_info):
         shell_info_widget = ShellInfoWidget(base_shell_info)
-        monkeysession.setattr(
-            "tardis.util.environment.Environment.is_notebook", lambda: True
-        )
         # To attach event listeners to table widgets of shell_info_widget
-        _ = shell_info_widget.display()
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(
+                "tardis.util.environment.Environment.is_notebook",
+                lambda: True,
+            )
+            _ = shell_info_widget.display()
         return shell_info_widget
 
     def test_selection_on_shells_table(

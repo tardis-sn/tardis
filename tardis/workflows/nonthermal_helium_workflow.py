@@ -1271,8 +1271,8 @@ class NonthermalHeliumOpticalWorkflow(StandardTARDISWorkflow):
                 factory.continuum_interaction_species_multi_index.tolist()
             ),
             line_interaction_type="macroatom",
-            nthreads=configuration.montecarlo.nthreads,
-            transition_mode="direct",
+            nthreads=configuration.plasma.continuum_interaction.nthreads,
+            markov_chain_mode="explicit",
         )
         self.transport_state = None
         self.transport_solver = MCTransportSolverIIP.from_config(

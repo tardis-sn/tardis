@@ -172,10 +172,6 @@ class OpacityState:
                 (
                     macro_atom_state.normalized_deactivating_probs
                     if continuum_processes_enabled
-                    and getattr(
-                        macro_atom_state, "transition_mode", "absorbing"
-                    )
-                    != "direct"
                     else macro_atom_state.transition_probabilities
                 )
                 .to_numpy()

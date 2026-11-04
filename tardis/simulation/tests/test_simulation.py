@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import astropy.units as u
 import numpy as np
 import pandas as pd
@@ -72,8 +74,9 @@ def test_plasma_estimates(simulation_one_loop, attr, regression_data):
     pd.testing.assert_series_equal(actual, expected, rtol=1e-5, atol=1e-8)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def simulation_without_loop(atomic_data_fname, config):
+    config = deepcopy(config)
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
     return Simulation.from_config(config)

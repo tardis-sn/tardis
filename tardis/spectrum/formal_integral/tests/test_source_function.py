@@ -20,10 +20,11 @@ def source_function_verysimple(request, config_verysimple, atomic_dataset):
     Generate the source function state from the simulation.
     """
 
-    config_verysimple["plasma"]["line_interaction_type"] = request.param
+    config = deepcopy(config_verysimple)
+    config["plasma"]["line_interaction_type"] = request.param
     print(f"Using line interaction type: {request.param}")
     atomic_data = deepcopy(atomic_dataset)
-    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    sim = Simulation.from_config(config, atom_data=atomic_data)
     sim.last_no_of_packets = 4000
     sim.run_final()
 

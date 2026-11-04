@@ -8,7 +8,7 @@ from tardis.transport.montecarlo.packet_source.black_body_weighted import (
 
 
 class TestBlackBodyWeightedSource:
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="function")
     def blackbodyweightedsource(self, request):
         """
         Create BlackBodyWeightedSource instance.

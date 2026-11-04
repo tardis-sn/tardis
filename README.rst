@@ -114,14 +114,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_23631067
+.. |CITATION| replace:: kerzendorf_2026_23888045
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.3631067-blue
-                 :target: https://doi.org/10.5281/zenodo.3631067
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.3888045-blue
+                 :target: https://doi.org/10.5281/zenodo.3888045
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_23631067,
+    @software{kerzendorf_2026_23888045,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -161,8 +161,8 @@ The following BibTeX entries are needed for the references:
                       Rathi, Shikha and
                       Chitchyan, Sona and
                       Gillanders, James and
-                      Marie Lynn, Haille and
                       McClellan, Connor and
+                      Marie Lynn, Haille and
                       Gupta, Sumit and
                       Savel, Arjun and
                       Singh, Shreyas and
@@ -248,13 +248,13 @@ The following BibTeX entries are needed for the references:
                       Sharma, Sampark and
                       Venkat, Shashank and
                       Prasad, Shilpi},
-      title        = {tardis-sn/tardis: TARDIS v2026.10.25},
-      month        = oct,
+      title        = {tardis-sn/tardis: TARDIS v2026.11.02},
+      month        = nov,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.10.25},
-      doi          = {10.5281/zenodo.23631067},
-      url          = {https://doi.org/10.5281/zenodo.23631067},
+      version      = {release-2026.11.02},
+      doi          = {10.5281/zenodo.23888045},
+      url          = {https://doi.org/10.5281/zenodo.23888045},
     }
 
 
