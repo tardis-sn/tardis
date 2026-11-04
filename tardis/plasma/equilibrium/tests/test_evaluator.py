@@ -9,19 +9,122 @@ from astropy import units as u
 from numpy.typing import ArrayLike, NDArray
 from scipy.optimize import root as scipy_root
 
+from tardis import constants as const
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
 from tardis.plasma.equilibrium.evaluator import (
     PlasmaEquilibriumEvaluator,
+    calculate_lte_populations,
 )
 from tardis.plasma.equilibrium.inputs import (
+    DiluteRadiationInputs,
+    FixedRateState,
     ShellNumberDensity,
     SobolevInputs,
 )
-from tardis.plasma.equilibrium.rate_matrix import RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    RateMatrix,
+    assemble_ion_rate_matrices,
+)
 from tardis.plasma.equilibrium.rates import RadiativeRatesSolver
 from tardis.transport.montecarlo.estimators import init_estimators_continuum
+
+
+@pytest.mark.parametrize("temperature_ratio", [0.5, 1.0, 1.5])
+def test_nebular_factor_has_ground_recombination_limit(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    temperature_ratio: float,
+) -> None:
+    """For zeta=delta=1, nebular Phi is W sqrt(Te/Trad) times Saha Phi.
+
+    Regime: one two-level hydrogen atom, fixed Trad=10000 K and W=0.2.
+    The analytic Saha equation and the nebular limiting expression supply an
+    independent oracle; rtol=1e-13 permits only floating-point arithmetic.
+    Varying Te tests candidate dependence rather than a frozen LTE fallback.
+    """
+    temperature = 1e4
+    dilution = 0.2
+    partition = toy_evaluator.calculate_continuum_coefficients(
+        np.array([temperature])
+    )[5]
+    toy_evaluator.dilute_radiation = DiluteRadiationInputs(
+        np.array([temperature]),
+        np.array([dilution]),
+        pd.DataFrame(
+            [[1.0, 1.0]],
+            index=toy_evaluator.ionization_data.index,
+            columns=[5000.0, 20000.0],
+        ),
+        pd.DataFrame(),
+        partition,
+        1.0,
+    )
+    actual = toy_evaluator.calculate_nebular_ionization_factor(
+        np.array([temperature * temperature_ratio])
+    )
+    neutral_partition = 2.0 + 4.0 * np.exp(
+        -1e-12 / (const.k_B.cgs.value * temperature)
+    )
+    saha = (
+        2.0
+        / neutral_partition
+        * (
+            2.0
+            * np.pi
+            * const.m_e.cgs.value
+            * const.k_B.cgs.value
+            * temperature
+            / const.h.cgs.value**2
+        )
+        ** 1.5
+        * np.exp(-2e-11 / (const.k_B.cgs.value * temperature))
+    )
+    npt.assert_allclose(
+        actual.to_numpy(),
+        dilution * np.sqrt(temperature_ratio) * saha,
+        rtol=1e-13,
+        atol=0.0,
+    )
+
+
+def test_background_excitation_uses_dilute_weights_not_input_fractions(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+) -> None:
+    """Rebuild background ions with prescribed dilute-LTE weights and conserve N.
+
+    Regime: Li I has seed fractions [0.9,0.1], dilute weights [1,4], and new
+    ion density 8 cm^-3. The exact normalized distribution is [1.6,6.4], not
+    a rescaling of the seed. rtol=1e-14 covers only normalization roundoff.
+    This verifies the excitation prescription wiring, not the atomic weights.
+    """
+    levels = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1), (3, 0, 0), (3, 0, 1)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    toy_evaluator.level_population_index = levels
+    toy_evaluator.dilute_radiation = SimpleNamespace(
+        level_boltzmann_factor=pd.DataFrame(
+            [[1.0], [1.0], [1.0], [4.0]], index=levels, columns=[0]
+        ),
+    )
+    state = SimpleNamespace(
+        full_population=pd.DataFrame(
+            [[1.0], [1.0], [9.0], [1.0]], index=levels, columns=[0]
+        ),
+        species_index=levels[:2],
+        normalized_population=pd.DataFrame(
+            [[0.25], [0.75]], index=levels[:2], columns=[0]
+        ),
+    )
+    ions = pd.DataFrame(
+        [[2.0], [8.0]],
+        index=pd.MultiIndex.from_tuples([(1, 0), (3, 0)]),
+        columns=[0],
+    )
+    actual = toy_evaluator._build_absolute_levels(state, ions)
+    npt.assert_allclose(actual.loc[(3, 0), 0], [1.6, 6.4], rtol=1e-14, atol=0.0)
+    npt.assert_allclose(actual.loc[(3, 0), 0].sum(), 8.0, rtol=1e-14, atol=0.0)
 
 
 class ZeroElectronRateSolver:
@@ -427,7 +530,7 @@ def test_evaluator_reports_open_level_solution_after_all_retries(
         0,
         1.0e9,
         1.0e4,
-        np.array([0.5, 0.5]),
+        stalled_fractions.copy(),
         continuum_rates,
         evaluator.shell_number_densities[0],
         evaluator.sobolev_inputs[0],
@@ -664,7 +767,7 @@ def test_evaluator_aligns_collisional_temperature_scaling_by_transition(
         level_to_continuum_saha_factor=pd.DataFrame(columns=[0]),
     )
 
-    excitation, deexcitation = toy_evaluator._calculate_heating(
+    excitation, deexcitation, _ = toy_evaluator._calculate_heating(
         ThermalElectronEnergyDistribution(
             0.0 * u.erg,
             np.array([2.0e4]) * u.K,
@@ -736,3 +839,311 @@ def test_prepare_species_rates_uses_solved_line_amid_duplicate_lines() -> None:
     npt.assert_array_equal(rates.radiative_rate_coefficient[downward], [3.5])
     # Both directions read beta from the H I line's row in the full list.
     npt.assert_array_equal(rates.beta_line_idx, [1, 1])
+
+
+@pytest.mark.parametrize("supply_background", [True, False])
+def test_evaluator_repopulates_zeroed_background_ion(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    supply_background: bool,
+) -> None:
+    """Repopulate a zeroed trace ion from explicit background fractions.
+
+    Regime: Li I has zero levels in shell 25, a populated [3, 1] distribution
+    in shell 53, and zero ion density in shell 7. New ion totals are 2e-23,
+    8, and 0 cm^-3. Given fractions [0.8, 0.2], the revived levels must be
+    [1.6e-23, 4e-24]; the existing distribution must instead rescale to [6, 2].
+    Verification uses these analytic values and per-ion conservation with
+    rtol=1e-14 (roundoff only), no absolute tolerance that could hide the trace
+    population. Without explicit fractions, legacy zero-background behavior
+    is preserved. This verifies rebuilding, not the excitation prescription.
+    """
+    evaluator = toy_evaluator
+    level_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1), (3, 0, 0), (3, 0, 1)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    columns = pd.Index([25, 53, 7])
+    evaluator.level_population_index = level_index
+    evaluator.background_level_population_fraction = (
+        pd.DataFrame(
+            [[0.5] * 3, [0.5] * 3, [0.8] * 3, [0.2] * 3],
+            index=level_index,
+            columns=columns,
+        )
+        if supply_background
+        else None
+    )
+    state = SimpleNamespace(
+        species_index=level_index[:2],
+        full_population=pd.DataFrame(
+            [[1.0] * 3, [1.0] * 3, [0.0, 3.0, 0.0], [0.0, 1.0, 0.0]],
+            index=level_index,
+            columns=columns,
+        ),
+        normalized_population=pd.DataFrame(
+            [[0.25] * 3, [0.75] * 3],
+            index=level_index[:2],
+            columns=columns,
+        ),
+    )
+    ions = pd.DataFrame(
+        [[2.0] * 3, [2.0e-23, 8.0, 0.0]],
+        index=level_index.droplevel("level_number").unique(),
+        columns=columns,
+    )
+    levels = evaluator._build_absolute_levels(state, ions)
+    npt.assert_allclose(
+        levels.loc[(3, 0), 25],
+        [1.6e-23, 4e-24] if supply_background else [0.0, 0.0],
+        rtol=1e-14,
+        atol=0.0,
+    )
+    npt.assert_allclose(levels.loc[(3, 0), 53], [6.0, 2.0], rtol=1e-14)
+    npt.assert_array_equal(levels.loc[(3, 0), 7], 0.0)
+    npt.assert_allclose(levels.loc[(1, 0), 25], [0.5, 1.5], rtol=1e-14)
+    if supply_background:
+        pdt.assert_frame_equal(
+            levels.groupby(level=["atomic_number", "ion_number"]).sum(),
+            ions,
+            rtol=1e-14,
+            atol=0.0,
+        )
+
+
+def test_evaluator_reports_stage_timing(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Expose progress through one complete equilibrium evaluation.
+
+    Claim
+    -----
+    Each evaluator stage remains visible at DEBUG without flooding INFO.
+
+    Regime
+    ------
+    The minimal one-shell evaluator exercises continuum, level, population,
+    opacity, thermal, and final-residual orchestration.
+
+    Verification
+    ------------
+    This is an orchestration assertion over stage labels only; it deliberately
+    makes no machine-dependent assertion about elapsed time.
+    """
+    caplog.set_level("DEBUG", logger="tardis.plasma.equilibrium.evaluator")
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.perf_counter", lambda: 0.0
+    )
+
+    toy_evaluator.evaluate(
+        np.array([1.0e9]),
+        np.array([1.0e4]),
+        pd.DataFrame([[0.8], [0.2]], columns=[0]),
+    )
+
+    for stage in (
+        "continuum coefficients",
+        "level populations",
+        "ion populations",
+        "absolute and LTE populations",
+        "Sobolev opacities",
+        "thermal balance",
+        "final level residual",
+    ):
+        assert f"finished {stage}" in caplog.text
+    assert "Finished plasma equilibrium evaluator call 1" in caplog.text
+    assert not any(
+        record.levelname == "INFO"
+        and "plasma equilibrium evaluator call" in record.message.lower()
+        for record in caplog.records
+    )
+    assert not any(
+        record.levelname == "INFO"
+        and "equilibrium level solve" in record.message
+        for record in caplog.records
+    )
+
+
+def test_continuum_coefficients_preserve_nonconsecutive_shell_labels(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+) -> None:
+    """Keep physical shell labels when evaluating a restricted shell set."""
+    shell_columns = pd.Index([53])
+    toy_evaluator.elemental_number_density.columns = shell_columns
+
+    (
+        _,
+        level_to_continuum_saha_factor,
+        collisional_ionization_rate_coefficient,
+        lte_ionization_factor,
+        continuum_coefficients,
+        partition_function,
+        level_boltzmann_factor,
+    ) = toy_evaluator.calculate_continuum_coefficients(np.array([1.0e4]))
+
+    frames = (
+        level_to_continuum_saha_factor,
+        collisional_ionization_rate_coefficient,
+        lte_ionization_factor,
+        continuum_coefficients.photoionization,
+        continuum_coefficients.stimulated_recombination,
+        continuum_coefficients.spontaneous_recombination,
+        continuum_coefficients.collisional_ionization,
+        partition_function,
+        level_boltzmann_factor,
+    )
+    for frame in frames:
+        assert frame.columns.equals(shell_columns)
+
+    lte_ion_population, lte_level_population = calculate_lte_populations(
+        lte_ionization_factor,
+        partition_function,
+        toy_evaluator.elemental_number_density,
+        pd.Series([1.0e8], index=shell_columns),
+        level_boltzmann_factor,
+        toy_evaluator.levels,
+    )
+    assert lte_ion_population.columns.equals(shell_columns)
+    assert lte_level_population.columns.equals(shell_columns)
+
+
+def test_fixed_ionization_enters_level_and_ion_stage_balances(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+) -> None:
+    """Use one fixed ionization coefficient in both coupled balances."""
+    transition_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0, 1)],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "ion_number_source",
+            "ion_number_destination",
+        ],
+    )
+    fixed_ionization = pd.DataFrame(
+        [[4.0]], index=transition_index, columns=[0]
+    )
+    toy_evaluator.fixed_rates = FixedRateState(
+        ionization_rates=fixed_ionization
+    )
+    continuum_rates = toy_evaluator.calculate_continuum_coefficients(
+        np.array([1.0e4])
+    )[0][0]
+    level_fractions = np.array([0.5, 0.5])
+
+    _, _, fixed_ratio = toy_evaluator._calculate_level_state(
+        0,
+        1.0e9,
+        1.0e4,
+        level_fractions,
+        continuum_rates,
+        toy_evaluator.shell_number_densities[0],
+        toy_evaluator.sobolev_inputs[0],
+    )
+    toy_evaluator.fixed_rates = None
+    _, _, baseline_ratio = toy_evaluator._calculate_level_state(
+        0,
+        1.0e9,
+        1.0e4,
+        level_fractions,
+        continuum_rates,
+        toy_evaluator.shell_number_densities[0],
+        toy_evaluator.sobolev_inputs[0],
+    )
+
+    recombination_rate = (
+        continuum_rates.spontaneous_recombination[1]
+        + continuum_rates.stimulated_recombination[1]
+        + continuum_rates.collisional_recombination[1] * 1.0e9
+    ) * 1.0e9
+    npt.assert_allclose(
+        fixed_ratio - baseline_ratio,
+        4.0 / recombination_rate,
+        rtol=1e-14,
+    )
+
+    zero_rates = pd.DataFrame(0.0, index=transition_index, columns=[0])
+    ion_matrices, _ = assemble_ion_rate_matrices(
+        zero_rates,
+        zero_rates,
+        zero_rates,
+        zero_rates,
+        fixed_ionization_rates_df=fixed_ionization,
+    )
+    assert ion_matrices.at[1, 0][0, 0] == -4.0
+
+
+def test_case_b_suppresses_only_ground_state_recombination(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+) -> None:
+    """Switch between Case A and Case B without changing other rates."""
+    continuum_rates = toy_evaluator.calculate_continuum_coefficients(
+        np.array([1.0e4])
+    )[0][0]
+    arguments = (
+        0,
+        1.0e9,
+        1.0e4,
+        np.array([0.5, 0.5]),
+        continuum_rates,
+        toy_evaluator.shell_number_densities[0],
+        toy_evaluator.sobolev_inputs[0],
+    )
+
+    toy_evaluator.case_b_species = frozenset()
+    case_a_ratio = toy_evaluator._calculate_level_state(*arguments)[2]
+    toy_evaluator.case_b_species = frozenset({(1, 0)})
+    case_b_ratio = toy_evaluator._calculate_level_state(*arguments)[2]
+
+    assert case_b_ratio > case_a_ratio
+
+
+def test_evaluator_reports_adiabatic_estimate_without_changing_balance(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+) -> None:
+    """Compare electron expansion work with the unchanged heating deficit.
+
+    Claim: diagnostic cooling equals electron pressure times 3/t and does
+    not enter the thermal residual. Regime: one homologously expanding cell,
+    with an age in days distinct from the Monte Carlo normalization time.
+    Verification: the ideal-electron-gas energy density loses 2u/t; synthetic
+    heating and cooling retain their prescribed net and fractional rates.
+    """
+
+    class ThermalSolver:
+        def solve(self, **kwargs: object) -> tuple[pd.Series, pd.Series]:
+            self.last_budget = pd.DataFrame(
+                {"total_heating": [3.0e-11], "total_cooling": [1.0e-11]},
+                index=kwargs["level_population"].columns,
+            )
+            return pd.Series([2.0e-11]), pd.Series([2.0])
+
+    toy_evaluator.thermal_balance_solver = ThermalSolver()
+    toy_evaluator.time_explosion = 2.0 * u.day
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0.0 * u.erg,
+        np.array([1.0e4]) * u.K,
+        np.array([2.0e9]) / u.cm**3,
+    )
+    net_heating, fractional_heating, budget = toy_evaluator._calculate_heating(
+        electron_distribution,
+        pd.DataFrame([[1.0]], columns=[17]),
+        None,
+        SimpleNamespace(
+            collisional_ionization_rate_coefficient=pd.DataFrame(columns=[17]),
+            level_to_continuum_saha_factor=pd.DataFrame(columns=[17]),
+        ),
+    )
+    electron_energy_density = (
+        1.5 * const.k_B.cgs * 1.0e4 * u.K * 2.0e9 / u.cm**3
+    )
+    expected_cooling = (2 * electron_energy_density / (2 * u.day)).to_value(
+        u.erg / (u.cm**3 * u.s)
+    )
+    npt.assert_allclose(budget["adiabatic_cooling_estimate"], expected_cooling)
+    npt.assert_allclose(budget["electron_density"], [2.0e9])
+    npt.assert_allclose(budget["electron_temperature"], [1.0e4])
+    npt.assert_allclose(budget["time_explosion"], [172800.0])
+    npt.assert_allclose(net_heating, [2.0e-11], rtol=1e-14)
+    npt.assert_allclose(fractional_heating, [2.0], rtol=1e-14)

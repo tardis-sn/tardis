@@ -68,7 +68,7 @@ class SpontaneousRecombinationCoeffSolver:
         """
         return np.exp(-self.nu[np.newaxis].T / electron_temperature * (H / K_B))
 
-    def solve(self, electron_temperature):
+    def solve(self, electron_temperature: u.Quantity) -> pd.DataFrame:
         """
         Calculate the spontaneous recombination rate coefficient.
 
@@ -112,8 +112,9 @@ class SpontaneousRecombinationCoeffSolver:
             index=self.photoionization_index,
         )
 
-        # Lymann continuum handling
-        spontaneous_recombination_rate_coeff_df.loc[(1, 0, 0)] = 0.0
+        # Suppress the Lyman continuum only when the input contains it.
+        if (1, 0, 0) in spontaneous_recombination_rate_coeff_df.index:
+            spontaneous_recombination_rate_coeff_df.loc[(1, 0, 0)] = 0.0
 
         return spontaneous_recombination_rate_coeff_df
 
@@ -325,13 +326,13 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
 
     def calculate_corrected_photoionization_rate_coeff(
         self,
-        mean_intensity_photoionization_df,
-        photoionization_boltzmann_factor,
-        lte_level_population,
-        level_population,
-        lte_ion_population,
-        ion_population,
-    ):
+        mean_intensity_photoionization_df: pd.DataFrame,
+        photoionization_boltzmann_factor: pd.DataFrame,
+        lte_level_population: pd.DataFrame,
+        level_population: pd.DataFrame,
+        lte_ion_population: pd.DataFrame,
+        ion_population: pd.DataFrame,
+    ) -> pd.DataFrame:
         """
         Calculate the stimulated emission corrected photoionization rate coefficient.
 
@@ -363,6 +364,14 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
                 axis="columns",
             )
             level_population = level_population.set_axis(
+                photoionization_boltzmann_factor.columns,
+                axis="columns",
+            )
+            lte_ion_population = lte_ion_population.set_axis(
+                photoionization_boltzmann_factor.columns,
+                axis="columns",
+            )
+            ion_population = ion_population.set_axis(
                 photoionization_boltzmann_factor.columns,
                 axis="columns",
             )

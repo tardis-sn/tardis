@@ -144,11 +144,14 @@ class ContinuumMacroAtomState:
             ["level_number_lower", "level_number_upper"]
         )
         continuum_lines = lines.loc[line_species.isin(continuum_species)]
+        collision_data_index = atomic_data.yg_data.index.intersection(
+            continuum_lines.index
+        )
         collisional_rates = ThermalCollisionalRateSolver(
             atomic_data.levels,
             continuum_lines,
             atomic_data.collision_data_temperatures,
-            atomic_data.yg_data.loc[continuum_lines.index],
+            atomic_data.yg_data.loc[collision_data_index],
             collision_strengths_type="cmfgen",
         ).solve(electron_distribution.temperature)
         collisional_rates.columns = columns

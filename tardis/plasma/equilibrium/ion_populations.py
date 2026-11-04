@@ -1,4 +1,5 @@
 import logging
+from time import perf_counter
 
 import astropy.units as u
 import numpy as np
@@ -45,6 +46,11 @@ class IonPopulationSolver:
         """
         self.rate_matrix_solver = rate_matrix_solver
         self.max_solver_iterations = max_solver_iterations
+        self._logged_frozen_ion_populations: set[tuple[int, object]] = set()
+        self._logged_negligible_ion_populations: set[tuple[int, object]] = set()
+        self._charge_root_diagnostics: dict[
+            object, tuple[float, int, int, bool, str]
+        ] = {}
 
     def _calculate_balance_vector(
         self,
@@ -102,6 +108,7 @@ class IonPopulationSolver:
         level_to_continuum_saha_factor: pd.DataFrame,
         elemental_number_density: pd.DataFrame,
         lte_ionization_factor: pd.DataFrame | None = None,
+        maximum_electron_density: npt.NDArray[np.float64] | None = None,
     ) -> npt.NDArray[np.float64]:
         """Solve elemental ion populations at supplied electron densities.
 
@@ -131,6 +138,10 @@ class IonPopulationSolver:
             Elemental number density. Index is atomic number, columns are cells.
         lte_ionization_factor : pandas.DataFrame, optional
             LTE ionization factors used to normalize ionization rates.
+        maximum_electron_density : numpy.ndarray, optional
+            Maximum possible electron density in each shell. When supplied by
+            the charge-balance solve, it bounds the charge contribution of an
+            element whose singular rate matrix has no usable prior population.
 
         Returns
         -------
@@ -190,50 +201,193 @@ class IonPopulationSolver:
             rate_matrix_atomic_numbers
         )
         elemental_number_density_array = elemental_number_density.to_numpy()
+        aligned_estimated_ion_population = estimated_ion_population.reindex(
+            index=ion_population_index,
+            columns=rate_matrices.columns,
+            fill_value=0.0,
+        ).fillna(0.0)
 
         for atomic_number_idx, atomic_number in enumerate(
             rate_matrix_atomic_numbers
         ):
+            elemental_idx = elemental_indices[atomic_number_idx]
+            if elemental_idx < 0:
+                continue
             matrices = np.stack(rate_matrix_arrays[atomic_number_idx])
-            nonfinite_matrices = ~np.isfinite(matrices).all(axis=(1, 2))
+            elemental_density = elemental_number_density_array[elemental_idx]
+            populated_shell_indices = np.flatnonzero(elemental_density != 0.0)
+            population_idx = population_indices[atomic_number_idx]
+            if len(populated_shell_indices) == 0:
+                continue
+
+            populated_matrices = matrices[populated_shell_indices]
+            nonfinite_matrices = ~np.isfinite(populated_matrices).all(
+                axis=(1, 2)
+            )
 
             if np.any(nonfinite_matrices):
-                shell_idx = np.flatnonzero(nonfinite_matrices)[0]
+                populated_shell_idx = np.flatnonzero(nonfinite_matrices)[0]
+                shell_idx = populated_shell_indices[populated_shell_idx]
                 raise PlasmaIonizationError(
                     "Nonfinite ion population matrix for atomic number "
                     f"{atomic_number}, shell {rate_matrices.columns[shell_idx]}."
                 )
 
-            right_hand_side = np.zeros((len(matrices), matrices.shape[1], 1))
-            right_hand_side[:, 1] = 1.0
-
-            normalized_population = np.linalg.solve(matrices, right_hand_side)[
-                :, :, 0
-            ]
-
-            nonfinite_populations = ~np.isfinite(normalized_population).all(
-                axis=1
+            right_hand_side = np.zeros(
+                (
+                    len(populated_matrices),
+                    populated_matrices.shape[1],
+                    1,
+                )
             )
-            minimum_population = normalized_population.min(axis=1)
+            right_hand_side[:, 1] = 1.0
+            populated_normalized_population = np.zeros(
+                (len(populated_matrices), populated_matrices.shape[1]),
+                dtype=np.float64,
+            )
+            skipped_populated_shells = np.zeros(
+                len(populated_matrices), dtype=bool
+            )
+
+            try:
+                populated_normalized_population = np.linalg.solve(
+                    populated_matrices, right_hand_side
+                )[:, :, 0]
+            except np.linalg.LinAlgError as exc:
+                for populated_shell_idx, (
+                    matrix,
+                    shell_right_hand_side,
+                ) in enumerate(
+                    zip(populated_matrices, right_hand_side, strict=True)
+                ):
+                    try:
+                        populated_normalized_population[populated_shell_idx] = (
+                            np.linalg.solve(matrix, shell_right_hand_side)[:, 0]
+                        )
+                    except np.linalg.LinAlgError:
+                        shell_idx = populated_shell_indices[populated_shell_idx]
+                        shell = rate_matrices.columns[shell_idx]
+                        estimated_population = (
+                            aligned_estimated_ion_population.loc[
+                                ion_population_index[population_idx], shell
+                            ].to_numpy(dtype=np.float64)
+                        )
+                        estimated_population_sum = estimated_population.sum()
+                        if (
+                            np.isfinite(estimated_population).all()
+                            and np.all(estimated_population >= 0.0)
+                            and estimated_population_sum > 0.0
+                        ):
+                            populated_normalized_population[
+                                populated_shell_idx
+                            ] = estimated_population / estimated_population_sum
+                            frozen_key = (int(atomic_number), shell)
+                            if (
+                                frozen_key
+                                not in self._logged_frozen_ion_populations
+                            ):
+                                logger.warning(
+                                    "Freezing ion populations for atomic "
+                                    "number %s, shell %s because its rate "
+                                    "matrix is singular; retaining the "
+                                    "normalized pre-evaluator ion fractions.",
+                                    atomic_number,
+                                    shell,
+                                )
+                                self._logged_frozen_ion_populations.add(
+                                    frozen_key
+                                )
+                            continue
+                        if maximum_electron_density is not None:
+                            maximum_shell_electron_density = (
+                                maximum_electron_density[shell_idx]
+                            )
+                            maximum_charge_fraction = (
+                                atomic_number
+                                * elemental_density[shell_idx]
+                                / maximum_shell_electron_density
+                                if maximum_shell_electron_density > 0.0
+                                else np.inf
+                            )
+                            if (
+                                np.isfinite(maximum_charge_fraction)
+                                and maximum_charge_fraction <= CHARGE_TOLERANCE
+                            ):
+                                skipped_populated_shells[
+                                    populated_shell_idx
+                                ] = True
+                                populated_normalized_population[
+                                    populated_shell_idx, 0
+                                ] = 1.0
+                                skipped_key = (int(atomic_number), shell)
+                                if (
+                                    skipped_key
+                                    not in self._logged_negligible_ion_populations
+                                ):
+                                    logger.warning(
+                                        "Skipping ion populations for atomic "
+                                        "number %s, shell %s because its rate "
+                                        "matrix is singular, it has no usable "
+                                        "prior population, and its maximum "
+                                        "possible charge fraction %.3e is "
+                                        "below the charge tolerance %.3e.",
+                                        atomic_number,
+                                        shell,
+                                        maximum_charge_fraction,
+                                        CHARGE_TOLERANCE,
+                                    )
+                                    self._logged_negligible_ion_populations.add(
+                                        skipped_key
+                                    )
+                                continue
+                        singular_values = np.linalg.svd(
+                            matrix, compute_uv=False
+                        )
+                        rank = np.linalg.matrix_rank(matrix)
+                        condition_number = np.linalg.cond(matrix)
+                        raise PlasmaIonizationError(
+                            "Singular ion population matrix for atomic number "
+                            f"{atomic_number}, shell {shell} "
+                            f"(active_shell_idx={shell_idx}, "
+                            "electron_density="
+                            f"{electron_density[shell_idx]:.3e} cm^-3, "
+                            f"rank={rank}/{matrix.shape[0]}, "
+                            "smallest_singular_value="
+                            f"{singular_values[-1]:.3e}, "
+                            f"condition_number={condition_number:.3e})."
+                        ) from exc
+            nonfinite_populations = ~np.isfinite(
+                populated_normalized_population
+            ).all(axis=1)
+            minimum_population = populated_normalized_population.min(axis=1)
             invalid_populations = nonfinite_populations | (
                 minimum_population < -1e-12
             )
             if np.any(invalid_populations):
-                shell_idx = np.flatnonzero(invalid_populations)[0]
+                populated_shell_idx = np.flatnonzero(invalid_populations)[0]
+                shell_idx = populated_shell_indices[populated_shell_idx]
                 raise PlasmaIonizationError(
                     "Nonfinite or negative ion population for atomic number "
                     f"{atomic_number}, shell {rate_matrices.columns[shell_idx]}."
-                    f"{minimum_population[shell_idx]}."
+                    f"{minimum_population[populated_shell_idx]}."
                 )
 
-            normalized_population[normalized_population < 0.0] = 0.0
-            normalized_population /= normalized_population.sum(axis=1)[:, None]
-            population_idx = population_indices[atomic_number_idx]
+            populated_normalized_population[
+                populated_normalized_population < 0.0
+            ] = 0.0
+            populated_normalized_population /= (
+                populated_normalized_population.sum(axis=1)[:, None]
+            )
+            populated_normalized_population[skipped_populated_shells] = 0.0
+            normalized_population = np.zeros(
+                (len(matrices), matrices.shape[1]), dtype=np.float64
+            )
+            normalized_population[populated_shell_indices] = (
+                populated_normalized_population
+            )
 
-            elemental_idx = elemental_indices[atomic_number_idx]
             ion_population[population_idx] = (
-                normalized_population.T
-                * elemental_number_density_array[elemental_idx]
+                normalized_population.T * elemental_density
             )
 
         self.rates_matrices = rate_matrices
@@ -252,7 +406,7 @@ class IonPopulationSolver:
         estimated_ion_population: pd.DataFrame,
         partition_function: pd.DataFrame | float,
         boltzmann_factor: pd.DataFrame,
-        tolerance: float = 1e-14,
+        tolerance: float = 1e-10,  # Started at 1e-14 - testing
         level_to_continuum_saha_factor: pd.DataFrame | None = None,
         lte_ionization_factor: pd.DataFrame | None = None,
     ) -> tuple[pd.DataFrame, pd.Series]:
@@ -351,6 +505,7 @@ class IonPopulationSolver:
             level_to_continuum_saha_factor,
             elemental_number_density,
             lte_ionization_factor=lte_ionization_factor,
+            maximum_electron_density=maximum_electron_density,
         )
         charge_density = (
             ion_population
@@ -489,13 +644,14 @@ class IonPopulationSolver:
             )[1][0]
 
         try:
-            electron_density_fraction = brentq(
+            electron_density_fraction, root_result = brentq(
                 charge_residual,
                 MINIMUM_ELECTRON_DENSITY_FRACTION,
                 1.0,
                 xtol=CHARGE_TOLERANCE,
                 rtol=MINIMUM_BRENT_RELATIVE_TOLERANCE,
                 maxiter=self.max_solver_iterations,
+                full_output=True,
             )
         except ValueError as exc:
             lower_residual = charge_residual(MINIMUM_ELECTRON_DENSITY_FRACTION)
@@ -506,7 +662,33 @@ class IonPopulationSolver:
                 f"{lower_residual}, Q_hat(1)={upper_residual}."
             ) from exc
 
-        return electron_density_fraction * maximum_electron_density
+        shell = elemental_number_density.columns[shell_idx]
+        terminal_electron_density = np.array(
+            [electron_density_fraction * maximum_electron_density]
+        )
+        _, terminal_charge_residual = self.solve_charge_balance(
+            terminal_electron_density,
+            shell_radiation_field,
+            shell_electron_distribution,
+            shell_lte_level_population,
+            shell_estimated_level_population,
+            shell_lte_ion_population,
+            shell_estimated_ion_population,
+            shell_partition_function,
+            shell_boltzmann_factor,
+            shell_level_to_continuum_saha_factor,
+            shell_elemental_number_density,
+            shell_maximum_electron_density,
+            lte_ionization_factor=shell_lte_ionization_factor,
+        )
+        self._charge_root_diagnostics[shell] = (
+            terminal_charge_residual[0],
+            int(root_result.iterations),
+            int(root_result.function_calls),
+            bool(root_result.converged),
+            str(root_result.flag),
+        )
+        return terminal_electron_density[0]
 
     def _solve_charge_conserving(
         self,
@@ -586,11 +768,19 @@ class IonPopulationSolver:
         solution_population_indices: npt.NDArray[np.intp] | None = None
 
         for iteration in range(self.max_solver_iterations):
-            logger.info("Ion solver iteration %d", iteration + 1)
+            logger.debug("Ion solver iteration %d", iteration + 1)
+            self._charge_root_diagnostics = {}
             prepare_rate_matrix = getattr(
                 self.rate_matrix_solver, "prepare", None
             )
             if prepare_rate_matrix is not None:
+                rate_matrix_mode = "prepared"
+                logger.debug(
+                    "Ion solver iteration %d starting ion rate-matrix "
+                    "preparation.",
+                    iteration + 1,
+                )
+                preparation_start_time = perf_counter()
                 prepare_rate_matrix(
                     thermal_electron_energy_distribution,
                     estimated_level_population,
@@ -600,7 +790,34 @@ class IonPopulationSolver:
                     level_to_continuum_saha_factor,
                     lte_ionization_factor,
                 )
-            for shell_idx in np.flatnonzero(~converged_shells):
+                preparation_elapsed = perf_counter() - preparation_start_time
+                logger.log(
+                    logging.INFO
+                    if preparation_elapsed >= 10.0
+                    else logging.DEBUG,
+                    "Ion solver iteration %d finished ion rate-matrix "
+                    "preparation in %.3f s.",
+                    iteration + 1,
+                    preparation_elapsed,
+                )
+            else:
+                rate_matrix_mode = "direct"
+                logger.debug(
+                    "Ion solver iteration %d uses direct ion rate-matrix "
+                    "construction (%s).",
+                    iteration + 1,
+                    type(self.rate_matrix_solver).__name__,
+                )
+            unconverged_shell_indices = np.flatnonzero(~converged_shells)
+            logger.debug(
+                "Ion solver iteration %d starting %d shell charge solves "
+                "(rate-matrix mode=%s).",
+                iteration + 1,
+                len(unconverged_shell_indices),
+                rate_matrix_mode,
+            )
+            shell_charge_start_time = perf_counter()
+            for shell_idx in unconverged_shell_indices:
                 electron_density[shell_idx] = self.solve_shell_charge(
                     shell_idx,
                     maximum_electron_density_array[shell_idx],
@@ -616,6 +833,22 @@ class IonPopulationSolver:
                     elemental_number_density,
                     lte_ionization_factor=lte_ionization_factor,
                 )
+            charge_solve_elapsed = perf_counter() - shell_charge_start_time
+            logger.log(
+                logging.INFO if charge_solve_elapsed >= 10.0 else logging.DEBUG,
+                "Ion solver iteration %d finished %d shell charge solves in "
+                "%.3f s (rate-matrix mode=%s).",
+                iteration + 1,
+                len(unconverged_shell_indices),
+                charge_solve_elapsed,
+                rate_matrix_mode,
+            )
+            logger.debug(
+                "Ion solver iteration %d starting full charge-balance "
+                "reconstruction.",
+                iteration + 1,
+            )
+            charge_balance_start_time = perf_counter()
             ion_population_solution, charge_residual = (
                 self.solve_charge_balance(
                     electron_density,
@@ -633,6 +866,12 @@ class IonPopulationSolver:
                     lte_ionization_factor=lte_ionization_factor,
                 )
             )
+            logger.debug(
+                "Ion solver iteration %d finished full charge-balance "
+                "reconstruction in %.3f s.",
+                iteration + 1,
+                perf_counter() - charge_balance_start_time,
+            )
             if estimated_population_indices is None:
                 solution_indices = (
                     self.rate_matrix_solver.ion_population_index.get_indexer(
@@ -645,10 +884,14 @@ class IonPopulationSolver:
                 solution_population_indices = solution_indices[
                     estimated_population_indices
                 ]
+            active_shell_indices = np.flatnonzero(~converged_shells)
             if len(estimated_population_indices) == 0:
                 population_converged = np.ones_like(
                     converged_shells, dtype=bool
                 )
+                maximum_population_residual = 0.0
+                maximum_population_ion_stage = None
+                maximum_population_shell = None
             else:
                 population_delta = (
                     estimated_ion_population.to_numpy()[
@@ -664,12 +907,137 @@ class IonPopulationSolver:
                 population_converged = np.all(
                     np.abs(population_delta) < tolerance, axis=0
                 )
+                active_population_residual = np.abs(
+                    population_delta[:, active_shell_indices]
+                )
+                ranking_residual = np.nan_to_num(
+                    active_population_residual,
+                    nan=np.inf,
+                    posinf=np.inf,
+                    neginf=np.inf,
+                )
+                (
+                    population_position,
+                    active_shell_position,
+                ) = np.unravel_index(
+                    np.argmax(ranking_residual), ranking_residual.shape
+                )
+                shell_idx = active_shell_indices[active_shell_position]
+                estimated_population_idx = estimated_population_indices[
+                    population_position
+                ]
+                maximum_population_residual = active_population_residual[
+                    population_position, active_shell_position
+                ]
+                maximum_population_ion_stage = tuple(
+                    int(index_value)
+                    for index_value in estimated_ion_population.index[
+                        estimated_population_idx
+                    ]
+                )
+                maximum_population_shell = elemental_number_density.columns[
+                    shell_idx
+                ]
 
-            converged_shells |= (
-                np.abs(charge_residual) < CHARGE_TOLERANCE
-            ) & population_converged
+            active_charge_residual = np.abs(
+                charge_residual[active_shell_indices]
+            )
+            charge_position = int(
+                np.argmax(
+                    np.nan_to_num(
+                        active_charge_residual,
+                        nan=np.inf,
+                        posinf=np.inf,
+                        neginf=np.inf,
+                    )
+                )
+            )
+            maximum_charge_residual = active_charge_residual[charge_position]
+            maximum_charge_shell = elemental_number_density.columns[
+                active_shell_indices[charge_position]
+            ]
+            charge_converged = np.abs(charge_residual) < CHARGE_TOLERANCE
+            population_failure_mask = ~population_converged[
+                active_shell_indices
+            ]
+            charge_failure_mask = ~charge_converged[active_shell_indices]
+            population_failure_count = np.count_nonzero(population_failure_mask)
+            charge_failure_count = np.count_nonzero(charge_failure_mask)
+            joint_failure_count = np.count_nonzero(
+                population_failure_mask & charge_failure_mask
+            )
+            population_blocked = population_failure_count != 0
+            charge_blocked = charge_failure_count != 0
+            if population_blocked and charge_blocked:
+                blocker = "population and charge"
+            elif population_blocked:
+                blocker = "population"
+            elif charge_blocked:
+                blocker = "charge"
+            else:
+                blocker = "none"
+
+            converged_shells |= charge_converged & population_converged
+            logger.debug(
+                "Ion solver iteration %d: %d/%d shells unconverged; "
+                "population-failing shells=%d, charge-failing shells=%d, "
+                "failures of both=%d; maximum ion-stage relative residual "
+                "%.3e at ion stage %s in shell %s (tolerance=%.3e); maximum "
+                "normalized charge residual %.3e in shell %s "
+                "(tolerance=%.3e); blocker=%s",
+                iteration + 1,
+                np.count_nonzero(~converged_shells),
+                len(converged_shells),
+                population_failure_count,
+                charge_failure_count,
+                joint_failure_count,
+                maximum_population_residual,
+                maximum_population_ion_stage,
+                maximum_population_shell,
+                tolerance,
+                maximum_charge_residual,
+                maximum_charge_shell,
+                CHARGE_TOLERANCE,
+                blocker,
+            )
+            charge_root_diagnostic = self._charge_root_diagnostics.get(
+                maximum_charge_shell
+            )
+            if charge_root_diagnostic is None:
+                logger.warning(
+                    "Ion solver iteration %d has no charge-root diagnostic "
+                    "for shell %s.",
+                    iteration + 1,
+                    maximum_charge_shell,
+                )
+            else:
+                (
+                    local_charge_residual,
+                    root_iterations,
+                    root_function_calls,
+                    root_converged,
+                    root_flag,
+                ) = charge_root_diagnostic
+                final_charge_residual = charge_residual[
+                    active_shell_indices[charge_position]
+                ]
+                logger.debug(
+                    "Ion solver iteration %d charge-root consistency in shell "
+                    "%s: local terminal residual=%.3e, final residual=%.3e, "
+                    "absolute difference=%.3e; Brent converged=%s, "
+                    "iterations=%d, function_calls=%d, flag=%s",
+                    iteration + 1,
+                    maximum_charge_shell,
+                    local_charge_residual,
+                    final_charge_residual,
+                    abs(local_charge_residual - final_charge_residual),
+                    root_converged,
+                    root_iterations,
+                    root_function_calls,
+                    root_flag,
+                )
             if np.all(converged_shells):
-                logger.info(
+                logger.debug(
                     "Ion population solver converged after %d iterations.",
                     iteration + 1,
                 )

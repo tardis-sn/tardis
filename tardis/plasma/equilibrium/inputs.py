@@ -10,6 +10,20 @@ BoolArray = npt.NDArray[np.bool_]
 
 
 @dataclass(frozen=True)
+class FixedRateState:
+    """Density-independent rates held fixed during one equilibrium solve.
+
+    The bound-bound frame is indexed by directed level transitions, while the
+    ionization frame is indexed by directed ion-stage transitions. Both use
+    plasma-shell labels as columns. The optional heating rate is volumetric.
+    """
+
+    bound_bound_rates: pd.DataFrame | None = None
+    ionization_rates: pd.DataFrame | None = None
+    heating_rate_density: pd.Series | None = None
+
+
+@dataclass(frozen=True)
 class ContinuumRateCoefficients:
     """Level-resolved continuum rate coefficients."""
 
@@ -48,6 +62,7 @@ class BoundBoundMatrixRates:
     destination_level_idx: IntArray
     radiative_rate_coefficient: FloatArray
     collisional_rate: FloatArray
+    fixed_rate: FloatArray
     beta_line_idx: IntArray
 
 
@@ -55,7 +70,7 @@ class BoundBoundMatrixRates:
 class ShellNumberDensity:
     """Absolute population information fixed for one shell."""
 
-    hydrogen_number_density: float
+    species_number_density: float
     level_number_density: FloatArray
     species_level_positions: IntArray
 

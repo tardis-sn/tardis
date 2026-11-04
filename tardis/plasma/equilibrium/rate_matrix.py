@@ -6,7 +6,10 @@ from astropy import units as u
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.inputs import BoundBoundMatrixRates
+from tardis.plasma.equilibrium.inputs import (
+    BoundBoundMatrixRates,
+    FixedRateState,
+)
 from tardis.plasma.equilibrium.matrix_assembly import (
     construct_rate_matrices,
     normalize_rate_matrices,
@@ -59,12 +62,28 @@ class RateMatrix:
         thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
         species: tuple[int, int],
         line_index: pd.Index,
+        fixed_bound_bound_rates: pd.DataFrame | None = None,
     ) -> tuple[BoundBoundMatrixRates, ...]:
-        """Prepare fixed transition arrays for every shell of one species.
+        """Prepare transition arrays for every shell of one species.
 
-        Rows of ``j_blues`` follow ``line_index``. Only lines of species held
-        by the radiative rate solver are used, so other species in
-        ``line_index`` may have several lines between one level pair.
+        Parameters
+        ----------
+        j_blues : pandas.DataFrame
+            Mean intensities at the bound-bound transition frequencies.
+        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
+            Thermal electron temperatures and number densities.
+        species : tuple[int, int]
+            Atomic and ion numbers of the species to prepare.
+        line_index : pandas.Index
+            Bound-bound line index used to locate Sobolev probabilities.
+        fixed_bound_bound_rates : pandas.DataFrame, optional
+            Direct transition rates in inverse seconds. These rates are not
+            scaled by electron density or Sobolev escape probability.
+
+        Returns
+        -------
+        tuple[BoundBoundMatrixRates, ...]
+            Prepared transition arrays for each shell.
         """
         level_names = ["level_number_lower", "level_number_upper"]
         solver_species_index = (
@@ -93,8 +112,31 @@ class RateMatrix:
         )
         radiative_rates = radiative_rates.loc[radiative_species_mask]
         collisional_rates = collisional_rates.loc[collisional_species_mask]
+        if fixed_bound_bound_rates is None:
+            fixed_rates = pd.DataFrame(
+                columns=j_blues.columns,
+                index=pd.MultiIndex.from_tuples(
+                    [], names=radiative_rates.index.names
+                ),
+                dtype=np.float64,
+            )
+        else:
+            fixed_species_mask = (
+                fixed_bound_bound_rates.index.get_level_values("atomic_number")
+                == species[0]
+            ) & (
+                fixed_bound_bound_rates.index.get_level_values("ion_number")
+                == species[1]
+            )
+            fixed_rates = fixed_bound_bound_rates.loc[
+                fixed_species_mask, j_blues.columns
+            ]
         transition_index = pd.MultiIndex.from_tuples(
-            sorted(set(radiative_rates.index) | set(collisional_rates.index)),
+            sorted(
+                set(radiative_rates.index)
+                | set(collisional_rates.index)
+                | set(fixed_rates.index)
+            ),
             names=radiative_rates.index.names,
         )
         radiative_rate_coefficients = radiative_rates.reindex(
@@ -106,6 +148,9 @@ class RateMatrix:
             .to_numpy(dtype=np.float64)
             * thermal_electron_energy_distribution.number_density.value[None, :]
         )
+        fixed_rates_array = fixed_rates.reindex(
+            transition_index, fill_value=0.0
+        ).to_numpy(dtype=np.float64)
 
         source_level_idx = transition_index.get_level_values(
             "level_number_source"
@@ -142,6 +187,7 @@ class RateMatrix:
                 destination_level_idx,
                 radiative_rate_coefficients[:, shell_idx],
                 collisional_rates[:, shell_idx],
+                fixed_rates_array[:, shell_idx],
                 beta_line_idx,
             )
             for shell_idx in range(len(j_blues.columns))
@@ -256,6 +302,7 @@ def assemble_ion_rate_matrices(
     recombination_rates_df: pd.DataFrame,
     collisional_ionization_rates_df: pd.DataFrame,
     collisional_recombination_rates_df: pd.DataFrame,
+    fixed_ionization_rates_df: pd.DataFrame | None = None,
     lte_ionization_factor: pd.DataFrame | None = None,
     electron_density: npt.NDArray[np.float64] | None = None,
 ) -> tuple[pd.DataFrame, pd.MultiIndex]:
@@ -269,19 +316,30 @@ def assemble_ion_rate_matrices(
             collisional_recombination_rates_df,
         )
     ]
+    if fixed_ionization_rates_df is not None:
+        active_fixed_rates = fixed_ionization_rates_df.loc[
+            :, photoion_rates_df.columns
+        ]
+        aggregated_rates.append(sum_duplicate_rates(active_fixed_rates))
     rate_matrices: dict[int, npt.NDArray[np.float64]] = {}
-    atomic_numbers = (
-        aggregated_rates[0].index.get_level_values("atomic_number").unique()
+    atomic_numbers = sorted(
+        set().union(
+            *(
+                rates.index.get_level_values("atomic_number")
+                for rates in aggregated_rates
+            )
+        )
     )
     for atomic_number in atomic_numbers:
-        rates = sum_rate_frames(
-            [
-                aggregated.xs(
-                    atomic_number, level="atomic_number", drop_level=False
-                )
-                for aggregated in aggregated_rates
-            ]
-        )
+        element_rates = [
+            aggregated.xs(
+                atomic_number, level="atomic_number", drop_level=False
+            )
+            for aggregated in aggregated_rates
+            if atomic_number
+            in aggregated.index.get_level_values("atomic_number")
+        ]
+        rates = sum_rate_frames(element_rates)
         rate_matrices[atomic_number] = normalize_rate_matrices(
             construct_rate_matrices(
                 rates,
@@ -352,6 +410,7 @@ class AnalyticIonRateMatrix:
         self,
         radiative_ionization_rate_solver: AnalyticPhotoionizationRateSolver,
         collisional_ionization_rate_solver: CollisionalIonizationRateSolver,
+        fixed_rates: FixedRateState | None = None,
     ) -> None:
         """Initialize an analytic ionization rate matrix.
 
@@ -361,11 +420,14 @@ class AnalyticIonRateMatrix:
             Solver for radiative ionization and recombination rates.
         collisional_ionization_rate_solver : CollisionalIonizationRateSolver
             Solver for collisional ionization and recombination rates.
+        fixed_rates : FixedRateState, optional
+            Density-independent ionization rates.
         """
         self.radiative_ionization_rate_solver = radiative_ionization_rate_solver
         self.collisional_ionization_rate_solver = (
             collisional_ionization_rate_solver
         )
+        self.fixed_rates = fixed_rates
         self.ion_population_index = pd.MultiIndex.from_tuples(
             [], names=["atomic_number", "ion_number"]
         )
@@ -451,6 +513,11 @@ class AnalyticIonRateMatrix:
             recomb_rates_df,
             collisional_ionization_rates_df,
             collision_recombination_rates_df,
+            fixed_ionization_rates_df=(
+                None
+                if self.fixed_rates is None
+                else self.fixed_rates.ionization_rates
+            ),
             lte_ionization_factor=lte_ionization_factor,
             electron_density=thermal_electron_energy_distribution.number_density.to_value(
                 "cm^-3"
@@ -467,6 +534,7 @@ class EstimatedIonRateMatrix:
         radiative_ionization_rate_solver: EstimatedPhotoionizationRateSolver,
         collisional_ionization_rate_solver: CollisionalIonizationRateSolver,
         lte_ionization_factor: pd.DataFrame | None = None,
+        fixed_rates: FixedRateState | None = None,
     ) -> None:
         """Initialize an estimator-based ionization rate matrix.
 
@@ -478,12 +546,15 @@ class EstimatedIonRateMatrix:
             Solver for collisional ionization and recombination rates.
         lte_ionization_factor : pandas.DataFrame, optional
             LTE ionization factors used for rate normalization.
+        fixed_rates : FixedRateState, optional
+            Density-independent ionization rates.
         """
         self.radiative_ionization_rate_solver = radiative_ionization_rate_solver
         self.collisional_ionization_rate_solver = (
             collisional_ionization_rate_solver
         )
         self.lte_ionization_factor = lte_ionization_factor
+        self.fixed_rates = fixed_rates
         self.ion_population_index = pd.MultiIndex.from_tuples(
             [], names=["atomic_number", "ion_number"]
         )
@@ -538,6 +609,18 @@ class EstimatedIonRateMatrix:
                 collisional_recombination_rate,
             )
         ]
+        if (
+            self.fixed_rates is not None
+            and self.fixed_rates.ionization_rates is not None
+        ):
+            fixed_ionization_rates = sum_duplicate_rates(
+                self.fixed_rates.ionization_rates.loc[
+                    :, level_population.columns
+                ]
+            )
+            aggregated_rates[0] = sum_rate_frames(
+                [aggregated_rates[0], fixed_ionization_rates]
+            )
         matrix_coefficients: dict[int, tuple[npt.NDArray[np.float64], ...]] = {}
         atomic_numbers = (
             aggregated_rates[0].index.get_level_values("atomic_number").unique()

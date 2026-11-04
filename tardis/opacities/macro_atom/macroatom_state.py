@@ -5,6 +5,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.plasma.base import BasePlasma
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
@@ -57,7 +58,7 @@ class LegacyMacroAtomState(HDFWriterMixin):
         self.line2macro_level_upper = line2macro_level_upper
 
     @classmethod
-    def from_legacy_plasma(cls, plasma: object) -> Self:
+    def from_legacy_plasma(cls, plasma: BasePlasma) -> Self:
         """
         Generate a LegacyMacroAtomState object from a tardis BasePlasma.
 
