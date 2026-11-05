@@ -1,0 +1,7 @@
+tardis.plasma.equilibrium.matrix\_assembly module
+=================================================
+
+.. automodule:: tardis.plasma.equilibrium.matrix_assembly
+   :members:
+   :show-inheritance:
+   :undoc-members:

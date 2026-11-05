@@ -1,0 +1,7 @@
+tardis.util.panel\_init module
+==============================
+
+.. automodule:: tardis.util.panel_init
+   :members:
+   :show-inheritance:
+   :undoc-members:
