@@ -9,6 +9,6 @@ The following pages contain the TARDIS workflows:
 * :doc:`workflows/simple_workflow`
 * :doc:`workflows/simple_workflow_equilibrium`
 * :doc:`workflows/workflow_notebook`
-* :doc:`workflows/nonhomologous_workflow`
 * :doc:`workflows/standard_workflow`
+* :doc:`workflows/nonhomologous_workflow`
 * :doc:`workflows/iip_workflow/iip_workflow`
