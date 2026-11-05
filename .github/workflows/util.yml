@@ -5,25 +5,29 @@ on:
     branches:
       - master
 
+# pull_request_target runs with secrets, so no job checks out or runs PR code.
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
 jobs:
   mailmap:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
       - name: Check PR authors
-        run: cat .mailmap | grep "$(git log $PR_BASE_SHA..HEAD --pretty='%aN <%aE>')"
         env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-
-      - name: Error message
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          echo "Committer name or email couldn't be found in .mailmap"
-          echo; git log $PR_BASE_SHA..HEAD --pretty='%aN <%aE>'
-        if: failure()
+          authors=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$NUMBER/commits" --paginate --jq '.[].commit.author | "\(.name) <\(.email)>"')
+          gh api "repos/$HEAD_REPO/contents/.mailmap?ref=$HEAD_SHA" -H 'Accept: application/vnd.github.raw' | grep -F "$authors" || {
+            echo "Committer name or email couldn't be found in .mailmap"
+            echo "$authors"
+            exit 1
+          }
 
   comment-on-mailmap-failure:
     needs: mailmap
