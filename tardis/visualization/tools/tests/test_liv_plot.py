@@ -135,8 +135,6 @@ class TestLIVPlotter:
             nelements=nelements,
         )
 
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         return plotter
 
@@ -212,8 +210,6 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
         yield fig, plotter
         plt.close(fig.figure)
 
@@ -389,8 +385,6 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         return fig, plotter
 
@@ -529,8 +523,6 @@ class TestLIVPlotter:
             num_bins=num_bins,
             nelements=nelements,
         )
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         plotter_from_workflow._param_idx = param_idx
         return plotter_from_workflow
@@ -599,8 +591,6 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         plotter_from_workflow._param_idx = param_idx
         yield fig, plotter_from_workflow
@@ -669,8 +659,6 @@ class TestLIVPlotter:
             "num_bins": None,
             "nelements": None,
         }
-        if params["packets_mode"] == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         plotter._prepare_plot_data(**params)
         plotter_from_workflow._prepare_plot_data(**params)

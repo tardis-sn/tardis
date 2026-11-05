@@ -97,7 +97,6 @@ class TypeIIPWorkflow:
     """Coordinate Type IIP plasma, transport, and thermal-balance solves."""
 
     show_progress_bars = Environment.allows_widget_display()
-    enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
 
@@ -266,7 +265,6 @@ class TypeIIPWorkflow:
         self.transport_solver = MCTransportSolverIIP.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
-            enable_virtual_packet_logging=self.enable_virtual_packet_logging,
         )
 
         # Luminosity filter frequencies
@@ -302,6 +300,8 @@ class TypeIIPWorkflow:
 
         self.final_iteration_packet_count = int(final_iteration_packet_count)
 
+        # IIP mode does not currently support virtual packets, so the final
+        # iteration never retains real-packet histories for them
         self.virtual_packet_count = int(
             configuration.montecarlo.no_of_virtual_packets
         )
@@ -1381,7 +1381,6 @@ class TypeIIPWorkflow:
         self,
         opacity_states: Mapping[str, object],
         no_of_real_packets: int,
-        no_of_virtual_packets: int = 0,
         estimator_batch_count: int = ESTIMATOR_BATCH_COUNT,
     ) -> None:
         """Solve the Monte Carlo process.
@@ -1392,8 +1391,6 @@ class TypeIIPWorkflow:
             Opacity and (optionally) Macro Atom states.
         no_of_real_packets : int
             Number of real packets to simulate
-        no_of_virtual_packets : int, optional
-            Number of virtual packets to simulate per interaction, by default 0
         estimator_batch_count : int, optional
             Number of independent packet batches whose estimators are kept to
             measure the Monte Carlo noise of the thermal-balance residuals.
@@ -1411,7 +1408,6 @@ class TypeIIPWorkflow:
             macro_atom_state,
             self.continuum_opacity_state,
             no_of_real_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.completed_iterations,
         )
 
@@ -1493,7 +1489,6 @@ class TypeIIPWorkflow:
         self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
-            self.virtual_packet_count,
             estimator_batch_count=1,
         )
 
