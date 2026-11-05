@@ -94,6 +94,9 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.estimators_bulk = None
         self.estimators_line = None
         self.estimators_continuum = None
+        # Estimators of independent packet batches (IIP mode); see
+        # tardis.transport.montecarlo.modes.iip.solver.EstimatorBatches.
+        self.estimator_batches = None
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
         self.time_explosion = time_explosion

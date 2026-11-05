@@ -418,6 +418,60 @@ def test_thermal_balance_retries_failed_shell_from_alternate_start(
     np.testing.assert_array_equal(accepted_candidate, [0.6, 0.85, 0.7, 1.0])
 
 
+def test_packet_batches_sum_to_single_transport(
+    type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """Transport packets in consecutive batches without changing the result.
+
+    Claim: The estimators and escaping packets of four packet batches equal
+    those of one transport of the same packets.
+    Regime: Five-shell pure-hydrogen comparison model, first transport.
+    Verification: Every packet has its own random-number seed, so batching
+    only changes the order in which packet contributions are summed. The
+    1e-12 tolerance covers that floating-point reordering.
+    """
+    workflow = type_iip_workflow
+    workflow.show_progress_bars = False
+    opacity_states = workflow.solve_opacity()
+    results = {}
+    for estimator_batch_count in (1, 4):
+        workflow.solve_montecarlo(
+            opacity_states,
+            workflow.real_packet_count,
+            estimator_batch_count=estimator_batch_count,
+        )
+        state = workflow.transport_state
+        results[estimator_batch_count] = {
+            "output_nus": state.packet_collection.output_nus.copy(),
+            "output_energies": state.packet_collection.output_energies.copy(),
+            "mean_intensity_total": state.estimators_bulk.mean_intensity_total,
+            "mean_intensity_blueward": (
+                state.estimators_line.mean_intensity_blueward
+            ),
+            "photo_ion_estimator": (
+                state.estimators_continuum.photo_ion_estimator
+            ),
+            "bf_heating_estimator": (
+                state.estimators_continuum.bf_heating_estimator
+            ),
+            "ff_heating_estimator": (
+                state.estimators_continuum.ff_heating_estimator
+            ),
+        }
+
+    assert workflow.transport_state.estimator_batches.packet_counts.sum() == (
+        workflow.real_packet_count
+    )
+    for name, single_transport in results[1].items():
+        np.testing.assert_allclose(
+            results[4][name],
+            single_transport,
+            rtol=1e-12,
+            atol=0.0,
+            err_msg=f"batched transport changed {name}",
+        )
+
+
 def test_iip_level_solution_is_seed_independent_after_first_transport(
     type_iip_workflow: TypeIIPWorkflow,
 ) -> None:
