@@ -483,7 +483,8 @@ def test_thermal_solve_rejects_failed_trial_and_keeps_root(
     is measured, so it fires inside the optimizer, at the first evaluation
     that moves the temperature by more than a finite-difference step. The
     undisturbed solve gives the expected root. The Jacobian maps the
-    residuals left at both roots into a bound on their difference.
+    residuals left at both roots, each plus the ~1e-11 round-off scatter of
+    the residual, into a bound on their difference.
     """
     (
         workflow,
@@ -564,6 +565,7 @@ def test_thermal_solve_rejects_failed_trial_and_keeps_root(
             candidates["undisturbed"],
             sum(
                 np.abs(solvers["undisturbed"].calculate_residual(candidate))
+                + 1e-11
                 for candidate in candidates.values()
             ),
         ),
