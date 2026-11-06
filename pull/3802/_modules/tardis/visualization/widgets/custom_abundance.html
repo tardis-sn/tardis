@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=2077b407"></script>
+      <script src="../../../../_static/documentation_options.js?v=a9965a6d"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -485,6 +485,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -1381,7 +1382,16 @@
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.macro_level_to_reduced_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.reduced_to_macro_level_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.residual_probabilities</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -2601,6 +2611,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html">tardis.spectrum.base module</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver</span></code></a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.from_config"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.from_config()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.get_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.get_properties()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_name"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_name</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_properties</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.integrator"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.integrator</span></code></a></li>
@@ -2609,10 +2620,12 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.montecarlo_virtual_luminosity"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.montecarlo_virtual_luminosity</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.setup_optional_spectra"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.setup_optional_spectra()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_integrated"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_integrated</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets_reabsorbed"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets_reabsorbed</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_virtual_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_virtual_packets</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.vpacket_tracker_to_df"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.vpacket_tracker_to_df()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2632,6 +2645,12 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.spectrum.spectrum.html#tardis.spectrum.spectrum.TARDISSpectrum.to_ascii"><code class="docutils literal notranslate"><span class="pre">TARDISSpectrum.to_ascii()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../api/tardis.spectrum.virtual_packet.html">tardis.spectrum.virtual_packet module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2670,7 +2689,6 @@
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration.class_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloConfiguration.class_type</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.configuration_initialize"><code class="docutils literal notranslate"><span class="pre">configuration_initialize()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.configuration.constants.html">tardis.transport.montecarlo.configuration.constants module</a></li>
@@ -2693,8 +2711,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html">tardis.transport.montecarlo.estimators.estimators_bulk module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk</span></code></a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.class_type"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.class_type</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_frequency"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_frequency</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_intensity_total"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_intensity_total</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.create_estimators_bulk_list"><code class="docutils literal notranslate"><span class="pre">create_estimators_bulk_list()</span></code></a></li>
@@ -2772,6 +2788,31 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.html">tardis.transport.montecarlo.modes package</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.html">tardis.transport.montecarlo.modes.classic package</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.html#submodules">Submodules</a><ul>
+<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html">tardis.transport.montecarlo.modes.classic.packet_propagation module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.packet_propagation"><code class="docutils literal notranslate"><span class="pre">packet_propagation()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_full_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_full_relativity()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_partial_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_partial_relativity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.solver.html">tardis.transport.montecarlo.modes.classic.solver module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.from_config"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.from_config()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_name"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_name</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_properties"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_properties</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.initialize_transport_state"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.initialize_transport_state()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run_classic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run_classic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.classic.html#module-tardis.transport.montecarlo.modes.classic">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.iip.html">tardis.transport.montecarlo.modes.iip package</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.iip.html#submodules">Submodules</a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.iip.interaction_event_callers.html">tardis.transport.montecarlo.modes.iip.interaction_event_callers module</a><ul>
@@ -2868,19 +2909,6 @@
 <li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.time_of_simulation</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_logging</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_energies</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_nus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2970,10 +2998,6 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html">tardis.transport.montecarlo.modes.montecarlo_transport module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet"><code class="docutils literal notranslate"><span class="pre">make_r_packet()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.set_packet_collection_output"><code class="docutils literal notranslate"><span class="pre">set_packet_collection_output()</span></code></a></li>
@@ -3158,14 +3182,31 @@
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_energy"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_mu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.event_offsets"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.event_offsets</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.interaction_type</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_absorb_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.next_line_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.next_line_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.packet_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.packet_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.radius"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.radius</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df_to_event_arrays"><code class="docutils literal notranslate"><span class="pre">tracker_full_df_to_event_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3220,10 +3261,11 @@
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_last_interaction_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_last_interaction_list()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -3367,19 +3409,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.time_of_simulation</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_logging</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_energies</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_nus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -3488,18 +3517,6 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/tardis.visualization.html">tardis.visualization package</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/tardis.visualization.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../../api/tardis.visualization.sdec.html">tardis.visualization.sdec package</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.visualization.sdec.html#submodules">Submodules</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.visualization.sdec.util.html">tardis.visualization.sdec.util module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_absorption_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_absorption_luminosities()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_emission_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_emission_luminosities()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.visualization.sdec.html#module-tardis.visualization.sdec">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l6"><a class="reference internal" href="../../../../api/tardis.visualization.tools.html">tardis.visualization.tools package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../../api/tardis.visualization.tools.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.visualization.tools.convergence_plot.html">tardis.visualization.tools.convergence_plot module</a><ul>
@@ -3854,7 +3871,10 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../io/configuration/components/plasma.html">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#continuum-interaction">Continuum Interaction</a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#nlte">NLTE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#nlte">NLTE</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../io/configuration/components/plasma.html#type-iip-macro-atom-reduction">Type IIP macro-atom reduction</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../io/configuration/components/models/index.html">Models</a><ul>
@@ -4306,6 +4326,7 @@ WIDGET_INPUT_STYLE = &quot;&quot;&quot;
     }
     &quot;&quot;&quot;
 
+
 <div class="viewcode-block" id="CustomAbundanceWidgetData">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData">[docs]</a>
 class CustomAbundanceWidgetData:
@@ -4377,12 +4398,17 @@ class CustomAbundanceWidgetData:
             ).cgs
         else:
             velocity_field_index = [
-                field[&quot;name&quot;] for field in csvy_data.model_config.datatype.fields
+                field[&quot;name&quot;]
+                for field in csvy_data.model_config.datatype.fields
             ].index(&quot;velocity&quot;)
             velocity_unit = u.Unit(
-                csvy_data.model_config.datatype.fields[velocity_field_index][&quot;unit&quot;]
+                csvy_data.model_config.datatype.fields[velocity_field_index][
+                    &quot;unit&quot;
+                ]
             )
-            velocity = csvy_data.raw_csv_data[&quot;velocity&quot;].values * velocity_unit
+            velocity = (
+                csvy_data.raw_csv_data[&quot;velocity&quot;].to_numpy() * velocity_unit
+            )
 
         no_of_shells = len(velocity) - 1
 
@@ -4417,12 +4443,17 @@ class CustomAbundanceWidgetData:
                 raise ValueError(f&quot;Unrecognized density type {d_conf.type}&quot;)
         else:
             density_field_index = [
-                field[&quot;name&quot;] for field in csvy_data.model_config.datatype.fields
+                field[&quot;name&quot;]
+                for field in csvy_data.model_config.datatype.fields
             ].index(&quot;density&quot;)
             density_unit = u.Unit(
-                csvy_data.model_config.datatype.fields[density_field_index][&quot;unit&quot;]
+                csvy_data.model_config.datatype.fields[density_field_index][
+                    &quot;unit&quot;
+                ]
             )
-            density_0 = csvy_data.raw_csv_data[&quot;density&quot;].values * density_unit
+            density_0 = (
+                csvy_data.raw_csv_data[&quot;density&quot;].to_numpy() * density_unit
+            )
             time_0 = csvy_data.model_config.model_density_time_0
 
         if hasattr(csvy_data.model_config, &quot;abundance&quot;):
@@ -4560,7 +4591,9 @@ class CustomAbundanceWidgetData:
         CustomAbundanceWidgetData
         &quot;&quot;&quot;
         abundance = sim.simulation_state.abundance.copy()
-        isotope_abundance = sim.simulation_state.composition.isotopic_mass_fraction.copy()
+        isotope_abundance = (
+            sim.simulation_state.composition.isotopic_mass_fraction.copy()
+        )
 
         # integrate element and isotope to one DataFrame
         abundance[&quot;mass_number&quot;] = &quot;&quot;
@@ -4675,7 +4708,7 @@ class CustomAbundanceWidget:
             disabled=True,
             width=30,
             height=30,
-            align=&#39;end&#39;,
+            align=&quot;end&quot;,
             margin=(5, 5, 5, 0),
         )
         self.btn_prev.on_click(self.on_btn_prev)
@@ -4683,17 +4716,13 @@ class CustomAbundanceWidget:
             icon=&quot;chevron-right&quot;,
             width=30,
             height=30,
-            align=&#39;end&#39;,
+            align=&quot;end&quot;,
             margin=5,
         )
         self.btn_next.on_click(self.on_btn_next)
 
         self.checks = [
-            pn.widgets.Checkbox(
-                width=30,
-                height=30,
-                margin=(11, 0, 0, 0)
-            )
+            pn.widgets.Checkbox(width=30, height=30, margin=(11, 0, 0, 0))
             for element in self.data.elements
         ]
         self.input_items = [
@@ -4707,7 +4736,9 @@ class CustomAbundanceWidget:
             for element in self.data.elements
         ]
         for i in range(self.no_of_elements):
-            self.input_items[i].param.watch(self.input_item_eventhandler, &quot;value&quot;)
+            self.input_items[i].param.watch(
+                self.input_item_eventhandler, &quot;value&quot;
+            )
             self.input_items[i].index = i
             self.checks[i].param.watch(self.check_eventhandler, &quot;value&quot;)
             self.checks[i].index = i
@@ -4725,7 +4756,9 @@ class CustomAbundanceWidget:
             visible=False,
             width=200,
             height=30,
-            stylesheets=[&quot;:host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}&quot;],
+            stylesheets=[
+                &quot;:host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}&quot;
+            ],
         )
 
         self.symb_warning = pn.pane.Alert(
@@ -4733,7 +4766,9 @@ class CustomAbundanceWidget:
             alert_type=&quot;warning&quot;,
             width=200,
             height=30,
-            stylesheets=[&quot;:host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}&quot;],
+            stylesheets=[
+                &quot;:host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}&quot;
+            ],
         )
         self.input_symb = pn.widgets.TextInput(
             name=&quot;Element: &quot;,
@@ -4760,14 +4795,16 @@ class CustomAbundanceWidget:
             disabled=True,
             margin=(32, 0, 0, 0),
         )
-        self.irs_shell_range.param.watch(self.irs_shell_range_eventhandler, &quot;value_throttled&quot;)
+        self.irs_shell_range.param.watch(
+            self.irs_shell_range_eventhandler, &quot;value_throttled&quot;
+        )
 
         self.btn_add_shell = pn.widgets.Button(
             icon=&quot;square-plus&quot;,
             name=&quot;Add&quot;,
             disabled=True,
             width=80,
-            align=&#39;end&#39;,
+            align=&quot;end&quot;,
             margin=5,
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)
@@ -4775,7 +4812,7 @@ class CustomAbundanceWidget:
             start=0,
             step=1,
             name=&quot;Add shell(s) with velocity range (km/s): &quot;,
-            align=&#39;end&#39;,
+            align=&quot;end&quot;,
             margin=(5, 5, 5, 15),
             stylesheets=[WIDGET_INPUT_STYLE],
         )
@@ -4784,7 +4821,7 @@ class CustomAbundanceWidget:
             step=1,
             width=90,
             name=&quot;to&quot;,
-            align=&#39;end&#39;,
+            align=&quot;end&quot;,
             margin=5,
             stylesheets=[WIDGET_INPUT_STYLE],
         )
@@ -4804,7 +4841,9 @@ class CustomAbundanceWidget:
         self.btn_output.on_click(self.on_btn_output)
 
         self.input_path = pn.widgets.TextInput(
-            name=&quot;File path: &quot;, placeholder=&quot;Input file name or path&quot;, margin=(5, 0, 5, 10)
+            name=&quot;File path: &quot;,
+            placeholder=&quot;Input file name or path&quot;,
+            margin=(5, 0, 5, 10),
         )
 
         self.input_i_time_0 = pn.widgets.FloatInput(
@@ -4828,9 +4867,12 @@ class CustomAbundanceWidget:
             options=[&quot;Only selected shell&quot;, &quot;A range of shells: &quot;],
             value=&quot;Only selected shell&quot;,
             inline=False,
-            stylesheets=[&quot;label input[type=\&quot;radio\&quot;] + span {top: 0px;}&quot;, &quot;.bk-input-group {gap: 10px;}&quot;],
+            stylesheets=[
+                &#39;label input[type=&quot;radio&quot;] + span {top: 0px;}&#39;,
+                &quot;.bk-input-group {gap: 10px;}&quot;,
+            ],
         )
-        self._watcher_single_apply= self.rbs_shell_edit_mode.param.watch(
+        self._watcher_single_apply = self.rbs_shell_edit_mode.param.watch(
             self.rbs_shell_editing_eventhandler, &quot;value&quot;
         )</div>
 
@@ -5010,8 +5052,7 @@ class CustomAbundanceWidget:
 
         return bool(
             index_1 - index_0 &gt; 1
-            or (index_1 - index_0 == 1
-            and not np.isclose(v_vals[index_0], v_0))
+            or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
         )</div>
 
 
@@ -5347,11 +5388,20 @@ class CustomAbundanceWidget:
             z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
-        self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
+        self.data.abundance = self.data.abundance.sort_index(
+            kind=SORTING_ALGORITHM
+        )
 
         # Add new Input control and Checkbox control.
-        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 15px}&quot;])
-        check = pn.widgets.Checkbox(width=30, sizing_mode=&quot;stretch_height&quot;, margin=(10, 0, 0, 0))
+        item = pn.widgets.FloatInput(
+            start=0,
+            end=1,
+            step=0.01,
+            stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 15px}&quot;],
+        )
+        check = pn.widgets.Checkbox(
+            width=30, sizing_mode=&quot;stretch_height&quot;, margin=(10, 0, 0, 0)
+        )
         item.index = self.no_of_elements - 1
         check.index = self.no_of_elements - 1
         item.param.watch(self.input_item_eventhandler, &quot;value&quot;)
@@ -5601,28 +5651,31 @@ class CustomAbundanceWidget:
         else:
             # --------------Combine widget components--------------
             self.box_editor = pn.Row(
-                    pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
-                    pn.Column(
-                        *self.checks
-                    ),
+                pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
+                pn.Column(*self.checks),
             )
 
             box_add_shell = pn.Row(
-                    self.input_v_start,
-                    self.input_v_end,
-                    self.btn_add_shell,
-                    self.overwrite_warning,
+                self.input_v_start,
+                self.input_v_end,
+                self.btn_add_shell,
+                self.overwrite_warning,
                 margin=(0, 0, 0, 50),
-                align=&#39;end&#39;,
+                align=&quot;end&quot;,
             )
 
             box_head = pn.Row(
-                self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell,
-                margin=(0, 0, 20, 0)
+                self.dpd_shell_no,
+                self.btn_prev,
+                self.btn_next,
+                box_add_shell,
+                margin=(0, 0, 20, 0),
             )
 
             box_add_element = pn.Row(
-                self.input_symb, self.btn_add_element, self.symb_warning,
+                self.input_symb,
+                self.btn_add_element,
+                self.symb_warning,
                 width=200,
                 margin=(0, 0, 0, 110),
             )
@@ -5644,40 +5697,37 @@ class CustomAbundanceWidget:
             box_norm = pn.Row(self.btn_norm, self.norm_warning)
 
             box_apply = pn.Column(
-
-                    pn.pane.Markdown(&quot;Apply abundance(s) to:&quot;, margin=(0, 0, 0, 0)),
-                    pn.Row(
-                            self.rbs_shell_edit_mode,
-                            self.irs_shell_range,
-                    ),
-                    self.abundance_note,
+                pn.pane.Markdown(&quot;Apply abundance(s) to:&quot;, margin=(0, 0, 0, 0)),
+                pn.Row(
+                    self.rbs_shell_edit_mode,
+                    self.irs_shell_range,
+                ),
+                self.abundance_note,
                 margin=(0, 0, 15, 50),
             )
 
             box_features = pn.Column(box_norm, help_note)
             box_abundance = pn.WidgetBox(
-                    box_apply,
-                    pn.Row(self.box_editor, box_features),
-                    box_add_element,
-                    sizing_mode=&quot;stretch_width&quot;,
-                    styles={&#39;width&#39;:&#39;auto&#39;},
+                box_apply,
+                pn.Row(self.box_editor, box_features),
+                box_add_element,
+                sizing_mode=&quot;stretch_width&quot;,
+                styles={&quot;width&quot;: &quot;auto&quot;},
             )
             box_density = self.density_editor.display()
 
             main_tab = pn.Tabs(
-                (&#39;Edit Abundance&#39;, box_abundance),
-                (&#39;Edit Density&#39;, box_density),
+                (&quot;Edit Abundance&quot;, box_abundance),
+                (&quot;Edit Density&quot;, box_density),
             )
 
             hint = pn.pane.HTML(
                 &quot;&lt;b&gt;&lt;font size=&#39;3&#39;&gt;Save model as file: &lt;/font&gt;&lt;/b&gt;&quot;
             )
             box_output = pn.Column(
-                    hint,
-                    self.input_i_time_0,
-                    pn.Row(
-                        self.input_path, self.btn_output, self.ckb_overwrite
-                    ),
+                hint,
+                self.input_i_time_0,
+                pn.Row(self.input_path, self.btn_output, self.ckb_overwrite),
             )
 
             # Initialize the widget and plot colormap
@@ -5687,12 +5737,15 @@ class CustomAbundanceWidget:
             self.density_editor.read_density()
 
             return pn.Column(
-                    pn.Row(pn.pane.Markdown(&quot;Scale of yaxes:&quot;, margin=(0, 0)), self.tbs_scale),
-                    pn.panel(self.fig, sizing_mode=&quot;stretch_width&quot;),
-                    box_head,
-                    main_tab,
-                    box_output,
-                    self.error_view,
+                pn.Row(
+                    pn.pane.Markdown(&quot;Scale of yaxes:&quot;, margin=(0, 0)),
+                    self.tbs_scale,
+                ),
+                pn.panel(self.fig, sizing_mode=&quot;stretch_width&quot;),
+                box_head,
+                main_tab,
+                box_output,
+                self.error_view,
             )</div>
 
 
@@ -5861,7 +5914,9 @@ class DensityEditor:
             name=&quot;Density time_0 (day): &quot;,
             margin=(10, 0, 20, 10),
         )
-        self.input_d_time_0.param.watch(self.input_d_time_0_eventhandler, &quot;value&quot;)
+        self.input_d_time_0.param.watch(
+            self.input_d_time_0_eventhandler, &quot;value&quot;
+        )
 
         self.dpd_dtype = pn.widgets.Select(
             options=[&quot;-&quot;, &quot;uniform&quot;, &quot;exponential&quot;, &quot;power_law&quot;],
@@ -5874,28 +5929,40 @@ class DensityEditor:
             name=&quot;rho_0&quot;,
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px; text-align: end;}&quot;],
+            stylesheets=[
+                WIDGET_INPUT_STYLE,
+                &quot;label {width: 70px; text-align: end;}&quot;,
+            ],
         )
 
         self.input_exp = pn.widgets.FloatInput(
             name=&quot;exponent&quot;,
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px; text-align: end;}&quot;],
+            stylesheets=[
+                WIDGET_INPUT_STYLE,
+                &quot;label {width: 70px; text-align: end;}&quot;,
+            ],
         )
 
         self.input_v_0 = pn.widgets.FloatInput(
             name=&quot;v_0&quot;,
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px; text-align: end;}&quot;],
+            stylesheets=[
+                WIDGET_INPUT_STYLE,
+                &quot;label {width: 70px; text-align: end;}&quot;,
+            ],
         )
 
         self.input_value = pn.widgets.FloatInput(
             name=&quot;value&quot;,
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px; text-align: end;}&quot;],
+            stylesheets=[
+                WIDGET_INPUT_STYLE,
+                &quot;label {width: 70px; text-align: end;}&quot;,
+            ],
         )
 
         self.btn_calculate = pn.widgets.Button(
@@ -5907,7 +5974,7 @@ class DensityEditor:
 
         self.uniform_box = pn.Row(
             self.input_value,
-            pn.pane.Markdown(&quot;g cm^3&quot;, margin=(0,5)),
+            pn.pane.Markdown(&quot;g cm^3&quot;, margin=(0, 5)),
             visible=False,
         )
 
@@ -5923,14 +5990,14 @@ class DensityEditor:
 
         self.exp_box = pn.Column(
             form_exp,
-            pn.Row(self.input_rho_0, pn.pane.Markdown(&quot;g cm^3&quot;, margin=(0,5))),
-            pn.Row(self.input_v_0, pn.pane.Markdown(&quot;km/s&quot;, margin=(0,5))),
+            pn.Row(self.input_rho_0, pn.pane.Markdown(&quot;g cm^3&quot;, margin=(0, 5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown(&quot;km/s&quot;, margin=(0, 5))),
             visible=False,
         )
         self.pow_box = pn.Column(
             form_pow,
-            pn.Row(self.input_rho_0, pn.pane.Markdown(&quot;g cm^3&quot;, margin=(0,5))),
-            pn.Row(self.input_v_0, pn.pane.Markdown(&quot;km/s&quot;, margin=(0,5))),
+            pn.Row(self.input_rho_0, pn.pane.Markdown(&quot;g cm^3&quot;, margin=(0, 5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown(&quot;km/s&quot;, margin=(0, 5))),
             self.input_exp,
             visible=False,
         )
@@ -6085,19 +6152,20 @@ class DensityEditor:
             &quot;&lt;font size=&#39;3&#39;&gt;2) Edit densities for all shells:&lt;/font&gt;&quot;
         )
         d_box = pn.Row(
-            self.input_d, pn.pane.Markdown(&quot;g/cm^3&quot;, margin=(15, 5)),
+            self.input_d,
+            pn.pane.Markdown(&quot;g/cm^3&quot;, margin=(15, 5)),
             margin=(0, 0, 20, 0),
         )
         widget = pn.WidgetBox(
-                self.input_d_time_0,
-                hint1,
-                d_box,
-                hint2,
-                self.dpd_dtype,
-                self.dtype_out,
-                self.btn_calculate,
-                sizing_mode=&quot;stretch_width&quot;,
-                styles={&#39;width&#39;:&#39;auto&#39;},
+            self.input_d_time_0,
+            hint1,
+            d_box,
+            hint2,
+            self.dpd_dtype,
+            self.dtype_out,
+            self.btn_calculate,
+            sizing_mode=&quot;stretch_width&quot;,
+            styles={&quot;width&quot;: &quot;auto&quot;},
         )
         return widget</div>
 </div>
@@ -6112,7 +6180,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Nov 2026.
+      <span class="lastupdated">Last updated on 06 Nov 2026.
       </span></p>
   </div>
 

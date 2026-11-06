@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2077b407"></script>
+      <script src="../../../_static/documentation_options.js?v=a9965a6d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -485,6 +485,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -1381,7 +1382,16 @@
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.macro_level_to_reduced_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.reduced_to_macro_level_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.residual_probabilities</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -2601,6 +2611,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/tardis.spectrum.base.html">tardis.spectrum.base module</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver</span></code></a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.from_config"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.from_config()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.get_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.get_properties()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_name"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_name</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_properties</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.integrator"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.integrator</span></code></a></li>
@@ -2609,10 +2620,12 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.montecarlo_virtual_luminosity"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.montecarlo_virtual_luminosity</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.setup_optional_spectra"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.setup_optional_spectra()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_integrated"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_integrated</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets_reabsorbed"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets_reabsorbed</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_virtual_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_virtual_packets</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.vpacket_tracker_to_df"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.vpacket_tracker_to_df()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2632,6 +2645,12 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.spectrum.html#tardis.spectrum.spectrum.TARDISSpectrum.to_ascii"><code class="docutils literal notranslate"><span class="pre">TARDISSpectrum.to_ascii()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html">tardis.spectrum.virtual_packet module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2670,7 +2689,6 @@
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration.class_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloConfiguration.class_type</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.configuration_initialize"><code class="docutils literal notranslate"><span class="pre">configuration_initialize()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.configuration.constants.html">tardis.transport.montecarlo.configuration.constants module</a></li>
@@ -2693,8 +2711,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html">tardis.transport.montecarlo.estimators.estimators_bulk module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk</span></code></a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.class_type"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.class_type</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_frequency"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_frequency</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_intensity_total"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_intensity_total</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.create_estimators_bulk_list"><code class="docutils literal notranslate"><span class="pre">create_estimators_bulk_list()</span></code></a></li>
@@ -2772,6 +2788,31 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.html">tardis.transport.montecarlo.modes package</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.html">tardis.transport.montecarlo.modes.classic package</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.html#submodules">Submodules</a><ul>
+<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html">tardis.transport.montecarlo.modes.classic.packet_propagation module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.packet_propagation"><code class="docutils literal notranslate"><span class="pre">packet_propagation()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_full_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_full_relativity()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_partial_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_partial_relativity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html">tardis.transport.montecarlo.modes.classic.solver module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.from_config"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.from_config()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_name"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_name</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_properties"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_properties</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.initialize_transport_state"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.initialize_transport_state()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run_classic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run_classic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.html#module-tardis.transport.montecarlo.modes.classic">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.iip.html">tardis.transport.montecarlo.modes.iip package</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.iip.html#submodules">Submodules</a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.iip.interaction_event_callers.html">tardis.transport.montecarlo.modes.iip.interaction_event_callers module</a><ul>
@@ -2868,19 +2909,6 @@
 <li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.time_of_simulation</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_logging</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_energies</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_nus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2970,10 +2998,6 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html">tardis.transport.montecarlo.modes.montecarlo_transport module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet"><code class="docutils literal notranslate"><span class="pre">make_r_packet()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.set_packet_collection_output"><code class="docutils literal notranslate"><span class="pre">set_packet_collection_output()</span></code></a></li>
@@ -3158,14 +3182,31 @@
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_energy"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_mu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.event_offsets"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.event_offsets</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.interaction_type</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_absorb_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.next_line_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.next_line_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.packet_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.packet_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.radius"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.radius</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df_to_event_arrays"><code class="docutils literal notranslate"><span class="pre">tracker_full_df_to_event_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3220,10 +3261,11 @@
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_last_interaction_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_last_interaction_list()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -3367,19 +3409,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.time_of_simulation</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_logging</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_energies</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_nus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -3488,18 +3517,6 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/tardis.visualization.html">tardis.visualization package</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/tardis.visualization.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/tardis.visualization.sdec.html">tardis.visualization.sdec package</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.visualization.sdec.html#submodules">Submodules</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.visualization.sdec.util.html">tardis.visualization.sdec.util module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_absorption_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_absorption_luminosities()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_emission_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_emission_luminosities()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.visualization.sdec.html#module-tardis.visualization.sdec">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/tardis.visualization.tools.html">tardis.visualization.tools package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.visualization.tools.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.visualization.tools.convergence_plot.html">tardis.visualization.tools.convergence_plot module</a><ul>
@@ -3854,7 +3871,10 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../io/configuration/components/plasma.html">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../io/configuration/components/plasma.html#continuum-interaction">Continuum Interaction</a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../io/configuration/components/plasma.html#nlte">NLTE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../io/configuration/components/plasma.html#nlte">NLTE</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../io/configuration/components/plasma.html#type-iip-macro-atom-reduction">Type IIP macro-atom reduction</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../io/configuration/components/models/index.html">Models</a><ul>
@@ -4262,13 +4282,62 @@
              
   <h1>Source code for tardis.spectrum.base</h1><div class="highlight"><pre>
 <span></span>import warnings
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
+import pandas as pd
 from astropy import units as u
 
+from tardis.io.configuration.config_reader import ConfigurationNameSpace
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.model.base import SimulationState
+from tardis.opacities.macro_atom.macroatom_state import (
+    LegacyMacroAtomState,
+    MacroAtomState,
+)
+from tardis.opacities.opacity_state import OpacityState
+from tardis.plasma.base import BasePlasma
 from tardis.spectrum.formal_integral.base import IntegrationError
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 from tardis.spectrum.spectrum import TARDISSpectrum
+from tardis.spectrum.virtual_packet import (
+    calculate_virtual_packet_spectrum,
+    create_vpacket_collections,
+)
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+)
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state import (
+    MonteCarloTransportStateNonhomologous,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.solver import (
+    MCTransportSolverNonhomologous,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
+    trace_vpacket_volley as trace_vpacket_volley_nonhomologous,
+)
+from tardis.transport.montecarlo.montecarlo_transport_state import (
+    MonteCarloTransportState,
+)
+from tardis.transport.montecarlo.packets.packet_collections import (
+    VPacketCollection,
+    consolidate_vpacket_tracker,
+)
+from tardis.transport.montecarlo.packets.trackers import (
+    interaction_type_to_categorical,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
+    tracker_full_df_to_event_arrays,
+)
+from tardis.transport.montecarlo.packets.virtual_packet import (
+    trace_vpacket_volley as trace_vpacket_volley_classic,
+)
 from tardis.util.base import (
     quantity_linspace,
 )
@@ -4288,45 +4357,283 @@ class SpectrumSolver(HDFWriterMixin):
     hdf_name = &quot;spectrum&quot;
 
     def __init__(
-        self, transport_state, spectrum_frequency_grid, integrator_settings
-    ):
+        self,
+        transport_state: (
+            MonteCarloTransportState
+            | MonteCarloTransportStateNonhomologous
+            | None
+        ),
+        spectrum_frequency_grid: u.Quantity,
+        integrator_settings: ConfigurationNameSpace | None,
+        virtual_packet_logging: bool = False,
+        vpacket_spawn_start_frequency: u.Quantity = 0.0 * u.Hz,
+        vpacket_spawn_end_frequency: u.Quantity = 1e200 * u.Hz,
+        vpacket_tau_russian: float = 10.0,
+        vpacket_survival_probability: float = 0.0,
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Initialize the spectrum solver.
+
+        Parameters
+        ----------
+        transport_state : MonteCarloTransportState or MonteCarloTransportStateNonhomologous, optional
+            Transport state used to compute the real-packet spectra.
+        spectrum_frequency_grid : astropy.units.Quantity
+            Frequency-bin edges for the real- and virtual-packet histograms.
+        integrator_settings : ConfigurationNameSpace, optional
+            Formal integral settings.
+        virtual_packet_logging : bool, optional
+            Keep the escaping virtual packets in ``vpacket_tracker``.
+        vpacket_spawn_start_frequency : astropy.units.Quantity, optional
+            Lowest real-packet frequency that spawns virtual packets.
+        vpacket_spawn_end_frequency : astropy.units.Quantity, optional
+            Highest real-packet frequency that spawns virtual packets.
+        vpacket_tau_russian : float, optional
+            Optical depth above which virtual packets survive based on
+            vpacket_survival_probability.
+        vpacket_survival_probability : float, optional
+            Probability that a vpacket_tau_russian virtual packet survives.
+        &quot;&quot;&quot;
         self.transport_state = transport_state
         self.spectrum_frequency_grid = spectrum_frequency_grid
         self._montecarlo_virtual_luminosity = u.Quantity(
             np.zeros_like(self.spectrum_frequency_grid.value), &quot;erg / s&quot;
-        )  # should be init with v_packets_energy_hist
+        )
         self._integrator = None
         self.integrator_settings = integrator_settings
         self._spectrum_integrated = None
+        self.virtual_packet_logging = virtual_packet_logging
+        self.vpacket_spawn_start_frequency = vpacket_spawn_start_frequency
+        self.vpacket_spawn_end_frequency = vpacket_spawn_end_frequency
+        self.vpacket_tau_russian = vpacket_tau_russian
+        self.vpacket_survival_probability = vpacket_survival_probability
+        self.vpacket_tracker: VPacketCollection | None = None
 
 <div class="viewcode-block" id="SpectrumSolver.setup_optional_spectra">
 <a class="viewcode-back" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.setup_optional_spectra">[docs]</a>
     def setup_optional_spectra(
-        self, transport_state, virtual_packet_luminosity=None, integrator=None,
-        simulation_state=None, transport=None, plasma=None, opacity_state=None, macro_atom_state=None
-    ):
-        &quot;&quot;&quot;Set up the solver to handle real and virtual spectra
+        self,
+        transport_state: (
+            MonteCarloTransportState | MonteCarloTransportStateNonhomologous
+        ),
+        integrator: FormalIntegralSolver | None = None,
+        simulation_state: SimulationState | None = None,
+        transport: (
+            MCTransportSolverClassic | MCTransportSolverNonhomologous | None
+        ) = None,
+        plasma: BasePlasma | None = None,
+        opacity_state: OpacityState | None = None,
+        macro_atom_state: LegacyMacroAtomState | MacroAtomState | None = None,
+    ) -&gt; None:
+        &quot;&quot;&quot;Set up the solver to compute the integrated spectrum
 
         Parameters
         ----------
-        transport_state : MonteCarloTransportState
-            The transport state to be used to compute the spectra
-        v_packets_energy_hist : np.ndarray
-            Virtual packets energy histogram, unnormalized
+        transport_state : MonteCarloTransportState or MonteCarloTransportStateNonhomologous
+            Transport state used to compute the spectra.
         integrator : FormalIntegratorSolver, optional
-            Integrator to compute the integrated spectrum with
+            Integrator used to compute the integrated spectrum.
+        simulation_state : SimulationState, optional
+            Final simulation state.
+        transport : MCTransportSolverClassic or MCTransportSolverNonhomologous, optional
+            Completed transport solver used by the formal integral.
+        plasma : BasePlasma, optional
+            Final plasma state.
+        opacity_state : OpacityState, optional
+            Final opacity state.
+        macro_atom_state : LegacyMacroAtomState or MacroAtomState, optional
+            Final macro-atom state.
         &quot;&quot;&quot;
         self.transport_state = transport_state
-        if virtual_packet_luminosity is not None:
-            self._montecarlo_virtual_luminosity.value[:] = (
-                virtual_packet_luminosity
-            )
+        # A virtual spectrum from an earlier run is stale for this transport
+        self._montecarlo_virtual_luminosity.value[:] = 0.0
+        self.vpacket_tracker = None
         self._integrator = integrator
         self.simulation_state = simulation_state
         self.opacity_state = opacity_state
         self.transport = transport
         self.plasma = plasma
         self.macro_atom_state = macro_atom_state</div>
+
+
+<div class="viewcode-block" id="SpectrumSolver.solve_virtual_packet_spectrum">
+<a class="viewcode-back" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve_virtual_packet_spectrum">[docs]</a>
+    def solve_virtual_packet_spectrum(
+        self,
+        transport_state: (
+            MonteCarloTransportState | MonteCarloTransportStateNonhomologous
+        ),
+        montecarlo_configuration: MonteCarloConfiguration,
+        tracker_full_df: pd.DataFrame | None,
+        number_of_vpackets: int,
+    ) -&gt; None:
+        &quot;&quot;&quot;Compute the virtual spectrum from full real-packet histories.
+
+        Parameters
+        ----------
+        transport_state : MonteCarloTransportState or MonteCarloTransportStateNonhomologous
+            Completed classic or non-homologous transport state.
+        montecarlo_configuration : MonteCarloConfiguration
+            Configuration used for the completed transport calculation.
+        tracker_full_df : pandas.DataFrame or None
+            Full real-packet histories of the completed transport, e.g.
+            ``transport_state.tracker_full_df`` or one loaded from disk. Must
+            include the ``next_line_id`` column.
+        number_of_vpackets : int
+            Number of virtual packets spawned per real-packet interaction.
+            Must be positive.
+
+        Raises
+        ------
+        ValueError
+            If ``number_of_vpackets`` is not positive, or the full real-packet
+            histories are missing or lack a needed column.
+        TypeError
+            If ``transport_state`` is not a classic or non-homologous state.
+        &quot;&quot;&quot;
+        if number_of_vpackets &lt;= 0:
+            raise ValueError(
+                &quot;Virtual-packet spectra require number_of_vpackets &gt; 0, got &quot;
+                f&quot;{number_of_vpackets}.&quot;
+            )
+        if tracker_full_df is None:
+            raise ValueError(
+                &quot;Virtual-packet post-processing requires full real-packet &quot;
+                &quot;histories; run the final iteration with &quot;
+                &quot;record_full_histories=True.&quot;
+            )
+        tracker_events = tracker_full_df_to_event_arrays(tracker_full_df)
+
+        if isinstance(transport_state, MonteCarloTransportState):
+            time_explosion = transport_state.time_explosion.cgs.value
+            trace_vpacket_volley = trace_vpacket_volley_classic
+        elif isinstance(transport_state, MonteCarloTransportStateNonhomologous):
+            time_explosion = 0.0
+            trace_vpacket_volley = trace_vpacket_volley_nonhomologous
+        else:
+            raise TypeError(
+                &quot;Virtual-packet spectra are supported only for classic and &quot;
+                &quot;non-homologous Monte Carlo transport states.&quot;
+            )
+
+        vpacket_spawn_start_frequency = (
+            self.vpacket_spawn_start_frequency.to_value(u.Hz)
+        )
+        vpacket_spawn_end_frequency = self.vpacket_spawn_end_frequency.to_value(
+            u.Hz
+        )
+        vpacket_collections = create_vpacket_collections(
+            len(tracker_events.packet_id),
+            self.spectrum_frequency_grid.value,
+            vpacket_spawn_start_frequency,
+            vpacket_spawn_end_frequency,
+            number_of_vpackets,
+        )
+        virtual_packet_luminosity = calculate_virtual_packet_spectrum(
+            transport_state.geometry_state_numba,
+            time_explosion,
+            transport_state.opacity_state_numba,
+            montecarlo_configuration,
+            self.spectrum_frequency_grid.value,
+            tracker_events,
+            vpacket_collections,
+            self.vpacket_tau_russian,
+            self.vpacket_survival_probability,
+            trace_vpacket_volley,
+        )
+        self._montecarlo_virtual_luminosity.value[:] = virtual_packet_luminosity
+        if self.virtual_packet_logging:
+            self.vpacket_tracker = consolidate_vpacket_tracker(
+                vpacket_collections,
+                self.spectrum_frequency_grid.value,
+                vpacket_spawn_start_frequency,
+                vpacket_spawn_end_frequency,
+            )</div>
+
+
+<div class="viewcode-block" id="SpectrumSolver.vpacket_tracker_to_df">
+<a class="viewcode-back" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.vpacket_tracker_to_df">[docs]</a>
+    def vpacket_tracker_to_df(
+        self, last_interaction_type: npt.ArrayLike | None = None
+    ) -&gt; pd.DataFrame:
+        &quot;&quot;&quot;
+        Convert the logged virtual packets to a DataFrame.
+
+        The interaction columns share their names and dtypes with the
+        real-packet ``tracker_last_interaction_df``; each row describes the
+        real-packet event that spawned the virtual packet.
+
+        Parameters
+        ----------
+        last_interaction_type : array-like, optional
+            Interaction type column to use instead of categorical interaction
+            type names. Used for HDF output, which cannot store categoricals.
+
+        Returns
+        -------
+        pandas.DataFrame
+            One row per escaping virtual packet, indexed by ``vpacket_id``,
+            with columns ``last_interaction_type``, ``radius``, ``shell_id``,
+            ``before_nu``, ``line_absorb_id`` and ``line_emit_id`` for the
+            spawning event, and ``nus``, ``energies``, ``initial_mus`` and
+            ``initial_rs`` for the virtual packet.
+
+        Raises
+        ------
+        ValueError
+            If no virtual packets were logged.
+        &quot;&quot;&quot;
+        if self.vpacket_tracker is None:
+            raise ValueError(
+                &quot;No virtual packets were logged; enable virtual_packet_logging &quot;
+                &quot;and run with no_of_virtual_packets &gt; 0.&quot;
+            )
+        if last_interaction_type is None:
+            last_interaction_type = interaction_type_to_categorical(
+                self.vpacket_tracker.last_interaction_type
+            )
+
+        return pd.DataFrame(
+            {
+                &quot;last_interaction_type&quot;: last_interaction_type,
+                &quot;radius&quot;: self.vpacket_tracker.last_interaction_in_r,
+                &quot;shell_id&quot;: self.vpacket_tracker.last_interaction_shell_id,
+                &quot;before_nu&quot;: self.vpacket_tracker.last_interaction_in_nu,
+                &quot;line_absorb_id&quot;: pd.array(
+                    self.vpacket_tracker.last_interaction_in_id, dtype=&quot;int64&quot;
+                ),
+                &quot;line_emit_id&quot;: pd.array(
+                    self.vpacket_tracker.last_interaction_out_id, dtype=&quot;int64&quot;
+                ),
+                &quot;nus&quot;: self.vpacket_tracker.nus,
+                &quot;energies&quot;: self.vpacket_tracker.energies,
+                &quot;initial_mus&quot;: self.vpacket_tracker.initial_mus,
+                &quot;initial_rs&quot;: self.vpacket_tracker.initial_rs,
+            },
+            index=pd.RangeIndex(len(self.vpacket_tracker.nus), name=&quot;vpacket_id&quot;),
+        )</div>
+
+
+<div class="viewcode-block" id="SpectrumSolver.get_properties">
+<a class="viewcode-back" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.get_properties">[docs]</a>
+    def get_properties(self) -&gt; dict[str, Any]:
+        &quot;&quot;&quot;
+        Get properties for HDF storage, adding logged virtual packets.
+
+        Returns
+        -------
+        dict
+            Property names and values; includes ``vpacket_tracker_df`` when
+            virtual packets were logged.
+        &quot;&quot;&quot;
+        properties = super().get_properties()
+        if self.vpacket_tracker is not None:
+            # The default fixed HDF format cannot store categoricals, so the
+            # interaction type is written as InteractionType codes
+            properties[&quot;vpacket_tracker_df&quot;] = self.vpacket_tracker_to_df(
+                self.vpacket_tracker.last_interaction_type
+            )
+        return properties</div>
 
 
     @property
@@ -4467,10 +4774,22 @@ class SpectrumSolver(HDFWriterMixin):
             num=config.spectrum.num + 1,
         )
 
+        # The spawn range is given in wavelength, so its end is the lowest
+        # spawning frequency
+        vpacket_spawn_range = config.montecarlo.virtual_spectrum_spawn_range
         return cls(
             transport_state=None,
             spectrum_frequency_grid=spectrum_frequency_grid,
             integrator_settings=config.spectrum.integrated,
+            virtual_packet_logging=config.spectrum.virtual.virtual_packet_logging,
+            vpacket_spawn_start_frequency=vpacket_spawn_range.end.to(
+                u.Hz, equivalencies=u.spectral()
+            ),
+            vpacket_spawn_end_frequency=vpacket_spawn_range.start.to(
+                u.Hz, equivalencies=u.spectral()
+            ),
+            vpacket_tau_russian=config.spectrum.virtual.tau_russian,
+            vpacket_survival_probability=config.spectrum.virtual.survival_probability,
         )</div>
 </div>
 
@@ -4484,7 +4803,7 @@ class SpectrumSolver(HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Nov 2026.
+      <span class="lastupdated">Last updated on 06 Nov 2026.
       </span></p>
   </div>
 

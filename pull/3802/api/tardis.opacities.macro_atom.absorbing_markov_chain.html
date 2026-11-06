@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=2077b407"></script>
+      <script src="../_static/documentation_options.js?v=a9965a6d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -488,6 +488,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -1384,7 +1385,16 @@
 <li class="toctree-l7 current"><a class="reference internal" href="tardis.opacities.macro_atom.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l8 current"><a class="current reference internal" href="#">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l9"><a class="reference internal" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.macro_level_to_reduced_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.reduced_to_macro_level_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.residual_probabilities</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -2604,6 +2614,7 @@
 <li class="toctree-l6"><a class="reference internal" href="tardis.spectrum.base.html">tardis.spectrum.base module</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver</span></code></a><ul>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.from_config"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.from_config()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.get_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.get_properties()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_name"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_name</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_properties</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.integrator"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.integrator</span></code></a></li>
@@ -2612,10 +2623,12 @@
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.montecarlo_virtual_luminosity"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.montecarlo_virtual_luminosity</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.setup_optional_spectra"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.setup_optional_spectra()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_integrated"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_integrated</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets_reabsorbed"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets_reabsorbed</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_virtual_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_virtual_packets</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.vpacket_tracker_to_df"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.vpacket_tracker_to_df()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2635,6 +2648,12 @@
 <li class="toctree-l8"><a class="reference internal" href="tardis.spectrum.spectrum.html#tardis.spectrum.spectrum.TARDISSpectrum.to_ascii"><code class="docutils literal notranslate"><span class="pre">TARDISSpectrum.to_ascii()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="tardis.spectrum.virtual_packet.html">tardis.spectrum.virtual_packet module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2673,7 +2692,6 @@
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration.class_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloConfiguration.class_type</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.configuration_initialize"><code class="docutils literal notranslate"><span class="pre">configuration_initialize()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.configuration.constants.html">tardis.transport.montecarlo.configuration.constants module</a></li>
@@ -2696,8 +2714,6 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_bulk.html">tardis.transport.montecarlo.estimators.estimators_bulk module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk</span></code></a><ul>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.class_type"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.class_type</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_frequency"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_frequency</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_intensity_total"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_intensity_total</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.create_estimators_bulk_list"><code class="docutils literal notranslate"><span class="pre">create_estimators_bulk_list()</span></code></a></li>
@@ -2775,6 +2791,31 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.transport.montecarlo.modes.html">tardis.transport.montecarlo.modes package</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="tardis.transport.montecarlo.modes.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.html">tardis.transport.montecarlo.modes.classic package</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.html#submodules">Submodules</a><ul>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.packet_propagation.html">tardis.transport.montecarlo.modes.classic.packet_propagation module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.packet_propagation"><code class="docutils literal notranslate"><span class="pre">packet_propagation()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_full_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_full_relativity()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_partial_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_partial_relativity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.solver.html">tardis.transport.montecarlo.modes.classic.solver module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.from_config"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.from_config()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_name"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_name</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_properties"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_properties</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.initialize_transport_state"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.initialize_transport_state()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run_classic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run_classic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.classic.html#module-tardis.transport.montecarlo.modes.classic">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.modes.iip.html">tardis.transport.montecarlo.modes.iip package</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.iip.html#submodules">Submodules</a><ul>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.modes.iip.interaction_event_callers.html">tardis.transport.montecarlo.modes.iip.interaction_event_callers module</a><ul>
@@ -2871,19 +2912,6 @@
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.time_of_simulation</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_logging</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_energies</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_nus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2973,10 +3001,6 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html">tardis.transport.montecarlo.modes.montecarlo_transport module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet"><code class="docutils literal notranslate"><span class="pre">make_r_packet()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.set_packet_collection_output"><code class="docutils literal notranslate"><span class="pre">set_packet_collection_output()</span></code></a></li>
@@ -3161,14 +3185,31 @@
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_energy"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_mu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.event_offsets"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.event_offsets</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.interaction_type</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_absorb_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.next_line_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.next_line_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.packet_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.packet_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.radius"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.radius</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df_to_event_arrays"><code class="docutils literal notranslate"><span class="pre">tracker_full_df_to_event_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3223,10 +3264,11 @@
 </li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_last_interaction_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_last_interaction_list()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -3370,19 +3412,6 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.time_of_simulation</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_logging</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_energies</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_nus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -3491,18 +3520,6 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.visualization.html">tardis.visualization package</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="tardis.visualization.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="tardis.visualization.sdec.html">tardis.visualization.sdec package</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="tardis.visualization.sdec.html#submodules">Submodules</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="tardis.visualization.sdec.util.html">tardis.visualization.sdec.util module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_absorption_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_absorption_luminosities()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_emission_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_emission_luminosities()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l7"><a class="reference internal" href="tardis.visualization.sdec.html#module-tardis.visualization.sdec">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l6"><a class="reference internal" href="tardis.visualization.tools.html">tardis.visualization.tools package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="tardis.visualization.tools.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="tardis.visualization.tools.convergence_plot.html">tardis.visualization.tools.convergence_plot module</a><ul>
@@ -3857,7 +3874,10 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../io/configuration/components/plasma.html">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../io/configuration/components/plasma.html#continuum-interaction">Continuum Interaction</a></li>
-<li class="toctree-l5"><a class="reference internal" href="../io/configuration/components/plasma.html#nlte">NLTE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../io/configuration/components/plasma.html#nlte">NLTE</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../io/configuration/components/plasma.html#type-iip-macro-atom-reduction">Type IIP macro-atom reduction</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../io/configuration/components/models/index.html">Models</a><ul>
@@ -4269,28 +4289,58 @@
              
   <section id="module-tardis.opacities.macro_atom.absorbing_markov_chain">
 <span id="tardis-opacities-macro-atom-absorbing-markov-chain-module"></span><h1>tardis.opacities.macro_atom.absorbing_markov_chain module<a class="headerlink" href="#module-tardis.opacities.macro_atom.absorbing_markov_chain" title="Link to this heading"></a></h1>
-<p>Calculate absorption probabilities using absorbing Markov chain theory.</p>
-<p>This module implements the mathematical framework of absorbing Markov chains
-to compute probabilities of photon absorption in each cell and the expected
-number of steps before absorption from each source state.</p>
+<p>Calculate first-exit probabilities for reduced macro-atom chains.</p>
+<p>This module eliminates internal transitions for selected blocks independently in each cell
+and computes the source-state probabilities for retained transitions.</p>
+<p>Effectively this compresses the macro atom evaluation by internal reducing probability chains
+to equivalent single appropriate probability steps.</p>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
 <blockquote>
 <div><p>Absorbing Markov chain theory: <a class="reference external" href="https://en.wikipedia.org/wiki/Absorbing_Markov_chain">https://en.wikipedia.org/wiki/Absorbing_Markov_chain</a></p>
 </div></blockquote>
 </section>
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.absorbing_markov_chain.</span></span><span class="sig-name descname"><span class="pre">AbsorbingChainResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_level_to_reduced_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">int64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduced_to_macro_level_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">int64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/absorbing_markov_chain.html#AbsorbingChainResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
+<p>Carry processed reduced block exit probabilities and their global/compact index mapping.</p>
+<p>Necessary for the monte-carlo step to enter and exit the reduced block.</p>
+<p>Create new instance of AbsorbingChainResult(matrix, residual_probabilities, macro_level_to_reduced_idx, reduced_to_macro_level_idx)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx">
+<span class="sig-name descname"><span class="pre">macro_level_to_reduced_idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">int64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix">
+<span class="sig-name descname"><span class="pre">matrix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx">
+<span class="sig-name descname"><span class="pre">reduced_to_macro_level_idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">int64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities">
+<span class="sig-name descname"><span class="pre">residual_probabilities</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></em><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.absorbing_markov_chain.</span></span><span class="sig-name descname"><span class="pre">create_absorbing_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/absorbing_markov_chain.html#create_absorbing_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.absorbing_markov_chain.</span></span><span class="sig-name descname"><span class="pre">create_absorbing_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.2)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.15)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_thermal_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ionization_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult" title="tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><span class="pre">AbsorbingChainResult</span></a></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/absorbing_markov_chain.html#create_absorbing_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs" title="Link to this definition"></a></dt>
 <dd><p>Calculate absorbing Markov chain probabilities and deactivation data.</p>
 <p>Computes the absorption probability matrices for each cell and extracts
-deactivation probabilities by solving the absorbing Markov chain system.
-The fundamental matrix is computed to determine absorption probabilities
-and expected number of steps to absorption from each state.</p>
-<p>WARNING: This is currently slower than it needs to be for many element sims.
-You should be able to slice out and process a subset of the probabilities
-based on some source state filtering. We have a draft PR open for this
-but it has not been finished.</p>
+deactivation probabilities by solving the absorbing Markov chain system
+for the requested block.
+Eliminates internal transition inside handled blocks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -4303,24 +4353,82 @@ transition_type indicate internal transitions transitions that are not accompani
 by reemission of the r-packet, and an end to the interaction handler chain.
 Negative values indicate deactivation, or reemitting from an absorbing state.</p>
 </dd>
+<dt><strong>mode</strong><span class="classifier">{‘full’, ‘partial’, ‘explicit’}</span></dt><dd><p>Full eliminates all internal jumps. Partial eliminates only jumps with
+both endpoints selected (e.g., internal transitions for a requested element),
+optionally including either shared pool.
+Explicit retains every original transition.</p>
+</dd>
+<dt><strong>elements</strong><span class="classifier">sequence of str</span></dt><dd><p>Element symbols, required only in partial mode. All represented ions
+and levels of each selected element are included.</p>
+</dd>
+<dt><strong>include_thermal_pool</strong><span class="classifier">bool, optional</span></dt><dd><p>Include the shared k state in partial reduction. Defaults to False.</p>
+</dd>
+<dt><strong>include_ionization_pool</strong><span class="classifier">bool, optional</span></dt><dd><p>Include the shared i state in partial reduction. Defaults to False.</p>
+</dd>
+<dt><strong>max_workers</strong><span class="classifier">int</span></dt><dd><p>Maximum number of cell-independent sparse LU workers.</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>tuple[np.ndarray, pd.DataFrame]</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>absorbing_probability_matrix<span class="classifier">np.ndarray</span></dt><dd><p>Array of shape (num_cells, num_states, num_states) containing
-absorption probabilities from each state for each cell.</p>
+<dt>AbsorbingChainResult</dt><dd><p>Cell-by-activation-by-exit-source matrix, containing deactivation probabilities,
+and explicit global-to-reduced and reduced-to-global int64 maps.</p>
 </dd>
 </dl>
-</li>
-<li><dl class="simple">
-<dt>deactivating_probs<span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame of deactivation transition probabilities from
-absorption states.</p>
 </dd>
 </dl>
-</li>
-</ul>
+<p class="rubric">Notes</p>
+<p>The solve is <code class="docutils literal notranslate"><span class="pre">(I-Q)</span> <span class="pre">B</span> <span class="pre">=</span> <span class="pre">diag(r)</span></code>, where r is the sum of actual remaining
+channels. Zero residual rows stay zero.</p>
+<p>The matrix selects the source of the first retained transition, which can
+itself be internal. It is not necessarily a final emission state because
+only requested physical blocks are blocks are processed out of the matrix,
+and the not-requested blocks retain full internal transition probability tables.
+This means you can move freely back and forth between the absorbing-processed block.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.absorbing_markov_chain.</span></span><span class="sig-name descname"><span class="pre">solve_cell_full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">internal_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.spmatrix.html#scipy.sparse.spmatrix" title="(in SciPy v1.18.0)"><span class="pre">spmatrix</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/absorbing_markov_chain.html#solve_cell_full"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full" title="Link to this definition"></a></dt>
+<dd><p>Solve one cell’s full reduction using the legacy exit calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>internal_matrix</strong><span class="classifier">scipy.sparse.spmatrix</span></dt><dd><p>Square matrix Q of this cell’s internal transition coefficients,
+including all global states. Supply COO format to preserve the legacy
+row-summation order.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Activation-by-exit-source matrix for this cell. Exit coefficients are
+calculated as one minus each row sum of Q.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.absorbing_markov_chain.</span></span><span class="sig-name descname"><span class="pre">solve_cell_partial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">internal_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.spmatrix.html#scipy.sparse.spmatrix" title="(in SciPy v1.18.0)"><span class="pre">spmatrix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/absorbing_markov_chain.html#solve_cell_partial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial" title="Link to this definition"></a></dt>
+<dd><p>Solve one cell’s partial reduction from a specified subset of probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>internal_matrix</strong><span class="classifier">scipy.sparse.spmatrix</span></dt><dd><p>Square matrix Q of this cell’s eliminated internal coefficients,
+in compact selected-state order.</p>
+</dd>
+<dt><strong>exit_rates</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>One-dimensional sums of this cell’s retained channel coefficients,
+in the same selected-state order.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Activation-by-exit-source matrix B satisfying
+<code class="docutils literal notranslate"><span class="pre">(I-Q)</span> <span class="pre">B</span> <span class="pre">=</span> <span class="pre">diag(exit_rates)</span></code> for this cell.</p>
 </dd>
 </dl>
 </dd>
@@ -4341,7 +4449,7 @@ absorption states.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Nov 2026.
+      <span class="lastupdated">Last updated on 06 Nov 2026.
       </span></p>
   </div>
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2077b407"></script>
+      <script src="../../../_static/documentation_options.js?v=a9965a6d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -490,6 +490,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -1386,7 +1387,16 @@
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.macro_level_to_reduced_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.reduced_to_macro_level_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.residual_probabilities</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -2606,6 +2616,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/tardis.spectrum.base.html">tardis.spectrum.base module</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver</span></code></a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.from_config"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.from_config()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.get_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.get_properties()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_name"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_name</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_properties</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.integrator"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.integrator</span></code></a></li>
@@ -2614,10 +2625,12 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.montecarlo_virtual_luminosity"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.montecarlo_virtual_luminosity</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.setup_optional_spectra"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.setup_optional_spectra()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_integrated"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_integrated</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets_reabsorbed"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets_reabsorbed</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_virtual_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_virtual_packets</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.vpacket_tracker_to_df"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.vpacket_tracker_to_df()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2637,6 +2650,12 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.spectrum.spectrum.html#tardis.spectrum.spectrum.TARDISSpectrum.to_ascii"><code class="docutils literal notranslate"><span class="pre">TARDISSpectrum.to_ascii()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html">tardis.spectrum.virtual_packet module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2675,7 +2694,6 @@
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration.class_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloConfiguration.class_type</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.configuration_initialize"><code class="docutils literal notranslate"><span class="pre">configuration_initialize()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.configuration.constants.html">tardis.transport.montecarlo.configuration.constants module</a></li>
@@ -2698,8 +2716,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html">tardis.transport.montecarlo.estimators.estimators_bulk module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk</span></code></a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.class_type"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.class_type</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_frequency"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_frequency</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_intensity_total"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_intensity_total</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.create_estimators_bulk_list"><code class="docutils literal notranslate"><span class="pre">create_estimators_bulk_list()</span></code></a></li>
@@ -2777,6 +2793,31 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.html">tardis.transport.montecarlo.modes package</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.html">tardis.transport.montecarlo.modes.classic package</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.html#submodules">Submodules</a><ul>
+<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html">tardis.transport.montecarlo.modes.classic.packet_propagation module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.packet_propagation"><code class="docutils literal notranslate"><span class="pre">packet_propagation()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_full_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_full_relativity()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_partial_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_partial_relativity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html">tardis.transport.montecarlo.modes.classic.solver module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.from_config"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.from_config()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_name"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_name</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_properties"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_properties</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.initialize_transport_state"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.initialize_transport_state()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run_classic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run_classic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.classic.html#module-tardis.transport.montecarlo.modes.classic">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.iip.html">tardis.transport.montecarlo.modes.iip package</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.iip.html#submodules">Submodules</a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.iip.interaction_event_callers.html">tardis.transport.montecarlo.modes.iip.interaction_event_callers module</a><ul>
@@ -2873,19 +2914,6 @@
 <li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.time_of_simulation</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_logging</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_energies</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_nus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2975,10 +3003,6 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html">tardis.transport.montecarlo.modes.montecarlo_transport module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet"><code class="docutils literal notranslate"><span class="pre">make_r_packet()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.set_packet_collection_output"><code class="docutils literal notranslate"><span class="pre">set_packet_collection_output()</span></code></a></li>
@@ -3163,14 +3187,31 @@
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_energy"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_mu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.event_offsets"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.event_offsets</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.interaction_type</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_absorb_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.next_line_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.next_line_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.packet_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.packet_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.radius"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.radius</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df_to_event_arrays"><code class="docutils literal notranslate"><span class="pre">tracker_full_df_to_event_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3225,10 +3266,11 @@
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_last_interaction_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_last_interaction_list()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -3372,19 +3414,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.time_of_simulation</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_logging</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_energies</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_nus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -3493,18 +3522,6 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/tardis.visualization.html">tardis.visualization package</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/tardis.visualization.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/tardis.visualization.sdec.html">tardis.visualization.sdec package</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.visualization.sdec.html#submodules">Submodules</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.visualization.sdec.util.html">tardis.visualization.sdec.util module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_absorption_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_absorption_luminosities()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_emission_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_emission_luminosities()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.visualization.sdec.html#module-tardis.visualization.sdec">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/tardis.visualization.tools.html">tardis.visualization.tools package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../../../api/tardis.visualization.tools.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../../../api/tardis.visualization.tools.convergence_plot.html">tardis.visualization.tools.convergence_plot module</a><ul>
@@ -3859,7 +3876,10 @@
 </li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#continuum-interaction">Continuum Interaction</a></li>
-<li class="toctree-l5"><a class="reference internal" href="#nlte">NLTE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#nlte">NLTE</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#type-iip-macro-atom-reduction">Type IIP macro-atom reduction</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="models/index.html">Models</a><ul>
@@ -4273,270 +4293,355 @@
 <table class="docutils align-default" id="plasma-yml">
 <tbody>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="3"><p><em>object</em></p></td>
+<td colspan="5"><p><em>object</em></p></td>
 </tr>
-<tr class="row-even"><td colspan="4"><p>properties</p></td>
+<tr class="row-even"><td colspan="6"><p>properties</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>initial_t_inner</p></li>
 </ul>
 </td>
-<td colspan="3"><p>initial temperature of the inner boundary black body. If set to -1 K  will result in automatic calculation of boundary</p></td>
+<td colspan="5"><p>initial temperature of the inner boundary black body. If set to -1 K  will result in automatic calculation of boundary</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>quantity</em></p></td>
+<td colspan="4"><p><em>quantity</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>-1 K</p></td>
+<td colspan="4"><p>-1 K</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>initial_t_rad</p></li>
 </ul>
 </td>
-<td colspan="3"><p>initial radiative temperature in all cells. If set to -1 K will result in automtatic calculation of the initial temperatures</p></td>
+<td colspan="5"><p>initial radiative temperature in all cells. If set to -1 K will result in automtatic calculation of the initial temperatures</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>quantity</em></p></td>
+<td colspan="4"><p><em>quantity</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td colspan="2"><p>-1 K</p></td>
+<td colspan="4"><p>-1 K</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>disable_electron_scattering</p></li>
 </ul>
 </td>
-<td colspan="3"><p>disable electron scattering process in montecarlo part - non-physical only for tests</p></td>
+<td colspan="5"><p>disable electron scattering process in montecarlo part - non-physical only for tests</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>boolean</em></p></td>
+<td colspan="4"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>False</p></td>
+<td colspan="4"><p>False</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>disable_line_scattering</p></li>
 </ul>
 </td>
-<td colspan="3"><p>disable line scattering process in montecarlo part - non-physical only for tests</p></td>
+<td colspan="5"><p>disable line scattering process in montecarlo part - non-physical only for tests</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>boolean</em></p></td>
+<td colspan="4"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td colspan="2"><p>False</p></td>
+<td colspan="4"><p>False</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p><strong>ionization</strong></p></li>
 </ul>
 </td>
-<td colspan="3"><p>ionization treatment mode</p></td>
+<td colspan="5"><p>ionization treatment mode</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>enum</p></td>
-<td colspan="2"><p>nebular, lte</p></td>
+<td colspan="4"><p>nebular, lte</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p><strong>excitation</strong></p></li>
 </ul>
 </td>
-<td colspan="3"><p>excitation treatment mode</p></td>
+<td colspan="5"><p>excitation treatment mode</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-even"><td><p>enum</p></td>
-<td colspan="2"><p>lte, dilute-lte</p></td>
+<td colspan="4"><p>lte, dilute-lte</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p><strong>radiative_rates_type</strong></p></li>
 </ul>
 </td>
-<td colspan="3"><p>radiative rates treatment mode</p></td>
+<td colspan="5"><p>radiative rates treatment mode</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>enum</p></td>
-<td colspan="2"><p>dilute-blackbody, detailed, blackbody</p></td>
+<td colspan="4"><p>dilute-blackbody, detailed, blackbody</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p><strong>line_interaction_type</strong></p></li>
 </ul>
 </td>
-<td colspan="3"><p>line interaction mode</p></td>
+<td colspan="5"><p>line interaction mode</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-even"><td><p>enum</p></td>
-<td colspan="2"><p>scatter, downbranch, macroatom</p></td>
+<td colspan="4"><p>scatter, downbranch, macroatom</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>w_epsilon</p></li>
 </ul>
 </td>
-<td colspan="3"><p>w to use when j_blues get numerically 0. - avoids numerical complications</p></td>
+<td colspan="5"><p>w to use when j_blues get numerically 0. - avoids numerical complications</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>number</em></p></td>
+<td colspan="4"><p><em>number</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>1e-10</p></td>
+<td colspan="4"><p>1e-10</p></td>
 </tr>
 <tr class="row-even"><td rowspan="2"><ul class="simple">
 <li><p>delta_treatment</p></li>
 </ul>
 </td>
-<td colspan="3"><p>In the saha calculation set delta equals to the number given in this configuration item. if set to None (default), normal delta treatment (as described in Mazzali &amp; Lucy 1993) will be applied</p></td>
+<td colspan="5"><p>In the saha calculation set delta equals to the number given in this configuration item. if set to None (default), normal delta treatment (as described in Mazzali &amp; Lucy 1993) will be applied</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>number</em></p></td>
+<td colspan="4"><p><em>number</em></p></td>
 </tr>
 <tr class="row-even"><td rowspan="13"><ul class="simple">
 <li><p>nlte</p></li>
 </ul>
 </td>
 <td><p>type</p></td>
-<td colspan="2"><p><em>object</em></p></td>
+<td colspan="4"><p><em>object</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"></td>
+<td colspan="4"></td>
 </tr>
-<tr class="row-even"><td colspan="3"><p>properties</p></td>
+<tr class="row-even"><td colspan="5"><p>properties</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>species</p></li>
 </ul>
 </td>
-<td colspan="2"><p>Species that are requested to be NLTE treated in the format  [‘Si 2’, ‘Ca 1’, etc.]</p></td>
+<td colspan="4"><p>Species that are requested to be NLTE treated in the format  [‘Si 2’, ‘Ca 1’, etc.]</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td><p><em>array</em></p></td>
+<td colspan="3"><p><em>array</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td></td>
+<td colspan="3"></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>coronal_approximation</p></li>
 </ul>
 </td>
-<td colspan="2"><p>set all jblues=0.0</p></td>
+<td colspan="4"><p>set all jblues=0.0</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td><p><em>boolean</em></p></td>
+<td colspan="3"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td><p>False</p></td>
+<td colspan="3"><p>False</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>classical_nebular</p></li>
 </ul>
 </td>
-<td colspan="2"><p>sets all beta_sobolevs to 1</p></td>
+<td colspan="4"><p>sets all beta_sobolevs to 1</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td><p><em>boolean</em></p></td>
+<td colspan="3"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td><p>False</p></td>
+<td colspan="3"><p>False</p></td>
 </tr>
 <tr class="row-even"><td><p>additionalProperties</p></td>
-<td colspan="2"><p>False</p></td>
+<td colspan="4"><p>False</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="13"><ul class="simple">
+<tr class="row-odd"><td rowspan="35"><ul class="simple">
 <li><p>continuum_interaction</p></li>
 </ul>
 </td>
 <td><p>type</p></td>
-<td colspan="2"><p><em>object</em></p></td>
+<td colspan="4"><p><em>object</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
+<td colspan="4"></td>
+</tr>
+<tr class="row-odd"><td colspan="5"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="18"><ul class="simple">
+<li><p>markov_chain</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="3"></td>
+</tr>
+<tr class="row-even"><td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>mode</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Macro-atom internal-transition reduction for Type IIP transport.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>enum</p></td>
+<td colspan="2"><p>full, partial, explicit</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>full</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>elements</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Element symbols reduced in partial mode; empty in other modes.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
 <td colspan="2"></td>
 </tr>
-<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+<tr class="row-even"><td><p>items</p></td>
+<td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>include_thermal_pool</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Include the shared thermal k state in partial reduction.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>include_ionization_pool</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Include the shared ionization i state in partial reduction.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="3"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>nthreads</p></li>
+</ul>
+</td>
+<td colspan="4"><p>Maximum number of worker threads for continuum macro-atom opacity calculations, including the absorbing Markov chain solve. Independent of montecarlo.nthreads and not limited by NUMBA_NUM_THREADS.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="3"><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td colspan="3"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="3"><p>1</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>species</p></li>
 </ul>
 </td>
-<td colspan="2"><p>Species that are requested to be treated with IIP continuum interactions (radiative/collisional ionization and recombination) in the format [‘Si II’, ‘Ca I’, etc.]</p></td>
+<td colspan="4"><p>Species that are requested to be treated with IIP continuum interactions (radiative/collisional ionization and recombination) in the format [‘Si II’, ‘Ca I’, etc.]</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td><p><em>array</em></p></td>
+<td colspan="3"><p><em>array</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td></td>
+<td colspan="3"></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>enable_adiabatic_cooling</p></li>
 </ul>
 </td>
-<td colspan="2"><p>enables adiabatic cooling of the electron gas</p></td>
+<td colspan="4"><p>enables adiabatic cooling of the electron gas</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td><p><em>boolean</em></p></td>
+<td colspan="3"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td><p>False</p></td>
+<td colspan="3"><p>False</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>enable_two_photon_decay</p></li>
 </ul>
 </td>
-<td colspan="2"><p>enables two photon decay processes</p></td>
+<td colspan="4"><p>enables two photon decay processes</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td><p><em>boolean</em></p></td>
+<td colspan="3"><p><em>boolean</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td><p>False</p></td>
+<td colspan="3"><p>False</p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="2"><p>False</p></td>
+<td colspan="4"><p>False</p></td>
 </tr>
 <tr class="row-even"><td rowspan="4"><ul class="simple">
 <li><p>helium_treatment</p></li>
 </ul>
 </td>
-<td colspan="3"><p>none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.</p></td>
+<td colspan="5"><p>none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-even"><td><p>enum</p></td>
-<td colspan="2"><p>none, recomb-nlte, numerical-nlte</p></td>
+<td colspan="4"><p>none, recomb-nlte, numerical-nlte</p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>none</p></td>
+<td colspan="4"><p>none</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>heating_rate_data_file</p></li>
 </ul>
 </td>
-<td colspan="3"><p>Path to file containing heating rate/light curve data.</p></td>
+<td colspan="5"><p>Path to file containing heating rate/light curve data.</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>string</em></p></td>
+<td colspan="4"><p><em>string</em></p></td>
 </tr>
 <tr class="row-even"><td><p>default</p></td>
-<td colspan="2"><p>none</p></td>
+<td colspan="4"><p>none</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>link_t_rad_t_electron</p></li>
 </ul>
 </td>
-<td colspan="3"><p>Value used for estimating the electron temperature from radiation temperature.</p></td>
+<td colspan="5"><p>Value used for estimating the electron temperature from radiation temperature.</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="2"><p><em>number</em></p></td>
+<td colspan="4"><p><em>number</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td colspan="2"><p>0.9</p></td>
+<td colspan="4"><p>0.9</p></td>
 </tr>
 <tr class="row-even"><td><p>additionalProperties</p></td>
-<td colspan="3"><p>False</p></td>
+<td colspan="5"><p>False</p></td>
 </tr>
 </tbody>
 </table>
@@ -4586,6 +4691,39 @@ causes problems with the code (so <span class="math notranslate nohighlight">\(J
 This is useful for debugging with <a class="reference internal" href="../../../resources/zreferences.html#term-Chianti"><span class="xref std std-term">chianti</span></a> for example. Furthermore, one can enable ‘classical_nebular’ to set all
 <span class="math notranslate nohighlight">\(\beta_\textrm{Sobolev}\)</span> to 1. Both options are used for checking with other codes and should not be enabled in
 normal operations.</p>
+<section id="type-iip-macro-atom-reduction">
+<h3>Type IIP macro-atom reduction<a class="headerlink" href="#type-iip-macro-atom-reduction" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">plasma.continuum_interaction.markov_chain</span></code> section controls how Type IIP
+transport samples internal macro-atom transitions. Existing configurations use
+<code class="docutils literal notranslate"><span class="pre">mode:</span> <span class="pre">full</span></code>, which reduces the whole chain. <code class="docutils literal notranslate"><span class="pre">mode:</span> <span class="pre">explicit</span></code> samples every
+original transition and provides a reference for comparisons. Both modes require
+an empty <code class="docutils literal notranslate"><span class="pre">elements</span></code> list.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">mode:</span> <span class="pre">partial</span></code> with one or more element symbols to reduce internal jumps
+between selected atomic states:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">plasma</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">continuum_interaction</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">species</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">H I</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">markov_chain</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">partial</span>
+<span class="w">      </span><span class="nt">elements</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">H</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">include_thermal_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">include_ionization_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>For a multi-element selection, use <code class="docutils literal notranslate"><span class="pre">elements:</span> <span class="pre">[H,</span> <span class="pre">He,</span> <span class="pre">Fe]</span></code> when those elements
+are present in the assembled network. Duplicate symbols are harmless. A symbol
+selects all represented ions and levels of that element. This list is independent
+of continuum <code class="docutils literal notranslate"><span class="pre">species</span></code> and <code class="docutils literal notranslate"><span class="pre">nlte.species</span></code>: selecting an element does not
+enable additional continuum processes or change its equilibrium treatment.</p>
+<p>Both pool options default to <code class="docutils literal notranslate"><span class="pre">false</span></code>. Set <code class="docutils literal notranslate"><span class="pre">include_thermal_pool:</span> <span class="pre">true</span></code> to
+include the shared thermal state, <code class="docutils literal notranslate"><span class="pre">include_ionization_pool:</span> <span class="pre">true</span></code> to include
+the shared ionization state, or enable both. Internal transitions between any
+selected states are then collapsed, including paths through the enabled pools.
+Pool emission/cooling and jumps to unselected states remain explicit exit
+channels. These options require <code class="docutils literal notranslate"><span class="pre">mode:</span> <span class="pre">partial</span></code>; full mode already includes
+both pools, and explicit mode reduces neither.
+See <a class="reference internal" href="../../../physics_walkthrough/montecarlo/partial_absorbing_chain.html"><span class="doc">Element-selected absorbing chains</span></a> for more.</p>
+</section>
 </section>
 </section>
 
@@ -4601,7 +4739,7 @@ normal operations.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Nov 2026.
+      <span class="lastupdated">Last updated on 06 Nov 2026.
       </span></p>
   </div>
 

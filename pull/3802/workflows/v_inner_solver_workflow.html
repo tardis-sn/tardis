@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=2077b407"></script>
+      <script src="../_static/documentation_options.js?v=a9965a6d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -489,6 +489,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../physics_walkthrough/montecarlo/estimators.html#implementation">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../physics_walkthrough/montecarlo/partial_absorbing_chain.html">Element-selected absorbing chains</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a><ul>
@@ -1385,7 +1386,16 @@
 <li class="toctree-l7"><a class="reference internal" href="../api/tardis.opacities.macro_atom.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#references">References</a></li>
+<li class="toctree-l9"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.macro_level_to_reduced_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.macro_level_to_reduced_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.matrix"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.matrix</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.reduced_to_macro_level_idx"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.reduced_to_macro_level_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities"><code class="docutils literal notranslate"><span class="pre">AbsorbingChainResult.residual_probabilities</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_full"><code class="docutils literal notranslate"><span class="pre">solve_cell_full()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.solve_cell_partial"><code class="docutils literal notranslate"><span class="pre">solve_cell_partial()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
@@ -2605,6 +2615,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../api/tardis.spectrum.base.html">tardis.spectrum.base module</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver</span></code></a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.from_config"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.from_config()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.get_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.get_properties()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_name"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_name</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.hdf_properties"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.hdf_properties</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.integrator"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.integrator</span></code></a></li>
@@ -2613,10 +2624,12 @@
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.montecarlo_virtual_luminosity"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.montecarlo_virtual_luminosity</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.setup_optional_spectra"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.setup_optional_spectra()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.solve_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.solve_virtual_packet_spectrum()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_integrated"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_integrated</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_real_packets_reabsorbed"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_real_packets_reabsorbed</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.spectrum_virtual_packets"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.spectrum_virtual_packets</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.vpacket_tracker_to_df"><code class="docutils literal notranslate"><span class="pre">SpectrumSolver.vpacket_tracker_to_df()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2636,6 +2649,12 @@
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.spectrum.spectrum.html#tardis.spectrum.spectrum.TARDISSpectrum.to_ascii"><code class="docutils literal notranslate"><span class="pre">TARDISSpectrum.to_ascii()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../api/tardis.spectrum.virtual_packet.html">tardis.spectrum.virtual_packet module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="../api/tardis.spectrum.virtual_packet.html#tardis.spectrum.virtual_packet.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2674,7 +2693,6 @@
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration.class_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloConfiguration.class_type</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.configuration_initialize"><code class="docutils literal notranslate"><span class="pre">configuration_initialize()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.configuration.constants.html">tardis.transport.montecarlo.configuration.constants module</a></li>
@@ -2697,8 +2715,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.estimators.estimators_bulk.html">tardis.transport.montecarlo.estimators.estimators_bulk module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk</span></code></a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.class_type"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.class_type</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_frequency"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_frequency</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_intensity_total"><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk.mean_intensity_total</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.create_estimators_bulk_list"><code class="docutils literal notranslate"><span class="pre">create_estimators_bulk_list()</span></code></a></li>
@@ -2776,6 +2792,31 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.html">tardis.transport.montecarlo.modes package</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.html">tardis.transport.montecarlo.modes.classic package</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.html#submodules">Submodules</a><ul>
+<li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html">tardis.transport.montecarlo.modes.classic.packet_propagation module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.packet_propagation"><code class="docutils literal notranslate"><span class="pre">packet_propagation()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_full_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_full_relativity()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.packet_propagation.html#tardis.transport.montecarlo.modes.classic.packet_propagation.set_packet_props_partial_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_partial_relativity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.solver.html">tardis.transport.montecarlo.modes.classic.solver module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.from_config"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.from_config()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_name"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_name</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.hdf_properties"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.hdf_properties</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.initialize_transport_state"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.initialize_transport_state()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run()</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.solver.html#tardis.transport.montecarlo.modes.classic.solver.MCTransportSolverClassic.run_classic"><code class="docutils literal notranslate"><span class="pre">MCTransportSolverClassic.run_classic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.classic.html#module-tardis.transport.montecarlo.modes.classic">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.iip.html">tardis.transport.montecarlo.modes.iip package</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.iip.html#submodules">Submodules</a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.iip.interaction_event_callers.html">tardis.transport.montecarlo.modes.iip.interaction_event_callers module</a><ul>
@@ -2872,19 +2913,6 @@
 <li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.time_of_simulation</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_logging</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_energies</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virt_packet_nus</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.html#tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state.MonteCarloTransportStateNonhomologous.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportStateNonhomologous.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2974,10 +3002,6 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.montecarlo_transport.html">tardis.transport.montecarlo.modes.montecarlo_transport module</a><ul>
-<li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.add_vpacket_collection_to_histogram"><code class="docutils literal notranslate"><span class="pre">add_vpacket_collection_to_histogram()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.calculate_virtual_packet_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_virtual_packet_spectrum()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.create_vpacket_collections"><code class="docutils literal notranslate"><span class="pre">create_vpacket_collections()</span></code></a></li>
-<li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.get_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">get_vpacket_tracker()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.make_r_packet"><code class="docutils literal notranslate"><span class="pre">make_r_packet()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.montecarlo_transport"><code class="docutils literal notranslate"><span class="pre">montecarlo_transport()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../api/tardis.transport.montecarlo.modes.montecarlo_transport.html#tardis.transport.montecarlo.modes.montecarlo_transport.set_packet_collection_output"><code class="docutils literal notranslate"><span class="pre">set_packet_collection_output()</span></code></a></li>
@@ -3162,14 +3186,31 @@
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html">tardis.transport.montecarlo.packets.trackers.tracker_full_util module</a><ul>
+<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_energy"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_mu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.after_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.after_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_nu"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.before_shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.before_shell_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.event_offsets"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.event_offsets</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.interaction_type</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_absorb_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.next_line_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.next_line_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.packet_id"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.packet_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.TrackerEventArrays.radius"><code class="docutils literal notranslate"><span class="pre">TrackerEventArrays.radius</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.event_arrays_to_df"><code class="docutils literal notranslate"><span class="pre">event_arrays_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.find_last_interaction_events"><code class="docutils literal notranslate"><span class="pre">find_last_interaction_events()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
+<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.tracker_full_df_to_event_arrays"><code class="docutils literal notranslate"><span class="pre">tracker_full_df_to_event_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_list_to_selected_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_selected_arrays()</span></code></a></li>
 <li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l13"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_full_util.html#tardis.transport.montecarlo.packets.trackers.tracker_full_util.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
@@ -3224,10 +3265,11 @@
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_full_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_full_list()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.generate_tracker_last_interaction_list"><code class="docutils literal notranslate"><span class="pre">generate_tracker_last_interaction_list()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_categorical"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_categorical()</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.interaction_type_to_codes"><code class="docutils literal notranslate"><span class="pre">interaction_type_to_codes()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.tracker_full_df2tracker_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">tracker_full_df2tracker_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_list_to_arrays"><code class="docutils literal notranslate"><span class="pre">trackers_full_list_to_arrays()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_df()</span></code></a></li>
-<li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_full_to_last_interaction_df"><code class="docutils literal notranslate"><span class="pre">trackers_full_to_last_interaction_df()</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../api/tardis.transport.montecarlo.packets.trackers.html#tardis.transport.montecarlo.packets.trackers.trackers_last_interaction_to_df"><code class="docutils literal notranslate"><span class="pre">trackers_last_interaction_to_df()</span></code></a></li>
 </ul>
 </li>
@@ -3371,19 +3413,6 @@
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_luminosity</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.reabsorbed_packet_nu</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.time_of_simulation"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.time_of_simulation</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_logging"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_logging</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_energies"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_energies</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_mus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_mus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_initial_rs"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_initial_rs</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_nu"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_nu</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_in_r"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_in_r</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_interaction_type"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_interaction_type</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_in_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_in_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_out_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_out_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_last_line_interaction_shell_id"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_last_line_interaction_shell_id</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_packet_nus"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virt_packet_nus</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virtual_packet_luminosity"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.virtual_packet_luminosity</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.vpacket_hdf_properties"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState.vpacket_hdf_properties</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -3492,18 +3521,6 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../api/tardis.visualization.html">tardis.visualization package</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../api/tardis.visualization.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../api/tardis.visualization.sdec.html">tardis.visualization.sdec package</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../api/tardis.visualization.sdec.html#submodules">Submodules</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="../api/tardis.visualization.sdec.util.html">tardis.visualization.sdec.util module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_absorption_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_absorption_luminosities()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_emission_luminosities"><code class="docutils literal notranslate"><span class="pre">calculate_emission_luminosities()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l7"><a class="reference internal" href="../api/tardis.visualization.sdec.html#module-tardis.visualization.sdec">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l6"><a class="reference internal" href="../api/tardis.visualization.tools.html">tardis.visualization.tools package</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="../api/tardis.visualization.tools.html#submodules">Submodules</a><ul>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.visualization.tools.convergence_plot.html">tardis.visualization.tools.convergence_plot module</a><ul>
@@ -3858,7 +3875,10 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../io/configuration/components/plasma.html">Plasma Configuration</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../io/configuration/components/plasma.html#continuum-interaction">Continuum Interaction</a></li>
-<li class="toctree-l5"><a class="reference internal" href="../io/configuration/components/plasma.html#nlte">NLTE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../io/configuration/components/plasma.html#nlte">NLTE</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../io/configuration/components/plasma.html#type-iip-macro-atom-reduction">Type IIP macro-atom reduction</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../io/configuration/components/models/index.html">Models</a><ul>
@@ -4338,13 +4358,13 @@
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "7f4468559f954f84a6601c2e1b578419"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "f91d4c4fea9b471ab4c8136739cec15e"}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "6624ddeba16749829d7695b6384d8d27"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "d986994682da46058a80e29b13a8e41c"}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -4947,12 +4967,12 @@ if (window.Jupyter !== undefined) {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div id='2a3d0405-9930-4db4-b967-c6396ca72486'>
-  <div id="a89a8922-f3aa-4fc0-90eb-410b6425b130" data-root-id="2a3d0405-9930-4db4-b967-c6396ca72486" style="display: contents;"></div>
+<div id='5d9302e9-fd89-48e4-90db-ea610d92bc48'>
+  <div id="adc6b530-92f3-4e78-bb0b-6ae361359dc5" data-root-id="5d9302e9-fd89-48e4-90db-ea610d92bc48" style="display: contents;"></div>
 </div>
 <script type="application/javascript">(function(root) {
-  var docs_json = {"96eaf735-b90e-46a8-9c76-78fa24ab54a9":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"4ba09f5f-6d79-4d92-acc6-06a8cacd64dd","attributes":{"notifications":{"type":"object","name":"Notifications","id":"2cc7ba6a-01ea-4fe7-b1b6-28bcf92ec9d1"}}},"roots":[{"type":"object","name":"panel.models.browser.BrowserInfo","id":"2a3d0405-9930-4db4-b967-c6396ca72486"},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"6e4459b3-80d2-4b3b-9056-85a5be7a01c8","attributes":{"plot_id":"2a3d0405-9930-4db4-b967-c6396ca72486","comm_id":"8e60ed80e9314d438659357ca309e9d2","client_comm_id":"088c5a1e07094a86aa5b092fbab7207a"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
-  var render_items = [{"docid":"96eaf735-b90e-46a8-9c76-78fa24ab54a9","roots":{"2a3d0405-9930-4db4-b967-c6396ca72486":"a89a8922-f3aa-4fc0-90eb-410b6425b130"},"root_ids":["2a3d0405-9930-4db4-b967-c6396ca72486"]}];
+  var docs_json = {"fe81c6c0-2f86-4a19-aed7-6275ea6fe66c":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"f44bde49-5821-4dcd-a6f3-0d85af718f04","attributes":{"notifications":{"type":"object","name":"Notifications","id":"1793ec9b-1b55-4174-be6f-856547557c61"}}},"roots":[{"type":"object","name":"panel.models.browser.BrowserInfo","id":"5d9302e9-fd89-48e4-90db-ea610d92bc48"},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"d694b557-0ede-4a38-98eb-b19a35eb6781","attributes":{"plot_id":"5d9302e9-fd89-48e4-90db-ea610d92bc48","comm_id":"3ea21d03b40440ada7101779ed2e9510","client_comm_id":"23e1a96964fd4ec9aa3c1ba282aaaaf9"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"fe81c6c0-2f86-4a19-aed7-6275ea6fe66c","roots":{"5d9302e9-fd89-48e4-90db-ea610d92bc48":"adc6b530-92f3-4e78-bb0b-6ae361359dc5"},"root_ids":["5d9302e9-fd89-48e4-90db-ea610d92bc48"]}];
   var docs = Object.values(docs_json)
   if (!docs) {
     return
@@ -6253,12 +6273,12 @@ if (window.Jupyter !== undefined) {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div id='d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7'>
-  <div id="c1172c1d-8ed2-480a-bcbc-68ee76f2b761" data-root-id="d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7" style="display: contents;"></div>
+<div id='b51dc74a-c50e-4d19-bce7-5e844751a716'>
+  <div id="fd36ce58-cceb-40c7-a9af-72004ce10ad1" data-root-id="b51dc74a-c50e-4d19-bce7-5e844751a716" style="display: contents;"></div>
 </div>
 <script type="application/javascript">(function(root) {
-  var docs_json = {"c763ecc8-41f2-4e9e-b218-45d54acdc4af":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"1ee8adea-677b-43f2-84a7-237d54d6b87f","attributes":{"notifications":{"type":"object","name":"Notifications","id":"5441be41-f715-4972-892d-5bfd3783c35f"}}},"roots":[{"type":"object","name":"panel.models.markup.HTML","id":"d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7","attributes":{"styles":{"type":"map","entries":[["border","1px solid #ddd"],["background-color","white"],["overflow-y","auto"],["overflow-x","auto"],["font-family","monospace"],["padding","8px"],["white-space","pre-wrap"]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 300px));\n  -webkit-mask-size: auto calc(min(50%, 300px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"f7077b8f-59c9-4cc6-bc1a-d03cc854362a","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/css/loading.css"}},{"type":"object","name":"ImportedStyleSheet","id":"3787e935-3265-4dc5-ad8b-1e7ce24cf8d6","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"}},{"type":"object","name":"ImportedStyleSheet","id":"dc7a78ff-0bf1-424c-9f67-b1bdca08804c","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"5dc89833-633c-41cf-b0fd-82fd4ad9c52a","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/native.css"}}],"height":10,"min_width":0,"margin":[5,10],"sizing_mode":"stretch_width","align":"start","disable_math":true}},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"df2c1634-bf75-454b-92d1-e689855d12cc","attributes":{"plot_id":"d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7","comm_id":"c84c59bb645f47f0b44f00cc0b7683d8","client_comm_id":"d03191e712bd434e928351017cdebc35"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
-  var render_items = [{"docid":"c763ecc8-41f2-4e9e-b218-45d54acdc4af","roots":{"d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7":"c1172c1d-8ed2-480a-bcbc-68ee76f2b761"},"root_ids":["d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7"]}];
+  var docs_json = {"82ff90a1-1b85-48db-b4db-a00da0780c9d":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"738842c8-906d-49ff-844c-8d1b88fb5159","attributes":{"notifications":{"type":"object","name":"Notifications","id":"3b5130fc-6907-4a22-89d6-b6f957a12510"}}},"roots":[{"type":"object","name":"panel.models.markup.HTML","id":"b51dc74a-c50e-4d19-bce7-5e844751a716","attributes":{"styles":{"type":"map","entries":[["border","1px solid #ddd"],["background-color","white"],["overflow-y","auto"],["overflow-x","auto"],["font-family","monospace"],["padding","8px"],["white-space","pre-wrap"]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 300px));\n  -webkit-mask-size: auto calc(min(50%, 300px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"be5ac9ef-e4a6-404f-8d8e-8109c8ae5f4f","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/css/loading.css"}},{"type":"object","name":"ImportedStyleSheet","id":"058f2687-e5e5-4302-930d-3beb32f8f6e6","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"}},{"type":"object","name":"ImportedStyleSheet","id":"2cfe2149-970a-4146-a6e7-d069b126771f","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"4b620017-356a-4fa3-ae41-5dcbcbca44c9","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/native.css"}}],"height":10,"min_width":0,"margin":[5,10],"sizing_mode":"stretch_width","align":"start","disable_math":true}},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"85487548-2339-4d3c-81cc-e2017a3dc4d8","attributes":{"plot_id":"b51dc74a-c50e-4d19-bce7-5e844751a716","comm_id":"7033757d7efa4a9f8e7a4753366d80ed","client_comm_id":"e3819a0b6d374514beb6418edee40e7a"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"82ff90a1-1b85-48db-b4db-a00da0780c9d","roots":{"b51dc74a-c50e-4d19-bce7-5e844751a716":"fd36ce58-cceb-40c7-a9af-72004ce10ad1"},"root_ids":["b51dc74a-c50e-4d19-bce7-5e844751a716"]}];
   var docs = Object.values(docs_json)
   if (!docs) {
     return
@@ -6334,12 +6354,12 @@ if (window.Jupyter !== undefined) {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div id='d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7'>
-  <div id="c1172c1d-8ed2-480a-bcbc-68ee76f2b761" data-root-id="d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7" style="display: contents;"></div>
+<div id='b51dc74a-c50e-4d19-bce7-5e844751a716'>
+  <div id="fd36ce58-cceb-40c7-a9af-72004ce10ad1" data-root-id="b51dc74a-c50e-4d19-bce7-5e844751a716" style="display: contents;"></div>
 </div>
 <script type="application/javascript">(function(root) {
-  var docs_json = {"c763ecc8-41f2-4e9e-b218-45d54acdc4af":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"1ee8adea-677b-43f2-84a7-237d54d6b87f","attributes":{"notifications":{"type":"object","name":"Notifications","id":"5441be41-f715-4972-892d-5bfd3783c35f"}}},"roots":[{"type":"object","name":"panel.models.markup.HTML","id":"d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7","attributes":{"styles":{"type":"map","entries":[["border","1px solid #ddd"],["background-color","white"],["overflow-y","auto"],["overflow-x","auto"],["font-family","monospace"],["padding","8px"],["white-space","pre-wrap"]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 300px));\n  -webkit-mask-size: auto calc(min(50%, 300px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"f7077b8f-59c9-4cc6-bc1a-d03cc854362a","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/css/loading.css"}},{"type":"object","name":"ImportedStyleSheet","id":"3787e935-3265-4dc5-ad8b-1e7ce24cf8d6","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"}},{"type":"object","name":"ImportedStyleSheet","id":"dc7a78ff-0bf1-424c-9f67-b1bdca08804c","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"5dc89833-633c-41cf-b0fd-82fd4ad9c52a","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/native.css"}}],"height":10,"min_width":0,"margin":[5,10],"sizing_mode":"stretch_width","align":"start","disable_math":true}},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"df2c1634-bf75-454b-92d1-e689855d12cc","attributes":{"plot_id":"d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7","comm_id":"c84c59bb645f47f0b44f00cc0b7683d8","client_comm_id":"d03191e712bd434e928351017cdebc35"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
-  var render_items = [{"docid":"c763ecc8-41f2-4e9e-b218-45d54acdc4af","roots":{"d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7":"c1172c1d-8ed2-480a-bcbc-68ee76f2b761"},"root_ids":["d04ee00a-8e5c-43f0-93b9-bfc7fe4648f7"]}];
+  var docs_json = {"82ff90a1-1b85-48db-b4db-a00da0780c9d":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"738842c8-906d-49ff-844c-8d1b88fb5159","attributes":{"notifications":{"type":"object","name":"Notifications","id":"3b5130fc-6907-4a22-89d6-b6f957a12510"}}},"roots":[{"type":"object","name":"panel.models.markup.HTML","id":"b51dc74a-c50e-4d19-bce7-5e844751a716","attributes":{"styles":{"type":"map","entries":[["border","1px solid #ddd"],["background-color","white"],["overflow-y","auto"],["overflow-x","auto"],["font-family","monospace"],["padding","8px"],["white-space","pre-wrap"]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 300px));\n  -webkit-mask-size: auto calc(min(50%, 300px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"be5ac9ef-e4a6-404f-8d8e-8109c8ae5f4f","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/css/loading.css"}},{"type":"object","name":"ImportedStyleSheet","id":"058f2687-e5e5-4302-930d-3beb32f8f6e6","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"}},{"type":"object","name":"ImportedStyleSheet","id":"2cfe2149-970a-4146-a6e7-d069b126771f","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"4b620017-356a-4fa3-ae41-5dcbcbca44c9","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/native.css"}}],"height":10,"min_width":0,"margin":[5,10],"sizing_mode":"stretch_width","align":"start","disable_math":true}},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"85487548-2339-4d3c-81cc-e2017a3dc4d8","attributes":{"plot_id":"b51dc74a-c50e-4d19-bce7-5e844751a716","comm_id":"7033757d7efa4a9f8e7a4753366d80ed","client_comm_id":"e3819a0b6d374514beb6418edee40e7a"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"82ff90a1-1b85-48db-b4db-a00da0780c9d","roots":{"b51dc74a-c50e-4d19-bce7-5e844751a716":"fd36ce58-cceb-40c7-a9af-72004ce10ad1"},"root_ids":["b51dc74a-c50e-4d19-bce7-5e844751a716"]}];
   var docs = Object.values(docs_json)
   if (!docs) {
     return
@@ -6419,58 +6439,58 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_b4fa2">
+<table id="T_4945b">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_b4fa2_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_b4fa2_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_b4fa2_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_b4fa2_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_4945b_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_4945b_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_4945b_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_4945b_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_b4fa2_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_b4fa2_row0_col0" class="data row0 col0" >1.44e+04 K</td>
-      <td id="T_b4fa2_row0_col1" class="data row0 col1" >1.59e+04 K</td>
-      <td id="T_b4fa2_row0_col2" class="data row0 col2" >0.0531</td>
-      <td id="T_b4fa2_row0_col3" class="data row0 col3" >0.482</td>
+      <th id="T_4945b_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_4945b_row0_col0" class="data row0 col0" >1.44e+04 K</td>
+      <td id="T_4945b_row0_col1" class="data row0 col1" >1.59e+04 K</td>
+      <td id="T_4945b_row0_col2" class="data row0 col2" >0.0531</td>
+      <td id="T_4945b_row0_col3" class="data row0 col3" >0.482</td>
     </tr>
     <tr>
-      <th id="T_b4fa2_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_b4fa2_row1_col0" class="data row1 col0" >1.44e+04 K</td>
-      <td id="T_b4fa2_row1_col1" class="data row1 col1" >1.67e+04 K</td>
-      <td id="T_b4fa2_row1_col2" class="data row1 col2" >0.0407</td>
-      <td id="T_b4fa2_row1_col3" class="data row1 col3" >0.208</td>
+      <th id="T_4945b_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_4945b_row1_col0" class="data row1 col0" >1.44e+04 K</td>
+      <td id="T_4945b_row1_col1" class="data row1 col1" >1.67e+04 K</td>
+      <td id="T_4945b_row1_col2" class="data row1 col2" >0.0407</td>
+      <td id="T_4945b_row1_col3" class="data row1 col3" >0.208</td>
     </tr>
     <tr>
-      <th id="T_b4fa2_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_b4fa2_row2_col0" class="data row2 col0" >1.43e+04 K</td>
-      <td id="T_b4fa2_row2_col1" class="data row2 col1" >1.68e+04 K</td>
-      <td id="T_b4fa2_row2_col2" class="data row2 col2" >0.0323</td>
-      <td id="T_b4fa2_row2_col3" class="data row2 col3" >0.124</td>
+      <th id="T_4945b_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_4945b_row2_col0" class="data row2 col0" >1.43e+04 K</td>
+      <td id="T_4945b_row2_col1" class="data row2 col1" >1.68e+04 K</td>
+      <td id="T_4945b_row2_col2" class="data row2 col2" >0.0323</td>
+      <td id="T_4945b_row2_col3" class="data row2 col3" >0.124</td>
     </tr>
     <tr>
-      <th id="T_b4fa2_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_b4fa2_row3_col0" class="data row3 col0" >1.42e+04 K</td>
-      <td id="T_b4fa2_row3_col1" class="data row3 col1" >1.64e+04 K</td>
-      <td id="T_b4fa2_row3_col2" class="data row3 col2" >0.0262</td>
-      <td id="T_b4fa2_row3_col3" class="data row3 col3" >0.0907</td>
+      <th id="T_4945b_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_4945b_row3_col0" class="data row3 col0" >1.42e+04 K</td>
+      <td id="T_4945b_row3_col1" class="data row3 col1" >1.64e+04 K</td>
+      <td id="T_4945b_row3_col2" class="data row3 col2" >0.0262</td>
+      <td id="T_4945b_row3_col3" class="data row3 col3" >0.0907</td>
     </tr>
     <tr>
-      <th id="T_b4fa2_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_b4fa2_row4_col0" class="data row4 col0" >1.42e+04 K</td>
-      <td id="T_b4fa2_row4_col1" class="data row4 col1" >1.58e+04 K</td>
-      <td id="T_b4fa2_row4_col2" class="data row4 col2" >0.0217</td>
-      <td id="T_b4fa2_row4_col3" class="data row4 col3" >0.0738</td>
+      <th id="T_4945b_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_4945b_row4_col0" class="data row4 col0" >1.42e+04 K</td>
+      <td id="T_4945b_row4_col1" class="data row4 col1" >1.58e+04 K</td>
+      <td id="T_4945b_row4_col2" class="data row4 col2" >0.0217</td>
+      <td id="T_4945b_row4_col3" class="data row4 col3" >0.0738</td>
     </tr>
     <tr>
-      <th id="T_b4fa2_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_b4fa2_row5_col0" class="data row5 col0" >1.41e+04 K</td>
-      <td id="T_b4fa2_row5_col1" class="data row5 col1" >1.52e+04 K</td>
-      <td id="T_b4fa2_row5_col2" class="data row5 col2" >0.0183</td>
-      <td id="T_b4fa2_row5_col3" class="data row5 col3" >0.0648</td>
+      <th id="T_4945b_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_4945b_row5_col0" class="data row5 col0" >1.41e+04 K</td>
+      <td id="T_4945b_row5_col1" class="data row5 col1" >1.52e+04 K</td>
+      <td id="T_4945b_row5_col2" class="data row5 col2" >0.0183</td>
+      <td id="T_4945b_row5_col3" class="data row5 col3" >0.0648</td>
     </tr>
   </tbody>
 </table></div>
@@ -6481,58 +6501,58 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_544be">
+<table id="T_7b659">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_544be_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_544be_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_544be_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_544be_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_7b659_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_7b659_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_7b659_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_7b659_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_544be_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_544be_row0_col0" class="data row0 col0" >1.59e+04 K</td>
-      <td id="T_544be_row0_col1" class="data row0 col1" >1.25e+04 K</td>
-      <td id="T_544be_row0_col2" class="data row0 col2" >0.482</td>
-      <td id="T_544be_row0_col3" class="data row0 col3" >0.447</td>
+      <th id="T_7b659_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_7b659_row0_col0" class="data row0 col0" >1.59e+04 K</td>
+      <td id="T_7b659_row0_col1" class="data row0 col1" >1.25e+04 K</td>
+      <td id="T_7b659_row0_col2" class="data row0 col2" >0.482</td>
+      <td id="T_7b659_row0_col3" class="data row0 col3" >0.447</td>
     </tr>
     <tr>
-      <th id="T_544be_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_544be_row1_col0" class="data row1 col0" >1.67e+04 K</td>
-      <td id="T_544be_row1_col1" class="data row1 col1" >1.39e+04 K</td>
-      <td id="T_544be_row1_col2" class="data row1 col2" >0.208</td>
-      <td id="T_544be_row1_col3" class="data row1 col3" >0.153</td>
+      <th id="T_7b659_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_7b659_row1_col0" class="data row1 col0" >1.67e+04 K</td>
+      <td id="T_7b659_row1_col1" class="data row1 col1" >1.39e+04 K</td>
+      <td id="T_7b659_row1_col2" class="data row1 col2" >0.208</td>
+      <td id="T_7b659_row1_col3" class="data row1 col3" >0.153</td>
     </tr>
     <tr>
-      <th id="T_544be_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_544be_row2_col0" class="data row2 col0" >1.68e+04 K</td>
-      <td id="T_544be_row2_col1" class="data row2 col1" >1.41e+04 K</td>
-      <td id="T_544be_row2_col2" class="data row2 col2" >0.124</td>
-      <td id="T_544be_row2_col3" class="data row2 col3" >0.0887</td>
+      <th id="T_7b659_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_7b659_row2_col0" class="data row2 col0" >1.68e+04 K</td>
+      <td id="T_7b659_row2_col1" class="data row2 col1" >1.41e+04 K</td>
+      <td id="T_7b659_row2_col2" class="data row2 col2" >0.124</td>
+      <td id="T_7b659_row2_col3" class="data row2 col3" >0.0887</td>
     </tr>
     <tr>
-      <th id="T_544be_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_544be_row3_col0" class="data row3 col0" >1.64e+04 K</td>
-      <td id="T_544be_row3_col1" class="data row3 col1" >1.38e+04 K</td>
-      <td id="T_544be_row3_col2" class="data row3 col2" >0.0907</td>
-      <td id="T_544be_row3_col3" class="data row3 col3" >0.0653</td>
+      <th id="T_7b659_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_7b659_row3_col0" class="data row3 col0" >1.64e+04 K</td>
+      <td id="T_7b659_row3_col1" class="data row3 col1" >1.38e+04 K</td>
+      <td id="T_7b659_row3_col2" class="data row3 col2" >0.0907</td>
+      <td id="T_7b659_row3_col3" class="data row3 col3" >0.0653</td>
     </tr>
     <tr>
-      <th id="T_544be_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_544be_row4_col0" class="data row4 col0" >1.58e+04 K</td>
-      <td id="T_544be_row4_col1" class="data row4 col1" >1.33e+04 K</td>
-      <td id="T_544be_row4_col2" class="data row4 col2" >0.0738</td>
-      <td id="T_544be_row4_col3" class="data row4 col3" >0.0547</td>
+      <th id="T_7b659_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_7b659_row4_col0" class="data row4 col0" >1.58e+04 K</td>
+      <td id="T_7b659_row4_col1" class="data row4 col1" >1.33e+04 K</td>
+      <td id="T_7b659_row4_col2" class="data row4 col2" >0.0738</td>
+      <td id="T_7b659_row4_col3" class="data row4 col3" >0.0547</td>
     </tr>
     <tr>
-      <th id="T_544be_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_544be_row5_col0" class="data row5 col0" >1.52e+04 K</td>
-      <td id="T_544be_row5_col1" class="data row5 col1" >1.3e+04 K</td>
-      <td id="T_544be_row5_col2" class="data row5 col2" >0.0648</td>
-      <td id="T_544be_row5_col3" class="data row5 col3" >0.0469</td>
+      <th id="T_7b659_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_7b659_row5_col0" class="data row5 col0" >1.52e+04 K</td>
+      <td id="T_7b659_row5_col1" class="data row5 col1" >1.3e+04 K</td>
+      <td id="T_7b659_row5_col2" class="data row5 col2" >0.0648</td>
+      <td id="T_7b659_row5_col3" class="data row5 col3" >0.0469</td>
     </tr>
   </tbody>
 </table></div>
@@ -6543,58 +6563,58 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_26613">
+<table id="T_72d80">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_26613_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_26613_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_26613_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_26613_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_72d80_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_72d80_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_72d80_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_72d80_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_26613_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_26613_row0_col0" class="data row0 col0" >1.25e+04 K</td>
-      <td id="T_26613_row0_col1" class="data row0 col1" >1.15e+04 K</td>
-      <td id="T_26613_row0_col2" class="data row0 col2" >0.447</td>
-      <td id="T_26613_row0_col3" class="data row0 col3" >0.502</td>
+      <th id="T_72d80_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_72d80_row0_col0" class="data row0 col0" >1.25e+04 K</td>
+      <td id="T_72d80_row0_col1" class="data row0 col1" >1.15e+04 K</td>
+      <td id="T_72d80_row0_col2" class="data row0 col2" >0.447</td>
+      <td id="T_72d80_row0_col3" class="data row0 col3" >0.502</td>
     </tr>
     <tr>
-      <th id="T_26613_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_26613_row1_col0" class="data row1 col0" >1.39e+04 K</td>
-      <td id="T_26613_row1_col1" class="data row1 col1" >1.27e+04 K</td>
-      <td id="T_26613_row1_col2" class="data row1 col2" >0.153</td>
-      <td id="T_26613_row1_col3" class="data row1 col3" >0.188</td>
+      <th id="T_72d80_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_72d80_row1_col0" class="data row1 col0" >1.39e+04 K</td>
+      <td id="T_72d80_row1_col1" class="data row1 col1" >1.27e+04 K</td>
+      <td id="T_72d80_row1_col2" class="data row1 col2" >0.153</td>
+      <td id="T_72d80_row1_col3" class="data row1 col3" >0.188</td>
     </tr>
     <tr>
-      <th id="T_26613_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_26613_row2_col0" class="data row2 col0" >1.41e+04 K</td>
-      <td id="T_26613_row2_col1" class="data row2 col1" >1.29e+04 K</td>
-      <td id="T_26613_row2_col2" class="data row2 col2" >0.0887</td>
-      <td id="T_26613_row2_col3" class="data row2 col3" >0.107</td>
+      <th id="T_72d80_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_72d80_row2_col0" class="data row2 col0" >1.41e+04 K</td>
+      <td id="T_72d80_row2_col1" class="data row2 col1" >1.29e+04 K</td>
+      <td id="T_72d80_row2_col2" class="data row2 col2" >0.0887</td>
+      <td id="T_72d80_row2_col3" class="data row2 col3" >0.107</td>
     </tr>
     <tr>
-      <th id="T_26613_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_26613_row3_col0" class="data row3 col0" >1.38e+04 K</td>
-      <td id="T_26613_row3_col1" class="data row3 col1" >1.27e+04 K</td>
-      <td id="T_26613_row3_col2" class="data row3 col2" >0.0653</td>
-      <td id="T_26613_row3_col3" class="data row3 col3" >0.0767</td>
+      <th id="T_72d80_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_72d80_row3_col0" class="data row3 col0" >1.38e+04 K</td>
+      <td id="T_72d80_row3_col1" class="data row3 col1" >1.27e+04 K</td>
+      <td id="T_72d80_row3_col2" class="data row3 col2" >0.0653</td>
+      <td id="T_72d80_row3_col3" class="data row3 col3" >0.0767</td>
     </tr>
     <tr>
-      <th id="T_26613_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_26613_row4_col0" class="data row4 col0" >1.33e+04 K</td>
-      <td id="T_26613_row4_col1" class="data row4 col1" >1.24e+04 K</td>
-      <td id="T_26613_row4_col2" class="data row4 col2" >0.0547</td>
-      <td id="T_26613_row4_col3" class="data row4 col3" >0.0613</td>
+      <th id="T_72d80_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_72d80_row4_col0" class="data row4 col0" >1.33e+04 K</td>
+      <td id="T_72d80_row4_col1" class="data row4 col1" >1.24e+04 K</td>
+      <td id="T_72d80_row4_col2" class="data row4 col2" >0.0547</td>
+      <td id="T_72d80_row4_col3" class="data row4 col3" >0.0613</td>
     </tr>
     <tr>
-      <th id="T_26613_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_26613_row5_col0" class="data row5 col0" >1.3e+04 K</td>
-      <td id="T_26613_row5_col1" class="data row5 col1" >1.2e+04 K</td>
-      <td id="T_26613_row5_col2" class="data row5 col2" >0.0469</td>
-      <td id="T_26613_row5_col3" class="data row5 col3" >0.0535</td>
+      <th id="T_72d80_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_72d80_row5_col0" class="data row5 col0" >1.3e+04 K</td>
+      <td id="T_72d80_row5_col1" class="data row5 col1" >1.2e+04 K</td>
+      <td id="T_72d80_row5_col2" class="data row5 col2" >0.0469</td>
+      <td id="T_72d80_row5_col3" class="data row5 col3" >0.0535</td>
     </tr>
   </tbody>
 </table></div>
@@ -6605,58 +6625,58 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_8a247">
+<table id="T_92da8">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_8a247_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_8a247_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_8a247_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_8a247_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_92da8_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_92da8_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_92da8_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_92da8_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_8a247_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_8a247_row0_col0" class="data row0 col0" >1.15e+04 K</td>
-      <td id="T_8a247_row0_col1" class="data row0 col1" >1.12e+04 K</td>
-      <td id="T_8a247_row0_col2" class="data row0 col2" >0.502</td>
-      <td id="T_8a247_row0_col3" class="data row0 col3" >0.486</td>
+      <th id="T_92da8_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_92da8_row0_col0" class="data row0 col0" >1.15e+04 K</td>
+      <td id="T_92da8_row0_col1" class="data row0 col1" >1.12e+04 K</td>
+      <td id="T_92da8_row0_col2" class="data row0 col2" >0.502</td>
+      <td id="T_92da8_row0_col3" class="data row0 col3" >0.486</td>
     </tr>
     <tr>
-      <th id="T_8a247_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_8a247_row1_col0" class="data row1 col0" >1.27e+04 K</td>
-      <td id="T_8a247_row1_col1" class="data row1 col1" >1.2e+04 K</td>
-      <td id="T_8a247_row1_col2" class="data row1 col2" >0.188</td>
-      <td id="T_8a247_row1_col3" class="data row1 col3" >0.206</td>
+      <th id="T_92da8_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_92da8_row1_col0" class="data row1 col0" >1.27e+04 K</td>
+      <td id="T_92da8_row1_col1" class="data row1 col1" >1.2e+04 K</td>
+      <td id="T_92da8_row1_col2" class="data row1 col2" >0.188</td>
+      <td id="T_92da8_row1_col3" class="data row1 col3" >0.206</td>
     </tr>
     <tr>
-      <th id="T_8a247_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_8a247_row2_col0" class="data row2 col0" >1.29e+04 K</td>
-      <td id="T_8a247_row2_col1" class="data row2 col1" >1.22e+04 K</td>
-      <td id="T_8a247_row2_col2" class="data row2 col2" >0.107</td>
-      <td id="T_8a247_row2_col3" class="data row2 col3" >0.124</td>
+      <th id="T_92da8_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_92da8_row2_col0" class="data row2 col0" >1.29e+04 K</td>
+      <td id="T_92da8_row2_col1" class="data row2 col1" >1.22e+04 K</td>
+      <td id="T_92da8_row2_col2" class="data row2 col2" >0.107</td>
+      <td id="T_92da8_row2_col3" class="data row2 col3" >0.124</td>
     </tr>
     <tr>
-      <th id="T_8a247_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_8a247_row3_col0" class="data row3 col0" >1.27e+04 K</td>
-      <td id="T_8a247_row3_col1" class="data row3 col1" >1.22e+04 K</td>
-      <td id="T_8a247_row3_col2" class="data row3 col2" >0.0767</td>
-      <td id="T_8a247_row3_col3" class="data row3 col3" >0.0842</td>
+      <th id="T_92da8_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_92da8_row3_col0" class="data row3 col0" >1.27e+04 K</td>
+      <td id="T_92da8_row3_col1" class="data row3 col1" >1.22e+04 K</td>
+      <td id="T_92da8_row3_col2" class="data row3 col2" >0.0767</td>
+      <td id="T_92da8_row3_col3" class="data row3 col3" >0.0842</td>
     </tr>
     <tr>
-      <th id="T_8a247_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_8a247_row4_col0" class="data row4 col0" >1.24e+04 K</td>
-      <td id="T_8a247_row4_col1" class="data row4 col1" >1.19e+04 K</td>
-      <td id="T_8a247_row4_col2" class="data row4 col2" >0.0613</td>
-      <td id="T_8a247_row4_col3" class="data row4 col3" >0.0684</td>
+      <th id="T_92da8_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_92da8_row4_col0" class="data row4 col0" >1.24e+04 K</td>
+      <td id="T_92da8_row4_col1" class="data row4 col1" >1.19e+04 K</td>
+      <td id="T_92da8_row4_col2" class="data row4 col2" >0.0613</td>
+      <td id="T_92da8_row4_col3" class="data row4 col3" >0.0684</td>
     </tr>
     <tr>
-      <th id="T_8a247_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_8a247_row5_col0" class="data row5 col0" >1.2e+04 K</td>
-      <td id="T_8a247_row5_col1" class="data row5 col1" >1.15e+04 K</td>
-      <td id="T_8a247_row5_col2" class="data row5 col2" >0.0535</td>
-      <td id="T_8a247_row5_col3" class="data row5 col3" >0.0599</td>
+      <th id="T_92da8_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_92da8_row5_col0" class="data row5 col0" >1.2e+04 K</td>
+      <td id="T_92da8_row5_col1" class="data row5 col1" >1.15e+04 K</td>
+      <td id="T_92da8_row5_col2" class="data row5 col2" >0.0535</td>
+      <td id="T_92da8_row5_col3" class="data row5 col3" >0.0599</td>
     </tr>
   </tbody>
 </table></div>
@@ -6667,65 +6687,65 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_2aaed">
+<table id="T_c2611">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_2aaed_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_2aaed_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_2aaed_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_2aaed_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_c2611_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_c2611_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_c2611_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_c2611_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_2aaed_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_2aaed_row0_col0" class="data row0 col0" >1.45e+04 K</td>
-      <td id="T_2aaed_row0_col1" class="data row0 col1" >1.13e+04 K</td>
-      <td id="T_2aaed_row0_col2" class="data row0 col2" >0.0563</td>
-      <td id="T_2aaed_row0_col3" class="data row0 col3" >0.479</td>
+      <th id="T_c2611_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_c2611_row0_col0" class="data row0 col0" >1.45e+04 K</td>
+      <td id="T_c2611_row0_col1" class="data row0 col1" >1.13e+04 K</td>
+      <td id="T_c2611_row0_col2" class="data row0 col2" >0.0563</td>
+      <td id="T_c2611_row0_col3" class="data row0 col3" >0.479</td>
     </tr>
     <tr>
-      <th id="T_2aaed_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_2aaed_row1_col0" class="data row1 col0" >1.19e+04 K</td>
-      <td id="T_2aaed_row1_col1" class="data row1 col1" >1.17e+04 K</td>
-      <td id="T_2aaed_row1_col2" class="data row1 col2" >0.237</td>
-      <td id="T_2aaed_row1_col3" class="data row1 col3" >0.217</td>
+      <th id="T_c2611_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_c2611_row1_col0" class="data row1 col0" >1.19e+04 K</td>
+      <td id="T_c2611_row1_col1" class="data row1 col1" >1.17e+04 K</td>
+      <td id="T_c2611_row1_col2" class="data row1 col2" >0.237</td>
+      <td id="T_c2611_row1_col3" class="data row1 col3" >0.217</td>
     </tr>
     <tr>
-      <th id="T_2aaed_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_2aaed_row2_col0" class="data row2 col0" >1.21e+04 K</td>
-      <td id="T_2aaed_row2_col1" class="data row2 col1" >1.18e+04 K</td>
-      <td id="T_2aaed_row2_col2" class="data row2 col2" >0.138</td>
-      <td id="T_2aaed_row2_col3" class="data row2 col3" >0.131</td>
+      <th id="T_c2611_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_c2611_row2_col0" class="data row2 col0" >1.21e+04 K</td>
+      <td id="T_c2611_row2_col1" class="data row2 col1" >1.18e+04 K</td>
+      <td id="T_c2611_row2_col2" class="data row2 col2" >0.138</td>
+      <td id="T_c2611_row2_col3" class="data row2 col3" >0.131</td>
     </tr>
     <tr>
-      <th id="T_2aaed_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_2aaed_row3_col0" class="data row3 col0" >1.22e+04 K</td>
-      <td id="T_2aaed_row3_col1" class="data row3 col1" >1.17e+04 K</td>
-      <td id="T_2aaed_row3_col2" class="data row3 col2" >0.0893</td>
-      <td id="T_2aaed_row3_col3" class="data row3 col3" >0.0932</td>
+      <th id="T_c2611_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_c2611_row3_col0" class="data row3 col0" >1.22e+04 K</td>
+      <td id="T_c2611_row3_col1" class="data row3 col1" >1.17e+04 K</td>
+      <td id="T_c2611_row3_col2" class="data row3 col2" >0.0893</td>
+      <td id="T_c2611_row3_col3" class="data row3 col3" >0.0932</td>
     </tr>
     <tr>
-      <th id="T_2aaed_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_2aaed_row4_col0" class="data row4 col0" >1.19e+04 K</td>
-      <td id="T_2aaed_row4_col1" class="data row4 col1" >1.15e+04 K</td>
-      <td id="T_2aaed_row4_col2" class="data row4 col2" >0.0714</td>
-      <td id="T_2aaed_row4_col3" class="data row4 col3" >0.0741</td>
+      <th id="T_c2611_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_c2611_row4_col0" class="data row4 col0" >1.19e+04 K</td>
+      <td id="T_c2611_row4_col1" class="data row4 col1" >1.15e+04 K</td>
+      <td id="T_c2611_row4_col2" class="data row4 col2" >0.0714</td>
+      <td id="T_c2611_row4_col3" class="data row4 col3" >0.0741</td>
     </tr>
     <tr>
-      <th id="T_2aaed_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_2aaed_row5_col0" class="data row5 col0" >1.15e+04 K</td>
-      <td id="T_2aaed_row5_col1" class="data row5 col1" >1.12e+04 K</td>
-      <td id="T_2aaed_row5_col2" class="data row5 col2" >0.0624</td>
-      <td id="T_2aaed_row5_col3" class="data row5 col3" >0.0641</td>
+      <th id="T_c2611_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_c2611_row5_col0" class="data row5 col0" >1.15e+04 K</td>
+      <td id="T_c2611_row5_col1" class="data row5 col1" >1.12e+04 K</td>
+      <td id="T_c2611_row5_col2" class="data row5 col2" >0.0624</td>
+      <td id="T_c2611_row5_col3" class="data row5 col3" >0.0641</td>
     </tr>
     <tr>
-      <th id="T_2aaed_level0_row6" class="row_heading level0 row6" >30</th>
-      <td id="T_2aaed_row6_col0" class="data row6 col0" >1.1e+04 K</td>
-      <td id="T_2aaed_row6_col1" class="data row6 col1" >1.07e+04 K</td>
-      <td id="T_2aaed_row6_col2" class="data row6 col2" >0.0587</td>
-      <td id="T_2aaed_row6_col3" class="data row6 col3" >0.0603</td>
+      <th id="T_c2611_level0_row6" class="row_heading level0 row6" >30</th>
+      <td id="T_c2611_row6_col0" class="data row6 col0" >1.1e+04 K</td>
+      <td id="T_c2611_row6_col1" class="data row6 col1" >1.07e+04 K</td>
+      <td id="T_c2611_row6_col2" class="data row6 col2" >0.0587</td>
+      <td id="T_c2611_row6_col3" class="data row6 col3" >0.0603</td>
     </tr>
   </tbody>
 </table></div>
@@ -6736,65 +6756,65 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_142b2">
+<table id="T_fb809">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_142b2_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_142b2_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_142b2_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_142b2_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_fb809_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_fb809_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_fb809_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_fb809_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_142b2_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_142b2_row0_col0" class="data row0 col0" >1.13e+04 K</td>
-      <td id="T_142b2_row0_col1" class="data row0 col1" >1.13e+04 K</td>
-      <td id="T_142b2_row0_col2" class="data row0 col2" >0.479</td>
-      <td id="T_142b2_row0_col3" class="data row0 col3" >0.514</td>
+      <th id="T_fb809_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_fb809_row0_col0" class="data row0 col0" >1.13e+04 K</td>
+      <td id="T_fb809_row0_col1" class="data row0 col1" >1.13e+04 K</td>
+      <td id="T_fb809_row0_col2" class="data row0 col2" >0.479</td>
+      <td id="T_fb809_row0_col3" class="data row0 col3" >0.514</td>
     </tr>
     <tr>
-      <th id="T_142b2_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_142b2_row1_col0" class="data row1 col0" >1.17e+04 K</td>
-      <td id="T_142b2_row1_col1" class="data row1 col1" >1.17e+04 K</td>
-      <td id="T_142b2_row1_col2" class="data row1 col2" >0.217</td>
-      <td id="T_142b2_row1_col3" class="data row1 col3" >0.23</td>
+      <th id="T_fb809_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_fb809_row1_col0" class="data row1 col0" >1.17e+04 K</td>
+      <td id="T_fb809_row1_col1" class="data row1 col1" >1.17e+04 K</td>
+      <td id="T_fb809_row1_col2" class="data row1 col2" >0.217</td>
+      <td id="T_fb809_row1_col3" class="data row1 col3" >0.23</td>
     </tr>
     <tr>
-      <th id="T_142b2_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_142b2_row2_col0" class="data row2 col0" >1.18e+04 K</td>
-      <td id="T_142b2_row2_col1" class="data row2 col1" >1.17e+04 K</td>
-      <td id="T_142b2_row2_col2" class="data row2 col2" >0.131</td>
-      <td id="T_142b2_row2_col3" class="data row2 col3" >0.144</td>
+      <th id="T_fb809_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_fb809_row2_col0" class="data row2 col0" >1.18e+04 K</td>
+      <td id="T_fb809_row2_col1" class="data row2 col1" >1.17e+04 K</td>
+      <td id="T_fb809_row2_col2" class="data row2 col2" >0.131</td>
+      <td id="T_fb809_row2_col3" class="data row2 col3" >0.144</td>
     </tr>
     <tr>
-      <th id="T_142b2_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_142b2_row3_col0" class="data row3 col0" >1.17e+04 K</td>
-      <td id="T_142b2_row3_col1" class="data row3 col1" >1.15e+04 K</td>
-      <td id="T_142b2_row3_col2" class="data row3 col2" >0.0932</td>
-      <td id="T_142b2_row3_col3" class="data row3 col3" >0.105</td>
+      <th id="T_fb809_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_fb809_row3_col0" class="data row3 col0" >1.17e+04 K</td>
+      <td id="T_fb809_row3_col1" class="data row3 col1" >1.15e+04 K</td>
+      <td id="T_fb809_row3_col2" class="data row3 col2" >0.0932</td>
+      <td id="T_fb809_row3_col3" class="data row3 col3" >0.105</td>
     </tr>
     <tr>
-      <th id="T_142b2_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_142b2_row4_col0" class="data row4 col0" >1.15e+04 K</td>
-      <td id="T_142b2_row4_col1" class="data row4 col1" >1.14e+04 K</td>
-      <td id="T_142b2_row4_col2" class="data row4 col2" >0.0741</td>
-      <td id="T_142b2_row4_col3" class="data row4 col3" >0.0804</td>
+      <th id="T_fb809_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_fb809_row4_col0" class="data row4 col0" >1.15e+04 K</td>
+      <td id="T_fb809_row4_col1" class="data row4 col1" >1.14e+04 K</td>
+      <td id="T_fb809_row4_col2" class="data row4 col2" >0.0741</td>
+      <td id="T_fb809_row4_col3" class="data row4 col3" >0.0804</td>
     </tr>
     <tr>
-      <th id="T_142b2_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_142b2_row5_col0" class="data row5 col0" >1.12e+04 K</td>
-      <td id="T_142b2_row5_col1" class="data row5 col1" >1.1e+04 K</td>
-      <td id="T_142b2_row5_col2" class="data row5 col2" >0.0641</td>
-      <td id="T_142b2_row5_col3" class="data row5 col3" >0.0709</td>
+      <th id="T_fb809_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_fb809_row5_col0" class="data row5 col0" >1.12e+04 K</td>
+      <td id="T_fb809_row5_col1" class="data row5 col1" >1.1e+04 K</td>
+      <td id="T_fb809_row5_col2" class="data row5 col2" >0.0641</td>
+      <td id="T_fb809_row5_col3" class="data row5 col3" >0.0709</td>
     </tr>
     <tr>
-      <th id="T_142b2_level0_row6" class="row_heading level0 row6" >30</th>
-      <td id="T_142b2_row6_col0" class="data row6 col0" >1.07e+04 K</td>
-      <td id="T_142b2_row6_col1" class="data row6 col1" >1.06e+04 K</td>
-      <td id="T_142b2_row6_col2" class="data row6 col2" >0.0603</td>
-      <td id="T_142b2_row6_col3" class="data row6 col3" >0.0651</td>
+      <th id="T_fb809_level0_row6" class="row_heading level0 row6" >30</th>
+      <td id="T_fb809_row6_col0" class="data row6 col0" >1.07e+04 K</td>
+      <td id="T_fb809_row6_col1" class="data row6 col1" >1.06e+04 K</td>
+      <td id="T_fb809_row6_col2" class="data row6 col2" >0.0603</td>
+      <td id="T_fb809_row6_col3" class="data row6 col3" >0.0651</td>
     </tr>
   </tbody>
 </table></div>
@@ -6805,65 +6825,65 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_c6116">
+<table id="T_bd8f4">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_c6116_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_c6116_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_c6116_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_c6116_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_bd8f4_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_bd8f4_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_bd8f4_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_bd8f4_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_c6116_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_c6116_row0_col0" class="data row0 col0" >1.45e+04 K</td>
-      <td id="T_c6116_row0_col1" class="data row0 col1" >1.13e+04 K</td>
-      <td id="T_c6116_row0_col2" class="data row0 col2" >0.0597</td>
-      <td id="T_c6116_row0_col3" class="data row0 col3" >0.548</td>
+      <th id="T_bd8f4_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_bd8f4_row0_col0" class="data row0 col0" >1.45e+04 K</td>
+      <td id="T_bd8f4_row0_col1" class="data row0 col1" >1.13e+04 K</td>
+      <td id="T_bd8f4_row0_col2" class="data row0 col2" >0.0597</td>
+      <td id="T_bd8f4_row0_col3" class="data row0 col3" >0.548</td>
     </tr>
     <tr>
-      <th id="T_c6116_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_c6116_row1_col0" class="data row1 col0" >1.17e+04 K</td>
-      <td id="T_c6116_row1_col1" class="data row1 col1" >1.18e+04 K</td>
-      <td id="T_c6116_row1_col2" class="data row1 col2" >0.26</td>
-      <td id="T_c6116_row1_col3" class="data row1 col3" >0.238</td>
+      <th id="T_bd8f4_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_bd8f4_row1_col0" class="data row1 col0" >1.17e+04 K</td>
+      <td id="T_bd8f4_row1_col1" class="data row1 col1" >1.18e+04 K</td>
+      <td id="T_bd8f4_row1_col2" class="data row1 col2" >0.26</td>
+      <td id="T_bd8f4_row1_col3" class="data row1 col3" >0.238</td>
     </tr>
     <tr>
-      <th id="T_c6116_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_c6116_row2_col0" class="data row2 col0" >1.18e+04 K</td>
-      <td id="T_c6116_row2_col1" class="data row2 col1" >1.18e+04 K</td>
-      <td id="T_c6116_row2_col2" class="data row2 col2" >0.152</td>
-      <td id="T_c6116_row2_col3" class="data row2 col3" >0.143</td>
+      <th id="T_bd8f4_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_bd8f4_row2_col0" class="data row2 col0" >1.18e+04 K</td>
+      <td id="T_bd8f4_row2_col1" class="data row2 col1" >1.18e+04 K</td>
+      <td id="T_bd8f4_row2_col2" class="data row2 col2" >0.152</td>
+      <td id="T_bd8f4_row2_col3" class="data row2 col3" >0.143</td>
     </tr>
     <tr>
-      <th id="T_c6116_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_c6116_row3_col0" class="data row3 col0" >1.16e+04 K</td>
-      <td id="T_c6116_row3_col1" class="data row3 col1" >1.18e+04 K</td>
-      <td id="T_c6116_row3_col2" class="data row3 col2" >0.11</td>
-      <td id="T_c6116_row3_col3" class="data row3 col3" >0.0986</td>
+      <th id="T_bd8f4_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_bd8f4_row3_col0" class="data row3 col0" >1.16e+04 K</td>
+      <td id="T_bd8f4_row3_col1" class="data row3 col1" >1.18e+04 K</td>
+      <td id="T_bd8f4_row3_col2" class="data row3 col2" >0.11</td>
+      <td id="T_bd8f4_row3_col3" class="data row3 col3" >0.0986</td>
     </tr>
     <tr>
-      <th id="T_c6116_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_c6116_row4_col0" class="data row4 col0" >1.15e+04 K</td>
-      <td id="T_c6116_row4_col1" class="data row4 col1" >1.15e+04 K</td>
-      <td id="T_c6116_row4_col2" class="data row4 col2" >0.0836</td>
-      <td id="T_c6116_row4_col3" class="data row4 col3" >0.079</td>
+      <th id="T_bd8f4_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_bd8f4_row4_col0" class="data row4 col0" >1.15e+04 K</td>
+      <td id="T_bd8f4_row4_col1" class="data row4 col1" >1.15e+04 K</td>
+      <td id="T_bd8f4_row4_col2" class="data row4 col2" >0.0836</td>
+      <td id="T_bd8f4_row4_col3" class="data row4 col3" >0.079</td>
     </tr>
     <tr>
-      <th id="T_c6116_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_c6116_row5_col0" class="data row5 col0" >1.11e+04 K</td>
-      <td id="T_c6116_row5_col1" class="data row5 col1" >1.11e+04 K</td>
-      <td id="T_c6116_row5_col2" class="data row5 col2" >0.0732</td>
-      <td id="T_c6116_row5_col3" class="data row5 col3" >0.0691</td>
+      <th id="T_bd8f4_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_bd8f4_row5_col0" class="data row5 col0" >1.11e+04 K</td>
+      <td id="T_bd8f4_row5_col1" class="data row5 col1" >1.11e+04 K</td>
+      <td id="T_bd8f4_row5_col2" class="data row5 col2" >0.0732</td>
+      <td id="T_bd8f4_row5_col3" class="data row5 col3" >0.0691</td>
     </tr>
     <tr>
-      <th id="T_c6116_level0_row6" class="row_heading level0 row6" >30</th>
-      <td id="T_c6116_row6_col0" class="data row6 col0" >1.07e+04 K</td>
-      <td id="T_c6116_row6_col1" class="data row6 col1" >1.08e+04 K</td>
-      <td id="T_c6116_row6_col2" class="data row6 col2" >0.0658</td>
-      <td id="T_c6116_row6_col3" class="data row6 col3" >0.0613</td>
+      <th id="T_bd8f4_level0_row6" class="row_heading level0 row6" >30</th>
+      <td id="T_bd8f4_row6_col0" class="data row6 col0" >1.07e+04 K</td>
+      <td id="T_bd8f4_row6_col1" class="data row6 col1" >1.08e+04 K</td>
+      <td id="T_bd8f4_row6_col2" class="data row6 col2" >0.0658</td>
+      <td id="T_bd8f4_row6_col3" class="data row6 col3" >0.0613</td>
     </tr>
   </tbody>
 </table></div>
@@ -6874,65 +6894,65 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_d34c9">
+<table id="T_aa7dd">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_d34c9_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_d34c9_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_d34c9_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_d34c9_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_aa7dd_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_aa7dd_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_aa7dd_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_aa7dd_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_d34c9_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_d34c9_row0_col0" class="data row0 col0" >1.13e+04 K</td>
-      <td id="T_d34c9_row0_col1" class="data row0 col1" >1.13e+04 K</td>
-      <td id="T_d34c9_row0_col2" class="data row0 col2" >0.548</td>
-      <td id="T_d34c9_row0_col3" class="data row0 col3" >0.577</td>
+      <th id="T_aa7dd_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_aa7dd_row0_col0" class="data row0 col0" >1.13e+04 K</td>
+      <td id="T_aa7dd_row0_col1" class="data row0 col1" >1.13e+04 K</td>
+      <td id="T_aa7dd_row0_col2" class="data row0 col2" >0.548</td>
+      <td id="T_aa7dd_row0_col3" class="data row0 col3" >0.577</td>
     </tr>
     <tr>
-      <th id="T_d34c9_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_d34c9_row1_col0" class="data row1 col0" >1.18e+04 K</td>
-      <td id="T_d34c9_row1_col1" class="data row1 col1" >1.18e+04 K</td>
-      <td id="T_d34c9_row1_col2" class="data row1 col2" >0.238</td>
-      <td id="T_d34c9_row1_col3" class="data row1 col3" >0.247</td>
+      <th id="T_aa7dd_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_aa7dd_row1_col0" class="data row1 col0" >1.18e+04 K</td>
+      <td id="T_aa7dd_row1_col1" class="data row1 col1" >1.18e+04 K</td>
+      <td id="T_aa7dd_row1_col2" class="data row1 col2" >0.238</td>
+      <td id="T_aa7dd_row1_col3" class="data row1 col3" >0.247</td>
     </tr>
     <tr>
-      <th id="T_d34c9_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_d34c9_row2_col0" class="data row2 col0" >1.18e+04 K</td>
-      <td id="T_d34c9_row2_col1" class="data row2 col1" >1.19e+04 K</td>
-      <td id="T_d34c9_row2_col2" class="data row2 col2" >0.143</td>
-      <td id="T_d34c9_row2_col3" class="data row2 col3" >0.141</td>
+      <th id="T_aa7dd_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_aa7dd_row2_col0" class="data row2 col0" >1.18e+04 K</td>
+      <td id="T_aa7dd_row2_col1" class="data row2 col1" >1.19e+04 K</td>
+      <td id="T_aa7dd_row2_col2" class="data row2 col2" >0.143</td>
+      <td id="T_aa7dd_row2_col3" class="data row2 col3" >0.141</td>
     </tr>
     <tr>
-      <th id="T_d34c9_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_d34c9_row3_col0" class="data row3 col0" >1.18e+04 K</td>
-      <td id="T_d34c9_row3_col1" class="data row3 col1" >1.19e+04 K</td>
-      <td id="T_d34c9_row3_col2" class="data row3 col2" >0.0986</td>
-      <td id="T_d34c9_row3_col3" class="data row3 col3" >0.0996</td>
+      <th id="T_aa7dd_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_aa7dd_row3_col0" class="data row3 col0" >1.18e+04 K</td>
+      <td id="T_aa7dd_row3_col1" class="data row3 col1" >1.19e+04 K</td>
+      <td id="T_aa7dd_row3_col2" class="data row3 col2" >0.0986</td>
+      <td id="T_aa7dd_row3_col3" class="data row3 col3" >0.0996</td>
     </tr>
     <tr>
-      <th id="T_d34c9_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_d34c9_row4_col0" class="data row4 col0" >1.15e+04 K</td>
-      <td id="T_d34c9_row4_col1" class="data row4 col1" >1.16e+04 K</td>
-      <td id="T_d34c9_row4_col2" class="data row4 col2" >0.079</td>
-      <td id="T_d34c9_row4_col3" class="data row4 col3" >0.0787</td>
+      <th id="T_aa7dd_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_aa7dd_row4_col0" class="data row4 col0" >1.15e+04 K</td>
+      <td id="T_aa7dd_row4_col1" class="data row4 col1" >1.16e+04 K</td>
+      <td id="T_aa7dd_row4_col2" class="data row4 col2" >0.079</td>
+      <td id="T_aa7dd_row4_col3" class="data row4 col3" >0.0787</td>
     </tr>
     <tr>
-      <th id="T_d34c9_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_d34c9_row5_col0" class="data row5 col0" >1.11e+04 K</td>
-      <td id="T_d34c9_row5_col1" class="data row5 col1" >1.12e+04 K</td>
-      <td id="T_d34c9_row5_col2" class="data row5 col2" >0.0691</td>
-      <td id="T_d34c9_row5_col3" class="data row5 col3" >0.0694</td>
+      <th id="T_aa7dd_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_aa7dd_row5_col0" class="data row5 col0" >1.11e+04 K</td>
+      <td id="T_aa7dd_row5_col1" class="data row5 col1" >1.12e+04 K</td>
+      <td id="T_aa7dd_row5_col2" class="data row5 col2" >0.0691</td>
+      <td id="T_aa7dd_row5_col3" class="data row5 col3" >0.0694</td>
     </tr>
     <tr>
-      <th id="T_d34c9_level0_row6" class="row_heading level0 row6" >30</th>
-      <td id="T_d34c9_row6_col0" class="data row6 col0" >1.08e+04 K</td>
-      <td id="T_d34c9_row6_col1" class="data row6 col1" >1.08e+04 K</td>
-      <td id="T_d34c9_row6_col2" class="data row6 col2" >0.0613</td>
-      <td id="T_d34c9_row6_col3" class="data row6 col3" >0.0626</td>
+      <th id="T_aa7dd_level0_row6" class="row_heading level0 row6" >30</th>
+      <td id="T_aa7dd_row6_col0" class="data row6 col0" >1.08e+04 K</td>
+      <td id="T_aa7dd_row6_col1" class="data row6 col1" >1.08e+04 K</td>
+      <td id="T_aa7dd_row6_col2" class="data row6 col2" >0.0613</td>
+      <td id="T_aa7dd_row6_col3" class="data row6 col3" >0.0626</td>
     </tr>
   </tbody>
 </table></div>
@@ -6943,65 +6963,65 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_1d858">
+<table id="T_83c7e">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_1d858_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_1d858_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_1d858_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_1d858_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_83c7e_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_83c7e_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_83c7e_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_83c7e_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_1d858_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_1d858_row0_col0" class="data row0 col0" >1.13e+04 K</td>
-      <td id="T_1d858_row0_col1" class="data row0 col1" >1.14e+04 K</td>
-      <td id="T_1d858_row0_col2" class="data row0 col2" >0.577</td>
-      <td id="T_1d858_row0_col3" class="data row0 col3" >0.559</td>
+      <th id="T_83c7e_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_83c7e_row0_col0" class="data row0 col0" >1.13e+04 K</td>
+      <td id="T_83c7e_row0_col1" class="data row0 col1" >1.14e+04 K</td>
+      <td id="T_83c7e_row0_col2" class="data row0 col2" >0.577</td>
+      <td id="T_83c7e_row0_col3" class="data row0 col3" >0.559</td>
     </tr>
     <tr>
-      <th id="T_1d858_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_1d858_row1_col0" class="data row1 col0" >1.18e+04 K</td>
-      <td id="T_1d858_row1_col1" class="data row1 col1" >1.19e+04 K</td>
-      <td id="T_1d858_row1_col2" class="data row1 col2" >0.247</td>
-      <td id="T_1d858_row1_col3" class="data row1 col3" >0.235</td>
+      <th id="T_83c7e_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_83c7e_row1_col0" class="data row1 col0" >1.18e+04 K</td>
+      <td id="T_83c7e_row1_col1" class="data row1 col1" >1.19e+04 K</td>
+      <td id="T_83c7e_row1_col2" class="data row1 col2" >0.247</td>
+      <td id="T_83c7e_row1_col3" class="data row1 col3" >0.235</td>
     </tr>
     <tr>
-      <th id="T_1d858_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_1d858_row2_col0" class="data row2 col0" >1.19e+04 K</td>
-      <td id="T_1d858_row2_col1" class="data row2 col1" >1.21e+04 K</td>
-      <td id="T_1d858_row2_col2" class="data row2 col2" >0.141</td>
-      <td id="T_1d858_row2_col3" class="data row2 col3" >0.136</td>
+      <th id="T_83c7e_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_83c7e_row2_col0" class="data row2 col0" >1.19e+04 K</td>
+      <td id="T_83c7e_row2_col1" class="data row2 col1" >1.21e+04 K</td>
+      <td id="T_83c7e_row2_col2" class="data row2 col2" >0.141</td>
+      <td id="T_83c7e_row2_col3" class="data row2 col3" >0.136</td>
     </tr>
     <tr>
-      <th id="T_1d858_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_1d858_row3_col0" class="data row3 col0" >1.19e+04 K</td>
-      <td id="T_1d858_row3_col1" class="data row3 col1" >1.19e+04 K</td>
-      <td id="T_1d858_row3_col2" class="data row3 col2" >0.0996</td>
-      <td id="T_1d858_row3_col3" class="data row3 col3" >0.0972</td>
+      <th id="T_83c7e_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_83c7e_row3_col0" class="data row3 col0" >1.19e+04 K</td>
+      <td id="T_83c7e_row3_col1" class="data row3 col1" >1.19e+04 K</td>
+      <td id="T_83c7e_row3_col2" class="data row3 col2" >0.0996</td>
+      <td id="T_83c7e_row3_col3" class="data row3 col3" >0.0972</td>
     </tr>
     <tr>
-      <th id="T_1d858_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_1d858_row4_col0" class="data row4 col0" >1.16e+04 K</td>
-      <td id="T_1d858_row4_col1" class="data row4 col1" >1.17e+04 K</td>
-      <td id="T_1d858_row4_col2" class="data row4 col2" >0.0787</td>
-      <td id="T_1d858_row4_col3" class="data row4 col3" >0.0765</td>
+      <th id="T_83c7e_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_83c7e_row4_col0" class="data row4 col0" >1.16e+04 K</td>
+      <td id="T_83c7e_row4_col1" class="data row4 col1" >1.17e+04 K</td>
+      <td id="T_83c7e_row4_col2" class="data row4 col2" >0.0787</td>
+      <td id="T_83c7e_row4_col3" class="data row4 col3" >0.0765</td>
     </tr>
     <tr>
-      <th id="T_1d858_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_1d858_row5_col0" class="data row5 col0" >1.12e+04 K</td>
-      <td id="T_1d858_row5_col1" class="data row5 col1" >1.13e+04 K</td>
-      <td id="T_1d858_row5_col2" class="data row5 col2" >0.0694</td>
-      <td id="T_1d858_row5_col3" class="data row5 col3" >0.0661</td>
+      <th id="T_83c7e_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_83c7e_row5_col0" class="data row5 col0" >1.12e+04 K</td>
+      <td id="T_83c7e_row5_col1" class="data row5 col1" >1.13e+04 K</td>
+      <td id="T_83c7e_row5_col2" class="data row5 col2" >0.0694</td>
+      <td id="T_83c7e_row5_col3" class="data row5 col3" >0.0661</td>
     </tr>
     <tr>
-      <th id="T_1d858_level0_row6" class="row_heading level0 row6" >30</th>
-      <td id="T_1d858_row6_col0" class="data row6 col0" >1.08e+04 K</td>
-      <td id="T_1d858_row6_col1" class="data row6 col1" >1.09e+04 K</td>
-      <td id="T_1d858_row6_col2" class="data row6 col2" >0.0626</td>
-      <td id="T_1d858_row6_col3" class="data row6 col3" >0.0603</td>
+      <th id="T_83c7e_level0_row6" class="row_heading level0 row6" >30</th>
+      <td id="T_83c7e_row6_col0" class="data row6 col0" >1.08e+04 K</td>
+      <td id="T_83c7e_row6_col1" class="data row6 col1" >1.09e+04 K</td>
+      <td id="T_83c7e_row6_col2" class="data row6 col2" >0.0626</td>
+      <td id="T_83c7e_row6_col3" class="data row6 col3" >0.0603</td>
     </tr>
   </tbody>
 </table></div>
@@ -7012,65 +7032,65 @@ if (window.Jupyter !== undefined) {
 <div class="output_area rendered_html docutils container">
 <style type="text/css">
 </style>
-<table id="T_638aa">
+<table id="T_95410">
   <thead>
     <tr>
       <th class="index_name level0" >Shell No.</th>
-      <th id="T_638aa_level0_col0" class="col_heading level0 col0" >t_rad</th>
-      <th id="T_638aa_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
-      <th id="T_638aa_level0_col2" class="col_heading level0 col2" >w</th>
-      <th id="T_638aa_level0_col3" class="col_heading level0 col3" >next_w</th>
+      <th id="T_95410_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_95410_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_95410_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_95410_level0_col3" class="col_heading level0 col3" >next_w</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th id="T_638aa_level0_row0" class="row_heading level0 row0" >0</th>
-      <td id="T_638aa_row0_col0" class="data row0 col0" >1.14e+04 K</td>
-      <td id="T_638aa_row0_col1" class="data row0 col1" >1.14e+04 K</td>
-      <td id="T_638aa_row0_col2" class="data row0 col2" >0.559</td>
-      <td id="T_638aa_row0_col3" class="data row0 col3" >0.561</td>
+      <th id="T_95410_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_95410_row0_col0" class="data row0 col0" >1.14e+04 K</td>
+      <td id="T_95410_row0_col1" class="data row0 col1" >1.14e+04 K</td>
+      <td id="T_95410_row0_col2" class="data row0 col2" >0.559</td>
+      <td id="T_95410_row0_col3" class="data row0 col3" >0.561</td>
     </tr>
     <tr>
-      <th id="T_638aa_level0_row1" class="row_heading level0 row1" >5</th>
-      <td id="T_638aa_row1_col0" class="data row1 col0" >1.19e+04 K</td>
-      <td id="T_638aa_row1_col1" class="data row1 col1" >1.2e+04 K</td>
-      <td id="T_638aa_row1_col2" class="data row1 col2" >0.235</td>
-      <td id="T_638aa_row1_col3" class="data row1 col3" >0.232</td>
+      <th id="T_95410_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_95410_row1_col0" class="data row1 col0" >1.19e+04 K</td>
+      <td id="T_95410_row1_col1" class="data row1 col1" >1.2e+04 K</td>
+      <td id="T_95410_row1_col2" class="data row1 col2" >0.235</td>
+      <td id="T_95410_row1_col3" class="data row1 col3" >0.232</td>
     </tr>
     <tr>
-      <th id="T_638aa_level0_row2" class="row_heading level0 row2" >10</th>
-      <td id="T_638aa_row2_col0" class="data row2 col0" >1.21e+04 K</td>
-      <td id="T_638aa_row2_col1" class="data row2 col1" >1.22e+04 K</td>
-      <td id="T_638aa_row2_col2" class="data row2 col2" >0.136</td>
-      <td id="T_638aa_row2_col3" class="data row2 col3" >0.134</td>
+      <th id="T_95410_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_95410_row2_col0" class="data row2 col0" >1.21e+04 K</td>
+      <td id="T_95410_row2_col1" class="data row2 col1" >1.22e+04 K</td>
+      <td id="T_95410_row2_col2" class="data row2 col2" >0.136</td>
+      <td id="T_95410_row2_col3" class="data row2 col3" >0.134</td>
     </tr>
     <tr>
-      <th id="T_638aa_level0_row3" class="row_heading level0 row3" >15</th>
-      <td id="T_638aa_row3_col0" class="data row3 col0" >1.19e+04 K</td>
-      <td id="T_638aa_row3_col1" class="data row3 col1" >1.2e+04 K</td>
-      <td id="T_638aa_row3_col2" class="data row3 col2" >0.0972</td>
-      <td id="T_638aa_row3_col3" class="data row3 col3" >0.0975</td>
+      <th id="T_95410_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_95410_row3_col0" class="data row3 col0" >1.19e+04 K</td>
+      <td id="T_95410_row3_col1" class="data row3 col1" >1.2e+04 K</td>
+      <td id="T_95410_row3_col2" class="data row3 col2" >0.0972</td>
+      <td id="T_95410_row3_col3" class="data row3 col3" >0.0975</td>
     </tr>
     <tr>
-      <th id="T_638aa_level0_row4" class="row_heading level0 row4" >20</th>
-      <td id="T_638aa_row4_col0" class="data row4 col0" >1.17e+04 K</td>
-      <td id="T_638aa_row4_col1" class="data row4 col1" >1.17e+04 K</td>
-      <td id="T_638aa_row4_col2" class="data row4 col2" >0.0765</td>
-      <td id="T_638aa_row4_col3" class="data row4 col3" >0.0771</td>
+      <th id="T_95410_level0_row4" class="row_heading level0 row4" >20</th>
+      <td id="T_95410_row4_col0" class="data row4 col0" >1.17e+04 K</td>
+      <td id="T_95410_row4_col1" class="data row4 col1" >1.17e+04 K</td>
+      <td id="T_95410_row4_col2" class="data row4 col2" >0.0765</td>
+      <td id="T_95410_row4_col3" class="data row4 col3" >0.0771</td>
     </tr>
     <tr>
-      <th id="T_638aa_level0_row5" class="row_heading level0 row5" >25</th>
-      <td id="T_638aa_row5_col0" class="data row5 col0" >1.13e+04 K</td>
-      <td id="T_638aa_row5_col1" class="data row5 col1" >1.14e+04 K</td>
-      <td id="T_638aa_row5_col2" class="data row5 col2" >0.0661</td>
-      <td id="T_638aa_row5_col3" class="data row5 col3" >0.0665</td>
+      <th id="T_95410_level0_row5" class="row_heading level0 row5" >25</th>
+      <td id="T_95410_row5_col0" class="data row5 col0" >1.13e+04 K</td>
+      <td id="T_95410_row5_col1" class="data row5 col1" >1.14e+04 K</td>
+      <td id="T_95410_row5_col2" class="data row5 col2" >0.0661</td>
+      <td id="T_95410_row5_col3" class="data row5 col3" >0.0665</td>
     </tr>
     <tr>
-      <th id="T_638aa_level0_row6" class="row_heading level0 row6" >30</th>
-      <td id="T_638aa_row6_col0" class="data row6 col0" >1.09e+04 K</td>
-      <td id="T_638aa_row6_col1" class="data row6 col1" >1.1e+04 K</td>
-      <td id="T_638aa_row6_col2" class="data row6 col2" >0.0603</td>
-      <td id="T_638aa_row6_col3" class="data row6 col3" >0.0589</td>
+      <th id="T_95410_level0_row6" class="row_heading level0 row6" >30</th>
+      <td id="T_95410_row6_col0" class="data row6 col0" >1.09e+04 K</td>
+      <td id="T_95410_row6_col1" class="data row6 col1" >1.1e+04 K</td>
+      <td id="T_95410_row6_col2" class="data row6 col2" >0.0603</td>
+      <td id="T_95410_row6_col3" class="data row6 col3" >0.0589</td>
     </tr>
   </tbody>
 </table></div>
@@ -7207,7 +7227,7 @@ if (window.Jupyter !== undefined) {
 </div>
 </div>
 <script type="application/vnd.jupyter.widget-state+json">
-{"state": {"76e1b91a95814286ac530fb3a062f651": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": "20px"}}, "1bc448cd615e47ffb52f63d92d86818f": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "b17cadf4c38a48c8a8fb5be624cc8b95": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "info", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_76e1b91a95814286ac530fb3a062f651", "max": 1.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_1bc448cd615e47ffb52f63d92d86818f", "tabbable": null, "tooltip": null, "value": 1.0}}, "537d1dd84bc84636a8779f55bbe7acd4": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "3279444dc21f44c6917d39268a114d8a": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "d7383dfd4b5745b88025b7fbec999a59": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_537d1dd84bc84636a8779f55bbe7acd4", "placeholder": "\u200b", "style": "IPY_MODEL_3279444dc21f44c6917d39268a114d8a", "tabbable": null, "tooltip": null, "value": "Iterations:"}}, "9cfd742a6d4244a6bf95d11a1e216a2c": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "41f2938c1d9046cd9076b56b80e9be87": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "e25e4f0b8b39495eaaffe3cbd28d5e22": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_9cfd742a6d4244a6bf95d11a1e216a2c", "placeholder": "\u200b", "style": "IPY_MODEL_41f2938c1d9046cd9076b56b80e9be87", "tabbable": null, "tooltip": null, "value": "11/?\u2007[01:07&lt;00:00,\u200711.57s/it]"}}, "531e300e390e4e0896cefd5ed64f6092": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "7f4468559f954f84a6601c2e1b578419": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_d7383dfd4b5745b88025b7fbec999a59", "IPY_MODEL_b17cadf4c38a48c8a8fb5be624cc8b95", "IPY_MODEL_e25e4f0b8b39495eaaffe3cbd28d5e22"], "layout": "IPY_MODEL_531e300e390e4e0896cefd5ed64f6092", "tabbable": null, "tooltip": null}}, "d0dc9a979d0345168b3e28885a56b207": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "3d57343d81514863b009a0ab8ac6f50d": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "41beee792a2d4667bb85a721ccda8b84": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_d0dc9a979d0345168b3e28885a56b207", "max": 100000.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_3d57343d81514863b009a0ab8ac6f50d", "tabbable": null, "tooltip": null, "value": 100000.0}}, "b6134f8683a6499ca58b9ba5dc19c7cb": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "073070b293cb4d02b1defc5420c5ae7c": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "1eb31eddfc73430e8acdf13fc13ac4b8": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_b6134f8683a6499ca58b9ba5dc19c7cb", "placeholder": "\u200b", "style": "IPY_MODEL_073070b293cb4d02b1defc5420c5ae7c", "tabbable": null, "tooltip": null, "value": "Packets:\u2007\u2007\u2007"}}, "00ba1a2a4a0546078f4de6a7562955fc": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "1c67ba870bc94a68bd197ade022b9d28": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "defcde09b80942d6b6ab0cfaf673c1b0": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_00ba1a2a4a0546078f4de6a7562955fc", "placeholder": "\u200b", "style": "IPY_MODEL_1c67ba870bc94a68bd197ade022b9d28", "tabbable": null, "tooltip": null, "value": "100000/100000\u2007[00:30&lt;00:00,\u200751088.07it/s]"}}, "179b6e910e26402283af31812e8a6b99": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "6624ddeba16749829d7695b6384d8d27": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_1eb31eddfc73430e8acdf13fc13ac4b8", "IPY_MODEL_41beee792a2d4667bb85a721ccda8b84", "IPY_MODEL_defcde09b80942d6b6ab0cfaf673c1b0"], "layout": "IPY_MODEL_179b6e910e26402283af31812e8a6b99", "tabbable": null, "tooltip": null}}}, "version_major": 2, "version_minor": 0}
+{"state": {"d11084ee503a40d98d25800942a7ef2b": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": "20px"}}, "f781c3305cfb4c48950bca9b6cbb8964": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "c0a8a6b13c7840a0b4b775a077f6b9b8": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "info", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_d11084ee503a40d98d25800942a7ef2b", "max": 1.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_f781c3305cfb4c48950bca9b6cbb8964", "tabbable": null, "tooltip": null, "value": 1.0}}, "5df12f9d080a47e898f120edfc72c5d8": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "0a40f63e473b48e9b2b1f46d4ce9f49b": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "a2256f4c8f6e4b1fa7f6f49e9f16ccb1": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_5df12f9d080a47e898f120edfc72c5d8", "placeholder": "\u200b", "style": "IPY_MODEL_0a40f63e473b48e9b2b1f46d4ce9f49b", "tabbable": null, "tooltip": null, "value": "Iterations:"}}, "8fc26530b27d4bbeb7cb22b54446e440": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "f6561850e81944ed9e00a7ab228136d0": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "ec70be6e7db14163933a0e4f52035a1c": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_8fc26530b27d4bbeb7cb22b54446e440", "placeholder": "\u200b", "style": "IPY_MODEL_f6561850e81944ed9e00a7ab228136d0", "tabbable": null, "tooltip": null, "value": "11/?\u2007[00:32&lt;00:00,\u2007\u20073.79s/it]"}}, "63e38e7cfd2942abac2d914814480b93": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "f91d4c4fea9b471ab4c8136739cec15e": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_a2256f4c8f6e4b1fa7f6f49e9f16ccb1", "IPY_MODEL_c0a8a6b13c7840a0b4b775a077f6b9b8", "IPY_MODEL_ec70be6e7db14163933a0e4f52035a1c"], "layout": "IPY_MODEL_63e38e7cfd2942abac2d914814480b93", "tabbable": null, "tooltip": null}}, "cf1b2514ed6e45b3ad9547c31883c010": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "1021c42340ad4907896d00994dcfc316": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "92550ed0d5154b9f96611add4ad91442": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_cf1b2514ed6e45b3ad9547c31883c010", "max": 100000.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_1021c42340ad4907896d00994dcfc316", "tabbable": null, "tooltip": null, "value": 100000.0}}, "213166a350ba459cbff5d136f3557914": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "76759c8fa9b44f0195edd82e6589c1c3": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "174288463c0347f4995dc91af9ae530d": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_213166a350ba459cbff5d136f3557914", "placeholder": "\u200b", "style": "IPY_MODEL_76759c8fa9b44f0195edd82e6589c1c3", "tabbable": null, "tooltip": null, "value": "Packets:\u2007\u2007\u2007"}}, "41765991183248ceaaefe49930ac11e3": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "c0fb508cdd7b44a5885a390dcb231a8a": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "c3306513bcdf477a84fd6f5187e0ff49": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_41765991183248ceaaefe49930ac11e3", "placeholder": "\u200b", "style": "IPY_MODEL_c0fb508cdd7b44a5885a390dcb231a8a", "tabbable": null, "tooltip": null, "value": "100000/100000\u2007[00:25&lt;00:00,\u200754362.36it/s]"}}, "1de82eb30466417e8159bbb1109b9bb3": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "d986994682da46058a80e29b13a8e41c": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_174288463c0347f4995dc91af9ae530d", "IPY_MODEL_92550ed0d5154b9f96611add4ad91442", "IPY_MODEL_c3306513bcdf477a84fd6f5187e0ff49"], "layout": "IPY_MODEL_1de82eb30466417e8159bbb1109b9bb3", "tabbable": null, "tooltip": null}}}, "version_major": 2, "version_minor": 0}
 </script></section>
 </section>
 
@@ -7220,7 +7240,7 @@ if (window.Jupyter !== undefined) {
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Nov 2026.
+      <span class="lastupdated">Last updated on 06 Nov 2026.
       </span></p>
   </div>
 
