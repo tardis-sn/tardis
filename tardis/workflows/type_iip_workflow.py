@@ -1234,7 +1234,6 @@ class TypeIIPWorkflow:
         self,
         opacity_states: Mapping[str, object],
         no_of_real_packets: int,
-        estimator_batch_count: int = 1,
     ) -> None:
         """Solve the Monte Carlo process.
 
@@ -1244,9 +1243,6 @@ class TypeIIPWorkflow:
             Opacity and (optionally) Macro Atom states.
         no_of_real_packets : int
             Number of real packets to simulate
-        estimator_batch_count : int, optional
-            Number of independent packet batches whose estimators are kept to
-            measure the Monte Carlo noise of the thermal-balance residuals.
 
         """
         opacity_state = opacity_states["opacity_state"]
@@ -1261,16 +1257,9 @@ class TypeIIPWorkflow:
             iteration=self.completed_iterations,
         )
 
-        line_species = self.plasma_solver.lines.index.droplevel(
-            ["level_number_lower", "level_number_upper"]
-        )
         self.transport_solver.run(
             self.transport_state,
             show_progress_bars=self.show_progress_bars,
-            estimator_batch_count=estimator_batch_count,
-            batch_line_idx=np.flatnonzero(
-                line_species.isin([THERMAL_BALANCE_NLTE_SPECIES])
-            ),
         )
 
         output_energy = self.transport_state.packet_collection.output_energies
@@ -1339,7 +1328,6 @@ class TypeIIPWorkflow:
         self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
-            estimator_batch_count=1,
         )
 
         self.initialize_spectrum_solver()
