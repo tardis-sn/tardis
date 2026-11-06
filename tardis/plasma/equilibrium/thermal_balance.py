@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 
 import numpy as np
 import numpy.typing as npt
@@ -26,73 +26,22 @@ from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 logger = logging.getLogger(__name__)
 
-# Inner closure required of every accepted thermal state. The electron and
-# heating residuals close at their Monte Carlo noise instead.
+# Inner closure required of every accepted thermal state.
 THERMAL_BALANCE_RESIDUAL_LIMITS = {
     "relative_trial_level_residual": LEVEL_RESIDUAL_LIMIT,
     "charge_residual": 1e-10,
 }
 
+# Closure of the outer residuals of each shell: the electron-density change
+# and the fractional heating. The charge projection solves for the electron
+# density independently, so the projected value can differ slightly from the
+# trial value; the heating residual subtracts nearly cancelling rates.
+ELECTRON_AND_THERMAL_RESIDUAL_LIMITS = np.array([2e-8, 2e-7])
+
 # Relative step of the forward differences that measure the Jacobian
 # diagonal used to scale each residual row. Only the magnitude of the
 # derivative matters, and the residual is smooth to ~1e-9 at this step.
 ROW_SCALE_RELATIVE_STEP = 1e-4
-
-# A noise-limited closure above this level means the plasma state is too
-# poorly constrained by the Monte Carlo estimators.
-NOISE_LIMITED_CLOSURE_WARNING = 1e-2
-
-
-def calculate_batch_standard_error(
-    batch_values: npt.ArrayLike,
-    batch_packet_counts: npt.ArrayLike,
-) -> npt.NDArray[np.float64]:
-    """Calculate the standard error of a pooled Monte Carlo estimate.
-
-    Each batch value is the estimate from its own independent packets. The
-    pooled estimate is the packet-weighted mean of the batches, and its
-    variance is estimated from the scatter of the batches as
-
-    ``sum_b n_b (x_b - x_pooled)**2 / (N (K - 1))``,
-
-    which reduces to the variance of the batch means divided by ``K`` for
-    equal batches.
-
-    Parameters
-    ----------
-    batch_values : array-like
-        Batch estimates with the batch along the first axis.
-    batch_packet_counts : array-like
-        Number of packets in each batch.
-
-    Returns
-    -------
-    numpy.ndarray
-        Standard error of the pooled estimate, with the shape of one batch.
-
-    Raises
-    ------
-    ValueError
-        If fewer than two batches are given, or the number of packet counts
-        differs from the number of batches.
-    """
-    batch_values = np.asarray(batch_values, dtype=np.float64)
-    batch_packet_counts = np.asarray(batch_packet_counts, dtype=np.float64)
-    number_of_batches = len(batch_packet_counts)
-    if number_of_batches < 2:
-        raise ValueError("At least two batches are required.")
-    if len(batch_values) != number_of_batches:
-        raise ValueError("Each batch needs exactly one packet count.")
-    total_packet_count = batch_packet_counts.sum()
-    pooled_value = np.tensordot(
-        batch_packet_counts / total_packet_count, batch_values, axes=1
-    )
-    weighted_scatter = np.tensordot(
-        batch_packet_counts, (batch_values - pooled_value) ** 2, axes=1
-    )
-    return np.sqrt(
-        weighted_scatter / (total_packet_count * (number_of_batches - 1))
-    )
 
 
 class ThermalBalanceSolver:
@@ -239,8 +188,8 @@ class ThermalBalanceSolver:
 class ElectronThermalBalanceSolver:
     """Solve electron density and temperature balance across plasma shells.
 
-    The electron and heating residuals of each shell close at twice their
-    Monte Carlo standard error, measured from independent packet batches.
+    The electron and heating residuals of each shell close at
+    ``ELECTRON_AND_THERMAL_RESIDUAL_LIMITS``.
     """
 
     # max_nfev counts the optimizer's own residual evaluations; its
@@ -259,8 +208,6 @@ class ElectronThermalBalanceSolver:
         radiation_temperature: npt.NDArray[np.float64],
         level_initial_guess: pd.DataFrame,
         maximum_electron_density: npt.NDArray[np.float64],
-        batch_evaluators: Callable[[], Iterable[PlasmaEquilibriumEvaluator]],
-        batch_packet_counts: npt.NDArray[np.int64],
     ) -> None:
         """Initialize a solve from one frozen plasma-equilibrium snapshot.
 
@@ -274,30 +221,15 @@ class ElectronThermalBalanceSolver:
             Frozen normalized level populations used during optimization.
         maximum_electron_density : numpy.ndarray
             Maximum electron number density in each shell [cm^-3].
-        batch_evaluators : callable
-            Returns evaluators of independent Monte Carlo packet batches,
-            whose scatter sets the closure limits.
-        batch_packet_counts : numpy.ndarray
-            Number of packets in each batch of ``batch_evaluators``.
-
-        Raises
-        ------
-        ValueError
-            If fewer than two packet batches are given.
         """
-        if len(batch_packet_counts) < 2:
-            raise ValueError(
-                "Thermal balance needs at least two Monte Carlo packet "
-                "batches to measure its closure limits."
-            )
         self.evaluator = evaluator
         self.radiation_temperature = radiation_temperature
         self.level_initial_guess = level_initial_guess
         self.maximum_electron_density = maximum_electron_density
-        self.batch_evaluators = batch_evaluators
-        self.batch_packet_counts = batch_packet_counts
-        # Set by ``solve``: the 2-sigma limits of the outer residuals.
-        self.outer_residual_limits: npt.NDArray[np.float64] | None = None
+        # Interleaved electron and heating limits of every shell.
+        self.outer_residual_limits = np.tile(
+            ELECTRON_AND_THERMAL_RESIDUAL_LIMITS, len(maximum_electron_density)
+        )
 
     @staticmethod
     def calculate_electron_and_thermal_residuals(
@@ -326,9 +258,7 @@ class ElectronThermalBalanceSolver:
         return outer_residuals
 
     def calculate_residual(
-        self,
-        candidate: npt.NDArray[np.float64],
-        evaluator: PlasmaEquilibriumEvaluator | None = None,
+        self, candidate: npt.NDArray[np.float64]
     ) -> npt.NDArray[np.float64]:
         """
         Calculate the outer residuals for all shells at a candidate.
@@ -340,18 +270,15 @@ class ElectronThermalBalanceSolver:
         candidate : numpy.ndarray
             Interleaved electron-density fractions and electron-to-radiation
             temperature ratios for each shell.
-        evaluator : PlasmaEquilibriumEvaluator, optional
-            Evaluator to use instead of the solver's own.
 
         Returns
         -------
         numpy.ndarray
             Interleaved electron and heating residuals for each shell (see
-            ``calculate_outer_residuals``).
+            ``calculate_electron_and_thermal_residuals``).
         """
-        evaluator = self.evaluator if evaluator is None else evaluator
         logger.debug("Link: %s", candidate[1::2])
-        evaluation = evaluator.evaluate(
+        evaluation = self.evaluator.evaluate(
             self.maximum_electron_density * candidate[::2],
             self.radiation_temperature * candidate[1::2],
             self.level_initial_guess,
@@ -397,66 +324,6 @@ class ElectronThermalBalanceSolver:
                 error,
             )
             return np.full_like(candidate, np.nan)
-
-    def calculate_residual_noise(
-        self, candidate: npt.NDArray[np.float64]
-    ) -> npt.NDArray[np.float64]:
-        """Calculate the Monte Carlo standard error of each residual.
-
-        The residual is evaluated once with each packet batch's estimators;
-        the scatter of the batches gives the noise of the residual of the
-        summed estimators, including the response of the populations. A
-        batch whose ionization balance fails, or whose residuals are not
-        finite, is dropped with a warning. Its few packets make that more
-        likely than for the summed estimators, and dropping it slightly
-        underestimates the noise.
-
-        Parameters
-        ----------
-        candidate : numpy.ndarray
-            Interleaved electron-density fractions and electron-to-radiation
-            temperature ratios for each shell.
-
-        Returns
-        -------
-        numpy.ndarray
-            Interleaved standard errors of the electron and heating residuals.
-
-        Raises
-        ------
-        ValueError
-            If fewer than two batches remain.
-        """
-        batch_residuals = []
-        batch_packet_counts = []
-        for batch_idx, (evaluator, packet_count) in enumerate(
-            zip(self.batch_evaluators(), self.batch_packet_counts, strict=True)
-        ):
-            try:
-                batch_residual = self.calculate_residual(candidate, evaluator)
-            except PlasmaIonizationError as error:
-                logger.warning(
-                    "Dropping packet batch %d from the thermal-balance noise "
-                    "estimate: %s",
-                    batch_idx,
-                    error,
-                )
-                continue
-            if not np.isfinite(batch_residual).all():
-                logger.warning(
-                    "Dropping packet batch %d from the thermal-balance noise "
-                    "estimate: nonfinite residual in shells %s",
-                    batch_idx,
-                    np.flatnonzero(
-                        ~np.isfinite(batch_residual).reshape(-1, 2).all(axis=1)
-                    ),
-                )
-                continue
-            batch_residuals.append(batch_residual)
-            batch_packet_counts.append(packet_count)
-        return calculate_batch_standard_error(
-            batch_residuals, batch_packet_counts
-        )
 
     @staticmethod
     def find_converged_shells(
@@ -675,9 +542,9 @@ class ElectronThermalBalanceSolver:
         """
         Validate the populations and the level and charge closure.
 
-        The electron and heating residuals are not checked: they close at
-        their Monte Carlo noise, and open shells are reported by
-        ``warn_open_shells``.
+        The electron and heating residuals are not checked here: shells that
+        miss ``ELECTRON_AND_THERMAL_RESIDUAL_LIMITS`` are reported by
+        ``warn_failed_shells`` instead.
 
         Parameters
         ----------
@@ -750,9 +617,10 @@ class ElectronThermalBalanceSolver:
         """
         Solve all shells jointly and validate the accepted state.
 
-        The closure limits are twice the Monte Carlo standard errors at the
-        initial guess. The solve stops once every shell closes; shells still
-        open at the evaluation budget are reported by a warning.
+        The solve stops once every shell is within
+        ``ELECTRON_AND_THERMAL_RESIDUAL_LIMITS``. Shells still outside them at
+        the evaluation budget are reported by a warning, and the run goes on;
+        the next iteration starts its thermal solve from the accepted state.
 
         Parameters
         ----------
@@ -777,28 +645,6 @@ class ElectronThermalBalanceSolver:
         RuntimeError
             If the populations or the level and charge closure are invalid.
         """
-        self.outer_residual_limits = 2.0 * self.calculate_residual_noise(
-            initial_guess
-        )
-        logger.info(
-            "Monte Carlo closure limits (2 sigma): electron %s heating %s",
-            self.outer_residual_limits[::2],
-            self.outer_residual_limits[1::2],
-        )
-        loose_shells = np.flatnonzero(
-            np.any(
-                self.outer_residual_limits.reshape(-1, 2)
-                > NOISE_LIMITED_CLOSURE_WARNING,
-                axis=1,
-            )
-        )
-        if len(loose_shells):
-            logger.warning(
-                "Monte Carlo noise lets thermal-balance residuals exceed "
-                "%.0e in shells %s; consider using more packets.",
-                NOISE_LIMITED_CLOSURE_WARNING,
-                loose_shells,
-            )
         accepted_candidate = self.solve_multiple_shells(
             initial_guess, lower_bound, upper_bound, self.outer_residual_limits
         )
@@ -810,12 +656,11 @@ class ElectronThermalBalanceSolver:
     def warn_failed_shells(
         self, evaluation: PlasmaEquilibriumEvaluation
     ) -> None:
-        """Warn about shells that have not reached their Monte Carlo limits.
+        """Warn about shells outside their electron and heating limits.
 
         The terminal evaluation is seeded from the converged populations,
         while the optimizer's stopping test uses the frozen level seed. The
-        two differ by about the level-closure tolerance, far below the
-        Monte Carlo limits.
+        two differ by about the level-closure tolerance.
 
         Parameters
         ----------
@@ -828,21 +673,21 @@ class ElectronThermalBalanceSolver:
         residual_to_limit_ratio = (
             np.abs(outer_residuals) / self.outer_residual_limits
         ).reshape(-1, 2)
-        open_shell_idx = np.flatnonzero(
+        failed_shell_idx = np.flatnonzero(
             ~self.find_converged_shells(
                 outer_residuals, self.outer_residual_limits
             )
         )
-        if len(open_shell_idx):
+        if len(failed_shell_idx):
             logger.warning(
-                "Thermal balance did not reach its Monte Carlo closure in "
-                "%d of %d shells (|residual| / 2 sigma):\n%s",
-                len(open_shell_idx),
+                "Thermal balance did not converge in %d of %d shells "
+                "(|residual| / limit); continuing from this state:\n%s",
+                len(failed_shell_idx),
                 len(residual_to_limit_ratio),
                 "\n".join(
                     f"  shell {shell_idx}: electron "
                     f"{residual_to_limit_ratio[shell_idx, 0]:.3g}, heating "
                     f"{residual_to_limit_ratio[shell_idx, 1]:.3g}"
-                    for shell_idx in open_shell_idx
+                    for shell_idx in failed_shell_idx
                 ),
             )

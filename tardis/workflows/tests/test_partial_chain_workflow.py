@@ -49,10 +49,9 @@ def test_coupled_workflow_thermal_closure(
     final transport. Retain the physical fixture's packet count because smaller
     development samples can trigger the known nonlinear thermal-solver basin.
     Independent verification: the accepted electron and heating residuals are
-    recomputed and every shell must be within twice its Monte Carlo standard
-    errors, the solver's stopping rule; level and
-    charge closure are checked by the solve itself, which raises if they
-    fail. Cross-mode stochastic comparisons are separate validation evidence.
+    recomputed and every shell must be within the solver's electron and
+    heating limits, its stopping rule; level and charge closure are checked
+    by the solve itself, which raises if they fail. Cross-mode stochastic comparisons are separate validation evidence.
     """
     config = partial_chain_config
     config.plasma.continuum_interaction.markov_chain.mode = mode
@@ -73,7 +72,7 @@ def test_coupled_workflow_thermal_closure(
         ),
         solver.outer_residual_limits,
     )
-    assert closed_shells.all(), "a shell did not reach its Monte Carlo limits"
+    assert closed_shells.all(), "a shell did not reach its thermal limits"
     assert workflow.completed_iterations == 1
     solver = workflow.macro_atom_solver
     metadata = solver.computed_metadata[0]

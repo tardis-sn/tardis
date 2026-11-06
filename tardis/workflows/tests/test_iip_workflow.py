@@ -294,14 +294,11 @@ def test_thermal_balance_residual_delegates_to_evaluator() -> None:
     evaluator = RecordingEvaluator()
     candidate = np.array([0.25, 0.8, 0.5, 1.1])
     maximum_electron_density = np.array([4.0e9, 6.0e9])
-    # The noise measurement is not exercised, so the batches are unused.
     solver = ElectronThermalBalanceSolver(
         evaluator,
         np.array([1.0e4, 2.0e4]),
         level_initial_guess,
         maximum_electron_density,
-        batch_evaluators=lambda: (),
-        batch_packet_counts=np.ones(2, dtype=np.int64),
     )
 
     residual = solver.calculate_residual(candidate)
@@ -409,66 +406,6 @@ def calculate_candidate_uncertainty(
     )
 
 
-def test_noise_limited_thermal_solution_is_consistent_with_tight_root(
-    first_transport_thermal_problem: FirstTransportThermalProblem,
-) -> None:
-    """Accept a noise-limited state within its Monte Carlo uncertainty.
-
-    Claim: In every shell, the electron density and temperature of the
-    accepted noise-limited state lie within the uncertainty that the packet
-    batches imply around the tight thermal root.
-    Regime: Pure-hydrogen comparison model after its first Monte Carlo
-    transport, using 16 independent packet batches.
-    Verification: The tight root is the same joint solve with zero limits,
-    run to the optimizer's own tolerance. A finite-difference Jacobian at the
-    tight root maps the 2-sigma limits, plus the residual left at the tight
-    root, into candidate space; the absolute inverse Jacobian bounds the
-    change for any residual inside that box.
-    """
-    (
-        workflow,
-        initial_guess,
-        lower_bound,
-        upper_bound,
-        maximum_electron_density,
-    ) = first_transport_thermal_problem
-    solver = ElectronThermalBalanceSolver(
-        workflow._thermal_balance_evaluator,
-        workflow._thermal_balance_radiation_temperature,
-        workflow._thermal_balance_level_initial_guess,
-        maximum_electron_density,
-        batch_evaluators=lambda: (
-            workflow.iterate_batch_thermal_balance_evaluators(
-                maximum_electron_density
-            )
-        ),
-        batch_packet_counts=workflow.estimator_batch_packet_counts,
-    )
-
-    noise_candidate, _ = solver.solve(initial_guess, lower_bound, upper_bound)
-    tight_candidate = solver.solve_multiple_shells(
-        initial_guess,
-        lower_bound,
-        upper_bound,
-        np.zeros_like(initial_guess),
-    )
-
-    candidate_limits = calculate_candidate_uncertainty(
-        solver,
-        tight_candidate,
-        solver.outer_residual_limits
-        + np.abs(solver.calculate_residual(tight_candidate)),
-    )
-    np.testing.assert_array_less(
-        np.abs(noise_candidate - tight_candidate),
-        candidate_limits,
-        err_msg=(
-            "a shell moved beyond its propagated 2-sigma Monte Carlo "
-            "uncertainty"
-        ),
-    )
-
-
 def test_thermal_solve_rejects_failed_trial_and_keeps_root(
     first_transport_thermal_problem: FirstTransportThermalProblem,
 ) -> None:
@@ -529,8 +466,6 @@ def test_thermal_solve_rejects_failed_trial_and_keeps_root(
             workflow._thermal_balance_radiation_temperature,
             workflow._thermal_balance_level_initial_guess,
             maximum_electron_density,
-            batch_evaluators=lambda: (),
-            batch_packet_counts=workflow.estimator_batch_packet_counts,
         )
         for label, trial_evaluator in (
             ("undisturbed", evaluator),
@@ -742,21 +677,20 @@ def test_iip_level_equations_close_from_distinct_seeds_after_second_transport(
         )
 
 
-def test_iip_documentation_model_closes_every_shell_at_noise_limit(
+def test_iip_documentation_model_closes_every_shell(
     tardis_regression_path: Path,
 ) -> None:
-    """Close every shell of the documented model at its Monte Carlo limits.
+    """Close every shell of the documented model at its thermal limits.
 
     Claim: The first thermal solve accepts a state in which every shell
-    balances charge and heating to within twice its Monte Carlo standard
-    errors.
+    balances charge and heating to within the solver's electron and heating
+    limits.
     Regime: The ten-shell pure-hydrogen documentation model after its first
     200000-packet Monte Carlo transport step.
     Verification: Orchestration check of the solver against its own stopping
     rule: the electron and heating residuals of the accepted state are
-    recomputed and compared with the limits measured from the transport's
-    independent packet batches. The level and charge closure are checked by
-    the solve itself, which raises if they fail.
+    recomputed and compared with the limits. The level and charge closure are
+    checked by the solve itself, which raises if they fail.
     """
     config = Configuration.from_yaml(
         "tardis/workflows/tests/data/simple_iip_config.yml"
@@ -786,7 +720,7 @@ def test_iip_documentation_model_closes_every_shell_at_noise_limit(
         ),
         solver.outer_residual_limits,
     )
-    assert closed_shells.all(), "a shell did not reach its Monte Carlo limits"
+    assert closed_shells.all(), "a shell did not reach its thermal limits"
 
 
 @pytest.fixture(scope="module")
@@ -854,7 +788,8 @@ def test_iip_hydrogen_helium_workflow_closes_thermal_balance(
 
     Claim: A hydrogen-helium model completes the Type IIP iteration with only
     the atomic data in the configured atom file, and its accepted
-    thermal-balance state closes every shell at its Monte Carlo limits.
+    thermal-balance state closes every shell at its electron and heating
+    limits.
     Regime: Three shells, 70 % hydrogen and 30 % helium by mass, with H I as
     the only continuum and NLTE species.
     Verification: Orchestration check on the run; the closed shells are
@@ -868,7 +803,7 @@ def test_iip_hydrogen_helium_workflow_closes_thermal_balance(
         ),
         solver.outer_residual_limits,
     )
-    assert closed_shells.all(), "a shell did not reach its Monte Carlo limits"
+    assert closed_shells.all(), "a shell did not reach its thermal limits"
     assert workflow.completed_iterations == 1
     output_energies = workflow.transport_state.packet_collection.output_energies
     assert len(output_energies) == workflow.final_iteration_packet_count

@@ -7,41 +7,7 @@ import pytest
 
 from tardis.plasma.equilibrium.thermal_balance import (
     ElectronThermalBalanceSolver,
-    calculate_batch_standard_error,
 )
-from tardis.plasma.exceptions import PlasmaIonizationError
-
-
-def test_batch_standard_error_matches_pooled_monte_carlo_noise() -> None:
-    """Recover the noise of a pooled estimate from unequal packet batches.
-
-    Claim: Batches holding n_b packets of a per-packet scatter sigma give the
-    standard error sigma / sqrt(N) of the packet-weighted mean of all N
-    packets.
-    Regime: 16 batches of unequal size, as uneven Monte Carlo threads give.
-    Verification: Batch means are drawn with variance sigma**2 / n_b, so the
-    exact answer is known. Averaging the variance estimate over many trials
-    removes its 16-batch sampling scatter.
-    """
-    rng = np.random.default_rng(23111963)
-    per_packet_sigma = 3.0
-    packet_counts = rng.integers(500, 1500, size=16)
-    expected_variance = per_packet_sigma**2 / packet_counts.sum()
-
-    trials = 4000
-    batch_means = 10.0 + rng.normal(
-        size=(trials, len(packet_counts))
-    ) * per_packet_sigma / np.sqrt(packet_counts)
-    estimated_variance = np.mean(
-        [
-            calculate_batch_standard_error(trial_means, packet_counts) ** 2
-            for trial_means in batch_means
-        ]
-    )
-
-    # One 16-batch variance estimate scatters by sqrt(2 / 15) ~ 37 %; the
-    # mean of 4000 scatters by ~0.6 %, so 3 % is about five sigma.
-    np.testing.assert_allclose(estimated_variance, expected_variance, rtol=0.03)
 
 
 class CurvedValleyEvaluator:
@@ -88,14 +54,8 @@ def test_row_scaling_closes_stiff_valley_shell() -> None:
     the stiff shell stays about 50 times over its heating limit at the
     evaluation budget.
     """
-    # The noise measurement is not exercised, so the batches are unused.
     solver = ElectronThermalBalanceSolver(
-        CurvedValleyEvaluator(),
-        np.ones(2),
-        pd.DataFrame(),
-        np.ones(2),
-        batch_evaluators=lambda: (),
-        batch_packet_counts=np.ones(2, dtype=np.int64),
+        CurvedValleyEvaluator(), np.ones(2), pd.DataFrame(), np.ones(2)
     )
     heating_limits = 1e-3 * CurvedValleyEvaluator.heating_sensitivity
     residual_limits = np.array(
@@ -118,7 +78,7 @@ def test_row_scaling_closes_stiff_valley_shell() -> None:
 def test_open_shell_warning_reports_each_open_shell(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    """Warn about each shell outside its Monte Carlo limits with its ratio.
+    """Name each shell outside its electron and heating limits, with ratios.
 
     Claim: The closure warning lists exactly the shells with a residual
     outside its limit, with |residual| / limit for both residuals.
@@ -129,12 +89,7 @@ def test_open_shell_warning_reports_each_open_shell(
     limit.
     """
     solver = ElectronThermalBalanceSolver(
-        None,
-        np.ones(3),
-        pd.DataFrame(),
-        np.ones(3),
-        batch_evaluators=lambda: (),
-        batch_packet_counts=np.ones(2, dtype=np.int64),
+        None, np.ones(3), pd.DataFrame(), np.ones(3)
     )
     solver.outer_residual_limits = np.full(6, 0.1)
     evaluation = SimpleNamespace(
@@ -151,45 +106,3 @@ def test_open_shell_warning_reports_each_open_shell(
     assert "shell 1: electron 0.5, heating 2" in caplog.text
     assert "shell 2: electron 3, heating 0" in caplog.text
     assert "shell 0:" not in caplog.text
-
-
-class BatchEvaluator:
-    """Return fixed residuals for one packet batch, or fail its ion solve."""
-
-    def __init__(self, electron_residual: float | None) -> None:
-        self.electron_residual = electron_residual
-
-    def evaluate(self, *_args: object) -> SimpleNamespace:
-        if self.electron_residual is None:
-            raise PlasmaIonizationError("batch ionization failed")
-        return SimpleNamespace(
-            electron_residual=pd.Series([self.electron_residual]),
-            fractional_heating=pd.Series([0.0]),
-        )
-
-
-def test_failed_batch_is_dropped_from_noise_estimate() -> None:
-    """Measure the noise from the batches whose ionization balance solves.
-
-    Claim: A packet batch whose ionization balance fails does not abort the
-    noise estimate; the standard error comes from the remaining batches and
-    their packet counts.
-    Regime: One shell and four equal batches, the second of which fails.
-    Verification: The three remaining batch residuals 0.1, 0.2 and 0.6 have a
-    pooled mean of 0.3 and a standard error of
-    sqrt(((0.2**2 + 0.1**2 + 0.3**2) / 2) / 3) = sqrt(0.07 / 3).
-    """
-    solver = ElectronThermalBalanceSolver(
-        None,
-        np.ones(1),
-        pd.DataFrame(),
-        np.ones(1),
-        batch_evaluators=lambda: (
-            BatchEvaluator(value) for value in (0.1, None, 0.2, 0.6)
-        ),
-        batch_packet_counts=np.full(4, 100, dtype=np.int64),
-    )
-
-    noise = solver.calculate_residual_noise(np.ones(2))
-
-    np.testing.assert_allclose(noise, [np.sqrt(0.07 / 3), 0.0], rtol=1e-12)

@@ -1,6 +1,5 @@
 import logging
-from collections.abc import Iterator, Mapping
-from functools import partial
+from collections.abc import Mapping
 
 import numpy as np
 import numpy.typing as npt
@@ -71,10 +70,7 @@ from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.configuration import montecarlo_globals
-from tardis.transport.montecarlo.estimators import (
-    EstimatorsContinuum,
-    init_estimators_continuum,
-)
+from tardis.transport.montecarlo.estimators import init_estimators_continuum
 from tardis.transport.montecarlo.modes.iip.solver import (
     MCTransportSolverIIP,
 )
@@ -85,10 +81,6 @@ from tardis.workflows.workflow_logger import WorkflowLogger
 # logging support
 logger = logging.getLogger(__name__)
 
-# Independent packet batches per Monte Carlo transport. Their scatter sets the
-# noise-limited thermal-balance closure; 16 batches estimate the noise to about
-# 18 %.
-ESTIMATOR_BATCH_COUNT = 16
 # The species solved in NLTE by the thermal-balance evaluator.
 THERMAL_BALANCE_NLTE_SPECIES = (1, 0)
 
@@ -196,10 +188,6 @@ class TypeIIPWorkflow:
             "level_number_density",
         )
         self._continuum_estimators = None
-        self.estimator_batch_snapshots: tuple[
-            tuple[dict[str, object], pd.DataFrame], ...
-        ] = ()
-        self.estimator_batch_packet_counts: npt.NDArray[np.int64] | None = None
         self.thermal_balance_solver: ElectronThermalBalanceSolver | None = None
         self._tau_sobolev = calculate_sobolev_line_opacity(
             self.atom_data.lines,
@@ -583,8 +571,26 @@ class TypeIIPWorkflow:
         dict, pd.DataFrame
             Continuum interaction estimators and J_blues DataFrame for the radiation field
         """
-        continuum_estimators = self.collect_continuum_estimators(
-            self.transport_state.estimators_continuum
+        continuum_estimators = {}
+
+        continuum_estimators["photo_ion_estimator"] = (
+            self.transport_state.estimators_continuum.photo_ion_estimator
+        )
+        continuum_estimators["photo_ion_statistics"] = (
+            self.transport_state.estimators_continuum.photo_ion_estimator_statistics
+        )
+        continuum_estimators["stim_recomb_estimator"] = (
+            self.transport_state.estimators_continuum.stim_recomb_estimator
+        )
+        continuum_estimators["bf_heating_estimator"] = (
+            self.transport_state.estimators_continuum.bf_heating_estimator
+        )
+        continuum_estimators["stim_recomb_cooling_estimator"] = (
+            self.transport_state.estimators_continuum.stim_recomb_cooling_estimator
+        )
+        continuum_estimators["coll_deexc_heating_estimator"] = None
+        continuum_estimators["ff_heating_estimator"] = (
+            self.transport_state.estimators_continuum.ff_heating_estimator
         )
 
         damped_j_blues = (
@@ -611,135 +617,8 @@ class TypeIIPWorkflow:
                 self.transport_state.estimators_bulk.mean_intensity_total,
             )
         )
-        self.normalize_estimator_batches()
 
         return continuum_estimators, damped_normalized_j_blues_df
-
-    @staticmethod
-    def collect_continuum_estimators(
-        estimators_continuum: EstimatorsContinuum,
-        packet_count_scale: float | None = None,
-    ) -> dict[str, object]:
-        """Collect the continuum estimators used by the plasma solve.
-
-        Parameters
-        ----------
-        estimators_continuum : EstimatorsContinuum
-            Continuum estimators of a Monte Carlo transport or packet batch.
-        packet_count_scale : float, optional
-            Factor that scales a packet batch to the full packet count. When
-            omitted, the estimator arrays themselves are returned, so
-            normalizing them updates the transport state.
-
-        Returns
-        -------
-        dict
-            Continuum estimators by name.
-        """
-        estimator_arrays = {
-            "photo_ion_estimator": estimators_continuum.photo_ion_estimator,
-            "photo_ion_statistics": (
-                estimators_continuum.photo_ion_estimator_statistics
-            ),
-            "stim_recomb_estimator": estimators_continuum.stim_recomb_estimator,
-            "bf_heating_estimator": estimators_continuum.bf_heating_estimator,
-            "stim_recomb_cooling_estimator": (
-                estimators_continuum.stim_recomb_cooling_estimator
-            ),
-            "ff_heating_estimator": estimators_continuum.ff_heating_estimator,
-        }
-        if packet_count_scale is not None:
-            estimator_arrays = {
-                name: values * packet_count_scale
-                for name, values in estimator_arrays.items()
-            }
-        return {**estimator_arrays, "coll_deexc_heating_estimator": None}
-
-    def normalize_estimator_batches(self) -> None:
-        """Normalize each Monte Carlo packet batch like the summed estimators.
-
-        Each batch is scaled to the full packet count, so it is an independent
-        estimate of the summed estimators with the same normalization and
-        radiation-field damping. Only the continuum estimators and the line
-        mean intensities kept by the transport are normalized. The raw
-        batches are then released.
-        """
-        batches = self.transport_state.estimator_batches
-        self.transport_state.estimator_batches = None
-        self.estimator_batch_snapshots = ()
-        self.estimator_batch_packet_counts = None
-        if batches is None:
-            return
-        total_packet_count = batches.packet_counts.sum()
-        line_index = self.plasma_solver.lines.index[batches.line_idx]
-        line_list_nu = self.transport_state.opacity_state_numba.line_list_nu[
-            batches.line_idx
-        ]
-        snapshots = []
-        for bulk, continuum, mean_intensity_blueward, packet_count in zip(
-            batches.estimators_bulk,
-            batches.estimators_continuum,
-            batches.mean_intensity_blueward,
-            batches.packet_counts,
-            strict=True,
-        ):
-            packet_count_scale = total_packet_count / packet_count
-            continuum_estimators = self.collect_continuum_estimators(
-                continuum, packet_count_scale
-            )
-            j_blues = (
-                self.transport_solver.radfield_prop_solver.estimate_jblues(
-                    mean_intensity_blueward * packet_count_scale,
-                    self.simulation_state.radiation_field_state,
-                    self.transport_state.time_explosion,
-                    self.transport_state.time_of_simulation,
-                    self.transport_state.geometry_state_numba.volume,
-                    line_list_nu,
-                    detailed_optical_window=True,
-                )
-            )
-            snapshots.append(
-                self.normalize_continuum_estimators(
-                    continuum_estimators,
-                    pd.DataFrame(j_blues, index=line_index),
-                    bulk.mean_intensity_total * packet_count_scale,
-                )
-            )
-        self.estimator_batch_snapshots = tuple(snapshots)
-        self.estimator_batch_packet_counts = batches.packet_counts.copy()
-
-    def iterate_batch_thermal_balance_evaluators(
-        self, maximum_electron_density: npt.NDArray[np.float64]
-    ) -> Iterator[PlasmaEquilibriumEvaluator]:
-        """Build one evaluator per Monte Carlo packet batch, one at a time.
-
-        Parameters
-        ----------
-        maximum_electron_density : numpy.ndarray
-            Electron density of full ionization in each shell [cm^-3].
-
-        Yields
-        ------
-        PlasmaEquilibriumEvaluator
-            Evaluator using one batch's continuum estimators and line mean
-            intensities, and the summed-estimator values elsewhere.
-        """
-        plasma = self.plasma_solver
-        for (
-            continuum_estimators,
-            batch_j_blues,
-        ) in self.estimator_batch_snapshots:
-            j_blues = pd.DataFrame(
-                plasma.j_blues,
-                index=plasma.lines.index,
-                columns=plasma.number_density.columns,
-            ).copy()
-            j_blues.loc[batch_j_blues.index] = batch_j_blues.to_numpy()
-            yield self._build_thermal_balance_evaluator(
-                maximum_electron_density,
-                continuum_estimators=continuum_estimators,
-                j_blues=j_blues,
-            )
 
     def solve_plasma(
         self,
@@ -771,8 +650,6 @@ class TypeIIPWorkflow:
         maximum_electron_density: npt.NDArray[np.float64],
         analytic: bool = False,
         fixed_estimators: object | None = None,
-        continuum_estimators: Mapping[str, object] | None = None,
-        j_blues: pd.DataFrame | None = None,
     ) -> PlasmaEquilibriumEvaluator:
         """Build the fixed evaluator snapshot for one outer thermal solve.
 
@@ -784,11 +661,6 @@ class TypeIIPWorkflow:
             Use analytic dilute-blackbody rates instead of estimators.
         fixed_estimators : object, optional
             Continuum estimator container to use as is.
-        continuum_estimators : mapping, optional
-            Normalized continuum estimators. Defaults to those of the last
-            Monte Carlo transport.
-        j_blues : pandas.DataFrame, optional
-            Line mean intensities. Defaults to the plasma's.
 
         Returns
         -------
@@ -796,10 +668,7 @@ class TypeIIPWorkflow:
             Evaluator of the fixed-radiation-field equilibrium.
         """
         plasma = self.plasma_solver
-        if continuum_estimators is None:
-            continuum_estimators = self._continuum_estimators
-        if j_blues is None:
-            j_blues = plasma.j_blues
+        continuum_estimators = self._continuum_estimators
 
         if (
             not analytic
@@ -989,7 +858,7 @@ class TypeIIPWorkflow:
             plasma.ionization_data,
             rate_matrix_solver,
             pd.DataFrame(
-                j_blues,
+                plasma.j_blues,
                 index=line_index,
                 columns=plasma.number_density.columns,
             ),
@@ -1156,18 +1025,7 @@ class TypeIIPWorkflow:
 
         Set the electron number density and link_t_rad_t_electron
         to values that satisfy thermal balance
-
-        Raises
-        ------
-        RuntimeError
-            If the last Monte Carlo transport kept no packet batches, which
-            the thermal solve needs to measure its closure limits.
         """
-        if self.estimator_batch_packet_counts is None:
-            raise RuntimeError(
-                "Thermal balance needs the packet batches of a Monte Carlo "
-                "transport run with estimator_batch_count >= 2."
-            )
         (
             initial_guess,
             lower_bound,
@@ -1179,11 +1037,6 @@ class TypeIIPWorkflow:
             self._thermal_balance_radiation_temperature,
             self._thermal_balance_level_initial_guess,
             max_electron_number_density,
-            batch_evaluators=partial(
-                self.iterate_batch_thermal_balance_evaluators,
-                max_electron_number_density,
-            ),
-            batch_packet_counts=self.estimator_batch_packet_counts,
         )
         self.thermal_balance_solver = thermal_balance_solver
         (
@@ -1381,7 +1234,7 @@ class TypeIIPWorkflow:
         self,
         opacity_states: Mapping[str, object],
         no_of_real_packets: int,
-        estimator_batch_count: int = ESTIMATOR_BATCH_COUNT,
+        estimator_batch_count: int = 1,
     ) -> None:
         """Solve the Monte Carlo process.
 
@@ -1398,9 +1251,6 @@ class TypeIIPWorkflow:
         """
         opacity_state = opacity_states["opacity_state"]
         macro_atom_state = opacity_states["macro_atom_state"]
-        # Release the previous transport's batches before the new one runs.
-        self.estimator_batch_snapshots = ()
-        self.estimator_batch_packet_counts = None
 
         self.transport_state = self.transport_solver.initialize_transport_state(
             self.simulation_state,
