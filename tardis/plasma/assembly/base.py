@@ -283,7 +283,7 @@ class PlasmaSolverFactory:
         ):
             j_blues = pd.DataFrame(
                 dilute_planckian_radiation_field.calculate_mean_intensity(
-                    lines_df.nu.values
+                    lines_df.nu.to_numpy()
                 ),
                 index=lines_df.index,
             )
@@ -294,7 +294,7 @@ class PlasmaSolverFactory:
             )
             j_blues = pd.DataFrame(
                 planckian_rad_field.calculate_mean_intensity(
-                    lines_df.nu.values
+                    lines_df.nu.to_numpy()
                 ),
                 index=lines_df.index,
             )

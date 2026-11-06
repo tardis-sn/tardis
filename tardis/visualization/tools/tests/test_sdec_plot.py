@@ -151,8 +151,6 @@ class TestSDECPlotter:
             nelements,
             _,
         ) = request.param
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         # Parse the same species list as the from_workflow fixture, since
         # both share this reference data
@@ -223,8 +221,6 @@ class TestSDECPlotter:
             observed_spectrum = None
 
         # plotter = SDECPlotter.from_simulation(simulation_simple_tracked)
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         fig = plotter.generate_plot_mpl(
             packets_mode=packets_mode,
@@ -287,7 +283,7 @@ class TestSDECPlotter:
 
         for item in ["_species_name", "_color_list"]:
             np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
+                expected.get("plot_data_hdf/" + item).to_numpy().flatten(),
                 getattr(generate_plot_mpl_hdf, item),
             )
 
@@ -342,8 +338,6 @@ class TestSDECPlotter:
         if distance is None:
             observed_spectrum = None
 
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         fig = plotter.generate_plot_ply(
             packets_mode=packets_mode,
@@ -399,7 +393,7 @@ class TestSDECPlotter:
 
         for item in ["_species_name", "_color_list"]:
             np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
+                expected.get("plot_data_hdf/" + item).to_numpy().flatten(),
                 getattr(generate_plot_plotly_hdf, item),
             )
 
@@ -423,13 +417,13 @@ class TestSDECPlotter:
                 )
             np.testing.assert_allclose(
                 data.x,
-                expected.get(group + "x").values.flatten(),
+                expected.get(group + "x").to_numpy().flatten(),
                 atol=0,
                 rtol=RELATIVE_TOLERANCE_SDEC,
             )
             np.testing.assert_allclose(
                 data.y,
-                expected.get(group + "y").values.flatten(),
+                expected.get(group + "y").to_numpy().flatten(),
                 atol=0,
                 rtol=RELATIVE_TOLERANCE_SDEC,
             )
@@ -538,8 +532,6 @@ class TestSDECPlotter:
             nelements,
             _,
         ) = param
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         # we need to parse this
         plotter_from_workflow._parse_species_list(species_list)
@@ -577,7 +569,9 @@ class TestSDECPlotter:
                         plot_object = plot_object.flatten()
                     np.testing.assert_allclose(
                         plot_object,
-                        expected.get(group + attribute_name).values.flatten(),
+                        expected.get(group + attribute_name)
+                        .to_numpy()
+                        .flatten(),
                         atol=0,
                         rtol=RELATIVE_TOLERANCE_SDEC,
                     )
@@ -605,8 +599,6 @@ class TestSDECPlotter:
         if distance is None:
             observed_spectrum = None
 
-        if packets_mode == "virtual":
-            pytest.skip("Skipping tests for virtual packets mode")
 
         fig = plotter_from_workflow.generate_plot_mpl(
             packets_mode=packets_mode,
@@ -638,14 +630,14 @@ class TestSDECPlotter:
             expected_colors = expected.get("plot_data_hdf/_color_list")
 
             np.testing.assert_array_equal(
-                plotter._species_name, expected_species.values.flatten()
+                plotter._species_name, expected_species.to_numpy().flatten()
             )
 
             color_list = [
                 item for subitem in plotter._color_list for item in subitem
             ]
             np.testing.assert_array_equal(
-                color_list, expected_colors.values.flatten()
+                color_list, expected_colors.to_numpy().flatten()
             )
 
     def test_workflow_simulation_data_identical(

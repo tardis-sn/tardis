@@ -9,6 +9,7 @@ from scipy.interpolate import interp1d
 
 from tardis import constants as const
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 from tardis.opacities.continuum.continuum_state import ContinuumOpacityState
 from tardis.opacities.continuum.macro_atom_state import (
@@ -17,7 +18,9 @@ from tardis.opacities.continuum.macro_atom_state import (
 from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.tau_sobolev import (
     SOBOLEV_COEFFICIENT,
     calculate_beta_sobolev,
@@ -83,11 +86,12 @@ class TypeIIPWorkflow:
     """Coordinate Type IIP plasma, transport, and thermal-balance solves."""
 
     show_progress_bars = Environment.allows_widget_display()
-    enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
 
-    def __init__(self, configuration, csvy=False):
+    def __init__(
+        self, configuration: Configuration, csvy: bool = False
+    ) -> None:
         """Initialize a TARDIS workflow for Type IIP supernovae.
 
         Notes
@@ -98,7 +102,7 @@ class TypeIIPWorkflow:
 
         Parameters
         ----------
-        configuration : Configuration
+        configuration : tardis.io.configuration.config_reader.Configuration
             Configuration object for the simulation
         csvy : bool, optional
             Set true if the configuration uses CSVY, by default False
@@ -192,7 +196,7 @@ class TypeIIPWorkflow:
 
         maximum_electron_density = (
             self.plasma_solver.number_density.multiply(
-                self.plasma_solver.number_density.index.values, axis=0
+                self.plasma_solver.number_density.index.to_numpy(), axis=0
             )
             .sum()
             .to_numpy()
@@ -232,14 +236,19 @@ class TypeIIPWorkflow:
                 factory.continuum_interaction_species_multi_index.tolist()
             ),
             line_interaction_type=line_interaction_type,
-            nthreads=configuration.montecarlo.nthreads,
+            nthreads=continuum_interactions.nthreads,
+            markov_chain_mode=continuum_interactions.markov_chain.mode,
+            markov_chain_elements=tuple(
+                continuum_interactions.markov_chain.elements
+            ),
+            markov_chain_include_thermal_pool=continuum_interactions.markov_chain.include_thermal_pool,
+            markov_chain_include_ionization_pool=continuum_interactions.markov_chain.include_ionization_pool,
         )
 
         self.transport_state = None
         self.transport_solver = MCTransportSolverIIP.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
-            enable_virtual_packet_logging=self.enable_virtual_packet_logging,
         )
 
         # Luminosity filter frequencies
@@ -275,6 +284,8 @@ class TypeIIPWorkflow:
 
         self.final_iteration_packet_count = int(final_iteration_packet_count)
 
+        # IIP mode does not currently support virtual packets, so the final
+        # iteration never retains real-packet histories for them
         self.virtual_packet_count = int(
             configuration.montecarlo.no_of_virtual_packets
         )
@@ -381,7 +392,7 @@ class TypeIIPWorkflow:
 
         sigma_T = const.sigma_T.cgs.value
 
-        N_H = number_density.loc[1].values
+        N_H = number_density.loc[1].to_numpy()
 
         # alternative tau calculation from ctardis
         # v_inner = geometry_state.v_inner_active.value
@@ -924,15 +935,15 @@ class TypeIIPWorkflow:
         max_electron_number_density = (
             (
                 self.plasma_solver.number_density.multiply(
-                    self.plasma_solver.number_density.index.values, axis=0
+                    self.plasma_solver.number_density.index.to_numpy(), axis=0
                 )
             )
             .sum()
-            .values
+            .to_numpy()
         )
         initial_electron_fraction = (
             self.plasma_solver.electron_densities / max_electron_number_density
-        ).values
+        ).to_numpy()
 
         logger.info("Initial electron fraction: %s", initial_electron_fraction)
 
@@ -1048,7 +1059,7 @@ class TypeIIPWorkflow:
 
         ff_norm_factor = self.get_ff_heating_norm_factor(
             self.plasma_solver.ion_number_density,
-            self.plasma_solver.electron_densities.values,
+            self.plasma_solver.electron_densities.to_numpy(),
             self.plasma_solver.t_electrons,
         )
         ff_norm_factor *= (
@@ -1107,18 +1118,18 @@ class TypeIIPWorkflow:
             Free-free heating normalization factor
         """
         ionic_charge_squared = np.square(
-            ion_number_density.index.get_level_values(1).values
+            ion_number_density.index.get_level_values(1).to_numpy()
         )
         norm_factor = (
             electron_densities
             * ion_number_density.multiply(ionic_charge_squared, axis=0)
             .sum()
-            .values
+            .to_numpy()
         ) ** -1
         norm_factor *= np.sqrt(t_electrons)
         return norm_factor
 
-    def solve_opacity(self):
+    def solve_opacity(self) -> dict[str, OpacityState | MacroAtomState]:
         """Solve the opacity state and any associated objects.
 
         Returns
@@ -1136,6 +1147,16 @@ class TypeIIPWorkflow:
         )
         continuum_rates = self.continuum_macro_atom_state
 
+        # Release both owners of the previous matrix before rebuilding it.
+        if hasattr(self, "opacity_states"):
+            self.opacity_states[
+                "macro_atom_state"
+            ].absorbing_probability_matrix = None
+        if self.transport_state is not None:
+            self.transport_state.continuum_state_numba.absorbing_markov_probabilities = np.empty(
+                (0, 0, 0), dtype=np.float64
+            )
+
         macro_atom_state = self.macro_atom_solver.solve(
             self.plasma_solver.j_blues,
             opacity_state.beta_sobolev,
@@ -1149,9 +1170,7 @@ class TypeIIPWorkflow:
             "macro_atom_state": macro_atom_state,
         }
 
-    def solve_montecarlo(
-        self, opacity_states, no_of_real_packets, no_of_virtual_packets=0
-    ):
+    def solve_montecarlo(self, opacity_states, no_of_real_packets):
         """Solve the Monte Carlo process.
 
         Parameters
@@ -1160,8 +1179,6 @@ class TypeIIPWorkflow:
             Opacity and (optionally) Macro Atom states.
         no_of_real_packets : int
             Number of real packets to simulate
-        no_of_virtual_packets : int, optional
-            Number of virtual packets to simulate per interaction, by default 0
 
         """
         opacity_state = opacity_states["opacity_state"]
@@ -1173,7 +1190,6 @@ class TypeIIPWorkflow:
             macro_atom_state,
             self.continuum_opacity_state,
             no_of_real_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.completed_iterations,
         )
 
@@ -1248,7 +1264,6 @@ class TypeIIPWorkflow:
         self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
-            self.virtual_packet_count,
         )
 
         self.initialize_spectrum_solver()

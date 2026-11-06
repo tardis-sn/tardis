@@ -99,7 +99,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     ):
         kwargs["j_blues"] = pd.DataFrame(
             dilute_planckian_radiation_field.calculate_mean_intensity(
-                atom_data.lines["nu"].values
+                atom_data.lines["nu"].to_numpy()
             ),
             index=atom_data.lines.index,
         )
@@ -110,7 +110,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         )
         kwargs["j_blues"] = pd.DataFrame(
             planckian_rad_field.calculate_mean_intensity(
-                atom_data.lines["nu"].values
+                atom_data.lines["nu"].to_numpy()
             ),
             index=atom_data.lines.index,
         )

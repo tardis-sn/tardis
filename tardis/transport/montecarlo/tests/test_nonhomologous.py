@@ -10,6 +10,7 @@ from numpy.typing import NDArray
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
+from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.opacities.tau_sobolev import (
     calculate_sobolev_line_opacity as classic_calculate_sobolev_line_opacity,
@@ -1286,6 +1287,54 @@ def test_nonhomologous_cursor_refresh_preserves_active_direction(
         line_search_packet.next_line_id,
         line_search_packet.prev_line_id,
     ) == expected_ids
+
+
+def test_opaque_line_interacts_in_shell_without_radial_velocity_gradient() -> None:
+    """Claim: An opaque line can interact when the radial velocity gradient is zero.
+
+    Regime: An oblique ray in a constant-velocity shell has finite projected
+    gradient G = (v/r)(1 - mu**2), despite infinite radial Sobolev depth.
+    Verification: Construct the opacity state with an explicit optical-depth
+    coefficient, convert it through OpacityState.to_numba, and require a LINE
+    event. This protects coefficient transfer against regression #3801.
+    """
+    velocity, radius, mu = 1.0e9, 7.5e14, 0.3
+    geometry = NumbaRadial1DGeometry(
+        np.array([7.0e14, 8.0e14]),
+        np.array([8.0e14, 3.0e16]),
+        np.array([velocity, velocity]),  # shell 0 has dv/dr = 0
+        np.array([velocity, 2.0e9]),
+    )
+    packet_frequency = 4.0e14
+    comoving_frequency = packet_frequency * (
+        1.0 - velocity * mu / C_SPEED_OF_LIGHT
+    )
+    line_list_nu = pd.Series([comoving_frequency * (1.0 - 1.0e-7), 1.0e9])
+    # Line 0 in shell 0: radial tau_sobolev = coefficient / 0 = inf.
+    coefficient = pd.DataFrame([[1.0e10, 0.0], [0.0, 0.0]])
+    tau_sobolev = pd.DataFrame([[np.inf, 0.0], [0.0, 0.0]])
+    opacity_state = OpacityState(
+        pd.Series([0.0, 0.0]),
+        np.array([1.0e4, 1.0e4]),
+        line_list_nu,
+        tau_sobolev,
+        None,
+        sobolev_optical_depth_coefficient=coefficient,
+    ).to_numba(None, "scatter")
+    packet = RPacket(radius, mu, packet_frequency, 1.0, 42, 0)
+    update_line_ids(packet, opacity_state.line_list_nu, comoving_frequency)
+
+    _, interaction_type, _ = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        opacity_state,
+        EstimatorsLine(np.zeros((2, 2)), np.zeros((2, 2))),
+        0.0,  # electron opacity
+        False,  # enable full relativity?
+        False,  # disable line scattering?
+    )
+
+    assert interaction_type == InteractionType.LINE
 
 
 def test_nonhomologous_calculate_beta_sobolevs(

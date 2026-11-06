@@ -37,7 +37,7 @@ def test_spontaneous_recombination_coeff_solver(
     assert actual_result.shape[0] == len(
         mock_photoionization_cross_sections.index.unique()
     )
-    assert not actual_result.isnull().values.any()
+    assert not actual_result.isnull().to_numpy().any()
 
     # Regression data comparison
     expected_result = regression_data.sync_dataframe(

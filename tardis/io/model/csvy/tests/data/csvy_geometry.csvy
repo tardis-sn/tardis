@@ -1,0 +1,22 @@
+---
+name: csvy_geometry
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: Three velocity boundaries, two shells.
+tardis_model_config_version: v1.0
+datatype:
+  fields:
+    - name: velocity
+      unit: km/s
+      desc: velocities of shell boundaries.
+    - name: H
+      desc: fractional H abundance
+
+density:
+  type: uniform
+  value: 1e-10 g/cm^3
+---
+velocity,H
+10000,0.0
+11000,1.0
+12000,1.0

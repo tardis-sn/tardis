@@ -1,5 +1,3 @@
-import warnings
-
 from astropy import units as u
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
@@ -23,19 +21,6 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
         "last_line_interaction_shell_id",
     ]
 
-    vpacket_hdf_properties = [
-        "virt_packet_nus",
-        "virt_packet_energies",
-        "virt_packet_initial_rs",
-        "virt_packet_initial_mus",
-        "virt_packet_last_interaction_in_nu",
-        "virt_packet_last_interaction_in_r",
-        "virt_packet_last_interaction_type",
-        "virt_packet_last_line_interaction_in_id",
-        "virt_packet_last_line_interaction_out_id",
-        "virt_packet_last_line_interaction_shell_id",
-    ]
-
     hdf_name = "transport_state"
 
     last_interaction_type = None
@@ -45,8 +30,6 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
     last_line_interaction_in_id = None
     last_line_interaction_shell_id = None
 
-    virt_logging = False
-
     def __init__(
         self,
         packet_collection,
@@ -55,7 +38,6 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
         n_levels_bf_species_by_n_cells_tuple,
         tracker_full_df=None,
         tracker_last_interaction_df=None,
-        vpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
         self.n_levels_bf_species_by_n_cells_tuple = (
@@ -70,7 +52,6 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
         self.opacity_state_numba = opacity_state_numba
         self.tracker_full_df = tracker_full_df
         self.tracker_last_interaction_df = tracker_last_interaction_df
-        self.vpacket_tracker = vpacket_tracker
 
     @property
     def output_nu(self):
@@ -127,162 +108,3 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
     @property
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
-
-    @property
-    def virt_packet_nus(self):
-        try:
-            return u.Quantity(self.vpacket_tracker.nus, u.Hz)
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_nus:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virt_packet_energies(self):
-        try:
-            return u.Quantity(self.vpacket_tracker.energies, u.erg)
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_energies:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virtual_packet_luminosity(self):
-        try:
-            return (
-                self.virt_packet_energies
-                / self.packet_collection.time_of_simulation
-            )
-        except TypeError:
-            warnings.warn(
-                "MontecarloTransport.virtual_packet_luminosity:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virt_packet_initial_rs(self):
-        try:
-            return u.Quantity(self.vpacket_tracker.initial_rs, u.cm)
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_initial_rs:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virt_packet_initial_mus(self):
-        try:
-            return u.Quantity(
-                self.vpacket_tracker.initial_mus, u.dimensionless_angles
-            )
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_initial_mus:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virt_packet_last_interaction_in_nu(self):
-        try:
-            return u.Quantity(self.vpacket_tracker.last_interaction_in_nu, u.Hz)
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_last_interaction_in_nu:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virt_packet_last_interaction_in_r(self):
-        try:
-            return u.Quantity(self.vpacket_tracker.last_interaction_in_r, u.cm)
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_last_interaction_in_r:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virt_packet_last_interaction_type(self):
-        try:
-            return self.vpacket_tracker.last_interaction_type
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_last_interaction_type:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virt_packet_last_line_interaction_in_id(self):
-        try:
-            return self.vpacket_tracker.last_interaction_in_id
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_last_line_interaction_in_id:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virt_packet_last_line_interaction_out_id(self):
-        try:
-            return self.vpacket_tracker.last_interaction_out_id
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_last_line_interaction_out_id:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virt_packet_last_line_interaction_shell_id(self):
-        try:
-            return self.vpacket_tracker.last_interaction_shell_id
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virt_packet_last_line_interaction_shell_id:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None

@@ -27,12 +27,14 @@ from tardis.spectrum.formal_integral.source_function import SourceFunctionState
     ("downbranch", "macroatom", pytest.param("?", marks=pytest.mark.xfail)),
 )
 def test_check_formal_integral_requirements(
-    simulation_verysimple, line_interaction_type
+    simulation_verysimple, line_interaction_type, monkeypatch
 ):
     sim_state = simulation_verysimple.simulation_state
     plasma = simulation_verysimple.plasma
     transport = simulation_verysimple.transport
-    transport.line_interaction_type = line_interaction_type
+    monkeypatch.setattr(
+        transport, "line_interaction_type", line_interaction_type
+    )
 
     assert check_formal_integral_requirements(sim_state, plasma, transport)
 

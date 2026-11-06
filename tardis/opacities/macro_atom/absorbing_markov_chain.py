@@ -1,37 +1,57 @@
-"""Calculate absorption probabilities using absorbing Markov chain theory.
+"""Calculate first-exit probabilities for reduced macro-atom chains.
 
-This module implements the mathematical framework of absorbing Markov chains
-to compute probabilities of photon absorption in each cell and the expected
-number of steps before absorption from each source state.
+This module eliminates internal transitions for selected blocks independently in each cell
+and computes the source-state probabilities for retained transitions.
+
+Effectively this compresses the macro atom evaluation by internal reducing probability chains
+to equivalent single appropriate probability steps.
 
 References
 ----------
     Absorbing Markov chain theory: https://en.wikipedia.org/wiki/Absorbing_Markov_chain
 """
 
+from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
+from typing import NamedTuple
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
-import scipy
+from scipy import sparse
+from scipy.sparse.linalg import splu
+
+from tardis.util.base import element_symbol2atomic_number
+
+
+class AbsorbingChainResult(NamedTuple):
+    """
+    Carry processed reduced block exit probabilities and their global/compact index mapping.
+
+    Necessary for the monte-carlo step to enter and exit the reduced block.
+    """
+
+    matrix: npt.NDArray[np.float64]
+    residual_probabilities: pd.DataFrame
+    macro_level_to_reduced_idx: npt.NDArray[np.int64]
+    reduced_to_macro_level_idx: npt.NDArray[np.int64]
 
 
 def create_absorbing_probs(
     transition_probabilities: pd.DataFrame,
     metadata: pd.DataFrame,
+    mode: str = "full",
+    elements: Sequence[str] = (),
+    include_thermal_pool: bool = False,
+    include_ionization_pool: bool = False,
     max_workers: int = 1,
-) -> tuple[np.ndarray, pd.DataFrame]:
+) -> AbsorbingChainResult:
     """Calculate absorbing Markov chain probabilities and deactivation data.
 
     Computes the absorption probability matrices for each cell and extracts
-    deactivation probabilities by solving the absorbing Markov chain system.
-    The fundamental matrix is computed to determine absorption probabilities
-    and expected number of steps to absorption from each state.
-
-    WARNING: This is currently slower than it needs to be for many element sims.
-    You should be able to slice out and process a subset of the probabilities
-    based on some source state filtering. We have a draft PR open for this
-    but it has not been finished.
+    deactivation probabilities by solving the absorbing Markov chain system
+    for the requested block.
+    Eliminates internal transition inside handled blocks.
 
     Parameters
     ----------
@@ -44,91 +64,219 @@ def create_absorbing_probs(
         transition_type indicate internal transitions transitions that are not accompanied
         by reemission of the r-packet, and an end to the interaction handler chain.
         Negative values indicate deactivation, or reemitting from an absorbing state.
+    mode : {'full', 'partial', 'explicit'}
+        Full eliminates all internal jumps. Partial eliminates only jumps with
+        both endpoints selected (e.g., internal transitions for a requested element),
+        optionally including either shared pool.
+        Explicit retains every original transition.
+    elements : sequence of str
+        Element symbols, required only in partial mode. All represented ions
+        and levels of each selected element are included.
+    include_thermal_pool : bool, optional
+        Include the shared k state in partial reduction. Defaults to False.
+    include_ionization_pool : bool, optional
+        Include the shared i state in partial reduction. Defaults to False.
+    max_workers : int
+        Maximum number of cell-independent sparse LU workers.
 
     Returns
     -------
-    tuple[np.ndarray, pd.DataFrame]
-        - absorbing_probability_matrix : np.ndarray
-            Array of shape (num_cells, num_states, num_states) containing
-            absorption probabilities from each state for each cell.
-        - deactivating_probs : pd.DataFrame
-            DataFrame of deactivation transition probabilities from
-            absorption states.
+    AbsorbingChainResult
+        Cell-by-activation-by-exit-source matrix, containing deactivation probabilities,
+        and explicit global-to-reduced and reduced-to-global int64 maps.
+
+    Notes
+    -----
+    The solve is ``(I-Q) B = diag(r)``, where r is the sum of actual remaining
+    channels. Zero residual rows stay zero.
+
+    The matrix selects the source of the first retained transition, which can
+    itself be internal. It is not necessarily a final emission state because
+    only requested physical blocks are blocks are processed out of the matrix,
+    and the not-requested blocks retain full internal transition probability tables.
+    This means you can move freely back and forth between the absorbing-processed block.
     """
-    num_cells = transition_probabilities.shape[1]
-
-    internal_mask = metadata.transition_type >= 0
-    internal_jump_probs = transition_probabilities[internal_mask]
-    # This logic fails if any source blocks are dropped. Previous implementation was
-    # num_states = len(metadata.source.unique()). Not needed right now but will be
-    # needed if we want to do Markov chain reduction for only specific species.
-    num_states = int(metadata.source_level_idx.max()) + 1 
-
-    absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
-    # Josh: The expected steps calculation is another linear algebra solve. We don't need
-    # it for the MC calculation, so I'm removing it, but leaving it commented in case it is
-    # useful for diagnostic purposes in the future.
-    # expected_steps_in_cells_from_states = np.zeros((num_cells, num_states))
-
-    rows = metadata[internal_mask].source_level_idx.values
-    cols = metadata[internal_mask].destination_level_idx.values
-    identity_matrix = scipy.sparse.identity(num_states, format="csc")
-
-    def solve_cell(cell: int) -> tuple[int, np.ndarray]:
-        """Solve the absorbing Markov chain system for one cell.
-
-        Parameters
-        ----------
-        cell : int
-            Cell index in the transition probability table.
-
-        Returns
-        -------
-        tuple[int, np.ndarray]
-            Cell index and full state-by-state absorbing probability matrix.
-        """
-        # In each cell, solve for absorbing markov chain probability
-        # Follows math https://en.wikipedia.org/wiki/Absorbing_Markov_chain
-        vals = internal_jump_probs.iloc[:, cell].to_numpy()
-
-        internal_jump_matrix = scipy.sparse.coo_matrix(
-            (vals, (rows, cols)), shape=(num_states, num_states)
+    if mode not in ("full", "partial", "explicit"):
+        raise ValueError("markov_chain.mode must be full, partial, or explicit")
+    if (mode == "partial") != bool(elements):
+        raise ValueError(
+            "markov_chain.elements must not be empty in partial mode. Specify which elements to process"
         )
+    if mode != "partial" and (include_thermal_pool or include_ionization_pool):
+        raise ValueError(
+            "markov_chain pool selection requires mode='partial'; full mode "
+            "already includes both pools and explicit mode reduces neither"
+        )
+    try:
+        atomic_numbers = sorted(
+            {element_symbol2atomic_number(symbol) for symbol in elements}
+        )
+    except Exception as error:
+        raise ValueError(
+            f"Invalid markov_chain element symbol in {list(elements)}"
+        ) from error
 
-        identity_minus_Q = identity_matrix - internal_jump_matrix
-        csc_N = identity_minus_Q.tocsc()
-
-        # expected_steps = np.asarray(
-        #     scipy.sparse.linalg.spsolve(csc_N, np.ones(num_states))
-        # ).flatten()
-        # expected_steps_in_cells_from_states[cell] = expected_steps
-
-        deactivation_row = np.asarray(
-            internal_jump_matrix.sum(axis=1)
-        ).flatten()
-        solved_matrix = np.asarray(
-            scipy.sparse.linalg.splu(csc_N, permc_spec="MMD_AT_PLUS_A").solve(
-                np.diag(1 - deactivation_row)
+    sources = metadata.source_level_idx.to_numpy(dtype=np.int64)
+    destinations = metadata.destination_level_idx.to_numpy(dtype=np.int64)
+    internal = metadata.transition_type.to_numpy() >= 0
+    global_size = int(sources.max()) + 1
+    source_states = np.unique(sources)
+    missing = np.setdiff1d(destinations[internal], source_states)
+    if len(missing):
+        raise ValueError(
+            f"Internal destination levels lack outgoing transition blocks: {missing}"
+        )
+    if mode == "full":
+        selected = np.arange(global_size, dtype=np.int64)
+    elif mode == "partial":
+        # Source tuples start with an atomic number or a shared-pool label.
+        source_identifiers = metadata.source.str[0]
+        selected_rows = source_identifiers.isin(atomic_numbers).to_numpy()
+        represented = set(source_identifiers)
+        absent = set(atomic_numbers) - represented
+        if absent:
+            raise ValueError(
+                f"markov_chain.elements absent from assembled macro-atom network: {sorted(absent)}"
             )
-        )
-        return cell, solved_matrix
-
-    if max_workers > 1 and num_cells > 1:
-        with ThreadPoolExecutor(
-            max_workers=min(max_workers, num_cells)
-        ) as executor:
-            cell_solutions = executor.map(solve_cell, range(num_cells))
-            for cell, solved_matrix in cell_solutions:
-                absorbing_probability_matrix[cell] = solved_matrix
-    else:
-        for cell in range(num_cells):
-            _, solved_matrix = solve_cell(cell)
-            absorbing_probability_matrix[cell] = solved_matrix
-
-    deactivating_probs = transition_probabilities.copy()
-    deactivating_probs[internal_mask] *= 0
-
-    return (
-        absorbing_probability_matrix,
-        deactivating_probs,
+        if include_thermal_pool:
+            selected_rows = (
+                selected_rows | (metadata.source == ("k", -99, -99)).to_numpy()
+            )
+        if include_ionization_pool:
+            selected_rows = (
+                selected_rows | (metadata.source == ("i", -99, -99)).to_numpy()
+            )
+        selected = np.unique(sources[selected_rows])
+    else:  # Explicit mode skips the calculation and reduction
+        selected = np.empty(0, dtype=np.int64)
+    lookup = np.full(global_size, -1, dtype=np.int64)
+    lookup[selected] = np.arange(len(selected), dtype=np.int64)
+    # Negative deactivation destinations must never index the lookup.
+    eliminated = np.zeros(len(metadata), dtype=bool)
+    eliminated[internal] = (lookup[sources[internal]] >= 0) & (
+        lookup[destinations[internal]] >= 0
     )
+    residual = transition_probabilities.copy()
+    residual.iloc[eliminated, :] = 0.0
+    rows = lookup[sources[eliminated]]
+    columns = lookup[destinations[eliminated]]
+    matrices = np.zeros(
+        (transition_probabilities.shape[1], len(selected), len(selected))
+    )
+
+    if mode == "explicit":
+        return AbsorbingChainResult(matrices, residual, lookup, selected)
+
+    internal_matrices = (
+        sparse.coo_matrix(
+            (
+                transition_probabilities.iloc[:, cell].to_numpy()[eliminated],
+                (rows, columns),
+            ),
+            shape=(len(selected), len(selected)),
+        )
+        for cell in range(len(matrices))
+    )
+    if mode == "full":
+        if max_workers > 1 and len(matrices) > 1:
+            with ThreadPoolExecutor(
+                max_workers=min(max_workers, len(matrices))
+            ) as executor:
+                for cell, solved in enumerate(
+                    executor.map(
+                        solve_cell_full,
+                        internal_matrices,
+                        buffersize=max_workers,
+                    )
+                ):
+                    matrices[cell] = solved
+        else:
+            for cell, solved in enumerate(
+                map(solve_cell_full, internal_matrices)
+            ):
+                matrices[cell] = solved
+    elif mode == "partial":
+        exit_rates = (
+            np.bincount(
+                sources,
+                weights=residual.iloc[:, cell].to_numpy(),
+                minlength=global_size,
+            )[selected]
+            for cell in range(len(matrices))
+        )
+        if max_workers > 1 and len(matrices) > 1:
+            with ThreadPoolExecutor(
+                max_workers=min(max_workers, len(matrices))
+            ) as executor:
+                for cell, solved in enumerate(
+                    executor.map(
+                        solve_cell_partial,
+                        internal_matrices,
+                        exit_rates,
+                        buffersize=max_workers,
+                    )
+                ):
+                    matrices[cell] = solved
+        else:
+            for cell, solved in enumerate(
+                map(
+                    solve_cell_partial,
+                    internal_matrices,
+                    exit_rates,
+                    strict=True,
+                )
+            ):
+                matrices[cell] = solved
+    return AbsorbingChainResult(matrices, residual, lookup, selected)
+
+
+def solve_cell_full(
+    internal_matrix: sparse.spmatrix,
+) -> npt.NDArray[np.float64]:
+    """Solve one cell's full reduction using the legacy exit calculation.
+
+    Parameters
+    ----------
+    internal_matrix : scipy.sparse.spmatrix
+        Square matrix Q of this cell's internal transition coefficients,
+        including all global states. Supply COO format to preserve the legacy
+        row-summation order.
+
+    Returns
+    -------
+    numpy.ndarray
+        Activation-by-exit-source matrix for this cell. Exit coefficients are
+        calculated as one minus each row sum of Q.
+    """
+    exit_rates = 1 - np.asarray(internal_matrix.sum(axis=1)).ravel()
+    system = (
+        sparse.eye(internal_matrix.shape[0], format="csc") - internal_matrix
+    ).tocsc()
+    return splu(system, permc_spec="MMD_AT_PLUS_A").solve(np.diag(exit_rates))
+
+
+def solve_cell_partial(
+    internal_matrix: sparse.spmatrix,
+    exit_rates: npt.NDArray[np.float64],
+) -> npt.NDArray[np.float64]:
+    """Solve one cell's partial reduction from a specified subset of probabilities.
+
+    Parameters
+    ----------
+    internal_matrix : scipy.sparse.spmatrix
+        Square matrix Q of this cell's eliminated internal coefficients,
+        in compact selected-state order.
+    exit_rates : numpy.ndarray
+        One-dimensional sums of this cell's retained channel coefficients,
+        in the same selected-state order.
+
+    Returns
+    -------
+    numpy.ndarray
+        Activation-by-exit-source matrix B satisfying
+        ``(I-Q) B = diag(exit_rates)`` for this cell.
+    """
+    system = (
+        sparse.eye(internal_matrix.shape[0], format="csc") - internal_matrix
+    ).tocsc()
+    return splu(system, permc_spec="MMD_AT_PLUS_A").solve(np.diag(exit_rates))

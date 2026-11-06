@@ -14,6 +14,9 @@ permissions:
 
 jobs:
   publish:
+    concurrency: # shared with clean-docs so a preview is never published while it is being cleaned
+      group: docs-preview-${{ github.event.workflow_run.head_branch }}
+      cancel-in-progress: false
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.repository.full_name == github.repository
     runs-on: ubuntu-latest
     env:

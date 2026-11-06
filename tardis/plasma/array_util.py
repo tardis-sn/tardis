@@ -59,7 +59,7 @@ def cooling_rate_series2dataframe(
             "transition_type",
         ],
     )
-    return pd.DataFrame(cooling_rate_series.values[np.newaxis], index=index)
+    return pd.DataFrame(cooling_rate_series.to_numpy()[np.newaxis], index=index)
 
 
 @njit(**njit_dict)

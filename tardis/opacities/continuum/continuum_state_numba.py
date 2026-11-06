@@ -21,6 +21,8 @@ class ContinuumOpacityStateNumba:
     photo_ion_activation_idx: nb.int64[:]
     k_packet_idx: nb.int64
     absorbing_markov_probabilities: nb.float64[:, :, :]
+    macro_level_to_reduced_idx: nb.int64[:]
+    reduced_to_macro_level_idx: nb.int64[:]
 
     def __init__(
         self,
@@ -37,6 +39,8 @@ class ContinuumOpacityStateNumba:
         photo_ion_activation_idx: npt.NDArray[np.int64],
         k_packet_idx: int,
         absorbing_markov_probabilities: npt.NDArray[np.float64],
+        macro_level_to_reduced_idx: npt.NDArray[np.int64],
+        reduced_to_macro_level_idx: npt.NDArray[np.int64],
     ) -> None:
         self.bf_threshold_list_nu = bf_threshold_list_nu
         self.p_fb_deactivation = p_fb_deactivation
@@ -51,4 +55,5 @@ class ContinuumOpacityStateNumba:
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
         self.absorbing_markov_probabilities = absorbing_markov_probabilities
-
+        self.macro_level_to_reduced_idx = macro_level_to_reduced_idx
+        self.reduced_to_macro_level_idx = reduced_to_macro_level_idx

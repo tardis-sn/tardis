@@ -833,7 +833,7 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
                 solved_matrices[cell] = solved_matrix
 
             ion_population_solution = pd.DataFrame(
-                np.vstack(solved_matrices.values[0]).T,
+                np.vstack(solved_matrices.to_numpy()[0]).T,
                 index=self.rate_matrix_solver.ion_population_index,
                 columns=self.rates_matrices.columns,
             )
@@ -844,7 +844,7 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
             electron_population_solution = (
                 ion_population_solution
                 * ion_population_solution.index.get_level_values("ion_number")
-                .values[np.newaxis]
+                .to_numpy()[np.newaxis]
                 .T
             ).sum()
 
@@ -871,7 +871,7 @@ class FixedElectronDensityIonPopulationSolver(IonPopulationSolver):
 
             estimated_ion_population = estimated_solution
             new_electron_energy_distribution.number_density = (
-                electron_population_solution.values * u.cm**-3
+                electron_population_solution.to_numpy() * u.cm**-3
             )
         else:
             logger.warning(

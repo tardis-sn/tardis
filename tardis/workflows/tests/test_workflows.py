@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -15,20 +17,17 @@ from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
 def v_inner_config(
     config_verysimple_for_simulation_one_loop: Configuration,
 ) -> Configuration:
-    config_verysimple_for_simulation_one_loop.model.structure.velocity.start = (
-        5000 * u.km / u.s
-    )
-    config_verysimple_for_simulation_one_loop.model.structure.velocity.num = 50
-    config_verysimple_for_simulation_one_loop.montecarlo.convergence_strategy[
-        "v_inner_boundary"
-    ] = {
+    config = deepcopy(config_verysimple_for_simulation_one_loop)
+    config.model.structure.velocity.start = 5000 * u.km / u.s
+    config.model.structure.velocity.num = 50
+    config.montecarlo.convergence_strategy["v_inner_boundary"] = {
         "damping_constant": 0.5,
         "threshold": 0.01,
         "type": "damped",
         "store_iteration_properties": True,
     }
-    config_verysimple_for_simulation_one_loop.montecarlo.iterations = 7
-    return config_verysimple_for_simulation_one_loop
+    config.montecarlo.iterations = 7
+    return config
 
 
 @pytest.fixture(scope="module")

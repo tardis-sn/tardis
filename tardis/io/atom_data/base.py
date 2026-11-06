@@ -296,7 +296,9 @@ class AtomData:
         # different values for the unit u and the constant.
         # This is changed in later versions of astropy (
         # the value of constants.u is used in all cases)
-        atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs.value
+        atom_data.loc[:, "mass"] = (
+            atom_data["mass"].to_numpy() * const.u.cgs.value
+        )
 
         # Convert ionization energies to CGS
         ionization_data = ionization_data.squeeze()
@@ -304,7 +306,7 @@ class AtomData:
 
         # Convert energy to CGS
         levels.loc[:, "energy"] = Quantity(
-            levels["energy"].values, "eV"
+            levels["energy"].to_numpy(), "eV"
         ).cgs.value
 
         # Create a new columns with wavelengths in the CGS units
@@ -466,7 +468,9 @@ class AtomData:
         )
 
         self.lines_lower2level_idx = (
-            levels_index.loc[tmp_lines_lower2level_idx].astype(np.int64).values
+            levels_index.loc[tmp_lines_lower2level_idx]
+            .astype(np.int64)
+            .to_numpy()
         )
 
         tmp_lines_upper2level_idx = self.lines.index.droplevel(
@@ -474,7 +478,9 @@ class AtomData:
         )
 
         self.lines_upper2level_idx = (
-            levels_index.loc[tmp_lines_upper2level_idx].astype(np.int64).values
+            levels_index.loc[tmp_lines_upper2level_idx]
+            .astype(np.int64)
+            .to_numpy()
         )
 
         return tmp_lines_lower2level_idx, tmp_lines_upper2level_idx
@@ -500,7 +506,8 @@ class AtomData:
         self.photo_ion_block_references = np.pad(
             self.photoionization_data.nu.groupby(level=[0, 1, 2])
             .count()
-            .values.cumsum(),
+            .to_numpy()
+            .cumsum(),
             [1, 0],
         )
         self.photo_ion_unique_index = self.photoionization_data.index.unique()
@@ -516,8 +523,8 @@ class AtomData:
         ].references_idx
         photo_ion_levels_idx = pd.DataFrame(
             {
-                "source_level_idx": source_idx.values,
-                "destination_level_idx": destination_idx.values,
+                "source_level_idx": source_idx.to_numpy(),
+                "destination_level_idx": destination_idx.to_numpy(),
             },
             index=self.photo_ion_unique_index,
         )
@@ -575,9 +582,9 @@ class AtomData:
                         (
                             0,
                             np.cumsum(
-                                self.macro_atom_references["count_down"].values[
-                                    :-1
-                                ]
+                                self.macro_atom_references[
+                                    "count_down"
+                                ].to_numpy()[:-1]
                             ),
                         )
                     )
@@ -591,7 +598,7 @@ class AtomData:
                             np.cumsum(
                                 self.macro_atom_references[
                                     "count_total"
-                                ].values[:-1]
+                                ].to_numpy()[:-1]
                             ),
                         )
                     )
@@ -608,14 +615,14 @@ class AtomData:
 
             self.macro_atom_data.loc[:, "lines_idx"] = lines_index.loc[
                 self.macro_atom_data["transition_line_id"]
-            ].values
+            ].to_numpy()
 
             self.lines_upper2macro_reference_idx = (
                 self.macro_atom_references.loc[
                     tmp_lines_upper2level_idx, "references_idx"
                 ]
                 .astype(np.int64)
-                .values
+                .to_numpy()
             )
 
             if line_interaction_type == "macroatom":
@@ -624,7 +631,7 @@ class AtomData:
                         tmp_lines_lower2level_idx, "references_idx"
                     ]
                     .astype(np.int64)
-                    .values
+                    .to_numpy()
                 )
                 # Sets all
                 tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays(
@@ -648,7 +655,7 @@ class AtomData:
                         tmp_macro_destination_level_idx, "references_idx"
                     ]
                     .astype(np.int64)
-                    .values
+                    .to_numpy()
                 )
 
                 self.macro_atom_data.loc[:, "source_level_idx"] = (
@@ -656,7 +663,7 @@ class AtomData:
                         tmp_macro_source_level_idx, "references_idx"
                     ]
                     .astype(np.int64)
-                    .values
+                    .to_numpy()
                 )
 
             elif line_interaction_type == "downbranch":

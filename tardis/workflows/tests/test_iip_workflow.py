@@ -447,7 +447,7 @@ def test_iip_level_solution_is_seed_independent_after_first_transport(
     plasma = workflow.plasma_solver
     maximum_electron_density = (
         plasma.number_density.multiply(
-            plasma.number_density.index.values, axis=0
+            plasma.number_density.index.to_numpy(), axis=0
         )
         .sum()
         .to_numpy()
@@ -534,7 +534,7 @@ def test_iip_level_equations_close_from_distinct_seeds_after_second_transport(
     plasma = workflow.plasma_solver
     maximum_electron_density = (
         plasma.number_density.multiply(
-            plasma.number_density.index.values, axis=0
+            plasma.number_density.index.to_numpy(), axis=0
         )
         .sum()
         .to_numpy()
@@ -908,7 +908,7 @@ def test_iip_hydrogen_helium_helium_populations_match_ctardis(
     )
     maximum_electron_density = (
         plasma.number_density.multiply(
-            plasma.number_density.index.values, axis=0
+            plasma.number_density.index.to_numpy(), axis=0
         )
         .sum()
         .to_numpy()
@@ -984,8 +984,22 @@ def test_solve_montecarlo(
     )
 
 
+@pytest.mark.parametrize(
+    "mode,include_thermal_pool,include_ionization_pool",
+    [
+        ("full", False, False),
+        ("partial", False, False),
+        ("partial", True, False),
+        ("partial", False, True),
+        ("partial", True, True),
+        ("explicit", False, False),
+    ],
+)
 def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     tardis_regression_path: Path,
+    mode: str,
+    include_thermal_pool: bool,
+    include_ionization_pool: bool,
 ) -> None:
     """Evaluate finite outer-shell opacity at the 1500 K thermal floor.
 
@@ -994,6 +1008,8 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     Regime: Second opacity iteration in shells forced to the 1500 K floor.
     Verification: The expected opacity is evaluated directly from the
     bound-free population equation, independently of continuum-state assembly.
+    All reduction modes retain legacy signed-coefficient compatibility and
+    complete ten transport packets; completion is not probability validation.
     """
     config = Configuration.from_yaml(
         "tardis/workflows/tests/data/iip_population_cutoff.yml"
@@ -1002,6 +1018,16 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         tardis_regression_path
         / "atom_data"
         / "christians_atomdata_converted_04Dec25.h5"
+    )
+    config.plasma.continuum_interaction.markov_chain.mode = mode
+    config.plasma.continuum_interaction.markov_chain.elements = (
+        ["H"] if mode == "partial" else []
+    )
+    config.plasma.continuum_interaction.markov_chain.include_thermal_pool = (
+        include_thermal_pool
+    )
+    config.plasma.continuum_interaction.markov_chain.include_ionization_pool = (
+        include_ionization_pool
     )
     workflow = TypeIIPWorkflow(config)
     workflow.show_progress_bars = False
@@ -1020,7 +1046,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     )
     maximum_electron_density = (
         plasma_solver.number_density.multiply(
-            plasma_solver.number_density.index.values, axis=0
+            plasma_solver.number_density.index.to_numpy(), axis=0
         )
         .sum()
         .to_numpy()
@@ -1057,7 +1083,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     workflow.completed_iterations = 1
     opacity_states = workflow.solve_opacity()
     continuum_state = workflow.continuum_opacity_state
-    assert np.isfinite(continuum_state.chi_bf.values).all()
+    assert np.isfinite(continuum_state.chi_bf.to_numpy()).all()
     cross_sections = plasma_solver.photo_ion_cross_sections
     upper_ion_index = pd.MultiIndex.from_arrays(
         [
@@ -1085,7 +1111,7 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
         continuum_state.chi_bf,
         expected_chi_bf.loc[continuum_state.level2continuum_idx.index],
     )
-    assert np.isfinite(continuum_state.p_fb_deactivation.values).all()
-    assert np.isfinite(continuum_state.emissivities.values).all()
+    assert np.isfinite(continuum_state.p_fb_deactivation.to_numpy()).all()
+    assert np.isfinite(continuum_state.emissivities.to_numpy()).all()
     workflow.solve_montecarlo(opacity_states, 10)
     assert len(workflow.transport_state.packet_collection.output_energies) == 10

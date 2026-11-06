@@ -30,8 +30,8 @@ def _create_absorbing_probs_reference(
     internal_jump_probs = transition_probabilities[internal_mask]
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
-    rows = metadata[internal_mask].source_level_idx.values
-    cols = metadata[internal_mask].destination_level_idx.values
+    rows = metadata[internal_mask].source_level_idx.to_numpy()
+    cols = metadata[internal_mask].destination_level_idx.to_numpy()
     for cell in range(num_cells):
         internal_jump_matrix = scipy.sparse.coo_matrix(
             (internal_jump_probs.iloc[:, cell].to_numpy(), (rows, cols)),
@@ -91,14 +91,12 @@ def test_create_absorbing_probs_matches_full_diagonal_solve() -> None:
         )
     )
 
-    actual_matrix, actual_deactivating_probs = create_absorbing_probs(
-        transition_probabilities, metadata
-    )
+    result = create_absorbing_probs(transition_probabilities, metadata)
     expected_matrix, expected_deactivating_probs = (
         _create_absorbing_probs_reference(transition_probabilities, metadata)
     )
 
-    np.testing.assert_allclose(actual_matrix, expected_matrix, rtol=1e-14)
+    np.testing.assert_allclose(result.matrix, expected_matrix, rtol=1e-14)
     pd.testing.assert_frame_equal(
-        actual_deactivating_probs, expected_deactivating_probs
+        result.residual_probabilities, expected_deactivating_probs
     )

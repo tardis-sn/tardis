@@ -44,7 +44,9 @@ def simulation_state(request, atomic_dataset):
             (UNIFORM_10KK, np.array([0.8, 0.6, 0.4])),
             id="T_10kK_dilution_0.8_0.6_0.4",
         ),
-        pytest.param((UNIFORM_10KK, np.array([0, 0, 0])), id="T_10kK_dilution_0"),
+        pytest.param(
+            (UNIFORM_10KK, np.array([0, 0, 0])), id="T_10kK_dilution_0"
+        ),
         pytest.param(
             ([8000, 6000, 4000] * u.K, UNIFORM_ONE_DILUTION_FACTOR),
             id="T_8k_6k_4kK",
@@ -75,10 +77,12 @@ class TestValidFields:
     def test_calculate_mean_intensity(
         self, valid_rad_field, atomic_dataset, regression_data
     ):
-        nu = atomic_dataset.lines["nu"].values
+        nu = atomic_dataset.lines["nu"].to_numpy()
         actual_intensities = valid_rad_field.calculate_mean_intensity(nu)
         expected_intensities = regression_data.sync_ndarray(actual_intensities)
-        npt.assert_allclose(actual_intensities, expected_intensities,atol=0, rtol=2e-14)
+        npt.assert_allclose(
+            actual_intensities, expected_intensities, atol=0, rtol=2e-14
+        )
 
     def test_temperature_and_dilution_lengths_from_simulation_state(
         self, simulation_state_rad_field, simulation_state
@@ -93,34 +97,38 @@ class TestValidFields:
     def test_calculate_mean_intensity_from_simulation_state(
         self, simulation_state_rad_field, atomic_dataset, regression_data
     ):
-        nu = atomic_dataset.lines["nu"].values
+        nu = atomic_dataset.lines["nu"].to_numpy()
         actual_intensities = np.array(
             simulation_state_rad_field.calculate_mean_intensity(nu)
         )
         expected_intensities = regression_data.sync_ndarray(actual_intensities)
-        npt.assert_allclose(actual_intensities, expected_intensities,atol=0, rtol=2e-14)
-
-
+        npt.assert_allclose(
+            actual_intensities, expected_intensities, atol=0, rtol=2e-14
+        )
 
 
 class TestInvalidFields:
     def test_negative_temperature(self):
         with pytest.raises(AssertionError):
-            DilutePlanckianRadiationField(negative_temps, UNIFORM_ONE_DILUTION_FACTOR)
+            DilutePlanckianRadiationField(
+                negative_temps, UNIFORM_ONE_DILUTION_FACTOR
+            )
 
     def test_dilution_factors_negative(self):
         with pytest.raises(AssertionError):
-            DilutePlanckianRadiationField(
-                UNIFORM_10KK, np.array([-1, -1, -1])
-            )
+            DilutePlanckianRadiationField(UNIFORM_10KK, np.array([-1, -1, -1]))
 
     def test_zero_temperature(self):
         with pytest.raises(AssertionError):
-            DilutePlanckianRadiationField(zero_temps, UNIFORM_ONE_DILUTION_FACTOR)
+            DilutePlanckianRadiationField(
+                zero_temps, UNIFORM_ONE_DILUTION_FACTOR
+            )
 
     def test_no_units(self):
         with pytest.raises(u.UnitConversionError):
-            DilutePlanckianRadiationField(no_unit_temps, UNIFORM_ONE_DILUTION_FACTOR)
+            DilutePlanckianRadiationField(
+                no_unit_temps, UNIFORM_ONE_DILUTION_FACTOR
+            )
 
     def test_dilution_factors_no_numpy(self):
         with pytest.raises(TypeError):

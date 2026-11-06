@@ -17,6 +17,9 @@ env:
 
 jobs:
   clean:
+    concurrency: # shared with publish-docs so cleaning waits for a running publish
+      group: docs-preview-${{ github.head_ref || github.event.ref }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

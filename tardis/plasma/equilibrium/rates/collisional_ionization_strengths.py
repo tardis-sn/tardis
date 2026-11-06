@@ -42,7 +42,10 @@ class CollisionalIonizationSeaton:
         )
         nu_i = photo_ion_cross_sections_threshold["nu"]
         u0s = (
-            nu_i.values[np.newaxis].T * u.Hz / electron_temperature * (H / K_B)
+            nu_i.to_numpy()[np.newaxis].T
+            * u.Hz
+            / electron_temperature
+            * (H / K_B)
         )
         factor = np.exp(-u0s) / u0s
         factor = pd.DataFrame(factor, index=nu_i.index)
@@ -52,7 +55,9 @@ class CollisionalIonizationSeaton:
             np.sqrt(electron_temperature), axis=1
         )
 
-        ion_number = coll_ion_coeff.index.get_level_values("ion_number").values
+        ion_number = coll_ion_coeff.index.get_level_values(
+            "ion_number"
+        ).to_numpy()
         coll_ion_coeff.loc[ion_number == 0] *= 0.1
         coll_ion_coeff.loc[ion_number == 1] *= 0.2
         coll_ion_coeff.loc[ion_number >= 2] *= 0.3

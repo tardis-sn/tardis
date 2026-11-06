@@ -30,7 +30,7 @@ def yml_data(example_configuration_dir: Path, atomic_dataset):
 
 
 @pytest.fixture(scope="module")
-def caw(yml_data, monkeysession):
+def caw(yml_data):
     """Fixture to contain a CustomAbundanceWidget
     instance generated from a YAML file tardis_configv1_verysimple.yml.
 
@@ -40,11 +40,12 @@ def caw(yml_data, monkeysession):
         CustomAbundanceWidget generated from a YAML
     """
     caw = CustomAbundanceWidget(yml_data)
-    monkeysession.setattr(
-        "tardis.util.environment.Environment.is_notebook",
-        lambda: True,
-    )
-    caw.display()
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(
+            "tardis.util.environment.Environment.is_notebook",
+            lambda: True,
+        )
+        caw.display()
     return caw
 
 

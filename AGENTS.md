@@ -3,7 +3,7 @@
 ## Scope and Priorities
 
 - Repository: TARDIS spectral-synthesis code.
-- Audience: research software engineers with graduate-level software-engineering
+- Audience: physicists with graduate-level software-engineering
   skills and postdoctoral-level physics context.
 - Prioritize scientific correctness, reproducibility, test health, and then
   maintainability.
@@ -12,7 +12,7 @@
 
 ## Source of Truth
 
-Follow the current developer documentation, not superseded documentation paths.
+Follow the current developer documentation.
 
 - Environment setup: [docs/getting_started/installation.rst](docs/getting_started/installation.rst)
 - Feature and test-driven workflow: [docs/current_developers/feature_workflow.rst](docs/current_developers/feature_workflow.rst)
@@ -50,9 +50,6 @@ Follow the current developer documentation, not superseded documentation paths.
 
 ## Feature Workflow
 
-For any new or changed observable or scientific behavior, use the repo skill
-`$tardis-behavior-change`.
-
 - Record the science requirement, expected behavior, and data assumptions. If
   the request identifies an issue, include its identifier in the handoff; do
   not create or modify issues without user authorization.
@@ -61,12 +58,10 @@ For any new or changed observable or scientific behavior, use the repo skill
   change that makes the test pass. If the test already passes, treat it as
   coverage for existing behavior rather than changing code.
 - Run targeted tests and Ruff, use `$tardis-regression-validation` when the
-  affected path has regression-backed coverage, and document every user-facing
-  change.
+  affected path has regression-backed coverage, and document every change.
 
 Break large features into small, quantifiable goals. Do not create or switch
-branches unless the task authorizes it; when authorized, branch from current
-upstream trunk and never work directly on local `master`.
+branches and never work directly on local `master`.
 
 ## Code and Design
 
@@ -76,15 +71,14 @@ upstream trunk and never work directly on local `master`.
   methods use verb-noun names; properties and variables use noun names.
 - Use `_idx` for an integer array position and `_index` for a dictionary-like
   lookup key.
-- Add type hints to every new or touched function definition. Use
-  `numpy.typing.NDArray` for concrete NumPy array types and `npt.ArrayLike` for
-  broad array-like inputs.
-- Use NumPy-style docstrings for new or changed public-facing behavior. Include
+- Add strict type hints to every new or touched function definition. Use
+  `numpy.typing.NDArray` for concrete NumPy array types.
+- Use NumPy-style docstrings for new or changed behavior. Include
   parameter and return types, and omit `Returns` when there is no return value.
 - Use physical constants from `tardis.constants`, which is based on Astropy's
   `astropy13constants`.
-- Introduce Numba only for a numerical hotspot with a stated performance need.
-  Verify that the changed code compiles in nopython mode. Leave performance
+- Introduce Numba only when requested by the user. Verify that the changed code 
+  compiles in nopython mode. Leave performance
   measurement to remote CI and report available CI benchmark evidence;
   otherwise use the existing non-Numba implementation.
 - Use composition instead of inheritance. Use a classmethod when only
@@ -108,43 +102,18 @@ upstream trunk and never work directly on local `master`.
   conda run --no-capture-output -n tardis ruff check tardis/path/to/changed_code
   ```
 
-- Run the broader suite after targeted validation unless it cannot complete in
-  the available environment or time budget. State the reason in the handoff if
-  it is not run:
-
-  ```shell
-  conda run --no-capture-output -n tardis pytest tardis
-  ```
-
+- Ask the user for permission to run the full test suite to validate changes.
 - For code exercised by regression-backed tests, use the repo skill
   `$tardis-regression-validation` and run the matching test path with
   `--tardis-regression-data`. Unit-test results are not a substitute.
-- Regression data lives in the separate `tardis-regression-data` repository and
-  must remain outside this checkout. If the required dataset is unavailable,
-  report regression validation as incomplete and state the blocking reason.
-- Do not generate, overwrite, or commit regression references unless the task
-  explicitly authorizes the behavior change and regression-data update. When
-  authorized, inspect generated references, update the paired
-  `tardis-regression-data` repository on a separate branch, and document the
-  baseline rationale.
-- Do not run ASV benchmarks locally. Remote CI owns performance benchmark
-  execution. Do not claim a performance result without evidence.
 
 ## Documentation and CI
 
-- Update `docs/` in the same change as any user-facing behavior. After changing
-  documentation, run the following command and resolve every warning before
-  handoff:
-
-  ```shell
-  cd docs && conda run --no-capture-output -n tardis make html NCORES=auto
-  ```
-- Clear outputs from every documentation notebook before committing it.
+- Ask the user to write new documentation for any changes.
 - Put every new GitHub Actions workflow in `.github/workflows`. In workflows
   that need atomic or regression data, use the shared `setup_lfs` action and
   `lfs-cache` workflow; use `setup_env` and set `bash -l {0}` as the run shell.
-- Do not modify CI cache keys or use the `allow_lfs_pull` label without a
-  justified need.
+- Do not modify CI cache keys or use the `allow_lfs_pull` label.
 
 ## Agent Execution and Handoff
 

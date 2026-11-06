@@ -207,7 +207,7 @@ def test_artis_isotopes_reach_composition(artis_data_dir):
     assert list(composition.isotope_masses.columns) == list(
         composition.isotopic_mass_fraction.columns
     )
-    assert (composition.nuclide_mass_fraction.values >= 0).all()
+    assert (composition.nuclide_mass_fraction.to_numpy() >= 0).all()
     npt.assert_allclose(
         composition.isotopic_mass_fraction.loc[(28, 56), 0],
         0.9788986,

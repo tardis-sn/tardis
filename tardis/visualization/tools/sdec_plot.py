@@ -93,7 +93,7 @@ class SDECPlotter:
         )
 
         modes = ["real"]
-        if sim.transport.transport_state.virt_logging:
+        if sim.spectrum_solver.vpacket_tracker is not None:
             modes.append("virtual")
 
         for mode in modes:
@@ -136,9 +136,7 @@ class SDECPlotter:
                 "s",
             )
 
-            has_virtual = bool(
-                getattr(transport_state_scalars, "virt_logging", False)
-            )
+            has_virtual = pu.VPACKET_TRACKER_HDF_KEY in hdf
             modes = ["real"] + (["virtual"] if has_virtual else [])
 
             for mode in modes:
@@ -168,7 +166,7 @@ class SDECPlotter:
         plotter.time_of_simulation = workflow.transport_state.time_of_simulation
 
         modes = ["real"]
-        if workflow.enable_virtual_packet_logging:
+        if workflow.spectrum_solver.vpacket_tracker is not None:
             modes.append("virtual")
 
         for mode in modes:

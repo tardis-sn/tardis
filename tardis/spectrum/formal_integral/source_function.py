@@ -106,14 +106,14 @@ class SourceFunctionSolver:
             transition_type == MacroAtomTransitionType.BB_EMISSION
         ].copy()
         transitions_index = pd.MultiIndex.from_tuples(
-            emitting_transitions.source.values,
+            emitting_transitions.source.to_numpy(),
             names=["atomic_number", "ion_number", "source_level_number"],
         )
         emission_transition_line_id = (
-            emitting_transitions.transition_line_id.values
+            emitting_transitions.transition_line_id.to_numpy()
         )
         lines = atomic_data.lines.set_index("line_id")
-        lines_idx = lines.index.values
+        lines_idx = lines.index.to_numpy()
 
         att_S_ul = self.calculate_att_S_ul(
             lines,
@@ -196,8 +196,8 @@ class SourceFunctionSolver:
             ma_int_data = macro_data[internal_jump_mask]
             internal = transition_probabilities[internal_jump_mask]
 
-            source_level_idx = ma_int_data.source_level_idx.values
-            destination_level_idx = ma_int_data.destination_level_idx.values
+            source_level_idx = ma_int_data.source_level_idx.to_numpy()
+            destination_level_idx = ma_int_data.destination_level_idx.to_numpy()
 
             C_frame = pd.DataFrame(columns=columns, index=macro_ref.index)
             q_indices = (source_level_idx, destination_level_idx)
@@ -266,20 +266,26 @@ class SourceFunctionSolver:
         """
         q_ul = pd.DataFrame(
             transition_probabilities[
-                (transition_type == MacroAtomTransitionType.BB_EMISSION).values
+                (
+                    transition_type == MacroAtomTransitionType.BB_EMISSION
+                ).to_numpy()
             ],
             index=transitions_index,
         )
-        wave = lines.wavelength_cm.loc[transition_line_id].values.reshape(-1, 1)
+        wave = (
+            lines.wavelength_cm.loc[transition_line_id]
+            .to_numpy()
+            .reshape(-1, 1)
+        )
         att_S_ul = wave * (q_ul * e_dot_u) * time_explosion / (4 * np.pi)
         columns = range(no_of_shells)
 
         result = pd.DataFrame(
-            att_S_ul.values,
+            att_S_ul.to_numpy(),
             index=transition_line_id,
             columns=columns,
         )
-        att_S_ul = result.loc[line_idx].values
+        att_S_ul = result.loc[line_idx].to_numpy()
 
         return att_S_ul
 

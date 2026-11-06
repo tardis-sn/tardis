@@ -30,7 +30,7 @@ def test_hdf_transport(
         actual = actual.cgs.value
     path = f"transport/{attr}"
     expected = pd.read_hdf(hdf_file_path, path)
-    assert_almost_equal(actual, expected.values)
+    assert_almost_equal(actual, expected.to_numpy())
 
 
 transport_state_properties = [
@@ -41,16 +41,6 @@ transport_state_properties = [
     # This is a scalar and should be tested differently
     # "time_of_simulation",
     "emitted_packet_mask",
-    "virt_packet_nus",
-    "virt_packet_energies",
-    "virt_packet_initial_rs",
-    "virt_packet_initial_mus",
-    "virt_packet_last_interaction_in_nu",
-    "virt_packet_last_interaction_in_r",
-    "virt_packet_last_interaction_type",
-    "virt_packet_last_line_interaction_in_id",
-    "virt_packet_last_line_interaction_out_id",
-    "virt_packet_last_line_interaction_shell_id",
 ]
 
 
@@ -65,4 +55,4 @@ def test_hdf_transport_state(
         actual = actual.cgs.value
     path = f"transport_state/{attr}"
     expected = pd.read_hdf(hdf_file_path, path)
-    assert_almost_equal(actual, expected.values)
+    assert_almost_equal(actual, expected.to_numpy())

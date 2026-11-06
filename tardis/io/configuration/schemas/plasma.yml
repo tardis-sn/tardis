@@ -80,6 +80,37 @@ properties:
     default: {}
     additionalProperties: false
     properties:
+      markov_chain:
+        type: object
+        default: {}
+        additionalProperties: false
+        properties:
+          mode:
+            type: string
+            enum: [full, partial, explicit]
+            default: full
+            description: Macro-atom internal-transition reduction for Type IIP transport.
+          elements:
+            type: array
+            items:
+              type: string
+            default: []
+            description: Element symbols reduced in partial mode; empty in other modes.
+          include_thermal_pool:
+            type: boolean
+            default: false
+            description: Include the shared thermal k state in partial reduction.
+          include_ionization_pool:
+            type: boolean
+            default: false
+            description: Include the shared ionization i state in partial reduction.
+      nthreads:
+        type: integer
+        minimum: 1
+        default: 1
+        description: Maximum number of worker threads for continuum macro-atom
+          opacity calculations, including the absorbing Markov chain solve.
+          Independent of montecarlo.nthreads and not limited by NUMBA_NUM_THREADS.
       species:
         type: array
         default: []

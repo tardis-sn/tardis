@@ -1,0 +1,17 @@
+---
+name: csvy_density_section_yaml_velocity
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: Density section with velocity given in the YAML section.
+tardis_model_config_version: v1.0
+
+velocity:
+  start: 9000 km/s
+  stop: 12000 km/s
+  num: 5
+density:
+  type: branch85_w7
+abundance:
+  type: uniform
+  H: 1.0
+---
