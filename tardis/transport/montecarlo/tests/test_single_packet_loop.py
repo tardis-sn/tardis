@@ -145,12 +145,12 @@ def emitted_line_cursors(
 
 
 @pytest.fixture
-def coherent_packet_loop(
+def scatter_packet_loop(
     monkeypatch: pytest.MonkeyPatch,
     recording_tracker: _RecordingTracker,
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> Callable[..., None]:
-    """Use real coherent scattering with radial emission and one line event."""
+    """Use real line scattering with radial emission and one line event."""
     recording_tracker.max_line_events = 1
     montecarlo_configuration.LINE_INTERACTION_TYPE = 0
     montecarlo_configuration.DISABLE_LINE_SCATTERING = False
@@ -430,7 +430,7 @@ def test_nonhomologous_packet_loop_preserves_emitted_line_cursors(
     indirect=True,
 )
 def test_nonhomologous_packet_loop_retains_coherent_line_cursor(
-    coherent_packet_loop: Callable[..., None],
+    scatter_packet_loop: Callable[..., None],
     line_search_packet: RPacket,
     line_search_geometry: NumbaRadial1DGeometry,
     classic_opacity_state: OpacityStateNumba,
@@ -440,7 +440,7 @@ def test_nonhomologous_packet_loop_retains_coherent_line_cursor(
     montecarlo_configuration: MonteCarloConfiguration,
     set_seed_fixture: Callable[[int], None],
 ) -> None:
-    """The packet loop carries a crossed line past coherent emission.
+    """The packet loop preserves a crossed line's history in scatter mode.
 
     Claim: A monotonic outgoing ray cannot replay its emitting line.
     Regime: One nonhomologous shell with positive projected gradient.
@@ -472,7 +472,7 @@ def test_nonhomologous_packet_loop_retains_coherent_line_cursor(
     classic_opacity_state.electron_density[:] = 1.0e-6
     set_seed_fixture(1963)
 
-    coherent_packet_loop(
+    scatter_packet_loop(
         packet,
         geometry,
         0.0,
