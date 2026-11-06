@@ -696,7 +696,7 @@ class PlasmaEquilibriumEvaluator:
                 np.array([electron_temperature]) * u.K,
                 np.array([electron_density]) / u.cm**3,
             )
-        residual, beta_sobolev, ionized_to_neutral_ratio = (
+        residual, beta_sobolev, ionized_to_neutral_ratio, total_rate = (
             calculate_nlte_level_population_residual(
                 level_fractions,
                 level_rates,
@@ -710,7 +710,7 @@ class PlasmaEquilibriumEvaluator:
                 bound_bound_rates,
             )
         )
-        return residual, beta_sobolev, ionized_to_neutral_ratio
+        return residual, beta_sobolev, ionized_to_neutral_ratio, total_rate
 
     def _calculate_level_solution(
         self,
