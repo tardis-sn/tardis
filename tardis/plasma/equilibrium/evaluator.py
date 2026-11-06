@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import astropy.units as u
 import numpy as np
@@ -248,6 +248,45 @@ def calculate_nlte_level_population_residual(
     return level_residual, beta_sobolev, ionized_to_neutral_ratio
 
 
+def restrict_sobolev_to_rate_lines(
+    sobolev: SobolevInputs,
+    bound_bound_rates: BoundBoundMatrixRates,
+) -> tuple[SobolevInputs, BoundBoundMatrixRates]:
+    """Restrict Sobolev inputs to the lines used by one bound-bound matrix.
+
+    The reduced level residual only reads the escape probabilities of lines
+    referenced by ``bound_bound_rates.beta_line_idx``. Calculating escape
+    probabilities for those lines alone gives the same matrix without the cost
+    of every line in the model.
+
+    Parameters
+    ----------
+    sobolev : SobolevInputs
+        Line geometry for all lines whose escape probabilities may be needed.
+    bound_bound_rates : BoundBoundMatrixRates
+        Prepared bound-bound rates whose ``beta_line_idx`` refers to positions
+        in ``sobolev.line_indices``. Negative positions mark transitions
+        without a line.
+
+    Returns
+    -------
+    tuple[SobolevInputs, BoundBoundMatrixRates]
+        Sobolev inputs for the referenced lines only, and bound-bound rates
+        whose ``beta_line_idx`` refers to positions in the restricted inputs.
+    """
+    beta_line_idx = bound_bound_rates.beta_line_idx
+    has_line = beta_line_idx >= 0
+    used_line_idx = np.unique(beta_line_idx[has_line])
+    restricted_beta_line_idx = np.full_like(beta_line_idx, -1)
+    restricted_beta_line_idx[has_line] = np.searchsorted(
+        used_line_idx, beta_line_idx[has_line]
+    )
+    return (
+        replace(sobolev, line_indices=sobolev.line_indices[used_line_idx]),
+        replace(bound_bound_rates, beta_line_idx=restricted_beta_line_idx),
+    )
+
+
 @dataclass(frozen=True)
 class IntermediateThermalState:
     """Temperature-dependent inputs shared by evaluation stages."""
@@ -259,6 +298,7 @@ class IntermediateThermalState:
     continuum_coefficients: ContinuumCoefficientState
     thermal_partition_function: pd.DataFrame
     thermal_level_boltzmann_factor: pd.DataFrame
+    collisional_rate_coefficients: pd.DataFrame
 
 
 @dataclass(frozen=True)
@@ -417,6 +457,11 @@ class PlasmaEquilibriumEvaluator:
             thermal_balance_arguments or {}
         )
         self.reference_electron_temperature = reference_electron_temperature
+        # The reference temperature is fixed, so its collisional rates are
+        # calculated on first use and reused by every later evaluation.
+        self._reference_collisional_rate_coefficients: pd.DataFrame | None = (
+            None
+        )
         self.dilute_radiation = dilute_radiation
 
     def calculate_nebular_ionization_factor(
@@ -685,6 +730,9 @@ class PlasmaEquilibriumEvaluator:
                 self.hydrogen_species,
                 sobolev_inputs.line_index,
             )[0]
+        residual_sobolev_inputs, residual_bound_bound_rates = (
+            restrict_sobolev_to_rate_lines(sobolev_inputs, bound_bound_rates)
+        )
 
         def residual(
             level_fractions: npt.NDArray[np.float64],
@@ -696,8 +744,8 @@ class PlasmaEquilibriumEvaluator:
                 level_fractions,
                 continuum_rates,
                 population_geometry,
-                sobolev_inputs,
-                bound_bound_rates=bound_bound_rates,
+                residual_sobolev_inputs,
+                bound_bound_rates=residual_bound_bound_rates,
             )[0]
 
         def calculate_physical_level_residual(
@@ -854,6 +902,7 @@ class PlasmaEquilibriumEvaluator:
                 electron_distribution,
                 self.hydrogen_species,
                 self.sobolev_inputs[0].line_index,
+                thermal_state.collisional_rate_coefficients,
             )
         )
         for shell_idx, (
@@ -1130,9 +1179,7 @@ class PlasmaEquilibriumEvaluator:
             return None, None
         solver_arguments = deepcopy(self.thermal_balance_arguments)
         electron_rate_solver = self.rate_matrix_solver.electron_rate_solver
-        collisional_rates = electron_rate_solver.solve(
-            final_electron_distribution.temperature
-        )
+        collisional_rates = thermal_state.collisional_rate_coefficients
         transition_count = len(collisional_rates) // 2
         transition_index = electron_rate_solver.all_collisional_strengths_index
         collisional_excitation = collisional_rates.iloc[
@@ -1146,9 +1193,13 @@ class PlasmaEquilibriumEvaluator:
         collisional_excitation.columns = absolute_levels.columns
         collisional_deexcitation.columns = absolute_levels.columns
         if self.reference_electron_temperature is not None:
-            reference_rates = electron_rate_solver.solve(
-                self.reference_electron_temperature
-            )
+            if self._reference_collisional_rate_coefficients is None:
+                self._reference_collisional_rate_coefficients = (
+                    electron_rate_solver.solve(
+                        self.reference_electron_temperature
+                    )
+                )
+            reference_rates = self._reference_collisional_rate_coefficients
             reference_excitation = reference_rates.iloc[
                 :transition_count
             ].copy()
@@ -1234,6 +1285,9 @@ class PlasmaEquilibriumEvaluator:
             continuum_coefficients,
             thermal_partition_function,
             thermal_level_boltzmann_factor,
+            self.rate_matrix_solver.electron_rate_solver.solve(
+                trial_electron_distribution.temperature
+            ),
         )
         level_state = self._solve_levels(
             trial_density,
