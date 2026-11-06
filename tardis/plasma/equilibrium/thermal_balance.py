@@ -10,6 +10,7 @@ from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
 from tardis.plasma.equilibrium.evaluator import (
+    LEVEL_RESIDUAL_LIMIT,
     PlasmaEquilibriumEvaluation,
     PlasmaEquilibriumEvaluator,
 )
@@ -24,8 +25,9 @@ from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 logger = logging.getLogger(__name__)
 
 THERMAL_BALANCE_RESIDUAL_LIMITS = {
-    "trial_level_residual": 1e-10,
-    "level_residual": 1e-10,
+    # Level equations close relative to the total rate of each equation.
+    "relative_trial_level_residual": LEVEL_RESIDUAL_LIMIT,
+    "relative_level_residual": LEVEL_RESIDUAL_LIMIT,
     "charge_residual": 1e-10,
     # The charge projection independently solves for the electron density, so
     # the projected value can differ slightly from the outer trial value.
