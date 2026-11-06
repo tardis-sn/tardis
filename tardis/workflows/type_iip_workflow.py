@@ -81,6 +81,9 @@ from tardis.workflows.workflow_logger import WorkflowLogger
 # logging support
 logger = logging.getLogger(__name__)
 
+# The species solved in NLTE by the thermal-balance evaluator.
+THERMAL_BALANCE_NLTE_SPECIES = (1, 0)
+
 
 class TypeIIPWorkflow:
     """Coordinate Type IIP plasma, transport, and thermal-balance solves."""
@@ -185,6 +188,7 @@ class TypeIIPWorkflow:
             "level_number_density",
         )
         self._continuum_estimators = None
+        self.thermal_balance_solver: ElectronThermalBalanceSolver | None = None
         self._tau_sobolev = calculate_sobolev_line_opacity(
             self.atom_data.lines,
             self.plasma_solver.level_number_density,
@@ -647,13 +651,29 @@ class TypeIIPWorkflow:
         analytic: bool = False,
         fixed_estimators: object | None = None,
     ) -> PlasmaEquilibriumEvaluator:
-        """Build the fixed evaluator snapshot for one outer thermal solve."""
+        """Build the fixed evaluator snapshot for one outer thermal solve.
+
+        Parameters
+        ----------
+        maximum_electron_density : numpy.ndarray
+            Electron density of full ionization in each shell [cm^-3].
+        analytic : bool, optional
+            Use analytic dilute-blackbody rates instead of estimators.
+        fixed_estimators : object, optional
+            Continuum estimator container to use as is.
+
+        Returns
+        -------
+        PlasmaEquilibriumEvaluator
+            Evaluator of the fixed-radiation-field equilibrium.
+        """
         plasma = self.plasma_solver
+        continuum_estimators = self._continuum_estimators
 
         if (
             not analytic
             and fixed_estimators is None
-            and self._continuum_estimators is None
+            and continuum_estimators is None
         ):
             raise RuntimeError(
                 "Thermal balance requires a completed Monte Carlo estimator "
@@ -666,7 +686,6 @@ class TypeIIPWorkflow:
         time_simulation = 1.0 * u.s
         volume = 1.0 * u.cm**3
         estimator_scale = const.h.cgs.value
-        continuum_estimators = self._continuum_estimators
         estimators = fixed_estimators
         if not analytic and estimators is None:
             estimators = init_estimators_continuum(
@@ -697,7 +716,7 @@ class TypeIIPWorkflow:
             plasma.level_number_density.index
         ]
         level_index = plasma.level_number_density.index
-        hydrogen_species = (1, 0)
+        hydrogen_species = THERMAL_BALANCE_NLTE_SPECIES
         hydrogen_level_positions = np.flatnonzero(
             (
                 level_index.get_level_values("atomic_number")
@@ -884,7 +903,7 @@ class TypeIIPWorkflow:
     ) -> None:
         """Freeze the evaluator and level initial guess for one outer solve."""
         plasma = self.plasma_solver
-        hydrogen_species = (1, 0)
+        hydrogen_species = THERMAL_BALANCE_NLTE_SPECIES
         self._thermal_balance_evaluator = self._build_thermal_balance_evaluator(
             maximum_electron_density
         )
@@ -912,11 +931,26 @@ class TypeIIPWorkflow:
         self._tau_sobolev = evaluation.tau_sobolev
         self._beta_sobolev = evaluation.beta_sobolev
 
-    def solve_thermal_balance(self) -> None:
-        """Solve the plasma heating and cooling balance.
+    def prepare_thermal_balance_problem(
+        self,
+    ) -> tuple[
+        npt.NDArray[np.float64],
+        npt.NDArray[np.float64],
+        npt.NDArray[np.float64],
+        npt.NDArray[np.float64],
+    ]:
+        """Freeze the evaluator and build the bounded thermal-balance problem.
 
-        Set the electron number density and link_t_rad_t_electron
-        to values that satisfy thermal balance
+        Returns
+        -------
+        initial_guess : numpy.ndarray
+            Interleaved electron-density fractions and T_e/T_rad links.
+        lower_bound : numpy.ndarray
+            Lower bounds of the interleaved candidate.
+        upper_bound : numpy.ndarray
+            Upper bounds of the interleaved candidate.
+        maximum_electron_density : numpy.ndarray
+            Electron density of full ionization in each shell [cm^-3].
         """
         link_t_rad_t_electron_start = self.plasma_solver.link_t_rad_t_electron
         if np.array_equal(
@@ -979,13 +1013,32 @@ class TypeIIPWorkflow:
                 upper_bound[out_of_bounds],
             )
             initial_guess = np.clip(initial_guess, lower_bound, upper_bound)
+        return (
+            initial_guess,
+            lower_bound,
+            upper_bound,
+            max_electron_number_density,
+        )
 
+    def solve_thermal_balance(self) -> None:
+        """Solve the plasma heating and cooling balance.
+
+        Set the electron number density and link_t_rad_t_electron
+        to values that satisfy thermal balance
+        """
+        (
+            initial_guess,
+            lower_bound,
+            upper_bound,
+            max_electron_number_density,
+        ) = self.prepare_thermal_balance_problem()
         thermal_balance_solver = ElectronThermalBalanceSolver(
             self._thermal_balance_evaluator,
             self._thermal_balance_radiation_temperature,
             self._thermal_balance_level_initial_guess,
             max_electron_number_density,
         )
+        self.thermal_balance_solver = thermal_balance_solver
         (
             accepted_candidate,
             self._thermal_balance_evaluation,
@@ -1014,8 +1067,11 @@ class TypeIIPWorkflow:
         )
 
     def normalize_continuum_estimators(
-        self, continuum_estimators, j_blues, j_estimators
-    ):
+        self,
+        continuum_estimators: dict[str, npt.NDArray[np.float64]],
+        j_blues: pd.DataFrame,
+        j_estimators: npt.NDArray[np.float64],
+    ) -> tuple[dict[str, npt.NDArray[np.float64]], pd.DataFrame]:
         """Normalize the continuum estimators and J-blues.
 
         Apply the Monte Carlo normalization and radiation-field damping.
@@ -1069,7 +1125,9 @@ class TypeIIPWorkflow:
         j_blues *= damping_factor
         return continuum_estimators, j_blues
 
-    def get_radiation_field_damping_factor(self, j_estimators):
+    def get_radiation_field_damping_factor(
+        self, j_estimators: npt.NDArray[np.float64]
+    ) -> npt.NDArray[np.float64]:
         """Compute the radiation field damping factor.
 
         Parameters
@@ -1099,8 +1157,10 @@ class TypeIIPWorkflow:
 
     @staticmethod
     def get_ff_heating_norm_factor(
-        ion_number_density, electron_densities, t_electrons
-    ):
+        ion_number_density: pd.DataFrame,
+        electron_densities: npt.NDArray[np.float64],
+        t_electrons: npt.NDArray[np.float64],
+    ) -> npt.NDArray[np.float64]:
         """Compute the free-free heating normalization factor.
 
         Parameters
@@ -1170,7 +1230,11 @@ class TypeIIPWorkflow:
             "macro_atom_state": macro_atom_state,
         }
 
-    def solve_montecarlo(self, opacity_states, no_of_real_packets):
+    def solve_montecarlo(
+        self,
+        opacity_states: Mapping[str, object],
+        no_of_real_packets: int,
+    ) -> None:
         """Solve the Monte Carlo process.
 
         Parameters

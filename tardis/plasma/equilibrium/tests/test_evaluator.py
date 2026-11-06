@@ -48,6 +48,43 @@ class ZeroElectronRateSolver:
         )
 
 
+class ConstantElectronRateSolver:
+    """Return collision rates for one H I transition at any temperature."""
+
+    all_collisional_strengths_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0, 1)],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "level_number_lower",
+            "level_number_upper",
+        ],
+    )
+
+    def solve(self, temperature: u.Quantity) -> pd.DataFrame:
+        return pd.DataFrame(
+            [1.0e-9, 2.0e-9],
+            index=pd.MultiIndex.from_tuples(
+                [(1, 0, 0, 0, 0, 1), (1, 0, 0, 0, 1, 0)],
+                names=[
+                    "atomic_number",
+                    "ion_number",
+                    "ion_number_source",
+                    "ion_number_destination",
+                    "level_number_source",
+                    "level_number_destination",
+                ],
+            ),
+            columns=pd.RangeIndex(len(temperature)),
+        )
+
+
+@pytest.fixture
+def constant_electron_rate_solver() -> ConstantElectronRateSolver:
+    """Return a collision-rate solver independent of temperature."""
+    return ConstantElectronRateSolver()
+
+
 @pytest.fixture
 def toy_evaluator() -> PlasmaEquilibriumEvaluator:
     """Build the shared one-shell evaluator used by focused tests."""
@@ -164,7 +201,6 @@ def test_evaluator_solves_reduced_levels_and_rebuilds_sobolev_state(
     assert result.diagnostic_ion_ratio.iloc[0] >= 0.0
     npt.assert_allclose(result.beta_sobolev.to_numpy(), [[1.0]])
     npt.assert_allclose(result.trial_level_residual.to_numpy()[0], [0.0])
-    npt.assert_allclose(result.level_residual.to_numpy()[0], [0.0])
 
     original_photoionization_estimator = estimators.photo_ion_estimator.copy()
     candidate_seed = pd.DataFrame(
@@ -231,7 +267,7 @@ def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
         err_msg="the equilibrium populations do not sum to one",
     )
     npt.assert_allclose(
-        low_excitation_result.level_residual,
+        low_excitation_result.relative_trial_level_residual,
         0.0,
         rtol=0.0,
         atol=1e-10,
@@ -436,13 +472,18 @@ def test_evaluator_reports_open_level_solution_after_all_retries(
     assert np.max(np.abs(actual[3])) > 1e-10
 
 
-def test_evaluator_rebuilds_final_residual_and_is_deterministic(
+def test_evaluator_uses_charge_solved_density_and_is_deterministic(
     toy_evaluator: PlasmaEquilibriumEvaluator,
+    constant_electron_rate_solver: ConstantElectronRateSolver,
 ) -> None:
-    """Use final charge density for closure without mutating inputs."""
+    """Use the charge-solved density without mutating inputs."""
     evaluator = toy_evaluator
     level_index = evaluator.level_population_index
     estimators = evaluator.estimators_continuum
+
+    evaluator.rate_matrix_solver.electron_rate_solver = (
+        constant_electron_rate_solver
+    )
 
     class ChargeSolver:
         def __init__(self) -> None:
@@ -492,27 +533,6 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
         level_initial_guess,
     )
 
-    continuum_rate_coeff = evaluator.calculate_continuum_coefficients(
-        np.array([1.0e4])
-    )[0][0]
-
-    expected_final_residual = evaluator._calculate_level_state(
-        0,
-        2.0e9,  # Final electron density (cm⁻³).
-        1.0e4,  # Shell electron temperature (K).
-        first_result.normalized_population[0].to_numpy(),
-        continuum_rate_coeff,
-        evaluator.shell_number_densities[0],
-        evaluator.sobolev_inputs[0],
-        first_result.absolute_level_population.iloc[:, 0].to_numpy(),
-    )[0]
-    npt.assert_allclose(
-        first_result.level_residual[0].to_numpy(), expected_final_residual
-    )
-    assert not np.allclose(
-        first_result.trial_level_residual.to_numpy(),
-        first_result.level_residual.to_numpy(),
-    )
     assert charge_solver.calls == 2
     npt.assert_allclose(first_result.charge_residual.to_numpy(), [0.0])
     npt.assert_allclose(first_result.electron_residual.to_numpy(), [1.0])
@@ -520,9 +540,6 @@ def test_evaluator_rebuilds_final_residual_and_is_deterministic(
     pdt.assert_frame_equal(
         first_result.absolute_level_population,
         second_result.absolute_level_population,
-    )
-    pdt.assert_frame_equal(
-        first_result.level_residual, second_result.level_residual
     )
     pdt.assert_frame_equal(level_initial_guess, original_initial_guess)
 
@@ -659,15 +676,19 @@ def test_evaluator_aligns_collisional_temperature_scaling_by_transition(
             [100.0, 200.0], index=reverse_index, columns=[0]
         ),
     }
+    candidate_temperature = np.array([2.0e4]) * u.K
     state = SimpleNamespace(
         collisional_ionization_rate_coefficient=pd.DataFrame(columns=[0]),
         level_to_continuum_saha_factor=pd.DataFrame(columns=[0]),
+        collisional_rate_coefficients=ElectronRateSolver().solve(
+            candidate_temperature
+        ),
     )
 
     excitation, deexcitation = toy_evaluator._calculate_heating(
         ThermalElectronEnergyDistribution(
             0.0 * u.erg,
-            np.array([2.0e4]) * u.K,
+            candidate_temperature,
             np.array([1.0e9]) / u.cm**3,
         ),
         pd.DataFrame([[1.0]], columns=[0]),

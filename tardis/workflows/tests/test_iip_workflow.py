@@ -1,6 +1,7 @@
 from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
+from typing import NamedTuple
 
 import astropy.units as u
 import numpy as np
@@ -16,6 +17,7 @@ from tardis.plasma.equilibrium.evaluator import calculate_lte_populations
 from tardis.plasma.equilibrium.thermal_balance import (
     ElectronThermalBalanceSolver,
 )
+from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
@@ -59,6 +61,39 @@ def type_iip_workflow(
     ctardis_compare_config: Configuration,
 ) -> TypeIIPWorkflow:
     return TypeIIPWorkflow(ctardis_compare_config)
+
+
+class FirstTransportThermalProblem(NamedTuple):
+    """Comparison workflow ready for its first thermal-balance solve."""
+
+    workflow: TypeIIPWorkflow
+    initial_guess: npt.NDArray[np.float64]
+    lower_bound: npt.NDArray[np.float64]
+    upper_bound: npt.NDArray[np.float64]
+    maximum_electron_density: npt.NDArray[np.float64]
+
+
+@pytest.fixture
+def first_transport_thermal_problem(
+    type_iip_workflow: TypeIIPWorkflow,
+) -> FirstTransportThermalProblem:
+    """Return the comparison workflow after its first transport.
+
+    The plasma holds the first Monte Carlo estimators, the thermal-balance
+    evaluator is frozen, and no thermal solve has run.
+    """
+    workflow = type_iip_workflow
+    workflow.show_progress_bars = False
+    workflow.solve_montecarlo(
+        workflow.solve_opacity(), workflow.real_packet_count
+    )
+    estimated_values, _ = workflow.get_convergence_estimates()
+    workflow.solve_simulation_state(estimated_values)
+    continuum_estimators, j_blues = workflow.update_estimators()
+    workflow.solve_plasma(continuum_estimators, j_blues)
+    return FirstTransportThermalProblem(
+        workflow, *workflow.prepare_thermal_balance_problem()
+    )
 
 
 @pytest.fixture
@@ -281,145 +316,146 @@ def test_thermal_balance_residual_delegates_to_evaluator() -> None:
     np.testing.assert_array_equal(residual, [0.1, 0.3, -0.2, -0.4])
 
 
-def test_thermal_balance_uses_joint_solution_without_local_retry(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Keep the joint thermal solution when it passes final validation.
+def calculate_candidate_uncertainty(
+    solver: ElectronThermalBalanceSolver,
+    candidate: npt.NDArray[np.float64],
+    residual_limits: npt.NDArray[np.float64],
+) -> npt.NDArray[np.float64]:
+    """Map residual limits to a bound on each candidate value.
 
-    Claim: Shell-local optimization is a fallback and does not add optimizer
-    calls to a closed joint solution.
-    Regime: One shell with a joint candidate inside the physical bounds.
-    Verification: Record calls at the SciPy optimizer boundary and require the
-    accepted plasma candidate to equal the joint result.
+    Each shell's 2x2 block of the residual Jacobian at the candidate is
+    estimated by forward differences of 1e-6 in the electron fraction and the
+    temperature ratio of every shell at once, since shells are independent.
+    The absolute inverse block applied to the limits bounds the change of
+    candidate values over any residual inside the limits.
     """
-    evaluation = SimpleNamespace(normalized_population=pd.DataFrame([[1.0]]))
-    solver = ElectronThermalBalanceSolver(
-        SimpleNamespace(evaluate=lambda *_: evaluation),
-        np.array([1.0e4]),
-        pd.DataFrame([[1.0]]),
-        np.array([2.0]),
-    )
-    solver.validate_evaluation = lambda _: None
-    optimizer_starts = []
-    joint_candidate = np.array([0.6, 0.9])
-
-    def recording_lsq(
-        _objective: object, initial_guess: npt.ArrayLike, **_kwargs: object
-    ) -> SimpleNamespace:
-        optimizer_starts.append(np.asarray(initial_guess).copy())
-        return SimpleNamespace(x=joint_candidate, fun=np.zeros(2), status=1)
-
-    monkeypatch.setattr(
-        "tardis.plasma.equilibrium.thermal_balance.least_squares",
-        recording_lsq,
-    )
-
-    accepted_candidate, _ = solver.solve(
-        np.array([0.5, 0.8]),
-        np.array([np.finfo(float).eps, 0.15]),
-        np.array([1.0, 1.5]),
+    relative_step = 1e-6
+    residual = solver.calculate_residual(candidate)
+    shell_jacobian = np.zeros((len(candidate) // 2, 2, 2))
+    for variable_idx in (0, 1):
+        stepped_candidate = candidate.copy()
+        stepped_candidate[variable_idx::2] *= 1.0 + relative_step
+        residual_change = (
+            solver.calculate_residual(stepped_candidate) - residual
+        ).reshape(-1, 2)
+        shell_jacobian[:, :, variable_idx] = residual_change / (
+            relative_step * candidate[variable_idx::2, np.newaxis]
+        )
+    shell_limits = np.asarray(residual_limits).reshape(-1, 2)
+    return np.concatenate(
+        [
+            np.abs(np.linalg.inv(jacobian)).dot(limits)
+            for jacobian, limits in zip(
+                shell_jacobian, shell_limits, strict=True
+            )
+        ]
     )
 
-    assert len(optimizer_starts) == 1
-    np.testing.assert_array_equal(accepted_candidate, joint_candidate)
 
-
-def test_thermal_balance_retries_failed_shell_from_alternate_start(
-    monkeypatch: pytest.MonkeyPatch,
+def test_thermal_solve_rejects_failed_trial_and_keeps_root(
+    first_transport_thermal_problem: FirstTransportThermalProblem,
 ) -> None:
-    """Recover a failed shell from an alternate bounded thermal state.
+    """Reject a trial point where the plasma solve fails.
 
-    Claim: A joint candidate that fails closure is retried locally, and a
-    closing alternate is preferred over a lower-norm candidate that still
-    violates an individual residual gate.
-    Regime: Two shells, with the first joint electron fraction below the
-    positive local bound and its first local result narrowly failing electron
-    closure while the second shell is already closed.
-    Verification: Record optimizer starts and supply residuals at the declared
-    electron and heating limits independently of the workflow implementation.
+    Claim: When the plasma evaluator raises PlasmaIonizationError at an
+    optimizer trial point, the joint solve shrinks its step and still
+    reaches the same thermal root.
+    Regime: Pure-hydrogen comparison model after its first Monte Carlo
+    transport, solved to the optimizer's own tolerance (zero limits).
+    Verification: Metamorphic. The failure is armed only after the row scale
+    is measured, so it fires inside the optimizer, at the first evaluation
+    that moves the temperature by more than a finite-difference step. The
+    undisturbed solve gives the expected root. The Jacobian maps the
+    residuals left at both roots, each plus the ~1e-11 round-off scatter of
+    the residual, into a bound on their difference.
     """
-    failed_evaluation = SimpleNamespace(
-        normalized_population=pd.DataFrame([[1.0, 1.0]]),
-        electron_residual=pd.Series([0.7, 0.0]),
-        fractional_heating=pd.Series([0.06, 0.0]),
-        total_heating=pd.Series([1.0e-8, 0.0]),
-    )
-    closed_evaluation = SimpleNamespace(
-        normalized_population=pd.DataFrame([[1.0, 1.0]]),
-        electron_residual=pd.Series([0.0, 0.0]),
-        fractional_heating=pd.Series([0.0, 0.0]),
-        total_heating=pd.Series([0.0, 0.0]),
-    )
-    # Each candidate is evaluated twice (seed, then terminal). The joint
-    # candidate fails and the retried candidate closes.
-    evaluations = [
-        failed_evaluation,
-        failed_evaluation,
-        closed_evaluation,
-        closed_evaluation,
-    ]
-
-    # Stand-in for the plasma evaluator, so the test controls which candidate
-    # closes without running a real equilibrium solve.
-    def evaluate(*_args: object) -> SimpleNamespace:
-        return evaluations.pop(0)
-
-    solver = ElectronThermalBalanceSolver(
-        SimpleNamespace(evaluate=evaluate),
-        np.array([1.0e4, 1.1e4]),
-        pd.DataFrame([[1.0, 1.0]]),
-        np.array([2.0, 4.0]),
+    (
+        workflow,
+        initial_guess,
+        lower_bound,
+        upper_bound,
+        maximum_electron_density,
+    ) = first_transport_thermal_problem
+    evaluator = workflow._thermal_balance_evaluator
+    initial_temperature = (
+        workflow._thermal_balance_radiation_temperature * initial_guess[1::2]
     )
 
-    # The real validator needs fields the fake evaluations lack. Rejecting only
-    # the failed evaluation forces the solver down its shell-retry path.
-    def validate(evaluation: SimpleNamespace) -> None:
-        if evaluation is failed_evaluation:
-            raise RuntimeError("joint closure failed")
+    class FailOnFirstTrialEvaluator:
+        """Once armed, raise at the first trial far from the initial point."""
 
-    solver.validate_evaluation = validate
-    optimizer_starts = []
-    optimizer_results = (
-        SimpleNamespace(
-            x=np.array([0.0, 0.7, 0.7, 1.0]),
-            fun=np.array([0.7, 0.06, 0.0, 0.0]),
-            status=3,
+        def __init__(self) -> None:
+            self.armed = False
+            self.failed = False
+
+        def evaluate(
+            self,
+            trial_electron_density: npt.NDArray[np.float64],
+            electron_temperature: npt.NDArray[np.float64],
+            level_seed: pd.DataFrame,
+        ) -> object:
+            # Finite-difference columns move T_e by ~1e-8; a trial step by more.
+            moved = np.max(
+                np.abs(electron_temperature / initial_temperature - 1.0)
+            )
+            if self.armed and not self.failed and moved > 1e-6:
+                self.failed = True
+                raise PlasmaIonizationError("injected trial failure")
+            return evaluator.evaluate(
+                trial_electron_density, electron_temperature, level_seed
+            )
+
+    failing_evaluator = FailOnFirstTrialEvaluator()
+    solvers = {
+        label: ElectronThermalBalanceSolver(
+            trial_evaluator,
+            workflow._thermal_balance_radiation_temperature,
+            workflow._thermal_balance_level_initial_guess,
+            maximum_electron_density,
+        )
+        for label, trial_evaluator in (
+            ("undisturbed", evaluator),
+            ("rejected trial", failing_evaluator),
+        )
+    }
+    measure_row_scale = solvers["rejected trial"].calculate_row_scale
+
+    def measure_row_scale_then_arm(
+        *args: npt.NDArray[np.float64],
+    ) -> npt.NDArray[np.float64]:
+        row_scale = measure_row_scale(*args)
+        failing_evaluator.armed = True
+        return row_scale
+
+    solvers["rejected trial"].calculate_row_scale = measure_row_scale_then_arm
+    candidates = {
+        label: solver.solve_multiple_shells(
+            initial_guess,
+            lower_bound,
+            upper_bound,
+            np.zeros_like(initial_guess),
+        )
+        for label, solver in solvers.items()
+    }
+
+    assert failing_evaluator.failed, "no trial point was rejected"
+    np.testing.assert_array_less(
+        np.abs(candidates["rejected trial"] - candidates["undisturbed"]),
+        calculate_candidate_uncertainty(
+            solvers["undisturbed"],
+            candidates["undisturbed"],
+            sum(
+                np.abs(solvers["undisturbed"].calculate_residual(candidate))
+                + 1e-11
+                for candidate in candidates.values()
+            ),
         ),
-        SimpleNamespace(
-            x=np.array([0.4, 0.75]), fun=np.array([3.0e-8, 0.0]), status=3
-        ),
-        SimpleNamespace(
-            x=np.array([0.6, 0.85]), fun=np.array([0.0, 1.0e-7]), status=1
-        ),
+        err_msg="a rejected trial point changed the thermal root",
     )
-
-    def recording_lsq(
-        _objective: object, initial_guess: npt.ArrayLike, **_kwargs: object
-    ) -> SimpleNamespace:
-        optimizer_starts.append(np.asarray(initial_guess).copy())
-        return optimizer_results[len(optimizer_starts) - 1]
-
-    monkeypatch.setattr(
-        "tardis.plasma.equilibrium.thermal_balance.least_squares",
-        recording_lsq,
-    )
-
-    accepted_candidate, _ = solver.solve(
-        np.array([0.5, 0.8, 0.5, 0.9]),
-        np.array([np.finfo(float).eps, 0.15] * 2),
-        np.array([1.0, 1.5] * 2),
-    )
-
-    assert len(optimizer_starts) == 3
-    np.testing.assert_array_equal(
-        optimizer_starts[1], [np.finfo(float).eps, 0.7]
-    )
-    np.testing.assert_array_equal(optimizer_starts[2], [0.5, 0.8])
-    np.testing.assert_array_equal(accepted_candidate, [0.6, 0.85, 0.7, 1.0])
 
 
 def test_iip_level_solution_is_seed_independent_after_first_transport(
-    type_iip_workflow: TypeIIPWorkflow,
+    first_transport_thermal_problem: FirstTransportThermalProblem,
 ) -> None:
     """Close the same IIP level equations from two initial populations.
 
@@ -434,25 +470,10 @@ def test_iip_level_solution_is_seed_independent_after_first_transport(
     tolerances allow the 1e-12-step inner solve to amplify small changes in
     weakly populated excited levels.
     """
-    workflow = type_iip_workflow
-    workflow.show_progress_bars = False
-    workflow.solve_montecarlo(
-        workflow.solve_opacity(), workflow.real_packet_count
+    workflow, _, _, _, maximum_electron_density = (
+        first_transport_thermal_problem
     )
-    estimated_values, _ = workflow.get_convergence_estimates()
-    workflow.solve_simulation_state(estimated_values)
-    continuum_estimators, j_blues = workflow.update_estimators()
-    workflow.solve_plasma(continuum_estimators, j_blues)
-
     plasma = workflow.plasma_solver
-    maximum_electron_density = (
-        plasma.number_density.multiply(
-            plasma.number_density.index.to_numpy(), axis=0
-        )
-        .sum()
-        .to_numpy()
-    )
-    workflow._initialize_thermal_balance_evaluator(maximum_electron_density)
     evaluator = workflow._thermal_balance_evaluator
     shell_idx = 3
     # First thermal solve candidate: n_e in cm^-3 and T_e in K. Keep full
@@ -487,14 +508,14 @@ def test_iip_level_solution_is_seed_independent_after_first_transport(
         err_msg="the IIP level equilibrium depends on its initial population",
     )
     np.testing.assert_allclose(
-        initial_result.trial_level_residual[shell_idx],
+        initial_result.relative_trial_level_residual[shell_idx],
         0.0,
         rtol=0.0,
         atol=1e-10,
         err_msg="the initial-seed IIP level equations do not close",
     )
     np.testing.assert_allclose(
-        accepted_result.trial_level_residual[shell_idx],
+        accepted_result.relative_trial_level_residual[shell_idx],
         0.0,
         rtol=0.0,
         atol=1e-10,
@@ -602,19 +623,20 @@ def test_iip_level_equations_close_from_distinct_seeds_after_second_transport(
         )
 
 
-def test_iip_documentation_model_closes_first_thermal_balance(
+def test_iip_documentation_model_closes_every_shell(
     tardis_regression_path: Path,
 ) -> None:
-    """Require charge and energy closure for the documented Type IIP model.
+    """Close every shell of the documented model at its thermal limits.
 
-    Claim: The first thermal solve satisfies electron density and heating
-    balance in every shell.
+    Claim: The first thermal solve accepts a state in which every shell
+    balances charge and heating to within the solver's electron and heating
+    limits.
     Regime: The ten-shell pure-hydrogen documentation model after its first
     200000-packet Monte Carlo transport step.
-    Verification: Compare the independently charge-solved electron density
-    with the trial density and inspect the physical heating residuals after
-    the workflow solve. The limits are the declared final closure thresholds;
-    the 5e-13 heating floor allows cancellation of large thermal rates.
+    Verification: Orchestration check of the solver against its own stopping
+    rule: the electron and heating residuals of the accepted state are
+    recomputed and compared with the limits. The level and charge closure are
+    checked by the solve itself, which raises if they fail.
     """
     config = Configuration.from_yaml(
         "tardis/workflows/tests/data/simple_iip_config.yml"
@@ -637,28 +659,14 @@ def test_iip_documentation_model_closes_first_thermal_balance(
     workflow.solve_plasma(continuum_estimators, j_blues)
     workflow.solve_thermal_balance()
 
-    evaluation = workflow._thermal_balance_evaluation
-    np.testing.assert_allclose(
-        evaluation.trial_electron_density,
-        evaluation.charge_solved_electron_density,
-        rtol=2e-8,
-        atol=0.0,
-        err_msg="the first thermal solve does not close electron density",
+    solver = workflow.thermal_balance_solver
+    closed_shells = solver.find_converged_shells(
+        solver.calculate_electron_and_thermal_residuals(
+            workflow._thermal_balance_evaluation
+        ),
+        solver.outer_residual_limits,
     )
-    np.testing.assert_allclose(
-        evaluation.total_heating,
-        0.0,
-        rtol=0.0,
-        atol=5e-13,
-        err_msg="the first thermal solve does not close total heating",
-    )
-    np.testing.assert_allclose(
-        evaluation.fractional_heating,
-        0.0,
-        rtol=0.0,
-        atol=2e-7,
-        err_msg="the first thermal solve does not close fractional heating",
-    )
+    assert closed_shells.all(), "a shell did not reach its thermal limits"
 
 
 @pytest.fixture(scope="module")
@@ -726,16 +734,22 @@ def test_iip_hydrogen_helium_workflow_closes_thermal_balance(
 
     Claim: A hydrogen-helium model completes the Type IIP iteration with only
     the atomic data in the configured atom file, and its accepted
-    thermal-balance state satisfies the workflow closure criteria.
+    thermal-balance state closes every shell at its electron and heating
+    limits.
     Regime: Three shells, 70 % hydrogen and 30 % helium by mass, with H I as
     the only continuum and NLTE species.
-    Verification: Orchestration check; the closure limits are the workflow's
-    declared acceptance thresholds.
+    Verification: Orchestration check on the run; the closed shells are
+    recomputed from the accepted residuals and the measured limits.
     """
     workflow = hydrogen_helium_workflow
-    ElectronThermalBalanceSolver.validate_evaluation(
-        workflow._thermal_balance_evaluation
+    solver = workflow.thermal_balance_solver
+    closed_shells = solver.find_converged_shells(
+        solver.calculate_electron_and_thermal_residuals(
+            workflow._thermal_balance_evaluation
+        ),
+        solver.outer_residual_limits,
     )
+    assert closed_shells.all(), "a shell did not reach its thermal limits"
     assert workflow.completed_iterations == 1
     output_energies = workflow.transport_state.packet_collection.output_energies
     assert len(output_energies) == workflow.final_iteration_packet_count
@@ -752,7 +766,8 @@ def test_iip_hydrogen_helium_hydrogen_levels_follow_nlte_rate_equations(
     instead of following dilute-LTE excitation.
     Regime: Accepted final thermal-balance state of the hydrogen-helium model.
     Verification: The plasma H I level fractions must equal the solved NLTE
-    fractions, the level equations must close at the workflow's 1e-10 limit,
+    fractions, the level equations must close to the workflow's 1e-10 of
+    each equation's gross rate,
     and at least one H I level must depart from its directly evaluated
     dilute-LTE fraction by more than 10 %. The 1e-12 relative tolerance allows
     only floating-point differences in the population rebuild.
@@ -776,7 +791,7 @@ def test_iip_hydrogen_helium_hydrogen_levels_follow_nlte_rate_equations(
         check_names=False,
     )
     np.testing.assert_allclose(
-        evaluation.level_residual,
+        evaluation.relative_trial_level_residual,
         0.0,
         rtol=0.0,
         atol=1e-10,
