@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from types import SimpleNamespace
 
 import numpy as np
@@ -5,17 +6,31 @@ import numpy.testing as npt
 import pytest
 
 import tardis.transport.montecarlo.modes.iip.packet_propagation as iip_propagation
+from tardis import constants as const
 from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import RPacket
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+)
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
+)
 from tardis.transport.montecarlo.modes.classic import (
     packet_propagation as classic_propagation,
 )
 from tardis.transport.montecarlo.modes.classic.packet_propagation import (
     packet_propagation,
+)
+from tardis.transport.montecarlo.modes.nonhomologous import (
+    interaction_event_callers as nonhomologous_callers,
 )
 from tardis.transport.montecarlo.modes.nonhomologous import (
     packet_propagation as nonhomologous_propagation,
@@ -32,6 +47,7 @@ class _RecordingTracker:
     def __init__(self) -> None:
         self.events: list[InteractionType] = []
         self.boundaries: list[tuple[int, int]] = []
+        self.max_line_events: int | None = None
 
     def track_boundary_event(
         self, r_packet, from_shell_id: int, to_shell_id: int
@@ -39,7 +55,12 @@ class _RecordingTracker:
         self.events.append(InteractionType.BOUNDARY)
         self.boundaries.append((from_shell_id, to_shell_id))
 
-    def track_line_interaction_before(self, r_packet) -> None:
+    def track_line_interaction_before(self, r_packet: RPacket) -> None:
+        if self.max_line_events is not None:
+            line_event_count = self.events.count(InteractionType.LINE)
+            assert line_event_count < self.max_line_events, (
+                "Packet repeated a line before leaving the shell"
+            )
         self.events.append(InteractionType.LINE)
 
     def track_line_interaction_after(self, r_packet) -> None:
@@ -59,13 +80,24 @@ class _RecordingTracker:
 
 
 class _CommonPacketPropagationPatcher:
-    def __init__(self, monkeypatch) -> None:
+    def __init__(self, monkeypatch: pytest.MonkeyPatch) -> None:
         self.monkeypatch = monkeypatch
         self.interaction_queue = []
+        self.trace_inputs: list[tuple[int, int]] = []
 
-    def trace_packet(self, *args, **kwargs):
+    def trace_packet(
+        self, r_packet: RPacket, *args: object, **kwargs: object
+    ) -> tuple[object, ...]:
         assert self.interaction_queue
+        self.trace_inputs.append((r_packet.next_line_id, r_packet.prev_line_id))
         return self.interaction_queue.pop(0)
+
+    def line_scatter_event(
+        self, r_packet: RPacket, *args: object, **kwargs: object
+    ) -> None:
+        # The mocked handler emits ID 0, excluding it in both directions.
+        r_packet.next_line_id = 1
+        r_packet.prev_line_id = -1
 
     def __call__(self, module, interactions) -> None:
         self.interaction_queue = list(interactions)
@@ -79,7 +111,7 @@ class _CommonPacketPropagationPatcher:
         self.monkeypatch.setattr(
             module,
             "line_scatter_event",
-            lambda packet, *args, **kwargs: setattr(packet, "next_line_id", 1),
+            self.line_scatter_event,
         )
         self.monkeypatch.setattr(
             module,
@@ -96,6 +128,47 @@ def recording_tracker() -> _RecordingTracker:
 @pytest.fixture
 def patch_common_classic_hooks(monkeypatch):
     return _CommonPacketPropagationPatcher(monkeypatch)
+
+
+@pytest.fixture
+def emitted_line_cursors(
+    patch_common_classic_hooks: _CommonPacketPropagationPatcher,
+) -> _CommonPacketPropagationPatcher:
+    """Record trace-entry cursors after the shared handler emits line 0."""
+    interactions = [
+        (1.0e12, InteractionType.LINE, 1),
+        (1.0e12, InteractionType.BOUNDARY, 1),
+        (1.0e12, InteractionType.BOUNDARY, 1),
+    ]
+    patch_common_classic_hooks(nonhomologous_propagation, interactions)
+    return patch_common_classic_hooks
+
+
+@pytest.fixture
+def scatter_packet_loop(
+    monkeypatch: pytest.MonkeyPatch,
+    recording_tracker: _RecordingTracker,
+    montecarlo_configuration: MonteCarloConfiguration,
+) -> Callable[..., None]:
+    """Use real line scattering with radial emission and one line event."""
+    recording_tracker.max_line_events = 1
+    montecarlo_configuration.LINE_INTERACTION_TYPE = 0
+    montecarlo_configuration.DISABLE_LINE_SCATTERING = False
+    monkeypatch.setattr(nonhomologous_callers, "get_random_mu", lambda: 1.0)
+    monkeypatch.setattr(
+        nonhomologous_propagation,
+        "line_scatter_event",
+        getattr(
+            nonhomologous_callers.line_scatter_event,
+            "py_func",
+            nonhomologous_callers.line_scatter_event,
+        ),
+    )
+    return getattr(
+        nonhomologous_propagation.packet_propagation,
+        "py_func",
+        nonhomologous_propagation.packet_propagation,
+    )
 
 
 @pytest.mark.parametrize(
@@ -266,6 +339,14 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
     first_interaction: InteractionType,
     regression_data,
 ) -> None:
+    """Claim: Nonhomologous propagation dispatches and records each event type.
+
+    Regime: Numba-disabled propagation with mocked boundary, line, or electron
+    events followed by escape; interaction physics is mocked.
+    Verification: Check the dispatched event, final boundary, and emitted
+    status, then compare packet state and estimators with regression data.
+    This provides orchestration and regression evidence.
+    """
     # Force the nonhomologous loop through one selected interaction, then an
     # outer boundary, so this characterizes dispatch bookkeeping directly.
     interactions = [(1.0e12, first_interaction, 1)]
@@ -303,6 +384,117 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
         line_estimators.mean_intensity_blueward,
         line_estimators.energy_deposition_line_rate,
         rtol=RTOL,
+    )
+
+
+@pytest.mark.parametrize(
+    "radial_1d_geometry", [{"negative_velocity_gradient": True}], indirect=True
+)
+def test_nonhomologous_packet_loop_preserves_emitted_line_cursors(
+    python_numba_disabled: None,
+    emitted_line_cursors: _CommonPacketPropagationPatcher,
+    parametrized_packet: RPacket,
+    radial_1d_geometry: NumbaRadial1DGeometry,
+    classic_opacity_state: OpacityStateNumba,
+    bulk_estimators: EstimatorsBulk,
+    line_estimators: EstimatorsLine,
+    recording_tracker: _RecordingTracker,
+    montecarlo_configuration: MonteCarloConfiguration,
+) -> None:
+    """Claim: The packet loop preserves the emitted line's directional cursors.
+
+    Regime: Numba-disabled propagation in a negative-gradient shell, with a
+    mocked line event, emission in ID 0, and subsequent boundary events.
+    Verification: The next trace receives the exact cursor pair (1, -1)
+    assigned by the emission handler, and the packet escapes. This verifies
+    orchestration; physical crossings and emission are tested separately.
+    """
+    nonhomologous_propagation.packet_propagation(
+        parametrized_packet,
+        radial_1d_geometry,
+        0.0,
+        classic_opacity_state,
+        bulk_estimators,
+        line_estimators,
+        recording_tracker,
+        montecarlo_configuration,
+    )
+
+    assert parametrized_packet.status == PacketStatus.EMITTED
+    assert emitted_line_cursors.trace_inputs[1] == (1, -1)
+
+
+@pytest.mark.parametrize(
+    "opacity_state_args",
+    [{"line_list_nu": [1.0e15], "tau_sobolev": np.array([[1.0e6]])}],
+    indirect=True,
+)
+def test_nonhomologous_packet_loop_retains_coherent_line_cursor(
+    scatter_packet_loop: Callable[..., None],
+    line_search_packet: RPacket,
+    line_search_geometry: NumbaRadial1DGeometry,
+    classic_opacity_state: OpacityStateNumba,
+    bulk_estimators: EstimatorsBulk,
+    line_estimators: EstimatorsLine,
+    recording_tracker: _RecordingTracker,
+    montecarlo_configuration: MonteCarloConfiguration,
+    set_seed_fixture: Callable[[int], None],
+) -> None:
+    """The packet loop preserves a crossed line's history in scatter mode.
+
+    Claim: A monotonic outgoing ray cannot replay its emitting line.
+    Regime: One nonhomologous shell with positive projected gradient.
+    Verification: An analytic first resonance and one line estimator entry.
+    """
+    packet = line_search_packet
+    geometry = line_search_geometry
+    initial_radius = packet.r
+    initial_mu = packet.mu
+    first_resonance_distance = 1.0e12
+    resonance_radius = np.sqrt(
+        initial_radius**2
+        + first_resonance_distance**2
+        + 2.0 * initial_radius * first_resonance_distance * initial_mu
+    )
+    resonance_mu = (
+        initial_radius * initial_mu + first_resonance_distance
+    ) / resonance_radius
+    initial_velocity = geometry.get_velocity(initial_radius, 0)
+    resonance_velocity = geometry.get_velocity(resonance_radius, 0)
+    line_frequency = classic_opacity_state.line_list_nu[0]
+    lab_frequency = line_frequency / (
+        1.0 - resonance_velocity * resonance_mu / const.c.cgs.value
+    )
+    initial_comoving_frequency = lab_frequency * (
+        1.0 - initial_velocity * initial_mu / const.c.cgs.value
+    )
+    packet.nu = initial_comoving_frequency
+    classic_opacity_state.electron_density[:] = 1.0e-6
+    set_seed_fixture(1963)
+
+    scatter_packet_loop(
+        packet,
+        geometry,
+        0.0,
+        classic_opacity_state,
+        bulk_estimators,
+        line_estimators,
+        recording_tracker,
+        montecarlo_configuration,
+    )
+
+    assert packet.status == PacketStatus.EMITTED
+    assert recording_tracker.events.count(InteractionType.LINE) == 1
+    npt.assert_allclose(packet.r, geometry.r_outer[0], rtol=1.0e-12)
+    expected_line_energy = (
+        line_frequency
+        / lab_frequency
+        / (1.0 - initial_velocity * initial_mu / const.c.cgs.value)
+    )
+    npt.assert_allclose(
+        line_estimators.energy_deposition_line_rate[0, 0],
+        expected_line_energy,
+        rtol=1.0e-12,
     )
 
 

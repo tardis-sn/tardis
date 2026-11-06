@@ -18,7 +18,10 @@ from tardis.transport.geometry.calculate_distances import (
     get_line_id_range_nonhomologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
+from tardis.transport.montecarlo.configuration.constants import (
+    C_SPEED_OF_LIGHT,
+    CLOSE_LINE_THRESHOLD,
+)
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
 )
@@ -34,8 +37,9 @@ def update_line_ids(
     r_packet: RPacket,
     line_list_nu: npt.NDArray[np.float64],
     comov_nu: float,
+    active_line_id_step: int = 0,
 ) -> None:
-    """Update the line IDs bracketing a packet's comoving frequency.
+    """Initialize eligible line IDs or refresh the opposite search cursor.
 
     Parameters
     ----------
@@ -45,12 +49,21 @@ def update_line_ids(
         Line frequencies in descending order.
     comov_nu : float
         Packet frequency in the comoving frame.
+    active_line_id_step : int, optional
+        Preserve the redward cursor for ``+1`` or the blueward cursor for
+        ``-1``. Zero initializes both cursors for a new frequency history.
     """
-    next_line_id = len(line_list_nu) - np.searchsorted(
-        line_list_nu[::-1], comov_nu
-    )
-    r_packet.next_line_id = next_line_id
-    r_packet.prev_line_id = next_line_id - 1
+    frequency_padding = CLOSE_LINE_THRESHOLD * abs(r_packet.nu)
+    ascending_line_nu = line_list_nu[::-1]
+    line_count = len(line_list_nu)
+    if active_line_id_step <= 0:
+        r_packet.next_line_id = line_count - np.searchsorted(
+            ascending_line_nu, comov_nu + frequency_padding, side="right"
+        )
+    if active_line_id_step >= 0:
+        r_packet.prev_line_id = line_count - np.searchsorted(
+            ascending_line_nu, comov_nu - frequency_padding, side="left"
+        ) - 1
 
 
 @njit(**njit_dict_no_parallel)
@@ -88,7 +101,8 @@ def trace_packet(
     Returns
     -------
     tuple[float, InteractionType, int]
-        (distance, interaction_type, delta_shell)
+        Distance, interaction type, and shell-index change. The packet's
+        directional line cursors are updated in place.
     """
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
@@ -134,16 +148,37 @@ def trace_packet(
             opacity_state.line_list_nu,
             comov_nu_start,
             comov_nu_end,
+            CLOSE_LINE_THRESHOLD * abs(r_packet.nu) if interval_id == 0 else 0.0,
         )
+        # Only the first interval inherits exclusions from the preceding trace.
+        # A later reversal makes previously crossed lines eligible again.
+        if interval_id == 0:
+            if line_id_step == 1:
+                start_line_id = max(start_line_id, r_packet.next_line_id)
+            else:
+                start_line_id = min(start_line_id, r_packet.prev_line_id)
+        else:
+            if line_id_step == 1:
+                r_packet.next_line_id = start_line_id
+            else:
+                r_packet.prev_line_id = start_line_id
 
         for cur_line_id in range(start_line_id, stop_line_id, line_id_step):
-            distance_trace = calculate_distance_line_nonhomologous(
-                r_packet,
-                numba_radial_1d_geometry,
-                opacity_state.line_list_nu[cur_line_id],
-                interval_start,
-                interval_end,
-            )
+            line_frequency = opacity_state.line_list_nu[cur_line_id]
+            if interval_id == 0 and abs(
+                (comov_nu_start - line_frequency) / r_packet.nu
+            ) < CLOSE_LINE_THRESHOLD:
+                # Eligible close lines resonate at the starting point;
+                # processed line IDs have already been excluded above.
+                distance_trace = 0.0
+            else:
+                distance_trace = calculate_distance_line_nonhomologous(
+                    r_packet,
+                    numba_radial_1d_geometry,
+                    line_frequency,
+                    interval_start,
+                    interval_end,
+                )
             if distance_trace > interval_end:
                 continue
 
@@ -153,22 +188,26 @@ def trace_packet(
                     numba_radial_1d_geometry,
                     distance_electron,
                 )
-                update_line_ids(
-                    r_packet,
-                    opacity_state.line_list_nu,
-                    comov_nu_event,
-                )
+                if distance_electron > 0.0:
+                    update_line_ids(
+                        r_packet,
+                        opacity_state.line_list_nu,
+                        comov_nu_event,
+                        line_id_step,
+                    )
                 return (
                     distance_electron,
                     InteractionType.ESCATTERING,
                     delta_shell,
                 )
             if distance_boundary <= distance_trace:
-                update_line_ids(
-                    r_packet,
-                    opacity_state.line_list_nu,
-                    comov_nu_end,
-                )
+                if distance_boundary > 0.0:
+                    update_line_ids(
+                        r_packet,
+                        opacity_state.line_list_nu,
+                        comov_nu_end,
+                        line_id_step,
+                    )
                 return (
                     distance_boundary,
                     InteractionType.BOUNDARY,
@@ -228,11 +267,19 @@ def trace_packet(
             estimators_line.energy_deposition_line_rate[
                 cur_line_id, r_packet.current_shell_id
             ] += energy
+            if line_id_step == 1:
+                r_packet.next_line_id = cur_line_id + 1
+            else:
+                r_packet.prev_line_id = cur_line_id - 1
 
             if tau_trace_combined > tau_event and not disable_line_scattering:
                 r_packet.next_line_id = cur_line_id
                 r_packet.prev_line_id = cur_line_id - 1
-                return distance_trace, InteractionType.LINE, delta_shell
+                return (
+                    distance_trace,
+                    InteractionType.LINE,
+                    delta_shell,
+                )
 
             tau_trace_line_combined += tau_trace_line
             distance_electron = (
@@ -245,11 +292,13 @@ def trace_packet(
                 numba_radial_1d_geometry,
                 distance_electron,
             )
-            update_line_ids(
-                r_packet,
-                opacity_state.line_list_nu,
-                comov_nu_event,
-            )
+            if distance_electron > 0.0:
+                update_line_ids(
+                    r_packet,
+                    opacity_state.line_list_nu,
+                    comov_nu_event,
+                    line_id_step,
+                )
             return (
                 distance_electron,
                 InteractionType.ESCATTERING,
@@ -257,9 +306,15 @@ def trace_packet(
             )
         interval_start = interval_end
 
-    update_line_ids(
-        r_packet,
-        opacity_state.line_list_nu,
-        comov_nu_end,
+    if distance_boundary > 0.0:
+        update_line_ids(
+            r_packet,
+            opacity_state.line_list_nu,
+            comov_nu_end,
+            line_id_step,
+        )
+    return (
+        distance_boundary,
+        InteractionType.BOUNDARY,
+        delta_shell,
     )
-    return distance_boundary, InteractionType.BOUNDARY, delta_shell

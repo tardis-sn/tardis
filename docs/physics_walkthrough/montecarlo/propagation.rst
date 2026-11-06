@@ -269,6 +269,36 @@ the plasma properties will be updated, and the accumulation of optical depth wil
 
 .. note:: While it would make physical sense for the accumulation of optical depth to continue between cells until the packet eventually interacts, due to the exponential nature of optical depth and interaction probabilities, both continuing and restarting the accumulation of optical depth between cells can be mathematically shown to yield the same overall statistical results. Restarting the optical depth accumulation is computationally easier, and hence it is the method employed by TARDIS.
 
+For nonhomologous real-packet transport, the radial velocity varies linearly
+within each shell. The frequency drift along a straight packet path is set by
+the projected velocity gradient
+
+.. math::
+
+    G = \mu^2 \frac{dv}{dr} + (1-\mu^2)\frac{v}{r},
+    \qquad
+    \frac{d\nu_{\mathrm{CMF}}}{ds} = -\frac{\nu_{\mathrm{lab}}}{c}G.
+
+The line search divides the path at analytic zeros where :math:`G` reverses
+sign. The packet retains the next eligible line ID in each frequency direction,
+so a processed transition contributes once while frequency drifts monotonically
+between line emissions. This history survives electron scattering and continuous
+shell crossings when the drift direction agrees. A reversal can make earlier
+lines eligible again. Each line emission starts a new outgoing history and
+excludes the emitted transition itself. Emission into another transition can
+make the absorbed line eligible again even if both rest frequencies are equal.
+
+Transitions with identical frequencies keep their separate optical depths and
+estimator contributions. At the start of a trace, eligible lines satisfying
+:math:`|\nu_{\mathrm{CMF}}-\nu_{\mathrm{line}}|/\nu_{\mathrm{lab}} < 10^{-14}`
+are processed at zero distance, following the homologous close-line convention.
+Cursor eligibility excludes the emitting line before this rule is applied.
+The rule also approximates sufficiently close distinct frequencies as coincident
+at trace entry. Other roots retain the distance solver's existing spatial cutoff;
+the frequency convention does not extend that solver's resolution.
+Search direction is inferred from the interval endpoint frequencies; monotonic
+replay prevention assumes those endpoints resolve the direction of drift.
+
 Performing an Interaction
 -------------------------
 
