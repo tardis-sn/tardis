@@ -68,6 +68,7 @@ class ThermalBalanceSolver:
         self.free_free_solver = free_free_solver
         self.collisional_ionization_solver = collisional_ionization_solver
         self.collisional_bound_solver = collisional_bound_solver
+        self.last_budget: pd.DataFrame | None = None
 
     def solve(
         self,
@@ -82,6 +83,7 @@ class ThermalBalanceSolver:
         radiation_field: DilutePlanckianRadiationField | None = None,
         bound_free_heating_estimator: pd.DataFrame | None = None,
         stimulated_recombination_estimator: pd.DataFrame | None = None,
+        nonthermal_heating_rate_density: pd.Series | None = None,
     ) -> tuple[pd.Series, pd.Series]:
         """Compute the current heating rate and the fractional heating
 
@@ -111,6 +113,8 @@ class ThermalBalanceSolver:
             Bound-free heating estimator.
         stimulated_recombination_estimator : pd.DataFrame, optional
             Stimulated recombination estimator.
+        nonthermal_heating_rate_density : pandas.Series, optional
+            Fixed nonthermal volumetric heating rate in each cell.
 
         Returns
         -------
@@ -160,11 +164,38 @@ class ThermalBalanceSolver:
             + collisional_ionization_heating.to_numpy()
             + collisional_bound_heating.to_numpy()
         )
+        if nonthermal_heating_rate_density is not None:
+            total_heating += nonthermal_heating_rate_density.reindex(
+                level_population.columns
+            ).to_numpy(dtype=float)
         total_cooling = (
             free_bound_cooling.to_numpy()
             + free_free_cooling.to_numpy()
             + collisional_ionization_cooling.to_numpy()
             + collisional_bound_cooling.to_numpy()
+        )
+
+        self.last_budget = pd.DataFrame(
+            {
+                "bound_free_heating": bound_free_heating.to_numpy(),
+                "free_bound_cooling": free_bound_cooling.to_numpy(),
+                "free_free_heating": free_free_heating.to_numpy(),
+                "free_free_cooling": free_free_cooling.to_numpy(),
+                "collisional_ionization_heating": collisional_ionization_heating.to_numpy(),
+                "collisional_ionization_cooling": collisional_ionization_cooling.to_numpy(),
+                "collisional_bound_heating": collisional_bound_heating.to_numpy(),
+                "collisional_bound_cooling": collisional_bound_cooling.to_numpy(),
+                "nonthermal_heating": (
+                    nonthermal_heating_rate_density.reindex(
+                        level_population.columns
+                    ).to_numpy(dtype=float)
+                    if nonthermal_heating_rate_density is not None
+                    else 0.0
+                ),
+                "total_heating": total_heating,
+                "total_cooling": total_cooling,
+            },
+            index=level_population.columns,
         )
 
         total_heating_rate = total_heating - total_cooling

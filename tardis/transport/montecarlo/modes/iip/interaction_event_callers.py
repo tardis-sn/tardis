@@ -83,7 +83,9 @@ def macro_atom_event(
             enable_full_relativity,
         )
     else:
-        raise Exception(f"Interaction {transition_type} not known or implemented!")
+        raise Exception(
+            f"Interaction {transition_type} not known or implemented!"
+        )
 
 
 @njit(**njit_dict_no_parallel)

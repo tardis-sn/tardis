@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+import pandas.testing as pdt
 import pytest
 from astropy import units as u
 from tardisbase.testing.regression_data.regression_data import RegressionData
@@ -48,6 +49,22 @@ def photoionization_data(nlte_atom_data: AtomData) -> pd.DataFrame:
 def lyman_photoionization_data(nlte_atom_data: AtomData) -> pd.DataFrame:
     return nlte_atom_data.photoionization_data.loc[(1, 0, [0, 1])].sort_values(
         ["atomic_number", "ion_number", "level_number", "nu"]
+    )
+
+
+@pytest.fixture
+def helium_photoionization_data() -> pd.DataFrame:
+    """Two helium levels, each sampled at two continuum frequencies."""
+    level_index = pd.MultiIndex.from_tuples(
+        [(2, 0, 0), (2, 0, 0), (2, 0, 1), (2, 0, 1)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    return pd.DataFrame(
+        {
+            "nu": [1.0e15, 2.0e15, 3.0e15, 4.0e15],
+            "x_sect": [1.0e-18] * 4,
+        },
+        index=level_index,
     )
 
 
@@ -143,6 +160,139 @@ def test_spontaneous_recombination_is_positive_and_lyman_suppression_is_explicit
     npt.assert_allclose(
         actual.to_numpy().ravel(), expected.to_numpy().ravel(), rtol=2e-4
     )
+
+
+def test_helium_spontaneous_recombination_keeps_input_levels(
+    helium_photoionization_data: pd.DataFrame,
+) -> None:
+    """Helium-only continua produce only helium recombination coefficients.
+
+    Claim
+    -----
+    Each available helium level receives its spontaneous coefficient; an
+    absent hydrogen level is not introduced by Case B handling.
+
+    Regime
+    ------
+    Two He I levels with constant cross section sampled at two frequencies.
+
+    Verification
+    ------------
+    Compare against the explicitly simplified Milne-integrand trapezoid.
+    """
+    temperature = 1.0e4
+    actual = SpontaneousRecombinationCoeffSolver(
+        helium_photoionization_data
+    ).solve(np.array([temperature]) * u.K)
+
+    expected = []
+    for _, cross_section in helium_photoionization_data.groupby(level=[0, 1, 2]):
+        frequencies = cross_section.nu.to_numpy()
+        integrand = (
+            8.0
+            * np.pi
+            * cross_section.x_sect.to_numpy()
+            * frequencies**2
+            / const.c.cgs.value**2
+            * np.exp(
+                -const.h.cgs.value
+                * frequencies
+                / (const.k_B.cgs.value * temperature)
+            )
+        )
+        expected.append(np.trapezoid(integrand, frequencies))
+
+    pdt.assert_index_equal(
+        actual.index, helium_photoionization_data.index.unique()
+    )
+    npt.assert_allclose(
+        actual.iloc[:, 0].to_numpy(), expected, rtol=1.0e-12
+    )
+
+
+def test_estimated_helium_rates_do_not_require_hydrogen_continuum(
+    helium_photoionization_data: pd.DataFrame,
+) -> None:
+    """The estimated rate matrix accepts helium-only continuum data.
+
+    Claim
+    -----
+    Photoionization and recombination rates preserve the supplied He I levels.
+
+    Regime
+    ------
+    One shell, two He I levels, and fixed packet estimators.
+
+    Verification
+    ------------
+    Independently apply level fractions and the Lucy Saha/electron factors.
+    """
+    level_index = helium_photoionization_data.index.unique()
+    columns = pd.Index([0])
+    estimators = init_estimators_continuum((2, 1), 1)
+    estimators.photo_ion_estimator[:] = (
+        np.array([[2.0], [3.0]]) * const.h.cgs.value
+    )
+    estimators.stim_recomb_estimator[:] = (
+        np.array([[0.1], [0.2]]) * const.h.cgs.value
+    )
+    level_population = pd.DataFrame(
+        [[2.0], [3.0]], index=level_index, columns=columns
+    )
+    ion_population = pd.DataFrame(
+        [[10.0], [5.0]],
+        index=pd.MultiIndex.from_tuples(
+            [(2, 0), (2, 1)], names=["atomic_number", "ion_number"]
+        ),
+        columns=columns,
+    )
+    saha_factor = pd.DataFrame(
+        [[0.5], [0.25]], index=level_index, columns=columns
+    )
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg, np.array([1.0e4]) * u.K, np.array([4.0]) / u.cm**3
+    )
+    solver = EstimatedPhotoionizationRateSolver(
+        helium_photoionization_data,
+        pd.Series([0, 1], index=level_index),
+        estimators,
+        1.0 * u.s,
+        1.0 * u.cm**3,
+    )
+
+    photoionization, recombination = solver.solve(
+        electron_distribution,
+        level_population,
+        ion_population,
+        saha_factor,
+    )
+
+    spontaneous = np.array(
+        [
+            np.trapezoid(
+                8.0
+                * np.pi
+                * group.x_sect.to_numpy()
+                * group.nu.to_numpy() ** 2
+                / const.c.cgs.value**2
+                * np.exp(
+                    -const.h.cgs.value
+                    * group.nu.to_numpy()
+                    / (const.k_B.cgs.value * 1.0e4)
+                ),
+                group.nu.to_numpy(),
+            )
+            for _, group in helium_photoionization_data.groupby(level=[0, 1, 2])
+        ]
+    )
+    npt.assert_allclose(photoionization.iloc[:, 0], [0.4, 0.9], rtol=1.0e-12)
+    npt.assert_allclose(
+        recombination.iloc[:, 0],
+        (spontaneous + np.array([0.1, 0.2])) * np.array([0.5, 0.25]) * 4.0,
+        rtol=1.0e-12,
+    )
+    assert photoionization.index.get_level_values("atomic_number").unique().tolist() == [2]
+    assert recombination.index.get_level_values("atomic_number").unique().tolist() == [2]
 
 
 def test_estimator_coefficients_reproduce_regression_inputs(

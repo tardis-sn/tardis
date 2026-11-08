@@ -107,6 +107,7 @@ class BoundFreeThermalRates:
                     self.photoionization_block_references,
                 ),
                 index=self.photoionization_index,
+                columns=level_population.columns,
             )
         else:
             raise ValueError(
@@ -172,10 +173,13 @@ class BoundFreeThermalRates:
                 self.photoionization_block_references,
             ),
             index=self.photoionization_index,
+            columns=ion_population.columns,
         )
 
         # optically thick Lymann ground state handling, see Lucy 2003
-        integrated_cooling_coefficient.loc[(1, 0, 0)] = 0.0
+        hydrogen_ground_state = (1, 0, 0)
+        if hydrogen_ground_state in integrated_cooling_coefficient.index:
+            integrated_cooling_coefficient.loc[hydrogen_ground_state] = 0.0
 
         atomic_numbers = integrated_cooling_coefficient.index.get_level_values(
             "atomic_number"
@@ -197,18 +201,45 @@ class BoundFreeThermalRates:
             * ion_population.loc[upper_ion_index].to_numpy()
         )
 
+        def align_level_population_ratio(
+            required_index: pd.MultiIndex,
+        ) -> pd.DataFrame:
+            """Fill ratios only for levels whose upper ion is absent."""
+            missing_index = required_index[
+                ~required_index.isin(level_population_ratio.index)
+            ]
+            if len(missing_index) > 0:
+                missing_upper_ion_index = pd.MultiIndex.from_arrays(
+                    [
+                        missing_index.get_level_values("atomic_number"),
+                        missing_index.get_level_values("ion_number") + 1,
+                    ],
+                    names=["atomic_number", "ion_number"],
+                )
+                missing_upper_ion_population = ion_population.loc[
+                    missing_upper_ion_index
+                ].to_numpy()
+                if np.any(missing_upper_ion_population != 0.0):
+                    raise KeyError(
+                        "Missing level population ratios for populated "
+                        f"recombining levels: {missing_index.tolist()}."
+                    )
+            return level_population_ratio.reindex(
+                required_index, fill_value=0.0
+            )
+
         spontaneous_recombination_cooling_rate = (
             integrated_cooling_coefficient
-            * level_population_ratio.loc[integrated_cooling_coefficient.index]
+            * align_level_population_ratio(integrated_cooling_coefficient.index)
             * ion_cooling_factor
         )
 
         if stimulated_recombination_estimator is not None:
             stimulated_recombination_cooling_rate = (
                 stimulated_recombination_estimator
-                * level_population_ratio.loc[
+                * align_level_population_ratio(
                     stimulated_recombination_estimator.index
-                ]
+                )
                 * ion_cooling_factor
             )
         else:
@@ -368,10 +399,23 @@ class CollisionalIonizationThermalRates:
             * const.h.cgs.value
         )
 
+        level_index = collisional_ionization_rate_coefficient.index
+        upper_ion_index = pd.MultiIndex.from_arrays(
+            [
+                level_index.get_level_values("atomic_number"),
+                level_index.get_level_values("ion_number") + 1,
+            ],
+            names=ion_population.index.names,
+        )
+        upper_ion_population = ion_population.reindex(
+            upper_ion_index, fill_value=0.0
+        )
+        upper_ion_population.index = level_index
+
         heating_rate = (
             electron_density.cgs.value
-            * ion_population.loc[(1, 1)]
-            * level_population_ratio
+            * upper_ion_population
+            * level_population_ratio.reindex(level_index, fill_value=0.0)
             * rate_factor
         ).sum()
 
