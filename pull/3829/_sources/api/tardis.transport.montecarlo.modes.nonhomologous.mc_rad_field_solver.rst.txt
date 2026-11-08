@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.modes.nonhomologous.mc\_rad\_field\_solver module
-=============================================================================
-
-.. automodule:: tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver
-   :members:
-   :show-inheritance:
-   :undoc-members:
