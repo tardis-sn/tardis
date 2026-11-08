@@ -1,0 +1,22 @@
+tardis.transport.montecarlo.packet\_source package
+==================================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.transport.montecarlo.packet_source.base
+   tardis.transport.montecarlo.packet_source.black_body
+   tardis.transport.montecarlo.packet_source.black_body_relativistic
+   tardis.transport.montecarlo.packet_source.black_body_weighted
+   tardis.transport.montecarlo.packet_source.high_energy
+
+Module contents
+---------------
+
+.. automodule:: tardis.transport.montecarlo.packet_source
+   :members:
+   :show-inheritance:
+   :undoc-members:

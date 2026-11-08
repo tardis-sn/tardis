@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.modes.nonhomologous.tau\_sobolev module
+===================================================================
+
+.. automodule:: tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev
+   :members:
+   :show-inheritance:
+   :undoc-members:
