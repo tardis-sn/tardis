@@ -175,22 +175,24 @@ def test_reduced_nlte_residual_recomputes_q_and_beta() -> None:
         line_index,
     )
 
-    residual, beta_sobolev, q_ratio = calculate_nlte_level_population_residual(
-        level_fractions,
-        level_rates,
-        rate_matrix_solver,
-        j_blues,
-        electron_distribution,
-        (1, 0),
-        population,
-        sobolev,
+    residual, beta_sobolev, q_ratio, _ = (
+        calculate_nlte_level_population_residual(
+            level_fractions,
+            level_rates,
+            rate_matrix_solver,
+            j_blues,
+            electron_distribution,
+            (1, 0),
+            population,
+            sobolev,
+        )
     )
 
     npt.assert_allclose(q_ratio, 0.25)
     npt.assert_allclose(residual, np.array([0.0, 0.5]))
     npt.assert_allclose(beta_sobolev, np.array([1.0]))
 
-    _, _, perturbed_q_ratio = calculate_nlte_level_population_residual(
+    _, _, perturbed_q_ratio, _ = calculate_nlte_level_population_residual(
         np.array([0.25, 0.75]),
         level_rates,
         rate_matrix_solver,
@@ -201,6 +203,93 @@ def test_reduced_nlte_residual_recomputes_q_and_beta() -> None:
         sobolev,
     )
     npt.assert_allclose(perturbed_q_ratio, 0.125)
+
+
+def test_relative_level_residual_does_not_depend_on_rate_unit() -> None:
+    """Judge level closure relative to the rates that flow through each level.
+
+    Claim: Dividing each level equation by its gross rate makes the residual
+    independent of the unit of time, while the absolute residual scales with
+    it.
+    Regime: Two-level atom with one radiative line and an open continuum,
+    away from equilibrium.
+    Verification: Metamorphic. Multiplying every rate by k = 1e6 multiplies
+    each rate equation by k and leaves the normalization row unchanged. The
+    rtol of 1e-12 covers floating-point rounding.
+    """
+    rate_scale = 1.0e6
+    level_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    line_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0, 1)],
+        names=[
+            "atomic_number",
+            "ion_number",
+            "level_number_lower",
+            "level_number_upper",
+        ],
+    )
+    sobolev = SobolevInputs(
+        np.array([0]),
+        np.array([1]),
+        np.array([2.0]),
+        np.array([4.0]),
+        np.array([False]),
+        np.array([True]),
+        np.array([1.0e-20]),
+        np.array([0]),
+        line_index,
+    )
+
+    residuals = {}
+    for scale in (1.0, rate_scale):
+        rate_matrix_solver = RateMatrix(
+            RadiativeRatesSolver(
+                pd.DataFrame(
+                    {
+                        "A_ul": [2.0 * scale],
+                        "B_ul": [0.0],
+                        "B_lu": [1.0 * scale],
+                        "nu": [1.0],
+                    },
+                    index=line_index,
+                )
+            ),
+            ZeroElectronRateSolver(),
+            pd.DataFrame(
+                {"energy": [0.0, 1.0], "g": [2.0, 4.0]}, index=level_index
+            ),
+        )
+        residual, _, _, gross_rate = calculate_nlte_level_population_residual(
+            np.array([0.3, 0.7]),
+            LevelEquationRates(
+                np.array([2.0, 0.0]) * scale,
+                np.array([0.0, 4.0]) * scale,
+                np.zeros((2, 2)),
+            ),
+            rate_matrix_solver,
+            pd.DataFrame([1.0], index=line_index),
+            ThermalElectronEnergyDistribution(
+                0.0 * u.erg,
+                np.array([1.0e4]) * u.K,
+                np.array([1.0e9]) / u.cm**3,
+            ),
+            (1, 0),
+            ShellNumberDensity(
+                1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
+            ),
+            sobolev,
+        )
+        residuals[scale] = (residual, residual / gross_rate)
+
+    absolute, relative = residuals[1.0]
+    scaled_absolute, scaled_relative = residuals[rate_scale]
+    npt.assert_allclose(
+        scaled_absolute[1], rate_scale * absolute[1], rtol=1e-12
+    )
+    npt.assert_allclose(scaled_relative, relative, rtol=1e-12)
 
 
 def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(

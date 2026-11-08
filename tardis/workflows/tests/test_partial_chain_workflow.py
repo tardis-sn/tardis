@@ -6,9 +6,6 @@ import numpy as np
 import pytest
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.plasma.equilibrium.thermal_balance import (
-    ElectronThermalBalanceSolver,
-)
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
 
@@ -51,9 +48,10 @@ def test_coupled_workflow_thermal_closure(
     Regime: the fixture's 200000 packets, mixed H/He, one plasma update and
     final transport. Retain the physical fixture's packet count because smaller
     development samples can trigger the known nonlinear thermal-solver basin.
-    Independent verification: the accepted physical balance residual is tested
-    against the solver's predeclared closure criteria, rather than just finite
-    output. Cross-mode stochastic comparisons are separate validation evidence.
+    Independent verification: the accepted electron and heating residuals are
+    recomputed and every shell must be within the solver's electron and
+    heating limits, its stopping rule; level and charge closure are checked
+    by the solve itself, which raises if they fail. Cross-mode stochastic comparisons are separate validation evidence.
     """
     config = partial_chain_config
     config.plasma.continuum_interaction.markov_chain.mode = mode
@@ -67,9 +65,14 @@ def test_coupled_workflow_thermal_closure(
     workflow = TypeIIPWorkflow(config)
     workflow.show_progress_bars = False
     workflow.run()
-    ElectronThermalBalanceSolver.validate_evaluation(
-        workflow._thermal_balance_evaluation
+    solver = workflow.thermal_balance_solver
+    closed_shells = solver.find_converged_shells(
+        solver.calculate_electron_and_thermal_residuals(
+            workflow._thermal_balance_evaluation
+        ),
+        solver.outer_residual_limits,
     )
+    assert closed_shells.all(), "a shell did not reach its thermal limits"
     assert workflow.completed_iterations == 1
     solver = workflow.macro_atom_solver
     metadata = solver.computed_metadata[0]
