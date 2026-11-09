@@ -37,14 +37,21 @@ regardless of the optimizer's reported success status.
 Thermal-balance solve
 ---------------------
 
-The thermal optimizer can evaluate an approximate physical level state during
-its search. If its joint-shell candidate fails to converge, the workflow
-retries each shell with an open electron or fractional-heating residual,
-starting from that candidate. A stalled local solve is retried from the same
-shell's pre-optimization state. The workflow then rebuilds the full plasma
-state. The accepted state must pass the final level, electron, charge, and
-heating convergence checks; otherwise the workflow raises an error.
+In the inner shells cooling is dominated by collisional bound-bound pairs
+close to detailed balance, so the fractional-heating residual responds about
+100 times less to the temperature than the electron residual does to the
+density. The joint solve therefore divides each residual row by its Jacobian
+diagonal, measured once per solve by forward differences at the starting
+candidate. This puts both rows of every shell in candidate units without
+moving the root, and lets the trust-region solver cross the curved, stiff
+valley of these shells.
 
-The local objective retains the joint optimizer's fixed level-population guess.
-The final rebuild uses the resulting population as its guess, so a change to a
-different nonlinear level branch can still fail final convergence.
+The thermal optimizer can evaluate an approximate physical level state during
+its search. After the joint solve, the workflow rebuilds the full plasma state
+from the joint candidate. That state must close the level and charge
+equations, and its populations must be valid; otherwise the workflow raises an
+error. A shell whose electron-density change exceeds ``2e-8`` or whose
+fractional heating exceeds ``2e-7`` is reported by a warning that lists each
+such shell with the ratio of its residuals to these limits, and the run
+continues. The next iteration starts its thermal solve from the accepted
+state, so such shells continue to converge across iterations.

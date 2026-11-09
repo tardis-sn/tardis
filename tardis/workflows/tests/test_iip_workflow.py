@@ -281,143 +281,6 @@ def test_thermal_balance_residual_delegates_to_evaluator() -> None:
     np.testing.assert_array_equal(residual, [0.1, 0.3, -0.2, -0.4])
 
 
-def test_thermal_balance_uses_joint_solution_without_local_retry(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Keep the joint thermal solution when it passes final validation.
-
-    Claim: Shell-local optimization is a fallback and does not add optimizer
-    calls to a closed joint solution.
-    Regime: One shell with a joint candidate inside the physical bounds.
-    Verification: Record calls at the SciPy optimizer boundary and require the
-    accepted plasma candidate to equal the joint result.
-    """
-    evaluation = SimpleNamespace(normalized_population=pd.DataFrame([[1.0]]))
-    solver = ElectronThermalBalanceSolver(
-        SimpleNamespace(evaluate=lambda *_: evaluation),
-        np.array([1.0e4]),
-        pd.DataFrame([[1.0]]),
-        np.array([2.0]),
-    )
-    solver.validate_evaluation = lambda _: None
-    optimizer_starts = []
-    joint_candidate = np.array([0.6, 0.9])
-
-    def recording_lsq(
-        _objective: object, initial_guess: npt.ArrayLike, **_kwargs: object
-    ) -> SimpleNamespace:
-        optimizer_starts.append(np.asarray(initial_guess).copy())
-        return SimpleNamespace(x=joint_candidate, fun=np.zeros(2), status=1)
-
-    monkeypatch.setattr(
-        "tardis.plasma.equilibrium.thermal_balance.least_squares",
-        recording_lsq,
-    )
-
-    accepted_candidate, _ = solver.solve(
-        np.array([0.5, 0.8]),
-        np.array([np.finfo(float).eps, 0.15]),
-        np.array([1.0, 1.5]),
-    )
-
-    assert len(optimizer_starts) == 1
-    np.testing.assert_array_equal(accepted_candidate, joint_candidate)
-
-
-def test_thermal_balance_retries_failed_shell_from_alternate_start(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Recover a failed shell from an alternate bounded thermal state.
-
-    Claim: A joint candidate that fails closure is retried locally, and a
-    closing alternate is preferred over a lower-norm candidate that still
-    violates an individual residual gate.
-    Regime: Two shells, with the first joint electron fraction below the
-    positive local bound and its first local result narrowly failing electron
-    closure while the second shell is already closed.
-    Verification: Record optimizer starts and supply residuals at the declared
-    electron and heating limits independently of the workflow implementation.
-    """
-    failed_evaluation = SimpleNamespace(
-        normalized_population=pd.DataFrame([[1.0, 1.0]]),
-        electron_residual=pd.Series([0.7, 0.0]),
-        fractional_heating=pd.Series([0.06, 0.0]),
-        total_heating=pd.Series([1.0e-8, 0.0]),
-    )
-    closed_evaluation = SimpleNamespace(
-        normalized_population=pd.DataFrame([[1.0, 1.0]]),
-        electron_residual=pd.Series([0.0, 0.0]),
-        fractional_heating=pd.Series([0.0, 0.0]),
-        total_heating=pd.Series([0.0, 0.0]),
-    )
-    # Each candidate is evaluated twice (seed, then terminal). The joint
-    # candidate fails and the retried candidate closes.
-    evaluations = [
-        failed_evaluation,
-        failed_evaluation,
-        closed_evaluation,
-        closed_evaluation,
-    ]
-
-    # Stand-in for the plasma evaluator, so the test controls which candidate
-    # closes without running a real equilibrium solve.
-    def evaluate(*_args: object) -> SimpleNamespace:
-        return evaluations.pop(0)
-
-    solver = ElectronThermalBalanceSolver(
-        SimpleNamespace(evaluate=evaluate),
-        np.array([1.0e4, 1.1e4]),
-        pd.DataFrame([[1.0, 1.0]]),
-        np.array([2.0, 4.0]),
-    )
-
-    # The real validator needs fields the fake evaluations lack. Rejecting only
-    # the failed evaluation forces the solver down its shell-retry path.
-    def validate(evaluation: SimpleNamespace) -> None:
-        if evaluation is failed_evaluation:
-            raise RuntimeError("joint closure failed")
-
-    solver.validate_evaluation = validate
-    optimizer_starts = []
-    optimizer_results = (
-        SimpleNamespace(
-            x=np.array([0.0, 0.7, 0.7, 1.0]),
-            fun=np.array([0.7, 0.06, 0.0, 0.0]),
-            status=3,
-        ),
-        SimpleNamespace(
-            x=np.array([0.4, 0.75]), fun=np.array([3.0e-8, 0.0]), status=3
-        ),
-        SimpleNamespace(
-            x=np.array([0.6, 0.85]), fun=np.array([0.0, 1.0e-7]), status=1
-        ),
-    )
-
-    def recording_lsq(
-        _objective: object, initial_guess: npt.ArrayLike, **_kwargs: object
-    ) -> SimpleNamespace:
-        optimizer_starts.append(np.asarray(initial_guess).copy())
-        return optimizer_results[len(optimizer_starts) - 1]
-
-    monkeypatch.setattr(
-        "tardis.plasma.equilibrium.thermal_balance.least_squares",
-        recording_lsq,
-    )
-
-    accepted_candidate, _ = solver.solve(
-        np.array([0.5, 0.8, 0.5, 0.9]),
-        np.array([np.finfo(float).eps, 0.15] * 2),
-        np.array([1.0, 1.5] * 2),
-    )
-
-    assert len(optimizer_starts) == 3
-    np.testing.assert_array_equal(
-        optimizer_starts[1], [np.finfo(float).eps, 0.7]
-    )
-    np.testing.assert_array_equal(optimizer_starts[2], [0.5, 0.8])
-    np.testing.assert_array_equal(accepted_candidate, [0.6, 0.85, 0.7, 1.0])
-
-
 def test_iip_level_solution_is_seed_independent_after_first_transport(
     type_iip_workflow: TypeIIPWorkflow,
 ) -> None:
@@ -726,16 +589,21 @@ def test_iip_hydrogen_helium_workflow_closes_thermal_balance(
 
     Claim: A hydrogen-helium model completes the Type IIP iteration with only
     the atomic data in the configured atom file, and its accepted
-    thermal-balance state satisfies the workflow closure criteria.
+    thermal-balance state satisfies the workflow closure criteria in every
+    shell.
     Regime: Three shells, 70 % hydrogen and 30 % helium by mass, with H I as
     the only continuum and NLTE species.
     Verification: Orchestration check; the closure limits are the workflow's
     declared acceptance thresholds.
     """
     workflow = hydrogen_helium_workflow
-    ElectronThermalBalanceSolver.validate_evaluation(
-        workflow._thermal_balance_evaluation
-    )
+    evaluation = workflow._thermal_balance_evaluation
+    ElectronThermalBalanceSolver.validate_evaluation(evaluation)
+    assert ElectronThermalBalanceSolver.find_converged_shells(
+        ElectronThermalBalanceSolver.calculate_electron_and_thermal_residuals(
+            evaluation
+        )
+    ).all(), "a shell did not reach its electron and heating limits"
     assert workflow.completed_iterations == 1
     output_energies = workflow.transport_state.packet_collection.output_energies
     assert len(output_energies) == workflow.final_iteration_packet_count
