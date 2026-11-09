@@ -21,6 +21,7 @@ class ConvergenceSolver:
         self.convergence_strategy = strategy
         self.damping_factor = self.convergence_strategy.damping_constant
         self.threshold = self.convergence_strategy.threshold
+        self.fraction = self.convergence_strategy.fraction
 
         if self.convergence_strategy.type in ("damped"):
             self.converge = self.damped_converge
@@ -106,8 +107,16 @@ class ConvergenceSolver:
 
         return best_x_new
 
-    def get_convergence_status(self, value, estimated_value, no_of_cells):
+    def get_convergence_status(
+        self,
+        value: np.ndarray | np.float64,
+        estimated_value: np.ndarray | np.float64,
+        no_of_cells: int,
+    ) -> bool:
         """Get the status of convergence for the physical property
+
+        The property is converged when more than ``fraction`` of the cells
+        differ from their estimate by less than ``threshold``.
 
         Parameters
         ----------
@@ -128,4 +137,4 @@ class ConvergenceSolver:
         fraction_converged = (
             np.count_nonzero(convergence < self.threshold) / no_of_cells
         )
-        return fraction_converged > self.threshold
+        return fraction_converged > self.fraction

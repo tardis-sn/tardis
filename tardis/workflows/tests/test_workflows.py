@@ -20,12 +20,14 @@ def v_inner_config(
     config = deepcopy(config_verysimple_for_simulation_one_loop)
     config.model.structure.velocity.start = 5000 * u.km / u.s
     config.model.structure.velocity.num = 50
-    config.montecarlo.convergence_strategy["v_inner_boundary"] = {
-        "damping_constant": 0.5,
-        "threshold": 0.01,
-        "type": "damped",
-        "store_iteration_properties": True,
-    }
+    config.montecarlo.convergence_strategy["v_inner_boundary"].update(
+        {
+            "damping_constant": 0.5,
+            "threshold": 0.01,
+            "type": "damped",
+            "store_iteration_properties": True,
+        }
+    )
     config.montecarlo.iterations = 7
     return config
 

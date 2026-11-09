@@ -461,16 +461,31 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
             raise ValueError('convergence_strategy is not "damped", "adaptive_damped" or "custom"')
 
     @staticmethod
-    def parse_convergence_section(convergence_section_dict):
+    def parse_convergence_section(convergence_section_dict: dict) -> dict:
         """
-        Parse the convergence section dictionary
+        Fill each convergence variable section from the top-level settings.
+
+        A variable section (``t_inner``, ``t_rad``, ``w`` or
+        ``v_inner_boundary``) keeps any ``damping_constant``, ``threshold`` or
+        ``type`` it sets and takes the remaining ones, and ``fraction``, from
+        the top level of the convergence strategy.
 
         Parameters
         ----------
         convergence_section_dict : dict
-            dictionary
+            Validated convergence strategy section.
+
+        Returns
+        -------
+        dict
+            The convergence strategy section with filled variable sections.
         """
-        convergence_parameters = ["damping_constant", "threshold", "type"]
+        convergence_parameters = [
+            "damping_constant",
+            "threshold",
+            "type",
+            "fraction",
+        ]
 
         for convergence_variable in ["t_inner", "t_rad", "w", "v_inner_boundary"]:
             if convergence_variable not in convergence_section_dict:
