@@ -10,6 +10,7 @@ from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
 from tardis.plasma.equilibrium.evaluator import (
+    LEVEL_RESIDUAL_LIMIT,
     PlasmaEquilibriumEvaluation,
     PlasmaEquilibriumEvaluator,
 )
@@ -30,8 +31,9 @@ ROW_SCALE_RELATIVE_STEP = 1e-4
 
 # Inner closure required of every accepted thermal state.
 THERMAL_BALANCE_RESIDUAL_LIMITS = {
-    "trial_level_residual": 1e-10,
-    "level_residual": 1e-10,
+    # Level equations close relative to the total rate of each equation.
+    "relative_trial_level_residual": LEVEL_RESIDUAL_LIMIT,
+    "relative_level_residual": LEVEL_RESIDUAL_LIMIT,
     "charge_residual": 1e-10,
 }
 
