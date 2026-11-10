@@ -145,10 +145,21 @@ def pytest_addoption(parser):
         default=False,
         help="Run integration tests with less packets.",
     )
+    parser.addoption(
+        "--full-tests",
+        action="store_true",
+        default=False,
+        help="Also run the long tests marked full_tests.",
+    )
 
 
-# Required by the `ignore_generate` marker
+# Required by the `ignore_generate` and `full_tests` markers
 def pytest_collection_modifyitems(config, items):
+    if not config.getoption("--full-tests"):
+        skip_full = pytest.mark.skip(reason="Needs --full-tests")
+        for item in items:
+            if "full_tests" in item.keywords:
+                item.add_marker(skip_full)
     if config.getoption("--generate-reference"):
         skip_generate = pytest.mark.skip(reason="Skip generate reference data")
         for item in items:

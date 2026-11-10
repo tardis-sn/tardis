@@ -68,7 +68,7 @@ jobs:
           pip install --no-deps lineid_plot
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }}
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --full-tests
       
       - name: Run JIT-disabled tests
         env:

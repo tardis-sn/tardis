@@ -316,6 +316,42 @@ The pull-request regression comparison workflow uses the same idea in
 
    pytest tardis ${PYTEST_FLAGS} --generate-reference -m "not continuum"
 
+.. _how-to-guide-run-full-tests:
+
+How-To Guide: Run Full Tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some tests run full simulations that take too long for every pull request, for
+example comparisons with reference codes at production packet counts. These
+tests carry the ``full_tests`` marker and are skipped unless ``pytest`` is
+called with the ``--full-tests`` flag. Most of them also need regression data:
+
+.. code-block:: shell
+
+   pytest tardis --tardis-regression-data=/path/to/tardis-regression-data/ --full-tests
+
+
+To run only the full tests, select them by marker:
+
+.. code-block:: shell
+
+   pytest tardis --tardis-regression-data=/path/to/tardis-regression-data/ \
+       --full-tests -m full_tests
+
+
+To add a full test, mark it:
+
+.. code-block:: python
+
+   @pytest.mark.full_tests
+   def test_long_simulation_matches_reference(tardis_regression_path):
+       ...
+
+
+In CI, the ``full-tests`` workflow in ``.github/workflows/full-tests.yml``
+passes ``--full-tests``. It runs on a self-hosted runner with a 60 minute
+limit, and only for pull requests with the ``full-tests`` label.
+
 .. _test-coverage:
 
 Test Coverage
