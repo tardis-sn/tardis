@@ -16,6 +16,16 @@ if TYPE_CHECKING:
     from matplotlib.figure import Figure
 
 
+# Attribute, label and soft range; the box beside each slider accepts any value
+_SLIDERS = (
+    ("m", "m (velocity slope)", -2.0, 2.0),
+    ("q", "q (velocity intercept)", -4.0, 2.0),
+    ("w", "w (line target velocity)", -1.0, 1.0),
+    ("b", "b (impact parameter)", 0.0, 3.0),
+    ("x_0", "x₀ (launch position)", -3.0, 3.0),
+)
+
+
 def _format_number(value: float | None) -> str:
     """Show an exact zero while making an absent value explicit."""
     return "none" if value is None else f"{value:.9g}"
@@ -164,6 +174,30 @@ class ResonanceExplorerWidget:
             label="Show homologous / nonhomologous comparison",
             value=True,
         )
+        self.sliders = {
+            name: pn.widgets.EditableFloatSlider(
+                name=label,
+                start=start,
+                end=end,
+                step=0.01,
+                sizing_mode="stretch_width",
+            )
+            for name, label, start, end in _SLIDERS
+        }
+        self.scatter_toggle = pn.widgets.Checkbox(
+            label="Electron scatter ends the flight"
+        )
+        self.s_stop_slider = pn.widgets.EditableFloatSlider(
+            name="s_stop (scatter distance)",
+            start=0.0,
+            end=6.0,
+            step=0.01,
+            sizing_mode="stretch_width",
+        )
+        self.input_error_pane = pn.pane.Markdown(
+            "", sizing_mode="stretch_width"
+        )
+        self._syncing_sliders = False
         self.lesson_question = pn.pane.Markdown("", sizing_mode="stretch_width")
         self.lesson_note = pn.pane.Markdown("", sizing_mode="stretch_width")
         self.headline_pane = pn.pane.Markdown("", sizing_mode="stretch_width")
@@ -187,6 +221,9 @@ class ResonanceExplorerWidget:
         )
         self.comparison_toggle.param.watch(self._on_comparison_change, "value")
         self.slot_chips.param.watch(self._on_slot_chip_change, "value")
+        for slider in (*self.sliders.values(), self.s_stop_slider):
+            slider.param.watch(self._on_slider_change, "value_throttled")
+        self.scatter_toggle.param.watch(self._on_slider_change, "value")
         if initial_inputs is None:
             self._load_lesson("homology", "initial")
         else:
@@ -201,6 +238,11 @@ class ResonanceExplorerWidget:
             self.lesson_select,
             self.lesson_state_select,
             self.comparison_toggle,
+            "### Inputs",
+            *self.sliders.values(),
+            self.scatter_toggle,
+            self.s_stop_slider,
+            self.input_error_pane,
             self.lesson_question,
             self.lesson_note,
             width=320,
@@ -355,9 +397,49 @@ class ResonanceExplorerWidget:
         if previous is not None:
             previous.clear()
 
+    def _on_slider_change(self, _event: object) -> None:
+        """Rebuild the inputs from the sliders on the current shell."""
+        if self._syncing_sliders:
+            return
+        values = {name: slider.value for name, slider in self.sliders.items()}
+        r_in, r_out = self.analysis.inputs.r_in, self.analysis.inputs.r_out
+        inputs = ExplorerInputs(
+            r_in=r_in,
+            r_out=r_out,
+            v_in=values["m"] * r_in + values["q"],
+            v_out=values["m"] * r_out + values["q"],
+            b=values["b"],
+            x_0=values["x_0"],
+            w=values["w"],
+            s_stop=(
+                self.s_stop_slider.value if self.scatter_toggle.value else None
+            ),
+        )
+        # analyze_case rejects launch points outside the shell and scatters
+        # past the boundary; keep the last valid plot and report why
+        try:
+            self.set_inputs(inputs)
+        except ValueError as error:
+            self.input_error_pane.object = f"**Not plotted:** {error}."
+
+    def _sync_sliders(self, inputs: ExplorerInputs) -> None:
+        """Show committed inputs on the sliders without re-committing them."""
+        self._syncing_sliders = True
+        try:
+            for name, slider in self.sliders.items():
+                slider.value = getattr(inputs, name)
+            self.scatter_toggle.value = inputs.s_stop is not None
+            if inputs.s_stop is not None:
+                self.s_stop_slider.value = inputs.s_stop
+            self.s_stop_slider.disabled = inputs.s_stop is None
+        finally:
+            self._syncing_sliders = False
+
     def _commit_inputs(self, inputs: ExplorerInputs) -> None:
         """Compute a complete snapshot before changing any scientific view."""
         snapshot = self.analyzer(inputs)
+        self._sync_sliders(inputs)
+        self.input_error_pane.object = ""
         figure = self._render_snapshot(snapshot, None)
         old_figure = self.figure_pane.object
         self.analysis = snapshot
