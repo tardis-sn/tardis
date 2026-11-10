@@ -15,6 +15,10 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 ION_ZERO_THRESHOLD = 1e-20
+# The ionization solve stops once n_e changes by less than this fraction
+# between iterations, so the returned n_e can differ from the free-electron
+# number density of the returned ions by up to this fraction.
+ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD = 0.05
 
 __all__ = [
     "PhiSahaNebular",
@@ -284,14 +288,38 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
     def __init__(
         self,
-        plasma_parent,
-        ion_zero_threshold=ION_ZERO_THRESHOLD,
-        electron_densities=None,
-    ):
+        plasma_parent: object,
+        ion_zero_threshold: float = ION_ZERO_THRESHOLD,
+        electron_densities: pd.Series | None = None,
+        electron_number_density_convergence_threshold: float = (
+            ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD
+        ),
+    ) -> None:
+        """Initialize the ion number density property.
+
+        Parameters
+        ----------
+        plasma_parent : object
+            Plasma graph that owns this property.
+        ion_zero_threshold : float, optional
+            Ion number density below which populations are set to zero
+            [cm^-3].
+        electron_densities : pandas.Series or None, optional
+            Fixed electron number densities [cm^-3]. If None, they are solved
+            together with the ion populations.
+        electron_number_density_convergence_threshold : float, optional
+            Relative change of the electron number density between iterations
+            below which the solve stops. It bounds the relative difference
+            between the returned electron number density and the
+            free-electron number density of the returned ions.
+        """
         super().__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
         self._electron_densities = electron_densities
+        self.electron_number_density_convergence_threshold = (
+            electron_number_density_convergence_threshold
+        )
 
     @staticmethod
     def calculate_with_n_electron(
@@ -337,7 +365,6 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
     def calculate(self, phi, partition_function, number_density):
         if self._electron_densities is None:
-            n_e_convergence_threshold = 0.05
             n_electron = number_density.sum(axis=0)
             n_electron_iterations = 0
 
@@ -372,7 +399,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                     )
                 if np.all(
                     np.abs(new_n_electron - n_electron) / n_electron
-                    < n_e_convergence_threshold
+                    < self.electron_number_density_convergence_threshold
                 ):
                     break
                 n_electron = 0.5 * (new_n_electron + n_electron)
@@ -419,12 +446,39 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     )
 
     def __init__(
-        self, plasma_parent, ion_zero_threshold=1e-20, electron_densities=None
-    ):
+        self,
+        plasma_parent: object,
+        ion_zero_threshold: float = 1e-20,
+        electron_densities: pd.Series | None = None,
+        electron_number_density_convergence_threshold: float = (
+            ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD
+        ),
+    ) -> None:
+        """Initialize the helium-NLTE ion number density property.
+
+        Parameters
+        ----------
+        plasma_parent : object
+            Plasma graph that owns this property.
+        ion_zero_threshold : float, optional
+            Ion number density below which populations are set to zero
+            [cm^-3].
+        electron_densities : pandas.Series or None, optional
+            Fixed electron number densities [cm^-3]. If None, they are solved
+            together with the ion populations.
+        electron_number_density_convergence_threshold : float, optional
+            Relative change of the electron number density between iterations
+            below which the solve stops. It bounds the relative difference
+            between the returned electron number density and the
+            free-electron number density of the returned ions.
+        """
         super().__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
         self._electron_densities = electron_densities
+        self.electron_number_density_convergence_threshold = (
+            electron_number_density_convergence_threshold
+        )
 
     def update_he_population(
         self, helium_population, n_electron, number_density
@@ -451,7 +505,6 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
         self, phi, partition_function, number_density, helium_population
     ):
         if self._electron_densities is None:
-            n_e_convergence_threshold = 0.05
             n_electron = number_density.sum(axis=0)
             n_electron_iterations = 0
             while True:
@@ -497,7 +550,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                     )
                 if np.all(
                     np.abs(new_n_electron - n_electron) / n_electron
-                    < n_e_convergence_threshold
+                    < self.electron_number_density_convergence_threshold
                 ):
                     break
                 n_electron = 0.5 * (new_n_electron + n_electron)
