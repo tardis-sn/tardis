@@ -67,9 +67,13 @@ def test_coupled_workflow_thermal_closure(
     workflow = TypeIIPWorkflow(config)
     workflow.show_progress_bars = False
     workflow.run()
-    ElectronThermalBalanceSolver.validate_evaluation(
-        workflow._thermal_balance_evaluation
-    )
+    evaluation = workflow._thermal_balance_evaluation
+    ElectronThermalBalanceSolver.validate_evaluation(evaluation)
+    assert ElectronThermalBalanceSolver.find_converged_shells(
+        ElectronThermalBalanceSolver.calculate_electron_and_thermal_residuals(
+            evaluation
+        )
+    ).all(), "a shell did not reach its electron and heating limits"
     assert workflow.completed_iterations == 1
     solver = workflow.macro_atom_solver
     metadata = solver.computed_metadata[0]
