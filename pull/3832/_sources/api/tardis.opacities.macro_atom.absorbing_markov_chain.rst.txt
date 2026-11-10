@@ -1,7 +1,0 @@
-tardis.opacities.macro\_atom.absorbing\_markov\_chain module
-============================================================
-
-.. automodule:: tardis.opacities.macro_atom.absorbing_markov_chain
-   :members:
-   :show-inheritance:
-   :undoc-members:
