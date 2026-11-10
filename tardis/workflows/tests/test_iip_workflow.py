@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import astropy.units as u
+import numba
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
@@ -983,3 +984,60 @@ def test_iip_outer_shell_population_cutoff_second_iteration_opacity(
     assert np.isfinite(continuum_state.emissivities.to_numpy()).all()
     workflow.solve_montecarlo(opacity_states, 10)
     assert len(workflow.transport_state.packet_collection.output_energies) == 10
+
+
+@pytest.mark.full_tests
+def test_iip_complex_model_first_iteration_matches_ctardis(
+    tardis_regression_path: Path,
+    ctardis_reference_path: Path,
+) -> None:
+    """One iteration of a 19-element Type IIP model reproduces C-TARDIS.
+
+    Claim: After one Monte Carlo iteration and thermal solve, T_rad, W, T_e,
+    n_e and the H I populations agree with C-TARDIS (ct19) run on the same
+    model, seed and packet count.
+    Verification: ct19's radiation field is redder than TARDIS's (T_rad
+    0.1-0.2 % lower), so T_rad, W, T_e and n_e agree to 0.5 %. The Lyman
+    lines amplify that T_rad difference about 14-fold in the H I ground
+    state, which agrees to 10 % (8 % at the ionization front in shell 4,
+    4 % elsewhere); excited H I levels agree to 5 %.
+    """
+    config = Configuration.from_yaml(
+        "tardis/workflows/tests/data/ctardis_complex.yml"
+    )
+    config.atom_data = (
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+    # 2.1e7 packets, as in the ct19 run, need all available threads.
+    config.montecarlo.nthreads = numba.config.NUMBA_NUM_THREADS
+    workflow = TypeIIPWorkflow(config)
+    workflow.run()
+    plasma = workflow.plasma_solver
+    reference_path = ctardis_reference_path / "ctardis_complex"
+
+    for name in ("t_rad", "w", "t_electrons", "electron_densities"):
+        np.testing.assert_allclose(
+            np.asarray(getattr(plasma, name), dtype=float),
+            pd.read_hdf(reference_path / f"{name}.h5", key="data"),
+            rtol=5e-3,
+            err_msg=name,
+        )
+    ions = plasma.ion_number_density
+    reference_ions = pd.read_hdf(reference_path / "ion_number_density.h5", key="data")
+    np.testing.assert_allclose(
+        ions.loc[(1, 0)] / ions.loc[1].sum(),
+        reference_ions.loc[(1, 0)] / reference_ions.loc[1].sum(),
+        rtol=0.1,
+        err_msg="H I / H",
+    )
+    reference_levels = pd.read_hdf(
+        reference_path / "level_number_density.h5", key="data"
+    )
+    np.testing.assert_allclose(
+        plasma.level_number_density.loc[(1, 0)].iloc[1:],
+        reference_levels.loc[(1, 0)].iloc[1:],
+        rtol=5e-2,
+        err_msg="excited H I levels",
+    )

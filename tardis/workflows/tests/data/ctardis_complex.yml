@@ -1,0 +1,90 @@
+# One Type IIP iteration of a 30-shell hydrogen-rich model with 19 elements,
+# compared with C-TARDIS (ct19) in test_iip_workflow.py. T_rad and W are
+# damped by 0.5 and packets start from the relativistic inner boundary, as in
+# ct19. Only the first iteration is compared; the second, final iteration
+# uses few packets because it does not change the plasma.
+tardis_config_version: v1.0
+
+supernova:
+  luminosity_requested: 5e42 erg/s
+  time_explosion: 34.82014388489208 day
+
+atom_data: christians_atomdata_converted_04Dec25.h5
+
+model:
+  structure:
+    density:
+      exponent: -6.7171279729864874
+      rho_0: 9.920386912283621e-15 g/cm^3
+      time_0: 34.82014388489208 day
+      type: power_law
+      v_0: 4883.894458281121 km/s
+    type: specific
+    velocity:
+      num: 30
+      start: 2702.654810313633 km/s
+      stop: 10969.841805295255 km/s
+
+  abundances:
+    type: uniform
+    H: 0.548822580264
+    He: 0.43444530555182304
+    Al: 7.294852753419172e-05
+    Ar: 9.62597789345221e-05
+    C: 0.000222346103564
+    Ca: 8.411159328755158e-05
+    Co: 5.5247140591913745e-06
+    Cr: 2.1773116136764962e-05
+    Fe: 0.001694080775271059
+    Mg: 0.0009282082927881776
+    N: 0.0103718320627
+    Na: 3.832520014762317e-05
+    Ne: 0.0016476483368045827
+    Ni: 9.34413462486669e-05
+    O: 0.000174218501223
+    S: 0.0004054276245183928
+    Sc: 6.091673683784719e-08
+    Si: 0.0008718148192864985
+    Ti: 4.092474935768612e-06
+
+plasma:
+  disable_electron_scattering: false
+  ionization: nebular
+  excitation: dilute-lte
+  radiative_rates_type: dilute-blackbody
+  line_interaction_type: macroatom
+  initial_t_inner: 10411.870503597122 K
+  continuum_interaction:
+    species:
+      - H I
+    enable_adiabatic_cooling: false
+    markov_chain:
+      mode: partial
+      elements:
+        - H
+        - He
+      include_thermal_pool: true
+      include_ionization_pool: true
+  link_t_rad_t_electron: 1.0
+  w_epsilon: 1.0
+
+montecarlo:
+  seed: 23111963
+  no_of_packets: 2.1e+7
+  last_no_of_packets: 1.0e+4
+  iterations: 2
+  enable_full_relativity: true
+  convergence_strategy:
+    type: damped
+    damping_constant: 0.5
+    threshold: 0.05
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 0.5
+    stop_if_converged: false
+
+spectrum:
+  start: 500 angstrom
+  stop: 25000 angstrom
+  num: 12500
