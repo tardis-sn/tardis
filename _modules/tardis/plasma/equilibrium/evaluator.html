@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=135e519d"></script>
+      <script src="../../../../_static/documentation_options.js?v=be450120"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1824,6 +1824,7 @@
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html">tardis.plasma.equilibrium.evaluator module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.collisional_ionization_rate_coefficient"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.collisional_ionization_rate_coefficient</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.collisional_rate_coefficients"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.collisional_rate_coefficients</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.continuum_coefficients"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.continuum_coefficients</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.continuum_rate_coefficients"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.continuum_rate_coefficients</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.level_to_continuum_saha_factor"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.level_to_continuum_saha_factor</span></code></a></li>
@@ -1873,6 +1874,7 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_lte_populations"><code class="docutils literal notranslate"><span class="pre">calculate_lte_populations()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_nlte_level_population_residual"><code class="docutils literal notranslate"><span class="pre">calculate_nlte_level_population_residual()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines"><code class="docutils literal notranslate"><span class="pre">restrict_sobolev_to_rate_lines()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.inputs.html">tardis.plasma.equilibrium.inputs module</a><ul>
@@ -1986,13 +1988,16 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html">tardis.plasma.equilibrium.thermal_balance module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_electron_and_thermal_residuals"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_electron_and_thermal_residuals()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_residual"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_residual()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_row_scale"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_row_scale()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.evaluate_candidate"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.evaluate_candidate()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.find_converged_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.find_converged_shells()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.least_squares_settings"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.least_squares_settings</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_multiple_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_multiple_shells()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_single_shell"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_single_shell()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.validate_evaluation"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.validate_evaluation()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.warn_failed_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.warn_failed_shells()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ThermalBalanceSolver</span></code></a><ul>
@@ -4089,8 +4094,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../current_developers/code_style_and_syntax.html#index-vs-idx-in-tardis">Index vs. IDX in TARDIS</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../current_developers/code_style_and_syntax.html#type-hinting">Type Hinting</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../../current_developers/code_style_and_syntax.html#reference-numpy-array-typing">Reference: NumPy Array Typing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../current_developers/code_style_and_syntax.html#type-hinting">Type Hinting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../current_developers/code_style_and_syntax.html#whitespace">Whitespace</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../current_developers/code_style_and_syntax.html#id5">Reference: NumPy Array Typing</a></li>
 </ul>
 </li>
 </ul>
@@ -4283,7 +4289,7 @@
   <h1>Source code for tardis.plasma.equilibrium.evaluator</h1><div class="highlight"><pre>
 <span></span>from collections.abc import Mapping
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import astropy.units as u
 import numpy as np
@@ -4540,6 +4546,48 @@ def calculate_nlte_level_population_residual(
 
 
 
+<div class="viewcode-block" id="restrict_sobolev_to_rate_lines">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines">[docs]</a>
+def restrict_sobolev_to_rate_lines(
+    sobolev: SobolevInputs,
+    bound_bound_rates: BoundBoundMatrixRates,
+) -&gt; tuple[SobolevInputs, BoundBoundMatrixRates]:
+    &quot;&quot;&quot;Restrict Sobolev inputs to the lines used by one bound-bound matrix.
+
+    The reduced level residual only reads the escape probabilities of lines
+    referenced by ``bound_bound_rates.beta_line_idx``. Calculating escape
+    probabilities for those lines alone gives the same matrix without the cost
+    of every line in the model.
+
+    Parameters
+    ----------
+    sobolev : SobolevInputs
+        Line geometry for all lines whose escape probabilities may be needed.
+    bound_bound_rates : BoundBoundMatrixRates
+        Prepared bound-bound rates whose ``beta_line_idx`` refers to positions
+        in ``sobolev.line_indices``. Negative positions mark transitions
+        without a line.
+
+    Returns
+    -------
+    tuple[SobolevInputs, BoundBoundMatrixRates]
+        Sobolev inputs for the referenced lines only, and bound-bound rates
+        whose ``beta_line_idx`` refers to positions in the restricted inputs.
+    &quot;&quot;&quot;
+    beta_line_idx = bound_bound_rates.beta_line_idx
+    has_line = beta_line_idx &gt;= 0
+    used_line_idx = np.unique(beta_line_idx[has_line])
+    restricted_beta_line_idx = np.full_like(beta_line_idx, -1)
+    restricted_beta_line_idx[has_line] = np.searchsorted(
+        used_line_idx, beta_line_idx[has_line]
+    )
+    return (
+        replace(sobolev, line_indices=sobolev.line_indices[used_line_idx]),
+        replace(bound_bound_rates, beta_line_idx=restricted_beta_line_idx),
+    )</div>
+
+
+
 <div class="viewcode-block" id="IntermediateThermalState">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState">[docs]</a>
 @dataclass(frozen=True)
@@ -4552,7 +4600,8 @@ class IntermediateThermalState:
     lte_ionization_factor: pd.DataFrame
     continuum_coefficients: ContinuumCoefficientState
     thermal_partition_function: pd.DataFrame
-    thermal_level_boltzmann_factor: pd.DataFrame</div>
+    thermal_level_boltzmann_factor: pd.DataFrame
+    collisional_rate_coefficients: pd.DataFrame</div>
 
 
 
@@ -4717,6 +4766,11 @@ class PlasmaEquilibriumEvaluator:
             thermal_balance_arguments or {}
         )
         self.reference_electron_temperature = reference_electron_temperature
+        # The reference temperature is fixed, so its collisional rates are
+        # calculated on first use and reused by every later evaluation.
+        self._reference_collisional_rate_coefficients: pd.DataFrame | None = (
+            None
+        )
         self.dilute_radiation = dilute_radiation
 
 <div class="viewcode-block" id="PlasmaEquilibriumEvaluator.calculate_nebular_ionization_factor">
@@ -4991,6 +5045,9 @@ class PlasmaEquilibriumEvaluator:
                 self.hydrogen_species,
                 sobolev_inputs.line_index,
             )[0]
+        residual_sobolev_inputs, residual_bound_bound_rates = (
+            restrict_sobolev_to_rate_lines(sobolev_inputs, bound_bound_rates)
+        )
 
         def residual(
             level_fractions: npt.NDArray[np.float64],
@@ -5002,8 +5059,8 @@ class PlasmaEquilibriumEvaluator:
                 level_fractions,
                 continuum_rates,
                 population_geometry,
-                sobolev_inputs,
-                bound_bound_rates=bound_bound_rates,
+                residual_sobolev_inputs,
+                bound_bound_rates=residual_bound_bound_rates,
             )[0]
 
         def calculate_physical_level_residual(
@@ -5160,6 +5217,7 @@ class PlasmaEquilibriumEvaluator:
                 electron_distribution,
                 self.hydrogen_species,
                 self.sobolev_inputs[0].line_index,
+                thermal_state.collisional_rate_coefficients,
             )
         )
         for shell_idx, (
@@ -5436,9 +5494,7 @@ class PlasmaEquilibriumEvaluator:
             return None, None
         solver_arguments = deepcopy(self.thermal_balance_arguments)
         electron_rate_solver = self.rate_matrix_solver.electron_rate_solver
-        collisional_rates = electron_rate_solver.solve(
-            final_electron_distribution.temperature
-        )
+        collisional_rates = thermal_state.collisional_rate_coefficients
         transition_count = len(collisional_rates) // 2
         transition_index = electron_rate_solver.all_collisional_strengths_index
         collisional_excitation = collisional_rates.iloc[
@@ -5452,9 +5508,13 @@ class PlasmaEquilibriumEvaluator:
         collisional_excitation.columns = absolute_levels.columns
         collisional_deexcitation.columns = absolute_levels.columns
         if self.reference_electron_temperature is not None:
-            reference_rates = electron_rate_solver.solve(
-                self.reference_electron_temperature
-            )
+            if self._reference_collisional_rate_coefficients is None:
+                self._reference_collisional_rate_coefficients = (
+                    electron_rate_solver.solve(
+                        self.reference_electron_temperature
+                    )
+                )
+            reference_rates = self._reference_collisional_rate_coefficients
             reference_excitation = reference_rates.iloc[
                 :transition_count
             ].copy()
@@ -5542,6 +5602,9 @@ class PlasmaEquilibriumEvaluator:
             continuum_coefficients,
             thermal_partition_function,
             thermal_level_boltzmann_factor,
+            self.rate_matrix_solver.electron_rate_solver.solve(
+                trial_electron_distribution.temperature
+            ),
         )
         level_state = self._solve_levels(
             trial_density,

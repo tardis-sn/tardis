@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=135e519d"></script>
+      <script src="_static/documentation_options.js?v=be450120"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1824,6 +1824,7 @@
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html">tardis.plasma.equilibrium.evaluator module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.collisional_ionization_rate_coefficient"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.collisional_ionization_rate_coefficient</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.collisional_rate_coefficients"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.collisional_rate_coefficients</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.continuum_coefficients"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.continuum_coefficients</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.continuum_rate_coefficients"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.continuum_rate_coefficients</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.level_to_continuum_saha_factor"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.level_to_continuum_saha_factor</span></code></a></li>
@@ -1873,6 +1874,7 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_lte_populations"><code class="docutils literal notranslate"><span class="pre">calculate_lte_populations()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_nlte_level_population_residual"><code class="docutils literal notranslate"><span class="pre">calculate_nlte_level_population_residual()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines"><code class="docutils literal notranslate"><span class="pre">restrict_sobolev_to_rate_lines()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.equilibrium.inputs.html">tardis.plasma.equilibrium.inputs module</a><ul>
@@ -1986,13 +1988,16 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html">tardis.plasma.equilibrium.thermal_balance module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_electron_and_thermal_residuals"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_electron_and_thermal_residuals()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_residual"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_residual()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_row_scale"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_row_scale()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.evaluate_candidate"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.evaluate_candidate()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.find_converged_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.find_converged_shells()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.least_squares_settings"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.least_squares_settings</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_multiple_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_multiple_shells()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_single_shell"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_single_shell()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.validate_evaluation"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.validate_evaluation()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.warn_failed_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.warn_failed_shells()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ThermalBalanceSolver</span></code></a><ul>
@@ -4089,8 +4094,9 @@
 <li class="toctree-l4"><a class="reference internal" href="current_developers/code_style_and_syntax.html#index-vs-idx-in-tardis">Index vs. IDX in TARDIS</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="current_developers/code_style_and_syntax.html#type-hinting">Type Hinting</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="current_developers/code_style_and_syntax.html#reference-numpy-array-typing">Reference: NumPy Array Typing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="current_developers/code_style_and_syntax.html#type-hinting">Type Hinting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="current_developers/code_style_and_syntax.html#whitespace">Whitespace</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="current_developers/code_style_and_syntax.html#id5">Reference: NumPy Array Typing</a></li>
 </ul>
 </li>
 </ul>
@@ -4750,6 +4756,8 @@
 </li>
       <li><a href="api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_ejecta_velocity_volume">calculate_ejecta_velocity_volume() (in module tardis.energy_input.gamma_ray_transport)</a>
 </li>
+      <li><a href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_electron_and_thermal_residuals">calculate_electron_and_thermal_residuals() (tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver static method)</a>
+</li>
       <li><a href="api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.calculate_elemental_cell_masses">calculate_elemental_cell_masses() (tardis.model.matter.composition.Composition method)</a>
 </li>
       <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.calculate_elemental_number_density">calculate_elemental_number_density() (tardis.model.base.SimulationState method)</a>
@@ -4823,6 +4831,8 @@
 </li>
       </ul></li>
       <li><a href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_residual">calculate_residual() (tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver method)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_row_scale">calculate_row_scale() (tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver method)</a>
 </li>
       <li><a href="api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.calculate_scaled_elemental_number_density">calculate_scaled_elemental_number_density() (in module tardis.energy_input.main_gamma_ray_loop)</a>
 </li>
@@ -4940,10 +4950,10 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET">COLL_DOWN_TO_K_PACKET (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_EXC_COOL">COLL_EXC_COOL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_EXC_COOL">COLL_EXC_COOL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_COOL">COLL_ION_COOL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_INTERNAL">COLL_ION_INTERNAL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
@@ -4983,6 +4993,8 @@
       <li><a href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.collisional_ionization_rate_coefficient">collisional_ionization_rate_coefficient (tardis.plasma.equilibrium.evaluator.IntermediateThermalState attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.BoundBoundMatrixRates.collisional_rate">collisional_rate (tardis.plasma.equilibrium.inputs.BoundBoundMatrixRates attribute)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.collisional_rate_coefficients">collisional_rate_coefficients (tardis.plasma.equilibrium.evaluator.IntermediateThermalState attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.inputs.html#tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients.collisional_recombination">collisional_recombination (tardis.plasma.equilibrium.inputs.ContinuumRateCoefficients attribute)</a>
 </li>
@@ -5656,6 +5668,8 @@
         <li><a href="api/tardis.visualization.widgets.line_info.html#tardis.visualization.widgets.line_info.LineInfoWidget.FILTER_MODES_DESC">(tardis.visualization.widgets.line_info.LineInfoWidget attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.find_converged_shells">find_converged_shells() (tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver static method)</a>
+</li>
       <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.fix_bar_layout">fix_bar_layout() (in module tardis.transport.montecarlo.progress_bars)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.FixedElectronDensityIonPopulationSolver">FixedElectronDensityIonPopulationSolver (class in tardis.plasma.equilibrium.ion_populations)</a>
@@ -8163,10 +8177,10 @@
 </li>
       <li><a href="api/tardis.io.model.readers.cmfgen.html#tardis.io.model.readers.cmfgen.read_cmfgen_model">read_cmfgen_model() (in module tardis.io.model.readers.cmfgen)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_csv_composition">read_csv_composition() (in module tardis.io.model.readers.generic_readers)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.util.html#tardis.io.model.readers.util.read_csv_isotope_mass_fractions">read_csv_isotope_mass_fractions() (in module tardis.io.model.readers.util)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.DensityEditor.read_density">read_density() (tardis.visualization.widgets.custom_abundance.DensityEditor method)</a>
@@ -8242,6 +8256,8 @@
       <li><a href="api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult.residual_probabilities">residual_probabilities (tardis.opacities.macro_atom.absorbing_markov_chain.AbsorbingChainResult attribute)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.util.html#tardis.io.atom_data.util.resolve_atom_data_fname">resolve_atom_data_fname() (in module tardis.io.atom_data.util)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines">restrict_sobolev_to_rate_lines() (in module tardis.plasma.equilibrium.evaluator)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.reverse_binary_search">reverse_binary_search() (in module tardis.spectrum.formal_integral.formal_integral_numba)</a>
 </li>
@@ -8524,8 +8540,6 @@
       <li><a href="api/tardis.transport.montecarlo.nonhomologous_grid.html#tardis.transport.montecarlo.nonhomologous_grid.solve_resonance_quartic">solve_resonance_quartic() (in module tardis.transport.montecarlo.nonhomologous_grid)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve_shell_charge">solve_shell_charge() (tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
-</li>
-      <li><a href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_single_shell">solve_single_shell() (tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver method)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.solve_transition_probabilities">solve_transition_probabilities() (tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver method)</a>
 </li>
@@ -10774,6 +10788,8 @@
         <li><a href="api/tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver.html#tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver.MCRadiationFieldPropertiesSolver.w_epsilon">(tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver.MCRadiationFieldPropertiesSolver attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.warn_failed_shells">warn_failed_shells() (tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver method)</a>
+</li>
       <li><a href="api/tardis.visualization.widgets.line_info.html#tardis.visualization.widgets.line_info.LineInfoWidget.wavelength_range">wavelength_range (tardis.visualization.widgets.line_info.LineInfoWidget attribute)</a>
 </li>
   </ul></td>

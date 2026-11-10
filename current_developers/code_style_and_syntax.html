@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=135e519d"></script>
+      <script src="../_static/documentation_options.js?v=be450120"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1827,6 +1827,7 @@
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html">tardis.plasma.equilibrium.evaluator module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState</span></code></a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.collisional_ionization_rate_coefficient"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.collisional_ionization_rate_coefficient</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.collisional_rate_coefficients"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.collisional_rate_coefficients</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.continuum_coefficients"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.continuum_coefficients</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.continuum_rate_coefficients"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.continuum_rate_coefficients</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.IntermediateThermalState.level_to_continuum_saha_factor"><code class="docutils literal notranslate"><span class="pre">IntermediateThermalState.level_to_continuum_saha_factor</span></code></a></li>
@@ -1876,6 +1877,7 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_lte_populations"><code class="docutils literal notranslate"><span class="pre">calculate_lte_populations()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_nlte_level_population_residual"><code class="docutils literal notranslate"><span class="pre">calculate_nlte_level_population_residual()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines"><code class="docutils literal notranslate"><span class="pre">restrict_sobolev_to_rate_lines()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.plasma.equilibrium.inputs.html">tardis.plasma.equilibrium.inputs module</a><ul>
@@ -1989,13 +1991,16 @@
 </li>
 <li class="toctree-l8"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html">tardis.plasma.equilibrium.thermal_balance module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_electron_and_thermal_residuals"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_electron_and_thermal_residuals()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_residual"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_residual()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.calculate_row_scale"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.calculate_row_scale()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.evaluate_candidate"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.evaluate_candidate()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.find_converged_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.find_converged_shells()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.least_squares_settings"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.least_squares_settings</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_multiple_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_multiple_shells()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.solve_single_shell"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.solve_single_shell()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.validate_evaluation"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.validate_evaluation()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ElectronThermalBalanceSolver.warn_failed_shells"><code class="docutils literal notranslate"><span class="pre">ElectronThermalBalanceSolver.warn_failed_shells()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../api/tardis.plasma.equilibrium.thermal_balance.html#tardis.plasma.equilibrium.thermal_balance.ThermalBalanceSolver"><code class="docutils literal notranslate"><span class="pre">ThermalBalanceSolver</span></code></a><ul>
@@ -4092,8 +4097,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#index-vs-idx-in-tardis">Index vs. IDX in TARDIS</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#type-hinting">Type Hinting</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#reference-numpy-array-typing">Reference: NumPy Array Typing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#type-hinting">Type Hinting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#whitespace">Whitespace</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Reference: NumPy Array Typing</a></li>
 </ul>
 </li>
 </ul>
@@ -4370,8 +4376,25 @@ improve readability and maintainability, and they enable static type checking.</
     <span class="k">pass</span>
 </pre></div>
 </div>
-<section id="reference-numpy-array-typing">
-<span id="id5"></span><h3>Reference: NumPy Array Typing<a class="headerlink" href="#reference-numpy-array-typing" title="Link to this heading"></a></h3>
+</section>
+<section id="whitespace">
+<span id="reference-numpy-array-typing"></span><h2>Whitespace<a class="headerlink" href="#whitespace" title="Link to this heading"></a></h2>
+<p>Whitespace should be used to separate blocks of conceptually-linked variables
+and to separate statement blocks (such as loops or if) from variable definitions
+or calculations to improve readability.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">levels</span> <span class="o">=</span> <span class="n">plasma</span><span class="o">.</span><span class="n">levels</span>
+<span class="n">lines</span> <span class="o">=</span> <span class="n">plasma</span><span class="o">.</span><span class="n">lines</span>
+
+<span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">calculate_level_energy</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">lines</span><span class="p">)</span>
+
+<span class="n">normalized_energy</span> <span class="o">=</span> <span class="n">energy</span> <span class="o">/</span> <span class="n">energy</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="k">return</span> <span class="n">normalized_energy</span>
+</pre></div>
+</div>
+<section id="id5">
+<h3>Reference: NumPy Array Typing<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">numpy.typing.NDArray</span></code> for typed NumPy array annotations in new or touched
 code when the function accepts or returns concrete NumPy arrays. NumPy provides
 <code class="docutils literal notranslate"><span class="pre">numpy.typing.NDArray</span></code> as a runtime-available alias for annotating arrays with a
