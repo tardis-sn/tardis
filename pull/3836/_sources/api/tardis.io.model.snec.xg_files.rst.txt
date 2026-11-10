@@ -1,0 +1,7 @@
+tardis.io.model.snec.xg\_files module
+=====================================
+
+.. automodule:: tardis.io.model.snec.xg_files
+   :members:
+   :show-inheritance:
+   :undoc-members:
