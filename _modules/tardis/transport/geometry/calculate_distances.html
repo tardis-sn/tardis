@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=1f4569a7"></script>
+      <script src="../../../../_static/documentation_options.js?v=135e519d"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4745,16 +4745,35 @@ def get_line_id_range_nonhomologous(
     line_list_nu: npt.NDArray[np.float64],
     comov_nu_start: float,
     comov_nu_end: float,
+    minimum_frequency_padding: float,
 ) -&gt; tuple[int, int, int]:
-    &quot;&quot;&quot;Return directional line-list bounds for one monotonic path interval.
+    &quot;&quot;&quot;Return directional candidate line-list bounds for a monotonic interval.
 
-    The transport line list is ordered by descending frequency. The returned
-    range conservatively includes both interval endpoint frequencies; the
-    distance bounds reject a resonance at the packet&#39;s interval start.
+    The transport line list is ordered by descending frequency. Both endpoint
+    frequencies are included, with padding for numerical uncertainty. The
+    caller excludes previously processed lines and checks resonance distances
+    against the spatial interval.
+
+    Parameters
+    ----------
+    line_list_nu : numpy.ndarray
+        Line frequencies in descending order.
+    comov_nu_start : float
+        Comoving frequency at the interval start, in Hz.
+    comov_nu_end : float
+        Comoving frequency at the interval end, in Hz.
+    minimum_frequency_padding : float
+        Minimum padding in Hz, used to admit the starting close-frequency band.
+
+    Returns
+    -------
+    tuple[int, int, int]
+        Start line ID, exclusive stop line ID, and directional ID step.
     &quot;&quot;&quot;
     line_count = len(line_list_nu)
-    frequency_tolerance = CLOSE_LINE_THRESHOLD * max(
-        abs(comov_nu_start), abs(comov_nu_end)
+    frequency_tolerance = max(
+        CLOSE_LINE_THRESHOLD * max(abs(comov_nu_start), abs(comov_nu_end)),
+        minimum_frequency_padding,
     )
     minimum_frequency = min(comov_nu_start, comov_nu_end) - frequency_tolerance
     maximum_frequency = max(comov_nu_start, comov_nu_end) + frequency_tolerance
@@ -4853,7 +4872,7 @@ def calculate_distance_electron(electron_density, tau_event):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Nov 2026.
+      <span class="lastupdated">Last updated on 10 Nov 2026.
       </span></p>
   </div>
 
