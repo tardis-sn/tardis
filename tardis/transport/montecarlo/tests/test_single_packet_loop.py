@@ -17,6 +17,7 @@ from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     EstimatorsBulk,
 )
@@ -39,8 +40,280 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
 )
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
+)
 
 RTOL = 1.0e-12
+C_CGS = const.c.cgs.value
+
+
+@pytest.mark.parametrize(
+    "mode", ["homologous_partial", "homologous_full", "nonhomologous_partial"]
+)
+def test_transparent_ejecta_escapes_at_geometric_boundary(
+    mode: str,
+    parametrized_packet: RPacket,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
+    classic_opacity_state: OpacityStateNumba,
+    bulk_estimators: EstimatorsBulk,
+    line_estimators: EstimatorsLine,
+    montecarlo_configuration: MonteCarloConfiguration,
+    set_seed_fixture: Callable[[int], None],
+) -> None:
+    """Verify transparent transport against a spherical chord (verification).
+
+    Claim: zero-opacity packets escape at the outer sphere, accumulating only
+    the per-segment bulk path estimators. Regime: two shells, outward oblique
+    ray, zero electron density/tau, retained lines outside the frequency sweep.
+    Verification: impact-parameter geometry and analytic Lorentz factors,
+    independently of the movement/frame/estimator helpers. The bulk oracle
+    characterizes the current segment-start Doppler quadrature, rather than
+    claiming an exact continuous integral. rtol=1e-12, atol=0 allows floating
+    point geometry/transform rounding. Detects wrong frame, movement, shell
+    dispatch, or residual line/electron opacity.
+    """
+    geometry = homologous_radial_1d_geometry
+    time_explosion = geometry.time_explosion
+    full = mode == "homologous_full"
+    propagate = classic_propagation.packet_propagation
+    if mode == "nonhomologous_partial":
+        geometry = NumbaRadial1DGeometry(
+            geometry.r_inner,
+            geometry.r_outer,
+            np.array([1.0e8, 2.0e8]),
+            np.array([2.0e8, 3.0e8]),
+        )
+        propagate = nonhomologous_propagation.packet_propagation
+    montecarlo_configuration.ENABLE_FULL_RELATIVITY = full
+    classic_opacity_state.electron_density[:] = 0.0
+    classic_opacity_state.tau_sobolev[:] = 0.0
+    # Both retained lines lie blueward of the entire escaping packet sweep.
+    classic_opacity_state.line_list_nu[:] = [1.0e16, 9.0e15]
+    packet = parametrized_packet
+    radius, mu, energy, frequency = (
+        packet.r,
+        packet.mu,
+        packet.energy,
+        packet.nu,
+    )
+    if mode == "nonhomologous_partial":
+        velocity = 1.0e8 + 1.0e8 * (radius - geometry.r_inner[0]) / (
+            geometry.r_outer[0] - geometry.r_inner[0]
+        )
+    else:
+        velocity = radius / time_explosion
+    beta = velocity / C_CGS
+    inverse_doppler = 1.0 / (1.0 - beta * mu)
+    if full:
+        inverse_doppler = (1.0 + beta * mu) / np.sqrt(1.0 - beta**2)
+        mu = (mu + beta) / (1.0 + beta * mu)
+    lab_energy, lab_frequency = (
+        energy * inverse_doppler,
+        frequency * inverse_doppler,
+    )
+    impact_squared = radius**2 * (1.0 - mu**2)
+    endpoints = np.sqrt(geometry.r_outer**2 - impact_squared)
+    starts = np.array([radius * mu, endpoints[0]])
+    lengths = endpoints - starts
+    start_radii = np.array([radius, geometry.r_outer[0]])
+    start_mus = starts / start_radii
+    velocities = start_radii / time_explosion
+    if mode == "nonhomologous_partial":
+        velocities = np.array([velocity, 2.0e8])
+    betas = velocities / C_CGS
+    dopplers = 1.0 - betas * start_mus
+    if full:
+        dopplers /= np.sqrt(1.0 - betas**2)
+    comoving_lengths = lengths * (dopplers if full else 1.0)
+    expected_intensity = lab_energy * dopplers * comoving_lengths
+    expected_frequency = expected_intensity * lab_frequency * dopplers
+    tracker = TrackerFull(8, 2)
+    set_seed_fixture(1963)
+    propagate(
+        packet,
+        geometry,
+        time_explosion,
+        classic_opacity_state,
+        bulk_estimators,
+        line_estimators,
+        tracker,
+        montecarlo_configuration,
+    )
+    tracker.finalize()
+
+    npt.assert_allclose(packet.r, geometry.r_outer[-1], rtol=RTOL, atol=0)
+    npt.assert_allclose(
+        packet.mu, endpoints[-1] / geometry.r_outer[-1], rtol=RTOL, atol=0
+    )
+    npt.assert_allclose(
+        [packet.energy, packet.nu],
+        [lab_energy, lab_frequency],
+        rtol=RTOL,
+        atol=0,
+    )
+    assert packet.current_shell_id == 1
+    assert packet.status == PacketStatus.EMITTED
+    npt.assert_array_equal(
+        tracker.interaction_type, np.full(4, InteractionType.BOUNDARY)
+    )
+    npt.assert_array_equal(tracker.before_shell_id, [-1, 0, 1, 1])
+    npt.assert_array_equal(tracker.after_shell_id, [0, 1, 2, 2])
+    npt.assert_allclose(
+        tracker.radius,
+        [radius, *geometry.r_outer, geometry.r_outer[-1]],
+        rtol=RTOL,
+        atol=0,
+    )
+    npt.assert_allclose(
+        bulk_estimators.mean_intensity_total,
+        expected_intensity,
+        rtol=RTOL,
+        atol=0,
+    )
+    npt.assert_allclose(
+        bulk_estimators.mean_frequency, expected_frequency, rtol=RTOL, atol=0
+    )
+    npt.assert_array_equal(line_estimators.mean_intensity_blueward, 0.0)
+    npt.assert_array_equal(line_estimators.energy_deposition_line_rate, 0.0)
+
+
+@pytest.mark.parametrize(
+    "mode", ["homologous_partial", "homologous_full", "nonhomologous_partial"]
+)
+@pytest.mark.parametrize(
+    ("tau", "expected_line_events"), [(0.0, 0), (100.0, 1)]
+)
+def test_isolated_line_obeys_zero_and_opaque_limits(
+    mode: str,
+    tau: float,
+    expected_line_events: int,
+    parametrized_packet: RPacket,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
+    classic_opacity_state: OpacityStateNumba,
+    bulk_estimators: EstimatorsBulk,
+    line_estimators: EstimatorsLine,
+    montecarlo_configuration: MonteCarloConfiguration,
+    set_seed_fixture: Callable[[int], None],
+) -> None:
+    """A tau=0 line is never absorbed; a tau=100 line is absorbed exactly once.
+
+    Regime: electron-free two-shell ejecta, one reachable line plus a far
+    red sentinel, SCATTER. The interaction probability is 1 - exp(-tau): 0 and
+    1 - 4e-44, so the outcome does not depend on the random seed.
+    """
+    geometry = homologous_radial_1d_geometry
+    time_explosion = geometry.time_explosion
+    propagate = classic_propagation.packet_propagation
+    if mode == "nonhomologous_partial":
+        geometry = NumbaRadial1DGeometry(
+            geometry.r_inner,
+            geometry.r_outer,
+            geometry.v_inner,
+            geometry.v_outer,
+        )
+        propagate = nonhomologous_propagation.packet_propagation
+    montecarlo_configuration.ENABLE_FULL_RELATIVITY = mode == "homologous_full"
+    opacity = classic_opacity_state
+    opacity.electron_density[:] = 0.0
+    opacity.line_list_nu[:] = [3.9999e14, 1.0e9]
+    opacity.tau_sobolev[:] = 0.0
+    opacity.tau_sobolev[0, :] = tau
+    tracker = TrackerFull(16, 2)
+    set_seed_fixture(1963)
+    propagate(
+        parametrized_packet,
+        geometry,
+        time_explosion,
+        opacity,
+        bulk_estimators,
+        line_estimators,
+        tracker,
+        montecarlo_configuration,
+    )
+    tracker.finalize()
+
+    line_events = tracker.interaction_type == InteractionType.LINE
+    assert np.count_nonzero(line_events) == expected_line_events
+    npt.assert_array_equal(tracker.line_absorb_id[line_events], 0)
+    npt.assert_array_equal(tracker.line_emit_id[line_events], 0)
+
+
+@pytest.mark.parametrize(
+    "mode", ["homologous_partial", "homologous_full", "nonhomologous_partial"]
+)
+def test_electron_opaque_limit_selects_thomson_scattering(
+    mode: str,
+    parametrized_packet: RPacket,
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
+    classic_opacity_state: OpacityStateNumba,
+    bulk_estimators: EstimatorsBulk,
+    line_estimators: EstimatorsLine,
+    montecarlo_configuration: MonteCarloConfiguration,
+    set_seed_fixture: Callable[[int], None],
+) -> None:
+    """Verify electron opacity selects the exponential free path (verification).
+
+    Claim: the first physical event in an electron-opaque shell is Thomson
+    scattering at s=-log(U)/chi. Regime: shell optical depth 100, zero line
+    tau and retained blue lines outside the sweep. Verification: independent
+    spherical chord and 1-exp(-100) probability, including the FULL Doppler
+    opacity factor. Exact event types and rtol=1e-12, atol=0 for geometry
+    detect missing electron opacity or an incorrectly wired process/frame.
+    """
+    geometry = homologous_radial_1d_geometry
+    time_explosion = geometry.time_explosion
+    propagate = classic_propagation.packet_propagation
+    if mode == "nonhomologous_partial":
+        geometry = NumbaRadial1DGeometry(
+            geometry.r_inner,
+            geometry.r_outer,
+            geometry.v_inner,
+            geometry.v_outer,
+        )
+        propagate = nonhomologous_propagation.packet_propagation
+    full = mode == "homologous_full"
+    montecarlo_configuration.ENABLE_FULL_RELATIVITY = full
+    packet = parametrized_packet
+    radius, mu = packet.r, packet.mu
+    beta = radius / time_explosion / C_CGS
+    if full:
+        mu = (mu + beta) / (1.0 + beta * mu)
+    chord = (
+        np.sqrt(geometry.r_outer[0] ** 2 - radius**2 * (1.0 - mu**2))
+        - radius * mu
+    )
+    doppler = (1.0 - beta * mu) / np.sqrt(1.0 - beta**2) if full else 1.0
+    opacity = classic_opacity_state
+    opacity.electron_density[:] = 0.0
+    opacity.electron_density[0] = 100.0 / (chord * SIGMA_THOMSON * doppler)
+    opacity.tau_sobolev[:] = 0.0
+    opacity.line_list_nu[:] = [1.0e16, 9.0e15]
+    seed = 1963
+    uniform = np.random.RandomState(seed).random_sample()
+    assert uniform > np.exp(-100.0)
+    distance = -np.log(uniform) * chord / 100.0
+    expected_radius = np.sqrt(
+        radius**2 + distance**2 + 2.0 * radius * distance * mu
+    )
+    tracker = TrackerFull(64, 2)
+    set_seed_fixture(seed)
+    propagate(
+        packet,
+        geometry,
+        time_explosion,
+        opacity,
+        bulk_estimators,
+        line_estimators,
+        tracker,
+        montecarlo_configuration,
+    )
+    tracker.finalize()
+    assert tracker.interaction_type[1] == InteractionType.ESCATTERING
+    npt.assert_allclose(tracker.radius[1], expected_radius, rtol=RTOL, atol=0)
+    assert not np.any(tracker.interaction_type == InteractionType.LINE)
+    npt.assert_array_equal(line_estimators.mean_intensity_blueward, 0.0)
+    npt.assert_array_equal(line_estimators.energy_deposition_line_rate, 0.0)
 
 
 class _RecordingTracker:

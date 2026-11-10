@@ -1,5 +1,3 @@
-from enum import IntEnum
-
 import numpy as np
 from numba import njit
 
@@ -11,6 +9,9 @@ from tardis.transport.frame_transformations import (
     get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.kernels.configuration_enums import (
+    LineInteractionType,  # noqa: F401 -- shared module attribute used by callers
+)
 from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
     RPacket,
@@ -220,12 +221,6 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
         #r_packet.mu = angle_aberration_CMF_to_LF(
         #    r_packet, geometry, r_packet.mu
         #)
-
-
-class LineInteractionType(IntEnum):
-    SCATTER = 0
-    DOWNBRANCH = 1
-    MACROATOM = 2
 
 
 @njit(**njit_dict_no_parallel)

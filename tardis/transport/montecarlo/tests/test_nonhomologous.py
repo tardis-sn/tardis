@@ -8,7 +8,11 @@ import pandas.testing as pdt
 import pytest
 from numpy.typing import NDArray
 
+from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_homologous import (
+    NumbaHomologousRadial1DGeometry,
+)
 from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
 from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
@@ -28,6 +32,9 @@ from tardis.transport.montecarlo.estimators.estimators_bulk import (
 )
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
+)
+from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
+    trace_packet as trace_homologous,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.interaction_event_callers import (
     line_scatter_event as nonhomologous_line_scatter_event,
@@ -71,6 +78,99 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
     RPacket,
 )
+
+
+@pytest.mark.parametrize(
+    ["comoving_frequency_ratio", "mu", "next_line_id"],
+    [
+        (1.0 + 1.0e-3, 0.3, 0),  # approaching the line from the blue
+        (1.0, 0.9, 1),  # just emitted in the line, moving outward
+        (1.0, 0.5, 1),
+        (1.0, -0.5, 1),  # just emitted in the line, moving inward
+    ],
+)
+def test_nonhomologous_trace_matches_homologous_in_homologous_flow(
+    homologous_radial_1d_geometry: NumbaHomologousRadial1DGeometry,
+    classic_opacity_state: OpacityStateNumba,
+    set_seed_fixture: Callable[[int], None],
+    comoving_frequency_ratio: float,
+    mu: float,
+    next_line_id: int,
+) -> None:
+    """Nonhomologous transport reproduces homologous transport for v = r/t.
+
+    Regime: two shells with v = r/t, no electrons, one opaque line and a far
+    red sentinel line. In homologous flow the comoving frequency falls
+    monotonically along every ray, so a packet just emitted in a line can
+    never come back into resonance with it.
+    Verification: the homologous trace is the reference for the event,
+    the shell change and the distance. The resonance distance is the root
+    of a condition with slope 1/(ct), so in float64 it is pinned only to
+    about eps*ct (~350 cm); allow ten times that.
+    """
+    homologous = homologous_radial_1d_geometry
+    nonhomologous = NumbaRadial1DGeometry(
+        homologous.r_inner,
+        homologous.r_outer,
+        homologous.v_inner,
+        homologous.v_outer,
+    )
+    opacity_state = classic_opacity_state
+    opacity_state.electron_density[:] = 0.0
+    opacity_state.line_list_nu[:] = [4.0e14, 1.0e9]
+    opacity_state.tau_sobolev[:] = 0.0
+    opacity_state.tau_sobolev[0, :] = 100.0
+    radius = 7.5e14
+    ct = const.c.cgs.value * homologous.time_explosion
+    lab_frequency = (
+        comoving_frequency_ratio
+        * opacity_state.line_list_nu[0]
+        / (1.0 - radius * mu / ct)
+    )
+
+    homologous_packet = RPacket(radius, mu, lab_frequency, 1.0, 42, 0)
+    homologous_packet.next_line_id = next_line_id
+    set_seed_fixture(42)
+    homologous_distance, homologous_event, homologous_delta_shell = (
+        trace_homologous(
+            homologous_packet,
+            homologous,
+            homologous.time_explosion,
+            opacity_state,
+            EstimatorsLine(np.zeros((2, 2)), np.zeros((2, 2))),
+            0.0,  # continuum opacity
+            1.0,  # electron scattering probability
+            False,  # continuum processes
+            False,  # full relativity
+            False,  # disable line scattering
+        )
+    )
+
+    nonhomologous_packet = RPacket(radius, mu, lab_frequency, 1.0, 42, 0)
+    nonhomologous_packet.next_line_id = next_line_id
+    set_seed_fixture(42)
+    nonhomologous_distance, nonhomologous_event, nonhomologous_delta_shell = (
+        nonhomologous_trace_packet(
+            nonhomologous_packet,
+            nonhomologous,
+            opacity_state,
+            EstimatorsLine(np.zeros((2, 2)), np.zeros((2, 2))),
+            0.0,  # electron opacity
+            False,  # full relativity
+            False,  # disable line scattering
+        )
+    )
+
+    assert nonhomologous_event == homologous_event, (
+        "nonhomologous transport found a different event in homologous flow"
+    )
+    assert nonhomologous_delta_shell == homologous_delta_shell
+    npt.assert_allclose(
+        nonhomologous_distance,
+        homologous_distance,
+        rtol=0,
+        atol=10.0 * np.finfo(np.float64).eps * ct,
+    )
 
 
 @pytest.mark.parametrize(
