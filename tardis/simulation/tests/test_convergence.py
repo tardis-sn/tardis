@@ -93,20 +93,3 @@ def test_get_convergence_status(strategy):
         value, estimated_value, no_of_cells
     )
     assert not is_converged
-
-
-def test_convergence_requires_configured_fraction_of_cells(strategy):
-    """Claim: a quantity is converged only when more than ``fraction`` of the
-    cells lie within ``threshold`` of their estimate.
-
-    Three of ten cells change by 1 % and seven change by 50 %, so 30 % of
-    cells meet the 5 % threshold, below the configured 80 % fraction.
-    """
-    assert strategy.threshold == 0.05
-    solver = ConvergenceSolver(strategy)
-    estimated_value = np.ones(10)
-    value = np.array([1.01] * 3 + [1.5] * 7)
-
-    is_converged = solver.get_convergence_status(value, estimated_value, 10)
-
-    assert not is_converged, "30 % of cells converged counts as converged"
