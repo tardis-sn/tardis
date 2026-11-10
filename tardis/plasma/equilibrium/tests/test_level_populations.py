@@ -11,6 +11,7 @@ from tardis.plasma.electron_energy_distribution import (
 )
 from tardis.plasma.equilibrium.evaluator import (
     calculate_nlte_level_population_residual,
+    calculate_relative_level_residual,
 )
 from tardis.plasma.equilibrium.inputs import (
     LevelEquationRates,
@@ -243,7 +244,7 @@ def test_relative_level_residual_does_not_depend_on_rate_unit() -> None:
         line_index,
     )
 
-    residuals = {}
+    relative_residuals = {}
     for scale in (1.0, rate_scale):
         rate_matrix_solver = RateMatrix(
             RadiativeRatesSolver(
@@ -262,34 +263,57 @@ def test_relative_level_residual_does_not_depend_on_rate_unit() -> None:
                 {"energy": [0.0, 1.0], "g": [2.0, 4.0]}, index=level_index
             ),
         )
-        residual, _, _, total_rate = calculate_nlte_level_population_residual(
-            np.array([0.3, 0.7]),
-            LevelEquationRates(
-                np.array([2.0, 0.0]) * scale,
-                np.array([0.0, 4.0]) * scale,
-                np.zeros((2, 2)),
-            ),
-            rate_matrix_solver,
-            pd.DataFrame([1.0], index=line_index),
-            ThermalElectronEnergyDistribution(
-                0.0 * u.erg,
-                np.array([1.0e4]) * u.K,
-                np.array([1.0e9]) / u.cm**3,
-            ),
-            (1, 0),
-            ShellNumberDensity(
-                1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
-            ),
-            sobolev,
+        residual, _, ionized_to_neutral_ratio, total_rate = (
+            calculate_nlte_level_population_residual(
+                np.array([0.3, 0.7]),
+                LevelEquationRates(
+                    np.array([2.0, 3.0]) * scale,
+                    np.array([0.0, 4.0]) * scale,
+                    -np.diag(np.array([2.0, 3.0])) * scale,
+                ),
+                rate_matrix_solver,
+                pd.DataFrame([1.0], index=line_index),
+                ThermalElectronEnergyDistribution(
+                    0.0 * u.erg,
+                    np.array([1.0e4]) * u.K,
+                    np.array([1.0e9]) / u.cm**3,
+                ),
+                (1, 0),
+                ShellNumberDensity(
+                    1.0e10, np.array([1.0e10, 0.0]), np.array([0, 1])
+                ),
+                sobolev,
+            )
         )
-        residuals[scale] = (residual, residual / total_rate)
 
-    absolute, relative = residuals[1.0]
-    scaled_absolute, scaled_relative = residuals[rate_scale]
+        # q = (Gamma_0 b_0 + Gamma_1 b_1) / (alpha_0 + alpha_1), with
+        # Gamma = (2, 3), b = (0.3, 0.7), and alpha = (0, 4).
+        expected_ionized_to_neutral_ratio = (2.0 * 0.3 + 3.0 * 0.7) / 4.0
+        # For level 1, R_0->1 = B_lu J = 1 and R_1->0 = A_ul = 2, so
+        # total rate = |R_0->1 b_0| + |(-R_1->0 - Gamma_1) b_1| + |alpha_1 q|.
+        expected_total_rate = np.array(
+            [
+                1.0,
+                (
+                    abs(1.0 * 0.3)
+                    + abs((-2.0 - 3.0) * 0.7)
+                    + abs(4.0 * expected_ionized_to_neutral_ratio)
+                )
+                * scale,
+            ]
+        )
+        npt.assert_allclose(
+            ionized_to_neutral_ratio, expected_ionized_to_neutral_ratio
+        )
+        npt.assert_allclose(total_rate, expected_total_rate, rtol=1e-12)
+        relative_residuals[scale] = calculate_relative_level_residual(
+            residual, total_rate
+        )
+
+    # Rescaling every rate changes its time unit, not the relative closure.
     npt.assert_allclose(
-        scaled_absolute[1], rate_scale * absolute[1], rtol=1e-12
+        relative_residuals[rate_scale], relative_residuals[1.0], rtol=1e-12
     )
-    npt.assert_allclose(scaled_relative, relative, rtol=1e-12)
 
 
 def test_equilibrium_rate_matrices_converge_to_equilibrium_lte(
