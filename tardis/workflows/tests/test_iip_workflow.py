@@ -124,6 +124,22 @@ def test_workflow_initial_populations_match_ctardis(
     )
 
 
+def test_workflow_initial_electron_number_density_conserves_charge(
+    type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """The initial n_e equals the free-electron number density of the ions."""
+    ion_number_density = type_iip_workflow.plasma_solver.ion_number_density
+    ion_charge = ion_number_density.index.get_level_values("ion_number")
+    free_electron_number_density = ion_number_density.multiply(
+        ion_charge, axis=0
+    ).sum()
+    np.testing.assert_allclose(
+        type_iip_workflow.plasma_solver.electron_densities,
+        free_electron_number_density,
+        rtol=1e-9,
+    )
+
+
 def test_workflow_initial_opacity_matches_ctardis(
     type_iip_workflow: TypeIIPWorkflow,
     ctardis_reference_path: Path,
