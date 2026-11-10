@@ -230,11 +230,12 @@ class StandardTARDISWorkflow(
             if self.convergence_plots is not None:
                 self.convergence_plots.update()
 
+            self.converged = self.check_convergence(estimated_values)
+
             self.solve_simulation_state(estimated_values)
 
             self.solve_plasma(estimated_radfield_properties)
 
-            self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
 
             if self.converged and self.convergence_strategy.stop_if_converged:

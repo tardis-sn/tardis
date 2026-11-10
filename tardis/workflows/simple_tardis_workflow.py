@@ -265,6 +265,15 @@ class SimpleTARDISWorkflow:
                 f"Iteration converged {self.consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
                 f"times."
             )
+            if (
+                self.consecutive_converges_count == hold_iterations + 1
+                and not self.convergence_strategy.stop_if_converged
+            ):
+                logger.info(
+                    "Convergence criteria met, but "
+                    "convergence_strategy.stop_if_converged is False. "
+                    "Set it to True to stop once converged."
+                )
             return self.consecutive_converges_count >= hold_iterations + 1
 
         self.consecutive_converges_count = 0
@@ -502,11 +511,12 @@ class SimpleTARDISWorkflow:
                 estimated_radfield_properties,
             ) = self.get_convergence_estimates()
 
+            self.converged = self.check_convergence(estimated_values)
+
             self.solve_simulation_state(estimated_values)
 
             self.solve_plasma(estimated_radfield_properties)
 
-            self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
 
             if self.converged and self.convergence_strategy.stop_if_converged:
