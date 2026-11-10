@@ -231,11 +231,19 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
             )
             less_than_chi_0 = (ionization_data < self.chi_0).to_numpy()
             factor_a = t_electrons / (departure_coefficient * w * t_rad)
-            radiation_field_correction[~less_than_chi_0] = factor_a * np.exp(
+            # With T_e > T_rad, delta overflows for ions with a very high
+            # ionization energy. Phi multiplies delta by exp(-chi beta_rad),
+            # which has then underflowed to zero, so the largest finite
+            # delta gives the exact (zero) Phi instead of 0 * inf. This holds
+            # for T_e < ~19 T_rad; finite values of delta are unchanged.
+            high_energy_correction = factor_a * np.exp(
                 np.outer(
                     ionization_data.to_numpy()[~less_than_chi_0],
                     beta_rad - beta_electron,
                 )
+            )
+            radiation_field_correction[~less_than_chi_0] = np.minimum(
+                high_energy_correction, np.finfo(np.float64).max
             )
             radiation_field_correction[less_than_chi_0] = 1 - np.exp(
                 np.outer(ionization_data.to_numpy()[less_than_chi_0], beta_rad)

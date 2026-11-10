@@ -1,6 +1,5 @@
 """Nonhomologous mode packet transport - line-only without continuum processes."""
 
-import numpy as np
 from numba import njit
 
 from tardis import constants as const
@@ -30,6 +29,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
     trace_packet,
+    update_line_ids,
 )
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
@@ -100,9 +100,6 @@ def packet_propagation(
             "Full relativity not supported for non-homology."
         )
     set_packet_props_partial_relativity(r_packet, geometry)
-    # Manually perform the function of r_packet.initialize_line_id for now until
-    # nonhomology is supported
-    inverse_line_list_nu = opacity_state.line_list_nu[::-1]
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     doppler_factor = get_doppler_factor(
         v,
@@ -110,13 +107,7 @@ def packet_propagation(
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
     )
     comov_nu = r_packet.nu * doppler_factor
-    next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
-        inverse_line_list_nu, comov_nu
-    )
-    if next_line_id == len(opacity_state.line_list_nu):
-        next_line_id -= 1
-    r_packet.next_line_id = next_line_id
-    r_packet.prev_line_id = next_line_id - 1
+    update_line_ids(r_packet, opacity_state.line_list_nu, comov_nu)
 
     rpacket_tracker.track_boundary_event(
         r_packet, from_shell_id=-1, to_shell_id=0
@@ -151,6 +142,16 @@ def packet_propagation(
         )
 
         if interaction_type == InteractionType.BOUNDARY:
+            next_shell_id = r_packet.current_shell_id + delta_shell
+            is_velocity_discontinuous = False
+            if 0 <= next_shell_id < len(geometry.r_inner):
+                if delta_shell == 1:
+                    edge_velocity = geometry.v_outer[r_packet.current_shell_id]
+                    next_edge_velocity = geometry.v_inner[next_shell_id]
+                else:
+                    edge_velocity = geometry.v_inner[r_packet.current_shell_id]
+                    next_edge_velocity = geometry.v_outer[next_shell_id]
+                is_velocity_discontinuous = edge_velocity != next_edge_velocity
             move_r_packet(
                 r_packet,
                 distance,
@@ -169,6 +170,18 @@ def packet_propagation(
                 delta_shell,
                 len(geometry.r_inner),
             )
+            if is_velocity_discontinuous:
+                incoming_velocity = geometry.get_velocity(
+                    r_packet.r, r_packet.current_shell_id
+                )
+                incoming_comov_nu = r_packet.nu * get_doppler_factor(
+                    incoming_velocity,
+                    r_packet.mu,
+                    montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                )
+                update_line_ids(
+                    r_packet, opacity_state.line_list_nu, incoming_comov_nu
+                )
 
         elif interaction_type == InteractionType.LINE:
             move_r_packet(

@@ -4,12 +4,17 @@ import numpy as np
 from numba import njit
 
 from tardis import constants as const
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
+from tardis.transport.montecarlo.packets.radiative_packet import (
+    PacketStatus,
+    RPacket,
+)
 from tardis.transport.montecarlo.utils import get_random_mu
 
 K_B = const.k_B.cgs.value
@@ -225,24 +230,28 @@ class LineInteractionType(IntEnum):
 
 @njit(**njit_dict_no_parallel)
 def line_emission(
-    r_packet,
-    emission_line_id,
-    geometry,
-    opacity_state,
-    enable_full_relativity,
-):
+    r_packet: RPacket,
+    emission_line_id: int,
+    geometry: NumbaRadial1DGeometry,
+    opacity_state: OpacityStateNumba,
+    enable_full_relativity: bool,
+) -> None:
     """
-    Sets the frequency of the RPacket properly given the emission channel
+    Set packet frequency and exclude the emitting line in both directions.
 
     Parameters
     ----------
-    r_packet : tardis.transport.montecarlo.r_packet.RPacket
+    r_packet : RPacket
+        Packet whose outgoing frequency and line cursors are updated.
     emission_line_id : int
+        Line selected by the emission channel.
     geometry : NumbaRadial1DGeometry
-    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
+        Geometry supplying the local velocity.
+    opacity_state : OpacityStateNumba
+        Opacity state containing the line frequencies.
+    enable_full_relativity : bool
+        Whether full relativistic transformations are enabled.
     """
-    if emission_line_id != r_packet.next_line_id:
-        pass
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     inverse_doppler_factor = get_inverse_doppler_factor(
         v,
@@ -253,6 +262,7 @@ def line_emission(
         opacity_state.line_list_nu[emission_line_id] * inverse_doppler_factor
     )
     r_packet.next_line_id = emission_line_id + 1
+    r_packet.prev_line_id = emission_line_id - 1
 
     if enable_full_relativity:
         raise NotImplementedError("Full relativity not implemented in non-homologous mode.")

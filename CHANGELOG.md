@@ -1,5 +1,11 @@
 ## Changelog
 
+### release-2026.11.08 (2026/11/04 15:20)
+- [3799](https://github.com/tardis-sn/tardis/pull/3799) Move vpackets to the spectrum solver (3799) (@andrewfullard)
+- [3816](https://github.com/tardis-sn/tardis/pull/3816) Partial absorbing chain reduction attempt 2 (3816) (@jvshields)
+- [3818](https://github.com/tardis-sn/tardis/pull/3818) Make clean-docs wait for a running publish-docs on the same branch (3818) (@atharva-2001)
+- [3801](https://github.com/tardis-sn/tardis/pull/3801) Opacity state gained an early return from a bad merge (3801) (@andrewfullard)
+- [3815](https://github.com/tardis-sn/tardis/pull/3815) Post-release 2026.11.02 (3815) (@tardis-bot)
 ### release-2026.11.02 (2026/11/02 09:39)
 - [3805](https://github.com/tardis-sn/tardis/pull/3805) Pre-release 2026.11.01 (3805) (@tardis-bot)
 - [3787](https://github.com/tardis-sn/tardis/pull/3787) Resolve issues with fixtures that change with test order (3787) (@andrewfullard)

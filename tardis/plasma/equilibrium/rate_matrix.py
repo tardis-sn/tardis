@@ -59,12 +59,32 @@ class RateMatrix:
         thermal_electron_energy_distribution: ThermalElectronEnergyDistribution,
         species: tuple[int, int],
         line_index: pd.Index,
+        collisional_rate_coefficients: pd.DataFrame | None = None,
     ) -> tuple[BoundBoundMatrixRates, ...]:
         """Prepare fixed transition arrays for every shell of one species.
 
         Rows of ``j_blues`` follow ``line_index``. Only lines of species held
         by the radiative rate solver are used, so other species in
         ``line_index`` may have several lines between one level pair.
+
+        Parameters
+        ----------
+        j_blues : pandas.DataFrame
+            Line mean intensities with rows following ``line_index``.
+        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
+            Electron temperatures and densities of the shells.
+        species : tuple[int, int]
+            Atomic and ion number of the species.
+        line_index : pandas.Index
+            Line index labelling the rows of ``j_blues``.
+        collisional_rate_coefficients : pandas.DataFrame, optional
+            Output of ``electron_rate_solver.solve`` at the temperatures of
+            ``thermal_electron_energy_distribution``. Calculated when omitted.
+
+        Returns
+        -------
+        tuple[BoundBoundMatrixRates, ...]
+            Transition arrays for each shell.
         """
         level_names = ["level_number_lower", "level_number_upper"]
         solver_species_index = (
@@ -78,9 +98,11 @@ class RateMatrix:
         radiative_rates = self.radiative_rate_solver.solve(
             j_blues.iloc[solver_line_idx]
         )
-        collisional_rates = self.electron_rate_solver.solve(
-            thermal_electron_energy_distribution.temperature
-        )
+        if collisional_rate_coefficients is None:
+            collisional_rate_coefficients = self.electron_rate_solver.solve(
+                thermal_electron_energy_distribution.temperature
+            )
+        collisional_rates = collisional_rate_coefficients
         radiative_species_mask = (
             radiative_rates.index.get_level_values("atomic_number")
             == species[0]
