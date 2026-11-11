@@ -153,9 +153,6 @@ The following pairs use this setup:
    * - ``compare-regdata``
      - ``publish-regdata-comparison``
      - Regression-data comparison page and comment
-   * - ``mailmap``
-     - ``publish-mailmap``
-     - Failure guidance comment
    * - ``orcid-check``
      - ``publish-orcid``
      - Missing-ORCID guidance comment
