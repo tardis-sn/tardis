@@ -107,7 +107,7 @@ def int_to_roman(i):
     return "".join(result)
 
 
-def roman_to_int(roman_string):
+def roman_to_int(roman_string: str) -> int:
     """
     Convert a roman numeral into its corresponding integer.
 
@@ -130,7 +130,7 @@ def roman_to_int(roman_string):
         while roman_string[i : i + len(numeral)] == numeral:
             result += integer
             i += len(numeral)
-    if result < 1:
+    if result < 1 or i != len(roman_string):
         raise ValueError(f"Can not interpret Roman Numeral {roman_string}")
     return result
 
