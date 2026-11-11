@@ -3,6 +3,7 @@ from copy import deepcopy
 import numpy.testing as npt
 import pytest
 
+from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.simulation import Simulation
 
 
@@ -143,4 +144,38 @@ def test_montecarlo_transport_hydrogen_only(
     expected_j_estimator = regression_data.sync_ndarray(transport.j_estimator)
     npt.assert_allclose(
         transport.j_estimator, expected_j_estimator, atol=0, rtol=1e-12
+    )
+
+
+def test_montecarlo_transport_scatter_only(
+    config_verysimple, atomic_dataset, regression_data
+):
+    """Claim: Scatter-only transport produces reproducible packet output.
+
+    Regime: The deterministic very-simple model with line scattering, one
+    iteration, and 4000 tracked packets.
+    Verification: The transport history contains a line interaction, and the
+    packet output and bulk estimators match stored regression data.
+    """
+    config = deepcopy(config_verysimple)
+    config.montecarlo.iterations = 1
+    config.montecarlo.no_of_packets = 4000
+    config.montecarlo.last_no_of_packets = 4000
+    config.plasma.line_interaction_type = "scatter"
+
+    atomic_data = deepcopy(atomic_dataset)
+    simulation = Simulation.from_config(config, atom_data=atomic_data)
+    simulation.run_final()
+
+    assert simulation.macro_atom_state is None
+    transport_state = simulation.transport.transport_state
+    last_interactions = transport_state.tracker_last_interaction_df
+    assert (last_interactions["last_interaction_type"] == "LINE").any()
+    sync_ndarray_assert_allclose(
+        regression_data,
+        transport_state.packet_collection.output_nus,
+        transport_state.packet_collection.output_energies,
+        transport_state.estimators_bulk.mean_frequency,
+        transport_state.estimators_bulk.mean_intensity_total,
+        rtol=1e-12,
     )
