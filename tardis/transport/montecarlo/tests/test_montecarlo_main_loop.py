@@ -144,3 +144,25 @@ def test_montecarlo_transport_hydrogen_only(
     npt.assert_allclose(
         transport.j_estimator, expected_j_estimator, atol=0, rtol=1e-12
     )
+
+
+def test_montecarlo_transport_scatter_only(config_verysimple, atomic_dataset):
+    """Claim: Scatter-only transport does not require macro-atom state.
+
+    Regime: The deterministic very-simple model with line scattering, one
+    iteration, and 4000 tracked packets.
+    Verification: The transport history records a line interaction, proving
+    that the scatter handler ran.
+    """
+    config = deepcopy(config_verysimple)
+    config.montecarlo.iterations = 1
+    config.montecarlo.no_of_packets = 4000
+    config.montecarlo.last_no_of_packets = 4000
+    config.montecarlo.tracking.track_rpacket = True
+    config.plasma.line_interaction_type = "scatter"
+
+    simulation = Simulation.from_config(config, atom_data=atomic_dataset)
+    simulation.run_final()
+
+    tracker = simulation.transport.transport_state.tracker_full_df
+    assert (tracker["interaction_type"] == "LINE").any()
