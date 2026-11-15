@@ -15,11 +15,6 @@ from tardis.io.model.readers.generic_readers import (
 
 
 @pytest.fixture
-def artis_abundances_fname(example_model_file_dir):
-    return example_model_file_dir / "artis_abundances.dat"
-
-
-@pytest.fixture
 def cmfgen_fname(example_model_file_dir):
     return example_model_file_dir / "cmfgen_model.csv"
 

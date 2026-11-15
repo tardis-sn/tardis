@@ -24,11 +24,6 @@ CONFIG_PATHS = [
 
 
 @pytest.fixture(scope="class", params=CONFIG_PATHS, ids=["trad_init"])
-def config(request):
-    return Configuration.from_yaml(request.param)
-
-
-@pytest.fixture(scope="class", params=CONFIG_PATHS, ids=["trad_init"])
 def simulation_state(request, atomic_dataset):
     config = Configuration.from_yaml(request.param)
     return SimulationState.from_config(config, atom_data=atomic_dataset)

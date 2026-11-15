@@ -330,15 +330,3 @@ def line_estimators() -> EstimatorsLine:
 @pytest.fixture
 def continuum_estimators():
     return init_estimators_continuum((1, 2), 2)
-
-
-@pytest.fixture
-def vpacket_collection() -> VPacketCollection:
-    return VPacketCollection(
-        source_rpacket_index=0,
-        spectrum_frequency_grid=np.array([1.0e14, 2.0e14]),
-        number_of_vpackets=0,
-        v_packet_spawn_start_frequency=0.0,
-        v_packet_spawn_end_frequency=np.inf,
-        temporary_v_packet_bins=0,
-    )
