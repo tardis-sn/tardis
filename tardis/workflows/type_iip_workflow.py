@@ -81,6 +81,9 @@ from tardis.workflows.workflow_logger import WorkflowLogger
 # logging support
 logger = logging.getLogger(__name__)
 
+# Relative n_e convergence threshold of the initial ionization solve.
+INITIAL_ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD = 1e-10
+
 
 class TypeIIPWorkflow:
     """Coordinate Type IIP plasma, transport, and thermal-balance solves."""
@@ -156,6 +159,9 @@ class TypeIIPWorkflow:
 
         factory = PlasmaSolverFactory(self.atom_data, configuration)
         factory.helium_treatment = "none"
+        factory.electron_number_density_convergence_threshold = (
+            INITIAL_ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD
+        )
         factory.legacy_nlte_species = list(
             dict.fromkeys([*factory.legacy_nlte_species, (1, 0)])
         )

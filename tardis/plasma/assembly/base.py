@@ -13,6 +13,9 @@ from tardis.plasma.properties import (
     RadiationFieldCorrection,
     StimulatedEmissionFactor,
 )
+from tardis.plasma.properties.ion_population import (
+    ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD,
+)
 from tardis.util.base import species_string_to_tuple
 
 
@@ -35,6 +38,13 @@ class PlasmaSolverFactory:
     link_t_rad_t_electron: float = 1.0
 
     radiative_rates_type: str = "dilute-blackbody"
+
+    ## Ionization solve
+    # Relative change of n_e between iterations below which the ionization
+    # solve stops; it bounds the charge mismatch of the solved n_e.
+    electron_number_density_convergence_threshold: float = (
+        ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD
+    )
 
     delta_treatment = None
 
@@ -323,15 +333,25 @@ class PlasmaSolverFactory:
         self.legacy_nlte_species = map_species_from_string(nlte_species)
 
     def setup_electron_densities(self, electron_densities: object) -> None:
-        """Configure the electron-density input for the helium treatment."""
-        if self.helium_treatment == "numerical-nlte":
-            self.property_kwargs[IonNumberDensityHeNLTE] = dict(
-                electron_densities=electron_densities
-            )
-        else:
-            self.property_kwargs[IonNumberDensity] = dict(
-                electron_densities=electron_densities
-            )
+        """Configure the electron-number-density inputs of the ionization solve.
+
+        Parameters
+        ----------
+        electron_densities : object
+            Fixed electron number densities, or None to solve them with the ion
+            populations to ``electron_number_density_convergence_threshold``.
+        """
+        ion_number_density_property = (
+            IonNumberDensityHeNLTE
+            if self.helium_treatment == "numerical-nlte"
+            else IonNumberDensity
+        )
+        self.property_kwargs[ion_number_density_property] = dict(
+            electron_densities=electron_densities,
+            electron_number_density_convergence_threshold=(
+                self.electron_number_density_convergence_threshold
+            ),
+        )
 
     def assemble(
         self,
