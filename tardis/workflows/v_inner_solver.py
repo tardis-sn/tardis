@@ -250,46 +250,13 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
 
         return estimates
 
-    def reproject(self, array_one, mask_one, array_two, mask_two):
-        """Reprojects two sub_arrays defined by a set of masks onto an array where the masks of both objects are true
-
-        let A1, A2 be arrays of size gemetry.no_of_shells and
-            a1 = A1[mask_one],
-            a2 = A2[mask_two]
-        find a1*, a2* s.t.
-            a1* = A1[mask_one & mask_two],
-            a2* = A2[mask_one & mask_two]
-        this is equivalent to
-            a1* = A1[mask_one][mask_two[mask_one]] = a1[mask_two[mask_one]],
-            a2* = A2[mask_two][mask_one[mask_two]] = a2[mask_one[mask_two]]
-
-        Parameters
-        ----------
-        array1 : np.ndarray
-            A sub array of an array with the shape of a geometry property
-        mask_one : np.ndarray(bool)
-            Mask such that the parrent array accessed at this mask gives a1
-        array_two : np.ndarray
-            A sub array of an array with the shape of a geometry property
-        mask_two : np.ndarray(bool)
-            Mask such that the parrent array accessed at this mask gives a2
-
-        Returns
-        -------
-        array_one*
-            reprojection of array_one onto mask_one & mask_two
-        array_two*
-            reprojection of array_two onto mask_one & mask_two
-        """
-        return array_one[mask_two[mask_one]], array_two[mask_one[mask_two]]
-
     def print_mask(self, mask):
         return "".join([{True: "-", False: "X"}[m] for m in mask]).join("[]")
 
     def check_convergence(
         self,
-        estimated_values,
-    ):
+        estimated_values: dict,
+    ) -> bool:
         """Check convergence status for a dict of estimated values
 
         Parameters
@@ -304,25 +271,11 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         """
         convergence_statuses = []
 
-        mask = estimated_values["mask"]
-
-        if not np.all(mask == self.property_mask):
-            convergence_statuses.append(False)
-            # Need to set status to False if change in mask size
-            logger.info(
-                f"Resized Geometry, Convergence Suppressed\n"
-                f"\t  Old Geometry: {self.print_mask(mask)}\n"
-                f"\t  New Geometry: {self.print_mask(self.property_mask)}"
-            )
-
         for key, solver in self.convergence_solvers.items():
             current_value = getattr(self.simulation_state, key)
             estimated_value = estimated_values[key]
 
             if key in ["t_radiative", "dilution_factor"]:
-                current_value, estimated_value = self.reproject(
-                    current_value, self.property_mask, estimated_value, mask
-                )
                 no_of_shells = current_value.shape[0]
             else:
                 no_of_shells = 1
@@ -341,6 +294,15 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
                 f"times."
             )
 
+            if (
+                self.consecutive_converges_count == hold_iterations + 1
+                and not self.convergence_strategy.stop_if_converged
+            ):
+                logger.info(
+                    "Convergence criteria met, but "
+                    "convergence_strategy.stop_if_converged is False. "
+                    "Set it to True to stop once converged."
+                )
             return self.consecutive_converges_count == hold_iterations + 1
 
         self.consecutive_converges_count = 0
@@ -476,11 +438,22 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
                 estimated_radfield_properties,
             ) = self.get_convergence_estimates()
 
+            self.converged = self.check_convergence(estimated_values)
+
             self.solve_simulation_state(estimated_values)
 
-            self.solve_plasma(estimated_radfield_properties)
+            if not np.all(estimated_values["mask"] == self.property_mask):
+                self.converged = False
+                self.consecutive_converges_count = 0
+                logger.info(
+                    "Resized Geometry, Convergence Suppressed\n"
+                    "\t  Old Geometry: %s\n"
+                    "\t  New Geometry: %s",
+                    self.print_mask(estimated_values["mask"]),
+                    self.print_mask(self.property_mask),
+                )
 
-            self.converged = self.check_convergence(estimated_values)
+            self.solve_plasma(estimated_radfield_properties)
 
             self.completed_iterations += 1
 

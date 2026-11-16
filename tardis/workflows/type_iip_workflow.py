@@ -494,8 +494,8 @@ class TypeIIPWorkflow:
 
     def check_convergence(
         self,
-        estimated_values,
-    ):
+        estimated_values: dict,
+    ) -> bool:
         """Check convergence status for a dict of estimated values.
 
         Parameters
@@ -529,6 +529,15 @@ class TypeIIPWorkflow:
                 self.consecutive_converges_count,
                 hold_iterations + 1,
             )
+            if (
+                self.consecutive_converges_count == hold_iterations + 1
+                and not self.convergence_strategy.stop_if_converged
+            ):
+                logger.info(
+                    "Convergence criteria met, but "
+                    "convergence_strategy.stop_if_converged is False. "
+                    "Set it to True to stop once converged."
+                )
             return self.consecutive_converges_count >= hold_iterations + 1
 
         self.consecutive_converges_count = 0
@@ -1239,6 +1248,8 @@ class TypeIIPWorkflow:
                 _estimated_radfield_properties,
             ) = self.get_convergence_estimates()
 
+            self.converged = self.check_convergence(estimated_values)
+
             self.solve_simulation_state(estimated_values)
 
             normalized_continuum_estimators, damped_normalized_j_blues = (
@@ -1255,7 +1266,6 @@ class TypeIIPWorkflow:
 
             self.solve_continuum_state(normalized_continuum_estimators)
 
-            self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
             if self.converged and self.convergence_strategy.stop_if_converged:
                 break
