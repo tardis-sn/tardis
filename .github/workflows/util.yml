@@ -49,120 +49,62 @@ jobs:
 
             In case you need to map an existing alias, follow [this example](https://docs.enterprise.codescene.io/versions/2.0.0/getting-started/ensure-you-use-a-mailmap.html).
 
-  resolve-pull-request:
-    runs-on: ubuntu-latest
-    outputs:
-      number: ${{ github.event.pull_request.number || (steps.find-workflow-run-pr.outputs.matching-pr-count == '1' && steps.find-workflow-run-pr.outputs.head-sha == github.event.workflow_run.head_sha && steps.find-workflow-run-pr.outputs.number || '') }}
-      login: ${{ github.event.pull_request.user.login || steps.find-workflow-run-pr.outputs.author }}
-      association: ${{ steps.get-author-association.outputs.value }}
-      gsoc: ${{ steps.get-author-association.outputs.gsoc }}
-    steps:
-      - id: find-workflow-run-pr
-        if: github.event_name == 'workflow_run'
-        uses: juliangruber/find-pull-request-action@v1
-        with:
-          github-token: ${{ github.token }}
-          branch: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
-          base: master
-          state: open
-
-      - id: get-author-association
-        if: github.event_name == 'pull_request_target' || steps.find-workflow-run-pr.outputs.matching-pr-count == '1'
-        uses: actions/github-script@v9
-        env:
-          NUMBER: ${{ github.event.pull_request.number || steps.find-workflow-run-pr.outputs.number }}
-        with:
-          script: |
-            const { data: pr } = await github.rest.pulls.get({
-              ...context.repo,
-              pull_number: Number(process.env.NUMBER)
-            });
-            core.setOutput('value', pr.author_association);
-            core.setOutput('gsoc', /gsoc|google summer of code/i.test(`${pr.title}\n${pr.body ?? ''}`));
-
   close-gsoc-pull-request:
-    needs: resolve-pull-request
     if: >
       github.event.action == 'opened' &&
-      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), needs.resolve-pull-request.outputs.association) &&
-      needs.resolve-pull-request.outputs.gsoc == 'true'
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), github.event.pull_request.author_association) &&
+      (contains(github.event.pull_request.title, 'gsoc') || contains(github.event.pull_request.title, 'google summer of code') ||
+      contains(github.event.pull_request.body, 'gsoc') || contains(github.event.pull_request.body, 'google summer of code'))
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.BOT_TOKEN }}
-      NUMBER: ${{ needs.resolve-pull-request.outputs.number }}
+      NUMBER: ${{ github.event.pull_request.number }}
+      BODY: |
+        👋 Hi @${{ github.event.pull_request.user.login }}, thanks for your interest in TARDIS.
+
+        This pull request mentions Google Summer of Code. We don't have the capacity to review GSoC pull requests at the moment, so we are closing it.
+
+        If this is not a Google Summer of Code pull request, please reopen it.
     steps:
       - run: gh pr edit "$NUMBER" --repo "$GITHUB_REPOSITORY" --add-label 'GSoC :sun_with_face:'
+      - run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY" --comment "$BODY"
 
-      - uses: peter-evans/create-or-update-comment@v5
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
-          body: |
-            👋 Hi @${{ needs.resolve-pull-request.outputs.login }}, thanks for your interest in TARDIS.
-
-            This pull request mentions Google Summer of Code. We don't have the capacity to review GSoC pull requests at the moment, so we are closing it.
-
-            If this is not a Google Summer of Code pull request, please reopen it.
-
-      - run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY"
-
-  close-missing-mailmap-entry:
-    needs: [resolve-pull-request, mailmap]
+  first-time-contributor:
     if: >
-      failure() &&
-      needs.resolve-pull-request.outputs.number != '' &&
-      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), needs.resolve-pull-request.outputs.association) &&
-      needs.resolve-pull-request.outputs.gsoc == 'false'
+      github.event.action == 'opened' &&
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), github.event.pull_request.author_association) &&
+      !(contains(github.event.pull_request.title, 'gsoc') || contains(github.event.pull_request.title, 'google summer of code') ||
+      contains(github.event.pull_request.body, 'gsoc') || contains(github.event.pull_request.body, 'google summer of code'))
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.BOT_TOKEN }}
-      NUMBER: ${{ needs.resolve-pull-request.outputs.number }}
+      NUMBER: ${{ github.event.pull_request.number }}
     steps:
-      - uses: peter-evans/find-comment@v3
-        id: find-close-notice
-        with:
-          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
-          body-includes: we are assuming this is a Google Summer of Code pull request
+      # Read .mailmap from master so a PR cannot add its own entry to avoid closing.
+      - id: master-mailmap
+        run: |
+          authors=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$NUMBER/commits" --paginate --jq '.[].commit.author | "\(.name) <\(.email)>"')
+          mailmap=$(gh api "repos/$GITHUB_REPOSITORY/contents/.mailmap?ref=master" -H 'Accept: application/vnd.github.raw')
+          grep -qF "$authors" <<< "$mailmap" && echo found=true >> "$GITHUB_OUTPUT" || echo found=false >> "$GITHUB_OUTPUT"
 
-      - if: steps.find-close-notice.outputs.comment-id == ''
-        uses: peter-evans/create-or-update-comment@v5
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
-          body: |
-            👋 Welcome @${{ needs.resolve-pull-request.outputs.login }}! Thank you for your first contribution to this repository!
+      - if: steps.master-mailmap.outputs.found == 'false'
+        env:
+          BODY: |
+            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
 
-            Since this pull request doesn't add your entry to `.mailmap`, we are assuming this is a Google Summer of Code pull request and hence closing it.
+            Since your name and email are not in `.mailmap` on the master branch, we are assuming this is a Google Summer of Code pull request and hence closing it.
 
             If you don't know what Google Summer of Code is and aren't applying to it, please reopen this pull request.
 
             If you are planning to apply to the program please keep it closed, we don't have the capacity to review GSoC pull requests at the moment.
+        run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY" --comment "$BODY"
 
-      - if: steps.find-close-notice.outputs.comment-id == ''
-        run: gh pr close "$NUMBER" --repo "$GITHUB_REPOSITORY"
-
-  welcome-first-time-contributor:
-    needs: [resolve-pull-request, mailmap]
-    if: >
-      needs.resolve-pull-request.outputs.number != '' &&
-      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), needs.resolve-pull-request.outputs.association) &&
-      needs.resolve-pull-request.outputs.gsoc == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: peter-evans/find-comment@v3
-        id: find-welcome-comment
-        with:
-          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
-          body-includes: A reviewer will take a look at your pull request soon
-
-      - if: steps.find-welcome-comment.outputs.comment-id == ''
-        uses: peter-evans/create-or-update-comment@v5
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ needs.resolve-pull-request.outputs.number }}
-          body: |
-            👋 Welcome @${{ needs.resolve-pull-request.outputs.login }}! Thank you for your first contribution to this repository!
+      - if: steps.master-mailmap.outputs.found == 'true'
+        env:
+          BODY: |
+            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
 
             A reviewer will take a look at your pull request soon.
 
             Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.
+        run: gh pr comment "$NUMBER" --repo "$GITHUB_REPOSITORY" --body "$BODY"
