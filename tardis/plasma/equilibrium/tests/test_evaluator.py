@@ -231,7 +231,7 @@ def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
         err_msg="the equilibrium populations do not sum to one",
     )
     npt.assert_allclose(
-        low_excitation_result.level_residual,
+        low_excitation_result.relative_level_residual,
         0.0,
         rtol=0.0,
         atol=1e-10,
