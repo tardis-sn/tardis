@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.packets.radiative\_packet module
+============================================================
+
+.. automodule:: tardis.transport.montecarlo.packets.radiative_packet
+   :members:
+   :show-inheritance:
+   :undoc-members:

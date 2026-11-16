@@ -1,0 +1,29 @@
+tardis.spectrum package
+=======================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.spectrum.formal_integral
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.spectrum.base
+   tardis.spectrum.luminosity
+   tardis.spectrum.spectrum
+   tardis.spectrum.virtual_packet
+
+Module contents
+---------------
+
+.. automodule:: tardis.spectrum
+   :members:
+   :show-inheritance:
+   :undoc-members:

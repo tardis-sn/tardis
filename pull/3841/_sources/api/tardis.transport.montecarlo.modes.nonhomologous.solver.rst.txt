@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.modes.nonhomologous.solver module
+=============================================================
+
+.. automodule:: tardis.transport.montecarlo.modes.nonhomologous.solver
+   :members:
+   :show-inheritance:
+   :undoc-members:

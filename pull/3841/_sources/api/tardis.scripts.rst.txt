@@ -1,0 +1,19 @@
+tardis.scripts package
+======================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.scripts.cmfgen2tardis
+   tardis.scripts.convert_atomic_data
+
+Module contents
+---------------
+
+.. automodule:: tardis.scripts
+   :members:
+   :show-inheritance:
+   :undoc-members:

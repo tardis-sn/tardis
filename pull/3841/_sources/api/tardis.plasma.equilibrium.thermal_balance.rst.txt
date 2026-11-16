@@ -1,0 +1,7 @@
+tardis.plasma.equilibrium.thermal\_balance module
+=================================================
+
+.. automodule:: tardis.plasma.equilibrium.thermal_balance
+   :members:
+   :show-inheritance:
+   :undoc-members:

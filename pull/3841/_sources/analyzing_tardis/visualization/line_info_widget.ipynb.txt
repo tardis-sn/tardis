@@ -1,0 +1,140 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Line Info Widget\n",
+    "\n",
+    "The Line Info Widget lets you explore the atomic lines responsible for producing\n",
+    "features in the simulated spectrum.\n",
+    "\n",
+    "![Line Info Widget Demo](../images/line_info_widget_demo.gif)\n",
+    "\n",
+    "By selecting a wavelength range on the spectrum plot, you can see the species\n",
+    "that produced features within that range. This is determined by counting the\n",
+    "number of escaping packets that experienced their last interaction with each\n",
+    "species. Packets can be filtered by the wavelength at which they were absorbed\n",
+    "or emitted, using the toggle buttons.\n",
+    "\n",
+    "You can then click on a species to see the packet count for each last line\n",
+    "interaction it experienced. Using the dropdown menu, these counts can be grouped\n",
+    "by excitation lines, de-excitation lines, or both.\n",
+    "\n",
+    "## Interacting with the Spectrum\n",
+    "\n",
+    "The spectrum in the Line Info Widget is an interactive figure built with\n",
+    "[plotly](https://plotly.com/python/). There are several ways to interact with it:\n",
+    "\n",
+    "### Making a Selection\n",
+    "Box selection is enabled by default. Click and drag on the figure to draw a\n",
+    "selection box. The tables will update to show line information for only the packets\n",
+    "within that wavelength range. To resize an existing selection box, simply redraw\n",
+    "a new one over the older one.\n",
+    "\n",
+    "### Using Other Options in the Modebar\n",
+    "Moving the mouse to the top right corner of the figure reveals the Modebar. The\n",
+    "default option is **Box Select** (dotted square icon). Other options include\n",
+    "**Zoom** (magnifying glass icon) for a rectangular zoom, and **Reset Axes** to\n",
+    "revert to the initial state. Always click back on **Box Select** before making\n",
+    "wavelength selections."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Generating the Widget\n",
+    "\n",
+    "First, create and run a simulation (see [Quickstart](https://tardis-sn.github.io/tardis/quickstart/quickstart.html)\n",
+    "for details), then import `LineInfoWidget` from the `visualization` subpackage.\n",
+    "\n",
+    "> **Note:** The virtual packet logging capability must be active to produce the\n",
+    "> virtual packets' spectrum. Ensure `virtual_packet_logging: True` is set in\n",
+    "> your configuration file under the `spectrum.virtual` property\n",
+    "> (see [configuration schema](https://tardis-sn.github.io/tardis/using/components/configuration/configuration.html#spectrum))."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from tardis import run_tardis\n",
+    "from tardis.io.atom_data import download_atom_data\n",
+    "from tardis.io.configuration.config_reader import Configuration\n",
+    "from tardis.visualization import LineInfoWidget\n",
+    "\n",
+    "# Download the atomic data needed to run the simulation\n",
+    "download_atom_data('kurucz_cd23_chianti_H_He_latest')\n",
+    "\n",
+    "config = Configuration.from_yaml(\"tardis_example.yml\")\n",
+    "config.montecarlo.tracking.track_rpacket = True\n",
+    "\n",
+    "sim = run_tardis(config, virtual_packet_logging=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "**Note for Documentation Viewers**\n",
+    "\n",
+    "The interactive widget below will not function in the published documentation.\n",
+    "To use this widget, please run this notebook locally in a Jupyter environment\n",
+    "with TARDIS installed.\n",
+    "\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "line_info_widget = LineInfoWidget.from_simulation(sim)\n",
+    "line_info_widget.display()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Line Info Widget with SDEC Plot\n",
+    "\n",
+    "The Line Info Widget can also display an SDEC Plot alongside the spectrum. Enable\n",
+    "this by passing `show_sdec=True` when creating the widget. Parameters to customize\n",
+    "the SDEC plot can be passed via the `sdec_kwargs` argument as a dictionary — it\n",
+    "accepts the same parameters as\n",
+    "[SDECPlotter.generate_plot_bk()](https://tardis-sn.github.io/tardis/analyzing_tardis/visualization/how_to_sdec_plot.html#Additional-plotting-options-(Bokeh))."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot = LineInfoWidget.from_simulation(sim, show_sdec=True, sdec_kwargs={\"packets_mode\": \"real\"})\n",
+    "plot.display()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "tardis",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python",
+   "version": "3.13.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

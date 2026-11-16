@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.modes.iip.interaction\_event\_callers module
+========================================================================
+
+.. automodule:: tardis.transport.montecarlo.modes.iip.interaction_event_callers
+   :members:
+   :show-inheritance:
+   :undoc-members:

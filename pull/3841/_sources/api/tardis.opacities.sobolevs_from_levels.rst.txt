@@ -1,0 +1,7 @@
+tardis.opacities.sobolevs\_from\_levels module
+==============================================
+
+.. automodule:: tardis.opacities.sobolevs_from_levels
+   :members:
+   :show-inheritance:
+   :undoc-members:

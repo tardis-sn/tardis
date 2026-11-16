@@ -1,0 +1,7 @@
+tardis.io.model.snec.snec\_input module
+=======================================
+
+.. automodule:: tardis.io.model.snec.snec_input
+   :members:
+   :show-inheritance:
+   :undoc-members:

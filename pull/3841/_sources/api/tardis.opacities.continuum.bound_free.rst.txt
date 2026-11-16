@@ -1,0 +1,7 @@
+tardis.opacities.continuum.bound\_free module
+=============================================
+
+.. automodule:: tardis.opacities.continuum.bound_free
+   :members:
+   :show-inheritance:
+   :undoc-members:

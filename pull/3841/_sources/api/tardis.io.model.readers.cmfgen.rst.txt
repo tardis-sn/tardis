@@ -1,0 +1,7 @@
+tardis.io.model.readers.cmfgen module
+=====================================
+
+.. automodule:: tardis.io.model.readers.cmfgen
+   :members:
+   :show-inheritance:
+   :undoc-members:
