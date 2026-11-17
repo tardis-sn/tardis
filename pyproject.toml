@@ -142,6 +142,8 @@ text_file_format = "rst"
 markers = [
     # continuum tests
     "continuum",
+    # long tests that only run with --full-tests
+    "full_tests",
 ]
 
 [tool.tardis]
