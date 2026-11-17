@@ -8,7 +8,7 @@ import astropy.units as u
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
-from scipy.optimize import least_squares, root
+from scipy.optimize import OptimizeResult, least_squares, root
 from scipy.special import softmax
 
 from tardis.opacities.sobolevs_from_levels import (
@@ -174,6 +174,7 @@ def calculate_nlte_level_population_residual(
     relative_tolerance: float = 1.0e-8,
     continuum_population_ratio: float | None = None,
     replace_normalization_row: bool = True,
+    diagnostic_budget: dict[str, npt.NDArray[np.float64]] | None = None,
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
     """Calculate the reduced fixed-density NLTE level residual.
 
@@ -222,6 +223,10 @@ def calculate_nlte_level_population_residual(
         Replace the ground kinetic equation with population normalization for
         reduced solves. False preserves all kinetic equations for validation
         of an authoritative final absolute population.
+    diagnostic_budget : dict[str, numpy.ndarray], optional
+        Populate with physical net/gross flows and the relative denominator,
+        all in s^-1 per selected-ion population. The denominator allowance
+        represents rate-summation roundoff, not a population floor.
 
     Returns
     -------
@@ -284,7 +289,7 @@ def calculate_nlte_level_population_residual(
     level_rate_matrix += level_rates.ionization_loss_matrix
     recombination_source = total_recombination_rates * ionized_to_neutral_ratio
     level_residual = level_rate_matrix @ level_fractions + recombination_source
-    if normalize_residual:
+    if normalize_residual or diagnostic_budget is not None:
         gross_flow = np.abs(level_rate_matrix) @ np.abs(
             level_fractions
         ) + np.abs(recombination_source)
@@ -296,12 +301,19 @@ def calculate_nlte_level_population_residual(
             + (64.0 * np.finfo(float).eps / relative_tolerance)
             * gross_flow.sum()
         )
-        level_residual = np.divide(
-            level_residual,
-            flow_scale,
-            out=np.zeros_like(level_residual),
-            where=flow_scale != 0.0,
-        )
+        if diagnostic_budget is not None:
+            diagnostic_budget.update(
+                net_flow=level_residual.copy(),
+                gross_flow=gross_flow,
+                flow_scale=flow_scale,
+            )
+        if normalize_residual:
+            level_residual = np.divide(
+                level_residual,
+                flow_scale,
+                out=np.zeros_like(level_residual),
+                where=flow_scale != 0.0,
+            )
     # Replace the complete ground-state rate equation, including its source.
     # Direct ground recombination still contributes to the continuum ratio.
     if replace_normalization_row:
@@ -729,8 +741,13 @@ class PlasmaEquilibriumEvaluator:
         normalize_residual: bool = False,
         continuum_population_ratio: float | None = None,
         replace_normalization_row: bool = True,
+        diagnostic_budget: dict[str, npt.NDArray[np.float64]] | None = None,
     ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
-        """Evaluate one level residual at an explicit electron density."""
+        """Evaluate one level residual at an explicit electron density.
+
+        Optional ``diagnostic_budget`` receives physical net/gross flows and
+        the relative denominator in s^-1, without altering the returned state.
+        """
         total_ionization_rates = continuum_rates.photoionization + (
             continuum_rates.collisional_ionization * electron_density
         )
@@ -789,6 +806,7 @@ class PlasmaEquilibriumEvaluator:
                 self.level_residual_tolerance,
                 continuum_population_ratio,
                 replace_normalization_row,
+                diagnostic_budget,
             )
         )
         return residual, beta_sobolev, ionized_to_neutral_ratio
@@ -836,11 +854,14 @@ class PlasmaEquilibriumEvaluator:
 
         level_solution: npt.NDArray[np.float64] | None = None
         best_residual = np.inf
+        candidate_phase = "initial_seed"
+        best_candidate_phase = "none"
+        optimizer_results: list[tuple[str, OptimizeResult]] = []
 
         def residual(
             level_fractions: npt.NDArray[np.float64],
         ) -> npt.NDArray[np.float64]:
-            nonlocal level_solution, best_residual
+            nonlocal level_solution, best_residual, best_candidate_phase
             total_fraction = level_fractions.sum()
             fractions = (
                 level_fractions / total_fraction
@@ -869,6 +890,7 @@ class PlasmaEquilibriumEvaluator:
                 if candidate_residual < best_residual:
                     level_solution = fractions.copy()
                     best_residual = candidate_residual
+                    best_candidate_phase = candidate_phase
             physical_residual[0] = total_fraction - 1.0
             return physical_residual
 
@@ -880,10 +902,14 @@ class PlasmaEquilibriumEvaluator:
         # subsequent ion/opacity coupling, without changing acceptance scaling.
         inner_target = 0.1 * self.level_residual_tolerance
         residual(level_seed)
-        for trial_seed in (level_seed, floored_seed):
-            root_solution = root(
-                residual, trial_seed, options={"xtol": 1e-12}
-            ).x
+        initial_residual = best_residual
+        for attempt_idx, trial_seed in enumerate(
+            (level_seed, floored_seed), start=1
+        ):
+            candidate_phase = f"HYBR attempt {attempt_idx}"
+            root_result = root(residual, trial_seed, options={"xtol": 1e-12})
+            optimizer_results.append((candidate_phase, root_result))
+            root_solution = root_result.x
             residual(root_solution)
             if best_residual <= inner_target:
                 break
@@ -903,6 +929,7 @@ class PlasmaEquilibriumEvaluator:
                 np.maximum(log_seed[1:], minimum_fraction)
                 / max(log_seed[0], minimum_fraction)
             )
+            candidate_phase = f"log least-squares attempt {attempt_idx}"
             log_solution = least_squares(
                 calculate_log_ratio_residual,
                 initial_log_ratios,
@@ -911,6 +938,7 @@ class PlasmaEquilibriumEvaluator:
                 gtol=1e-14,
                 max_nfev=3000,
             )
+            optimizer_results.append((candidate_phase, log_solution))
             log_fractions = softmax(np.concatenate(([0.0], log_solution.x)))
             residual(log_fractions)
             if best_residual <= inner_target:
@@ -933,6 +961,8 @@ class PlasmaEquilibriumEvaluator:
             )
 
         fractions = level_solution / level_solution.sum()
+        poor_closure = best_residual > self.level_residual_tolerance
+        diagnostic_budget = {} if poor_closure else None
         level_residual, beta_sobolev, ionized_to_neutral_ratio = (
             self._calculate_level_state(
                 shell_idx,
@@ -943,6 +973,7 @@ class PlasmaEquilibriumEvaluator:
                 population_geometry,
                 sobolev_inputs,
                 bound_bound_rates=bound_bound_rates,
+                diagnostic_budget=diagnostic_budget,
             )
         )
         if (
@@ -958,6 +989,89 @@ class PlasmaEquilibriumEvaluator:
         if not np.isfinite(level_residual).all():
             raise ValueError(
                 "Reduced level-population solve returned a nonfinite residual."
+            )
+        shell_label = self.elemental_number_density.columns[shell_idx]
+        log_level = logging.WARNING if poor_closure else logging.DEBUG
+        logger.log(
+            log_level,
+            "Equilibrium inner level solve for species %s in shell %s: "
+            "initial relative residual=%.12e, retained relative residual=%.12e "
+            "(all physical rows; tolerance=%.3e); improved seed=%s; "
+            "relative residual reduction=%.12e; retained candidate=%s.",
+            self.equilibrium_species,
+            shell_label,
+            initial_residual,
+            best_residual,
+            self.level_residual_tolerance,
+            best_residual < initial_residual,
+            initial_residual - best_residual,
+            best_candidate_phase,
+        )
+        if diagnostic_budget is not None:
+            net_flow = diagnostic_budget["net_flow"]
+            gross_flow = diagnostic_budget["gross_flow"]
+            flow_scale = diagnostic_budget["flow_scale"]
+            relative_flow = np.divide(
+                net_flow,
+                flow_scale,
+                out=np.zeros_like(net_flow),
+                where=flow_scale != 0.0,
+            )
+            worst_level_idx = int(np.argmax(np.abs(relative_flow)))
+            temporary_population = (
+                population_geometry.species_number_density
+                / (1.0 + ionized_to_neutral_ratio)
+                * fractions[worst_level_idx]
+            )
+            logger.warning(
+                "Equilibrium inner level closure failure: species=%s, "
+                "shell=%s (shell_idx=%d), level=%s, fraction=%.12e, "
+                "temporary population=%.12e cm^-3; signed relative "
+                "residual=%.12e; net flow=%.12e s^-1, gross flow=%.12e "
+                "s^-1, denominator allowance=%.12e s^-1 "
+                "(rate-roundoff allowance, not a population floor).",
+                self.equilibrium_species,
+                shell_label,
+                shell_idx,
+                self._equilibrium_species_index()[worst_level_idx],
+                fractions[worst_level_idx],
+                temporary_population,
+                relative_flow[worst_level_idx],
+                net_flow[worst_level_idx],
+                gross_flow[worst_level_idx],
+                (64.0 * np.finfo(float).eps / self.level_residual_tolerance)
+                * gross_flow.sum(),
+            )
+        optimizer_log_level = logging.INFO if poor_closure else logging.DEBUG
+        if logger.isEnabledFor(optimizer_log_level):
+            attempt_summaries = []
+            for phase, result in optimizer_results:
+                summary = (
+                    f"{phase}: success={getattr(result, 'success', None)}, "
+                    f"status={getattr(result, 'status', None)}, "
+                    f"nfev={getattr(result, 'nfev', None)}, "
+                    f"message={str(getattr(result, 'message', '')).strip()!r}"
+                )
+                if hasattr(result, "jac"):
+                    jacobian = np.asarray(result.jac)
+                    column_norms = np.linalg.norm(jacobian, axis=0)
+                    summary += (
+                        f", cost={result.cost:.12e}, "
+                        f"optimality={result.optimality:.12e}, "
+                        "Jacobian column L2 norm min/max="
+                        f"{column_norms.min() if column_norms.size else np.nan:.12e}/"
+                        f"{column_norms.max() if column_norms.size else np.nan:.12e}, "
+                        f"zero columns={np.count_nonzero(column_norms == 0.0)}"
+                        f"/{len(column_norms)}"
+                    )
+                attempt_summaries.append(summary)
+            logger.log(
+                optimizer_log_level,
+                "Equilibrium inner optimizer diagnostics for species %s in "
+                "shell %s: %s",
+                self.equilibrium_species,
+                shell_label,
+                "; ".join(attempt_summaries),
             )
         return (
             fractions,
