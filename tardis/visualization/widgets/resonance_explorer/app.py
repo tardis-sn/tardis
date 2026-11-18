@@ -222,7 +222,7 @@ class ResonanceExplorerWidget:
         self.comparison_toggle.param.watch(self._on_comparison_change, "value")
         self.slot_chips.param.watch(self._on_slot_chip_change, "value")
         for slider in (*self.sliders.values(), self.s_stop_slider):
-            slider.param.watch(self._on_slider_change, "value_throttled")
+            slider.param.watch(self._on_slider_change, "value")
         self.scatter_toggle.param.watch(self._on_slider_change, "value")
         if initial_inputs is None:
             self._load_lesson("homology", "initial")
