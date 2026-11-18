@@ -727,26 +727,28 @@ class PlasmaEquilibriumEvaluator:
             level_boltzmann_factor,
         )
 
-    def _calculate_level_state(
+    def _calculate_level_equation_rates(
         self,
         shell_idx: int,
         electron_density: float,
-        electron_temperature: float,
-        level_fractions: npt.NDArray[np.float64],
         continuum_rates: ContinuumRateCoefficients,
-        population_geometry: ShellNumberDensity,
-        sobolev_inputs: SobolevInputs,
-        level_density: npt.NDArray[np.float64] | None = None,
-        bound_bound_rates: BoundBoundMatrixRates | None = None,
-        normalize_residual: bool = False,
-        continuum_population_ratio: float | None = None,
-        replace_normalization_row: bool = True,
-        diagnostic_budget: dict[str, npt.NDArray[np.float64]] | None = None,
-    ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
-        """Evaluate one level residual at an explicit electron density.
+    ) -> LevelEquationRates:
+        """Assemble density-specific continuum rates for a shell.
 
-        Optional ``diagnostic_budget`` receives physical net/gross flows and
-        the relative denominator in s^-1, without altering the returned state.
+        Parameters
+        ----------
+        shell_idx : int
+            Positional shell index used to select fixed ionization rates.
+        electron_density : float
+            Electron number density in cm^-3.
+        continuum_rates : ContinuumRateCoefficients
+            Radiative and collisional level-to-continuum coefficients.
+
+        Returns
+        -------
+        LevelEquationRates
+            Total ionization, recombination, and diagonal ionization losses
+            in s^-1. Case B is applied by the consuming level calculation.
         """
         total_ionization_rates = continuum_rates.photoionization + (
             continuum_rates.collisional_ionization * electron_density
@@ -774,10 +776,35 @@ class PlasmaEquilibriumEvaluator:
             + continuum_rates.stimulated_recombination
             + continuum_rates.collisional_recombination * electron_density
         ) * electron_density
-        level_rates = LevelEquationRates(
+        return LevelEquationRates(
             total_ionization_rates,
             total_recombination_rates,
             -np.diag(total_ionization_rates),
+        )
+
+    def _calculate_level_state(
+        self,
+        shell_idx: int,
+        electron_density: float,
+        electron_temperature: float,
+        level_fractions: npt.NDArray[np.float64],
+        continuum_rates: ContinuumRateCoefficients,
+        population_geometry: ShellNumberDensity,
+        sobolev_inputs: SobolevInputs,
+        level_density: npt.NDArray[np.float64] | None = None,
+        bound_bound_rates: BoundBoundMatrixRates | None = None,
+        normalize_residual: bool = False,
+        continuum_population_ratio: float | None = None,
+        replace_normalization_row: bool = True,
+        diagnostic_budget: dict[str, npt.NDArray[np.float64]] | None = None,
+    ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
+        """Evaluate one level residual at an explicit electron density.
+
+        Optional ``diagnostic_budget`` receives physical net/gross flows and
+        the relative denominator in s^-1, without altering the returned state.
+        """
+        level_rates = self._calculate_level_equation_rates(
+            shell_idx, electron_density, continuum_rates
         )
         shell_j_blues = None
         electron_distribution = None
@@ -830,9 +857,10 @@ class PlasmaEquilibriumEvaluator:
         """Solve dimensionless level equations, retaining the best physical trial.
 
         Every candidate is ranked on all physical kinetic rows, including the
-        ground equation omitted from the reduced root. Intermediate trials may
-        return a finite nonnegative best effort; terminal acceptance remains
-        the responsibility of the outer solver.
+        ground equation omitted from the reduced HYBR root. The softmax
+        fallback enforces normalization through its coordinates and minimizes
+        all physical rows. Intermediate trials may return a finite nonnegative
+        best effort; terminal acceptance remains the outer solver's concern.
         """
         if bound_bound_rates is None:
             shell_j_blues = self.j_blues.iloc[:, [shell_idx]].copy()
@@ -857,29 +885,34 @@ class PlasmaEquilibriumEvaluator:
         candidate_phase = "initial_seed"
         best_candidate_phase = "none"
         optimizer_results: list[tuple[str, OptimizeResult]] = []
+        latest_beta_sobolev: npt.NDArray[np.float64] | None = None
 
         def residual(
             level_fractions: npt.NDArray[np.float64],
+            replace_normalization_row: bool = True,
         ) -> npt.NDArray[np.float64]:
             nonlocal level_solution, best_residual, best_candidate_phase
+            nonlocal latest_beta_sobolev
             total_fraction = level_fractions.sum()
             fractions = (
                 level_fractions / total_fraction
                 if total_fraction > 0.0
                 else level_fractions
             )
-            physical_residual = self._calculate_level_state(
-                shell_idx,
-                electron_density,
-                electron_temperature,
-                fractions,
-                continuum_rates,
-                population_geometry,
-                sobolev_inputs,
-                bound_bound_rates=bound_bound_rates,
-                normalize_residual=True,
-                replace_normalization_row=False,
-            )[0]
+            physical_residual, latest_beta_sobolev, _ = (
+                self._calculate_level_state(
+                    shell_idx,
+                    electron_density,
+                    electron_temperature,
+                    fractions,
+                    continuum_rates,
+                    population_geometry,
+                    sobolev_inputs,
+                    bound_bound_rates=bound_bound_rates,
+                    normalize_residual=True,
+                    replace_normalization_row=False,
+                )
+            )
             if (
                 total_fraction > 0.0
                 and np.isfinite(fractions).all()
@@ -891,7 +924,8 @@ class PlasmaEquilibriumEvaluator:
                     level_solution = fractions.copy()
                     best_residual = candidate_residual
                     best_candidate_phase = candidate_phase
-            physical_residual[0] = total_fraction - 1.0
+            if replace_normalization_row:
+                physical_residual[0] = total_fraction - 1.0
             return physical_residual
 
         # An empirical per-level floor lets a retry repopulate excited levels
@@ -903,9 +937,118 @@ class PlasmaEquilibriumEvaluator:
         inner_target = 0.1 * self.level_residual_tolerance
         residual(level_seed)
         initial_residual = best_residual
-        for attempt_idx, trial_seed in enumerate(
-            (level_seed, floored_seed), start=1
-        ):
+        frozen_seed: npt.NDArray[np.float64] | None = None
+        frozen_seed_residual = np.nan
+        initializer_status = "not needed"
+        if level_solution is not None and best_residual > inner_target:
+            assert latest_beta_sobolev is not None
+            frozen_beta = latest_beta_sobolev.copy()
+            level_rates = self._calculate_level_equation_rates(
+                shell_idx, electron_density, continuum_rates
+            )
+            recombination = level_rates.recombination.copy()
+            if self.equilibrium_species in self.case_b_species:
+                recombination[0] = 0.0
+            recombination_sum = recombination.sum()
+            initializer_status = "unusable recombination rates"
+            if (
+                np.isfinite(recombination).all()
+                and np.all(recombination >= 0.0)
+                and np.isfinite(recombination_sum)
+                and recombination_sum > 0.0
+            ):
+                frozen_matrix = assemble_bound_bound_rate_matrix(
+                    bound_bound_rates.number_of_levels,
+                    bound_bound_rates.source_level_idx,
+                    bound_bound_rates.destination_level_idx,
+                    bound_bound_rates.radiative_rate_coefficient,
+                    bound_bound_rates.collisional_rate,
+                    bound_bound_rates.fixed_rate,
+                    bound_bound_rates.beta_line_idx,
+                    frozen_beta,
+                )
+                frozen_matrix += level_rates.ionization_loss_matrix
+                # Eliminate the continuum without freezing its population:
+                # r=(gamma@f)/sum(alpha), so (L+alpha*gamma/sum(alpha))@f=0.
+                linear_matrix = frozen_matrix + np.outer(
+                    recombination / recombination_sum, level_rates.ionization
+                )
+                linear_matrix[0] = 1.0
+                right_hand_side = np.zeros(len(level_seed))
+                right_hand_side[0] = 1.0
+                row_scale = np.max(np.abs(linear_matrix), axis=1)
+                initializer_status = "singular or nonfinite frozen matrix"
+                if np.isfinite(linear_matrix).all() and np.all(row_scale > 0.0):
+                    # Equilibrate each kinetic equation separately from the
+                    # dimensionless normalization row. No rank cutoff removes
+                    # physically small (e.g. 1e-20) transition coefficients.
+                    try:
+                        linear_population = np.linalg.solve(
+                            linear_matrix / row_scale[:, np.newaxis],
+                            right_hand_side / row_scale,
+                        )
+                    except np.linalg.LinAlgError:
+                        pass
+                    else:
+                        population_sum = linear_population.sum()
+                        initializer_status = "nonphysical linear population"
+                        if (
+                            np.isfinite(linear_population).all()
+                            and np.all(linear_population >= 0.0)
+                            and np.isfinite(population_sum)
+                            and population_sum > 0.0
+                        ):
+                            linear_population /= population_sum
+                            continuum_ratio = float(
+                                level_rates.ionization
+                                @ linear_population
+                                / recombination_sum
+                            )
+                            source = recombination * continuum_ratio
+                            net = frozen_matrix @ linear_population + source
+                            gross = np.abs(
+                                frozen_matrix
+                            ) @ linear_population + np.abs(source)
+                            denominator = (
+                                gross
+                                + (
+                                    64.0
+                                    * np.finfo(float).eps
+                                    / self.level_residual_tolerance
+                                )
+                                * gross.sum()
+                            )
+                            frozen_residual = np.divide(
+                                net,
+                                denominator,
+                                out=np.zeros_like(net),
+                                where=denominator != 0.0,
+                            )
+                            initializer_status = "unclosed frozen physical rows"
+                            if (
+                                np.isfinite(frozen_residual).all()
+                                and continuum_ratio >= 0.0
+                                and np.max(np.abs(frozen_residual))
+                                <= self.level_residual_tolerance
+                            ):
+                                candidate_phase = "frozen-beta initializer"
+                                nonlinear_residual = residual(
+                                    linear_population,
+                                    replace_normalization_row=False,
+                                )
+                                initializer_status = "nonfinite nonlinear seed"
+                                if np.isfinite(nonlinear_residual).all():
+                                    frozen_seed = linear_population
+                                    frozen_seed_residual = float(
+                                        np.max(np.abs(nonlinear_residual))
+                                    )
+                                    initializer_status = "applied"
+        trial_seeds = (level_seed, floored_seed)
+        if frozen_seed is not None:
+            trial_seeds = (frozen_seed, *trial_seeds)
+        for attempt_idx, trial_seed in enumerate(trial_seeds, start=1):
+            if best_residual <= inner_target:
+                break
             candidate_phase = f"HYBR attempt {attempt_idx}"
             root_result = root(residual, trial_seed, options={"xtol": 1e-12})
             optimizer_results.append((candidate_phase, root_result))
@@ -919,9 +1062,10 @@ class PlasmaEquilibriumEvaluator:
             def calculate_log_ratio_residual(
                 log_ratios: npt.NDArray[np.float64],
             ) -> npt.NDArray[np.float64]:
-                return residual(softmax(np.concatenate(([0.0], log_ratios))))[
-                    1:
-                ]
+                return residual(
+                    softmax(np.concatenate(([0.0], log_ratios))),
+                    replace_normalization_row=False,
+                )
 
             minimum_fraction = np.finfo(np.float64).eps
             log_seed = trial_seed if level_solution is None else level_solution
@@ -992,6 +1136,18 @@ class PlasmaEquilibriumEvaluator:
             )
         shell_label = self.elemental_number_density.columns[shell_idx]
         log_level = logging.WARNING if poor_closure else logging.DEBUG
+        logger.log(
+            logging.INFO if poor_closure else logging.DEBUG,
+            "Frozen-beta level initializer for species %s in shell %s: %s; "
+            "initial relative residual=%.12e, nonlinear seed residual=%.12e; "
+            "retained candidate=%s.",
+            self.equilibrium_species,
+            shell_label,
+            initializer_status,
+            initial_residual,
+            frozen_seed_residual,
+            best_candidate_phase,
+        )
         logger.log(
             log_level,
             "Equilibrium inner level solve for species %s in shell %s: "
