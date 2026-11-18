@@ -164,7 +164,8 @@ class TARDISSpectrum(HDFWriterMixin):
             )
         elif mode == "flux":
             np.savetxt(
-                fname, zip(self.wavelength.value, self.flux_lambda.value)
+                fname,
+                list(zip(self.wavelength.value, self.flux_lambda.value)),
             )
         else:
             raise NotImplementedError(

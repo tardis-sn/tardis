@@ -186,3 +186,12 @@ def test_creat_from_J(spectrum):
     )
 
     compare_spectra(actual, spectrum)
+
+
+def test_to_ascii_flux(tmp_path, spectrum):
+    if getattr(spectrum, "distance", None) is None:
+        spectrum.distance = u.Quantity(1, "Mpc")
+    path = tmp_path / "flux.dat"
+    spectrum.to_ascii(path, mode="flux")
+    data = np.loadtxt(path)
+    assert data.shape == (len(spectrum.wavelength) - 1, 2)
