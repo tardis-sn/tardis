@@ -27,6 +27,7 @@ class OpacityStateNumba:
     transition_type: nb.int64[:]
     destination_level_id: nb.int64[:]
     transition_line_id: nb.int64[:]
+    sigma_thomson: nb.float64
 
     def __init__(
         self,
@@ -40,6 +41,7 @@ class OpacityStateNumba:
         transition_type: npt.NDArray[np.int64],
         destination_level_id: npt.NDArray[np.int64],
         transition_line_id: npt.NDArray[np.int64],
+        sigma_thomson: float,
     ) -> None:
         self.electron_density = electron_density
         self.t_electrons = t_electrons
@@ -52,6 +54,7 @@ class OpacityStateNumba:
         self.transition_type = transition_type
         self.destination_level_id = destination_level_id
         self.transition_line_id = transition_line_id
+        self.sigma_thomson = sigma_thomson
 
     def __getitem__(self, i: slice) -> Self:
         """Return a shell-sliced view of this opacity state."""
@@ -66,6 +69,7 @@ class OpacityStateNumba:
             self.transition_type,
             self.destination_level_id,
             self.transition_line_id,
+            self.sigma_thomson,
         )
         sliced_opacity_state.sobolev_optical_depth_coefficient = (
             self.sobolev_optical_depth_coefficient[:, i]

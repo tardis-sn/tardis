@@ -18,6 +18,9 @@ from tardis.spectrum.formal_integral.formal_integral_numba import (
     NumbaFormalIntegrator,
 )
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
+from tardis.transport.montecarlo.configuration.constants import (
+    sigma_thomson_for_transport,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -120,6 +123,9 @@ class FormalIntegralSolver:
             opacity_state_numba = opacity_state.to_numba(
                 macro_atom_state,
                 transport.line_interaction_type,
+                sigma_thomson=sigma_thomson_for_transport(
+                    self.montecarlo_configuration.DISABLE_ELECTRON_SCATTERING
+                ),
             )
 
         return opacity_state_numba

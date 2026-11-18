@@ -6,6 +6,27 @@ from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.transport.montecarlo.configuration.constants import (
+    SIGMA_THOMSON,
+    sigma_thomson_for_transport,
+)
+
+
+def test_sigma_thomson_in_numba_opacity_state(nb_simulation_verysimple):
+    legacy_plasma = nb_simulation_verysimple.plasma
+    opacity_solver = OpacitySolver(
+        line_interaction_type="scatter",
+        disable_line_scattering=False,
+    )
+    opacity_state = opacity_solver.legacy_solve(legacy_plasma)
+    disabled_sigma = sigma_thomson_for_transport(True)
+    numba_state = opacity_state.to_numba(
+        None, "scatter", sigma_thomson=disabled_sigma
+    )
+    assert numba_state.sigma_thomson == disabled_sigma
+
+    default_state = opacity_state.to_numba(None, "scatter")
+    assert default_state.sigma_thomson == SIGMA_THOMSON
 
 
 @pytest.mark.parametrize(

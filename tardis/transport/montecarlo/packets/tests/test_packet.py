@@ -402,7 +402,7 @@ def test_calculate_distance_line_reaches_resonance(
 )
 def test_calculate_distance_electron(electron_density, tau_event):
     actual = calculate_distances.calculate_distance_electron(
-        electron_density, tau_event
+        electron_density, tau_event, SIGMA_THOMSON
     )
     expected = tau_event / (electron_density * SIGMA_THOMSON)
 
@@ -414,7 +414,9 @@ def test_calculate_distance_electron(electron_density, tau_event):
     [(1e-5, 1.0), (1e10, 1e10), (-1, 0), (-1e10, -1e10)],
 )
 def test_calculate_tau_electron(electron_density, distance):
-    actual = opacities.calculate_tau_electron(electron_density, distance)
+    actual = opacities.calculate_tau_electron(
+        electron_density, distance, SIGMA_THOMSON
+    )
     expected = electron_density * SIGMA_THOMSON * distance
 
     assert_almost_equal(actual, expected)

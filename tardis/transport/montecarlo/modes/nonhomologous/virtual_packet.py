@@ -15,9 +15,6 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_distance_line_nonhomologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.configuration.constants import (
-    SIGMA_THOMSON,
-)
 from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
 )
@@ -107,7 +104,7 @@ def trace_vpacket_within_shell(
     cur_electron_density = opacity_state.electron_density[
         v_packet.current_shell_id
     ]
-    chi_e = cur_electron_density * SIGMA_THOMSON
+    chi_e = cur_electron_density * opacity_state.sigma_thomson
 
     # Calculating doppler factor
     v = numba_radial_1d_geometry.get_velocity(
