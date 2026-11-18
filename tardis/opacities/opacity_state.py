@@ -136,6 +136,7 @@ class OpacityState:
         macro_atom_state: MacroAtomState | None,
         line_interaction_type: str,
         continuum_processes_enabled: bool = False,
+        sigma_thomson: float | None = None,
     ) -> OpacityStateNumba:
         """
         Convert this state to the Numba-compatible transport representation.
@@ -149,12 +150,22 @@ class OpacityState:
             Configured line-interaction mode.
         continuum_processes_enabled : bool, optional
             Use continuum-aware macro-atom deactivation probabilities.
+        sigma_thomson : float or None, optional
+            Thomson cross section [cm^2] used by transport; defaults to the
+            physical value.
 
         Returns
         -------
         tardis.opacities.opacity_state_numba.OpacityStateNumba
             Array-backed opacity and interaction data used by transport.
         """
+        from tardis.transport.montecarlo.configuration.constants import (
+            SIGMA_THOMSON,
+        )
+
+        if sigma_thomson is None:
+            sigma_thomson = SIGMA_THOMSON
+
         if line_interaction_type == "scatter":
             # to adhere to data types, we must have an array of minimum size 1
             array_size = 1
@@ -200,6 +211,7 @@ class OpacityState:
             transition_type,
             destination_level_id,
             transition_line_id,
+            sigma_thomson,
         )
         if self.sobolev_optical_depth_coefficient is not None:
             opacity_state_numba.sobolev_optical_depth_coefficient = (

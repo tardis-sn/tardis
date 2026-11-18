@@ -14,7 +14,6 @@ from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
     CLOSE_LINE_THRESHOLD,
     MISS_DISTANCE,
-    SIGMA_THOMSON,
 )
 from tardis.transport.montecarlo.nonhomologous_grid import (
     solve_resonance_quartic,
@@ -538,7 +537,7 @@ def calculate_distance_line_full_relativity(
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_distance_electron(electron_density, tau_event):
+def calculate_distance_electron(electron_density, tau_event, sigma_thomson):
     """
     Calculate distance to Thomson Scattering
 
@@ -548,4 +547,4 @@ def calculate_distance_electron(electron_density, tau_event):
     tau_event : float
     """
     # add full_relativity here
-    return tau_event / (electron_density * SIGMA_THOMSON)
+    return tau_event / (electron_density * sigma_thomson)

@@ -6,9 +6,6 @@ from tardis import constants as const
 from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
 )
-from tardis.transport.montecarlo.configuration.constants import (
-    SIGMA_THOMSON,
-)
 
 H = const.h.cgs.value
 M_E = const.m_e.cgs.value
@@ -64,11 +61,11 @@ def chi_electron_calculator(opacity_state, nu, shell):
     numpy.ndarray, dtype int
         Continuum ids for which absorption is possible for frequency `nu`.
     """
-    return opacity_state.electron_density[shell] * SIGMA_THOMSON
+    return opacity_state.electron_density[shell] * opacity_state.sigma_thomson
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_tau_electron(electron_density, distance):
+def calculate_tau_electron(electron_density, distance, sigma_thomson):
     """
     Calculate tau for Thomson scattering
 
@@ -82,7 +79,7 @@ def calculate_tau_electron(electron_density, distance):
     tau_electron : float
         tau for thomson scattering
     """
-    return electron_density * SIGMA_THOMSON * distance
+    return electron_density * sigma_thomson * distance
 
 
 @njit(**njit_dict_no_parallel)

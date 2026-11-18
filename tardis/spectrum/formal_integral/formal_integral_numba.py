@@ -13,9 +13,6 @@ from tardis.spectrum.formal_integral.base import (
     intensity_black_body,
 )
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
-from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
-
-
 @njit(**njit_dict_no_parallel)
 def calculate_intersection_point(
     radius: float, impact_parameter: float, inv_t: float
@@ -493,7 +490,7 @@ def numba_formal_integral(
             escat_optical_depth = 0
             for i in range(n_intersections_p - 1):
                 escat_opacity = (
-                    electron_densities[int(shell_ids_p[i])] * SIGMA_THOMSON
+                    electron_densities[int(shell_ids_p[i])] * plasma.sigma_thomson
                 )
                 nu_end = nu_ends[i]
                 nu_end_idx = nu_ends_idxs[i]
