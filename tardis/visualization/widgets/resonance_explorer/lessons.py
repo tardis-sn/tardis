@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 from math import sqrt
 
-from .model import ExplorerInputs
-from .presets import PRESETS
+from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
+from tardis.visualization.widgets.resonance_explorer.presets import PRESETS
 
 
 @dataclass(frozen=True)

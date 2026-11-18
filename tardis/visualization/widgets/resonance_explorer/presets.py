@@ -7,7 +7,7 @@ Source labels are audit references and are not reader-facing categories.
 from dataclasses import dataclass
 from math import sqrt
 
-from .model import ExplorerInputs
+from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
 
 
 @dataclass(frozen=True)

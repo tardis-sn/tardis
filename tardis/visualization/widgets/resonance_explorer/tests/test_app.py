@@ -1,7 +1,5 @@
 """Orchestration checks for the local explorer interface."""
 
-# ruff: noqa: TID252 - Package-local tests use relative imports.
-
 from __future__ import annotations
 
 from dataclasses import replace
@@ -9,8 +7,10 @@ from dataclasses import replace
 from bokeh.document import Document
 from matplotlib.figure import Figure
 
-from ..app import ResonanceExplorerWidget
-from ..lessons import LESSONS
+from tardis.visualization.widgets.resonance_explorer.app import (
+    ResonanceExplorerWidget,
+)
+from tardis.visualization.widgets.resonance_explorer.lessons import LESSONS
 
 
 def test_default_case_serializes_to_a_browser_document() -> None:

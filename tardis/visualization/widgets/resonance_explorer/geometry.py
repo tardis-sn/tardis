@@ -5,8 +5,7 @@ import math
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
 )
-
-from .model import ExplorerInputs
+from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
 
 
 def calculate_boundary(inputs: ExplorerInputs) -> tuple[float, str]:

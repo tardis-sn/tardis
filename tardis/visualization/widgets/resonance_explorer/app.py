@@ -7,10 +7,19 @@ from typing import TYPE_CHECKING
 
 import panel as pn
 
-from .analysis import CaseAnalysis, analyze_case
-from .lessons import LESSONS, LESSONS_BY_KEY, get_lesson_state
-from .model import ExplorerInputs
-from .render import render_guided_case
+from tardis.visualization.widgets.resonance_explorer.analysis import (
+    CaseAnalysis,
+    analyze_case,
+)
+from tardis.visualization.widgets.resonance_explorer.lessons import (
+    LESSONS,
+    LESSONS_BY_KEY,
+    get_lesson_state,
+)
+from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
+from tardis.visualization.widgets.resonance_explorer.render import (
+    render_guided_case,
+)
 
 if TYPE_CHECKING:
     from matplotlib.figure import Figure

@@ -6,10 +6,13 @@ import numpy as np
 import pytest
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-
-from ..analysis import _classify_candidate  # noqa: TID252
-from ..model import ExplorerInputs  # noqa: TID252 - Package-local test import.
-from ..solver_adapter import solve_candidates  # noqa: TID252
+from tardis.visualization.widgets.resonance_explorer.analysis import (
+    _classify_candidate,
+)
+from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
+from tardis.visualization.widgets.resonance_explorer.solver_adapter import (
+    solve_candidates,
+)
 
 
 @pytest.mark.parametrize(

@@ -20,7 +20,9 @@ from matplotlib.patches import Circle, FancyArrowPatch
 from matplotlib.transforms import blended_transform_factory
 
 if TYPE_CHECKING:
-    from .analysis import CaseAnalysis
+    from tardis.visualization.widgets.resonance_explorer.analysis import (
+        CaseAnalysis,
+    )
 
 INK = "#30343b"
 MUTED = "#899198"

@@ -7,15 +7,16 @@ from itertools import pairwise
 from tardis.transport.montecarlo.configuration.constants import (
     CLOSE_LINE_THRESHOLD,
 )
-
-from .geometry import (
+from tardis.visualization.widgets.resonance_explorer.geometry import (
     calculate_boundary,
     calculate_geometric_turns,
     calculate_projected_gradient,
     calculate_projected_velocity,
 )
-from .model import ExplorerInputs
-from .solver_adapter import solve_candidates
+from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
+from tardis.visualization.widgets.resonance_explorer.solver_adapter import (
+    solve_candidates,
+)
 
 
 @dataclass(frozen=True)

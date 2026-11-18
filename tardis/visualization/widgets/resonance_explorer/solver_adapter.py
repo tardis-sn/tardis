@@ -6,8 +6,7 @@ from dataclasses import dataclass
 from tardis.transport.montecarlo.nonhomologous_grid import (
     solve_resonance_quartic,
 )
-
-from .model import ExplorerInputs
+from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
 
 
 @dataclass(frozen=True)
