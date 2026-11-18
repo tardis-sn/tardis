@@ -13,20 +13,6 @@ def he_test_config_dir():
     return Path(__file__).parent / "data"
 
 
-@pytest.fixture(scope="session")
-def he_test_config_yaml(he_test_config_dir):
-    """Load the YAML configuration for HE workflow tests."""
-    config_path = he_test_config_dir / "tardis_he_test_config.yml"
-    return Configuration.from_yaml(str(config_path))
-
-
-@pytest.fixture(scope="session")
-def he_test_config_csvy(he_test_config_dir):
-    """Load the CSVY configuration for HE workflow tests."""
-    config_path = he_test_config_dir / "tardis_he_test_config_csvy.yml"
-    return Configuration.from_yaml(str(config_path))
-
-
 # Parameterized fixture for all config files
 @pytest.fixture(
     scope="session",

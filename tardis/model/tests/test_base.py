@@ -11,7 +11,6 @@ from tardis.model import SimulationState
 from tardis.model.geometry.radial1d import Radial1DGeometry
 from tardis.model.geometry.radial1d_homologous import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
-from tardis.model.matter.decay import IsotopicMassFraction
 
 
 @pytest.fixture
@@ -417,15 +416,6 @@ def test_ascii_reader_exponential_law(
     for i, mdens in enumerate(expected_densites):
         assert_almost_equal(simulation_state.density[i].value, mdens)
         assert simulation_state.density[i].unit == u.Unit(expected_unit)
-
-
-@pytest.fixture
-def simple_isotope_abundance():
-    index = pd.MultiIndex.from_tuples(
-        [(6, 14), (12, 28)], names=["atomic_number", "mass_number"]
-    )
-    abundance = [[0.2] * 20] * 2
-    return IsotopicMassFraction(abundance, index=index)
 
 
 @pytest.mark.parametrize(
