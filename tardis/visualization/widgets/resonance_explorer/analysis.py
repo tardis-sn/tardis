@@ -2,7 +2,6 @@
 
 import math
 from dataclasses import dataclass
-from itertools import pairwise
 
 from tardis.transport.montecarlo.configuration.constants import (
     CLOSE_LINE_THRESHOLD,
@@ -43,13 +42,11 @@ class CandidateRecord:
     """
 
     slot_idx: int
-    scaled_root: float
     x: float | None
     s: float | None
     r: float | None
     projected_velocity: float | None
     gradient: float | None
-    residual: float | None
     accepted: bool
     reason: str
     flags: tuple[str, ...]
@@ -57,8 +54,6 @@ class CandidateRecord:
     event_eligible: bool
     unsquared_verified: bool
     verified_event_eligible: bool
-    unsquared_tolerance: float | None
-    packet_gradient: float | None
 
 
 @dataclass(frozen=True)
@@ -79,15 +74,7 @@ class CaseAnalysis:
     stop_reason: str
     turn_candidates: tuple[TurnRecord, ...]
     turns: tuple[TurnRecord, ...]
-    transport_turns: tuple[TurnRecord, ...]
-    monotonic_intervals: tuple[tuple[float, float], ...]
-    active_velocity_range: tuple[float, float]
-    no_crossing_reason: str | None
     solver_route: str
-    raw_roots: tuple[float, float, float, float]
-    structured_parameters: tuple[tuple[str, float], ...]
-    distance_tolerance: float
-    solver_provenance: str
     candidates: tuple[CandidateRecord, ...]
     crossings: tuple[CandidateRecord, ...]
     production_nearest_resonance: CandidateRecord | None
@@ -96,9 +83,7 @@ class CaseAnalysis:
     ray_family: str
     shape_family: str
     result_family: str
-    radial_law: str
     stagnation_radius: float | None
-    notes: tuple[str, ...]
 
 
 def _validate_inputs(inputs: ExplorerInputs) -> None:
@@ -202,8 +187,6 @@ def _classify_candidate(
     if not math.isfinite(root):
         return CandidateRecord(
             slot_idx,
-            root,
-            None,
             None,
             None,
             None,
@@ -216,8 +199,6 @@ def _classify_candidate(
             False,
             False,
             False,
-            None,
-            None,
         )
     x = inputs.delta_r * root
     s = x - inputs.x_0
@@ -260,7 +241,6 @@ def _classify_candidate(
     # of the shell-edge speeds. Near a simple root, dividing this budget by
     # |G| gives the corresponding position uncertainty; at a contact the
     # residual remains the meaningful forward-error criterion.
-    unsquared_tolerance = None
     unsquared_verified = False
     if residual is not None:
         radial_term = inputs.q * x / r
@@ -311,13 +291,11 @@ def _classify_candidate(
         flags.append("singular projected gradient")
     return CandidateRecord(
         slot_idx,
-        root,
         x,
         s,
         r,
         velocity,
         gradient,
-        residual,
         accepted,
         flags[0] if flags else "eligible resonance",
         tuple(flags),
@@ -325,8 +303,6 @@ def _classify_candidate(
         event_eligible,
         unsquared_verified,
         verified_event_eligible,
-        unsquared_tolerance,
-        packet_gradient,
     )
 
 
@@ -401,23 +377,6 @@ def analyze_case(inputs: ExplorerInputs) -> CaseAnalysis:
         for turn in turn_candidates
         if turn.active and turn.kind == "reversal"
     )
-    transport_turns = tuple(
-        turn for turn in turn_candidates if turn.transport_active
-    )
-    points = (
-        (inputs.x_0,)
-        + tuple(turn.x for turn in transport_turns)
-        + (inputs.x_0 + active_end,)
-    )
-    monotonic_intervals = () if active_end == 0 else tuple(pairwise(points))
-    velocity_values = [
-        calculate_projected_velocity(inputs.x_0, inputs),
-        calculate_projected_velocity(inputs.x_0 + active_end, inputs),
-    ]
-    velocity_values.extend(
-        calculate_projected_velocity(turn.x, inputs) for turn in turns
-    )
-    active_velocity_range = (min(velocity_values), max(velocity_values))
     solver = solve_candidates(inputs)
     candidates = tuple(
         _classify_candidate(
@@ -477,14 +436,6 @@ def analyze_case(inputs: ExplorerInputs) -> CaseAnalysis:
         shape_family = "stationary inflection"
     else:
         shape_family = "monotone"
-    if inputs.m == 0 and inputs.q == 0:
-        radial_law = "static"
-    elif inputs.m == 0:
-        radial_law = "uniform radial speed"
-    elif inputs.q == 0:
-        radial_law = "radius proportional"
-    else:
-        radial_law = "offset linear"
     stagnation_radius = -inputs.q / inputs.m if inputs.m != 0 else None
     if stagnation_radius is not None and not (
         inputs.r_in <= stagnation_radius <= inputs.r_out
@@ -512,76 +463,6 @@ def analyze_case(inputs: ExplorerInputs) -> CaseAnalysis:
             2: "two crossings",
             3: "three crossings",
         }.get(len(crossings), f"{len(crossings)} crossings")
-    no_crossing_reason = None
-    if result_family == "no crossing":
-        outside_range = not (
-            active_velocity_range[0] <= inputs.w <= active_velocity_range[1]
-        )
-        verified_outside = any(
-            candidate.physical
-            and candidate.s is not None
-            and (candidate.s <= 0 or candidate.s > active_end)
-            for candidate in candidates
-        )
-        if outside_range:
-            no_crossing_reason = (
-                f"Target w={inputs.w:g} is outside active projected-velocity "
-                f"range [{active_velocity_range[0]:g}, "
-                f"{active_velocity_range[1]:g}]."
-            )
-        else:
-            no_crossing_reason = (
-                f"Target w={inputs.w:g} lies within active projected-velocity "
-                f"range [{active_velocity_range[0]:g}, "
-                f"{active_velocity_range[1]:g}], but no solver slot "
-                "supplies a verified crossing."
-            )
-        if verified_outside:
-            no_crossing_reason += (
-                " Verified root(s) lie outside active flight or at an "
-                "excluded endpoint."
-            )
-    notes = []
-    if exact_inner_tangent:
-        notes.append(
-            "Exact inner tangent: production boundary code reports immediate "
-            "inner hit; geometric outbound continuation has no active "
-            "packet interval in this code path."
-        )
-    if inputs.s_stop is not None and inputs.s_stop < boundary_distance:
-        notes.append(f"Active flight truncated by {inputs.stop_cause}.")
-    near_zero_differences = [
-        candidate
-        for candidate in candidates
-        if candidate.packet_gradient is not None
-        and candidate.packet_gradient != 0.0
-        and abs(candidate.gradient) <= 1e-12 * max(abs(inputs.m), 1)
-        and candidate.gradient != candidate.packet_gradient
-    ]
-    if near_zero_differences:
-        first = near_zero_differences[0]
-        notes.append(
-            f"Slot {first.slot_idx} has analytic G={first.gradient:.6g} "
-            f"and packet-form G={first.packet_gradient:.6g}; floating-point "
-            "rounding leaves the packet value finite, so the exact "
-            "singular-depth condition is not met."
-        )
-    if analytic_contacts:
-        notes.append(
-            "Analytic G=0 contacts are distinct from production root acceptance."
-        )
-    unverified_accepted = sum(
-        candidate.accepted and not candidate.unsquared_verified
-        for candidate in candidates
-    )
-    if unverified_accepted:
-        notes.append(
-            f"{unverified_accepted} production-accepted slot(s) failed "
-            "the unsquared-equation check and are excluded from verified "
-            "crossings and nearest resonance."
-        )
-    if solver.non_isolated:
-        notes.append("Target matches a continuum, not an isolated root.")
     return CaseAnalysis(
         inputs=inputs,
         m=inputs.m,
@@ -597,15 +478,7 @@ def analyze_case(inputs: ExplorerInputs) -> CaseAnalysis:
         stop_reason=stop_reason,
         turn_candidates=turn_candidates,
         turns=turns,
-        transport_turns=transport_turns,
-        monotonic_intervals=monotonic_intervals,
-        active_velocity_range=active_velocity_range,
-        no_crossing_reason=no_crossing_reason,
         solver_route=solver.route,
-        raw_roots=solver.roots,
-        structured_parameters=solver.structured_parameters,
-        distance_tolerance=distance_tolerance,
-        solver_provenance=solver.provenance,
         candidates=candidates,
         crossings=crossings,
         production_nearest_resonance=production_nearest,
@@ -614,7 +487,5 @@ def analyze_case(inputs: ExplorerInputs) -> CaseAnalysis:
         ray_family=ray_family,
         shape_family=shape_family,
         result_family=result_family,
-        radial_law=radial_law,
         stagnation_radius=stagnation_radius,
-        notes=tuple(notes),
     )

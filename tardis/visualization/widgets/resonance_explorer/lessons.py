@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from math import sqrt
 
 from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
-from tardis.visualization.widgets.resonance_explorer.presets import PRESETS
 
 
 @dataclass(frozen=True)
@@ -35,10 +34,15 @@ _FULL_LAUNCH = -sqrt(7.56)
 
 
 def _inputs(
-    m: float, q: float, w: float, x_0: float = _FULL_LAUNCH
+    m: float,
+    q: float,
+    w: float,
+    x_0: float = _FULL_LAUNCH,
+    b: float = 1.2,
+    s_stop: float | None = None,
 ) -> ExplorerInputs:
     """Build exact edge speeds for the common shell and oblique ray."""
-    return ExplorerInputs(1.0, 3.0, m + q, 3.0 * m + q, 1.2, x_0, w)
+    return ExplorerInputs(1.0, 3.0, m + q, 3.0 * m + q, b, x_0, w, s_stop)
 
 
 LESSONS: tuple[Lesson, ...] = (
@@ -172,7 +176,7 @@ LESSONS: tuple[Lesson, ...] = (
             LessonState(
                 "radial",
                 "Radial inward: H² = 0",
-                PRESETS["radial inward"].inputs,
+                _inputs(1.0, -2.34375, 0.3, x_0=-3.0, b=0.0),
                 None,
                 "Choose a radial ray with b = 0.",
                 "The zero impact parameter selects the radial structured-solver route.",
@@ -182,7 +186,7 @@ LESSONS: tuple[Lesson, ...] = (
             LessonState(
                 "uniform",
                 "Uniform radial speed: Δv = 0",
-                PRESETS["uniform speed analytic"].inputs,
+                _inputs(0.0, 0.8, 0.3),
                 None,
                 "Set equal radial speeds at the two shell edges.",
                 "The constant-speed projection has one analytic oblique root.",
@@ -192,7 +196,7 @@ LESSONS: tuple[Lesson, ...] = (
             LessonState(
                 "line_center",
                 "Line center: N = 0",
-                PRESETS["line center"].inputs,
+                _inputs(1.0, -2.34375, 0.0),
                 None,
                 "Set the line target w = 0.",
                 "The zero target selects the line-center structured-solver route.",
@@ -202,7 +206,7 @@ LESSONS: tuple[Lesson, ...] = (
             LessonState(
                 "scatter",
                 "Earlier scatter clips the flight",
-                PRESETS["scatter truncation"].inputs,
+                _inputs(1.0, -2.34375, 0.275, x_0=-1.6, s_stop=3.2),
                 None,
                 "Assume an earlier electron scatter at x = 1.6.",
                 "A later algebraic crossing is excluded by event ordering; only the earlier eligible potential resonance remains.",

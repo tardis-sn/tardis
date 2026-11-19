@@ -15,9 +15,7 @@ class SolverResult:
 
     route: str
     roots: tuple[float, float, float, float]
-    structured_parameters: tuple[tuple[str, float], ...]
     non_isolated: bool
-    provenance: str
 
 
 def solve_candidates(inputs: ExplorerInputs) -> SolverResult:
@@ -48,13 +46,7 @@ def solve_candidates(inputs: ExplorerInputs) -> SolverResult:
             roots = (root, nan, nan, nan)
         else:
             roots = (nan, nan, nan, nan)
-        return SolverResult(
-            "Δv=0 analytic",
-            roots,
-            (),
-            non_isolated,
-            "code-equivalent constant-speed analytic branch",
-        )
+        return SolverResult("Δv=0 analytic", roots, non_isolated)
 
     line_velocity = w / delta_v
     scaled_radius = inputs.r_0 / delta_r
@@ -74,10 +66,4 @@ def solve_candidates(inputs: ExplorerInputs) -> SolverResult:
             line_velocity, impact_squared, intercept
         )
     )
-    return SolverResult(
-        route,
-        roots,
-        (("N", line_velocity), ("H²", impact_squared), ("Q", intercept)),
-        False,
-        "TARDIS solve_resonance_quartic",
-    )
+    return SolverResult(route, roots, False)

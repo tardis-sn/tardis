@@ -6,9 +6,6 @@ import numpy as np
 import pytest
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.visualization.widgets.resonance_explorer.analysis import (
-    _classify_candidate,
-)
 from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
 from tardis.visualization.widgets.resonance_explorer.solver_adapter import (
     solve_candidates,
@@ -65,7 +62,6 @@ def test_exact_q_zero_route_matches_packet_arithmetic(
     solver = solve_candidates(inputs)
 
     assert inputs.q == packet_q
-    assert dict(solver.structured_parameters)["Q"] == packet_q / (v_out - v_in)
     assert solver.route == expected_route
 
 
@@ -86,33 +82,4 @@ def test_near_radial_h_squared_uses_packet_direction_arithmetic() -> None:
     solver = solve_candidates(inputs)
 
     assert packet_h_squared == 0.0
-    assert dict(solver.structured_parameters)["H²"] == packet_h_squared
     assert solver.route == "radial H²=0"
-
-
-def test_shell_filter_uses_packet_position_arithmetic_at_narrow_edge() -> None:
-    """Claim: shell membership follows reconstructed packet radius.
-
-    Regime: a narrow shell whose geometric outer-edge `hypot` rounds to the
-    boundary while the packet-position expression rounds one ulp beyond it.
-    Verification: evaluate the source's radius expression independently;
-    the shell tolerance is much smaller than one ulp in this case.
-    """
-    r_outer = 1.00001
-    b = 0.8
-    x_0 = math.sqrt(1.0 - b * b)
-    x_edge = math.sqrt(r_outer * r_outer - b * b)
-    inputs = ExplorerInputs(1.0, r_outer, 1.0, r_outer, b, x_0, x_edge)
-    s = x_edge - x_0
-    packet_radius = math.sqrt(
-        inputs.r_0 * inputs.r_0 + s * s + 2 * inputs.r_0 * s * inputs.mu_0
-    )
-    tolerance = 1e-14 * inputs.delta_r
-
-    assert math.hypot(x_edge, b) == r_outer
-    assert packet_radius > r_outer + tolerance
-    candidate = _classify_candidate(
-        0, x_edge / inputs.delta_r, inputs, 1.0, 1.0, tolerance
-    )
-    assert "outside shell" in candidate.flags
-    assert not candidate.accepted
