@@ -12,7 +12,6 @@ Submodules
    tardis.visualization.widgets.resonance_explorer.geometry
    tardis.visualization.widgets.resonance_explorer.lessons
    tardis.visualization.widgets.resonance_explorer.model
-   tardis.visualization.widgets.resonance_explorer.presets
    tardis.visualization.widgets.resonance_explorer.render
    tardis.visualization.widgets.resonance_explorer.solver_adapter
 
