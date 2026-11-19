@@ -317,6 +317,7 @@ def test_reduced_levels_are_invariant_to_uniform_rate_scale(
     assert np.max(abs(net) / gross) <= evaluator.level_residual_tolerance
 
 
+@pytest.mark.usefixtures("unavailable_frozen_beta_initializer")
 def test_best_effort_candidate_uses_relative_physical_rank(
     toy_evaluator: PlasmaEquilibriumEvaluator,
     monkeypatch: pytest.MonkeyPatch,
@@ -576,4 +577,200 @@ def test_final_closure_retains_ground_kinetics_when_excited_levels_close(
     )
     assert_allclose(
         actual.to_numpy()[:, 0], [-0.75 / scale, 0.0], rtol=1e-14, atol=0.0
+    )
+
+
+@pytest.mark.usefixtures("unavailable_frozen_beta_initializer")
+def test_log_fallback_includes_physical_ground_row(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Softmax fallback sees both kinetic rows; HYBR retains normalization.
+
+    Regime: optically thin two-level atom, upward/downward rates 2/6 s^-1,
+    no ionization and seed [0.6,0.4]. Explicit incoming-minus-outgoing fluxes
+    independently give the two physical rows. The fixed-trial rtol=1e-14
+    allows only arithmetic roundoff, not a solver convergence error.
+    This verifies optimizer wiring, not numerical convergence of a mocked fit.
+    """
+    evaluator = toy_evaluator
+    evaluator.case_b_species = frozenset()
+    continuum = ContinuumRateCoefficients(
+        np.zeros(2), np.zeros(2), np.ones(2), np.zeros(2), np.zeros(2)
+    )
+    bound_bound = BoundBoundMatrixRates(
+        2,
+        np.array([0, 1]),
+        np.array([1, 0]),
+        np.zeros(2),
+        np.zeros(2),
+        np.array([2.0, 6.0]),
+        np.full(2, -1),
+    )
+    fallback_calls = 0
+
+    def stalled_root(
+        calculate_residual: Callable[
+            [npt.NDArray[np.float64]], npt.NDArray[np.float64]
+        ],
+        seed: npt.NDArray[np.float64],
+        **kwargs: object,
+    ) -> SimpleNamespace:
+        del kwargs
+        # The square unconstrained solve still needs its sum constraint.
+        assert_allclose(
+            calculate_residual(1.1 * seed)[0], 0.1, rtol=0.0, atol=3e-16
+        )
+        return SimpleNamespace(x=seed.copy(), success=False)
+
+    def inspect_log_objective(
+        calculate_residual: Callable[
+            [npt.NDArray[np.float64]], npt.NDArray[np.float64]
+        ],
+        log_ratios: npt.NDArray[np.float64],
+        **kwargs: object,
+    ) -> SimpleNamespace:
+        nonlocal fallback_calls
+        del kwargs
+        fallback_calls += 1
+        assert log_ratios.shape == (1,)
+        weights = np.array([1.0, np.exp(log_ratios[0])])
+        fractions = weights / weights.sum()
+        inflow = 6.0 * fractions[1]
+        outflow = 2.0 * fractions[0]
+        gross = np.full(2, inflow + outflow)
+        allowance = (
+            64.0 * np.finfo(float).eps / evaluator.level_residual_tolerance
+        ) * gross.sum()
+        expected = np.array([inflow - outflow, outflow - inflow]) / (
+            gross + allowance
+        )
+        assert_allclose(
+            calculate_residual(log_ratios), expected, rtol=1e-14, atol=0.0
+        )
+        return SimpleNamespace(x=log_ratios.copy(), success=False)
+
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.root", stalled_root
+    )
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.least_squares",
+        inspect_log_objective,
+    )
+    evaluator._calculate_level_solution(
+        0,
+        1e9,
+        1e4,
+        np.array([0.6, 0.4]),
+        continuum,
+        evaluator.shell_number_densities[0],
+        evaluator.sobolev_inputs[0],
+        bound_bound,
+    )
+    assert fallback_calls == 2
+
+
+@pytest.mark.parametrize("rate_scale", [1e-12, 1.0, 1e12])
+@pytest.mark.usefixtures("unavailable_frozen_beta_initializer")
+def test_log_fallback_closes_weak_ground_coupling_at_any_rate_scale(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    monkeypatch: pytest.MonkeyPatch,
+    rate_scale: float,
+) -> None:
+    """Resolve a depleted ground level despite fast excited redistribution.
+
+    Regime: optically thin 0<->1<->2 chain, rates 1/2 and 1e9/1e9 s^-1,
+    no populated continuum. Detailed balance independently gives [.5,.25,.25].
+    HYBR alone is held stalled so real least squares must close every row.
+    Scaling every rate leaves both equilibrium and relative acceptance fixed.
+    The population bound derives from the existing 64*eps total-flow allowance
+    relative to the 1 s^-1 slow coupling, not an added physical tolerance.
+    """
+    evaluator = toy_evaluator
+    evaluator.case_b_species = frozenset()
+    evaluator.level_population_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1), (1, 0, 2)],
+        names=evaluator.level_population_index.names,
+    )
+    population_geometry = replace(
+        evaluator.shell_number_densities[0],
+        level_number_density=np.array([1e8, 4.95e9, 4.95e9]),
+        species_level_positions=np.arange(3),
+    )
+    fast_rate = 1e9
+    bound_bound = BoundBoundMatrixRates(
+        3,
+        np.array([0, 1, 1, 2]),
+        np.array([1, 0, 2, 1]),
+        np.zeros(4),
+        np.zeros(4),
+        np.array([1.0, 2.0, fast_rate, fast_rate]) * rate_scale,
+        np.full(4, -1),
+    )
+    continuum = ContinuumRateCoefficients(
+        np.zeros(3),
+        np.zeros(3),
+        np.ones(3) * rate_scale,
+        np.zeros(3),
+        np.zeros(3),
+    )
+
+    def stalled_root(
+        _residual: object,
+        seed: npt.NDArray[np.float64],
+        **kwargs: object,
+    ) -> SimpleNamespace:
+        del kwargs
+        return SimpleNamespace(x=seed.copy(), success=False)
+
+    monkeypatch.setattr(
+        "tardis.plasma.equilibrium.evaluator.root", stalled_root
+    )
+    fractions = evaluator._calculate_level_solution(
+        0,
+        1e9,
+        1e4,
+        np.array([0.01, 0.495, 0.495]),
+        continuum,
+        population_geometry,
+        replace(evaluator.sobolev_inputs[0], tau_coefficient=np.zeros(1)),
+        bound_bound,
+    )[0]
+
+    # Explicit conserved transition fluxes, independent of production assembly.
+    ground_inflow = 2.0 * fractions[1]
+    ground_outflow = fractions[0]
+    excited_exchange = fast_rate * (fractions[1] - fractions[2])
+    net = (
+        np.array(
+            [
+                ground_inflow - ground_outflow,
+                ground_outflow - ground_inflow - excited_exchange,
+                excited_exchange,
+            ]
+        )
+        * rate_scale
+    )
+    gross = (
+        np.array(
+            [
+                ground_inflow + ground_outflow,
+                ground_inflow
+                + ground_outflow
+                + fast_rate * (fractions[1] + fractions[2]),
+                fast_rate * (fractions[1] + fractions[2]),
+            ]
+        )
+        * rate_scale
+    )
+    tolerance = evaluator.level_residual_tolerance
+    allowance = 64 * np.finfo(float).eps / tolerance * gross.sum()
+    assert np.max(np.abs(net / (gross + allowance))) <= tolerance
+    assert_allclose(fractions.sum(), 1.0, rtol=0.0, atol=3e-16)
+    assert np.all(fractions >= 0.0)
+    population_tolerance = tolerance + 64 * np.finfo(float).eps * (
+        fast_rate + 2.0
+    )
+    assert_allclose(
+        fractions, [0.5, 0.25, 0.25], rtol=0.0, atol=population_tolerance
     )

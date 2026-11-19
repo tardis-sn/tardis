@@ -342,6 +342,7 @@ def test_evaluator_finds_same_unique_root_from_distinct_initial_guesses(
     )
 
 
+@pytest.mark.usefixtures("unavailable_frozen_beta_initializer")
 def test_evaluator_refines_physical_level_iterate_when_optimizer_stalls(
     toy_evaluator: PlasmaEquilibriumEvaluator,
     monkeypatch: pytest.MonkeyPatch,
@@ -389,6 +390,7 @@ def test_evaluator_refines_physical_level_iterate_when_optimizer_stalls(
     npt.assert_allclose(actual[3], 0.0, rtol=0.0, atol=1e-10)
 
 
+@pytest.mark.usefixtures("unavailable_frozen_beta_initializer")
 def test_evaluator_retries_open_level_equations_despite_optimizer_success(
     toy_evaluator: PlasmaEquilibriumEvaluator,
     monkeypatch: pytest.MonkeyPatch,
@@ -492,6 +494,7 @@ def test_evaluator_retries_open_level_equations_despite_optimizer_success(
     npt.assert_allclose(actual[3], 0.0, rtol=0.0, atol=1e-10)
 
 
+@pytest.mark.usefixtures("unavailable_frozen_beta_initializer")
 def test_evaluator_reports_open_level_solution_after_all_retries(
     toy_evaluator: PlasmaEquilibriumEvaluator,
     monkeypatch: pytest.MonkeyPatch,

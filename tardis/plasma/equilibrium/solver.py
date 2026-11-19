@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from time import perf_counter
-from typing import Protocol
+from typing import Literal, Protocol
 
 import numpy as np
 import numpy.typing as npt
@@ -38,11 +38,18 @@ class EquilibriumEvaluation(Protocol):
 
 @dataclass(frozen=True)
 class PlasmaEquilibriumSolution:
-    """Accepted dimensional state and terminal evaluator output."""
+    """Terminal state, with kinetic closure distinguished from continuation.
+
+    ``maximum_relative_level_residual=None`` denotes unavailable optional
+    kinetic diagnostics, not a measured zero. The true default preserves the
+    historical minimum evaluator contract for three-argument construction.
+    """
 
     electron_density: npt.NDArray[np.float64]
     electron_temperature: npt.NDArray[np.float64]
     evaluation: EquilibriumEvaluation
+    level_converged: bool = True
+    maximum_relative_level_residual: float | None = None
 
 
 class PlasmaEquilibriumSolver:
@@ -55,6 +62,7 @@ class PlasmaEquilibriumSolver:
         maximum_function_evaluations: int = 100,
         residual_tolerance: float = 1.0e-7,
         fixed_temperature_ratio: float | None = None,
+        level_failure_policy: Literal["raise", "warn"] = "raise",
     ) -> None:
         """Configure bounds, solver effort, and optional prescribed temperature.
 
@@ -72,6 +80,10 @@ class PlasmaEquilibriumSolver:
             Prescribe T_e/T_rad and solve only for electron density when set.
             Thermal residuals and temperature bounds are unused in this mode.
             None retains the coupled density-temperature solve.
+        level_failure_policy : {"raise", "warn"}, optional
+            Reject finite terminal kinetic-closure failure by default, or
+            warn and return an explicitly unclosed candidate. Nonfinite or
+            physically invalid states and other residual failures stay fatal.
         """
         self.minimum_electron_temperature = minimum_electron_temperature
         self.maximum_temperature_ratio = maximum_temperature_ratio
@@ -85,6 +97,9 @@ class PlasmaEquilibriumSolver:
                 "fixed_temperature_ratio must be finite and positive."
             )
         self.fixed_temperature_ratio = fixed_temperature_ratio
+        if level_failure_policy not in ("raise", "warn"):
+            raise ValueError("level_failure_policy must be 'raise' or 'warn'.")
+        self.level_failure_policy = level_failure_policy
 
     def solve(
         self,
@@ -100,7 +115,9 @@ class PlasmaEquilibriumSolver:
         Intermediate level solves may return physical best-effort candidates.
         If terminal kinetic closure fails, refresh the evaluator's population
         context up to three times and reoptimize charge/temperature as needed.
-        All terminal tolerances still apply to the exact returned state.
+        All terminal tolerances apply to the exact returned state. The warn
+        policy permits only finite kinetic failure after these refinements;
+        it never declares the resulting level equilibrium converged.
 
         Parameters
         ----------
@@ -546,22 +563,181 @@ class PlasmaEquilibriumSolver:
         relative_level_residual = getattr(
             terminal_evaluation, "relative_level_residual", None
         )
+        # Validate available physical fields without expanding the minimum
+        # evaluator protocol. These are arithmetic consistency checks, not
+        # looser kinetic acceptance or a population floor.
+        population = terminal_evaluation.normalized_population
+        for field, values in (
+            ("electron_density", electron_density),
+            ("electron_temperature", electron_temperature),
+            (
+                "trial_electron_density",
+                getattr(terminal_evaluation, "trial_electron_density", None),
+            ),
+            (
+                "charge_solved_electron_density",
+                getattr(
+                    terminal_evaluation, "charge_solved_electron_density", None
+                ),
+            ),
+        ):
+            if values is None:
+                continue
+            array = np.asarray(values, dtype=np.float64)
+            if not np.isfinite(array).all() or np.any(array <= 0.0):
+                raise RuntimeError(
+                    f"Plasma equilibrium solve returned invalid {field}."
+                )
+            if isinstance(values, pd.Series) and not values.index.equals(
+                population.columns
+            ):
+                raise RuntimeError(
+                    f"Plasma equilibrium solve returned misaligned {field} shells."
+                )
+        arithmetic_tolerance = (
+            64.0 * np.finfo(float).eps * max(len(population), 1)
+        )
+        for field in (
+            "normalized_population",
+            "absolute_level_population",
+            "ion_population",
+            "tau_sobolev",
+            "beta_sobolev",
+        ):
+            values = getattr(terminal_evaluation, field, None)
+            if values is None:
+                continue
+            array = np.asarray(values, dtype=np.float64)
+            if not np.isfinite(array).all() or (
+                field != "tau_sobolev" and np.any(array < 0.0)
+            ):
+                raise RuntimeError(
+                    f"Plasma equilibrium solve returned invalid {field}."
+                )
+            if not values.columns.equals(population.columns):
+                raise RuntimeError(
+                    f"Plasma equilibrium solve returned misaligned {field} shells."
+                )
+        if not np.allclose(
+            population.sum(axis=0), 1.0, rtol=0.0, atol=arithmetic_tolerance
+        ):
+            raise RuntimeError(
+                "Plasma equilibrium solve returned invalid population normalization."
+            )
+        ions = getattr(terminal_evaluation, "ion_population", None)
+        levels = getattr(terminal_evaluation, "absolute_level_population", None)
+        if ions is not None and levels is not None:
+            level_groups = levels.groupby(level=["atomic_number", "ion_number"])
+            level_totals = level_groups.sum()
+            represented_ions = ions.reindex(
+                index=level_totals.index, columns=level_totals.columns
+            )
+            allocation_bound = (level_groups.size() // 2) * np.nextafter(
+                0.0, 1.0
+            )
+            allocation_underflow = level_groups.max().eq(
+                0.0
+            ) & represented_ions.le(allocation_bound, axis="index")
+            consistent = (
+                np.isclose(
+                    level_totals,
+                    represented_ions,
+                    rtol=(
+                        64.0 * np.finfo(float).eps * level_groups.size()
+                    ).to_numpy()[:, None],
+                    atol=0.0,
+                )
+                | allocation_underflow.to_numpy()
+            )
+            if not consistent.all():
+                raise RuntimeError(
+                    "Plasma equilibrium solve returned inconsistent level/ion totals."
+                )
+            species = getattr(evaluator, "equilibrium_species", None)
+            if species is not None:
+                selected_levels = levels.loc[species]
+                selected_population = population
+                if isinstance(population.index, pd.MultiIndex):
+                    selected_population = population.loc[species]
+                expected_levels = selected_population.multiply(
+                    ions.loc[species], axis="columns"
+                )
+                if not selected_levels.index.equals(
+                    expected_levels.index
+                ) or not np.allclose(
+                    selected_levels,
+                    expected_levels,
+                    rtol=arithmetic_tolerance,
+                    atol=0.0,
+                ):
+                    raise RuntimeError(
+                        "Plasma equilibrium solve returned inconsistent selected-level fractions."
+                    )
+        elemental_density = getattr(evaluator, "elemental_number_density", None)
+        if ions is not None and elemental_density is not None:
+            nuclei = ions.groupby(level="atomic_number").sum()
+            elements = nuclei.index.union(elemental_density.index)
+            expected_nuclei = elemental_density.reindex(
+                index=elements, columns=nuclei.columns, fill_value=0.0
+            )
+            nuclei = nuclei.reindex(index=elements, fill_value=0.0)
+            stage_counts = (
+                ions.groupby(level="atomic_number")
+                .size()
+                .reindex(elements, fill_value=1)
+            )
+            if (
+                not elemental_density.columns.equals(nuclei.columns)
+                or not np.isfinite(np.asarray(expected_nuclei)).all()
+                or not np.allclose(
+                    nuclei,
+                    expected_nuclei,
+                    rtol=(64.0 * np.finfo(float).eps * stage_counts).to_numpy()[
+                        :, None
+                    ],
+                    atol=0.0,
+                )
+            ):
+                raise RuntimeError(
+                    "Plasma equilibrium solve returned inconsistent conserved nuclei."
+                )
+        level_converged = True
+        maximum_relative_level_residual = None
         if relative_level_residual is not None:
             level_values = np.asarray(relative_level_residual, dtype=np.float64)
-            if (
-                not np.isfinite(level_values).all()
-                or np.max(np.abs(level_values)) > level_tolerance
-            ):
+            if not np.isfinite(level_values).all():
+                raise RuntimeError(
+                    "Plasma equilibrium solve returned nonfinite relative level residuals."
+                )
+            maximum_relative_level_residual = float(
+                np.max(np.abs(level_values))
+            )
+            level_converged = maximum_relative_level_residual <= level_tolerance
+            if not level_converged:
                 level_idx, shell_idx = np.unravel_index(
                     np.argmax(np.abs(level_values)), level_values.shape
                 )
-                raise RuntimeError(
+                worst_level = relative_level_residual.index[level_idx]
+                if isinstance(worst_level, tuple):
+                    worst_level = tuple(
+                        value.item() if isinstance(value, np.generic) else value
+                        for value in worst_level
+                    )
+                message = (
                     "Plasma equilibrium solve did not close its relative level "
-                    f"residual at level {relative_level_residual.index[level_idx]}, "
+                    f"residual at level {worst_level}, "
                     f"shell {relative_level_residual.columns[shell_idx]}: "
                     f"{level_values[level_idx, shell_idx]:.3e} "
                     f"(tolerance={level_tolerance:.3e}, "
                     f"terminal refinements={refinement_count})."
+                )
+                if self.level_failure_policy == "raise":
+                    raise RuntimeError(message)
+                logger.warning(
+                    "%s level_failure_policy=warn; magnitude=%.3e. "
+                    "Continuing with this terminal state: NOT converged level equilibrium.",
+                    message,
+                    maximum_relative_level_residual,
                 )
         logger.info(
             "Finished plasma equilibrium terminal validation in %.3f s "
@@ -576,4 +752,6 @@ class PlasmaEquilibriumSolver:
             electron_density,
             electron_temperature,
             terminal_evaluation,
+            level_converged,
+            maximum_relative_level_residual,
         )

@@ -396,7 +396,7 @@ class CoupledPlasmaState:
 
 @dataclass(frozen=True)
 class NonthermalCouplingResult:
-    """Converged plasma and retained raw equilibrium diagnostics.
+    """Stable coupling candidate and retained raw equilibrium diagnostics.
 
     Attributes
     ----------
@@ -410,13 +410,35 @@ class NonthermalCouplingResult:
         contain a subnormal parent with all-zero levels that was canonicalized
         to zero in `plasma_state`.
     convergence_history : pandas.DataFrame
-        Component changes for each nonthermal coupling iteration.
+        Component changes and scalar kinetic, coupling, and overall statuses
+        for every nonthermal coupling iteration. An unavailable measured
+        kinetic residual is NaN, never a manufactured zero.
+    coupling_stable : bool
+        Whether populations, electrons, temperature, and rates meet the
+        existing fixed-point thresholds. This does not imply kinetic closure;
+        `plasma_converged` also requires the terminal `level_converged` flag.
     """
 
     plasma_state: CoupledPlasmaState
     nonthermal_state: NonthermalPlasmaState
     equilibrium_solution: PlasmaEquilibriumSolution
     convergence_history: pd.DataFrame
+    coupling_stable: bool = True
+
+    @property
+    def level_converged(self) -> bool:
+        """Return current kinetic acceptance from the terminal solution."""
+        return self.equilibrium_solution.level_converged
+
+    @property
+    def maximum_relative_level_residual(self) -> float | None:
+        """Return the measured kinetic maximum, or unavailable metadata."""
+        return self.equilibrium_solution.maximum_relative_level_residual
+
+    @property
+    def plasma_converged(self) -> bool:
+        """Require both coupling stability and current kinetic equilibrium."""
+        return self.coupling_stable and self.level_converged
 
 
 EvaluatorFactory = Callable[
@@ -475,7 +497,9 @@ class NonthermalHeliumPlasmaSolver:
             omitted, the optical workflow owns evaluator construction.
         equilibrium_solver : PlasmaEquilibriumSolver, optional
             Normalized charge solver. The default prescribes T_e = 0.9 T_rad.
-            Pass PlasmaEquilibriumSolver() to restore coupled thermal balance.
+            It warns on finite terminal kinetic failure without declaring
+            convergence. A supplied solver is preserved; pass
+            PlasmaEquilibriumSolver() for strict coupled thermal balance.
         settings : NonthermalCouplingSettings, optional
             Picard convergence and relaxation settings.
         bound_bound_species_filter : tuple[int, int] or None, optional
@@ -485,8 +509,12 @@ class NonthermalHeliumPlasmaSolver:
         """
         self.nonthermal_solver = nonthermal_solver
         self.evaluator_factory = evaluator_factory
-        self.equilibrium_solver = equilibrium_solver or PlasmaEquilibriumSolver(
-            fixed_temperature_ratio=0.9
+        self.equilibrium_solver = (
+            equilibrium_solver
+            if equilibrium_solver is not None
+            else PlasmaEquilibriumSolver(
+                fixed_temperature_ratio=0.9, level_failure_policy="warn"
+            )
         )
         self.bound_bound_species_filter = bound_bound_species_filter
         self.settings = settings
@@ -626,7 +654,7 @@ class NonthermalHeliumPlasmaSolver:
     def solve(
         self, optical_workflow: OpticalWorkflow
     ) -> NonthermalCouplingResult:
-        """Converge and commit one optical iteration's helium plasma state."""
+        """Commit a stable candidate, retaining honest kinetic closure status."""
         if self.deposition_state is None:
             raise RuntimeError("High-energy deposition has not been prepared.")
         self.last_convergence_history = pd.DataFrame()
@@ -924,6 +952,10 @@ class NonthermalHeliumPlasmaSolver:
             zero_target_absolute_change = float(
                 np.max(level_absolute_change[zero_target_mask], initial=0.0)
             )
+            coupling_stable = bool(
+                other_maximum_change < self.settings.relative_tolerance
+                and not np.any(failing_levels)
+            )
             convergence_rows.append(
                 {
                     "iteration": iteration,
@@ -933,6 +965,15 @@ class NonthermalHeliumPlasmaSolver:
                     "level_population": level_change,
                     "nonthermal_rates": nonthermal_change,
                     "maximum_change": maximum_change,
+                    "level_converged": solution.level_converged,
+                    "maximum_relative_level_residual": (
+                        solution.maximum_relative_level_residual
+                        if solution.maximum_relative_level_residual is not None
+                        else np.nan
+                    ),
+                    "coupling_stable": coupling_stable,
+                    "plasma_converged": coupling_stable
+                    and solution.level_converged,
                     "failing_level_count": int(
                         np.count_nonzero(failing_levels)
                     ),
@@ -1121,10 +1162,7 @@ class NonthermalHeliumPlasmaSolver:
                 )
             terminal_nonthermal = nonthermal_state
             terminal_solution = solution
-            if (
-                other_maximum_change < self.settings.relative_tolerance
-                and not np.any(failing_levels)
-            ):
+            if coupling_stable:
                 current = candidate
                 break
             current = relaxed_state
@@ -1163,6 +1201,26 @@ class NonthermalHeliumOpticalWorkflow(StandardTARDISWorkflow):
     """Continuum optical workflow specialized for helium coupling."""
 
     plasma_coupling_solver: NonthermalHeliumPlasmaSolver
+
+    def check_convergence(self, estimated_values: dict[str, object]) -> bool:
+        """Require current plasma closure before counting radiation holds.
+
+        Parameters
+        ----------
+        estimated_values : dict of str to object
+            Radiation estimates passed to the inherited convergence checks.
+
+        Returns
+        -------
+        bool
+            Whether both current plasma and inherited radiation checks close.
+            An earlier unclosed candidate does not prevent later recovery.
+        """
+        result = self.plasma_coupling_solver.last_result
+        if result is None or not result.plasma_converged:
+            self.consecutive_converges_count = 0
+            return False
+        return bool(super().check_convergence(estimated_values))
 
     def __init__(
         self,

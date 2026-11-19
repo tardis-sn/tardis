@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import pytest
 from astropy import units as u
@@ -25,6 +27,27 @@ REFERENCE_DENSITIES = (1.0e-14, 1.1e-14, 1.2e-14)
 REFERENCE_RADIATION_TEMPERATURES = (9500.0, 10000.0, 10500.0)
 REFERENCE_DILUTION_FACTORS = (0.3, 0.5, 0.7)
 REFERENCE_ELECTRON_TEMPERATURE_LINK = 0.9
+
+
+@pytest.fixture
+def unavailable_frozen_beta_initializer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep optimizer-specific contracts from being bypassed by a linear seed.
+
+    Only the optional initialization solve is unavailable; the existing real
+    or deliberately controlled HYBR/log solvers retain their original inputs.
+    """
+
+    def unavailable_solve(
+        *args: object, **kwargs: object
+    ) -> npt.NDArray[np.float64]:
+        del args, kwargs
+        raise np.linalg.LinAlgError(
+            "optional frozen-beta initializer unavailable"
+        )
+
+    monkeypatch.setattr(np.linalg, "solve", unavailable_solve)
 
 
 @pytest.fixture
