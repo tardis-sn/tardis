@@ -25,8 +25,8 @@ def make_inputs(
     velocity_slope: float,
     velocity_intercept: float,
     line_velocity: float,
-    b: float = 1.2,
-    x_0: float = OUTER_EDGE_LAUNCH,
+    impact_parameter: float = 1.2,
+    launch_position: float = OUTER_EDGE_LAUNCH,
     s_stop: float | None = None,
 ) -> ExplorerInputs:
     """Build a shell from r=1 to r=3 with v(r) = slope * r + intercept."""
@@ -35,8 +35,8 @@ def make_inputs(
         3.0,
         velocity_slope + velocity_intercept,
         3.0 * velocity_slope + velocity_intercept,
-        b,
-        x_0,
+        impact_parameter,
+        launch_position,
         line_velocity,
         s_stop,
     )
@@ -47,7 +47,13 @@ GENERAL = make_inputs(1.0, INTERCEPT_FOR_TURNS_AT_0_9, 0.3)
 EDGE_CASES = [
     pytest.param(GENERAL, id="general"),
     pytest.param(
-        make_inputs(1.0, INTERCEPT_FOR_TURNS_AT_0_9, 0.3, b=0, x_0=-3),
+        make_inputs(
+            1.0,
+            INTERCEPT_FOR_TURNS_AT_0_9,
+            0.3,
+            impact_parameter=0,
+            launch_position=-3,
+        ),
         id="radial_path",
     ),
     pytest.param(make_inputs(1.0, 0, 0.3), id="homology"),
@@ -57,7 +63,13 @@ EDGE_CASES = [
     pytest.param(make_inputs(0, 0.8, 0.3), id="constant_speed"),
     pytest.param(make_inputs(0, 0, 0), id="static_shell"),
     pytest.param(
-        make_inputs(1.0, INTERCEPT_FOR_TURNS_AT_0_9, 0.3, b=1, x_0=0),
+        make_inputs(
+            1.0,
+            INTERCEPT_FOR_TURNS_AT_0_9,
+            0.3,
+            impact_parameter=1,
+            launch_position=0,
+        ),
         id="inner_sphere_tangent_at_launch",
     ),
     pytest.param(
@@ -66,7 +78,11 @@ EDGE_CASES = [
     ),
     pytest.param(
         make_inputs(
-            1.0, INTERCEPT_FOR_TURNS_AT_0_9, 0.275, x_0=-1.6, s_stop=3.2
+            1.0,
+            INTERCEPT_FOR_TURNS_AT_0_9,
+            0.275,
+            launch_position=-1.6,
+            s_stop=3.2,
         ),
         id="scatter_cuts_later_crossing",
     ),
@@ -102,11 +118,11 @@ def test_crossings_satisfy_resonance_condition(inputs: ExplorerInputs) -> None:
     for crossing in case.crossings:
         npt.assert_allclose(
             calculate_projected_velocity(crossing.x, inputs),
-            inputs.w,
+            inputs.line_velocity,
             atol=1e-12,
         )
         assert 0 < crossing.s <= case.active_end
-        assert inputs.r_in <= crossing.r <= inputs.r_out
+        assert inputs.r_inner <= crossing.r <= inputs.r_outer
 
 
 @pytest.mark.parametrize("x", [-2.5, -0.9, 0.0, 0.9, 2.5])
@@ -125,23 +141,23 @@ def test_projected_gradient_is_velocity_derivative(x: float) -> None:
 @pytest.mark.parametrize(
     "changes",
     [
-        dict(r_in=0),
-        dict(r_out=0.5),
-        dict(b=-1),
-        dict(x_0=4),
+        dict(r_inner=0),
+        dict(r_outer=0.5),
+        dict(impact_parameter=-1),
+        dict(launch_position=4),
         dict(s_stop=20),
     ],
 )
 def test_invalid_geometry_is_actionable(changes: dict[str, float]) -> None:
     """Claim: impossible shells and flights fail before solver evaluation."""
     values = dict(
-        r_in=GENERAL.r_in,
-        r_out=GENERAL.r_out,
-        v_in=GENERAL.v_in,
-        v_out=GENERAL.v_out,
-        b=GENERAL.b,
-        x_0=GENERAL.x_0,
-        w=GENERAL.w,
+        r_inner=GENERAL.r_inner,
+        r_outer=GENERAL.r_outer,
+        v_inner=GENERAL.v_inner,
+        v_outer=GENERAL.v_outer,
+        impact_parameter=GENERAL.impact_parameter,
+        launch_position=GENERAL.launch_position,
+        line_velocity=GENERAL.line_velocity,
     )
     values.update(changes)
     with pytest.raises(ValueError, match=r"(?i)shell|launch|stop|impact"):

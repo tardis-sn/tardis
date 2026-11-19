@@ -34,15 +34,24 @@ _FULL_LAUNCH = -sqrt(7.56)
 
 
 def _inputs(
-    m: float,
-    q: float,
-    w: float,
-    x_0: float = _FULL_LAUNCH,
-    b: float = 1.2,
+    velocity_slope: float,
+    velocity_intercept: float,
+    line_velocity: float,
+    launch_position: float = _FULL_LAUNCH,
+    impact_parameter: float = 1.2,
     s_stop: float | None = None,
 ) -> ExplorerInputs:
     """Build exact edge speeds for the common shell and oblique ray."""
-    return ExplorerInputs(1.0, 3.0, m + q, 3.0 * m + q, b, x_0, w, s_stop)
+    return ExplorerInputs(
+        1.0,
+        3.0,
+        velocity_slope + velocity_intercept,
+        3.0 * velocity_slope + velocity_intercept,
+        impact_parameter,
+        launch_position,
+        line_velocity,
+        s_stop,
+    )
 
 
 LESSONS: tuple[Lesson, ...] = (
@@ -55,7 +64,7 @@ LESSONS: tuple[Lesson, ...] = (
                 "initial",
                 "Homologous expansion",
                 _inputs(1.0, 0.0, 0.3),
-                "q",
+                "velocity_intercept",
                 "Reference: q = 0; radial edge velocities are 1 and 3.",
                 "v∥ = x and G = 1: one forward crossing at x = 0.3, with no frequency reversal. Two equal algebraic slots represent that one encounter.",
                 "zero-intercept Q=0",
@@ -72,7 +81,7 @@ LESSONS: tuple[Lesson, ...] = (
                 "initial",
                 "Three forward crossings",
                 _inputs(1.0, -2.34375, 0.3),
-                "q",
+                "velocity_intercept",
                 "Change only q from 0 to −2.34375; radial edge velocities become −1.34375 and 0.65625.",
                 "Two G = 0 reversals split the full ray into three monotone pieces. Three original-equation crossings are forward; the fourth finite quartic slot has the wrong unsquared sign.",
                 "general quartic",
@@ -89,7 +98,7 @@ LESSONS: tuple[Lesson, ...] = (
                 "two_crossings",
                 "Launch at x₀ = −0.5",
                 _inputs(1.0, -2.34375, 0.3, -0.5),
-                "x_0",
+                "launch_position",
                 "Change only launch x₀ to −0.5; the law and target stay fixed.",
                 "The first full-ray root is behind the start. One active G = 0 turn and two forward crossings remain.",
                 "general quartic",
@@ -99,7 +108,7 @@ LESSONS: tuple[Lesson, ...] = (
                 "one_crossing",
                 "Launch at x₀ = 1.2",
                 _inputs(1.0, -2.34375, 0.3, 1.2),
-                "x_0",
+                "launch_position",
                 "Change only launch x₀ to 1.2; the law and target stay fixed.",
                 "The active outbound leg is monotone and contains one forward crossing.",
                 "general quartic",
@@ -116,7 +125,7 @@ LESSONS: tuple[Lesson, ...] = (
                 "above_range",
                 "Target above active range",
                 _inputs(1.0, -2.34375, 0.7),
-                "w",
+                "line_velocity",
                 "Change only w from 0.3 to 0.7.",
                 "The target is above the active projected-speed maximum, so there is no forward unsquared crossing.",
                 "general quartic",
@@ -126,7 +135,7 @@ LESSONS: tuple[Lesson, ...] = (
                 "touch",
                 "Target touches the crest",
                 _inputs(1.0, -2.34375, 0.50625),
-                "w",
+                "line_velocity",
                 "Change only w from 0.3 to 0.50625.",
                 "The target touches the inbound crest analytically at x = −0.9 and crosses again outbound. The production solver's two nearby slots at the contact are reported separately from that analytic event.",
                 "general quartic",
@@ -176,7 +185,13 @@ LESSONS: tuple[Lesson, ...] = (
             LessonState(
                 "radial",
                 "Radial inward: H² = 0",
-                _inputs(1.0, -2.34375, 0.3, x_0=-3.0, b=0.0),
+                _inputs(
+                    1.0,
+                    -2.34375,
+                    0.3,
+                    launch_position=-3.0,
+                    impact_parameter=0.0,
+                ),
                 None,
                 "Choose a radial ray with b = 0.",
                 "The zero impact parameter selects the radial structured-solver route.",
@@ -206,7 +221,7 @@ LESSONS: tuple[Lesson, ...] = (
             LessonState(
                 "scatter",
                 "Earlier scatter clips the flight",
-                _inputs(1.0, -2.34375, 0.275, x_0=-1.6, s_stop=3.2),
+                _inputs(1.0, -2.34375, 0.275, launch_position=-1.6, s_stop=3.2),
                 None,
                 "Assume an earlier electron scatter at x = 1.6.",
                 "A later algebraic crossing is excluded by event ordering; only the earlier eligible potential resonance remains.",

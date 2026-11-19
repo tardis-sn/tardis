@@ -43,26 +43,26 @@ def _sample_flight(
     npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]
 ]:
     """Sample the equations shown in the linked curve panels."""
-    impact = analysis.inputs.b
+    impact = analysis.inputs.impact_parameter
     radius = np.hypot(coordinates, impact)
     projected = np.full_like(coordinates, np.nan)
     gradient = np.full_like(coordinates, np.nan)
     np.divide(
-        analysis.q * coordinates,
+        analysis.velocity_intercept * coordinates,
         radius,
         out=projected,
         where=radius > 0,
     )
-    projected += analysis.m * coordinates
+    projected += analysis.velocity_slope * coordinates
     np.divide(
-        analysis.q * impact**2,
+        analysis.velocity_intercept * impact**2,
         radius**3,
         out=gradient,
         where=radius > 0,
     )
-    gradient += analysis.m
-    in_shell = (radius >= analysis.inputs.r_in) & (
-        radius <= analysis.inputs.r_out
+    gradient += analysis.velocity_slope
+    in_shell = (radius >= analysis.inputs.r_inner) & (
+        radius <= analysis.inputs.r_outer
     )
     projected[~in_shell] = np.nan
     gradient[~in_shell] = np.nan
@@ -87,12 +87,17 @@ def _draw_shell_field(
 ) -> None:
     """Draw the signed radial velocity field with concentric vector patches."""
     inputs = analysis.inputs
-    for radius in np.linspace(inputs.r_out, inputs.r_in, 96):
+    for radius in np.linspace(inputs.r_outer, inputs.r_inner, 96):
         ax.add_patch(
             Circle(
                 (0, 0),
                 radius,
-                facecolor=PALETTE(norm(analysis.m * radius + analysis.q)),
+                facecolor=PALETTE(
+                    norm(
+                        analysis.velocity_slope * radius
+                        + analysis.velocity_intercept
+                    )
+                ),
                 edgecolor="none",
                 zorder=0,
             )
@@ -100,7 +105,7 @@ def _draw_shell_field(
     ax.add_patch(
         Circle(
             (0, 0),
-            inputs.r_in,
+            inputs.r_inner,
             facecolor="white",
             edgecolor=INK,
             lw=1.2,
@@ -110,7 +115,7 @@ def _draw_shell_field(
     ax.add_patch(
         Circle(
             (0, 0),
-            inputs.r_out,
+            inputs.r_outer,
             facecolor="none",
             edgecolor=INK,
             lw=1.2,
@@ -118,7 +123,10 @@ def _draw_shell_field(
         )
     )
     stagnation = analysis.stagnation_radius
-    if stagnation is not None and inputs.r_in <= stagnation <= inputs.r_out:
+    if (
+        stagnation is not None
+        and inputs.r_inner <= stagnation <= inputs.r_outer
+    ):
         ax.add_patch(
             Circle(
                 (0, 0),
@@ -142,7 +150,12 @@ def _draw_event_guides(
     """Repeat event coordinates in the shared signed-x axes."""
     for ax in axes:
         for coordinate, color, style, label in (
-            (analysis.inputs.x_0, INK, (0, (3, 2)), "launch position"),
+            (
+                analysis.inputs.launch_position,
+                INK,
+                (0, (3, 2)),
+                "launch position",
+            ),
             (analysis.x_boundary, MUTED, (0, (3, 2)), "shell edge reached"),
             (
                 analysis.x_end,
@@ -212,8 +225,12 @@ def _draw_turns(
         )
         face = color if turn.transport_active and not inflection else "white"
         for ax, ordinate in (
-            (geometry_ax, analysis.inputs.b),
-            (projected_ax, analysis.m * turn.x + analysis.q * turn.x / turn.r),
+            (geometry_ax, analysis.inputs.impact_parameter),
+            (
+                projected_ax,
+                analysis.velocity_slope * turn.x
+                + analysis.velocity_intercept * turn.x / turn.r,
+            ),
             (gradient_ax, 0.0),
         ):
             artist = ax.scatter(
@@ -231,8 +248,8 @@ def _draw_turns(
         if turn in analysis.analytic_contacts:
             contact_marker = "P" if inflection else "*"
             for ax, ordinate in (
-                (geometry_ax, analysis.inputs.b),
-                (projected_ax, analysis.inputs.w),
+                (geometry_ax, analysis.inputs.impact_parameter),
+                (projected_ax, analysis.inputs.line_velocity),
             ):
                 artist = ax.scatter(
                     [turn.x],
@@ -282,7 +299,7 @@ def _draw_candidates(
         # excluded roots retain their own shapes.
         if candidate.x not in crossing_coordinates or not candidate.physical:
             for ax, ordinate in (
-                (geometry_ax, analysis.inputs.b),
+                (geometry_ax, analysis.inputs.impact_parameter),
                 (projected_ax, candidate.projected_velocity),
             ):
                 if ordinate is None or not np.isfinite(ordinate):
@@ -313,7 +330,7 @@ def _draw_candidates(
                 artist.set_gid(f"candidate-slot-{candidate.slot_idx}")
         if candidate.slot_idx == selected_slot_index:
             for ax, ordinate in (
-                (geometry_ax, analysis.inputs.b),
+                (geometry_ax, analysis.inputs.impact_parameter),
                 (projected_ax, candidate.projected_velocity),
                 (gradient_ax, candidate.gradient),
             ):
@@ -335,7 +352,7 @@ def _draw_candidates(
         if crossing.x is None or not np.isfinite(crossing.x):
             continue
         pixel_x = geometry_ax.transData.transform(
-            (crossing.x, analysis.inputs.b)
+            (crossing.x, analysis.inputs.impact_parameter)
         )[0]
         label_tier = 0
         while any(
@@ -346,8 +363,8 @@ def _draw_candidates(
         label_positions.append((pixel_x, label_tier))
         face = RED if crossing.verified_event_eligible else "white"
         for ax, ordinate in (
-            (geometry_ax, analysis.inputs.b),
-            (projected_ax, analysis.inputs.w),
+            (geometry_ax, analysis.inputs.impact_parameter),
+            (projected_ax, analysis.inputs.line_velocity),
         ):
             artist = ax.scatter(
                 [crossing.x],
@@ -375,8 +392,8 @@ def _draw_candidates(
     nearest = analysis.nearest_resonance
     if nearest is not None and nearest.x is not None:
         for ax, ordinate in (
-            (geometry_ax, analysis.inputs.b),
-            (projected_ax, analysis.inputs.w),
+            (geometry_ax, analysis.inputs.impact_parameter),
+            (projected_ax, analysis.inputs.line_velocity),
         ):
             marker = ax.scatter(
                 [nearest.x],
@@ -420,11 +437,11 @@ def draw_projection_construction(
     """
     inputs = analysis.inputs
     if color_norm is None:
-        speed_scale = max(abs(inputs.v_in), abs(inputs.v_out), 1e-9)
+        speed_scale = max(abs(inputs.v_inner), abs(inputs.v_outer), 1e-9)
         color_norm = TwoSlopeNorm(
             vmin=-speed_scale, vcenter=0.0, vmax=speed_scale
         )
-    impact = inputs.b
+    impact = inputs.impact_parameter
     chord_start, chord_end = analysis.outer_chord
     chord_span = max(chord_end - chord_start, 0.5)
     vector_data: list[tuple[float, float, float, float]] = []
@@ -434,9 +451,13 @@ def draw_projection_construction(
         radius = np.hypot(crossing.x, impact)
         if radius <= 0:
             continue
-        radial_speed = analysis.m * radius + analysis.q
+        radial_speed = (
+            analysis.velocity_slope * radius + analysis.velocity_intercept
+        )
         if abs(radial_speed) <= 1e-13 * max(
-            1.0, abs(analysis.m * radius), abs(analysis.q)
+            1.0,
+            abs(analysis.velocity_slope * radius),
+            abs(analysis.velocity_intercept),
         ):
             radial_speed = 0.0
         vector_data.append(
@@ -464,9 +485,10 @@ def draw_projection_construction(
         vector_scale = 1.0
     if impact == 0:
         for x, projected_speed, _, _ in vector_data:
-            if projected_speed < 0 and x > inputs.x_0:
+            if projected_speed < 0 and x > inputs.launch_position:
                 vector_scale = min(
-                    vector_scale, 0.7 * (x - inputs.x_0) / -projected_speed
+                    vector_scale,
+                    0.7 * (x - inputs.launch_position) / -projected_speed,
                 )
             elif projected_speed > 0 and x < analysis.x_end:
                 vector_scale = min(
@@ -499,7 +521,7 @@ def draw_projection_construction(
     )
     full_ray.set_gid("vector-ray")
     (active_ray,) = ax.plot(
-        [inputs.x_0, analysis.x_end],
+        [inputs.launch_position, analysis.x_end],
         [impact, impact],
         color="#727a81",
         lw=1.1,
@@ -511,7 +533,10 @@ def draw_projection_construction(
     ax.annotate(
         "O", (0, 0), xytext=(5, -12), textcoords="offset points", fontsize=9
     )
-    for label, coordinate in (("start", inputs.x_0), ("end", analysis.x_end)):
+    for label, coordinate in (
+        ("start", inputs.launch_position),
+        ("end", analysis.x_end),
+    ):
         marker = ax.scatter(
             [coordinate],
             [impact],
@@ -524,7 +549,7 @@ def draw_projection_construction(
         marker.set_gid(f"vector-{label}")
     ax.annotate(
         "start",
-        (inputs.x_0, impact),
+        (inputs.launch_position, impact),
         xytext=(0, 8),
         textcoords="offset points",
         ha="center",
@@ -542,9 +567,13 @@ def draw_projection_construction(
         color=MUTED,
         zorder=3,
     )
-    if analysis.x_end > inputs.x_0:
-        arrow_start = inputs.x_0 + 0.70 * (analysis.x_end - inputs.x_0)
-        arrow_end = inputs.x_0 + 0.76 * (analysis.x_end - inputs.x_0)
+    if analysis.x_end > inputs.launch_position:
+        arrow_start = inputs.launch_position + 0.70 * (
+            analysis.x_end - inputs.launch_position
+        )
+        arrow_end = inputs.launch_position + 0.76 * (
+            analysis.x_end - inputs.launch_position
+        )
         ax.add_patch(
             FancyArrowPatch(
                 (arrow_start, impact),
@@ -558,7 +587,7 @@ def draw_projection_construction(
         )
 
     x_positions = (
-        [inputs.x_0, analysis.x_end, 0.0]
+        [inputs.launch_position, analysis.x_end, 0.0]
         if compact
         else [chord_start, chord_end, 0.0]
     )
@@ -815,7 +844,7 @@ def draw_projection_construction(
     else:
         ax.set_xlabel("signed x   ·   packet moves right →", fontsize=10)
         ax.set_title(
-            f"Radial velocity and its projection at each resonance   ·   v∥ = vᵣ x/r = w = {inputs.w:.5g}",
+            f"Radial velocity and its projection at each resonance   ·   v∥ = vᵣ x/r = w = {inputs.line_velocity:.5g}",
             loc="left",
             fontsize=11,
         )
@@ -859,18 +888,22 @@ def render_guided_case(
     inputs = primary.inputs
     cases = (primary,) if reference is None else (primary, reference)
     outer_edge = max(
-        np.sqrt(max(case.inputs.r_out**2 - case.inputs.b**2, 0.0))
+        np.sqrt(
+            max(case.inputs.r_outer**2 - case.inputs.impact_parameter**2, 0.0)
+        )
         for case in cases
     )
-    half_width = max(1.08 * max(case.inputs.r_out for case in cases), 0.5)
+    half_width = max(1.08 * max(case.inputs.r_outer for case in cases), 0.5)
     x_limits = (-half_width, half_width)
     coordinates = np.linspace(-outer_edge, outer_edge, 1201)
     sampled = [_sample_flight(coordinates, case) for case in cases]
     radial_values = [
-        case.m * np.linspace(case.inputs.r_in, case.inputs.r_out, 220) + case.q
+        case.velocity_slope
+        * np.linspace(case.inputs.r_inner, case.inputs.r_outer, 220)
+        + case.velocity_intercept
         for case in cases
     ]
-    projected_extrema = [inputs.w, 0.0]
+    projected_extrema = [inputs.line_velocity, 0.0]
     gradient_extrema = [0.0]
     radial_extrema = [0.0]
     for (_, projected, gradient), radial in zip(
@@ -914,11 +947,15 @@ def render_guided_case(
         ax.spines["bottom"].set_visible(False)
 
     active_shading = projected_ax.axvspan(
-        inputs.x_0, primary.x_end, facecolor="#e5f2ef", alpha=0.75, zorder=0
+        inputs.launch_position,
+        primary.x_end,
+        facecolor="#e5f2ef",
+        alpha=0.75,
+        zorder=0,
     )
     active_shading.set_gid("active-flight-shading")
     target = projected_ax.axhline(
-        inputs.w, color=RED, lw=1.5, ls="--", zorder=2
+        inputs.line_velocity, color=RED, lw=1.5, ls="--", zorder=2
     )
     target.set_gid("line-target")
     projected_ax.axhline(0, color=MUTED, lw=0.8, zorder=1)
@@ -928,10 +965,13 @@ def render_guided_case(
     gradient_ax.set_ylim(*padded_limits(gradient_extrema))
     projected_ax.set_ylabel("projected velocity  v∥(x)", fontsize=9)
     figure.text(
-        0.07, 0.975, "Which forward crossings meet the line target?", fontsize=12
+        0.07,
+        0.975,
+        "Which forward crossings meet the line target?",
+        fontsize=12,
     )
     projected_ax.annotate(
-        f"line target w = {inputs.w:.6g}",
+        f"line target w = {inputs.line_velocity:.6g}",
         (0.98, 0.97),
         xycoords="axes fraction",
         ha="right",
@@ -950,9 +990,13 @@ def render_guided_case(
         axis="x", which="both", bottom=False, labelbottom=False
     )
 
-    current_label = "homology" if primary.q == 0 else "nonhomology"
+    current_label = (
+        "homology" if primary.velocity_intercept == 0 else "nonhomology"
+    )
     if reference is not None and show_reference:
-        reference_label = "homology" if reference.q == 0 else "nonhomology"
+        reference_label = (
+            "homology" if reference.velocity_intercept == 0 else "nonhomology"
+        )
         projected_ax.plot(
             coordinates,
             sampled[1][1],
@@ -976,7 +1020,7 @@ def render_guided_case(
         coordinates, sampled[0][1], color=INK, lw=1.5, alpha=0.65, zorder=3
     )
     gradient_ax.plot(coordinates, sampled[0][2], color=GREEN, lw=1.5, zorder=3)
-    active_coordinates = np.linspace(inputs.x_0, primary.x_end, 500)
+    active_coordinates = np.linspace(inputs.launch_position, primary.x_end, 500)
     _, active_projection, active_gradient = _sample_flight(
         active_coordinates, primary
     )
@@ -1007,19 +1051,25 @@ def render_guided_case(
         axis="x", which="both", bottom=False, labelbottom=False
     )
     geometry_ax.set_yticks([])
-    geometry_ax.axhline(inputs.b, color=MUTED, lw=1, zorder=2)
+    geometry_ax.axhline(inputs.impact_parameter, color=MUTED, lw=1, zorder=2)
     (active_ray,) = geometry_ax.plot(
-        [inputs.x_0, primary.x_end],
-        [inputs.b] * 2,
+        [inputs.launch_position, primary.x_end],
+        [inputs.impact_parameter] * 2,
         color=INK,
         lw=2.7,
         zorder=4,
     )
     active_ray.set_gid("active-ray")
-    geometry_ax.scatter([inputs.x_0], [inputs.b], color=INK, s=34, zorder=7)
+    geometry_ax.scatter(
+        [inputs.launch_position],
+        [inputs.impact_parameter],
+        color=INK,
+        s=34,
+        zorder=7,
+    )
     geometry_ax.scatter(
         [primary.x_end],
-        [inputs.b],
+        [inputs.impact_parameter],
         facecolors="white",
         edgecolors=INK,
         marker="s",
@@ -1028,7 +1078,7 @@ def render_guided_case(
     )
     geometry_ax.annotate(
         "start",
-        (inputs.x_0, inputs.b),
+        (inputs.launch_position, inputs.impact_parameter),
         xytext=(0, 8),
         textcoords="offset points",
         ha="center",
@@ -1036,14 +1086,14 @@ def render_guided_case(
     )
     geometry_ax.annotate(
         "end",
-        (primary.x_end, inputs.b),
+        (primary.x_end, inputs.impact_parameter),
         xytext=(0, 8),
         textcoords="offset points",
         ha="center",
         fontsize=7,
     )
 
-    radii = np.linspace(inputs.r_in, inputs.r_out, 220)
+    radii = np.linspace(inputs.r_inner, inputs.r_outer, 220)
     radial_ax.axhline(0, color=MUTED, lw=0.8)
     (radial_line,) = radial_ax.plot(
         radii,
@@ -1066,13 +1116,13 @@ def render_guided_case(
         )
         radial_ax.legend(loc="lower right", fontsize=6.5, frameon=False)
     radial_ax.scatter(
-        [inputs.r_in, inputs.r_out],
-        [inputs.v_in, inputs.v_out],
+        [inputs.r_inner, inputs.r_outer],
+        [inputs.v_inner, inputs.v_outer],
         color=INK,
         s=24,
         zorder=5,
     )
-    radial_ax.set_xlim(inputs.r_in - 0.08, inputs.r_out + 0.08)
+    radial_ax.set_xlim(inputs.r_inner - 0.08, inputs.r_outer + 0.08)
     radial_ax.set_ylim(*padded_limits(radial_extrema))
     radial_ax.set_title("v(r) = m r + q", loc="left", fontsize=10)
     radial_ax.set_xlabel("radius", fontsize=8)
@@ -1080,7 +1130,7 @@ def render_guided_case(
     radial_ax.text(
         0.02,
         0.98,
-        f"edges: {inputs.v_in:.5g}, {inputs.v_out:.5g}",
+        f"edges: {inputs.v_inner:.5g}, {inputs.v_outer:.5g}",
         transform=radial_ax.transAxes,
         ha="left",
         va="top",

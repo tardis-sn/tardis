@@ -61,8 +61,8 @@ class CaseAnalysis:
     """One immutable analysis snapshot for rendering, UI, and export."""
 
     inputs: ExplorerInputs
-    m: float
-    q: float
+    velocity_slope: float
+    velocity_intercept: float
     r_0: float
     mu_0: float
     outer_chord: tuple[float, float]
@@ -88,24 +88,24 @@ class CaseAnalysis:
 
 def _validate_inputs(inputs: ExplorerInputs) -> None:
     quantities = (
-        inputs.r_in,
-        inputs.r_out,
-        inputs.v_in,
-        inputs.v_out,
-        inputs.b,
-        inputs.x_0,
-        inputs.w,
+        inputs.r_inner,
+        inputs.r_outer,
+        inputs.v_inner,
+        inputs.v_outer,
+        inputs.impact_parameter,
+        inputs.launch_position,
+        inputs.line_velocity,
     )
     if not all(math.isfinite(value) for value in quantities):
         raise ValueError("Shell, launch, and velocity inputs must be finite")
-    if inputs.r_in <= 0 or inputs.r_out <= inputs.r_in:
-        raise ValueError("Shell radii must satisfy 0 < r_in < r_out")
-    if inputs.b < 0:
+    if inputs.r_inner <= 0 or inputs.r_outer <= inputs.r_inner:
+        raise ValueError("Shell radii must satisfy 0 < r_inner < r_outer")
+    if inputs.impact_parameter < 0:
         raise ValueError("Impact parameter b must be nonnegative")
-    tolerance = 32 * math.ulp(inputs.r_out)
+    tolerance = 32 * math.ulp(inputs.r_outer)
     if (
-        inputs.r_0 < inputs.r_in - tolerance
-        or inputs.r_0 > inputs.r_out + tolerance
+        inputs.r_0 < inputs.r_inner - tolerance
+        or inputs.r_0 > inputs.r_outer + tolerance
     ):
         raise ValueError("Launch point must lie within the shell")
     if inputs.s_stop is not None and (
@@ -125,17 +125,23 @@ def _classify_turns(
     # Its epsilon_d gate is distinct from geometric membership in the ray.
     impact_squared = inputs.r_0**2 * (1.0 - inputs.mu_0**2)
     transport_positions: tuple[float, ...] = ()
-    if inputs.m != 0 and inputs.q != 0 and impact_squared > 0:
-        turn_radius_cubed = -inputs.q * impact_squared / inputs.m
+    if (
+        inputs.velocity_slope != 0
+        and inputs.velocity_intercept != 0
+        and impact_squared > 0
+    ):
+        turn_radius_cubed = (
+            -inputs.velocity_intercept * impact_squared / inputs.velocity_slope
+        )
         if turn_radius_cubed > 0:
             turn_radius = turn_radius_cubed ** (1.0 / 3.0)
             if turn_radius > math.sqrt(impact_squared) + distance_tolerance:
                 turn_x = math.sqrt(turn_radius**2 - impact_squared)
                 transport_positions = (-turn_x, turn_x)
     for x, kind in calculate_geometric_turns(inputs):
-        s = x - inputs.x_0
-        r = math.hypot(x, inputs.b)
-        if r < inputs.r_in or r > inputs.r_out:
+        s = x - inputs.launch_position
+        r = math.hypot(x, inputs.impact_parameter)
+        if r < inputs.r_inner or r > inputs.r_outer:
             reason = "outside shell"
         elif s <= 0:
             reason = "behind or at launch"
@@ -201,8 +207,8 @@ def _classify_candidate(
             False,
         )
     x = inputs.delta_r * root
-    s = x - inputs.x_0
-    r = math.hypot(x, inputs.b)
+    s = x - inputs.launch_position
+    r = math.hypot(x, inputs.impact_parameter)
     # The packet filter reconstructs radius from launch state and distance.
     # This can differ by one ulp from hypot(x, b) at a narrow shell edge.
     packet_radius = math.sqrt(
@@ -219,17 +225,17 @@ def _classify_candidate(
         # operation order. At tiny G, hypot(x,b) and reconstructed packet
         # position can differ in their last bits.
         packet_mu = (inputs.r_0 * inputs.mu_0 + s) / packet_radius
-        packet_radial_velocity = inputs.v_in + inputs.m * (
-            packet_radius - inputs.r_in
+        packet_radial_velocity = inputs.v_inner + inputs.velocity_slope * (
+            packet_radius - inputs.r_inner
         )
         packet_gradient = (
-            packet_mu**2 * inputs.m
+            packet_mu**2 * inputs.velocity_slope
             + (1.0 - packet_mu**2) * packet_radial_velocity / packet_radius
         )
-        residual = velocity - inputs.w
+        residual = velocity - inputs.line_velocity
     if inputs.delta_v != 0:
-        offset = root - inputs.w / inputs.delta_v
-        intercept_projection = inputs.q / inputs.delta_v * root
+        offset = root - inputs.line_velocity / inputs.delta_v
+        intercept_projection = inputs.velocity_intercept / inputs.delta_v * root
         if (offset > 0 and intercept_projection > 0) or (
             offset < 0 and intercept_projection < 0
         ):
@@ -243,11 +249,15 @@ def _classify_candidate(
     # residual remains the meaningful forward-error criterion.
     unsquared_verified = False
     if residual is not None:
-        radial_term = inputs.q * x / r
+        radial_term = inputs.velocity_intercept * x / r
         unsquared_tolerance = (
             64
             * math.ulp(1.0)
-            * (abs(inputs.m * x) + abs(radial_term) + abs(inputs.w))
+            * (
+                abs(inputs.velocity_slope * x)
+                + abs(radial_term)
+                + abs(inputs.line_velocity)
+            )
         )
         unsquared_verified = abs(residual) <= unsquared_tolerance
         if not unsquared_verified:
@@ -267,8 +277,8 @@ def _classify_candidate(
     if s > active_end + distance_tolerance:
         flags.append("after event stop")
     if (
-        packet_radius < inputs.r_in - distance_tolerance
-        or packet_radius > inputs.r_out + distance_tolerance
+        packet_radius < inputs.r_inner - distance_tolerance
+        or packet_radius > inputs.r_outer + distance_tolerance
     ):
         flags.append("outside shell")
     accepted = production_sign_valid and not any(
@@ -320,7 +330,7 @@ def _distinct_crossings(
             and candidate.s is not None
             and 0 < candidate.s <= active_end
             and candidate.r is not None
-            and inputs.r_in <= candidate.r <= inputs.r_out
+            and inputs.r_inner <= candidate.r <= inputs.r_outer
         ),
         key=lambda candidate: candidate.x,
     )
@@ -334,7 +344,8 @@ def _distinct_crossings(
             turn.active
             and abs(candidate.x - turn.x) <= 1e-7
             and abs(unique[-1].x - turn.x) <= 1e-7
-            and calculate_projected_velocity(turn.x, inputs) == inputs.w
+            and calculate_projected_velocity(turn.x, inputs)
+            == inputs.line_velocity
             for turn in turns
         ):
             continue
@@ -367,7 +378,9 @@ def analyze_case(inputs: ExplorerInputs) -> CaseAnalysis:
         if inputs.s_stop is None or inputs.s_stop == boundary_distance
         else inputs.stop_cause
     )
-    chord_half = math.sqrt(max(0.0, inputs.r_out**2 - inputs.b**2))
+    chord_half = math.sqrt(
+        max(0.0, inputs.r_outer**2 - inputs.impact_parameter**2)
+    )
     distance_tolerance = CLOSE_LINE_THRESHOLD * inputs.delta_r
     turn_candidates = _classify_turns(
         inputs, active_end, boundary_distance, distance_tolerance
@@ -412,20 +425,26 @@ def analyze_case(inputs: ExplorerInputs) -> CaseAnalysis:
         turn
         for turn in turn_candidates
         if turn.active
-        and calculate_projected_velocity(turn.x, inputs) == inputs.w
+        and calculate_projected_velocity(turn.x, inputs) == inputs.line_velocity
     )
-    exact_inner_tangent = inputs.x_0 == 0 and inputs.b == inputs.r_in
+    exact_inner_tangent = (
+        inputs.launch_position == 0
+        and inputs.impact_parameter == inputs.r_inner
+    )
     if exact_inner_tangent:
         ray_family = "outbound leg"
-    elif inputs.x_0 < 0 and boundary_kind == "inner":
+    elif inputs.launch_position < 0 and boundary_kind == "inner":
         ray_family = "inner-boundary approach"
-    elif inputs.x_0 < 0:
+    elif inputs.launch_position < 0:
         ray_family = "inner-miss flyby"
     elif boundary_kind == "inner":
         ray_family = "inner-boundary approach"
     else:
         ray_family = "outbound leg"
-    if active_end == 0 or (inputs.m == 0 and (inputs.q == 0 or inputs.b == 0)):
+    if active_end == 0 or (
+        inputs.velocity_slope == 0
+        and (inputs.velocity_intercept == 0 or inputs.impact_parameter == 0)
+    ):
         shape_family = "flat"
     elif turns:
         shape_family = "one turn" if len(turns) == 1 else "two turns"
@@ -436,9 +455,13 @@ def analyze_case(inputs: ExplorerInputs) -> CaseAnalysis:
         shape_family = "stationary inflection"
     else:
         shape_family = "monotone"
-    stagnation_radius = -inputs.q / inputs.m if inputs.m != 0 else None
+    stagnation_radius = (
+        -inputs.velocity_intercept / inputs.velocity_slope
+        if inputs.velocity_slope != 0
+        else None
+    )
     if stagnation_radius is not None and not (
-        inputs.r_in <= stagnation_radius <= inputs.r_out
+        inputs.r_inner <= stagnation_radius <= inputs.r_outer
     ):
         stagnation_radius = None
     if solver.non_isolated:
@@ -465,16 +488,16 @@ def analyze_case(inputs: ExplorerInputs) -> CaseAnalysis:
         }.get(len(crossings), f"{len(crossings)} crossings")
     return CaseAnalysis(
         inputs=inputs,
-        m=inputs.m,
-        q=inputs.q,
+        velocity_slope=inputs.velocity_slope,
+        velocity_intercept=inputs.velocity_intercept,
         r_0=inputs.r_0,
         mu_0=inputs.mu_0,
         outer_chord=(-chord_half, chord_half),
         boundary_distance=boundary_distance,
         boundary_kind=boundary_kind,
-        x_boundary=inputs.x_0 + boundary_distance,
+        x_boundary=inputs.launch_position + boundary_distance,
         active_end=active_end,
-        x_end=inputs.x_0 + active_end,
+        x_end=inputs.launch_position + active_end,
         stop_reason=stop_reason,
         turn_candidates=turn_candidates,
         turns=turns,

@@ -28,42 +28,58 @@ def solve_candidates(inputs: ExplorerInputs) -> SolverResult:
     """
     delta_r = inputs.delta_r
     delta_v = inputs.delta_v
-    q = inputs.q
-    w = inputs.w
+    velocity_intercept = inputs.velocity_intercept
+    line_velocity = inputs.line_velocity
     nan = math.nan
     transverse_direction_fraction = 1.0 - inputs.mu_0**2
     if delta_v == 0:
-        non_isolated = (q == 0 and w == 0) or (
+        non_isolated = (velocity_intercept == 0 and line_velocity == 0) or (
             transverse_direction_fraction == 0
-            and w == math.copysign(1.0, inputs.x_0) * q
+            and line_velocity
+            == math.copysign(1.0, inputs.launch_position) * velocity_intercept
         )
-        if q != 0 and abs(w) < abs(q):
+        if velocity_intercept != 0 and abs(line_velocity) < abs(
+            velocity_intercept
+        ):
             impact_squared = (
                 inputs.r_0 * inputs.r_0 * transverse_direction_fraction
             )
-            root_squared = w * w * impact_squared / (q * q - w * w)
-            root = math.copysign(math.sqrt(root_squared), w / q) / delta_r
+            root_squared = (
+                line_velocity
+                * line_velocity
+                * impact_squared
+                / (
+                    velocity_intercept * velocity_intercept
+                    - line_velocity * line_velocity
+                )
+            )
+            root = (
+                math.copysign(
+                    math.sqrt(root_squared), line_velocity / velocity_intercept
+                )
+                / delta_r
+            )
             roots = (root, nan, nan, nan)
         else:
             roots = (nan, nan, nan, nan)
         return SolverResult("Δv=0 analytic", roots, non_isolated)
 
-    line_velocity = w / delta_v
+    scaled_line_velocity = line_velocity / delta_v
     scaled_radius = inputs.r_0 / delta_r
     impact_squared = scaled_radius**2 * transverse_direction_fraction
-    intercept = q / delta_v
+    scaled_velocity_intercept = velocity_intercept / delta_v
     if impact_squared == 0:
         route = "radial H²=0"
-    elif intercept == 0:
+    elif scaled_velocity_intercept == 0:
         route = "zero-intercept Q=0"
-    elif line_velocity == 0:
+    elif scaled_line_velocity == 0:
         route = "line-center N=0"
     else:
         route = "general quartic"
     roots = tuple(
         float(root)
         for root in solve_resonance_quartic(
-            line_velocity, impact_squared, intercept
+            scaled_line_velocity, impact_squared, scaled_velocity_intercept
         )
     )
     return SolverResult(route, roots, False)

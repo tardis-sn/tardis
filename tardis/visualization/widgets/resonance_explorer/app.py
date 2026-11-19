@@ -27,11 +27,11 @@ if TYPE_CHECKING:
 
 # Attribute, label and soft range; the box beside each slider accepts any value
 _SLIDERS = (
-    ("m", "m (velocity slope)", -2.0, 2.0),
-    ("q", "q (velocity intercept)", -4.0, 2.0),
-    ("w", "w (line target velocity)", -1.0, 1.0),
-    ("b", "b (impact parameter)", 0.0, 3.0),
-    ("x_0", "x₀ (launch position)", -3.0, 3.0),
+    ("velocity_slope", "m (velocity slope)", -2.0, 2.0),
+    ("velocity_intercept", "q (velocity intercept)", -4.0, 2.0),
+    ("line_velocity", "w (line target velocity)", -1.0, 1.0),
+    ("impact_parameter", "b (impact parameter)", 0.0, 3.0),
+    ("launch_position", "x₀ (launch position)", -3.0, 3.0),
 )
 
 
@@ -311,8 +311,8 @@ class ResonanceExplorerWidget:
                 f"**Route:** {state.expected_route}  \n"
                 f"{state.explanation}  \n"
                 f"**Shell-edge velocities:** "
-                f"v(r_in)={_format_number(state.inputs.v_in)}, "
-                f"v(r_out)={_format_number(state.inputs.v_out)}."
+                f"v(r_inner)={_format_number(state.inputs.v_inner)}, "
+                f"v(r_outer)={_format_number(state.inputs.v_outer)}."
             )
             if lesson_key == "linked":
                 self.lesson_note.object += (
@@ -411,15 +411,20 @@ class ResonanceExplorerWidget:
         if self._syncing_sliders:
             return
         values = {name: slider.value for name, slider in self.sliders.items()}
-        r_in, r_out = self.analysis.inputs.r_in, self.analysis.inputs.r_out
+        r_inner, r_outer = (
+            self.analysis.inputs.r_inner,
+            self.analysis.inputs.r_outer,
+        )
         inputs = ExplorerInputs(
-            r_in=r_in,
-            r_out=r_out,
-            v_in=values["m"] * r_in + values["q"],
-            v_out=values["m"] * r_out + values["q"],
-            b=values["b"],
-            x_0=values["x_0"],
-            w=values["w"],
+            r_inner=r_inner,
+            r_outer=r_outer,
+            v_inner=values["velocity_slope"] * r_inner
+            + values["velocity_intercept"],
+            v_outer=values["velocity_slope"] * r_outer
+            + values["velocity_intercept"],
+            impact_parameter=values["impact_parameter"],
+            launch_position=values["launch_position"],
+            line_velocity=values["line_velocity"],
             s_stop=(
                 self.s_stop_slider.value if self.scatter_toggle.value else None
             ),

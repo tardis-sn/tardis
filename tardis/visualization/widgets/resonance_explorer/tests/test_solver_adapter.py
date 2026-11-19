@@ -13,7 +13,7 @@ from tardis.visualization.widgets.resonance_explorer.solver_adapter import (
 
 
 @pytest.mark.parametrize(
-    ("r_in", "r_out", "v_in", "v_out", "expected_route"),
+    ("r_inner", "r_outer", "v_inner", "v_outer", "expected_route"),
     [
         (0.2, 1.3, 0.13999999999999999, 0.9099999999999999, "general quartic"),
         (
@@ -26,10 +26,10 @@ from tardis.visualization.widgets.resonance_explorer.solver_adapter import (
     ],
 )
 def test_exact_q_zero_route_matches_packet_arithmetic(
-    r_in: float,
-    r_out: float,
-    v_in: float,
-    v_out: float,
+    r_inner: float,
+    r_outer: float,
+    v_inner: float,
+    v_outer: float,
     expected_route: str,
 ) -> None:
     """Claim: the displayed intercept and Q=0 route use packet arithmetic.
@@ -40,10 +40,10 @@ def test_exact_q_zero_route_matches_packet_arithmetic(
     intercept expression; exact zero is a branch predicate, not a tolerance.
     """
     geometry = NumbaRadial1DGeometry(
-        np.array([r_in]),
-        np.array([r_out]),
-        np.array([v_in]),
-        np.array([v_out]),
+        np.array([r_inner]),
+        np.array([r_outer]),
+        np.array([v_inner]),
+        np.array([v_outer]),
     )
     packet_q = (
         geometry.v_outer[0]
@@ -51,31 +51,31 @@ def test_exact_q_zero_route_matches_packet_arithmetic(
     )
     impact = 0.1
     inputs = ExplorerInputs(
-        r_in,
-        r_out,
-        v_in,
-        v_out,
+        r_inner,
+        r_outer,
+        v_inner,
+        v_outer,
         impact,
-        -math.sqrt(r_out**2 - impact**2),
+        -math.sqrt(r_outer**2 - impact**2),
         0.2,
     )
     solver = solve_candidates(inputs)
 
-    assert inputs.q == packet_q
+    assert inputs.velocity_intercept == packet_q
     assert solver.route == expected_route
 
 
 def test_near_radial_h_squared_uses_packet_direction_arithmetic() -> None:
     """Claim: a near-radial packet takes the exact production H²=0 route.
 
-    Regime: b=1e-9 at x_0=2 makes the stored packet cosine exactly one.
+    Regime: impact_parameter=1e-9 at launch_position=2 makes the stored packet cosine exactly one.
     Verification: independently reconstruct the scaled impact parameter from
     radius and cosine, as calculate_distance_line_nonhomologous does.
     The exact zero comparison matters because it selects a solver branch.
     """
     inputs = ExplorerInputs(1, 3, -1.34375, 0.65625, 1e-9, 2, 0.3)
-    packet_radius = math.hypot(inputs.x_0, inputs.b)
-    packet_cosine = inputs.x_0 / packet_radius
+    packet_radius = math.hypot(inputs.launch_position, inputs.impact_parameter)
+    packet_cosine = inputs.launch_position / packet_radius
     packet_h_squared = (packet_radius / inputs.delta_r) ** 2 * (
         1.0 - packet_cosine**2
     )

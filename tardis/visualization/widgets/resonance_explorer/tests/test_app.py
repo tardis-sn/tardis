@@ -22,7 +22,7 @@ def test_line_velocity_slider_redraws_plot() -> None:
     widget = ResonanceExplorerWidget()
     previous_figure = widget.figure_pane.object
 
-    widget.sliders["w"].value = 0.5
+    widget.sliders["line_velocity"].value = 0.5
 
-    assert widget.analysis.inputs.w == 0.5
+    assert widget.analysis.inputs.line_velocity == 0.5
     assert widget.figure_pane.object is not previous_figure
