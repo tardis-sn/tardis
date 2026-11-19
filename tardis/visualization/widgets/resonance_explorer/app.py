@@ -32,6 +32,12 @@ _SLIDERS = (
 )
 
 
+def _drop_float_noise(value: float) -> float:
+    """Round away binary step error, keeping exact typed values like -2.34375."""
+    # Slider steps and derived slopes give values such as 0.20999999999999996
+    return float(f"{value:.12g}")
+
+
 def _format_number(value: float | None) -> str:
     """Show an exact zero while making an absent value explicit."""
     return "none" if value is None else f"{value:.9g}"
@@ -391,7 +397,10 @@ class ResonanceExplorerWidget:
         """Rebuild the inputs from the sliders on the current shell."""
         if self._syncing_sliders:
             return
-        values = {name: slider.value for name, slider in self.sliders.items()}
+        values = {
+            name: _drop_float_noise(slider.value)
+            for name, slider in self.sliders.items()
+        }
         r_inner, r_outer = (
             self.analysis.inputs.r_inner,
             self.analysis.inputs.r_outer,
@@ -407,7 +416,9 @@ class ResonanceExplorerWidget:
             launch_position=values["launch_position"],
             line_velocity=values["line_velocity"],
             s_stop=(
-                self.s_stop_slider.value if self.scatter_toggle.value else None
+                _drop_float_noise(self.s_stop_slider.value)
+                if self.scatter_toggle.value
+                else None
             ),
         )
         # analyze_case rejects launch points outside the shell and scatters
@@ -422,10 +433,10 @@ class ResonanceExplorerWidget:
         self._syncing_sliders = True
         try:
             for name, slider in self.sliders.items():
-                slider.value = getattr(inputs, name)
+                slider.value = _drop_float_noise(getattr(inputs, name))
             self.scatter_toggle.value = inputs.s_stop is not None
             if inputs.s_stop is not None:
-                self.s_stop_slider.value = inputs.s_stop
+                self.s_stop_slider.value = _drop_float_noise(inputs.s_stop)
             self.s_stop_slider.disabled = inputs.s_stop is None
         finally:
             self._syncing_sliders = False
