@@ -632,26 +632,43 @@ class PlasmaEquilibriumSolver:
             represented_ions = ions.reindex(
                 index=level_totals.index, columns=level_totals.columns
             )
-            allocation_bound = (level_groups.size() // 2) * np.nextafter(
-                0.0, 1.0
+            level_counts = level_groups.size().to_numpy()
+            parent_values = represented_ions.to_numpy()
+            relative_budget = (
+                64.0 * np.finfo(float).eps * level_counts[:, None]
+            ) * np.abs(parent_values)
+            parent_subnormal = (parent_values > 0.0) & (
+                parent_values < np.finfo(float).tiny
             )
-            allocation_underflow = level_groups.max().eq(
-                0.0
-            ) & represented_ions.le(allocation_bound, axis="index")
-            consistent = (
-                np.isclose(
-                    level_totals,
-                    represented_ions,
-                    rtol=(
-                        64.0 * np.finfo(float).eps * level_groups.size()
-                    ).to_numpy()[:, None],
-                    atol=0.0,
-                )
-                | allocation_underflow.to_numpy()
+            # Each subnormal share rounds by at most q/2. Parent and sum lie
+            # on the q grid, so allocation permits floor(N/2) quanta, while
+            # the existing relative term covers normalization/sum arithmetic.
+            # Halve the integer count first: computing q/2 would vanish.
+            quantization_budget = np.where(
+                parent_subnormal,
+                (level_counts[:, None] // 2) * np.nextafter(0.0, 1.0),
+                0.0,
             )
+            allowed_difference = relative_budget + quantization_budget
+            absolute_difference = np.abs(
+                level_totals.to_numpy() - parent_values
+            )
+            consistent = absolute_difference <= allowed_difference
             if not consistent.all():
+                ion_idx, shell_idx = np.argwhere(~consistent)[0]
+                atomic_number, ion_number = level_totals.index[ion_idx]
                 raise RuntimeError(
-                    "Plasma equilibrium solve returned inconsistent level/ion totals."
+                    "Plasma equilibrium solve returned inconsistent level/ion totals: "
+                    f"atomic_number={atomic_number}, ion_number={ion_number}, "
+                    f"shell={level_totals.columns[shell_idx]} (position {shell_idx}), "
+                    f"represented_levels={level_counts[ion_idx]}, "
+                    f"level_sum={level_totals.iloc[ion_idx, shell_idx]:.17e}, "
+                    f"parent_density={parent_values[ion_idx, shell_idx]:.17e}, "
+                    f"absolute_difference={absolute_difference[ion_idx, shell_idx]:.17e}, "
+                    f"allowed_difference={allowed_difference[ion_idx, shell_idx]:.17e}, "
+                    f"relative_budget={relative_budget[ion_idx, shell_idx]:.17e}, "
+                    f"quantization_budget={quantization_budget[ion_idx, shell_idx]:.17e}, "
+                    f"parent_subnormal={parent_subnormal[ion_idx, shell_idx]}."
                 )
             species = getattr(evaluator, "equilibrium_species", None)
             if species is not None:

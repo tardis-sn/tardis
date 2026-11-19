@@ -5,8 +5,10 @@ from types import SimpleNamespace
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+import pandas.testing as pdt
 import pytest
 
+from tardis.plasma.equilibrium.evaluator import PlasmaEquilibriumEvaluator
 from tardis.plasma.equilibrium.solver import PlasmaEquilibriumSolver
 
 
@@ -32,6 +34,9 @@ def terminal_policy_evaluator() -> object:
             self.close_after: int | None = None
             self.invalid_density: tuple[str, float] | None = None
             self.subnormal_parent: tuple[int, bool] | None = None
+            self.background_population: (
+                tuple[pd.DataFrame, pd.DataFrame] | None
+            ) = None
 
         def evaluate(
             self,
@@ -76,6 +81,14 @@ def terminal_policy_evaluator() -> object:
             if self.invalid_density is not None:
                 field, value = self.invalid_density
                 setattr(result, field, pd.Series([value], index=[17]))
+            if self.background_population is not None:
+                background_ions, background_levels = self.background_population
+                result.ion_population = pd.concat(
+                    [background_ions, result.ion_population]
+                )
+                result.absolute_level_population = pd.concat(
+                    [background_levels, result.absolute_level_population]
+                ).sort_index()
             if self.subnormal_parent is not None:
                 quanta, represented = self.subnormal_parent
                 quantum = np.nextafter(0.0, 1.0)
@@ -113,6 +126,246 @@ def terminal_policy_evaluator() -> object:
             )
 
     return Evaluator()
+
+
+@pytest.fixture
+def allocation_terminal_evaluator(terminal_policy_evaluator: object) -> object:
+    """Supply closed helium plus an independently labeled subnormal ion."""
+    evaluator = terminal_policy_evaluator
+    evaluator.level_residual = 0.0
+    quantum = np.nextafter(0.0, 1.0)
+    ion_index = pd.MultiIndex.from_tuples(
+        [(28, 8)], names=["atomic_number", "ion_number"]
+    )
+    level_index = pd.MultiIndex.from_tuples(
+        [(28, 8, level_number) for level_number in range(26)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    evaluator.background_population = (
+        pd.DataFrame(27 * quantum, index=ion_index, columns=[17]),
+        pd.DataFrame(quantum, index=level_index, columns=[17]),
+    )
+    evaluator.elemental_number_density = (
+        evaluator.elemental_number_density.copy()
+    )
+    evaluator.elemental_number_density.loc[28] = 27 * quantum
+    return evaluator
+
+
+@pytest.mark.parametrize("policy", ["raise", "warn"])
+@pytest.mark.parametrize(
+    "level_count,parent_quanta,share_quanta",
+    [(26, 27, 1), (26, 100, 4), (3, 2, 1)],
+)
+def test_terminal_guard_accepts_actual_partial_subnormal_allocation(
+    allocation_terminal_evaluator: object,
+    policy: str,
+    level_count: int,
+    parent_quanta: int,
+    share_quanta: int,
+) -> None:
+    """Actual uniform allocation retains the independently rounded q shares.
+
+    Claim: nearest-integer rounding of 27/26, 100/26 and 2/3 gives
+    1, 4 and 1 quantum per level, not exact parent conservation. These
+    exact binary64-grid oracles do not reuse the guard's error-budget formula.
+    This verifies numerical representability and terminal acceptance, not
+    non-LTE kinetic correctness. Neither parent nor returned levels is repaired.
+    """
+    evaluator = allocation_terminal_evaluator
+    ions, levels = evaluator.background_population
+    quantum = np.nextafter(0.0, 1.0)
+    ions.iloc[0, 0] = parent_quanta * quantum
+    levels = levels.iloc[:level_count].copy()
+    allocator = object.__new__(PlasmaEquilibriumEvaluator)
+    allocator.level_population_index = levels.index
+    allocator.dilute_radiation = None
+    allocator.background_level_population_fraction = None
+    allocator.equilibrium_species = (28, 8)
+    # Empty selected-species override isolates the real background rescaling;
+    # the terminal fixture supplies the separate physical helium species.
+    state = SimpleNamespace(
+        full_population=levels * 0.0 + 1.0,
+        species_index=levels.index[:0],
+        normalized_population=pd.DataFrame(
+            index=levels.index[:0], columns=[17]
+        ),
+    )
+    actual_levels = allocator._build_absolute_levels(state, ions)
+    npt.assert_array_equal(actual_levels.to_numpy(), share_quanta * quantum)
+    npt.assert_equal(
+        actual_levels.sum().iloc[0] / quantum, level_count * share_quanta
+    )
+    evaluator.background_population = (ions, actual_levels)
+    evaluator.elemental_number_density.loc[28] = parent_quanta * quantum
+    original_ions, original_levels = (
+        ions.copy(deep=True),
+        actual_levels.copy(deep=True),
+    )
+
+    result = PlasmaEquilibriumSolver(
+        fixed_temperature_ratio=0.9, level_failure_policy=policy
+    ).solve(
+        evaluator,
+        [4e8],
+        [9000.0],
+        pd.DataFrame([[0.75], [0.25]], columns=[17]),
+        [2e9],
+        [1e4],
+    )
+
+    pdt.assert_frame_equal(ions, original_ions, check_exact=True)
+    pdt.assert_frame_equal(actual_levels, original_levels, check_exact=True)
+    pdt.assert_frame_equal(
+        result.evaluation.ion_population.loc[[(28, 8)]], ions, check_exact=True
+    )
+    pdt.assert_frame_equal(
+        result.evaluation.absolute_level_population.loc[levels.index],
+        actual_levels,
+        check_exact=True,
+    )
+
+
+@pytest.mark.parametrize("policy", ["raise", "warn"])
+@pytest.mark.parametrize(
+    "parent_quanta,relative_quanta", [(100, 0), (2**52 - 1, 1664)]
+)
+@pytest.mark.parametrize("difference_quanta", [-14, -13, 13, 14])
+def test_terminal_guard_bounds_partial_subnormal_difference(
+    allocation_terminal_evaluator: object,
+    policy: str,
+    parent_quanta: int,
+    relative_quanta: int,
+    difference_quanta: int,
+) -> None:
+    """N26 adds exactly 13q to the relative budget, in either direction.
+
+    These deliberately supplied distributions are boundary probes, not claims
+    that the uniform allocator produces them. Positive levels sum to
+    (parent + difference)q. Parent100q has zero represented relative budget;
+    the largest subnormal parent (2**52-1)q has 1664q. Exact discrepancies
+    13q/14q or 1677q/1678q detect a blanket bypass or lost relative term.
+    """
+    evaluator = allocation_terminal_evaluator
+    ions, levels = evaluator.background_population
+    quantum = np.nextafter(0.0, 1.0)
+    total_difference_quanta = (relative_quanta + abs(difference_quanta)) * (
+        1 if difference_quanta > 0 else -1
+    )
+    ions.iloc[0, 0] = parent_quanta * quantum
+    levels.iloc[0, 0] = (parent_quanta + total_difference_quanta - 25) * quantum
+    evaluator.elemental_number_density.loc[28] = parent_quanta * quantum
+    solver = PlasmaEquilibriumSolver(
+        fixed_temperature_ratio=0.9, level_failure_policy=policy
+    )
+    arguments = (
+        evaluator,
+        [4e8],
+        [9000.0],
+        pd.DataFrame([[0.75], [0.25]], columns=[17]),
+        [2e9],
+        [1e4],
+    )
+    if abs(difference_quanta) == 13:
+        result = solver.solve(*arguments)
+        pdt.assert_frame_equal(
+            result.evaluation.absolute_level_population.loc[levels.index],
+            levels,
+            check_exact=True,
+        )
+    else:
+        with pytest.raises(RuntimeError, match="inconsistent level/ion totals"):
+            solver.solve(*arguments)
+
+
+@pytest.mark.parametrize("policy", ["raise", "warn"])
+@pytest.mark.parametrize("regime", ["zero", "smallest_normal", "normal"])
+def test_terminal_guard_does_not_extend_quantization_budget_to_normal_or_zero(
+    allocation_terminal_evaluator: object,
+    policy: str,
+    regime: str,
+) -> None:
+    """Zero/normal parents retain the previous relative-only criterion.
+
+    At the smallest normal parent, eps*tiny=q; the existing 64*26*eps
+    relative budget is exactly 1664q. A 1665q discrepancy must still fail,
+    detecting even an accidental extra 13q quantization allowance there.
+    """
+    evaluator = allocation_terminal_evaluator
+    ions, levels = evaluator.background_population
+    quantum = np.nextafter(0.0, 1.0)
+    parent, level_sum = {
+        "zero": (0.0, quantum),
+        "smallest_normal": (
+            np.finfo(float).tiny,
+            np.finfo(float).tiny - 1665 * quantum,
+        ),
+        "normal": (1.0, 0.5),
+    }[regime]
+    ions.iloc[0, 0] = parent
+    levels.iloc[:, 0] = 0.0
+    levels.iloc[0, 0] = level_sum
+    evaluator.elemental_number_density.loc[28] = parent
+    with pytest.raises(RuntimeError, match="inconsistent level/ion totals"):
+        PlasmaEquilibriumSolver(
+            fixed_temperature_ratio=0.9, level_failure_policy=policy
+        ).solve(
+            evaluator,
+            [4e8],
+            [9000.0],
+            pd.DataFrame([[0.75], [0.25]], columns=[17]),
+            [2e9],
+            [1e4],
+        )
+
+
+@pytest.mark.parametrize("policy", ["raise", "warn"])
+def test_terminal_guard_reports_failing_ion_shell_and_exact_budget(
+    allocation_terminal_evaluator: object,
+    policy: str,
+) -> None:
+    """Reordered Ni/He ion rows identify the actual failing 26-level Ni ion.
+
+    Diagnostic orchestration only: supplied levels sum to 26q, parent40q,
+    difference14q and allowed13q; the relative contribution underflows to0.
+    Decimal17e formatting must preserve each distinct binary64 quantum.
+    """
+    evaluator = allocation_terminal_evaluator
+    ions, _ = evaluator.background_population
+    quantum = np.nextafter(0.0, 1.0)
+    ions.iloc[0, 0] = 40 * quantum
+    evaluator.elemental_number_density.loc[28] = 40 * quantum
+    with pytest.raises(
+        RuntimeError, match="inconsistent level/ion totals"
+    ) as exc:
+        PlasmaEquilibriumSolver(
+            fixed_temperature_ratio=0.9, level_failure_policy=policy
+        ).solve(
+            evaluator,
+            [4e8],
+            [9000.0],
+            pd.DataFrame([[0.75], [0.25]], columns=[17]),
+            [2e9],
+            [1e4],
+        )
+    message = str(exc.value)
+    for label in (
+        "atomic_number=28",
+        "ion_number=8",
+        "shell=17 (position 0)",
+        "represented_levels=26",
+        "parent_subnormal=True",
+    ):
+        assert label in message
+    for label, quanta in (
+        ("level_sum", 26),
+        ("parent_density", 40),
+        ("absolute_difference", 14),
+        ("allowed_difference", 13),
+        ("relative_budget", 0),
+        ("quantization_budget", 13),
+    ):
+        assert f"{label}={quanta * quantum:.17e}" in message
 
 
 @pytest.mark.parametrize("policy", ["raise", "warn"])
