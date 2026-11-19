@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING
 
 import panel as pn
 
@@ -18,12 +17,10 @@ from tardis.visualization.widgets.resonance_explorer.lessons import (
 )
 from tardis.visualization.widgets.resonance_explorer.model import ExplorerInputs
 from tardis.visualization.widgets.resonance_explorer.render import (
-    render_guided_case,
+    build_guided_plot,
+    calculate_guided_plot_data,
+    update_guided_plot,
 )
-
-if TYPE_CHECKING:
-    from matplotlib.figure import Figure
-
 
 # Attribute, label and soft range; the box beside each slider accepts any value
 _SLIDERS = (
@@ -147,22 +144,15 @@ class ResonanceExplorerWidget:
         Starting values; homologous expansion opens the guided sequence.
     analyzer : callable or None, optional
         Scientific analysis boundary, injectable for orchestration tests.
-    renderer : callable or None, optional
-        Headless figure boundary, injectable for orchestration tests.
     """
 
     def __init__(
         self,
         initial_inputs: ExplorerInputs | None = None,
         analyzer: Callable[[ExplorerInputs], CaseAnalysis] | None = None,
-        renderer: Callable[[CaseAnalysis, int | None], Figure] | None = None,
     ) -> None:
         pn.extension()
         self.analyzer = analyzer or analyze_case
-        self.renderer = renderer
-        self.guided_renderer = (
-            None if renderer is not None else render_guided_case
-        )
         self.analysis: CaseAnalysis | None = None
         self.selected_slot_index: int | None = None
         self._setting_lesson = False
@@ -219,9 +209,7 @@ class ResonanceExplorerWidget:
             sizing_mode="stretch_width",
         )
         self.slot_fate_pane = pn.pane.Markdown("", sizing_mode="stretch_width")
-        self.figure_pane = pn.pane.Matplotlib(
-            None, tight=True, sizing_mode="stretch_width"
-        )
+        self.figure_pane = pn.pane.Bokeh(None)
         self.layout = self._build_layout()
 
         self.lesson_select.param.watch(self._on_lesson_change, "value")
@@ -339,19 +327,21 @@ class ResonanceExplorerWidget:
             return None
         return self.analyzer(paired_inputs)
 
-    def _render_snapshot(
+    def _draw_snapshot(
         self, snapshot: CaseAnalysis, slot_idx: int | None
-    ) -> Figure:
-        """Render the guided plot while retaining injected test renderers."""
-        if self.guided_renderer is None:
-            return self.renderer(snapshot, slot_idx)
-        reference = self._reference_snapshot(snapshot)
-        return self.guided_renderer(
+    ) -> None:
+        """Build the plot once, then refill it so updates send only data."""
+        plot_data = calculate_guided_plot_data(
             snapshot,
-            reference,
+            self._reference_snapshot(snapshot),
             slot_idx,
             show_reference=self.comparison_toggle.value,
         )
+        if self.figure_pane.object is None:
+            self.figure_pane.object = build_guided_plot(*plot_data)
+        else:
+            update_guided_plot(self.figure_pane.object, *plot_data)
+            pn.io.push_notebook(self.figure_pane)
 
     def _on_lesson_change(self, event: object) -> None:
         """Advance to the first state of a selected lesson."""
@@ -370,13 +360,8 @@ class ResonanceExplorerWidget:
 
     def _on_comparison_change(self, _event: object) -> None:
         """Redraw the same committed state with or without its reference."""
-        if self.analysis is None or self.guided_renderer is None:
-            return
-        figure = self._render_snapshot(self.analysis, self.selected_slot_index)
-        previous = self.figure_pane.object
-        self.figure_pane.object = figure
-        if previous is not None:
-            previous.clear()
+        if self.analysis is not None:
+            self._draw_snapshot(self.analysis, self.selected_slot_index)
 
     def _on_slot_chip_change(self, event: object) -> None:
         """Describe and highlight the selected production-order raw slot."""
@@ -399,12 +384,8 @@ class ResonanceExplorerWidget:
             f"original equation {'verified' if candidate.unsquared_verified else 'unverified'}; "
             f"{candidate.reason}."
         )
-        figure = self._render_snapshot(self.analysis, candidate.slot_idx)
-        previous = self.figure_pane.object
-        self.figure_pane.object = figure
+        self._draw_snapshot(self.analysis, candidate.slot_idx)
         self.selected_slot_index = candidate.slot_idx
-        if previous is not None:
-            previous.clear()
 
     def _on_slider_change(self, _event: object) -> None:
         """Rebuild the inputs from the sliders on the current shell."""
@@ -454,11 +435,9 @@ class ResonanceExplorerWidget:
         snapshot = self.analyzer(inputs)
         self._sync_sliders(inputs)
         self.input_error_pane.object = ""
-        figure = self._render_snapshot(snapshot, None)
-        old_figure = self.figure_pane.object
+        self._draw_snapshot(snapshot, None)
         self.analysis = snapshot
         self.selected_slot_index = None
-        self.figure_pane.object = figure
         self.headline_pane.object = _guided_headline(snapshot)
         self.decision_pane.object = _guided_decision(snapshot)
         self.pipeline_pane.object = _guided_pipeline(snapshot)
@@ -471,8 +450,6 @@ class ResonanceExplorerWidget:
             "Select a raw slot to see its disposition. Four algebraic slots "
             "do not imply four packet encounters."
         )
-        if old_figure is not None:
-            old_figure.clear()
 
     def set_inputs(self, inputs: ExplorerInputs) -> None:
         """Commit exact shell, ray, target, and stop values in one update.

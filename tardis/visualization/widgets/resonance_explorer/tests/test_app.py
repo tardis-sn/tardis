@@ -17,12 +17,13 @@ def test_default_case_serializes_to_a_browser_document() -> None:
     assert document.roots
 
 
-def test_line_velocity_slider_redraws_plot() -> None:
-    """Claim: moving a slider updates the inputs and replaces the plot."""
+def test_line_velocity_slider_refills_the_same_plot() -> None:
+    """Claim: a slider step sends new data into the existing plot."""
     widget = ResonanceExplorerWidget()
-    previous_figure = widget.figure_pane.object
+    plot = widget.figure_pane.object
 
     widget.sliders["line_velocity"].value = 0.5
 
     assert widget.analysis.inputs.line_velocity == 0.5
-    assert widget.figure_pane.object is not previous_figure
+    assert widget.figure_pane.object is plot
+    assert plot.select_one({"name": "line-target"}).data["y"] == [0.5]
