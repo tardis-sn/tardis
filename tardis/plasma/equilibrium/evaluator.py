@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Hashable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass
 from time import perf_counter
@@ -9,7 +9,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from scipy.optimize import OptimizeResult, least_squares, root
-from scipy.special import softmax
+from scipy.special import logsumexp, softmax
 
 from tardis.opacities.sobolevs_from_levels import (
     calculate_sobolev_opacities_from_level_densities,
@@ -27,10 +27,15 @@ from tardis.plasma.equilibrium.inputs import (
     ShellNumberDensity,
     SobolevInputs,
 )
+from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
 from tardis.plasma.equilibrium.matrix_assembly import (
     assemble_bound_bound_rate_matrix,
 )
-from tardis.plasma.equilibrium.rate_matrix import RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import (
+    AnalyticIonRateMatrix,
+    EstimatedIonRateMatrix,
+    RateMatrix,
+)
 from tardis.plasma.equilibrium.rates.collisional_ionization_rates import (
     CollisionalIonizationRateSolver,
 )
@@ -78,7 +83,9 @@ class PlasmaEquilibriumEvaluation:
     including the ground state, recomputed using the final absolute levels,
     ion populations and electron density. Unlike ``level_residual``, its
     ground row is not replaced by population normalization. Its flow-scaled
-    components are subject to terminal acceptance.
+    components are subject to terminal acceptance. ``absolute_level_budget``
+    optionally records a separate dimensional accuracy criterion for wholly
+    subnormal selected ions; it never replaces these raw relative diagnostics.
     """
 
     trial_electron_density: pd.Series
@@ -103,6 +110,7 @@ class PlasmaEquilibriumEvaluation:
     lte_level_population: pd.DataFrame
     thermal_budget: pd.DataFrame | None = None
     relative_level_residual: pd.DataFrame | None = None
+    absolute_level_budget: pd.DataFrame | None = None
 
 
 def calculate_lte_populations(
@@ -348,6 +356,22 @@ class SolvedLevelState:
     bound_bound_rates: tuple[BoundBoundMatrixRates, ...]
 
 
+@dataclass(frozen=True)
+class LevelClosureSnapshot:
+    """Latest completed evaluation and selected-species replay inputs.
+
+    Arrays are retained by reference, not a deep copy of the plasma or an
+    evaluation history. Context tuples survive later terminal geometry refreshes.
+    """
+
+    evaluation: PlasmaEquilibriumEvaluation
+    electron_temperature: npt.NDArray[np.float64]
+    shell_number_densities: tuple[ShellNumberDensity, ...]
+    continuum_rates: tuple[ContinuumRateCoefficients, ...]
+    bound_bound_rates: tuple[BoundBoundMatrixRates, ...]
+    evaluation_count: int
+
+
 class PlasmaEquilibriumEvaluator:
     """Evaluate the reduced fixed-density equilibrium composition.
 
@@ -379,11 +403,12 @@ class PlasmaEquilibriumEvaluator:
         reference_electron_temperature: u.Quantity | None = None,
         radiation_field: DilutePlanckianRadiationField | None = None,
         fixed_rates: FixedRateState | None = None,
-        case_b_species: Collection[tuple[int, int]] = ((1, 0),),
+        case_b_species: Collection[tuple[int, int]] | None = None,
         time_explosion: u.Quantity | None = None,
         background_level_population_fraction: pd.DataFrame | None = None,
         level_residual_tolerance: float = 1.0e-8,
         dilute_radiation: DiluteRadiationInputs | None = None,
+        absolute_level_population_tolerance: float = 0.0,
     ) -> None:
         """Construct an evaluator from fixed scientific inputs.
 
@@ -435,11 +460,15 @@ class PlasmaEquilibriumEvaluator:
             Density-independent rates held fixed during this evaluation.
         case_b_species : collection of tuple[int, int], optional
             Species for which direct recombination to the ground level is
-            suppressed. Hydrogen is retained by default for Type IIP.
+            suppressed in level, ion, and thermal equations. An explicit empty
+            collection disables this additional mask. None preserves legacy
+            hydrogen level handling and unmodified ion/thermal owner defaults;
+            raw hydrogen coefficient suppression is not undone by this policy.
         time_explosion : astropy.units.Quantity, optional
             Homologous expansion age for an electron adiabatic cooling
             estimate in the diagnostic thermal budget. This estimate is not
-            included in the thermal-balance residual.
+            included in the thermal-balance residual. Also the relevance
+            timescale for optional absolute level-population acceptance.
         background_level_population_fraction : pandas.DataFrame, optional
             Existing excitation fractions, indexed like the full level
             population, for rebuilding ions whose finite input levels sum
@@ -456,8 +485,15 @@ class PlasmaEquilibriumEvaluator:
             Nebular ionization and dilute-LTE excitation inputs for background
             species without continuum or NLTE rates. Without these inputs,
             background ionization uses LTE and excitation retains its seed.
+        absolute_level_population_tolerance : float, optional
+            Optional density accuracy in cm^-3 for wholly subnormal selected
+            ions. Accept their absolute kinetic error only when total gross
+            turnover over ``time_explosion`` is below this density and their
+            noncancelled line optical depths are below the relative tolerance.
+            Zero disables this criterion. Raw relative residuals are retained.
         """
         self.photoionization_cross_sections = photoionization_cross_sections
+        self.last_level_snapshot: LevelClosureSnapshot | None = None
         if (
             not np.isfinite(level_residual_tolerance)
             or level_residual_tolerance <= 0.0
@@ -466,6 +502,16 @@ class PlasmaEquilibriumEvaluator:
                 "level_residual_tolerance must be finite and positive."
             )
         self.level_residual_tolerance = level_residual_tolerance
+        if (
+            not np.isfinite(absolute_level_population_tolerance)
+            or absolute_level_population_tolerance < 0.0
+        ):
+            raise ValueError(
+                "absolute_level_population_tolerance must be finite and nonnegative."
+            )
+        self.absolute_level_population_tolerance = (
+            absolute_level_population_tolerance
+        )
         self.level2continuum_edge_idx = level2continuum_edge_idx
         self.estimators_continuum = estimators_continuum
         self.time_simulation = time_simulation
@@ -523,7 +569,7 @@ class PlasmaEquilibriumEvaluator:
         )
         self.reference_electron_temperature = reference_electron_temperature
         self.fixed_rates = fixed_rates
-        self.case_b_species = frozenset(case_b_species)
+        self.case_b_species = case_b_species
         self.time_explosion = time_explosion
         self.background_level_population_fraction = (
             None
@@ -535,6 +581,29 @@ class PlasmaEquilibriumEvaluator:
         )
         self.dilute_radiation = dilute_radiation
         self._evaluation_count = 0
+        # Initial guesses only, never memoized rate solutions or acceptance.
+        # Pandas indexes are immutable under the supported input contract.
+        self._level_solution_cache: dict[Hashable, npt.NDArray[np.float64]] = {}
+        self._level_solution_cache_species = self.equilibrium_species
+        self._level_solution_cache_index = self.level_population_index
+        self._level_solution_cache_columns = (
+            self.elemental_number_density.columns
+        )
+
+    @property
+    def case_b_species(self) -> frozenset[tuple[int, int]]:
+        """Effective level policy, including the legacy hydrogen default."""
+        return self._case_b_species
+
+    @case_b_species.setter
+    def case_b_species(
+        self, species: Collection[tuple[int, int]] | None
+    ) -> None:
+        """Configure a shared explicit policy, or restore legacy defaults."""
+        self._case_b_policy_configured = species is not None
+        self._case_b_species = frozenset(
+            ((1, 0),) if species is None else species
+        )
 
     def calculate_nebular_ionization_factor(
         self, electron_temperature: npt.NDArray[np.float64]
@@ -861,7 +930,25 @@ class PlasmaEquilibriumEvaluator:
         fallback enforces normalization through its coordinates and minimizes
         all physical rows. Intermediate trials may return a finite nonnegative
         best effort; terminal acceptance remains the outer solver's concern.
+        Closed shell solutions supply owned warm seeds on later calls, but are
+        always ranked against the caller on the current physical equations.
         """
+        shell_columns = self.elemental_number_density.columns
+        if (
+            self._level_solution_cache_species != self.equilibrium_species
+            or self._level_solution_cache_index
+            is not self.level_population_index
+        ):
+            self._level_solution_cache.clear()
+            self._level_solution_cache_species = self.equilibrium_species
+            self._level_solution_cache_index = self.level_population_index
+        if self._level_solution_cache_columns is not shell_columns:
+            for old_shell in tuple(self._level_solution_cache):
+                if old_shell not in shell_columns:
+                    del self._level_solution_cache[old_shell]
+            self._level_solution_cache_columns = shell_columns
+        shell_label = shell_columns[shell_idx]
+        cached_seed = self._level_solution_cache.get(shell_label)
         if bound_bound_rates is None:
             shell_j_blues = self.j_blues.iloc[:, [shell_idx]].copy()
             shell_j_blues.columns = pd.RangeIndex(1)
@@ -937,6 +1024,35 @@ class PlasmaEquilibriumEvaluator:
         inner_target = 0.1 * self.level_residual_tolerance
         residual(level_seed)
         initial_residual = best_residual
+        cached_residual = np.inf
+        if (
+            cached_seed is not None
+            and cached_seed.shape == level_seed.shape
+            and np.isfinite(cached_seed).all()
+            and np.all(cached_seed >= 0.0)
+            and cached_seed.sum() > 0.0
+        ):
+            candidate_phase = "warm-start cache"
+            cached_residual = float(
+                np.max(np.abs(residual(cached_seed.copy(), False)))
+            )
+        use_warm_seed = cached_residual < initial_residual
+        solver_seed = (
+            level_solution.copy() if use_warm_seed else level_seed.copy()
+        )
+        if cached_seed is not None:
+            # residual() updates the most recent beta, not necessarily the
+            # best candidate's. Freeze opacity at the selected initial seed.
+            residual(solver_seed, False)
+        logger.debug(
+            "Equilibrium level seed for species %s in shell %s: warm start=%s; "
+            "caller relative residual=%.6e, cached relative residual=%.6e.",
+            self.equilibrium_species,
+            shell_label,
+            use_warm_seed,
+            initial_residual,
+            cached_residual,
+        )
         frozen_seed: npt.NDArray[np.float64] | None = None
         frozen_seed_residual = np.nan
         initializer_status = "not needed"
@@ -1044,6 +1160,8 @@ class PlasmaEquilibriumEvaluator:
                                     )
                                     initializer_status = "applied"
         trial_seeds = (level_seed, floored_seed)
+        if use_warm_seed:
+            trial_seeds = (solver_seed, *trial_seeds)
         if frozen_seed is not None:
             trial_seeds = (frozen_seed, *trial_seeds)
         for attempt_idx, trial_seed in enumerate(trial_seeds, start=1):
@@ -1134,6 +1252,15 @@ class PlasmaEquilibriumEvaluator:
             raise ValueError(
                 "Reduced level-population solve returned a nonfinite residual."
             )
+        # Recheck the returned normalized vector, not a previous optimizer
+        # iterate or the normalization-replaced ground row. Best-effort open
+        # candidates do not overwrite a previously successful warm seed.
+        cache_residual = residual(fractions, False)
+        if (
+            np.isfinite(cache_residual).all()
+            and np.max(np.abs(cache_residual)) <= inner_target
+        ):
+            self._level_solution_cache[shell_label] = fractions.copy()
         shell_label = self.elemental_number_density.columns[shell_idx]
         log_level = logging.WARNING if poor_closure else logging.DEBUG
         logger.log(
@@ -1357,6 +1484,18 @@ class PlasmaEquilibriumEvaluator:
         """Solve optional charge conservation from the trial level state."""
         if self.ion_population_solver is None:
             return None, None
+
+        if isinstance(
+            self.ion_population_solver, IonPopulationSolver
+        ) and isinstance(
+            self.ion_population_solver.rate_matrix_solver,
+            (AnalyticIonRateMatrix, EstimatedIonRateMatrix),
+        ):
+            self.ion_population_solver.rate_matrix_solver.case_b_species = (
+                self.case_b_species
+                if self._case_b_policy_configured
+                else frozenset()
+            )
 
         estimated_levels = state.full_population.copy(deep=True)
         for shell_idx, shell_number_density in enumerate(
@@ -1614,6 +1753,293 @@ class PlasmaEquilibriumEvaluator:
             columns=self.elemental_number_density.columns,
         )
 
+    def _calculate_absolute_level_budget(
+        self,
+        final_density: pd.Series,
+        electron_temperature: npt.NDArray[np.float64],
+        absolute_levels: pd.DataFrame,
+        ion_population: pd.DataFrame | None,
+        state: SolvedLevelState,
+        thermal_state: IntermediateThermalState,
+        beta_sobolev: pd.DataFrame,
+    ) -> pd.DataFrame | None:
+        """Bound absolute turnover and opacity of wholly subnormal ions.
+
+        Parameters
+        ----------
+        final_density : pandas.Series
+            Authoritative final electron densities in cm^-3.
+        electron_temperature : numpy.ndarray
+            Final electron temperatures in K, in shell order.
+        absolute_levels : pandas.DataFrame
+            Represented level number densities in cm^-3.
+        ion_population : pandas.DataFrame or None
+            Authoritative ion number densities, including the adjacent upper
+            ion. Missing authoritative ions disable absolute acceptance.
+        state : SolvedLevelState
+            Selected-level labels and fractional-solve state.
+        thermal_state : IntermediateThermalState
+            Primitive continuum coefficients at the final temperature.
+        beta_sobolev : pandas.DataFrame
+            Escape probabilities at the final absolute population geometry.
+
+        Returns
+        -------
+        pandas.DataFrame or None
+            Per-shell acceptance and natural-log magnitude bounds, expressed
+            relative to canonical units: cm^-3 s^-1 for turnover and cm^-3
+            for turnover integrated over the expansion age. Optical-depth
+            bounds are dimensionless. None means
+            the opt-in tolerance, timescale or authoritative ions are absent.
+
+        Notes
+        -----
+        ``sum(abs(A) @ n + alpha*n_upper)`` bounds every net population flow
+        at fixed rates. Log-domain products preserve subnormal contributions
+        before multiplying by a potentially large age. No populations or raw
+        kinetic residuals are changed by this snapshot relevance test.
+        Directed bound-bound channels are counted as incoming plus outgoing
+        turnover, avoiding premature products while conservatively bounding
+        the matrix expression even if channels share a source/destination.
+        """
+        tolerance = self.absolute_level_population_tolerance
+        if (
+            not np.isfinite(tolerance)
+            or tolerance <= 0.0
+            or self.time_explosion is None
+            or ion_population is None
+        ):
+            return None
+        timescale = float(self.time_explosion.to_value(u.s))
+        if not np.isfinite(timescale) or timescale <= 0.0:
+            return None
+        columns = absolute_levels.columns
+        budget = pd.DataFrame(
+            {
+                "accepted": False,
+                "parent_density": ion_population.loc[
+                    self.equilibrium_species, columns
+                ],
+                "log_gross_turnover": np.nan,
+                "log_integrated_turnover": np.nan,
+                "log_optical_depth_bound": np.nan,
+                "timescale": timescale,
+                "density_tolerance": tolerance,
+                "opacity_tolerance": self.level_residual_tolerance,
+            },
+            index=columns,
+        )
+        species_levels = absolute_levels.loc[state.species_index]
+        represented_values = species_levels.to_numpy(dtype=float)
+        represented_sum = represented_values.sum(axis=0)
+        parent = budget["parent_density"].to_numpy(dtype=float)
+        eligible = (
+            np.isfinite(parent)
+            & (parent >= 0.0)
+            & (parent < np.finfo(float).tiny)
+            & (parent <= tolerance)
+            & np.isfinite(represented_values).all(axis=0)
+            & (represented_values >= 0.0).all(axis=0)
+            & (represented_sum < np.finfo(float).tiny)
+            & (represented_sum <= tolerance)
+            & np.isfinite(final_density.to_numpy())
+            & (final_density.to_numpy() > 0.0)
+            & np.isfinite(electron_temperature)
+            & (electron_temperature > 0.0)
+        )
+        if not eligible.any():
+            return budget
+        rates = self.rate_matrix_solver.prepare_species_rates(
+            self.j_blues,
+            ThermalElectronEnergyDistribution(
+                0.0 * u.erg,
+                electron_temperature * u.K,
+                final_density.to_numpy() / u.cm**3,
+            ),
+            self.equilibrium_species,
+            self.sobolev_inputs[0].line_index,
+            None
+            if self.fixed_rates is None
+            else self.fixed_rates.bound_bound_rates,
+        )
+        upper_species = (
+            self.equilibrium_species[0],
+            self.equilibrium_species[1] + 1,
+        )
+        for shell_idx in np.flatnonzero(eligible):
+            shell = columns[shell_idx]
+            continuum = thermal_state.continuum_rate_coefficients[shell_idx]
+            recombination_coefficients = np.array(
+                [
+                    continuum.spontaneous_recombination,
+                    continuum.stimulated_recombination,
+                    continuum.collisional_recombination,
+                ]
+            )
+            if self.equilibrium_species in self.case_b_species:
+                recombination_coefficients[:, 0] = 0.0
+            upper_density = float(ion_population.loc[upper_species, shell])
+            bound = rates[shell_idx]
+            beta = beta_sobolev.iloc[:, shell_idx].to_numpy(dtype=float)
+            fixed_ionization = np.zeros(0)
+            if (
+                self.fixed_rates is not None
+                and self.fixed_rates.ionization_rates is not None
+            ):
+                fixed = self.fixed_rates.ionization_rates
+                selected_ion = (
+                    fixed.index.get_level_values("atomic_number")
+                    == self.equilibrium_species[0]
+                ) & (
+                    fixed.index.get_level_values("ion_number_source")
+                    == self.equilibrium_species[1]
+                )
+                fixed_ionization = fixed.loc[selected_ion, shell].to_numpy(
+                    dtype=float
+                )
+            positive_inputs = (
+                continuum.photoionization,
+                continuum.collisional_ionization,
+                continuum.spontaneous_recombination,
+                continuum.stimulated_recombination,
+                continuum.collisional_recombination,
+                fixed_ionization,
+                bound.radiative_rate_coefficient,
+                bound.collisional_rate,
+                bound.fixed_rate,
+                beta,
+                np.array([upper_density]),
+            )
+            if any(
+                not np.isfinite(values).all() or np.any(values < 0.0)
+                for values in positive_inputs
+            ):
+                continue
+            geometry = self.sobolev_inputs[shell_idx]
+            line_idx = np.empty(0, dtype=np.int64)
+            if len(geometry.line_index):
+                selected_lines = geometry.line_index.droplevel(
+                    ["level_number_lower", "level_number_upper"]
+                ).isin([self.equilibrium_species])
+                line_idx = geometry.line_indices[selected_lines]
+            coefficients = geometry.tau_coefficient[line_idx]
+            lower_weights = geometry.g_lower[line_idx]
+            upper_weights = geometry.g_upper[line_idx]
+            if (
+                not np.isfinite(coefficients).all()
+                or np.any(coefficients < 0.0)
+                or not np.isfinite(lower_weights).all()
+                or not np.isfinite(upper_weights).all()
+                or np.any(lower_weights <= 0.0)
+                or np.any(upper_weights <= 0.0)
+            ):
+                continue
+            shell_levels = absolute_levels.iloc[:, shell_idx].to_numpy(
+                dtype=float
+            )
+            lower_density = shell_levels[
+                geometry.lines_lower_level_index[line_idx]
+            ]
+            upper_level_density = shell_levels[
+                geometry.lines_upper_level_index[line_idx]
+            ]
+            with np.errstate(divide="ignore"):
+                log_population = np.log(represented_values[:, shell_idx])
+                log_electron_density = np.log(final_density.iloc[shell_idx])
+                log_radiative = np.full(len(bound.beta_line_idx), -np.inf)
+                radiative = bound.beta_line_idx >= 0
+                log_radiative[radiative] = np.log(
+                    bound.radiative_rate_coefficient[radiative]
+                ) + np.log(beta[bound.beta_line_idx[radiative]])
+                # Every directed bound-bound transition contributes once to
+                # inflow and once to outflow. Preserve individual channels
+                # before products/sums so even rate*beta and alpha*n_e cannot
+                # underflow away a significant integrated contribution.
+                log_bound = (
+                    np.log(2.0)
+                    + logsumexp(
+                        np.array(
+                            [
+                                log_radiative,
+                                np.log(bound.collisional_rate),
+                                np.log(bound.fixed_rate),
+                            ]
+                        ),
+                        axis=0,
+                    )
+                    + log_population[bound.source_level_idx]
+                )
+                log_ionization = (
+                    np.logaddexp(
+                        np.logaddexp(
+                            np.log(continuum.photoionization),
+                            np.log(continuum.collisional_ionization)
+                            + log_electron_density,
+                        ),
+                        logsumexp(np.log(fixed_ionization)),
+                    )
+                    + log_population
+                )
+                log_recombination = (
+                    np.log(recombination_coefficients)
+                    + np.array([1.0, 1.0, 2.0])[:, None] * log_electron_density
+                    + np.log(upper_density)
+                )
+                log_gross = float(
+                    logsumexp(
+                        np.concatenate(
+                            (
+                                log_bound,
+                                log_ionization,
+                                log_recombination.ravel(),
+                            )
+                        )
+                    )
+                )
+                log_integrated = log_gross + np.log(timescale)
+                log_tau = float(
+                    np.max(
+                        np.log(coefficients)
+                        + np.logaddexp(
+                            np.log(lower_density),
+                            np.log(lower_weights)
+                            - np.log(upper_weights)
+                            + np.log(upper_level_density),
+                        ),
+                        initial=-np.inf,
+                    )
+                )
+            budget.loc[
+                shell,
+                [
+                    "log_gross_turnover",
+                    "log_integrated_turnover",
+                    "log_optical_depth_bound",
+                ],
+            ] = (
+                log_gross,
+                log_integrated,
+                log_tau,
+            )
+            # Conservatively stay inside the log-comparison boundary by a
+            # roundoff-sized margin; exact zero turnover/opacity is allowed.
+            limits = np.log([tolerance, self.level_residual_tolerance])
+            magnitudes = np.array([log_integrated, log_tau])
+            finite_magnitudes = np.where(
+                np.isfinite(magnitudes), magnitudes, 0.0
+            )
+            margin = (
+                64
+                * np.finfo(float).eps
+                * (1.0 + np.abs(finite_magnitudes) + np.abs(limits))
+            )
+            budget.loc[shell, "accepted"] = bool(
+                np.all(
+                    np.isneginf(magnitudes) | (magnitudes + margin <= limits)
+                )
+            )
+        return budget
+
     def _calculate_heating(
         self,
         final_electron_distribution: ThermalElectronEnergyDistribution,
@@ -1687,6 +2113,8 @@ class PlasmaEquilibriumEvaluator:
             solver_arguments["nonthermal_heating_rate_density"] = (
                 self.fixed_rates.heating_rate_density
             )
+        if self._case_b_policy_configured:
+            solver_arguments["case_b_species"] = self.case_b_species
         solver = deepcopy(self.thermal_balance_solver)
         total_heating, fractional_heating = solver.solve(**solver_arguments)
         thermal_budget = getattr(solver, "last_budget", None)
@@ -1953,6 +2381,15 @@ class PlasmaEquilibriumEvaluator:
             normalize_residual=True,
             ion_population=ion_population,
         )
+        absolute_level_budget = self._calculate_absolute_level_budget(
+            final_density,
+            electron_temperature,
+            absolute_levels,
+            ion_population,
+            level_state,
+            thermal_state,
+            final_escape_probabilities,
+        )
         logger.debug(
             "Plasma equilibrium evaluator call %d finished final level "
             "residual in %.3f s.",
@@ -1967,7 +2404,7 @@ class PlasmaEquilibriumEvaluator:
             evaluation_elapsed,
         )
 
-        return PlasmaEquilibriumEvaluation(
+        evaluation = PlasmaEquilibriumEvaluation(
             trial_density,
             level_state.normalized_population,
             pd.Series(
@@ -1997,4 +2434,14 @@ class PlasmaEquilibriumEvaluator:
             lte_level_population,
             thermal_budget,
             relative_level_residual,
+            absolute_level_budget,
         )
+        self.last_level_snapshot = LevelClosureSnapshot(
+            evaluation,
+            np.asarray(electron_temperature, dtype=np.float64).copy(),
+            self.shell_number_densities,
+            thermal_state.continuum_rate_coefficients,
+            level_state.bound_bound_rates,
+            evaluation_idx,
+        )
+        return evaluation

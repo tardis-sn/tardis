@@ -1,3 +1,5 @@
+from collections.abc import Collection
+
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
@@ -25,6 +27,7 @@ from tardis.plasma.equilibrium.rates import (
 )
 from tardis.plasma.equilibrium.rates.util import (
     reindex_ion_population_to_level_population,
+    suppress_ground_recombination,
 )
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
@@ -411,6 +414,7 @@ class AnalyticIonRateMatrix:
         radiative_ionization_rate_solver: AnalyticPhotoionizationRateSolver,
         collisional_ionization_rate_solver: CollisionalIonizationRateSolver,
         fixed_rates: FixedRateState | None = None,
+        case_b_species: Collection[tuple[int, int]] = (),
     ) -> None:
         """Initialize an analytic ionization rate matrix.
 
@@ -422,12 +426,15 @@ class AnalyticIonRateMatrix:
             Solver for collisional ionization and recombination rates.
         fixed_rates : FixedRateState, optional
             Density-independent ionization rates.
+        case_b_species : collection of tuple[int, int], optional
+            Bound ions whose ground recombination is suppressed before aggregation.
         """
         self.radiative_ionization_rate_solver = radiative_ionization_rate_solver
         self.collisional_ionization_rate_solver = (
             collisional_ionization_rate_solver
         )
         self.fixed_rates = fixed_rates
+        self.case_b_species = frozenset(case_b_species)
         self.ion_population_index = pd.MultiIndex.from_tuples(
             [], names=["atomic_number", "ion_number"]
         )
@@ -510,9 +517,11 @@ class AnalyticIonRateMatrix:
         )
         rate_matrices, self.ion_population_index = assemble_ion_rate_matrices(
             photoion_rates_df,
-            recomb_rates_df,
+            suppress_ground_recombination(recomb_rates_df, self.case_b_species),
             collisional_ionization_rates_df,
-            collision_recombination_rates_df,
+            suppress_ground_recombination(
+                collision_recombination_rates_df, self.case_b_species
+            ),
             fixed_ionization_rates_df=(
                 None
                 if self.fixed_rates is None
@@ -535,6 +544,7 @@ class EstimatedIonRateMatrix:
         collisional_ionization_rate_solver: CollisionalIonizationRateSolver,
         lte_ionization_factor: pd.DataFrame | None = None,
         fixed_rates: FixedRateState | None = None,
+        case_b_species: Collection[tuple[int, int]] = (),
     ) -> None:
         """Initialize an estimator-based ionization rate matrix.
 
@@ -548,6 +558,8 @@ class EstimatedIonRateMatrix:
             LTE ionization factors used for rate normalization.
         fixed_rates : FixedRateState, optional
             Density-independent ionization rates.
+        case_b_species : collection of tuple[int, int], optional
+            Bound ions whose ground recombination is suppressed before aggregation.
         """
         self.radiative_ionization_rate_solver = radiative_ionization_rate_solver
         self.collisional_ionization_rate_solver = (
@@ -562,6 +574,21 @@ class EstimatedIonRateMatrix:
             dict[int, tuple[npt.NDArray[np.float64], ...]] | None
         ) = None
         self.prepared_columns: pd.Index | None = None
+        self.case_b_species = case_b_species
+
+    @property
+    def case_b_species(self) -> frozenset[tuple[int, int]]:
+        """Bound ions with suppressed ground recombination."""
+        return self._case_b_species
+
+    @case_b_species.setter
+    def case_b_species(self, species: Collection[tuple[int, int]]) -> None:
+        """Invalidate density-polynomial caches when the policy changes."""
+        policy = frozenset(species)
+        if policy != getattr(self, "_case_b_species", None):
+            self.prepared_matrix_coefficients = None
+            self.prepared_columns = None
+        self._case_b_species = policy
 
     def prepare(
         self,
@@ -604,9 +631,13 @@ class EstimatedIonRateMatrix:
             sum_duplicate_rates(rates)
             for rates in (
                 photoionization_rate,
-                recombination_rate,
+                suppress_ground_recombination(
+                    recombination_rate, self.case_b_species
+                ),
                 collisional_ionization_rate,
-                collisional_recombination_rate,
+                suppress_ground_recombination(
+                    collisional_recombination_rate, self.case_b_species
+                ),
             )
         ]
         if (

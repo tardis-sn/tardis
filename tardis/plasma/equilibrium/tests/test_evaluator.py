@@ -23,12 +23,67 @@ from tardis.plasma.equilibrium.inputs import (
     ShellNumberDensity,
     SobolevInputs,
 )
+from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
 from tardis.plasma.equilibrium.rate_matrix import (
+    EstimatedIonRateMatrix,
     RateMatrix,
     assemble_ion_rate_matrices,
 )
 from tardis.plasma.equilibrium.rates import RadiativeRatesSolver
 from tardis.transport.montecarlo.estimators import init_estimators_continuum
+
+
+def test_explicit_case_b_policy_propagates_and_resets(
+    toy_evaluator: PlasmaEquilibriumEvaluator,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only evaluator configuration controls rate owners, including shared reuse.
+
+    The charge boundary alone is prescribed here, independently checking policy
+    propagation rather than re-testing its nonlinear root algorithm. Legacy None
+    retains its H level default but clears stale explicit helium owner masks.
+    """
+    evaluator = toy_evaluator
+    owner = EstimatedIonRateMatrix(None, None)
+    evaluator.ion_population_solver = IonPopulationSolver(owner)
+    expected: frozenset[tuple[int, int]] = frozenset()
+    explicit = False
+
+    def solve(**kwargs: object) -> tuple[pd.DataFrame, pd.Series]:
+        assert owner.case_b_species == expected
+        return pd.DataFrame(
+            [8.0e9, 2.0e9],
+            index=pd.MultiIndex.from_tuples(
+                [(1, 0), (1, 1)], names=["atomic_number", "ion_number"]
+            ),
+            columns=[0],
+        ), pd.Series([2.0e9], index=[0])
+
+    class ThermalSolver:
+        def solve(self, **kwargs: object) -> tuple[pd.Series, pd.Series]:
+            if explicit:
+                assert kwargs["case_b_species"] == expected
+            else:
+                assert "case_b_species" not in kwargs
+            return pd.Series([0.0], index=[0]), pd.Series([0.0], index=[0])
+
+    monkeypatch.setattr(evaluator.ion_population_solver, "solve", solve)
+    evaluator.thermal_balance_solver = ThermalSolver()
+    seed = pd.DataFrame(
+        [0.5, 0.5], index=evaluator.level_population_index, columns=[0]
+    )
+    for policy in [None, ((2, 0),), (), ((2, 0),), None]:
+        evaluator.case_b_species = policy
+        explicit = policy is not None
+        expected = frozenset(policy or ())
+        evaluator.evaluate(np.array([1.0e9]), np.array([1.0e4]), seed)
+        assert evaluator.case_b_species == (
+            expected if explicit else frozenset({(1, 0)})
+        )
+    # A new default evaluator may reuse the same owner after an explicit B call.
+    owner.case_b_species = ((2, 0),)
+    evaluator.evaluate(np.array([1.0e9]), np.array([1.0e4]), seed)
+    assert not owner.case_b_species
 
 
 @pytest.mark.parametrize("temperature_ratio", [0.5, 1.0, 1.5])

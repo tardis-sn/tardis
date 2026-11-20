@@ -43,6 +43,9 @@ class PlasmaEquilibriumSolution:
     ``maximum_relative_level_residual=None`` denotes unavailable optional
     kinetic diagnostics, not a measured zero. The true default preserves the
     historical minimum evaluator contract for three-argument construction.
+    ``level_converged`` denotes relative closure or explicitly budgeted
+    physical insignificance. The raw maximum can remain large in the latter
+    case; the evaluation's absolute budget identifies the accepted shells.
     """
 
     electron_density: npt.NDArray[np.float64]
@@ -54,6 +57,41 @@ class PlasmaEquilibriumSolution:
 
 class PlasmaEquilibriumSolver:
     """Solve an evaluator in normalized density-temperature coordinates."""
+
+    @staticmethod
+    def _calculate_level_acceptance(
+        evaluation: EquilibriumEvaluation, tolerance: float
+    ) -> npt.NDArray[np.bool_]:
+        """Combine relative closure with optional dimensional shell budgets.
+
+        Parameters
+        ----------
+        evaluation : EquilibriumEvaluation
+            Current snapshot, including raw relative level residuals and an
+            optional shell-indexed absolute insignificance budget.
+        tolerance : float
+            Existing dimensionless relative kinetic tolerance.
+
+        Returns
+        -------
+        numpy.ndarray
+            Per-level/shell acceptance. Nonfinite residuals are never excused.
+        """
+        relative = evaluation.relative_level_residual
+        values = relative.to_numpy(dtype=float)
+        accepted = np.abs(values) <= tolerance
+        budget = getattr(evaluation, "absolute_level_budget", None)
+        if budget is not None:
+            if not budget.index.equals(relative.columns):
+                raise RuntimeError(
+                    "Absolute level budget shell labels do not match residuals."
+                )
+            if budget["accepted"].dtype != np.dtype(bool):
+                raise RuntimeError(
+                    "Absolute level budget acceptance must be boolean."
+                )
+            accepted |= budget["accepted"].to_numpy(dtype=bool)[None, :]
+        return accepted & np.isfinite(values)
 
     def __init__(
         self,
@@ -454,13 +492,16 @@ class PlasmaEquilibriumSolver:
                 break
             level_values = np.asarray(relative_levels, dtype=np.float64)
             before_residual = float(np.max(np.abs(level_values)))
-            if (
-                np.isfinite(level_values).all()
-                and before_residual <= level_tolerance
-            ):
+            accepted_levels = self._calculate_level_acceptance(
+                terminal_evaluation, level_tolerance
+            )
+            if accepted_levels.all():
                 break
             level_idx, shell_idx = np.unravel_index(
-                np.argmax(np.abs(level_values)), level_values.shape
+                np.argmax(
+                    np.where(accepted_levels, -np.inf, np.abs(level_values))
+                ),
+                level_values.shape,
             )
             logger.info(
                 "Starting terminal level refinement %d/3: level %s, shell %s, "
@@ -468,7 +509,7 @@ class PlasmaEquilibriumSolver:
                 refinement_pass,
                 relative_levels.index[level_idx],
                 relative_levels.columns[shell_idx],
-                before_residual,
+                abs(level_values[level_idx, shell_idx]),
                 level_tolerance,
             )
             refinement_count = refinement_pass
@@ -520,13 +561,14 @@ class PlasmaEquilibriumSolver:
             )
             after_residual = float(np.max(np.abs(after_levels)))
             logger.info(
-                "Finished terminal level refinement %d/3: relative residual "
-                "%.3e -> %.3e; level acceptance=%s.",
+                "Finished terminal level refinement %d/3: maximum raw relative residual "
+                "%.3e -> %.3e; mixed level acceptance=%s.",
                 refinement_pass,
                 before_residual,
                 after_residual,
-                np.isfinite(after_levels).all()
-                and after_residual <= level_tolerance,
+                self._calculate_level_acceptance(
+                    terminal_evaluation, level_tolerance
+                ).all(),
             )
         terminal_residual = np.asarray(
             terminal_evaluation.electron_residual, dtype=np.float64
@@ -729,10 +771,46 @@ class PlasmaEquilibriumSolver:
             maximum_relative_level_residual = float(
                 np.max(np.abs(level_values))
             )
-            level_converged = maximum_relative_level_residual <= level_tolerance
+            accepted_levels = self._calculate_level_acceptance(
+                terminal_evaluation, level_tolerance
+            )
+            level_converged = bool(accepted_levels.all())
+            absolute_budget = getattr(
+                terminal_evaluation, "absolute_level_budget", None
+            )
+            if absolute_budget is not None:
+                raw_open_shells = np.any(
+                    np.abs(level_values) > level_tolerance, axis=0
+                )
+                for shell in relative_level_residual.columns[
+                    raw_open_shells
+                    & absolute_budget["accepted"].to_numpy(dtype=bool)
+                ]:
+                    row = absolute_budget.loc[shell]
+                    logger.info(
+                        "Accepted physically insignificant level imbalance for species %s "
+                        "in shell %s: parent density=%.6e cm^-3; raw relative residual=%.6e; "
+                        "log gross turnover=%.6e [cm^-3 s^-1], timescale=%.6e s, "
+                        "density tolerance=%.6e cm^-3; log optical-depth bound=%.6e "
+                        "(opacity tolerance=%.6e). No terminal retry required for this shell.",
+                        getattr(evaluator, "equilibrium_species", None),
+                        shell,
+                        row["parent_density"],
+                        np.max(
+                            np.abs(relative_level_residual[shell].to_numpy())
+                        ),
+                        row["log_gross_turnover"],
+                        row["timescale"],
+                        row["density_tolerance"],
+                        row["log_optical_depth_bound"],
+                        row["opacity_tolerance"],
+                    )
             if not level_converged:
                 level_idx, shell_idx = np.unravel_index(
-                    np.argmax(np.abs(level_values)), level_values.shape
+                    np.argmax(
+                        np.where(accepted_levels, -np.inf, np.abs(level_values))
+                    ),
+                    level_values.shape,
                 )
                 worst_level = relative_level_residual.index[level_idx]
                 if isinstance(worst_level, tuple):

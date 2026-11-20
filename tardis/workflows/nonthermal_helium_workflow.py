@@ -472,6 +472,10 @@ class NonthermalHeliumPlasmaSolver:
         allocation-underflow canonicalization. Raw evaluator tables are not
         mutated. A failed coupling attempt does not commit this candidate to
         the optical plasma.
+    last_evaluator : PlasmaEquilibriumEvaluator or None
+        Latest constructed evaluator, retained before solving. Its last
+        completed level snapshot supports single-shell closure diagnostics,
+        including after terminal validation fails. No evaluator history is kept.
     last_ion_relaxation_history : pandas.DataFrame
         Factors, counters, candidate changes, and adjustment reasons indexed
         by iteration, atomic number, and shell for the latest coupling attempt.
@@ -526,6 +530,7 @@ class NonthermalHeliumPlasmaSolver:
         self.last_ion_relaxation_history = pd.DataFrame()
         self.last_input_state: CoupledPlasmaState | None = None
         self.last_candidate_state: CoupledPlasmaState | None = None
+        self.last_evaluator: PlasmaEquilibriumEvaluator | None = None
 
     @staticmethod
     def _maximum_relative_change(
@@ -663,6 +668,7 @@ class NonthermalHeliumPlasmaSolver:
         self.last_ion_relaxation_history = pd.DataFrame()
         self.last_input_state = None
         self.last_candidate_state = None
+        self.last_evaluator = None
         current = self._initial_state(optical_workflow)
         self.last_input_state = current
         self._check_finite_level_populations(
@@ -745,8 +751,13 @@ class NonthermalHeliumPlasmaSolver:
                     optical_workflow,
                     self.bound_bound_species_filter,
                 )
+            self.last_evaluator = evaluator
             if temperature_ratio is not None:
                 evaluator.thermal_balance_solver = None
+            if isinstance(evaluator, PlasmaEquilibriumEvaluator):
+                evaluator.absolute_level_population_tolerance = (
+                    self.settings.absolute_population_tolerance
+                )
             he_i_level_seed = current.level_number_density.loc[(2, 0)].copy(
                 deep=True
             )

@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Collection
 
 import numpy as np
 import numpy.typing as npt
@@ -84,6 +85,7 @@ class ThermalBalanceSolver:
         bound_free_heating_estimator: pd.DataFrame | None = None,
         stimulated_recombination_estimator: pd.DataFrame | None = None,
         nonthermal_heating_rate_density: pd.Series | None = None,
+        case_b_species: Collection[tuple[int, int]] | None = None,
     ) -> tuple[pd.Series, pd.Series]:
         """Compute the current heating rate and the fractional heating
 
@@ -115,6 +117,9 @@ class ThermalBalanceSolver:
             Stimulated recombination estimator.
         nonthermal_heating_rate_density : pandas.Series, optional
             Fixed nonthermal volumetric heating rate in each cell.
+        case_b_species : collection of tuple[int, int], optional
+            Explicit effective Case B bound ions; suppress their ground
+            recombination cooling and three-body heating, not ionization terms.
 
         Returns
         -------
@@ -122,6 +127,9 @@ class ThermalBalanceSolver:
             Total heating rate and fractional heating rate for each cell.
         """
         electron_density = thermal_electron_distribution.number_density
+        recombination_policy = (
+            {} if case_b_species is None else {"case_b_species": case_b_species}
+        )
 
         bound_free_heating, free_bound_cooling = self.bound_free_solver.solve(
             level_population,
@@ -131,6 +139,7 @@ class ThermalBalanceSolver:
             radiation_field,
             bound_free_heating_estimator,
             stimulated_recombination_estimator,
+            **recombination_policy,
         )
 
         free_free_heating, free_free_cooling = self.free_free_solver.solve(
@@ -146,6 +155,7 @@ class ThermalBalanceSolver:
                 level_population,
                 collisional_ionization_rate_coefficient,
                 level_population_ratio,
+                **recombination_policy,
             )
         )
 

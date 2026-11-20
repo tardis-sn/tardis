@@ -1,3 +1,5 @@
+from collections.abc import Collection
+
 import astropy.units as u
 import numpy as np
 import numpy.typing as npt
@@ -7,6 +9,7 @@ from tardis import constants as const
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
+from tardis.plasma.equilibrium.rates.util import suppress_ground_recombination
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.transport.montecarlo.estimators.util import (
     integrate_array_by_blocks,
@@ -49,6 +52,7 @@ class BoundFreeThermalRates:
         radiation_field: DilutePlanckianRadiationField | None = None,
         bound_free_heating_estimator: pd.DataFrame | None = None,
         stimulated_recombination_estimator: pd.DataFrame | None = None,
+        case_b_species: Collection[tuple[int, int]] = (),
     ) -> tuple[pd.Series, pd.Series]:
         """Compute the bound-free heating and cooling rates.
 
@@ -68,6 +72,8 @@ class BoundFreeThermalRates:
             Montecarlo bound free heating estimator. Columns represent cells, by default None
         stimulated_recombination_estimator : pd.DataFrame, optional
             Montecarlo stimulated recombination estimator. Columns represent cells, by default None
+        case_b_species : collection of tuple[int, int], optional
+            Bound ions whose ground recombination cooling is suppressed.
 
         Returns
         -------
@@ -126,6 +132,7 @@ class BoundFreeThermalRates:
             thermal_electron_distribution,
             level_population_ratio,
             stimulated_recombination_estimator,
+            case_b_species,
         ).sum()
 
         return heating_rate, cooling_rate
@@ -136,8 +143,29 @@ class BoundFreeThermalRates:
         thermal_electron_distribution: ThermalElectronEnergyDistribution,
         level_population_ratio: pd.DataFrame,
         stimulated_recombination_estimator: pd.DataFrame | None = None,
+        case_b_species: Collection[tuple[int, int]] = (),
     ) -> pd.DataFrame:
-        """Calculate free-bound cooling rates for each recombining level."""
+        """Calculate free-bound cooling rates for each recombining level.
+
+        Parameters
+        ----------
+        ion_population : pandas.DataFrame
+            Ion densities by shell in cm^-3.
+        thermal_electron_distribution : ThermalElectronEnergyDistribution
+            Electron temperature and density.
+        level_population_ratio : pandas.DataFrame
+            Density-independent level-to-continuum Saha factor.
+        stimulated_recombination_estimator : pandas.DataFrame, optional
+            Level-resolved stimulated recombination cooling coefficients.
+        case_b_species : collection of tuple[int, int], optional
+            Bound ions whose ground spontaneous and stimulated cooling is
+            suppressed in addition to the legacy H spontaneous suppression.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Volumetric cooling in erg s^-1 cm^-3 by bound level and shell.
+        """
         # Lucy 03 eq 59
         nu_i = self.photoionization_cross_sections.nu.groupby(
             level=[0, 1, 2]
@@ -245,9 +273,10 @@ class BoundFreeThermalRates:
         else:
             stimulated_recombination_cooling_rate = 0.0
 
-        return (
+        return suppress_ground_recombination(
             spontaneous_recombination_cooling_rate
-            + stimulated_recombination_cooling_rate
+            + stimulated_recombination_cooling_rate,
+            case_b_species,
         )
 
 
@@ -370,6 +399,7 @@ class CollisionalIonizationThermalRates:
         level_population: pd.DataFrame,
         collisional_ionization_rate_coefficient: pd.DataFrame,
         level_population_ratio: pd.DataFrame,
+        case_b_species: Collection[tuple[int, int]] = (),
     ) -> tuple[pd.Series, pd.Series]:
         """Compute the collisional ionization heating and cooling rates.
 
@@ -385,6 +415,8 @@ class CollisionalIonizationThermalRates:
             Collisional ionization rate coefficients. Columns represent cells.
         level_population_ratio : pd.DataFrame
             Saha factor for the ion populations as defined in Lucy 03 equation 14. Columns represent cells.
+        case_b_species : collection of tuple[int, int], optional
+            Bound ions whose ground three-body recombination heating is suppressed.
 
         Returns
         -------
@@ -412,11 +444,12 @@ class CollisionalIonizationThermalRates:
         )
         upper_ion_population.index = level_index
 
-        heating_rate = (
+        heating_rate = suppress_ground_recombination(
             electron_density.cgs.value
             * upper_ion_population
             * level_population_ratio.reindex(level_index, fill_value=0.0)
-            * rate_factor
+            * rate_factor,
+            case_b_species,
         ).sum()
 
         cooling_rate = (
