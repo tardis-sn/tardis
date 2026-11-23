@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=21a878fd"></script>
+      <script src="../../../_static/documentation_options.js?v=499fb421"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1626,6 +1626,7 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species_multi_index"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species_multi_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.delta_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.delta_treatment</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.electron_number_density_convergence_threshold"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.electron_number_density_convergence_threshold</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.excitation_analytical_approximation"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.excitation_analytical_approximation</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.heating_rate_data_file"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.heating_rate_data_file</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.helium_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.helium_treatment</span></code></a></li>
@@ -1853,6 +1854,8 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_ion_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_ion_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_level_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_level_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.normalized_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_level_residual</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.tau_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.tau_sobolev</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.total_heating"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.total_heating</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.trial_beta_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.trial_beta_sobolev</span></code></a></li>
@@ -1873,12 +1876,14 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.hydrogen_index"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.hydrogen_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.ionized_to_neutral_ratios"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.ionized_to_neutral_ratios</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.normalized_population"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_escape_probability"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_escape_probability</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_level_residual</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_lte_populations"><code class="docutils literal notranslate"><span class="pre">calculate_lte_populations()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_nlte_level_population_residual"><code class="docutils literal notranslate"><span class="pre">calculate_nlte_level_population_residual()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_relative_level_residual"><code class="docutils literal notranslate"><span class="pre">calculate_relative_level_residual()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines"><code class="docutils literal notranslate"><span class="pre">restrict_sobolev_to_rate_lines()</span></code></a></li>
 </ul>
 </li>
@@ -4555,6 +4560,20 @@ All convergence criteria can be specified separately for the three variables for
 (<code class="docutils literal notranslate"><span class="pre">t_inner</span></code>, <code class="docutils literal notranslate"><span class="pre">t_rad</span></code>, <code class="docutils literal notranslate"><span class="pre">ws</span></code>) by specifying subsections in the <code class="docutils literal notranslate"><span class="pre">convergence_criteria</span></code> of the same name. These then
 override the defaults. Two more schemas are presented that further explain the <code class="docutils literal notranslate"><span class="pre">damped</span></code> and
 <code class="docutils literal notranslate"><span class="pre">custom</span></code> convergence strategies:</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The subsections are filled from the top-level values once, when the
+configuration is loaded. To change a convergence subsection of a loaded
+configuration, use <code class="docutils literal notranslate"><span class="pre">.update()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">montecarlo</span><span class="o">.</span><span class="n">convergence_strategy</span><span class="p">[</span><span class="s2">&quot;v_inner_boundary&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;damping_constant&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Assigning a new dictionary to the subsection replaces it and drops the
+values filled in at load time, such as <code class="docutils literal notranslate"><span class="pre">fraction</span></code>. Changing a top-level
+value after loading does not change the subsections either.</p>
+</div>
 <section id="damped-convergence-strategy">
 <span id="damped-convergence-strategy"></span><span id="damped-config"></span><h3>Damped Convergence Strategy<a class="headerlink" href="#damped-convergence-strategy" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
@@ -4649,7 +4668,7 @@ override the defaults. Two more schemas are presented that further explain the <
 <tr class="row-odd"><td><p>default</p></td>
 <td colspan="2"><p>0.05</p></td>
 </tr>
-<tr class="row-even"><td rowspan="13"><ul class="simple">
+<tr class="row-even"><td rowspan="12"><ul class="simple">
 <li><p>t_inner</p></li>
 </ul>
 </td>
@@ -4658,70 +4677,7 @@ override the defaults. Two more schemas are presented that further explain the <
 </tr>
 <tr class="row-odd"><td colspan="3"><p>properties</p></td>
 </tr>
-<tr class="row-even"><td rowspan="4"><ul class="simple">
-<li><p>damping_constant</p></li>
-</ul>
-</td>
-<td colspan="2"><p>damping constant</p></td>
-</tr>
-<tr class="row-odd"><td><p>type</p></td>
-<td><p><em>number</em></p></td>
-</tr>
-<tr class="row-even"><td><p>minimum</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p>default</p></td>
-<td><p>0.5</p></td>
-</tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
-<li><p>threshold</p></li>
-</ul>
-</td>
-<td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
-</tr>
-<tr class="row-odd"><td><p>type</p></td>
-<td><p><em>number</em></p></td>
-</tr>
-<tr class="row-even"><td><p>minimum</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p>type</p></li>
-</ul>
-</td>
-<td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
-</tr>
-<tr class="row-even"><td><p>type</p></td>
-<td><p><em>string</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>default</p></td>
-<td><p>damped</p></td>
-</tr>
-<tr class="row-even"><td><p>additionalProperties</p></td>
-<td colspan="2"><p>False</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="16"><ul class="simple">
-<li><p>v_inner_boundary</p></li>
-</ul>
-</td>
-<td><p>type</p></td>
-<td colspan="2"><p><em>object</em></p></td>
-</tr>
-<tr class="row-even"><td colspan="3"><p>properties</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p>store_iteration_properties</p></li>
-</ul>
-</td>
-<td colspan="2"><p>store the plasma state at each iteration</p></td>
-</tr>
-<tr class="row-even"><td><p>type</p></td>
-<td><p><em>boolean</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>default</p></td>
-<td><p>False</p></td>
-</tr>
-<tr class="row-even"><td rowspan="4"><ul class="simple">
 <li><p>damping_constant</p></li>
 </ul>
 </td>
@@ -4733,62 +4689,8 @@ override the defaults. Two more schemas are presented that further explain the <
 <tr class="row-even"><td><p>minimum</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p>default</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>threshold</p></li>
-</ul>
-</td>
-<td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
-</tr>
-<tr class="row-odd"><td><p>type</p></td>
-<td><p><em>number</em></p></td>
-</tr>
-<tr class="row-even"><td><p>minimum</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p>type</p></li>
-</ul>
-</td>
-<td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
-</tr>
-<tr class="row-even"><td><p>type</p></td>
-<td><p><em>string</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>default</p></td>
-<td><p>damped</p></td>
-</tr>
-<tr class="row-even"><td><p>additionalProperties</p></td>
-<td colspan="2"><p>False</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="13"><ul class="simple">
-<li><p>t_rad</p></li>
-</ul>
-</td>
-<td><p>type</p></td>
-<td colspan="2"><p><em>object</em></p></td>
-</tr>
-<tr class="row-even"><td colspan="3"><p>properties</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="4"><ul class="simple">
-<li><p>damping_constant</p></li>
-</ul>
-</td>
-<td colspan="2"><p>damping constant</p></td>
-</tr>
-<tr class="row-even"><td><p>type</p></td>
-<td><p><em>number</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>minimum</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-even"><td><p>default</p></td>
-<td><p>0.5</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p><strong>threshold</strong></p></li>
 </ul>
 </td>
 <td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
@@ -4814,8 +4716,8 @@ override the defaults. Two more schemas are presented that further explain the <
 <tr class="row-odd"><td><p>additionalProperties</p></td>
 <td colspan="2"><p>False</p></td>
 </tr>
-<tr class="row-even"><td rowspan="13"><ul class="simple">
-<li><p>w</p></li>
+<tr class="row-even"><td rowspan="15"><ul class="simple">
+<li><p>v_inner_boundary</p></li>
 </ul>
 </td>
 <td><p>type</p></td>
@@ -4823,11 +4725,35 @@ override the defaults. Two more schemas are presented that further explain the <
 </tr>
 <tr class="row-odd"><td colspan="3"><p>properties</p></td>
 </tr>
-<tr class="row-even"><td rowspan="4"><ul class="simple">
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>store_iteration_properties</p></li>
+</ul>
+</td>
+<td colspan="2"><p>store the plasma state at each iteration</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>damping_constant</p></li>
 </ul>
 </td>
 <td colspan="2"><p>damping constant</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>threshold</p></li>
+</ul>
+</td>
+<td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
 <td><p><em>number</em></p></td>
@@ -4835,8 +4761,89 @@ override the defaults. Two more schemas are presented that further explain the <
 <tr class="row-even"><td><p>minimum</p></td>
 <td><p>0</p></td>
 </tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
 <tr class="row-odd"><td><p>default</p></td>
-<td><p>0.5</p></td>
+<td><p>damped</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="12"><ul class="simple">
+<li><p>t_rad</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>damping_constant</p></li>
+</ul>
+</td>
+<td colspan="2"><p>damping constant</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>threshold</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>damped</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="12"><ul class="simple">
+<li><p>w</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>damping_constant</p></li>
+</ul>
+</td>
+<td colspan="2"><p>damping constant</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p><strong>threshold</strong></p></li>
@@ -4994,7 +5001,7 @@ temperature of the inner boundary.</p>
 <tr class="row-odd"><td><p>default</p></td>
 <td colspan="2"><p>0.05</p></td>
 </tr>
-<tr class="row-even"><td rowspan="13"><ul class="simple">
+<tr class="row-even"><td rowspan="12"><ul class="simple">
 <li><p>t_inner</p></li>
 </ul>
 </td>
@@ -5003,26 +5010,11 @@ temperature of the inner boundary.</p>
 </tr>
 <tr class="row-odd"><td colspan="3"><p>properties</p></td>
 </tr>
-<tr class="row-even"><td rowspan="4"><ul class="simple">
+<tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>damping_constant</p></li>
 </ul>
 </td>
 <td colspan="2"><p>damping constant</p></td>
-</tr>
-<tr class="row-odd"><td><p>type</p></td>
-<td><p><em>number</em></p></td>
-</tr>
-<tr class="row-even"><td><p>minimum</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p>default</p></td>
-<td><p>0.5</p></td>
-</tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
-<li><p>threshold</p></li>
-</ul>
-</td>
-<td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
 <td><p><em>number</em></p></td>
@@ -5031,34 +5023,10 @@ temperature of the inner boundary.</p>
 <td><p>0</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p>type</p></li>
+<li><p>threshold</p></li>
 </ul>
 </td>
-<td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
-</tr>
-<tr class="row-even"><td><p>type</p></td>
-<td><p><em>string</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>default</p></td>
-<td><p>damped</p></td>
-</tr>
-<tr class="row-even"><td><p>additionalProperties</p></td>
-<td colspan="2"><p>False</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="13"><ul class="simple">
-<li><p>t_rad</p></li>
-</ul>
-</td>
-<td><p>type</p></td>
-<td colspan="2"><p><em>object</em></p></td>
-</tr>
-<tr class="row-even"><td colspan="3"><p>properties</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="4"><ul class="simple">
-<li><p>damping_constant</p></li>
-</ul>
-</td>
-<td colspan="2"><p>damping constant</p></td>
+<td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
 <td><p><em>number</em></p></td>
@@ -5066,8 +5034,41 @@ temperature of the inner boundary.</p>
 <tr class="row-odd"><td><p>minimum</p></td>
 <td><p>0</p></td>
 </tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
 <tr class="row-even"><td><p>default</p></td>
-<td><p>0.5</p></td>
+<td><p>damped</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="12"><ul class="simple">
+<li><p>t_rad</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>damping_constant</p></li>
+</ul>
+</td>
+<td colspan="2"><p>damping constant</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p><strong>threshold</strong></p></li>
@@ -5096,7 +5097,7 @@ temperature of the inner boundary.</p>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
 <td colspan="2"><p>False</p></td>
 </tr>
-<tr class="row-even"><td rowspan="13"><ul class="simple">
+<tr class="row-even"><td rowspan="12"><ul class="simple">
 <li><p>w</p></li>
 </ul>
 </td>
@@ -5105,7 +5106,7 @@ temperature of the inner boundary.</p>
 </tr>
 <tr class="row-odd"><td colspan="3"><p>properties</p></td>
 </tr>
-<tr class="row-even"><td rowspan="4"><ul class="simple">
+<tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>damping_constant</p></li>
 </ul>
 </td>
@@ -5117,64 +5118,61 @@ temperature of the inner boundary.</p>
 <tr class="row-even"><td><p>minimum</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p>default</p></td>
-<td><p>0.5</p></td>
-</tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p><strong>threshold</strong></p></li>
 </ul>
 </td>
 <td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
 </tr>
-<tr class="row-odd"><td><p>type</p></td>
+<tr class="row-even"><td><p>type</p></td>
 <td><p><em>number</em></p></td>
 </tr>
-<tr class="row-even"><td><p>minimum</p></td>
+<tr class="row-odd"><td><p>minimum</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>type</p></li>
 </ul>
 </td>
 <td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td><p><em>string</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>default</p></td>
+<tr class="row-even"><td><p>default</p></td>
 <td><p>damped</p></td>
 </tr>
-<tr class="row-even"><td><p>additionalProperties</p></td>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
 <td colspan="2"><p>False</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<tr class="row-even"><td rowspan="4"><ul class="simple">
 <li><p>lock_t_inner_cycles</p></li>
 </ul>
 </td>
 <td colspan="3"><p>The number of cycles to lock the update of the inner boundary temperature. This process helps with convergence. The default is to switch it off (1 cycle)</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="2"><p><em>number</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>multipleOf</p></td>
+<tr class="row-even"><td><p>multipleOf</p></td>
 <td colspan="2"><p>1.0</p></td>
 </tr>
-<tr class="row-even"><td><p>default</p></td>
+<tr class="row-odd"><td><p>default</p></td>
 <td colspan="2"><p>1</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>t_inner_update_exponent</p></li>
 </ul>
 </td>
 <td colspan="3"><p>L=4*pi*r**2*T^y</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="2"><p><em>number</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>default</p></td>
+<tr class="row-even"><td><p>default</p></td>
 <td colspan="2"><p>-0.5</p></td>
 </tr>
-<tr class="row-even"><td><p>additionalProperties</p></td>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
 <td colspan="3"><p>False</p></td>
 </tr>
 </tbody>
@@ -5230,7 +5228,7 @@ to parallelise the code. (See <a class="reference internal" href="../index.html#
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Nov 2026.
+      <span class="lastupdated">Last updated on 23 Nov 2026.
       </span></p>
   </div>
 

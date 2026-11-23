@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=21a878fd"></script>
+      <script src="../../../../_static/documentation_options.js?v=499fb421"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1621,6 +1621,7 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species_multi_index"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species_multi_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.delta_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.delta_treatment</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.electron_number_density_convergence_threshold"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.electron_number_density_convergence_threshold</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.excitation_analytical_approximation"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.excitation_analytical_approximation</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.heating_rate_data_file"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.heating_rate_data_file</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.helium_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.helium_treatment</span></code></a></li>
@@ -1848,6 +1849,8 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_ion_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_ion_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_level_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_level_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.normalized_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_level_residual</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.tau_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.tau_sobolev</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.total_heating"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.total_heating</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.trial_beta_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.trial_beta_sobolev</span></code></a></li>
@@ -1868,12 +1871,14 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.hydrogen_index"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.hydrogen_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.ionized_to_neutral_ratios"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.ionized_to_neutral_ratios</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.normalized_population"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_escape_probability"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_escape_probability</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_level_residual</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_lte_populations"><code class="docutils literal notranslate"><span class="pre">calculate_lte_populations()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_nlte_level_population_residual"><code class="docutils literal notranslate"><span class="pre">calculate_nlte_level_population_residual()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_relative_level_residual"><code class="docutils literal notranslate"><span class="pre">calculate_relative_level_residual()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines"><code class="docutils literal notranslate"><span class="pre">restrict_sobolev_to_rate_lines()</span></code></a></li>
 </ul>
 </li>
@@ -4304,6 +4309,10 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 ION_ZERO_THRESHOLD = 1e-20
+# The ionization solve stops once n_e changes by less than this fraction
+# between iterations, so the returned n_e can differ from the free-electron
+# number density of the returned ions by up to this fraction.
+ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD = 0.05
 
 __all__ = [
     &quot;PhiSahaNebular&quot;,
@@ -4610,14 +4619,38 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
     def __init__(
         self,
-        plasma_parent,
-        ion_zero_threshold=ION_ZERO_THRESHOLD,
-        electron_densities=None,
-    ):
+        plasma_parent: object,
+        ion_zero_threshold: float = ION_ZERO_THRESHOLD,
+        electron_densities: pd.Series | None = None,
+        electron_number_density_convergence_threshold: float = (
+            ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD
+        ),
+    ) -&gt; None:
+        &quot;&quot;&quot;Initialize the ion number density property.
+
+        Parameters
+        ----------
+        plasma_parent : object
+            Plasma graph that owns this property.
+        ion_zero_threshold : float, optional
+            Ion number density below which populations are set to zero
+            [cm^-3].
+        electron_densities : pandas.Series or None, optional
+            Fixed electron number densities [cm^-3]. If None, they are solved
+            together with the ion populations.
+        electron_number_density_convergence_threshold : float, optional
+            Relative change of the electron number density between iterations
+            below which the solve stops. It bounds the relative difference
+            between the returned electron number density and the
+            free-electron number density of the returned ions.
+        &quot;&quot;&quot;
         super().__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
         self._electron_densities = electron_densities
+        self.electron_number_density_convergence_threshold = (
+            electron_number_density_convergence_threshold
+        )
 
 <div class="viewcode-block" id="IonNumberDensity.calculate_with_n_electron">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate_with_n_electron">[docs]</a>
@@ -4668,7 +4701,6 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 <a class="viewcode-back" href="../../../../api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate">[docs]</a>
     def calculate(self, phi, partition_function, number_density):
         if self._electron_densities is None:
-            n_e_convergence_threshold = 0.05
             n_electron = number_density.sum(axis=0)
             n_electron_iterations = 0
 
@@ -4703,7 +4735,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                     )
                 if np.all(
                     np.abs(new_n_electron - n_electron) / n_electron
-                    &lt; n_e_convergence_threshold
+                    &lt; self.electron_number_density_convergence_threshold
                 ):
                     break
                 n_electron = 0.5 * (new_n_electron + n_electron)
@@ -4754,12 +4786,39 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     )
 
     def __init__(
-        self, plasma_parent, ion_zero_threshold=1e-20, electron_densities=None
-    ):
+        self,
+        plasma_parent: object,
+        ion_zero_threshold: float = 1e-20,
+        electron_densities: pd.Series | None = None,
+        electron_number_density_convergence_threshold: float = (
+            ELECTRON_NUMBER_DENSITY_CONVERGENCE_THRESHOLD
+        ),
+    ) -&gt; None:
+        &quot;&quot;&quot;Initialize the helium-NLTE ion number density property.
+
+        Parameters
+        ----------
+        plasma_parent : object
+            Plasma graph that owns this property.
+        ion_zero_threshold : float, optional
+            Ion number density below which populations are set to zero
+            [cm^-3].
+        electron_densities : pandas.Series or None, optional
+            Fixed electron number densities [cm^-3]. If None, they are solved
+            together with the ion populations.
+        electron_number_density_convergence_threshold : float, optional
+            Relative change of the electron number density between iterations
+            below which the solve stops. It bounds the relative difference
+            between the returned electron number density and the
+            free-electron number density of the returned ions.
+        &quot;&quot;&quot;
         super().__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
         self._electron_densities = electron_densities
+        self.electron_number_density_convergence_threshold = (
+            electron_number_density_convergence_threshold
+        )
 
 <div class="viewcode-block" id="IonNumberDensityHeNLTE.update_he_population">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE.update_he_population">[docs]</a>
@@ -4791,7 +4850,6 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
         self, phi, partition_function, number_density, helium_population
     ):
         if self._electron_densities is None:
-            n_e_convergence_threshold = 0.05
             n_electron = number_density.sum(axis=0)
             n_electron_iterations = 0
             while True:
@@ -4837,7 +4895,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                     )
                 if np.all(
                     np.abs(new_n_electron - n_electron) / n_electron
-                    &lt; n_e_convergence_threshold
+                    &lt; self.electron_number_density_convergence_threshold
                 ):
                     break
                 n_electron = 0.5 * (new_n_electron + n_electron)
@@ -4931,7 +4989,7 @@ class SahaFactor(ProcessingPlasmaProperty):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Nov 2026.
+      <span class="lastupdated">Last updated on 23 Nov 2026.
       </span></p>
   </div>
 
