@@ -1,7 +1,0 @@
-tardis.workflows.high\_energy.tardis\_he\_workflow module
-=========================================================
-
-.. automodule:: tardis.workflows.high_energy.tardis_he_workflow
-   :members:
-   :show-inheritance:
-   :undoc-members:

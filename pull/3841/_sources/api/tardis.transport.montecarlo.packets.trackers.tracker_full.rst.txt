@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.packets.trackers.tracker\_full module
-=================================================================
-
-.. automodule:: tardis.transport.montecarlo.packets.trackers.tracker_full
-   :members:
-   :show-inheritance:
-   :undoc-members:

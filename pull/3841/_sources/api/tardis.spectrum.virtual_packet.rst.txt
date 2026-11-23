@@ -1,7 +1,0 @@
-tardis.spectrum.virtual\_packet module
-======================================
-
-.. automodule:: tardis.spectrum.virtual_packet
-   :members:
-   :show-inheritance:
-   :undoc-members:
