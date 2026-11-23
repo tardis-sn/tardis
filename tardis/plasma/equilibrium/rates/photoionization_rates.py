@@ -258,10 +258,9 @@ class EstimatedPhotoionizationRateSolver:
             spontaneous_recombination_coeff,
         ) = self.solve_coefficients(electron_energy_distribution.temperature)
         columns = level_population.columns
-        photoionization_coeff = photoionization_coeff.loc[:, columns]
-        stimulated_recombination_coeff = stimulated_recombination_coeff.loc[
-            :, columns
-        ]
+        # Raw estimator arrays already follow the supplied plasma's shell
+        # order. Their DataFrames have positional columns, not original shell
+        # labels: assign labels below rather than selecting positions by label.
         # The ionization matrix stores numerical cgs rates. The estimator
         # normalization and the atomic-data constants can otherwise leave
         # Astropy units attached to only one of the two raw factors.
