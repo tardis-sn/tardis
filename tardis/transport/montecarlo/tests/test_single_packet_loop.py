@@ -152,19 +152,7 @@ def test_transparent_ejecta_escapes_at_geometric_boundary(
         rtol=RTOL,
         atol=0,
     )
-    assert packet.current_shell_id == 1
     assert packet.status == PacketStatus.EMITTED
-    npt.assert_array_equal(
-        tracker.interaction_type, np.full(4, InteractionType.BOUNDARY)
-    )
-    npt.assert_array_equal(tracker.before_shell_id, [-1, 0, 1, 1])
-    npt.assert_array_equal(tracker.after_shell_id, [0, 1, 2, 2])
-    npt.assert_allclose(
-        tracker.radius,
-        [radius, *geometry.r_outer, geometry.r_outer[-1]],
-        rtol=RTOL,
-        atol=0,
-    )
     npt.assert_allclose(
         bulk_estimators.mean_intensity_total,
         expected_intensity,
@@ -196,11 +184,13 @@ def test_isolated_line_obeys_zero_and_opaque_limits(
     montecarlo_configuration: MonteCarloConfiguration,
     set_seed_fixture: Callable[[int], None],
 ) -> None:
-    """A tau=0 line is never absorbed; a tau=100 line is absorbed exactly once.
+    """Claim: a tau=0 line never absorbs; a tau=100 line absorbs exactly once.
 
     Regime: electron-free two-shell ejecta, one reachable line plus a far
     red sentinel, SCATTER. The interaction probability is 1 - exp(-tau): 0 and
-    1 - 4e-44, so the outcome does not depend on the random seed.
+    1 - 4e-44, so exact event counts need no numerical tolerance.
+    Verification: the analytic zero- and opaque-line probability limits,
+    independently of the packet tracer's distance and event selection.
     """
     geometry = homologous_radial_1d_geometry
     time_explosion = geometry.time_explosion

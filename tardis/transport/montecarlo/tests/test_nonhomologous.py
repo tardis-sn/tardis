@@ -97,7 +97,7 @@ def test_nonhomologous_trace_matches_homologous_in_homologous_flow(
     mu: float,
     next_line_id: int,
 ) -> None:
-    """Nonhomologous transport reproduces homologous transport for v = r/t.
+    """Claim: nonhomologous transport reproduces homologous transport for v = r/t.
 
     Regime: two shells with v = r/t, no electrons, one opaque line and a far
     red sentinel line. In homologous flow the comoving frequency falls
