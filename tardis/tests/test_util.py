@@ -100,6 +100,12 @@ def test_roman_to_int(test_input, expected_result):
         roman_to_int(1)
 
 
+@pytest.mark.parametrize("test_input", ["VX", "IXX", "XIIX"])
+def test_roman_to_int_unparsed_characters(test_input):
+    with pytest.raises(ValueError):
+        roman_to_int(test_input)
+
+
 @pytest.mark.parametrize(
     ["string_io", "distance", "result"],
     [
@@ -166,6 +172,9 @@ def test_species_string_to_tuple(species_string, species_tuple):
 
     with pytest.raises(MalformedSpeciesError):
         species_string_to_tuple("He Si")
+
+    with pytest.raises(MalformedSpeciesError):
+        species_string_to_tuple("Si VX")
 
     with pytest.raises(ValueError):
         species_string_to_tuple("He IX")
