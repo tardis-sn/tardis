@@ -1,0 +1,26 @@
+name: gsoc-issues-auto-close
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  close-untemplated-issue:
+    if: >
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR", "NONE"]'), github.event.issue.author_association) &&
+      !contains(github.event.issue.body, 'Environment (`conda list`)') &&
+      !contains(github.event.issue.body, '**Is your feature request related to a problem? Please describe.**')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+      NUMBER: ${{ github.event.issue.number }}
+      BODY: |
+        👋 Welcome @${{ github.event.issue.user.login }}! Thank you for opening an issue in this repository!
+
+        Since this issue doesn't follow one of our issue templates, we are assuming this is a Google Summer of Code issue and hence closing it.
+
+        If you don't know what Google Summer of Code is and aren't applying to it, please open a new issue using one of the templates.
+
+        If you are planning to apply to the program please don't open a new issue, we don't have the capacity to review Google Summer of Code issues at the moment.
+    steps:
+      - run: gh issue close "$NUMBER" --repo "$GITHUB_REPOSITORY" --comment "$BODY"
