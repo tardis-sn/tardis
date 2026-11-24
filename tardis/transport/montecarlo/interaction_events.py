@@ -1,5 +1,3 @@
-from enum import IntEnum
-
 import numpy as np
 from numba import njit
 
@@ -10,6 +8,9 @@ from tardis.transport.frame_transformations import (
     get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.kernels.configuration_enums import (
+    LineInteractionType,  # noqa: F401 -- shared module attribute used by callers
+)
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
 from tardis.transport.montecarlo.utils import get_random_mu
 
@@ -223,12 +224,6 @@ def thomson_scatter(r_packet, time_explosion, enable_full_relativity):
     temp_doppler_factor = get_doppler_factor(
         velocity, r_packet.mu, enable_full_relativity
     )
-
-
-class LineInteractionType(IntEnum):
-    SCATTER = 0
-    DOWNBRANCH = 1
-    MACROATOM = 2
 
 
 @njit(**njit_dict_no_parallel)
