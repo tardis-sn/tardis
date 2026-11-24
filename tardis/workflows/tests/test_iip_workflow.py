@@ -125,6 +125,22 @@ def test_workflow_initial_populations_match_ctardis(
     )
 
 
+def test_workflow_initial_electron_number_density_conserves_charge(
+    type_iip_workflow: TypeIIPWorkflow,
+) -> None:
+    """The initial n_e equals the free-electron number density of the ions."""
+    ion_number_density = type_iip_workflow.plasma_solver.ion_number_density
+    ion_charge = ion_number_density.index.get_level_values("ion_number")
+    free_electron_number_density = ion_number_density.multiply(
+        ion_charge, axis=0
+    ).sum()
+    np.testing.assert_allclose(
+        type_iip_workflow.plasma_solver.electron_densities,
+        free_electron_number_density,
+        rtol=1e-9,
+    )
+
+
 def test_workflow_initial_opacity_matches_ctardis(
     type_iip_workflow: TypeIIPWorkflow,
     ctardis_reference_path: Path,
@@ -351,14 +367,14 @@ def test_iip_level_solution_is_seed_independent_after_first_transport(
         err_msg="the IIP level equilibrium depends on its initial population",
     )
     np.testing.assert_allclose(
-        initial_result.trial_level_residual[shell_idx],
+        initial_result.relative_trial_level_residual[shell_idx],
         0.0,
         rtol=0.0,
         atol=1e-10,
         err_msg="the initial-seed IIP level equations do not close",
     )
     np.testing.assert_allclose(
-        accepted_result.trial_level_residual[shell_idx],
+        accepted_result.relative_trial_level_residual[shell_idx],
         0.0,
         rtol=0.0,
         atol=1e-10,
@@ -621,7 +637,8 @@ def test_iip_hydrogen_helium_hydrogen_levels_follow_nlte_rate_equations(
     instead of following dilute-LTE excitation.
     Regime: Accepted final thermal-balance state of the hydrogen-helium model.
     Verification: The plasma H I level fractions must equal the solved NLTE
-    fractions, the level equations must close at the workflow's 1e-10 limit,
+    fractions, the level equations must close to the workflow's 1e-10 of
+    each equation's total rate,
     and at least one H I level must depart from its directly evaluated
     dilute-LTE fraction by more than 10 %. The 1e-12 relative tolerance allows
     only floating-point differences in the population rebuild.
@@ -645,7 +662,7 @@ def test_iip_hydrogen_helium_hydrogen_levels_follow_nlte_rate_equations(
         check_names=False,
     )
     np.testing.assert_allclose(
-        evaluation.level_residual,
+        evaluation.relative_level_residual,
         0.0,
         rtol=0.0,
         atol=1e-10,

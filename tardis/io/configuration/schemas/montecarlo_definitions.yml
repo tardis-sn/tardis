@@ -46,7 +46,6 @@ definitions:
           properties:
             damping_constant:
               type: number
-              default: 0.5
               description: damping constant
               minimum: 0
             threshold:
@@ -68,7 +67,6 @@ definitions:
               description: store the plasma state at each iteration
             damping_constant:
               type: number
-              default: 0.0
               description: damping constant
               minimum: 0
             threshold:
@@ -86,7 +84,6 @@ definitions:
           properties:
             damping_constant:
               type: number
-              default: 0.5
               description: damping constant
               minimum: 0
             threshold:
@@ -106,7 +103,6 @@ definitions:
           properties:
             damping_constant:
               type: number
-              default: 0.5
               description: damping constant
               minimum: 0
             threshold:
@@ -177,7 +173,6 @@ definitions:
           properties:
             damping_constant:
               type: number
-              default: 0.5
               description: damping constant
               minimum: 0
             threshold:
@@ -195,7 +190,6 @@ definitions:
           properties:
             damping_constant:
               type: number
-              default: 0.5
               description: damping constant
               minimum: 0
             threshold:
@@ -215,7 +209,6 @@ definitions:
           properties:
             damping_constant:
               type: number
-              default: 0.5
               description: damping constant
               minimum: 0
             threshold:

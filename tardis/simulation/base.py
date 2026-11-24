@@ -260,6 +260,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 f"Iteration converged {self.consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
                 f"times."
             )
+            if (
+                self.consecutive_converges_count == hold_iterations + 1
+                and not self.convergence_strategy.stop_if_converged
+            ):
+                logger.info(
+                    "Convergence criteria met, but "
+                    "convergence_strategy.stop_if_converged is False. "
+                    "Set it to True to stop once converged."
+                )
             # If an iteration has converged, require hold_iterations more
             # iterations to converge before we conclude that the Simulation
             # is converged.

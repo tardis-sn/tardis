@@ -56,19 +56,19 @@ jobs:
           python-version: "3.x"
 
       - name: Install doi2cff
-        run: pip install git+https://github.com/citation-file-format/doi2cff
+        # doi2cff is unmaintained and breaks on nameparser 3 (HumanName import)
+        run: pip install "git+https://github.com/citation-file-format/doi2cff@8e2d45650b8ee0cbe5a6e957e1d48a1d86c35c60" "nameparser<3"
 
       - name: Update CITATION.cff
         run: |
           rm -f CITATION.cff
-          max_attempts=10
-          attempt=1
-          until doi2cff init 10.5281/zenodo.592480 || [ $attempt -eq $max_attempts ]; do
+          for attempt in $(seq 10); do
+            doi2cff init 10.5281/zenodo.592480 && exit 0
             echo "Attempt $attempt failed. Retrying in 60 seconds..."
             rm -f CITATION.cff
             sleep 60
-            attempt=$((attempt + 1))
           done
+          exit 1
 
       - uses: actions/upload-artifact@v7
         with:
