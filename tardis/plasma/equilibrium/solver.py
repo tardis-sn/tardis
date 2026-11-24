@@ -214,10 +214,17 @@ class PlasmaEquilibriumSolver:
             )
             upper_bound[1::2] = self.maximum_temperature_ratio
         initial_guess = np.clip(initial_guess, lower_bound, upper_bound)
-        jacobian_sparsity = block_diag(
-            [np.ones((variable_stride, variable_stride), dtype=bool)]
-            * shell_count,
-            format="csr",
+        # Sparse TRF uses a two-dimensional trust-region subproblem that can
+        # fail at a boundary step with only one unknown. A scalar dense solve
+        # avoids that path; retain sparsity for all larger shell systems.
+        jacobian_sparsity = (
+            None
+            if initial_guess.size == 1
+            else block_diag(
+                [np.ones((variable_stride, variable_stride), dtype=bool)]
+                * shell_count,
+                format="csr",
+            )
         )
         residual_evaluation_count = 0
         optimization_evaluation_start = 0

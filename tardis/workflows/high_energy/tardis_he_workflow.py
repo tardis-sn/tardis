@@ -30,6 +30,27 @@ class TARDISHEWorkflow:
         configuration: Configuration,
         config_type: str = "yaml",
     ) -> None:
+        """Construct high-energy transport inputs on the active model domain.
+
+        Parameters
+        ----------
+        atom_data : AtomData
+            Atomic data providing radioactive decay radiation.
+        configuration : Configuration
+            Independently prepared high-energy model configuration. Set its
+            inner boundary before construction; optical boundaries may differ.
+        config_type : str, optional
+            ``"csvy"`` selects the CSVY loader; otherwise use the YAML loader.
+            Automatic optical-temperature initialization at zero radius is not
+            supported. A zero-velocity CSVY core needs explicitly supplied
+            finite radiation temperature, dilution factor and inner temperature.
+
+        Notes
+        -----
+        Isotope fractions are copied from exactly the active geometry cells
+        and relabeled consistently with active shell masses and packet sources.
+        The complete input composition remains unchanged in the simulation state.
+        """
         self.atom_data = atom_data
 
         if config_type == "csvy":
@@ -43,10 +64,18 @@ class TARDISHEWorkflow:
 
         self.gamma_ray_lines = atom_data.decay_radiation_data
 
-        self.shell_masses = self.simulation_state.volume * self.simulation_state.density
+        self.shell_masses = (
+            self.simulation_state.volume * self.simulation_state.density
+        )
 
+        geometry = self.simulation_state.geometry
         self.isotopic_mass_fraction = (
-            self.simulation_state.composition.isotopic_mass_fraction
+            self.simulation_state.composition.isotopic_mass_fraction.iloc[
+                :, geometry.v_inner_boundary_idx : geometry.v_outer_boundary_idx
+            ].copy(deep=True)
+        )
+        self.isotopic_mass_fraction.columns = pd.RangeIndex(
+            len(self.shell_masses)
         )
 
     def calculate_total_decays(self, time_start, time_end):

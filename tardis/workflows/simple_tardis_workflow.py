@@ -38,8 +38,12 @@ class SimpleTARDISWorkflow:
     enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
+    # Specialized workflows may validate and use an aligned active CSVY tail.
+    _allow_csvy_inner_boundary_cut = False
 
-    def __init__(self, configuration: Configuration, csvy: bool = False):
+    def __init__(
+        self, configuration: Configuration, csvy: bool = False
+    ) -> None:
         """A simple TARDIS workflow that runs a simulation to convergence
 
         Parameters
@@ -57,12 +61,31 @@ class SimpleTARDISWorkflow:
         # set up states and solvers
         if csvy:
             self.simulation_state = SimulationState.from_csvy(configuration)
-            assert np.isclose(
-                self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
-                self.simulation_state.geometry.v_inner[0].to(u.km / u.s).value,
-            ), (
-                "If using csvy density input in the workflow, the initial v_inner_boundary must start at the first shell, see issue #3129."
-            )
+            if self._allow_csvy_inner_boundary_cut:
+                if not np.any(
+                    np.isclose(
+                        self.simulation_state.v_inner_boundary.to_value(
+                            u.cm / u.s
+                        ),
+                        self.simulation_state.geometry.v_inner.to_value(
+                            u.cm / u.s
+                        ),
+                        rtol=1e-12,
+                        atol=0.0,
+                    )
+                ):
+                    raise ValueError(
+                        "The optical CSVY inner boundary must coincide with an existing shell edge."
+                    )
+            else:
+                assert np.isclose(
+                    self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
+                    self.simulation_state.geometry.v_inner[0]
+                    .to(u.km / u.s)
+                    .value,
+                ), (
+                    "If using csvy density input in the workflow, the initial v_inner_boundary must start at the first shell, see issue #3129."
+                )
 
         else:
             self.simulation_state = SimulationState.from_config(

@@ -1760,6 +1760,7 @@ class NonthermalHeliumOpticalWorkflow(StandardTARDISWorkflow):
     """Continuum optical workflow specialized for helium coupling."""
 
     plasma_coupling_solver: NonthermalHeliumPlasmaSolver
+    _allow_csvy_inner_boundary_cut = True
 
     def check_convergence(self, estimated_values: dict[str, object]) -> bool:
         """Require current plasma closure before counting radiation holds.
@@ -1816,7 +1817,8 @@ class NonthermalHeliumOpticalWorkflow(StandardTARDISWorkflow):
         convergence_plots_kwargs : mapping, optional
             Convergence-plot configuration.
         csvy : bool, optional
-            Read the ejecta model from CSVY.
+            Read the ejecta model from CSVY. This specialized workflow accepts
+            an optical inner boundary at a later existing CSVY shell edge.
         continuum_interaction_species : collection of str, optional
             Species whose photoionization data enter continuum transport.
         case_b_species : collection of tuple[int, int], optional
@@ -1845,7 +1847,6 @@ class NonthermalHeliumOpticalWorkflow(StandardTARDISWorkflow):
             self.simulation_state.t_radiative,
             self.simulation_state.dilution_factor,
         )
-        self.simulation_state.radiation_field_state = radiation_field
         elemental_number_density = (
             self.simulation_state.calculate_elemental_number_density(
                 self.atom_data.atom_data.mass
@@ -2050,7 +2051,10 @@ class NonthermalHeliumOpticalWorkflow(StandardTARDISWorkflow):
         # Planck/epsilon fallbacks already evaluated in the target field.
         j_blues = self.transport_solver.radfield_prop_solver.estimate_jblues(
             transport.estimators_line.mean_intensity_blueward * damping,
-            self.simulation_state.radiation_field_state,
+            DilutePlanckianRadiationField(
+                self.simulation_state.t_radiative,
+                self.simulation_state.dilution_factor,
+            ),
             transport.time_explosion,
             time,
             volume,
@@ -2505,18 +2509,36 @@ class NonthermalHeliumWorkflow:
         self.high_energy_settings = high_energy_settings
         self.high_energy_result: TARDISHEWorkflowResult | None = None
         self.deposition_state: DepositionState | None = None
+        self.optical_to_high_energy_shell_idx: npt.NDArray[np.int64] | None = (
+            None
+        )
 
     def run(self) -> None:
-        """Run high-energy transport once, then the coupled optical workflow."""
+        """Run full high-energy transport and transfer an aligned optical tail.
+
+        The independently constructed states must represent the same homologous
+        ejecta in overlapping cells and have the same outer boundary. Optical
+        cells must coincide with complete high-energy cells; no deposition is
+        interpolated or redistributed from below the optical boundary.
+        """
         optical_state = self.optical_workflow.simulation_state
         high_energy_state = self.high_energy_workflow.simulation_state
+        optical_count = len(optical_state.v_inner)
+        high_energy_count = len(high_energy_state.v_inner)
+        if optical_count == 0 or optical_count > high_energy_count:
+            raise ValueError(
+                "The optical grid must be a nonempty aligned outer subset of the high-energy grid."
+            )
+        optical_to_high_energy_idx = np.arange(
+            high_energy_count - optical_count, high_energy_count
+        )
         for boundary_name in ("v_inner", "v_outer"):
             optical_boundary = getattr(optical_state, boundary_name).to_value(
                 u.cm / u.s
             )
             high_energy_boundary = getattr(
                 high_energy_state, boundary_name
-            ).to_value(u.cm / u.s)
+            ).to_value(u.cm / u.s)[optical_to_high_energy_idx]
             if (
                 optical_boundary.shape != high_energy_boundary.shape
                 or not np.allclose(
@@ -2528,8 +2550,52 @@ class NonthermalHeliumWorkflow:
             ):
                 raise ValueError(
                     "High-energy and optical shell velocity boundaries do "
-                    f"not match for {boundary_name}."
+                    f"not match for {boundary_name}; optical cells must be an aligned outer subset with a common outer boundary."
                 )
+        if not np.isclose(
+            optical_state.time_explosion.to_value(u.s),
+            high_energy_state.time_explosion.to_value(u.s),
+            rtol=1e-12,
+            atol=0.0,
+        ):
+            raise ValueError("High-energy and optical model epochs must match.")
+        if not np.allclose(
+            optical_state.density.to_value(u.g / u.cm**3),
+            high_energy_state.density.to_value(u.g / u.cm**3)[
+                optical_to_high_energy_idx
+            ],
+            rtol=1e-12,
+            atol=0.0,
+        ):
+            raise ValueError(
+                "High-energy and optical density profiles do not match in overlapping shells."
+            )
+        fractions = []
+        for state in (optical_state, high_energy_state):
+            geometry = state.geometry
+            fractions.append(
+                state.composition.nuclide_mass_fraction.iloc[
+                    :,
+                    geometry.v_inner_boundary_idx : geometry.v_outer_boundary_idx,
+                ]
+            )
+        nuclide_index = fractions[0].index.union(fractions[1].index, sort=False)
+        if not np.allclose(
+            fractions[0]
+            .reindex(index=nuclide_index, fill_value=0.0)
+            .to_numpy(),
+            fractions[1]
+            .reindex(index=nuclide_index, fill_value=0.0)
+            .to_numpy()[:, optical_to_high_energy_idx],
+            rtol=1e-12,
+            atol=0.0,
+        ):
+            raise ValueError(
+                "High-energy and optical nuclide fractions do not match in overlapping shells."
+            )
+        self.optical_to_high_energy_shell_idx = (
+            optical_to_high_energy_idx.copy()
+        )
         self.high_energy_result = self.high_energy_workflow.run(
             **self.high_energy_settings.as_run_arguments()
         )
@@ -2550,12 +2616,25 @@ class NonthermalHeliumWorkflow:
             * u.cm**3
         )
         shell_index = self.optical_workflow.plasma_solver.number_density.columns
-        self.deposition_state = prepare_deposition_state(
+        high_energy_deposition = prepare_deposition_state(
             self.high_energy_result,
             time_bin_edges,
             optical_state.time_explosion,
             shell_volume,
-            shell_index,
+            pd.RangeIndex(high_energy_count),
+        )
+        self.deposition_state = DepositionState(
+            high_energy_deposition.epoch,
+            high_energy_deposition.time_bin_idx,
+            shell_index.copy(),
+            high_energy_deposition.gamma_rate_density[
+                optical_to_high_energy_idx
+            ],
+            high_energy_deposition.positron_rate_density[
+                optical_to_high_energy_idx
+            ],
+            high_energy_deposition.rate_density[optical_to_high_energy_idx],
+            high_energy_deposition.includes_pair_creation,
         )
         self.plasma_coupling_solver.deposition_state = self.deposition_state
         self.optical_workflow.plasma_coupling_solver = (
