@@ -25,6 +25,7 @@ from tardis.transport.montecarlo.kernels.configuration_enums import (
 )
 from tardis.transport.montecarlo.physics import (
     SUPPORTED_TRANSPORT_PHYSICS,
+    SUPPORTED_TRANSPORT_REGIMES,
     Kinematics,
     LineInteraction,
     NumbaTransportPhysics,
@@ -34,22 +35,6 @@ from tardis.transport.montecarlo.physics import (
     validate_transport_physics,
 )
 
-# Independent capability specification: (kinematics, relativity, lines, continuum).
-EXPECTED_REGIMES = {
-    ("homologous", "partial", "none", False),
-    ("homologous", "partial", "scatter", False),
-    ("homologous", "partial", "downbranch", False),
-    ("homologous", "partial", "macroatom", False),
-    ("homologous", "full", "none", False),
-    ("homologous", "full", "scatter", False),
-    ("homologous", "full", "downbranch", False),
-    ("homologous", "full", "macroatom", False),
-    ("homologous", "full", "macroatom", True),
-    ("nonhomologous", "partial", "none", False),
-    ("nonhomologous", "partial", "scatter", False),
-    ("nonhomologous", "partial", "downbranch", False),
-    ("nonhomologous", "partial", "macroatom", False),
-}
 ALL_PHYSICS = tuple(
     TransportPhysics(*components)
     for components in product(
@@ -77,7 +62,7 @@ def test_validate_all_transport_physics(physics: TransportPhysics) -> None:
         physics.line_interaction.value,
         physics.continuum_processes,
     )
-    if regime in EXPECTED_REGIMES:
+    if regime in SUPPORTED_TRANSPORT_REGIMES:
         assert validate_transport_physics(physics) is None
     else:
         with pytest.raises(NotImplementedError):
@@ -93,7 +78,7 @@ def test_capability_set_has_exactly_26_supported_and_38_rejected() -> None:
             electron_scattering,
             continuum,
         )
-        for kinematics, relativity, lines, continuum in EXPECTED_REGIMES
+        for kinematics, relativity, lines, continuum in SUPPORTED_TRANSPORT_REGIMES
         for electron_scattering in (False, True)
     }
     assert isinstance(SUPPORTED_TRANSPORT_PHYSICS, frozenset)

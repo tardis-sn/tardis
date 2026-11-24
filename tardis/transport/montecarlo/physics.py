@@ -102,36 +102,32 @@ class TransportPhysics:
     continuum_processes: bool
 
 
+# (kinematics, relativity, line interaction, continuum processes)
+SUPPORTED_TRANSPORT_REGIMES = {
+    ("homologous", "partial", "none", False),
+    ("homologous", "partial", "scatter", False),
+    ("homologous", "partial", "downbranch", False),
+    ("homologous", "partial", "macroatom", False),
+    ("homologous", "full", "none", False),
+    ("homologous", "full", "scatter", False),
+    ("homologous", "full", "downbranch", False),
+    ("homologous", "full", "macroatom", False),
+    ("homologous", "full", "macroatom", True),
+    ("nonhomologous", "partial", "none", False),
+    ("nonhomologous", "partial", "scatter", False),
+    ("nonhomologous", "partial", "downbranch", False),
+    ("nonhomologous", "partial", "macroatom", False),
+}
 SUPPORTED_TRANSPORT_PHYSICS: frozenset[TransportPhysics] = frozenset(
-    {
-        TransportPhysics(
-            Kinematics.HOMOLOGOUS, relativity, lines, electrons, False
-        )
-        for relativity in Relativity
-        for lines in LineInteraction
-        for electrons in (False, True)
-    }
-    | {
-        TransportPhysics(
-            Kinematics.HOMOLOGOUS,
-            Relativity.FULL,
-            LineInteraction.MACROATOM,
-            electrons,
-            True,
-        )
-        for electrons in (False, True)
-    }
-    | {
-        TransportPhysics(
-            Kinematics.NONHOMOLOGOUS,
-            Relativity.PARTIAL,
-            lines,
-            electrons,
-            False,
-        )
-        for lines in LineInteraction
-        for electrons in (False, True)
-    }
+    TransportPhysics(
+        Kinematics(kinematics),
+        Relativity(relativity),
+        LineInteraction(line_interaction),
+        electron_scattering,
+        continuum_processes,
+    )
+    for kinematics, relativity, line_interaction, continuum_processes in SUPPORTED_TRANSPORT_REGIMES
+    for electron_scattering in (False, True)
 )
 
 
