@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=ff870149"></script>
+      <script src="../_static/documentation_options.js?v=73daec5c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1624,6 +1624,7 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species_multi_index"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species_multi_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.delta_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.delta_treatment</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.electron_number_density_convergence_threshold"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.electron_number_density_convergence_threshold</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.excitation_analytical_approximation"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.excitation_analytical_approximation</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.heating_rate_data_file"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.heating_rate_data_file</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.helium_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.helium_treatment</span></code></a></li>
@@ -1851,6 +1852,8 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_ion_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_ion_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_level_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_level_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.normalized_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_level_residual</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.tau_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.tau_sobolev</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.total_heating"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.total_heating</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.trial_beta_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.trial_beta_sobolev</span></code></a></li>
@@ -1871,12 +1874,14 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.hydrogen_index"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.hydrogen_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.ionized_to_neutral_ratios"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.ionized_to_neutral_ratios</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.normalized_population"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_escape_probability"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_escape_probability</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_level_residual</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_lte_populations"><code class="docutils literal notranslate"><span class="pre">calculate_lte_populations()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_nlte_level_population_residual"><code class="docutils literal notranslate"><span class="pre">calculate_nlte_level_population_residual()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_relative_level_residual"><code class="docutils literal notranslate"><span class="pre">calculate_relative_level_residual()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines"><code class="docutils literal notranslate"><span class="pre">restrict_sobolev_to_rate_lines()</span></code></a></li>
 </ul>
 </li>
@@ -4298,7 +4303,7 @@
 <span id="tardis-plasma-properties-ion-population-module"></span><h1>tardis.plasma.properties.ion_population module<a class="headerlink" href="#module-tardis.plasma.properties.ion_population" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.plasma.properties.ion_population.IonNumberDensity">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.properties.ion_population.</span></span><span class="sig-name descname"><span class="pre">IonNumberDensity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plasma_parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_zero_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/properties/ion_population.html#IonNumberDensity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.properties.ion_population.IonNumberDensity" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.properties.ion_population.</span></span><span class="sig-name descname"><span class="pre">IonNumberDensity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plasma_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><span class="pre">object</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_zero_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.2)"><span class="pre">Series</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_number_density_convergence_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/properties/ion_population.html#IonNumberDensity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.properties.ion_population.IonNumberDensity" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.ProcessingPlasmaProperty" title="tardis.plasma.properties.base.ProcessingPlasmaProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingPlasmaProperty</span></code></a></p>
 <p>Convergence process to find the correct solution. A trial value for
 the electron density is initiated in a particular zone. The ion
@@ -4314,6 +4319,26 @@ and the process is repeated.</p>
 <dt><strong>ion_number_density</strong><span class="classifier">pandas.DataFrame, dtype float</span></dt><dd><p>Index atom number, ion number. Columns zones.</p>
 </dd>
 <dt><strong>electron_densities</strong><span class="classifier">numpy.ndarray, dtype float</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p>Initialize the ion number density property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>plasma_parent</strong><span class="classifier">object</span></dt><dd><p>Plasma graph that owns this property.</p>
+</dd>
+<dt><strong>ion_zero_threshold</strong><span class="classifier">float, optional</span></dt><dd><p>Ion number density below which populations are set to zero
+[cm^-3].</p>
+</dd>
+<dt><strong>electron_densities</strong><span class="classifier">pandas.Series or None, optional</span></dt><dd><p>Fixed electron number densities [cm^-3]. If None, they are solved
+together with the ion populations.</p>
+</dd>
+<dt><strong>electron_number_density_convergence_threshold</strong><span class="classifier">float, optional</span></dt><dd><p>Relative change of the electron number density between iterations
+below which the solve stops. It bounds the relative difference
+between the returned electron number density and the
+free-electron number density of the returned ions.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -4341,7 +4366,7 @@ and the process is repeated.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.properties.ion_population.</span></span><span class="sig-name descname"><span class="pre">IonNumberDensityHeNLTE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plasma_parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_zero_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/properties/ion_population.html#IonNumberDensityHeNLTE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.properties.ion_population.</span></span><span class="sig-name descname"><span class="pre">IonNumberDensityHeNLTE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plasma_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><span class="pre">object</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_zero_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.2)"><span class="pre">Series</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_number_density_convergence_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/properties/ion_population.html#IonNumberDensityHeNLTE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.ProcessingPlasmaProperty" title="tardis.plasma.properties.base.ProcessingPlasmaProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingPlasmaProperty</span></code></a></p>
 <p>Convergence process to find the correct solution. A trial value for
 the electron density is initiated in a particular zone. The ion
@@ -4357,6 +4382,26 @@ and the process is repeated.</p>
 <dt><strong>ion_number_density</strong><span class="classifier">pandas.DataFrame, dtype float</span></dt><dd><p>Index atom number, ion number. Columns zones.</p>
 </dd>
 <dt><strong>electron_densities</strong><span class="classifier">numpy.ndarray, dtype float</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p>Initialize the helium-NLTE ion number density property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>plasma_parent</strong><span class="classifier">object</span></dt><dd><p>Plasma graph that owns this property.</p>
+</dd>
+<dt><strong>ion_zero_threshold</strong><span class="classifier">float, optional</span></dt><dd><p>Ion number density below which populations are set to zero
+[cm^-3].</p>
+</dd>
+<dt><strong>electron_densities</strong><span class="classifier">pandas.Series or None, optional</span></dt><dd><p>Fixed electron number densities [cm^-3]. If None, they are solved
+together with the ion populations.</p>
+</dd>
+<dt><strong>electron_number_density_convergence_threshold</strong><span class="classifier">float, optional</span></dt><dd><p>Relative change of the electron number density between iterations
+below which the solve stops. It bounds the relative difference
+between the returned electron number density and the
+free-electron number density of the returned ions.</p>
+</dd>
 </dl>
 </dd>
 </dl>

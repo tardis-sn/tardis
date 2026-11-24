@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=ff870149"></script>
+      <script src="../_static/documentation_options.js?v=73daec5c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1624,6 +1624,7 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species_multi_index"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species_multi_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.delta_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.delta_treatment</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.electron_number_density_convergence_threshold"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.electron_number_density_convergence_threshold</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.excitation_analytical_approximation"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.excitation_analytical_approximation</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.heating_rate_data_file"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.heating_rate_data_file</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.helium_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.helium_treatment</span></code></a></li>
@@ -1851,6 +1852,8 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_ion_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_ion_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_level_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_level_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.normalized_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_level_residual</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.tau_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.tau_sobolev</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.total_heating"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.total_heating</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.trial_beta_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.trial_beta_sobolev</span></code></a></li>
@@ -1871,12 +1874,14 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.hydrogen_index"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.hydrogen_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.ionized_to_neutral_ratios"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.ionized_to_neutral_ratios</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.normalized_population"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_escape_probability"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_escape_probability</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_level_residual</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_lte_populations"><code class="docutils literal notranslate"><span class="pre">calculate_lte_populations()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_nlte_level_population_residual"><code class="docutils literal notranslate"><span class="pre">calculate_nlte_level_population_residual()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_relative_level_residual"><code class="docutils literal notranslate"><span class="pre">calculate_relative_level_residual()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines"><code class="docutils literal notranslate"><span class="pre">restrict_sobolev_to_rate_lines()</span></code></a></li>
 </ul>
 </li>
@@ -4401,12 +4406,22 @@ are resolved.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.io.configuration.config_reader.Configuration.parse_convergence_section">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_convergence_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convergence_section_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/configuration/config_reader.html#Configuration.parse_convergence_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.configuration.config_reader.Configuration.parse_convergence_section" title="Link to this definition"></a></dt>
-<dd><p>Parse the convergence section dictionary</p>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_convergence_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convergence_section_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/configuration/config_reader.html#Configuration.parse_convergence_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.configuration.config_reader.Configuration.parse_convergence_section" title="Link to this definition"></a></dt>
+<dd><p>Fill each convergence variable section from the top-level settings.</p>
+<p>A variable section (<code class="docutils literal notranslate"><span class="pre">t_inner</span></code>, <code class="docutils literal notranslate"><span class="pre">t_rad</span></code>, <code class="docutils literal notranslate"><span class="pre">w</span></code> or
+<code class="docutils literal notranslate"><span class="pre">v_inner_boundary</span></code>) keeps any <code class="docutils literal notranslate"><span class="pre">damping_constant</span></code>, <code class="docutils literal notranslate"><span class="pre">threshold</span></code> or
+<code class="docutils literal notranslate"><span class="pre">type</span></code> it sets and takes the remaining ones, and <code class="docutils literal notranslate"><span class="pre">fraction</span></code>, from
+the top level of the convergence strategy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>convergence_section_dict</strong><span class="classifier">dict</span></dt><dd><p>dictionary</p>
+<dt><strong>convergence_section_dict</strong><span class="classifier">dict</span></dt><dd><p>Validated convergence strategy section.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>The convergence strategy section with filled variable sections.</p>
 </dd>
 </dl>
 </dd>

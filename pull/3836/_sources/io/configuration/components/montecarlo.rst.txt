@@ -33,6 +33,22 @@ All convergence criteria can be specified separately for the three variables for
 override the defaults. Two more schemas are presented that further explain the ``damped`` and
 ``custom`` convergence strategies:
 
+.. warning::
+
+   The subsections are filled from the top-level values once, when the
+   configuration is loaded. To change a convergence subsection of a loaded
+   configuration, use ``.update()``:
+
+   .. code-block:: python
+
+      config.montecarlo.convergence_strategy["v_inner_boundary"].update(
+          {"damping_constant": 0.5, "threshold": 0.01}
+      )
+
+   Assigning a new dictionary to the subsection replaces it and drops the
+   values filled in at load time, such as ``fraction``. Changing a top-level
+   value after loading does not change the subsections either.
+
 .. _damped-config:
 
 .. jsonschema:: schemas/montecarlo_definitions.yml#/definitions/convergence_strategy/damped

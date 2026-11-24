@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=ff870149"></script>
+      <script src="../../_static/documentation_options.js?v=73daec5c"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1627,6 +1627,7 @@
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species_multi_index"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.continuum_interaction_species_multi_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.delta_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.delta_treatment</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.electron_number_density_convergence_threshold"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.electron_number_density_convergence_threshold</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.excitation_analytical_approximation"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.excitation_analytical_approximation</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.heating_rate_data_file"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.heating_rate_data_file</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.helium_treatment"><code class="docutils literal notranslate"><span class="pre">PlasmaSolverFactory.helium_treatment</span></code></a></li>
@@ -1854,6 +1855,8 @@
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_ion_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_ion_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.lte_level_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.lte_level_population</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.normalized_population"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_level_residual</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.tau_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.tau_sobolev</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.total_heating"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.total_heating</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.PlasmaEquilibriumEvaluation.trial_beta_sobolev"><code class="docutils literal notranslate"><span class="pre">PlasmaEquilibriumEvaluation.trial_beta_sobolev</span></code></a></li>
@@ -1874,12 +1877,14 @@
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.hydrogen_index"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.hydrogen_index</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.ionized_to_neutral_ratios"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.ionized_to_neutral_ratios</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.normalized_population"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.normalized_population</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.relative_trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.relative_trial_level_residual</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_escape_probability"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_escape_probability</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.SolvedLevelState.trial_level_residual"><code class="docutils literal notranslate"><span class="pre">SolvedLevelState.trial_level_residual</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_lte_populations"><code class="docutils literal notranslate"><span class="pre">calculate_lte_populations()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_nlte_level_population_residual"><code class="docutils literal notranslate"><span class="pre">calculate_nlte_level_population_residual()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.calculate_relative_level_residual"><code class="docutils literal notranslate"><span class="pre">calculate_relative_level_residual()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../api/tardis.plasma.equilibrium.evaluator.html#tardis.plasma.equilibrium.evaluator.restrict_sobolev_to_rate_lines"><code class="docutils literal notranslate"><span class="pre">restrict_sobolev_to_rate_lines()</span></code></a></li>
 </ul>
 </li>
@@ -4421,15 +4426,25 @@
    &#39;threshold&#39;: 0.05,
    &#39;fraction&#39;: 0.8,
    &#39;hold_iterations&#39;: 3,
-   &#39;t_inner&#39;: {&#39;damping_constant&#39;: 0.5, &#39;type&#39;: &#39;damped&#39;, &#39;threshold&#39;: 0.05},
+   &#39;t_inner&#39;: {&#39;damping_constant&#39;: 0.5,
+    &#39;type&#39;: &#39;damped&#39;,
+    &#39;threshold&#39;: 0.05,
+    &#39;fraction&#39;: 0.8},
    &#39;stop_if_converged&#39;: False,
    &#39;lock_t_inner_cycles&#39;: 1,
    &#39;t_inner_update_exponent&#39;: -0.5,
-   &#39;t_rad&#39;: {&#39;damping_constant&#39;: 1.0, &#39;threshold&#39;: 0.05, &#39;type&#39;: &#39;damped&#39;},
-   &#39;w&#39;: {&#39;damping_constant&#39;: 1.0, &#39;threshold&#39;: 0.05, &#39;type&#39;: &#39;damped&#39;},
+   &#39;t_rad&#39;: {&#39;damping_constant&#39;: 1.0,
+    &#39;threshold&#39;: 0.05,
+    &#39;type&#39;: &#39;damped&#39;,
+    &#39;fraction&#39;: 0.8},
+   &#39;w&#39;: {&#39;damping_constant&#39;: 1.0,
+    &#39;threshold&#39;: 0.05,
+    &#39;type&#39;: &#39;damped&#39;,
+    &#39;fraction&#39;: 0.8},
    &#39;v_inner_boundary&#39;: {&#39;damping_constant&#39;: 1.0,
     &#39;threshold&#39;: 0.05,
-    &#39;type&#39;: &#39;damped&#39;}},
+    &#39;type&#39;: &#39;damped&#39;,
+    &#39;fraction&#39;: 0.8}},
   &#39;virtual_spectrum_spawn_range&#39;: {&#39;start&#39;: &lt;Quantity 1. Angstrom&gt;,
    &#39;end&#39;: &lt;Quantity inf Angstrom&gt;},
   &#39;enable_full_relativity&#39;: False,
@@ -4512,6 +4527,15 @@ $11000 \; \mathrm{\frac{km}{s}}$</div></div>
 </pre></div></div>
 </div>
 <p>This can be done using <code class="docutils literal notranslate"><span class="pre">.</span></code> as well.</p>
+<div class="admonition warning">
+<p class="admonition-title fa fa-exclamation-circle">Warning</p>
+<p>Defaults are filled in once, when the configuration is loaded. To change a section of a loaded configuration, use <code class="docutils literal notranslate"><span class="pre">.update()</span></code> so that the defaults already filled in are kept:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conf</span><span class="o">.</span><span class="n">montecarlo</span><span class="o">.</span><span class="n">convergence_strategy</span><span class="p">[</span><span class="s1">&#39;t_rad&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;damping_constant&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Assigning a new dictionary instead, such as <code class="docutils literal notranslate"><span class="pre">conf.montecarlo.convergence_strategy['t_rad']</span> <span class="pre">=</span> <span class="pre">{...}</span></code>, replaces the section and drops every default that was in it. TARDIS then fails later with an error such as <code class="docutils literal notranslate"><span class="pre">AttributeError:</span> <span class="pre">'ConfigurationNameSpace'</span> <span class="pre">object</span> <span class="pre">has</span> <span class="pre">no</span> <span class="pre">attribute</span> <span class="pre">'fraction'</span></code>.</p>
+<p>Changing a top-level value after loading, as in the example above, does not reach the subsections that were filled from it. The <code class="docutils literal notranslate"><span class="pre">t_rad</span></code>, <code class="docutils literal notranslate"><span class="pre">w</span></code>, <code class="docutils literal notranslate"><span class="pre">t_inner</span></code> and <code class="docutils literal notranslate"><span class="pre">v_inner_boundary</span></code> convergence sections keep the <code class="docutils literal notranslate"><span class="pre">damping_constant</span></code> they had at load time, so update those sections as well.</p>
+</div>
 <p>You can also read a configuration from a dictionary. For example:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -4626,12 +4650,22 @@ $11000 \; \mathrm{\frac{km}{s}}$</div></div>
    &#39;threshold&#39;: 0.05,
    &#39;lock_t_inner_cycles&#39;: 1,
    &#39;t_inner_update_exponent&#39;: -0.5,
-   &#39;t_inner&#39;: {&#39;damping_constant&#39;: 1.0, &#39;threshold&#39;: 0.05, &#39;type&#39;: &#39;damped&#39;},
-   &#39;t_rad&#39;: {&#39;damping_constant&#39;: 1.0, &#39;threshold&#39;: 0.05, &#39;type&#39;: &#39;damped&#39;},
-   &#39;w&#39;: {&#39;damping_constant&#39;: 1.0, &#39;threshold&#39;: 0.05, &#39;type&#39;: &#39;damped&#39;},
+   &#39;t_inner&#39;: {&#39;damping_constant&#39;: 1.0,
+    &#39;threshold&#39;: 0.05,
+    &#39;type&#39;: &#39;damped&#39;,
+    &#39;fraction&#39;: 0.8},
+   &#39;t_rad&#39;: {&#39;damping_constant&#39;: 1.0,
+    &#39;threshold&#39;: 0.05,
+    &#39;type&#39;: &#39;damped&#39;,
+    &#39;fraction&#39;: 0.8},
+   &#39;w&#39;: {&#39;damping_constant&#39;: 1.0,
+    &#39;threshold&#39;: 0.05,
+    &#39;type&#39;: &#39;damped&#39;,
+    &#39;fraction&#39;: 0.8},
    &#39;v_inner_boundary&#39;: {&#39;damping_constant&#39;: 1.0,
     &#39;threshold&#39;: 0.05,
-    &#39;type&#39;: &#39;damped&#39;}},
+    &#39;type&#39;: &#39;damped&#39;,
+    &#39;fraction&#39;: 0.8}},
   &#39;enable_full_relativity&#39;: False,
   &#39;enable_nonhomologous_expansion&#39;: False,
   &#39;tracking&#39;: {&#39;track_rpacket&#39;: False, &#39;initial_array_length&#39;: 10},

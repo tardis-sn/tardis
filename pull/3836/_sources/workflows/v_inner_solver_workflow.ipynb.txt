@@ -67,12 +67,12 @@
    },
    "outputs": [],
    "source": [
-    "config.montecarlo.convergence_strategy['v_inner_boundary'] = {\n",
+    "config.montecarlo.convergence_strategy['v_inner_boundary'].update({\n",
     "    'damping_constant' : 0.5,\n",
     "    'threshold' : 0.01,\n",
     "    'type' : 'damped',\n",
     "    'store_iteration_properties' : True\n",
-    "    }\n",
+    "    })\n",
     "\n",
     "config.montecarlo.convergence_strategy.stop_if_converged = True \n",
     "config.model.structure.velocity.start = 5000 * u.km/u.s # Decrease start velocity from 11000 km/s in example file, to search over a wider range\n",
@@ -239,7 +239,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.12.4"
+   "version": "3.14.5"
   }
  },
  "nbformat": 4,
