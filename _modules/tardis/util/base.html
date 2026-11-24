@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4fa028b6"></script>
+      <script src="../../../_static/documentation_options.js?v=b3229df9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4418,7 +4418,7 @@ def int_to_roman(i):
 
 <div class="viewcode-block" id="roman_to_int">
 <a class="viewcode-back" href="../../../api/tardis.util.base.html#tardis.util.base.roman_to_int">[docs]</a>
-def roman_to_int(roman_string):
+def roman_to_int(roman_string: str) -&gt; int:
     &quot;&quot;&quot;
     Convert a roman numeral into its corresponding integer.
 
@@ -4441,7 +4441,7 @@ def roman_to_int(roman_string):
         while roman_string[i : i + len(numeral)] == numeral:
             result += integer
             i += len(numeral)
-    if result &lt; 1:
+    if result &lt; 1 or i != len(roman_string):
         raise ValueError(f&quot;Can not interpret Roman Numeral {roman_string}&quot;)
     return result</div>
 
