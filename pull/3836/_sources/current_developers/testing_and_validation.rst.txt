@@ -318,13 +318,14 @@ The pull-request regression comparison workflow uses the same idea in
 
 .. _how-to-guide-run-full-tests:
 
-How-To Guide: Run Full Tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How-To Guide: Run Full Tests (Moria)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some tests run full simulations that take too long for every pull request, for
-example comparisons with reference codes at production packet counts. These
-tests carry the ``full_tests`` marker and are skipped unless ``pytest`` is
-called with the ``--full-tests`` flag. Most of them also need regression data:
+example comparisons with reference codes at production packet counts. Others require
+GPU access to function. These tests carry the ``full_tests`` marker and are 
+skipped unless ``pytest`` is called with the ``--full-tests`` flag. Most of them 
+also need regression data:
 
 .. code-block:: shell
 
@@ -349,7 +350,7 @@ To add a full test, mark it:
 
 
 In CI, the ``full-tests`` workflow in ``.github/workflows/full-tests.yml``
-passes ``--full-tests``. It runs on a self-hosted runner with a 60 minute
+passes ``--full-tests``. It runs on a self-hosted runner at MSU with a 60 minute
 limit, and only for pull requests with the ``full-tests`` label.
 
 .. _test-coverage:

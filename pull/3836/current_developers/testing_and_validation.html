@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=03ab0970"></script>
+      <script src="../_static/documentation_options.js?v=ff870149"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4200,7 +4200,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#reference-regression-data-push-error">Reference: Regression Data Push Error</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#how-to-guide-run-regression-data-tests">How-To Guide: Run Regression Data Tests</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#how-to-guide-update-regression-data">How-To Guide: Update Regression Data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#how-to-guide-run-full-tests">How-To Guide: Run Full Tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-to-guide-run-full-tests-moria">How-To Guide: Run Full Tests (Moria)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#test-coverage">Test Coverage</a><ul>
@@ -4511,12 +4511,13 @@ regression data.</p></li>
 </pre></div>
 </div>
 </section>
-<section id="how-to-guide-run-full-tests">
-<span id="id9"></span><h3>How-To Guide: Run Full Tests<a class="headerlink" href="#how-to-guide-run-full-tests" title="Link to this heading"></a></h3>
+<section id="how-to-guide-run-full-tests-moria">
+<span id="how-to-guide-run-full-tests"></span><h3>How-To Guide: Run Full Tests (Moria)<a class="headerlink" href="#how-to-guide-run-full-tests-moria" title="Link to this heading"></a></h3>
 <p>Some tests run full simulations that take too long for every pull request, for
-example comparisons with reference codes at production packet counts. These
-tests carry the <code class="docutils literal notranslate"><span class="pre">full_tests</span></code> marker and are skipped unless <code class="docutils literal notranslate"><span class="pre">pytest</span></code> is
-called with the <code class="docutils literal notranslate"><span class="pre">--full-tests</span></code> flag. Most of them also need regression data:</p>
+example comparisons with reference codes at production packet counts. Others require
+GPU access to function. These tests carry the <code class="docutils literal notranslate"><span class="pre">full_tests</span></code> marker and are
+skipped unless <code class="docutils literal notranslate"><span class="pre">pytest</span></code> is called with the <code class="docutils literal notranslate"><span class="pre">--full-tests</span></code> flag. Most of them
+also need regression data:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>tardis<span class="w"> </span>--tardis-regression-data<span class="o">=</span>/path/to/tardis-regression-data/<span class="w"> </span>--full-tests
 </pre></div>
 </div>
@@ -4532,14 +4533,14 @@ called with the <code class="docutils literal notranslate"><span class="pre">--f
 </pre></div>
 </div>
 <p>In CI, the <code class="docutils literal notranslate"><span class="pre">full-tests</span></code> workflow in <code class="docutils literal notranslate"><span class="pre">.github/workflows/full-tests.yml</span></code>
-passes <code class="docutils literal notranslate"><span class="pre">--full-tests</span></code>. It runs on a self-hosted runner with a 60 minute
+passes <code class="docutils literal notranslate"><span class="pre">--full-tests</span></code>. It runs on a self-hosted runner at MSU with a 60 minute
 limit, and only for pull requests with the <code class="docutils literal notranslate"><span class="pre">full-tests</span></code> label.</p>
 </section>
 </section>
 <section id="test-coverage">
-<span id="id10"></span><h2>Test Coverage<a class="headerlink" href="#test-coverage" title="Link to this heading"></a></h2>
+<span id="id9"></span><h2>Test Coverage<a class="headerlink" href="#test-coverage" title="Link to this heading"></a></h2>
 <section id="how-to-guide-generate-and-view-test-coverage">
-<span id="id11"></span><h3>How-To Guide: Generate and View Test Coverage<a class="headerlink" href="#how-to-guide-generate-and-view-test-coverage" title="Link to this heading"></a></h3>
+<span id="id10"></span><h3>How-To Guide: Generate and View Test Coverage<a class="headerlink" href="#how-to-guide-generate-and-view-test-coverage" title="Link to this heading"></a></h3>
 <p>TARDIS already uses coverage in CI. The test workflows pass coverage flags such
 as <code class="docutils literal notranslate"><span class="pre">--cov=tardis</span></code>, <code class="docutils literal notranslate"><span class="pre">--cov-report=xml</span></code>, and <code class="docutils literal notranslate"><span class="pre">--cov-report=html</span></code>, then combine
 coverage artifacts with <code class="docutils literal notranslate"><span class="pre">coverage</span> <span class="pre">combine</span></code>, <code class="docutils literal notranslate"><span class="pre">coverage</span> <span class="pre">xml</span></code>, and <code class="docutils literal notranslate"><span class="pre">coverage</span> <span class="pre">html</span></code>.
