@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.modes.iip.packet\_propagation module
-================================================================
-
-.. automodule:: tardis.transport.montecarlo.modes.iip.packet_propagation
-   :members:
-   :show-inheritance:
-   :undoc-members:

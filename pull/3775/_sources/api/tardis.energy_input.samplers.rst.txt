@@ -1,7 +1,0 @@
-tardis.energy\_input.samplers module
-====================================
-
-.. automodule:: tardis.energy_input.samplers
-   :members:
-   :show-inheritance:
-   :undoc-members:

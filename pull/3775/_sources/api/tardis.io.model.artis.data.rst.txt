@@ -1,7 +1,0 @@
-tardis.io.model.artis.data module
-=================================
-
-.. automodule:: tardis.io.model.artis.data
-   :members:
-   :show-inheritance:
-   :undoc-members:
