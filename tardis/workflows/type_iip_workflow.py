@@ -1153,7 +1153,7 @@ class TypeIIPWorkflow:
                 "macro_atom_state"
             ].absorbing_probability_matrix = None
         if self.transport_state is not None:
-            self.transport_state.continuum_state_numba.absorbing_markov_probabilities = np.empty(
+            self.transport_state.opacity_state_numba.continuum.absorbing_markov_probabilities = np.empty(
                 (0, 0, 0), dtype=np.float64
             )
 

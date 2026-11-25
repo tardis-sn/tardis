@@ -4,6 +4,9 @@ import pytest
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.opacities.continuum.continuum_state_numba import (
+    create_empty_continuum_state_numba,
+)
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.spectrum.virtual_packet import (
     calculate_virtual_packet_spectrum,
@@ -49,7 +52,9 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
     opacity_args = list(opacity_state_args[:10])
     opacity_args[0] = np.zeros(2)
     opacity_args[3] = np.zeros((2, 2))
-    opacity_state = OpacityStateNumba(*opacity_args)
+    opacity_state = OpacityStateNumba(
+        *opacity_args, create_empty_continuum_state_numba(2)
+    )
     geometry = NumbaRadial1DGeometry(
         np.array([1.0, 2.0]),
         np.array([2.0, 10.0]),

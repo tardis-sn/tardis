@@ -77,19 +77,6 @@ def zero_continuum_transport_batches() -> NDArray[np.float64]:
     source_nu = 4.0e14
     source_energy = 1.0
     temperature = 1.0e4
-    opacity = OpacityStateNumba(
-        np.full(2, 3.0e-15 / SIGMA_THOMSON),
-        np.full(2, temperature),
-        # Reachable absorption line, lower radiative deactivation/sentinel line.
-        np.array([3.98e14, 2.0e14]),
-        np.array([[2.0, 2.0], [0.0, 0.0]]),
-        np.ones((1, 2)),
-        np.zeros(2, dtype=np.int64),
-        np.array([0, 1], dtype=np.int64),
-        np.array([MacroAtomTransitionType.BB_EMISSION], dtype=np.int64),
-        np.zeros(1, dtype=np.int64),
-        np.ones(1, dtype=np.int64),
-    )
     # No active BF continua: an active zero-filled interpolation grid would
     # divide by zero. Positive electron opacity keeps chi_e/chi_total valid.
     continuum = ContinuumOpacityStateNumba(
@@ -111,6 +98,20 @@ def zero_continuum_transport_batches() -> NDArray[np.float64]:
         # One macro level, so global and reduced level indices coincide.
         np.arange(1, dtype=np.int64),
         np.arange(1, dtype=np.int64),
+    )
+    opacity = OpacityStateNumba(
+        np.full(2, 3.0e-15 / SIGMA_THOMSON),
+        np.full(2, temperature),
+        # Reachable absorption line, lower radiative deactivation/sentinel line.
+        np.array([3.98e14, 2.0e14]),
+        np.array([[2.0, 2.0], [0.0, 0.0]]),
+        np.ones((1, 2)),
+        np.zeros(2, dtype=np.int64),
+        np.array([0, 1], dtype=np.int64),
+        np.array([MacroAtomTransitionType.BB_EMISSION], dtype=np.int64),
+        np.zeros(1, dtype=np.int64),
+        np.ones(1, dtype=np.int64),
+        continuum,
     )
     configuration = MonteCarloConfiguration()
     configuration.ENABLE_FULL_RELATIVITY = True
@@ -166,7 +167,6 @@ def zero_continuum_transport_batches() -> NDArray[np.float64]:
                         geometry,
                         time_explosion,
                         opacity,
-                        continuum,
                         bulk,
                         line,
                         continuous,

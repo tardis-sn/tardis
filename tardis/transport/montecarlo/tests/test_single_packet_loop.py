@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from types import SimpleNamespace
 
 import numpy as np
 import numpy.testing as npt
@@ -551,7 +550,6 @@ def test_iip_packet_propagation_dispatch_numba_disabled(
         homologous_radial_1d_geometry,
         5.2e7,
         iip_opacity_state,
-        SimpleNamespace(bf_threshold_list_nu=np.array([])),
         bulk_estimators,
         line_estimators,
         continuum_estimators,

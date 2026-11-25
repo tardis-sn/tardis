@@ -4,9 +4,6 @@ from tardis import constants as const
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
-from tardis.opacities.continuum.continuum_state_numba import (
-    ContinuumOpacityStateNumba,
-)
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
@@ -66,7 +63,6 @@ def packet_propagation(
     geometry: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state: OpacityStateNumba,
-    continuum_state: ContinuumOpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     estimators_continuum: EstimatorsContinuum,
@@ -90,7 +86,8 @@ def packet_propagation(
     time_explosion
         Time since explosion in seconds.
     opacity_state
-        Current opacity state containing line and continuum opacities.
+        Current opacity state containing line opacities and the nested
+        continuum state.
     estimators_bulk
         Monte Carlo estimators for cell-level bulk radiation field quantities.
     estimators_line
@@ -109,6 +106,7 @@ def packet_propagation(
 
     """
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
+    continuum_state = opacity_state.continuum
 
     # IIP mode: always use full relativity
     set_packet_props_full_relativity(r_packet, time_explosion)

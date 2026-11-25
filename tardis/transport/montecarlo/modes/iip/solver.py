@@ -119,10 +119,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
         opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,
             self.line_interaction_type,
-            continuum_processes_enabled=True,
-        )
-        continuum_state_numba = continuum_state.to_numba(
-            opacity_state.t_electrons, macro_atom_state
+            continuum_state=continuum_state,
         )
 
         transport_state = MonteCarloTransportState(
@@ -132,7 +129,6 @@ class MCTransportSolverIIP(HDFWriterMixin):
             time_explosion=simulation_state.time_explosion,
             n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
-        transport_state.continuum_state_numba = continuum_state_numba
 
         # IIP mode: full relativity always enabled
         transport_state.enable_full_relativity = True
@@ -143,15 +139,15 @@ class MCTransportSolverIIP(HDFWriterMixin):
 
     def run(
         self,
-        transport_state,
-        show_progress_bars=True,
-    ):
+        transport_state: MonteCarloTransportState,
+        show_progress_bars: bool = True,
+    ) -> None:
         """
         Run the Monte Carlo calculation using IIP mode (continuum always enabled).
 
         Parameters
         ----------
-        transport_state : tardis.transport.montecarlo.transport_state.TransportState
+        transport_state : tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState
             Transport state containing all the data needed for the Monte Carlo simulation
         show_progress_bars : bool
             Show progress bars
@@ -186,7 +182,6 @@ class MCTransportSolverIIP(HDFWriterMixin):
             transport_state.geometry_state_numba,
             transport_state.time_explosion.cgs.value,
             transport_state.opacity_state_numba,
-            transport_state.continuum_state_numba,
             self.montecarlo_configuration,
             transport_state.n_levels_bf_species_by_n_cells_tuple,
             trackers_list,

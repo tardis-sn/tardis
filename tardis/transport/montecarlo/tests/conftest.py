@@ -14,6 +14,9 @@ from tardis.model.geometry.radial1d_homologous import (
     HomologousRadial1DGeometry,
     NumbaHomologousRadial1DGeometry,
 )
+from tardis.opacities.continuum.continuum_state_numba import (
+    create_empty_continuum_state_numba,
+)
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
@@ -308,13 +311,19 @@ def radial_1d_geometry(
 
 @pytest.fixture
 def classic_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
-    return OpacityStateNumba(*opacity_state_args[:10])
+    return OpacityStateNumba(
+        *opacity_state_args[:10],
+        create_empty_continuum_state_numba(len(opacity_state_args[0])),
+    )
 
 
 @pytest.fixture
 def iip_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
     """Opacity state for a IIP model"""
-    return OpacityStateNumba(*opacity_state_args[:10])
+    return OpacityStateNumba(
+        *opacity_state_args[:10],
+        create_empty_continuum_state_numba(len(opacity_state_args[0])),
+    )
 
 
 @pytest.fixture

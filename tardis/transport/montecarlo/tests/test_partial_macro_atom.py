@@ -78,18 +78,6 @@ def two_visit_state(request: pytest.FixtureRequest) -> tuple:
         out=residual[:, 0],
         where=totals[metadata.source_level_idx] != 0,
     )
-    opacity = OpacityStateNumba(
-        np.ones(1),
-        np.ones(1),
-        np.ones(1),
-        np.ones((1, 1)),
-        residual,
-        np.array([0], dtype=np.int64),
-        np.array([0, 2, 3, 5, 7, 8, 9, 10], dtype=np.int64),
-        metadata.transition_type.to_numpy(dtype=np.int64, copy=True),
-        metadata.destination_level_idx.to_numpy(dtype=np.int64),
-        np.array([0, 0, 0, 0, 2, 0, 1, 2, 0, 0], dtype=np.int64),
-    )
     continuum = ContinuumOpacityStateNumba(
         np.ones(1),
         np.ones((1, 1)),
@@ -106,6 +94,19 @@ def two_visit_state(request: pytest.FixtureRequest) -> tuple:
         result.matrix,
         result.macro_level_to_reduced_idx,
         result.reduced_to_macro_level_idx,
+    )
+    opacity = OpacityStateNumba(
+        np.ones(1),
+        np.ones(1),
+        np.ones(1),
+        np.ones((1, 1)),
+        residual,
+        np.array([0], dtype=np.int64),
+        np.array([0, 2, 3, 5, 7, 8, 9, 10], dtype=np.int64),
+        metadata.transition_type.to_numpy(dtype=np.int64, copy=True),
+        metadata.destination_level_idx.to_numpy(dtype=np.int64),
+        np.array([0, 0, 0, 0, 2, 0, 1, 2, 0, 0], dtype=np.int64),
+        continuum,
     )
     return opacity, continuum
 

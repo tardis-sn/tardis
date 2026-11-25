@@ -5,15 +5,21 @@ import numpy as np
 import numpy.typing as npt
 from numba.experimental import jitclass
 
+from tardis.opacities.continuum.continuum_state_numba import (
+    ContinuumOpacityStateNumba,
+)
+
 
 @jitclass
 class OpacityStateNumba:
-    """Array-backed line opacity and macro-atom data for transport.
+    """Array-backed line, macro-atom and continuum opacity data for transport.
 
     Attributes
     ----------
     sobolev_optical_depth_coefficient : numpy.ndarray
         Velocity-gradient-independent coefficient for each line and shell [s^-1].
+    continuum : ContinuumOpacityStateNumba
+        Continuum data; empty when continuum processes are disabled.
     """
 
     electron_density: nb.float64[:]
@@ -27,6 +33,7 @@ class OpacityStateNumba:
     transition_type: nb.int64[:]
     destination_level_id: nb.int64[:]
     transition_line_id: nb.int64[:]
+    continuum: ContinuumOpacityStateNumba.class_type.instance_type
 
     def __init__(
         self,
@@ -40,6 +47,7 @@ class OpacityStateNumba:
         transition_type: npt.NDArray[np.int64],
         destination_level_id: npt.NDArray[np.int64],
         transition_line_id: npt.NDArray[np.int64],
+        continuum: ContinuumOpacityStateNumba,
     ) -> None:
         self.electron_density = electron_density
         self.t_electrons = t_electrons
@@ -52,9 +60,10 @@ class OpacityStateNumba:
         self.transition_type = transition_type
         self.destination_level_id = destination_level_id
         self.transition_line_id = transition_line_id
+        self.continuum = continuum
 
     def __getitem__(self, i: slice) -> Self:
-        """Return a shell-sliced view of this opacity state."""
+        """Return a shell-sliced view of this opacity state, including its continuum."""
         sliced_opacity_state = OpacityStateNumba(
             self.electron_density[i],
             self.t_electrons[i],
@@ -66,6 +75,7 @@ class OpacityStateNumba:
             self.transition_type,
             self.destination_level_id,
             self.transition_line_id,
+            self.continuum[i],
         )
         sliced_opacity_state.sobolev_optical_depth_coefficient = (
             self.sobolev_optical_depth_coefficient[:, i]
