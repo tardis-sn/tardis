@@ -6,23 +6,23 @@ from numba.typed import List
 from tardis.model.geometry.radial1d_homologous import (
     NumbaHomologousRadial1DGeometry,
 )
-from tardis.opacities.continuum.continuum_state_numba import (
-    ContinuumOpacityStateNumba,
-)
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import njit_dict
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
     create_estimators_bulk_list,
     init_estimators_bulk,
 )
 from tardis.transport.montecarlo.estimators.estimators_continuum import (
+    EstimatorsContinuum,
     create_estimators_continuum_list,
     init_estimators_continuum,
 )
 from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
     create_estimators_line_list,
     init_estimators_line,
 )
@@ -45,14 +45,13 @@ def montecarlo_transport(
     geometry_state_numba: NumbaHomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state_numba: OpacityStateNumba,
-    continuum_state_numba: ContinuumOpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
     n_levels_bf_species_by_n_cells_tuple: tuple,
     trackers: List,
     show_progress_bars: bool,
-):
+) -> tuple[EstimatorsBulk, EstimatorsLine, EstimatorsContinuum]:
     """
-    Main loop of the Monte Carlo radiative transfer routine for IIP mode.
+    Run the main Monte Carlo radiative transfer loop for IIP mode.
 
     This function generates packet objects from the packet collection and
     propagates them through the ejecta, performing interactions with both
@@ -70,8 +69,8 @@ def montecarlo_transport(
     time_explosion : float
         Time since explosion in seconds, used for relativistic calculations.
     opacity_state_numba : OpacityStateNumba
-        Numba-compiled opacity state containing line opacities, continuum
-        opacities, and atomic data required for interactions.
+        Numba-compiled opacity state containing line opacities, the nested
+        continuum state, and atomic data required for interactions.
     montecarlo_configuration : MonteCarloConfiguration
         Configuration object containing Monte Carlo simulation parameters
         and flags for various physics modules.
@@ -153,7 +152,6 @@ def montecarlo_transport(
             geometry_state_numba,
             time_explosion,
             opacity_state_numba,
-            continuum_state_numba,
             estimators_bulk_thread,
             estimators_line_thread,
             estimators_continuum_thread,

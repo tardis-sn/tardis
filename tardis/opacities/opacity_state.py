@@ -1,12 +1,20 @@
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+from tardis.opacities.continuum.continuum_state_numba import (
+    create_empty_continuum_state_numba,
+)
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.plasma.base import BasePlasma
+
+if TYPE_CHECKING:
+    from tardis.opacities.continuum.continuum_state import (
+        ContinuumOpacityState,
+    )
 
 
 class OpacityState:
@@ -135,7 +143,7 @@ class OpacityState:
         self,
         macro_atom_state: MacroAtomState | None,
         line_interaction_type: str,
-        continuum_processes_enabled: bool = False,
+        continuum_state: ContinuumOpacityState | None = None,
     ) -> OpacityStateNumba:
         """
         Convert this state to the Numba-compatible transport representation.
@@ -147,8 +155,10 @@ class OpacityState:
             ``line_interaction_type`` is ``"scatter"``.
         line_interaction_type : str
             Configured line-interaction mode.
-        continuum_processes_enabled : bool, optional
-            Use continuum-aware macro-atom deactivation probabilities.
+        continuum_state : tardis.opacities.continuum.continuum_state.ContinuumOpacityState, optional
+            Continuum data for transport with continuum processes. When given,
+            the macro-atom uses continuum-aware deactivation probabilities.
+            When omitted, the result carries an empty continuum.
 
         Returns
         -------
@@ -171,7 +181,7 @@ class OpacityState:
             transition_probabilities = np.ascontiguousarray(
                 (
                     macro_atom_state.normalized_deactivating_probs
-                    if continuum_processes_enabled
+                    if continuum_state is not None
                     else macro_atom_state.transition_probabilities
                 )
                 .to_numpy()
@@ -189,6 +199,14 @@ class OpacityState:
             )
             destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.to_numpy()
             transition_line_id = macro_atom_state.transition_metadata.transition_line_idx.to_numpy()
+        if continuum_state is not None:
+            continuum = continuum_state.to_numba(
+                self.t_electrons, macro_atom_state
+            )
+        else:
+            continuum = create_empty_continuum_state_numba(
+                len(self.t_electrons)
+            )
         opacity_state_numba = OpacityStateNumba(
             self.electron_density.to_numpy(),
             self.t_electrons,
@@ -200,6 +218,7 @@ class OpacityState:
             transition_type,
             destination_level_id,
             transition_line_id,
+            continuum,
         )
         if self.sobolev_optical_depth_coefficient is not None:
             opacity_state_numba.sobolev_optical_depth_coefficient = (

@@ -77,7 +77,7 @@ def test_coupled_workflow_thermal_closure(
     assert workflow.completed_iterations == 1
     solver = workflow.macro_atom_solver
     metadata = solver.computed_metadata[0]
-    continuum = workflow.transport_state.continuum_state_numba
+    continuum = workflow.transport_state.opacity_state_numba.continuum
     np.testing.assert_array_equal(
         continuum.macro_level_to_reduced_idx, solver.macro_level_to_reduced_idx
     )
