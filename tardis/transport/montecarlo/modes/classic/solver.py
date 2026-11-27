@@ -3,8 +3,9 @@ from typing import Self
 
 from numba import cuda, set_num_threads
 
-import tardis.transport.montecarlo.configuration.constants as constants
-from tardis import constants as const
+from tardis.transport.montecarlo.configuration.constants import (
+    sigma_thomson_for_transport,
+)
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.logger import montecarlo_tracking as mc_tracker
@@ -117,6 +118,9 @@ class MCTransportSolverClassic(HDFWriterMixin):
         opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,
             self.line_interaction_type,
+            sigma_thomson=sigma_thomson_for_transport(
+                self.montecarlo_configuration.DISABLE_ELECTRON_SCATTERING
+            ),
         )
 
         transport_state = MonteCarloTransportState(
@@ -261,10 +265,8 @@ class MCTransportSolverClassic(HDFWriterMixin):
                 "Likely bug in formal integral - "
                 "will not give same results."
             )
-            constants.SIGMA_THOMSON = 1e-200
         else:
             logger.debug("Electron scattering switched on")
-            constants.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
         running_mode = config.spectrum.integrated.compute.upper()
 

@@ -20,6 +20,7 @@ from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     init_estimators_bulk,
 )
@@ -233,6 +234,7 @@ def opacity_state_args(request) -> tuple:
         np.zeros(1, dtype=np.int64),
         np.zeros(1, dtype=np.int64),
         np.zeros(1, dtype=np.int64),
+        SIGMA_THOMSON,
         np.zeros(1),
         np.zeros((1, no_of_shells)),
         np.zeros(1),
@@ -308,13 +310,13 @@ def radial_1d_geometry(
 
 @pytest.fixture
 def classic_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
-    return OpacityStateNumba(*opacity_state_args[:10])
+    return OpacityStateNumba(*opacity_state_args[:11])
 
 
 @pytest.fixture
 def iip_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
     """Opacity state for a IIP model"""
-    return OpacityStateNumba(*opacity_state_args[:10])
+    return OpacityStateNumba(*opacity_state_args[:11])
 
 
 @pytest.fixture

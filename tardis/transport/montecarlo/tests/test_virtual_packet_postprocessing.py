@@ -46,7 +46,7 @@ def test_vpacket_postprocessing_uses_tracker_state_and_configured_seed(
     monkeypatch.setattr(
         montecarlo_globals, "CONTINUUM_PROCESSES_ENABLED", False
     )
-    opacity_args = list(opacity_state_args[:10])
+    opacity_args = list(opacity_state_args[:11])
     opacity_args[0] = np.zeros(2)
     opacity_args[3] = np.zeros((2, 2))
     opacity_state = OpacityStateNumba(*opacity_args)

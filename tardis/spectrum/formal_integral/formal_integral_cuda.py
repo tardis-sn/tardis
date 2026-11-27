@@ -9,7 +9,6 @@ from tardis.spectrum.formal_integral.base import (
     H_CGS,
     calculate_impact_parameters,
 )
-from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 
 class BoundsError(IndexError):
@@ -298,6 +297,7 @@ def cuda_formal_integral(
     intensities_nu,
     intersection_point,
     shell_id,
+    sigma_thomson,
 ):
     """
     The CUDA version of numba_formal_integral that can run
@@ -422,7 +422,7 @@ def cuda_formal_integral(
 
     # loop over all interactions
     for i in range(size_z - 1):
-        escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON
+        escat_op = electron_density[int(shell_id_thread[i])] * sigma_thomson
         frequency_end = (
             frequency * intersection_point_thread[i + 1]
         )  # +1 is the offset as the original is from z[1:]
@@ -644,6 +644,7 @@ class CudaFormalIntegrator:
             d_intensities_nu,
             intersection_point,
             shell_id,
+            self.plasma.sigma_thomson,
         )
 
         radius_max = self.geometry.r_outer[size_shell - 1]

@@ -89,6 +89,7 @@ def two_visit_state(request: pytest.FixtureRequest) -> tuple:
         metadata.transition_type.to_numpy(dtype=np.int64, copy=True),
         metadata.destination_level_idx.to_numpy(dtype=np.int64),
         np.array([0, 0, 0, 0, 2, 0, 1, 2, 0, 0], dtype=np.int64),
+        1e-24,
     )
     continuum = ContinuumOpacityStateNumba(
         np.ones(1),
